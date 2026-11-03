@@ -26,7 +26,7 @@ const projectDir = path.resolve(args.project ?? "fixtures/next-app");
 // Headers whose difference is transport-level, not semantic.
 const IGNORED = new Set(["date", "connection", "keep-alive", "transfer-encoding", "content-length"]);
 
-function request(base, { method = "GET", path: rawPath, headers = {} }) {
+function request(base, { method = "GET", path: rawPath, headers = {}, body }) {
   return new Promise((resolve, reject) => {
     const req = http.request(
       { host: base.hostname, port: base.port, method, path: rawPath, headers, agent: false },
@@ -40,7 +40,7 @@ function request(base, { method = "GET", path: rawPath, headers = {} }) {
       },
     );
     req.on("error", reject);
-    req.end();
+    req.end(body);
   });
 }
 
@@ -118,6 +118,37 @@ const cases = [
   },
   { name: "route handler POST", method: "POST", path: "/api/health" },
   { name: "route handler HEAD", method: "HEAD", path: "/api/health" },
+  // Phase 1B fixture routes.
+  { name: "request body, content-length", method: "POST", path: "/api/echo", body: Buffer.alloc(300_000, 7) },
+  {
+    name: "request body, chunked",
+    method: "POST",
+    path: "/api/echo",
+    headers: { "transfer-encoding": "chunked" },
+    body: Buffer.alloc(200_000, 9),
+  },
+  { name: "request body, empty", method: "POST", path: "/api/echo" },
+  {
+    name: "request body streamed back",
+    method: "POST",
+    path: "/api/echo?mode=stream",
+    headers: { "transfer-encoding": "chunked" },
+    body: Buffer.alloc(500_000, 3),
+  },
+  { name: "large streamed response", path: "/api/stream?size=4194304" },
+  { name: "after() route", path: "/api/after?id=compare", headers: { "x-nextrs-id": "compare" } },
+  {
+    name: "error boundary, rendered",
+    path: "/isolation/boundary",
+    headers: { "x-nextrs-id": "cmp-even", "x-nextrs-seq": "2" },
+  },
+  {
+    name: "error boundary, thrown",
+    path: "/isolation/boundary",
+    headers: { "x-nextrs-id": "cmp-odd", "x-nextrs-seq": "1" },
+  },
+  { name: "generateStaticParams, prerendered", path: "/gsp/alpha" },
+  { name: "generateStaticParams, unknown param", path: "/gsp/gamma" },
 ];
 
 const results = [];
@@ -127,7 +158,7 @@ for (const testCase of cases) {
     const first = await request(baseline, { path: testCase.path });
     headers["if-none-match"] = first.headers.etag;
   }
-  const req = { method: testCase.method, path: testCase.path, headers };
+  const req = { method: testCase.method, path: testCase.path, headers, body: testCase.body };
   const [a, b] = await Promise.all([request(baseline, req), request(candidate, req)]);
   const ha = normalizeHeaders(a.headers);
   const hb = normalizeHeaders(b.headers);
