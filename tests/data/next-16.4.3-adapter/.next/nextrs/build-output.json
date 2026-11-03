@@ -1,0 +1,676 @@
+{
+  "schemaVersion": 1,
+  "adapter": "nextrs",
+  "nextVersion": "16.4.3",
+  "buildId": "1529B9p1Pmkk5miCthZJg",
+  "distDir": ".next",
+  "config": {
+    "basePath": "",
+    "assetPrefix": "",
+    "trailingSlash": false,
+    "i18n": null,
+    "poweredByHeader": true,
+    "compress": true,
+    "generateEtags": true,
+    "cacheComponents": false
+  },
+  "routing": {
+    "beforeMiddleware": [
+      {
+        "source": "/:path+/",
+        "sourceRegex": "^(?:\\/((?:[^\\/]+?)(?:\\/(?:[^\\/]+?))*))\\/$",
+        "headers": {
+          "Location": "/$1"
+        },
+        "status": 308,
+        "priority": true
+      }
+    ],
+    "middlewareMatchers": [],
+    "beforeFiles": [],
+    "afterFiles": [],
+    "dynamicRoutes": [
+      {
+        "source": "/books/[id]",
+        "sourceRegex": "^[/]?/books/(?<nxtPid>[^/]+?)(\\.rsc|\\.segments/.+\\.segment\\.rsc|)(?:/)?$",
+        "destination": "/books/[id]$2?nxtPid=$nxtPid"
+      }
+    ],
+    "onMatch": [
+      {
+        "sourceRegex": "/_next/static/(?:[^/]+/pages|pages|chunks|immutable|runtime|css|image|media|1529B9p1Pmkk5miCthZJg)/.+",
+        "headers": {
+          "cache-control": "public,max-age=31536000,immutable"
+        }
+      }
+    ],
+    "fallback": [],
+    "shouldNormalizeNextData": false,
+    "rsc": {
+      "header": "rsc",
+      "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+      "prefetchHeader": "next-router-prefetch",
+      "didPostponeHeader": "x-nextjs-postponed",
+      "contentTypeHeader": "text/x-component",
+      "suffix": ".rsc",
+      "prefetchSegmentHeader": "next-router-segment-prefetch",
+      "prefetchSegmentSuffix": ".segment.rsc",
+      "prefetchSegmentDirSuffix": ".segments",
+      "clientParamParsing": false,
+      "dynamicRSCPrerender": false
+    }
+  },
+  "outputs": {
+    "pages": [],
+    "pagesApi": [],
+    "appPages": [
+      {
+        "pathname": "/_not-found.rsc",
+        "id": "/_not-found.rsc",
+        "sourcePage": "/_not-found/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/_not-found/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/_not-found",
+        "id": "/_not-found",
+        "sourcePage": "/_not-found/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/_not-found/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/_global-error.rsc",
+        "id": "/_global-error.rsc",
+        "sourcePage": "/_global-error/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/_global-error/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/_global-error",
+        "id": "/_global-error",
+        "sourcePage": "/_global-error/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/_global-error/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/books/[id].rsc",
+        "id": "/books/[id].rsc",
+        "sourcePage": "/books/[id]/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/books/[id]/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/books/[id]",
+        "id": "/books/[id]",
+        "sourcePage": "/books/[id]/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/books/[id]/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/dynamic.rsc",
+        "id": "/dynamic.rsc",
+        "sourcePage": "/dynamic/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/dynamic/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/dynamic",
+        "id": "/dynamic",
+        "sourcePage": "/dynamic/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/dynamic/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/index.rsc",
+        "id": "/index.rsc",
+        "sourcePage": "/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/",
+        "id": "/",
+        "sourcePage": "/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/request-info.rsc",
+        "id": "/request-info.rsc",
+        "sourcePage": "/request-info/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/request-info/page.js",
+        "config": {}
+      },
+      {
+        "pathname": "/request-info",
+        "id": "/request-info",
+        "sourcePage": "/request-info/page",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_PAGE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/request-info/page.js",
+        "config": {}
+      }
+    ],
+    "appRoutes": [
+      {
+        "pathname": "/api/health",
+        "id": "/api/health",
+        "sourcePage": "/api/health/route",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_ROUTE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/api/health/route.js",
+        "config": {}
+      },
+      {
+        "pathname": "/api/health.rsc",
+        "id": "/api/health.rsc",
+        "sourcePage": "/api/health/route",
+        "assets": {},
+        "assetsHashes": {},
+        "type": "APP_ROUTE",
+        "runtime": "nodejs",
+        "filePath": ".next/server/app/api/health/route.js",
+        "config": {}
+      }
+    ],
+    "prerenders": [
+      {
+        "id": "/",
+        "type": "PRERENDER",
+        "pathname": "/",
+        "parentOutputId": "/",
+        "groupId": 1,
+        "route": "/",
+        "fallback": {
+          "filePath": ".next/server/route-cache/APP_PAGE/c6377dd9ce6a1c2cd100eb4344e843eb4639b9ed26f84643f77680e9eb454c4b/$/index.html",
+          "initialHeaders": {
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/html; charset=utf-8",
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/page,_N_T_/,_N_T_/index"
+          },
+          "initialRevalidate": false
+        },
+        "config": {
+          "allowQuery": [],
+          "allowHeader": [
+            "host",
+            "x-matched-path",
+            "x-prerender-revalidate",
+            "x-prerender-revalidate-if-generated",
+            "x-next-revalidated-tags",
+            "x-next-revalidate-tag-token"
+          ],
+          "bypassFor": [
+            {
+              "type": "header",
+              "key": "next-action"
+            },
+            {
+              "type": "header",
+              "key": "content-type",
+              "value": "multipart/form-data;.*"
+            }
+          ],
+          "bypassToken": "redacted"
+        },
+        "routeType": "page",
+        "response": "complete",
+        "compute": "static",
+        "htmlSize": 5967
+      },
+      {
+        "id": "/index.rsc",
+        "type": "PRERENDER",
+        "pathname": "/index.rsc",
+        "parentOutputId": "/",
+        "groupId": 1,
+        "route": "/",
+        "fallback": {
+          "filePath": ".next/server/route-cache/APP_PAGE/c6377dd9ce6a1c2cd100eb4344e843eb4639b9ed26f84643f77680e9eb454c4b/$/index.rsc",
+          "initialHeaders": {
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/x-component",
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/page,_N_T_/,_N_T_/index"
+          },
+          "initialRevalidate": false
+        },
+        "config": {
+          "allowQuery": [],
+          "allowHeader": [
+            "host",
+            "x-matched-path",
+            "x-prerender-revalidate",
+            "x-prerender-revalidate-if-generated",
+            "x-next-revalidated-tags",
+            "x-next-revalidate-tag-token"
+          ],
+          "bypassFor": [
+            {
+              "type": "header",
+              "key": "next-action"
+            },
+            {
+              "type": "header",
+              "key": "content-type",
+              "value": "multipart/form-data;.*"
+            }
+          ],
+          "bypassToken": "redacted"
+        }
+      },
+      {
+        "id": "/index.segments/_tree.segment.rsc",
+        "pathname": "/index.segments/_tree.segment.rsc",
+        "type": "PRERENDER",
+        "parentOutputId": "/",
+        "groupId": 1,
+        "route": "/",
+        "config": {
+          "allowQuery": [],
+          "allowHeader": [
+            "host",
+            "x-matched-path",
+            "x-prerender-revalidate",
+            "x-prerender-revalidate-if-generated",
+            "x-next-revalidated-tags",
+            "x-next-revalidate-tag-token"
+          ],
+          "bypassToken": "redacted"
+        },
+        "fallback": {
+          "filePath": ".next/server/route-cache/APP_PAGE/c6377dd9ce6a1c2cd100eb4344e843eb4639b9ed26f84643f77680e9eb454c4b/$/index.segments/_tree.segment.rsc",
+          "initialRevalidate": false,
+          "initialHeaders": {
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/page,_N_T_/,_N_T_/index",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/x-component",
+            "x-nextjs-postponed": "2"
+          }
+        }
+      },
+      {
+        "id": "/index.segments/_full.segment.rsc",
+        "pathname": "/index.segments/_full.segment.rsc",
+        "type": "PRERENDER",
+        "parentOutputId": "/",
+        "groupId": 1,
+        "route": "/",
+        "config": {
+          "allowQuery": [],
+          "allowHeader": [
+            "host",
+            "x-matched-path",
+            "x-prerender-revalidate",
+            "x-prerender-revalidate-if-generated",
+            "x-next-revalidated-tags",
+            "x-next-revalidate-tag-token"
+          ],
+          "bypassToken": "redacted"
+        },
+        "fallback": {
+          "filePath": ".next/server/route-cache/APP_PAGE/c6377dd9ce6a1c2cd100eb4344e843eb4639b9ed26f84643f77680e9eb454c4b/$/index.segments/_full.segment.rsc",
+          "initialRevalidate": false,
+          "initialHeaders": {
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/page,_N_T_/,_N_T_/index",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/x-component",
+            "x-nextjs-postponed": "2"
+          }
+        }
+      },
+      {
+        "id": "/index.segments/__PAGE__.segment.rsc",
+        "pathname": "/index.segments/__PAGE__.segment.rsc",
+        "type": "PRERENDER",
+        "parentOutputId": "/",
+        "groupId": 1,
+        "route": "/",
+        "config": {
+          "allowQuery": [],
+          "allowHeader": [
+            "host",
+            "x-matched-path",
+            "x-prerender-revalidate",
+            "x-prerender-revalidate-if-generated",
+            "x-next-revalidated-tags",
+            "x-next-revalidate-tag-token"
+          ],
+          "bypassToken": "redacted"
+        },
+        "fallback": {
+          "filePath": ".next/server/route-cache/APP_PAGE/c6377dd9ce6a1c2cd100eb4344e843eb4639b9ed26f84643f77680e9eb454c4b/$/index.segments/__PAGE__.segment.rsc",
+          "initialRevalidate": false,
+          "initialHeaders": {
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/page,_N_T_/,_N_T_/index",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/x-component",
+            "x-nextjs-postponed": "2"
+          }
+        }
+      },
+      {
+        "id": "/_global-error",
+        "type": "PRERENDER",
+        "pathname": "/_global-error",
+        "parentOutputId": "/_global-error",
+        "groupId": 2,
+        "route": "/_global-error",
+        "fallback": {
+          "filePath": ".next/server/route-cache/APP_PAGE/1ac71fc16c24600253696ffa2528949094f971f5409b0b353b2b775b5e1ba07d/$/_global-error.html",
+          "initialStatus": 500,
+          "initialHeaders": {
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/html; charset=utf-8",
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/_global-error/layout,_N_T_/_global-error/page,_N_T_/_global-error"
+          },
+          "initialRevalidate": false
+        },
+        "config": {
+          "allowQuery": [],
+          "allowHeader": [
+            "host",
+            "x-matched-path",
+            "x-prerender-revalidate",
+            "x-prerender-revalidate-if-generated",
+            "x-next-revalidated-tags",
+            "x-next-revalidate-tag-token"
+          ],
+          "bypassFor": [
+            {
+              "type": "header",
+              "key": "next-action"
+            },
+            {
+              "type": "header",
+              "key": "content-type",
+              "value": "multipart/form-data;.*"
+            }
+          ],
+          "bypassToken": "redacted"
+        },
+        "routeType": "page",
+        "response": "complete",
+        "compute": "static",
+        "htmlSize": 8891
+      },
+      {
+        "id": "/_global-error.rsc",
+        "type": "PRERENDER",
+        "pathname": "/_global-error.rsc",
+        "parentOutputId": "/_global-error",
+        "groupId": 2,
+        "route": "/_global-error",
+        "fallback": {
+          "filePath": ".next/server/route-cache/APP_PAGE/1ac71fc16c24600253696ffa2528949094f971f5409b0b353b2b775b5e1ba07d/$/_global-error.rsc",
+          "initialHeaders": {
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/x-component",
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/_global-error/layout,_N_T_/_global-error/page,_N_T_/_global-error"
+          },
+          "initialRevalidate": false
+        },
+        "config": {
+          "allowQuery": [],
+          "allowHeader": [
+            "host",
+            "x-matched-path",
+            "x-prerender-revalidate",
+            "x-prerender-revalidate-if-generated",
+            "x-next-revalidated-tags",
+            "x-next-revalidate-tag-token"
+          ],
+          "bypassFor": [
+            {
+              "type": "header",
+              "key": "next-action"
+            },
+            {
+              "type": "header",
+              "key": "content-type",
+              "value": "multipart/form-data;.*"
+            }
+          ],
+          "bypassToken": "redacted"
+        }
+      },
+      {
+        "id": "/_global-error.segments/_tree.segment.rsc",
+        "pathname": "/_global-error.segments/_tree.segment.rsc",
+        "type": "PRERENDER",
+        "parentOutputId": "/_global-error",
+        "groupId": 2,
+        "route": "/_global-error",
+        "config": {
+          "allowQuery": [],
+          "allowHeader": [
+            "host",
+            "x-matched-path",
+            "x-prerender-revalidate",
+            "x-prerender-revalidate-if-generated",
+            "x-next-revalidated-tags",
+            "x-next-revalidate-tag-token"
+          ],
+          "bypassToken": "redacted"
+        },
+        "fallback": {
+          "filePath": ".next/server/route-cache/APP_PAGE/1ac71fc16c24600253696ffa2528949094f971f5409b0b353b2b775b5e1ba07d/$/_global-error.segments/_tree.segment.rsc",
+          "initialRevalidate": false,
+          "initialHeaders": {
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/_global-error/layout,_N_T_/_global-error/page,_N_T_/_global-error",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/x-component",
+            "x-nextjs-postponed": "2"
+          }
+        }
+      },
+      {
+        "id": "/_global-error.segments/_full.segment.rsc",
+        "pathname": "/_global-error.segments/_full.segment.rsc",
+        "type": "PRERENDER",
+        "parentOutputId": "/_global-error",
+        "groupId": 2,
+        "route": "/_global-error",
+        "config": {
+          "allowQuery": [],
+          "allowHeader": [
+            "host",
+            "x-matched-path",
+            "x-prerender-revalidate",
+            "x-prerender-revalidate-if-generated",
+            "x-next-revalidated-tags",
+            "x-next-revalidate-tag-token"
+          ],
+          "bypassToken": "redacted"
+        },
+        "fallback": {
+          "filePath": ".next/server/route-cache/APP_PAGE/1ac71fc16c24600253696ffa2528949094f971f5409b0b353b2b775b5e1ba07d/$/_global-error.segments/_full.segment.rsc",
+          "initialRevalidate": false,
+          "initialHeaders": {
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/_global-error/layout,_N_T_/_global-error/page,_N_T_/_global-error",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/x-component",
+            "x-nextjs-postponed": "2"
+          }
+        }
+      },
+      {
+        "id": "/_global-error.segments/__PAGE__.segment.rsc",
+        "pathname": "/_global-error.segments/__PAGE__.segment.rsc",
+        "type": "PRERENDER",
+        "parentOutputId": "/_global-error",
+        "groupId": 2,
+        "route": "/_global-error",
+        "config": {
+          "allowQuery": [],
+          "allowHeader": [
+            "host",
+            "x-matched-path",
+            "x-prerender-revalidate",
+            "x-prerender-revalidate-if-generated",
+            "x-next-revalidated-tags",
+            "x-next-revalidate-tag-token"
+          ],
+          "bypassToken": "redacted"
+        },
+        "fallback": {
+          "filePath": ".next/server/route-cache/APP_PAGE/1ac71fc16c24600253696ffa2528949094f971f5409b0b353b2b775b5e1ba07d/$/_global-error.segments/__PAGE__.segment.rsc",
+          "initialRevalidate": false,
+          "initialHeaders": {
+            "x-nextjs-stale-time": "300",
+            "x-nextjs-prerender": "1",
+            "x-next-cache-tags": "_N_T_/layout,_N_T_/_global-error/layout,_N_T_/_global-error/page,_N_T_/_global-error",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "content-type": "text/x-component",
+            "x-nextjs-postponed": "2"
+          }
+        }
+      }
+    ],
+    "staticFiles": [
+      {
+        "type": "STATIC_FILE",
+        "id": "static/1529B9p1Pmkk5miCthZJg/_buildManifest.js",
+        "pathname": "/_next/static/1529B9p1Pmkk5miCthZJg/_buildManifest.js",
+        "filePath": ".next/static/1529B9p1Pmkk5miCthZJg/_buildManifest.js"
+      },
+      {
+        "type": "STATIC_FILE",
+        "id": "static/1529B9p1Pmkk5miCthZJg/_clientMiddlewareManifest.js",
+        "pathname": "/_next/static/1529B9p1Pmkk5miCthZJg/_clientMiddlewareManifest.js",
+        "filePath": ".next/static/1529B9p1Pmkk5miCthZJg/_clientMiddlewareManifest.js"
+      },
+      {
+        "type": "STATIC_FILE",
+        "id": "static/1529B9p1Pmkk5miCthZJg/_ssgManifest.js",
+        "pathname": "/_next/static/1529B9p1Pmkk5miCthZJg/_ssgManifest.js",
+        "filePath": ".next/static/1529B9p1Pmkk5miCthZJg/_ssgManifest.js"
+      },
+      {
+        "type": "STATIC_FILE",
+        "id": "static/chunks/0cz1d0mv5g_q7.js",
+        "pathname": "/_next/static/chunks/0cz1d0mv5g_q7.js",
+        "filePath": ".next/static/chunks/0cz1d0mv5g_q7.js"
+      },
+      {
+        "type": "STATIC_FILE",
+        "id": "static/chunks/0umf92h1sb77c.js",
+        "pathname": "/_next/static/chunks/0umf92h1sb77c.js",
+        "filePath": ".next/static/chunks/0umf92h1sb77c.js"
+      },
+      {
+        "type": "STATIC_FILE",
+        "id": "static/chunks/1x6obpmlu1_c2.js",
+        "pathname": "/_next/static/chunks/1x6obpmlu1_c2.js",
+        "filePath": ".next/static/chunks/1x6obpmlu1_c2.js"
+      },
+      {
+        "type": "STATIC_FILE",
+        "id": "static/chunks/2_ezecnei87yg.js",
+        "pathname": "/_next/static/chunks/2_ezecnei87yg.js",
+        "filePath": ".next/static/chunks/2_ezecnei87yg.js"
+      },
+      {
+        "type": "STATIC_FILE",
+        "id": "static/chunks/2e268anpfvdoc.js",
+        "pathname": "/_next/static/chunks/2e268anpfvdoc.js",
+        "filePath": ".next/static/chunks/2e268anpfvdoc.js"
+      },
+      {
+        "type": "STATIC_FILE",
+        "id": "static/chunks/2r4s4h5xul1n-.js",
+        "pathname": "/_next/static/chunks/2r4s4h5xul1n-.js",
+        "filePath": ".next/static/chunks/2r4s4h5xul1n-.js"
+      },
+      {
+        "type": "STATIC_FILE",
+        "id": "static/chunks/3wbm-994r45kr.js",
+        "pathname": "/_next/static/chunks/3wbm-994r45kr.js",
+        "filePath": ".next/static/chunks/3wbm-994r45kr.js"
+      },
+      {
+        "type": "STATIC_FILE",
+        "id": "static/chunks/turbopack-3-ry682tkyiqk.js",
+        "pathname": "/_next/static/chunks/turbopack-3-ry682tkyiqk.js",
+        "filePath": ".next/static/chunks/turbopack-3-ry682tkyiqk.js"
+      },
+      {
+        "pathname": "/404",
+        "id": "/404",
+        "type": "STATIC_FILE",
+        "filePath": ".next/server/pages/404.html"
+      },
+      {
+        "pathname": "/500",
+        "id": "/500",
+        "type": "STATIC_FILE",
+        "filePath": ".next/server/pages/500.html"
+      }
+    ]
+  }
+}

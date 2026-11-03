@@ -1,0 +1,14 @@
+{
+  "name": "nextrs-js-runtime-inputs",
+  "private": true,
+  "description": "Bundled test inputs for the embedded-engine experiment (same React as the fixture)",
+  "scripts": {
+    "build": "bun build react-ssr.jsx --target=browser --format=iife --minify-syntax --define process.env.NODE_ENV='\"production\"' --outfile=dist/react-ssr.js && bun build rsc-flight.jsx --target=browser --format=iife --conditions=react-server --minify-syntax --define process.env.NODE_ENV='\"production\"' --outfile=dist/rsc-flight.js"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-server-dom-webpack": "19.3.1",
+    "web-streams-polyfill": "4.3.0"
+  }
+}

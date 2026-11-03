@@ -1,0 +1,29 @@
+[workspace]
+resolver = "3"
+members = ["crates/nextrs-adapter", "crates/nextrs-server", "crates/nextrs-cli"]
+# The JS engine experiment links V8 (~100 MB) and is built on its own.
+exclude = ["experiments/js-runtime"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[workspace.dependencies]
+nextrs-adapter = { path = "crates/nextrs-adapter" }
+nextrs-server = { path = "crates/nextrs-server" }
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio"] }
+base64 = "0.22"
+clap = { version = "4", features = ["derive"] }
+httpdate = "1"
+percent-encoding = "2"
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "fs", "signal"] }
+tower = { version = "0.5", features = ["util"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
