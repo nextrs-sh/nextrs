@@ -8,9 +8,11 @@
 mod dynamic;
 mod etag;
 mod rsc;
+mod serve;
 mod static_files;
 
 pub use crate::dynamic::DEFAULT_MAX_REQUEST_BODY;
+pub use crate::serve::{ClientAddr, ServeOptions, serve};
 
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -295,6 +297,7 @@ async fn load_cached(
 
 async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Response {
     let (parts, body) = request.into_parts();
+    let client = parts.extensions.get::<ClientAddr>().map(|c| c.0);
     let axum::http::request::Parts {
         method,
         uri,
@@ -401,7 +404,7 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
                 uri: &uri,
                 headers: &headers,
                 body,
-                client: None,
+                client,
                 max_body: state.max_request_body,
             };
             let response = dynamic::render(executor, entry, &policy, incoming).await;
@@ -442,6 +445,39 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
         ),
         None => not_found_plain(),
     }
+}
+
+/// Executor metrics for a separate (loopback) listener: `GET /metrics` in
+/// the Prometheus text format, `GET /metrics.json`, and `GET /healthz`
+/// (200 while at least one isolate is ready, 503 otherwise).
+pub fn metrics_app(executor: Arc<Executor>) -> Router {
+    use axum::routing::get;
+    let text = executor.clone();
+    let json = executor.clone();
+    Router::new()
+        .route(
+            "/metrics",
+            get(move || async move {
+                (
+                    [(header::CONTENT_TYPE, "text/plain; version=0.0.4")],
+                    text.metrics().to_prometheus(),
+                )
+            }),
+        )
+        .route(
+            "/metrics.json",
+            get(move || async move { axum::Json(json.metrics()) }),
+        )
+        .route(
+            "/healthz",
+            get(move || async move {
+                if executor.metrics().ready_executors() > 0 {
+                    (StatusCode::OK, "ok\n")
+                } else {
+                    (StatusCode::SERVICE_UNAVAILABLE, "no ready isolate\n")
+                }
+            }),
+        )
 }
 
 /// Dynamic routes the executor can run: App Router pages and route handlers
