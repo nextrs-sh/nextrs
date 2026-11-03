@@ -147,6 +147,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                 let options = ServerOptions {
                     allow_unsupported,
                     executor,
+                    ..ServerOptions::default()
                 };
                 let app = nextrs_server::app(&info, &options).await?;
                 let addr = SocketAddr::new(host, port);

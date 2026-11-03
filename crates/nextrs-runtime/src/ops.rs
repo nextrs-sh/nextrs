@@ -4,15 +4,20 @@
 use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
 use std::rc::Rc;
-use std::time::UNIX_EPOCH;
+use std::sync::Arc;
+use std::time::{Instant, UNIX_EPOCH};
 
 use deno_core::{OpState, ToJsBuffer, op2, v8};
 use deno_error::JsErrorBox;
+use futures_util::StreamExt;
 use serde::Serialize;
 use tokio::sync::mpsc;
 
+use crate::metrics::{self, Counters};
+use crate::pool::{Job, Slot, WorkerShared};
+use crate::response::{FlowHandle, ResponseEvent, ResponseSender, WriteStatus};
 use crate::sandbox::{FsDenied, FsPolicy};
-use crate::{Job, ResponseEvent};
+use crate::{BodyError, BodyStream, RequestBody};
 
 /// Static configuration handed to bootstrap.js.
 #[derive(Debug, Clone, Serialize)]
@@ -25,14 +30,27 @@ pub(crate) struct BootConfig {
     pub trace_node_api: bool,
     pub node_version: &'static str,
     pub nextrs_version: &'static str,
+    pub fault_injection: bool,
 }
 
-pub(crate) struct Inbox(pub Rc<tokio::sync::Mutex<mpsc::UnboundedReceiver<Job>>>);
+pub(crate) struct Inbox(pub Rc<tokio::sync::Mutex<mpsc::UnboundedReceiver<Box<Job>>>>);
+
+/// A request JavaScript is working on. Dropping it (`op_nextrs_request_done`,
+/// or the whole op state when the isolate goes away) releases the slot.
+struct Open {
+    /// Taken when the response ends.
+    response: Option<ResponseSender>,
+    flow: FlowHandle,
+    /// Taken while a read is in progress, and at end of stream.
+    body: Option<BodyStream>,
+    _slot: Slot,
+    delivered_at: Instant,
+}
 
 #[derive(Default)]
-pub(crate) struct Responses {
+pub(crate) struct Requests {
     next_id: u32,
-    open: HashMap<u32, mpsc::UnboundedSender<ResponseEvent>>,
+    open: HashMap<u32, Open>,
 }
 
 pub(crate) struct ReadySignal(pub Option<std::sync::mpsc::Sender<Result<(), String>>>);
@@ -44,12 +62,17 @@ deno_core::extension!(
         op_nextrs_boot_config,
         op_nextrs_ready,
         op_nextrs_diagnostic,
+        op_nextrs_count,
         op_nextrs_next_request,
+        op_nextrs_request_read,
+        op_nextrs_request_done,
         op_nextrs_response_head,
         op_nextrs_response_write,
+        op_nextrs_response_drain,
         op_nextrs_response_end,
         op_nextrs_response_error,
         op_nextrs_response_closed,
+        op_nextrs_fault,
         op_nextrs_fs_read,
         op_nextrs_fs_stat,
         op_nextrs_fs_readdir,
@@ -63,13 +86,17 @@ deno_core::extension!(
         policy: FsPolicy,
         inbox: Inbox,
         ready: ReadySignal,
+        worker: Arc<WorkerShared>,
+        counters: Arc<Counters>,
     },
     state = |state, options| {
         state.put(options.boot);
         state.put(options.policy);
         state.put(options.inbox);
         state.put(options.ready);
-        state.put(Responses::default());
+        state.put(options.worker);
+        state.put(options.counters);
+        state.put(Requests::default());
     }
 );
 
@@ -86,10 +113,17 @@ fn op_nextrs_ready(state: &mut OpState, #[string] error: Option<String>) {
     }
 }
 
-/// Unsupported APIs and missing built-in members, reported by bootstrap.js.
+/// Unsupported APIs, missing built-in members and handler failures,
+/// reported by the bootstrap scripts. Never request headers or bodies.
 #[op2(fast)]
 fn op_nextrs_diagnostic(#[string] kind: &str, #[string] detail: &str) {
     tracing::warn!(target: "nextrs::js", kind, "{detail}");
+}
+
+/// Request outcomes only JavaScript observes (`metrics::COUNT_*`).
+#[op2(fast)]
+fn op_nextrs_count(state: &mut OpState, #[smi] kind: u32) {
+    state.borrow::<Arc<Counters>>().count(kind);
 }
 
 #[derive(Serialize)]
@@ -99,10 +133,14 @@ struct JsRequest {
     method: String,
     url: String,
     headers: Vec<(String, String)>,
+    /// A body that arrived complete.
     body: Option<ToJsBuffer>,
+    /// The body is pulled with `op_nextrs_request_read`.
+    body_stream: bool,
     entry: String,
     remote_address: Option<String>,
     initial_headers: Vec<(String, String)>,
+    timeout_ms: Option<u64>,
 }
 
 /// Resolves with the next request, or `null` once the executor shuts down.
@@ -111,30 +149,115 @@ struct JsRequest {
 async fn op_nextrs_next_request(state: Rc<RefCell<OpState>>) -> Option<JsRequest> {
     let inbox = state.borrow().borrow::<Inbox>().0.clone();
     let job = inbox.lock().await.recv().await?;
+    job.response.mark_delivered();
     let mut state = state.borrow_mut();
-    let responses = state.borrow_mut::<Responses>();
-    responses.next_id = responses.next_id.wrapping_add(1);
-    let id = responses.next_id;
-    responses.open.insert(id, job.events);
+    let worker_slot = state.borrow::<Arc<WorkerShared>>().slot;
+    let requests = state.borrow_mut::<Requests>();
+    requests.next_id = requests.next_id.wrapping_add(1);
+    let id = requests.next_id;
     let request = job.request;
+    let (body, body_stream) = match request.body {
+        RequestBody::Empty => (None, None),
+        RequestBody::Full(bytes) => (Some(bytes.to_vec().into()), None),
+        RequestBody::Stream(stream) => (None, Some(stream)),
+    };
+    let has_stream = body_stream.is_some();
+    requests.open.insert(
+        id,
+        Open {
+            flow: job.response.flow(),
+            response: Some(job.response),
+            body: body_stream,
+            _slot: job.slot,
+            delivered_at: Instant::now(),
+        },
+    );
+    tracing::trace!(
+        target: "nextrs::executor",
+        slot = worker_slot,
+        id,
+        queued_us = job.queued_at.elapsed().as_micros() as u64,
+        "request delivered"
+    );
     Some(JsRequest {
         id,
         method: request.method,
         url: request.url,
         headers: request.headers,
-        body: (!request.body.is_empty()).then(|| request.body.into()),
+        body,
+        body_stream: has_stream,
         entry: request.entry.to_string_lossy().into_owned(),
         remote_address: request.remote_address,
         initial_headers: request.initial_headers,
+        timeout_ms: job.timeout_ms,
     })
 }
 
-fn send(state: &mut OpState, id: u32, event: ResponseEvent) -> bool {
-    let responses = state.borrow_mut::<Responses>();
-    match responses.open.get(&id) {
-        Some(sender) => sender.send(event).is_ok(),
-        None => false,
+/// The next chunk of a streamed request body, or `null` at its end. Errors
+/// carry a Node-style code as the message prefix.
+#[op2]
+#[serde]
+async fn op_nextrs_request_read(
+    state: Rc<RefCell<OpState>>,
+    #[smi] id: u32,
+) -> Result<Option<ToJsBuffer>, JsErrorBox> {
+    let stream = state
+        .borrow_mut()
+        .borrow_mut::<Requests>()
+        .open
+        .get_mut(&id)
+        .and_then(|open| open.body.take());
+    let Some(mut stream) = stream else {
+        return Ok(None);
+    };
+    match stream.next().await {
+        Some(Ok(chunk)) => {
+            if let Some(open) = state
+                .borrow_mut()
+                .borrow_mut::<Requests>()
+                .open
+                .get_mut(&id)
+            {
+                open.body = Some(stream);
+            }
+            Ok(Some(chunk.to_vec().into()))
+        }
+        Some(Err(error)) => {
+            state
+                .borrow()
+                .borrow::<Arc<Counters>>()
+                .count(metrics::COUNT_REQUEST_BODY_ERROR);
+            let code = match error {
+                BodyError::TooLarge { .. } => "ERR_NEXTRS_BODY_TOO_LARGE",
+                BodyError::Aborted(_) => "ECONNRESET",
+            };
+            Err(JsErrorBox::generic(format!("{code}: {error}")))
+        }
+        None => Ok(None),
     }
+}
+
+/// The handler and its `waitUntil` work are finished (or abandoned):
+/// releases the request's slot.
+#[op2(fast)]
+fn op_nextrs_request_done(state: &mut OpState, #[smi] id: u32) {
+    let Some(open) = state.borrow_mut::<Requests>().open.remove(&id) else {
+        return;
+    };
+    let counters = state.borrow::<Arc<Counters>>();
+    metrics::add(&counters.requests_completed, 1);
+    metrics::add(
+        &counters.execution_micros,
+        open.delivered_at.elapsed().as_micros() as u64,
+    );
+}
+
+fn response(state: &mut OpState, id: u32) -> Option<&ResponseSender> {
+    state
+        .borrow::<Requests>()
+        .open
+        .get(&id)
+        .and_then(|open| open.response.as_ref())
 }
 
 /// Returns false if the client is gone.
@@ -145,33 +268,96 @@ fn op_nextrs_response_head(
     #[smi] status: u16,
     #[serde] headers: Vec<(String, String)>,
 ) -> bool {
-    send(state, id, ResponseEvent::Head { status, headers })
+    response(state, id).is_some_and(|r| r.head(status, headers))
 }
 
+/// Offers one body chunk; returns a `WriteStatus`.
 #[op2(fast)]
-fn op_nextrs_response_write(state: &mut OpState, #[smi] id: u32, #[buffer] chunk: &[u8]) -> bool {
-    send(state, id, ResponseEvent::Chunk(chunk.to_vec()))
+#[smi]
+fn op_nextrs_response_write(state: &mut OpState, #[smi] id: u32, #[buffer] chunk: &[u8]) -> u32 {
+    let status = response(state, id).map_or(WriteStatus::Closed, |r| r.write(chunk));
+    status as u32
+}
+
+/// Resolves true once the response is back under its buffer budget, false
+/// if the consumer went away (client disconnect or cancellation).
+#[op2]
+async fn op_nextrs_response_drain(state: Rc<RefCell<OpState>>, #[smi] id: u32) -> bool {
+    let flow = {
+        let state = state.borrow();
+        let Some(open) = state.borrow::<Requests>().open.get(&id) else {
+            return false;
+        };
+        let counters = state.borrow::<Arc<Counters>>();
+        metrics::add(&counters.backpressure_waits, 1);
+        open.flow.clone()
+    };
+    flow.drained().await
+}
+
+fn finish(state: &mut OpState, id: u32, event: ResponseEvent) {
+    let sender = state
+        .borrow_mut::<Requests>()
+        .open
+        .get_mut(&id)
+        .and_then(|open| open.response.take());
+    if let Some(sender) = sender {
+        sender.finish(event);
+    }
 }
 
 #[op2(fast)]
 fn op_nextrs_response_end(state: &mut OpState, #[smi] id: u32) {
-    send(state, id, ResponseEvent::End);
-    state.borrow_mut::<Responses>().open.remove(&id);
+    finish(state, id, ResponseEvent::End);
 }
 
 #[op2(fast)]
 fn op_nextrs_response_error(state: &mut OpState, #[smi] id: u32, #[string] message: &str) {
-    send(state, id, ResponseEvent::Error(message.to_owned()));
-    state.borrow_mut::<Responses>().open.remove(&id);
+    finish(state, id, ResponseEvent::Error(message.to_owned()));
 }
 
 /// Resolves when the consumer of the response (the HTTP connection) has
-/// dropped it: after the body was delivered, or when the client went away.
+/// dropped it: after the body was delivered, or when the client went away
+/// or the request was cancelled.
 #[op2]
 async fn op_nextrs_response_closed(state: Rc<RefCell<OpState>>, #[smi] id: u32) {
-    let sender = state.borrow().borrow::<Responses>().open.get(&id).cloned();
-    if let Some(sender) = sender {
-        sender.closed().await;
+    let flow = state
+        .borrow()
+        .borrow::<Requests>()
+        .open
+        .get(&id)
+        .map(|open| open.flow.clone());
+    if let Some(flow) = flow {
+        flow.closed().await;
+    }
+}
+
+/// Fault injection for the supervision tests. Without the
+/// `fault-injection` feature it only throws.
+#[op2(fast)]
+fn op_nextrs_fault(state: &mut OpState, #[string] kind: &str) -> Result<(), JsErrorBox> {
+    #[cfg(feature = "fault-injection")]
+    {
+        match kind {
+            // A Rust panic on the isolate thread, outside any V8 frame.
+            "panic" => state.borrow::<Arc<WorkerShared>>().fault_panic.notify_one(),
+            // Every open response channel closes, as if the Rust side of
+            // the executor had lost them.
+            "drop-responses" => {
+                for open in state.borrow_mut::<Requests>().open.values_mut() {
+                    open.response.take();
+                }
+            }
+            other => return Err(JsErrorBox::generic(format!("unknown fault '{other}'"))),
+        }
+        Ok(())
+    }
+    #[cfg(not(feature = "fault-injection"))]
+    {
+        let _ = state;
+        Err(JsErrorBox::generic(format!(
+            "ERR_NEXTRS_UNSUPPORTED: fault injection ('{kind}') is not built in"
+        )))
     }
 }
 

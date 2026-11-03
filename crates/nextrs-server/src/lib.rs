@@ -10,6 +10,8 @@ mod etag;
 mod rsc;
 mod static_files;
 
+pub use crate::dynamic::DEFAULT_MAX_REQUEST_BODY;
+
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt;
@@ -19,9 +21,9 @@ use std::time::UNIX_EPOCH;
 
 use axum::Router;
 use axum::body::{Body, Bytes};
-use axum::extract::State;
+use axum::extract::{Request, State};
 use axum::http::header::{self, HeaderName, HeaderValue};
-use axum::http::{HeaderMap, Method, StatusCode, Uri, Version};
+use axum::http::{HeaderMap, Method, StatusCode};
 use axum::response::{IntoResponse, Response};
 use nextrs_adapter::{
     BuildInfo, Diagnostic, Matcher, Rendering, RouteKind, RoutingConfig, RscConfig, Runtime,
@@ -42,12 +44,25 @@ const UNSUPPORTED_HEADER: &str = "x-nextrs-unsupported";
 /// Headers in stored prerenders that `next start` does not send to clients.
 const INTERNAL_HEADERS: &[&str] = &["x-next-cache-tags"];
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct ServerOptions {
     /// Start even when the build uses features NextRS cannot serve.
     pub allow_unsupported: bool,
     /// Renders dynamic App Router routes. Without it they get a 501.
     pub executor: Option<Arc<Executor>>,
+    /// Request bodies for dynamic routes above this many bytes get a 413,
+    /// whether they declare a length or are chunked.
+    pub max_request_body: u64,
+}
+
+impl Default for ServerOptions {
+    fn default() -> Self {
+        Self {
+            allow_unsupported: false,
+            executor: None,
+            max_request_body: DEFAULT_MAX_REQUEST_BODY,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -98,6 +113,7 @@ pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, St
     let state = AppState::load(info).await?;
     let state = AppState {
         executor: options.executor.clone(),
+        max_request_body: options.max_request_body,
         ..state
     };
     Ok(Router::new().fallback(handle).with_state(Arc::new(state)))
@@ -112,6 +128,7 @@ struct AppState {
     not_found: Option<Cached>,
     routes: Vec<CompiledRoute>,
     executor: Option<Arc<Executor>>,
+    max_request_body: u64,
     /// `(.)`-style segments: responses then vary on `Next-URL`, which the
     /// executor path does not implement.
     has_interception_routes: bool,
@@ -233,6 +250,7 @@ impl AppState {
             has_interception_routes: info.routes.iter().any(|route| route.page.contains("/(.")),
             routes,
             executor: None,
+            max_request_body: DEFAULT_MAX_REQUEST_BODY,
         })
     }
 }
@@ -275,14 +293,15 @@ async fn load_cached(
     }))
 }
 
-async fn handle(
-    State(state): State<Arc<AppState>>,
-    method: Method,
-    uri: Uri,
-    version: Version,
-    headers: HeaderMap,
-    body: Body,
-) -> Response {
+async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Response {
+    let (parts, body) = request.into_parts();
+    let axum::http::request::Parts {
+        method,
+        uri,
+        version,
+        headers,
+        ..
+    } = parts;
     let path = normalize_dot_segments(uri.path());
     let path = path.as_ref();
     let query = uri.query();
@@ -377,8 +396,15 @@ async fn handle(
             let policy = dynamic::AppPathPolicy {
                 vary: &state.rsc.vary_header,
             };
-            let response =
-                dynamic::render(executor, entry, &policy, &method, &uri, &headers, body).await;
+            let incoming = dynamic::Incoming {
+                method: &method,
+                uri: &uri,
+                headers: &headers,
+                body,
+                client: None,
+                max_body: state.max_request_body,
+            };
+            let response = dynamic::render(executor, entry, &policy, incoming).await;
             return dynamic::frame_for(version, response);
         }
         let reason = match &route.rendering {
