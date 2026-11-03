@@ -1369,6 +1369,7 @@ dependencies = [
  "axum",
  "clap",
  "nextrs-adapter",
+ "nextrs-runtime",
  "nextrs-server",
  "serde_json",
  "tokio",
@@ -1400,13 +1401,16 @@ version = "0.0.0"
 dependencies = [
  "axum",
  "base64",
+ "futures-util",
  "httpdate",
  "nextrs-adapter",
+ "nextrs-runtime",
  "percent-encoding",
  "regex",
  "sha2",
  "tokio",
  "tower",
+ "tracing",
 ]
 
 [[package]]

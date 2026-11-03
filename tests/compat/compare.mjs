@@ -97,6 +97,27 @@ const cases = [
     headers: { "x-nextrs-probe": "hello", cookie: "theme=dark" },
   },
   { name: "image optimizer", path: "/_next/image?url=%2Ffoo.png&w=64&q=75" },
+  // Phase 1A: dynamic routes rendered by the route handler.
+  { name: "dynamic HEAD", method: "HEAD", path: "/dynamic" },
+  { name: "dynamic rsc without _rsc", path: "/books/42", headers: { rsc: "1" } },
+  {
+    name: "dynamic rsc payload",
+    path: "/books/42?_rsc",
+    headers: { rsc: "1" },
+    // next start itself emits a fresh random 22-character key per request
+    // for the metadata boundary element (two next start runs differ here).
+    normalize: (text) => text.replace(/(\["\$","\$L[0-9a-z]+",")[A-Za-z0-9_-]{22}(")/g, "$1<per-request-key>$2"),
+  },
+  { name: "dynamic segment, encoded param", path: "/books/%E2%9C%93" },
+  { name: "dynamic segment, query string", path: "/books/7?ref=nextrs&x=1" },
+  { name: "request context, no inputs", path: "/request-info" },
+  {
+    name: "request context, several cookies",
+    path: "/request-info",
+    headers: { "x-nextrs-probe": "two", cookie: "a=1; theme=light; b=2" },
+  },
+  { name: "route handler POST", method: "POST", path: "/api/health" },
+  { name: "route handler HEAD", method: "HEAD", path: "/api/health" },
 ];
 
 const results = [];
@@ -114,10 +135,13 @@ for (const testCase of cases) {
     .filter((k) => ha[k] !== hb[k])
     .map((k) => ({ header: k, baseline: ha[k] ?? null, candidate: hb[k] ?? null }));
   const bodyMatch = a.body.equals(b.body);
+  const normalizedMatch =
+    !bodyMatch && testCase.normalize && testCase.normalize(a.body.toString()) === testCase.normalize(b.body.toString());
   let verdict;
   if (b.status === 501 && b.headers["x-nextrs-unsupported"]) verdict = "UNSUPPORTED";
   else if (a.status === b.status && bodyMatch && headerDiffs.length === 0) verdict = "MATCH";
   else if (a.status === b.status && bodyMatch) verdict = "MATCH (header diffs)";
+  else if (a.status === b.status && normalizedMatch && headerDiffs.length === 0) verdict = "MATCH (normalized)";
   else verdict = "DIFF";
   results.push({
     name: testCase.name,

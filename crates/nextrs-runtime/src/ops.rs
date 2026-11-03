@@ -21,6 +21,7 @@ pub(crate) struct BootConfig {
     pub project_dir: String,
     pub dist_dir: String,
     pub env: BTreeMap<String, String>,
+    pub bootstrap: Option<String>,
     pub node_version: &'static str,
     pub nextrs_version: &'static str,
 }
@@ -100,6 +101,7 @@ struct JsRequest {
     body: Option<ToJsBuffer>,
     entry: String,
     remote_address: Option<String>,
+    initial_headers: Vec<(String, String)>,
 }
 
 /// Resolves with the next request, or `null` once the executor shuts down.
@@ -122,6 +124,7 @@ async fn op_nextrs_next_request(state: Rc<RefCell<OpState>>) -> Option<JsRequest
         body: (!request.body.is_empty()).then(|| request.body.into()),
         entry: request.entry.to_string_lossy().into_owned(),
         remote_address: request.remote_address,
+        initial_headers: request.initial_headers,
     })
 }
 

@@ -2,10 +2,11 @@ use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use nextrs_adapter::{
     BuildInfo, InspectOptions, Matcher, MetadataSource, Rendering, RouteKind, Runtime, Severity,
 };
+use nextrs_runtime::{Executor, ExecutorConfig};
 use nextrs_server::ServerOptions;
 
 #[derive(Parser)]
@@ -32,7 +33,8 @@ enum Command {
         #[arg(long)]
         ignore_adapter_output: bool,
     },
-    /// Serve the prerendered parts of a build (Phase 0: no JavaScript execution).
+    /// Serve a build. Prerendered output is served from Rust; dynamic routes
+    /// need `--js-runtime embedded-v8`, or they answer 501.
     Start {
         path: PathBuf,
         /// Address to bind. Defaults to loopback: this is experimental software.
@@ -45,7 +47,22 @@ enum Command {
         allow_unsupported: bool,
         #[arg(long)]
         ignore_adapter_output: bool,
+        /// How to execute dynamic routes.
+        #[arg(long, value_enum, default_value_t = JsRuntime::None)]
+        js_runtime: JsRuntime,
+        /// Host environment variable to expose to JavaScript (repeatable).
+        /// Nothing else is inherited; NODE_ENV is always "production".
+        #[arg(long = "js-env", value_name = "NAME")]
+        js_env: Vec<String>,
     },
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, ValueEnum)]
+enum JsRuntime {
+    /// Never execute JavaScript: dynamic routes answer 501.
+    None,
+    /// Experimental: Next.js route handlers in an embedded V8 isolate.
+    EmbeddedV8,
 }
 
 fn main() -> ExitCode {
@@ -92,6 +109,8 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             port,
             allow_unsupported,
             ignore_adapter_output,
+            js_runtime,
+            js_env,
         } => {
             let started = std::time::Instant::now();
             let info = nextrs_adapter::inspect_with(
@@ -100,11 +119,36 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     ignore_adapter_output,
                 },
             )?;
+            let executor = match js_runtime {
+                JsRuntime::None => None,
+                JsRuntime::EmbeddedV8 => {
+                    let mut config =
+                        ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
+                    for name in js_env {
+                        match std::env::var(&name) {
+                            Ok(value) => {
+                                config.env.insert(name, value);
+                            }
+                            Err(_) => tracing::warn!(%name, "--js-env variable is not set"),
+                        }
+                    }
+                    let executor = Executor::start(config)?;
+                    tracing::info!(
+                        ready_ms = started.elapsed().as_millis() as u64,
+                        "embedded V8 executor ready"
+                    );
+                    Some(executor)
+                }
+            };
             let runtime = tokio::runtime::Builder::new_multi_thread()
                 .enable_all()
                 .build()?;
             runtime.block_on(async move {
-                let app = nextrs_server::app(&info, &ServerOptions { allow_unsupported }).await?;
+                let options = ServerOptions {
+                    allow_unsupported,
+                    executor,
+                };
+                let app = nextrs_server::app(&info, &options).await?;
                 let addr = SocketAddr::new(host, port);
                 if !host.is_loopback() {
                     tracing::warn!(%addr, "binding a non-loopback address; NextRS is experimental");
@@ -235,7 +279,7 @@ fn render_report(info: &BuildInfo) -> String {
     );
     let _ = writeln!(
         out,
-        "  NextRS Phase 0 serves: /_next/static, public/, prerendered HTML/RSC/segments"
+        "  NextRS serves: /_next/static, public/, prerendered HTML/RSC/segments;\n  dynamic App Router routes with --js-runtime embedded-v8 (experimental)"
     );
 
     let _ = writeln!(out, "\nDiagnostics:");

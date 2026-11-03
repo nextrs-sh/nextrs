@@ -33,6 +33,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         body: Vec::new(),
         entry: PathBuf::from(&dist).join("server").join(entry),
         remote_address: Some("127.0.0.1".into()),
+        initial_headers: Vec::new(),
     };
     let rendered = Instant::now();
     let mut events = executor.render(request)?;

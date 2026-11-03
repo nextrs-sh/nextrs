@@ -21,6 +21,7 @@ nextrs-adapter = { path = "crates/nextrs-adapter" }
 nextrs-server = { path = "crates/nextrs-server" }
 nextrs-runtime = { path = "crates/nextrs-runtime" }
 axum = { version = "0.8", default-features = false, features = ["http1", "tokio"] }
+futures-util = { version = "0.3", default-features = false }
 base64 = "0.22"
 clap = { version = "4", features = ["derive"] }
 httpdate = "1"

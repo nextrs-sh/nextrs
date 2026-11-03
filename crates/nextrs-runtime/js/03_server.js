@@ -236,6 +236,7 @@
   async function serve(request) {
     const req = new IncomingMessage(request);
     const res = new ServerResponse(req, request.id);
+    for (const [name, value] of request.initialHeaders) res.appendHeader(name, value);
     ops.op_nextrs_response_closed(request.id).then(() => {
       if (!res.writableFinished && !res.destroyed) {
         req.aborted = true;
@@ -288,7 +289,7 @@
     try {
       // Next's official adapter bootstrap: AsyncLocalStorage global,
       // require hooks, crypto polyfills, error handling.
-      rootRequire(path.join(boot.projectDir, "node_modules/next/dist/build/adapter/setup-node-env.external.js"));
+      if (boot.bootstrap) rootRequire(boot.bootstrap);
     } catch (error) {
       ops.op_nextrs_ready(errorText(error));
       return;

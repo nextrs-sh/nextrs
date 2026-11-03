@@ -1,6 +1,6 @@
 [package]
 name = "nextrs-server"
-description = "Phase 0 HTTP server for prerendered Next.js output"
+description = "HTTP server for official Next.js build output"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -10,12 +10,15 @@ publish.workspace = true
 [dependencies]
 axum.workspace = true
 base64.workspace = true
+futures-util.workspace = true
 httpdate.workspace = true
 nextrs-adapter.workspace = true
+nextrs-runtime.workspace = true
 percent-encoding.workspace = true
 regex.workspace = true
 sha2.workspace = true
 tokio.workspace = true
+tracing.workspace = true
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util"] }

@@ -1,8 +1,11 @@
-//! Phase 0 HTTP server: serves what `next build` already produced
-//! (`/_next/static`, `public/`, prerendered HTML/RSC/segment responses) and
-//! answers `501 Not Implemented` for everything that needs the Next.js server
-//! bundle to run. It never executes JavaScript.
+//! HTTP server for official Next.js build output. Serves what `next build`
+//! already produced (`/_next/static`, `public/`, prerendered HTML/RSC/segment
+//! responses) from Rust. Dynamic App Router routes are rendered by the
+//! embedded V8 executor when one is configured (`ServerOptions::executor`);
+//! everything else that needs JavaScript gets an explicit
+//! `501 Not Implemented`.
 
+mod dynamic;
 mod etag;
 mod rsc;
 mod static_files;
@@ -21,8 +24,10 @@ use axum::http::header::{self, HeaderName, HeaderValue};
 use axum::http::{HeaderMap, Method, StatusCode, Uri};
 use axum::response::{IntoResponse, Response};
 use nextrs_adapter::{
-    BuildInfo, Diagnostic, Matcher, Rendering, RoutingConfig, RscConfig, Severity, StoredResponse,
+    BuildInfo, Diagnostic, Matcher, Rendering, RouteKind, RoutingConfig, RscConfig, Runtime,
+    Severity, StoredResponse,
 };
+use nextrs_runtime::Executor;
 use regex::Regex;
 
 use crate::rsc::RouterHeaders;
@@ -39,8 +44,10 @@ const INTERNAL_HEADERS: &[&str] = &["x-next-cache-tags"];
 
 #[derive(Debug, Clone, Default)]
 pub struct ServerOptions {
-    /// Start even when the build uses features Phase 0 cannot serve.
+    /// Start even when the build uses features NextRS cannot serve.
     pub allow_unsupported: bool,
+    /// Renders dynamic App Router routes. Without it they get a 501.
+    pub executor: Option<Arc<Executor>>,
 }
 
 #[derive(Debug)]
@@ -89,6 +96,10 @@ pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, St
         return Err(StartError::Unsupported(unsupported));
     }
     let state = AppState::load(info).await?;
+    let state = AppState {
+        executor: options.executor.clone(),
+        ..state
+    };
     Ok(Router::new().fallback(handle).with_state(Arc::new(state)))
 }
 
@@ -100,6 +111,10 @@ struct AppState {
     pages: HashMap<String, Page>,
     not_found: Option<Cached>,
     routes: Vec<CompiledRoute>,
+    executor: Option<Arc<Executor>>,
+    /// `(.)`-style segments: responses then vary on `Next-URL`, which the
+    /// executor path does not implement.
+    has_interception_routes: bool,
 }
 
 struct Page {
@@ -120,7 +135,10 @@ struct Cached {
 
 struct CompiledRoute {
     page: String,
+    kind: RouteKind,
     rendering: Rendering,
+    runtime: Runtime,
+    entry: Option<PathBuf>,
     internal: bool,
     matcher: CompiledMatcher,
 }
@@ -193,7 +211,10 @@ impl AppState {
             };
             routes.push(CompiledRoute {
                 page: route.page.clone(),
+                kind: route.kind,
                 rendering: route.rendering.clone(),
+                runtime: route.runtime,
+                entry: route.entry.clone(),
                 internal: route.internal,
                 matcher,
             });
@@ -209,7 +230,9 @@ impl AppState {
             },
             pages,
             not_found,
+            has_interception_routes: info.routes.iter().any(|route| route.page.contains("/(.")),
             routes,
+            executor: None,
         })
     }
 }
@@ -257,6 +280,7 @@ async fn handle(
     method: Method,
     uri: Uri,
     headers: HeaderMap,
+    body: Body,
 ) -> Response {
     let path = normalize_dot_segments(uri.path());
     let path = path.as_ref();
@@ -330,6 +354,30 @@ async fn handle(
         .iter()
         .find(|route| !route.internal && route.matches(path))
     {
+        if let (Some(executor), Some(entry)) = (&state.executor, executable_entry(route)) {
+            if state.has_interception_routes {
+                return unsupported(
+                    "interception-routes",
+                    "builds with interception routes are not supported by the NextRS executor",
+                );
+            }
+            if headers.contains_key("next-action") {
+                return unsupported(
+                    "server-actions",
+                    "Server Actions are not implemented by the NextRS executor",
+                );
+            }
+            if route.kind == RouteKind::AppPage
+                && headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                && let Some(redirect) = rsc_redirect(&state, path, query, &headers)
+            {
+                return redirect;
+            }
+            let policy = dynamic::AppPathPolicy {
+                vary: &state.rsc.vary_header,
+            };
+            return dynamic::render(executor, entry, &policy, &method, &uri, &headers, body).await;
+        }
         let reason = match &route.rendering {
             Rendering::Static => "is prerendered but its stored response is missing",
             Rendering::Revalidated { .. } => "uses ISR, which needs JavaScript to regenerate",
@@ -339,7 +387,7 @@ async fn handle(
         return unsupported(
             "javascript-required",
             &format!(
-                "route {} {reason}; executing it requires JavaScript, which NextRS Phase 0 does not implement",
+                "route {} {reason}; executing it requires JavaScript (start with --js-runtime embedded-v8)",
                 route.page
             ),
         );
@@ -365,6 +413,36 @@ async fn handle(
         ),
         None => not_found_plain(),
     }
+}
+
+/// Dynamic routes the executor can run: App Router pages and route handlers
+/// compiled for the Node.js runtime.
+fn executable_entry(route: &CompiledRoute) -> Option<&Path> {
+    let kind_ok = matches!(route.kind, RouteKind::AppPage | RouteKind::AppRoute);
+    let dynamic = route.rendering == Rendering::Dynamic;
+    (kind_ok && dynamic && route.runtime == Runtime::Nodejs)
+        .then_some(route.entry.as_deref())
+        .flatten()
+}
+
+/// next start validates the `_rsc` cache-busting parameter before any App
+/// Router render, dynamic ones included.
+fn rsc_redirect(
+    state: &AppState,
+    path: &str,
+    query: Option<&str>,
+    headers: &HeaderMap,
+) -> Option<Response> {
+    let router = RouterHeaders::from_headers(
+        headers,
+        &state.rsc.prefetch_header,
+        &state.rsc.segment_prefetch_header,
+    );
+    if router.matches(rsc::query_hash(query).as_deref()) {
+        return None;
+    }
+    let target = rsc::redirect_target(path, query, &router.expected_hash());
+    Some(redirect(StatusCode::TEMPORARY_REDIRECT, &target, false))
 }
 
 fn serve_rsc(

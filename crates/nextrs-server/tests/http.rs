@@ -336,6 +336,7 @@ async fn refuses_to_start_on_unsupported_features() {
     }
     let allowed = ServerOptions {
         allow_unsupported: true,
+        ..ServerOptions::default()
     };
     assert!(nextrs_server::app(&info, &allowed).await.is_ok());
 }

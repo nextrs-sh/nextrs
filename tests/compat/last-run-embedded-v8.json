@@ -1,0 +1,589 @@
+{
+  "baseline": "http://127.0.0.1:3000/",
+  "candidate": "http://127.0.0.1:3001/",
+  "results": [
+    {
+      "name": "static page",
+      "request": "GET /",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 5967,
+        "sha": "6db8f12f76b9f109"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 5967,
+        "sha": "6db8f12f76b9f109",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "static page HEAD",
+      "request": "HEAD /",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "static page conditional",
+      "request": "GET /",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 304,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14"
+      },
+      "candidate": {
+        "status": 304,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "static chunk",
+      "request": "GET /_next/static/chunks/1x6obpmlu1_c2.js",
+      "verdict": "MATCH (header diffs)",
+      "baseline": {
+        "status": 200,
+        "bytes": 5361,
+        "sha": "7c0be00bfd43494d"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 5361,
+        "sha": "7c0be00bfd43494d",
+        "unsupported": null
+      },
+      "headerDiffs": [
+        {
+          "header": "accept-ranges",
+          "baseline": "bytes",
+          "candidate": null
+        }
+      ]
+    },
+    {
+      "name": "missing chunk",
+      "request": "GET /_next/static/chunks/does-not-exist.js",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 404,
+        "bytes": 9,
+        "sha": "0019dfc4b32d63c1"
+      },
+      "candidate": {
+        "status": 404,
+        "bytes": 9,
+        "sha": "0019dfc4b32d63c1",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "traversal ../",
+      "request": "GET /_next/static/../../BUILD_ID",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999"
+      },
+      "candidate": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "traversal %2e%2e",
+      "request": "GET /_next/static/%2e%2e/%2e%2e/prerender-manifest.json",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999"
+      },
+      "candidate": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "traversal encoded slash",
+      "request": "GET /_next/static/..%2f..%2frequired-server-files.json",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 404,
+        "bytes": 9,
+        "sha": "0019dfc4b32d63c1"
+      },
+      "candidate": {
+        "status": 404,
+        "bytes": 9,
+        "sha": "0019dfc4b32d63c1",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "manifest not public",
+      "request": "GET /_next/prerender-manifest.json",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999"
+      },
+      "candidate": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "trailing slash redirect",
+      "request": "GET /books/42/",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 308,
+        "bytes": 9,
+        "sha": "eb3d02a03097ed12"
+      },
+      "candidate": {
+        "status": 308,
+        "bytes": 9,
+        "sha": "eb3d02a03097ed12",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "unknown path -> not-found",
+      "request": "GET /does-not-exist",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999"
+      },
+      "candidate": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "framework route /_not-found",
+      "request": "GET /_not-found",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999"
+      },
+      "candidate": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "framework route /_global-error",
+      "request": "GET /_global-error",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "bytes": 8891,
+        "sha": "3e9b20db84f33923"
+      },
+      "candidate": {
+        "status": 500,
+        "bytes": 8891,
+        "sha": "3e9b20db84f33923",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "pages data route",
+      "request": "GET /_next/data/x.json",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999"
+      },
+      "candidate": {
+        "status": 404,
+        "bytes": 7286,
+        "sha": "c6bae75e200c0999",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "rsc without _rsc",
+      "request": "GET /",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 307,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14"
+      },
+      "candidate": {
+        "status": 307,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "rsc full payload",
+      "request": "GET /?_rsc",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 3630,
+        "sha": "e759d44403ffc25f"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 3630,
+        "sha": "e759d44403ffc25f",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "rsc segment prefetch",
+      "request": "GET /?_rsc=_i_aeImnuN6u1u1r",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 110,
+        "sha": "30e7c30456535c02"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 110,
+        "sha": "30e7c30456535c02",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "rsc wrong hash",
+      "request": "GET /?_rsc=bogus",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 307,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14"
+      },
+      "candidate": {
+        "status": 307,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "POST static page",
+      "request": "POST /",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 405,
+        "bytes": 18,
+        "sha": "e3933184560739b7"
+      },
+      "candidate": {
+        "status": 405,
+        "bytes": 18,
+        "sha": "e3933184560739b7",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "dynamic server component",
+      "request": "GET /dynamic",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 7047,
+        "sha": "e088ba93d285614a"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 7047,
+        "sha": "e088ba93d285614a",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "dynamic segment",
+      "request": "GET /books/42",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 5935,
+        "sha": "f91b1c65a41f6e92"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 5935,
+        "sha": "f91b1c65a41f6e92",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "route handler",
+      "request": "GET /api/health",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 42,
+        "sha": "48687bd97a4ecf4a"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 42,
+        "sha": "48687bd97a4ecf4a",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "request context",
+      "request": "GET /request-info",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 5560,
+        "sha": "ba3ca48055acb86a"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 5560,
+        "sha": "ba3ca48055acb86a",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "image optimizer",
+      "request": "GET /_next/image?url=%2Ffoo.png&w=64&q=75",
+      "verdict": "UNSUPPORTED",
+      "baseline": {
+        "status": 404,
+        "bytes": 57,
+        "sha": "508dbb365b2d79b5"
+      },
+      "candidate": {
+        "status": 501,
+        "bytes": 79,
+        "sha": "bb94b5f05ff81f7e",
+        "unsupported": "image-optimizer"
+      },
+      "headerDiffs": [
+        {
+          "header": "content-type",
+          "baseline": null,
+          "candidate": "text/plain; charset=utf-8"
+        },
+        {
+          "header": "cache-control",
+          "baseline": null,
+          "candidate": "no-store"
+        },
+        {
+          "header": "x-nextrs-unsupported",
+          "baseline": null,
+          "candidate": "image-optimizer"
+        }
+      ]
+    },
+    {
+      "name": "dynamic HEAD",
+      "request": "HEAD /dynamic",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "dynamic rsc without _rsc",
+      "request": "GET /books/42",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 307,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14"
+      },
+      "candidate": {
+        "status": 307,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "dynamic rsc payload",
+      "request": "GET /books/42?_rsc",
+      "verdict": "MATCH (normalized)",
+      "baseline": {
+        "status": 200,
+        "bytes": 3729,
+        "sha": "b9491dcc2faacd76"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 3729,
+        "sha": "3d223d8b712a05df",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "dynamic segment, encoded param",
+      "request": "GET /books/%E2%9C%93",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 5977,
+        "sha": "4809dcb91e6c9df5"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 5977,
+        "sha": "4809dcb91e6c9df5",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "dynamic segment, query string",
+      "request": "GET /books/7?ref=nextrs&x=1",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 5969,
+        "sha": "c1ac765b8ed0bf8b"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 5969,
+        "sha": "c1ac765b8ed0bf8b",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "request context, no inputs",
+      "request": "GET /request-info",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 5566,
+        "sha": "e8bdeb81576e0352"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 5566,
+        "sha": "e8bdeb81576e0352",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "request context, several cookies",
+      "request": "GET /request-info",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 5558,
+        "sha": "14234ad5434e6206"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 5558,
+        "sha": "14234ad5434e6206",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "route handler POST",
+      "request": "POST /api/health",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 405,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14"
+      },
+      "candidate": {
+        "status": 405,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    },
+    {
+      "name": "route handler HEAD",
+      "request": "HEAD /api/health",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14"
+      },
+      "candidate": {
+        "status": 200,
+        "bytes": 0,
+        "sha": "e3b0c44298fc1c14",
+        "unsupported": null
+      },
+      "headerDiffs": []
+    }
+  ]
+}

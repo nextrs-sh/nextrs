@@ -57,16 +57,22 @@ pub struct ExecutorConfig {
     /// The complete `process.env` seen by JavaScript. Nothing from the host
     /// environment is inherited implicitly.
     pub env: BTreeMap<String, String>,
+    /// Module required once before any request: Next's official adapter
+    /// bootstrap (`setup-node-env.external.js`) by default.
+    pub bootstrap: Option<PathBuf>,
 }
 
 impl ExecutorConfig {
     pub fn new(project_dir: PathBuf, dist_dir: PathBuf) -> Self {
         let mut env = BTreeMap::new();
         env.insert("NODE_ENV".into(), "production".into());
+        let bootstrap =
+            project_dir.join("node_modules/next/dist/build/adapter/setup-node-env.external.js");
         Self {
             project_dir,
             dist_dir,
             env,
+            bootstrap: Some(bootstrap),
         }
     }
 
@@ -89,6 +95,10 @@ pub struct RenderRequest {
     /// Absolute path of the compiled route entry (`.next/server/app/**/page.js`).
     pub entry: PathBuf,
     pub remote_address: Option<String>,
+    /// Headers the serving layer puts on the response before the handler
+    /// runs (next start's base server does this for `Vary`). The handler
+    /// may override them.
+    pub initial_headers: Vec<(String, String)>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -181,6 +191,14 @@ impl Executor {
     }
 }
 
+impl fmt::Debug for Executor {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Executor")
+            .field("running", &self.jobs.is_some())
+            .finish()
+    }
+}
+
 impl Drop for Executor {
     fn drop(&mut self) {
         self.jobs.take();
@@ -211,6 +229,10 @@ fn run_isolate(
             project_dir: config.project_dir.to_string_lossy().into_owned(),
             dist_dir: config.dist_dir.to_string_lossy().into_owned(),
             env: config.env.clone(),
+            bootstrap: config
+                .bootstrap
+                .as_ref()
+                .map(|path| path.to_string_lossy().into_owned()),
             node_version: REPORTED_NODE_VERSION,
             nextrs_version: env!("CARGO_PKG_VERSION"),
         };

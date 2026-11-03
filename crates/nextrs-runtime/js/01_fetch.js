@@ -8,7 +8,7 @@
 "use strict";
 
 ((globalThis) => {
-  const { unsupported } = globalThis.__nextrsInternal;
+  const { unsupported, NextRSUnsupportedError } = globalThis.__nextrsInternal;
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
@@ -418,9 +418,7 @@
 
   function fetch(input) {
     const target = input instanceof Request ? input.url : String(input);
-    return Promise.reject(
-      new globalThis.__nextrsInternal.NextRSUnsupportedError("fetch", undefined, `outbound request to ${target}`),
-    );
+    return Promise.reject(new NextRSUnsupportedError("fetch", undefined, `outbound request to ${target}`));
   }
 
   for (const [name, value] of Object.entries({ Headers, Request, Response, FormData, fetch })) {
