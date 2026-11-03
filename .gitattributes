@@ -1,0 +1,16 @@
+# GitHub language statistics (Linguist) count NextRS's own code only.
+
+# Vendored npm packages, bundled into the runtime.
+crates/nextrs-runtime/js/node-polyfills.js linguist-vendored
+crates/nextrs-runtime/js/vendor/** linguist-vendored
+
+# Redacted `next build` output used as test data. Next's `.rsc` Flight
+# payloads would otherwise be detected as RouterOS Script.
+tests/data/** linguist-generated
+*.rsc linguist-generated
+
+# Recorded test and benchmark results, lockfiles.
+benchmarks/results/** linguist-generated
+tests/compat/*.json linguist-generated
+experiments/**/results/** linguist-generated
+**/package-lock.json linguist-generated
