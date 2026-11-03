@@ -60,6 +60,10 @@ pub struct ExecutorConfig {
     /// Module required once before any request: Next's official adapter
     /// bootstrap (`setup-node-env.external.js`) by default.
     pub bootstrap: Option<PathBuf>,
+    /// Report every Node built-in module and member JavaScript touches
+    /// (once each, as `node-api-access` diagnostics). For compatibility
+    /// research; off by default.
+    pub trace_node_api: bool,
 }
 
 impl ExecutorConfig {
@@ -73,6 +77,7 @@ impl ExecutorConfig {
             dist_dir,
             env,
             bootstrap: Some(bootstrap),
+            trace_node_api: false,
         }
     }
 
@@ -233,6 +238,7 @@ fn run_isolate(
                 .bootstrap
                 .as_ref()
                 .map(|path| path.to_string_lossy().into_owned()),
+            trace_node_api: config.trace_node_api,
             node_version: REPORTED_NODE_VERSION,
             nextrs_version: env!("CARGO_PKG_VERSION"),
         };

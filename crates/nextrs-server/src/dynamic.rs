@@ -5,8 +5,8 @@
 use std::path::Path;
 
 use axum::body::{Body, Bytes};
-use axum::http::header::{HeaderName, HeaderValue};
-use axum::http::{HeaderMap, Method, StatusCode, Uri};
+use axum::http::header::{self, HeaderName, HeaderValue};
+use axum::http::{HeaderMap, Method, StatusCode, Uri, Version};
 use axum::response::{IntoResponse, Response};
 use nextrs_runtime::{Executor, RenderRequest, ResponseEvent};
 use tokio::sync::mpsc;
@@ -134,6 +134,20 @@ fn body_stream(
             }
         }
     })
+}
+
+/// HTTP/1.0 has no chunked encoding: a streamed body without a length is
+/// delimited by closing the connection, and Node sends `Connection: close`.
+/// hyper decides keep-alive from the *response* version, which defaults to
+/// HTTP/1.1, so it must be set to 1.0 for hyper to close.
+pub(crate) fn frame_for(version: Version, mut response: Response) -> Response {
+    if version <= Version::HTTP_10 && !response.headers().contains_key(header::CONTENT_LENGTH) {
+        *response.version_mut() = Version::HTTP_10;
+        response
+            .headers_mut()
+            .insert(header::CONNECTION, HeaderValue::from_static("close"));
+    }
+    response
 }
 
 fn error_response(status: StatusCode, code: &'static str, message: &str) -> Response {

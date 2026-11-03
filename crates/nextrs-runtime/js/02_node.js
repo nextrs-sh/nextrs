@@ -88,9 +88,18 @@
   const reported = new Set();
   const IGNORED_MEMBERS = new Set(["__esModule", "default", "then", "toJSON", "constructor", "inspect"]);
 
+  const traced = new Set();
+  function trace(member) {
+    if (boot.traceNodeApi && !traced.has(member)) {
+      traced.add(member);
+      ops.op_nextrs_diagnostic("node-api-access", member);
+    }
+  }
+
   function strict(name, target) {
     return new Proxy(target, {
       get(object, key, receiver) {
+        if (typeof key !== "symbol") trace(`node:${name}.${key}`);
         if (typeof key === "symbol" || key in object) return Reflect.get(object, key, receiver);
         const member = `node:${name}.${key}`;
         if (!IGNORED_MEMBERS.has(key) && !reported.has(member)) {
@@ -98,6 +107,18 @@
           ops.op_nextrs_diagnostic("missing-member", `${member} is not implemented (read as undefined)`);
         }
         return undefined;
+      },
+    });
+  }
+
+  // Pass-through modules are only wrapped while tracing, so normal runs
+  // see the vendored objects themselves.
+  function observed(name, target) {
+    if (!boot.traceNodeApi) return target;
+    return new Proxy(target, {
+      get(object, key, receiver) {
+        if (typeof key !== "symbol") trace(`node:${name}.${key}`);
+        return Reflect.get(object, key, receiver);
       },
     });
   }
@@ -981,6 +1002,7 @@
 
   function loadBuiltin(request) {
     const name = request.replace(/^node:/, "");
+    trace(`require:${name}`);
     if (!builtinCache.has(name)) builtinCache.set(name, BUILTINS.get(name)());
     return builtinCache.get(name);
   }
@@ -1126,19 +1148,19 @@
     buffer: () =>
       strict("buffer", Object.assign(Object.create(null), vendor.buffer, { Buffer, atob, btoa, Blob, File, isUtf8, isAscii })),
     crypto: () => strict("crypto", crypto),
-    events: () => events,
+    events: () => observed("events", events),
     fs: () => strict("fs", fs),
     "fs/promises": () => strict("fs/promises", fsPromises),
     inspector: () => strict("inspector", inspector),
-    module: () => Module,
-    path: () => path,
-    "path/posix": () => path,
+    module: () => observed("module", Module),
+    path: () => observed("path", path),
+    "path/posix": () => observed("path/posix", path),
     perf_hooks: () => strict("perf_hooks", { performance, PerformanceEntry, PerformanceMark, PerformanceMeasure }),
     process: () => process,
-    stream: () => stream,
-    "stream/promises": () => stream.promises,
+    stream: () => observed("stream", stream),
+    "stream/promises": () => observed("stream/promises", stream.promises),
     "stream/web": () => strict("stream/web", streamWeb),
-    string_decoder: () => vendor.string_decoder,
+    string_decoder: () => observed("string_decoder", vendor.string_decoder),
     timers: () => strict("timers", timers),
     "timers/promises": () => strict("timers/promises", timersPromises),
     url: () => strict("url", nodeUrl),

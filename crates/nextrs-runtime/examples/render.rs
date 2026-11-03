@@ -18,7 +18,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let project = std::fs::canonicalize(project)?;
     let dist = project.join(".next");
     let started = Instant::now();
-    let executor = Executor::start(ExecutorConfig::new(project.clone(), dist.clone()))?;
+    let mut config = ExecutorConfig::new(project.clone(), dist.clone());
+    config.trace_node_api = std::env::var_os("NEXTRS_TRACE_NODE_API").is_some();
+    let executor = Executor::start(config)?;
     eprintln!("[render] executor ready in {:?}", started.elapsed());
     let headers = headers
         .iter()

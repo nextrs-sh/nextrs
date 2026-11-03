@@ -22,6 +22,7 @@ pub(crate) struct BootConfig {
     pub dist_dir: String,
     pub env: BTreeMap<String, String>,
     pub bootstrap: Option<String>,
+    pub trace_node_api: bool,
     pub node_version: &'static str,
     pub nextrs_version: &'static str,
 }

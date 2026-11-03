@@ -139,3 +139,19 @@ async fn server_actions_are_refused_explicitly() {
     assert_eq!(status, StatusCode::NOT_IMPLEMENTED);
     assert_eq!(headers["x-nextrs-unsupported"], "server-actions");
 }
+
+/// HTTP/1.0 cannot carry a chunked body: like Node, close the connection
+/// to delimit a streamed render instead of advertising keep-alive.
+#[tokio::test(flavor = "multi_thread")]
+#[ignore = "requires fixtures/next-app to be built (npm ci && next build)"]
+async fn http_1_0_streamed_responses_close_the_connection() {
+    let app = app(true).await;
+    let request = Request::get("/books/42")
+        .version(axum::http::Version::HTTP_10)
+        .header("connection", "keep-alive")
+        .body(Body::empty())
+        .unwrap();
+    let response = app.clone().oneshot(request).await.unwrap();
+    assert_eq!(response.version(), axum::http::Version::HTTP_10);
+    assert_eq!(response.headers()["connection"], "close");
+}

@@ -21,7 +21,7 @@ use axum::Router;
 use axum::body::{Body, Bytes};
 use axum::extract::State;
 use axum::http::header::{self, HeaderName, HeaderValue};
-use axum::http::{HeaderMap, Method, StatusCode, Uri};
+use axum::http::{HeaderMap, Method, StatusCode, Uri, Version};
 use axum::response::{IntoResponse, Response};
 use nextrs_adapter::{
     BuildInfo, Diagnostic, Matcher, Rendering, RouteKind, RoutingConfig, RscConfig, Runtime,
@@ -279,6 +279,7 @@ async fn handle(
     State(state): State<Arc<AppState>>,
     method: Method,
     uri: Uri,
+    version: Version,
     headers: HeaderMap,
     body: Body,
 ) -> Response {
@@ -376,7 +377,9 @@ async fn handle(
             let policy = dynamic::AppPathPolicy {
                 vary: &state.rsc.vary_header,
             };
-            return dynamic::render(executor, entry, &policy, &method, &uri, &headers, body).await;
+            let response =
+                dynamic::render(executor, entry, &policy, &method, &uri, &headers, body).await;
+            return dynamic::frame_for(version, response);
         }
         let reason = match &route.rendering {
             Rendering::Static => "is prerendered but its stored response is missing",

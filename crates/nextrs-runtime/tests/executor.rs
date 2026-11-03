@@ -23,6 +23,7 @@ fn executor() -> Arc<Executor> {
         project_dir: project,
         env,
         bootstrap: None,
+        trace_node_api: false,
     })
     .expect("executor starts")
 }

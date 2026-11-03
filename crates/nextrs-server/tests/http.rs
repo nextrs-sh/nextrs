@@ -1,6 +1,6 @@
 //! HTTP behaviour against snapshots of real Next.js 16.4.3 builds. Expected
 //! values marked "next start" were recorded from `next start` serving the
-//! same build (see docs/research/compatibility-matrix.md).
+//! same build (tests/compat/compare.mjs records the comparison).
 
 use std::path::{Path, PathBuf};
 
