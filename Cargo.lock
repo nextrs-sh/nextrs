@@ -132,6 +132,8 @@ dependencies = [
  "percent-encoding",
  "pin-project-lite",
  "serde_core",
+ "serde_json",
+ "serde_path_to_error",
  "sync_wrapper",
  "tokio",
  "tower",
@@ -1381,13 +1383,17 @@ dependencies = [
 name = "nextrs-runtime"
 version = "0.0.0"
 dependencies = [
+ "bytes",
  "deno_core",
  "deno_error",
  "deno_web",
  "deno_webidl",
+ "futures-util",
  "getrandom 0.3.4",
  "md-5",
+ "nextrs-runtime",
  "serde",
+ "serde_json",
  "sha1",
  "sha2",
  "tokio",
@@ -1402,11 +1408,15 @@ dependencies = [
  "axum",
  "base64",
  "futures-util",
+ "http-body",
  "httpdate",
+ "hyper",
+ "hyper-util",
  "nextrs-adapter",
  "nextrs-runtime",
  "percent-encoding",
  "regex",
+ "serde_json",
  "sha2",
  "tokio",
  "tower",
@@ -1767,6 +1777,17 @@ dependencies = [
  "serde",
  "serde_core",
  "zmij",
+]
+
+[[package]]
+name = "serde_path_to_error"
+version = "0.1.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10a9ff822e371bb5403e391ecd83e182e0e77ba7f6fe0160b795797109d1b457"
+dependencies = [
+ "itoa",
+ "serde",
+ "serde_core",
 ]
 
 [[package]]

@@ -9,6 +9,31 @@
   const { core, ops, boot, Module, Buffer, stream, path } = internal;
   const { Readable, Writable } = stream;
 
+  // op_nextrs_response_write results (response.rs WriteStatus).
+  const WRITE_ACCEPTED = 0;
+  const WRITE_FULL = 1;
+  const WRITE_BUSY = 2;
+  // op_nextrs_count kinds (metrics.rs).
+  const COUNT_REQUEST_TIMEOUT = 1;
+  const COUNT_WAIT_UNTIL_TIMEOUT = 2;
+  const COUNT_HANDLER_ERROR = 3;
+
+  // Request body failures from op_nextrs_request_read, as Node reports
+  // them: an aborted upload is ECONNRESET "aborted".
+  function bodyError(error) {
+    const message = String(error?.message ?? error);
+    if (message.startsWith("ECONNRESET")) {
+      const aborted = new Error("aborted");
+      aborted.code = "ECONNRESET";
+      return aborted;
+    }
+    const tooLarge = message.startsWith("ERR_NEXTRS_BODY_TOO_LARGE");
+    const failure = new Error(message.replace(/^[A-Z_]+: /, ""));
+    failure.code = tooLarge ? "ERR_NEXTRS_BODY_TOO_LARGE" : "ERR_NEXTRS_BODY";
+    if (tooLarge) failure.status = failure.statusCode = 413;
+    return failure;
+  }
+
   // Node's rules for combining repeated request headers
   // (IncomingMessage#_addHeaderLine).
   const DROP_DUPLICATES = new Set([
@@ -34,7 +59,10 @@
   }
 
   class IncomingMessage extends Readable {
+    #id;
     #body;
+    #streamed;
+    #reading = false;
 
     constructor(request) {
       super();
@@ -57,10 +85,16 @@
         remoteAddress: request.remoteAddress ?? undefined,
         remoteFamily: request.remoteAddress?.includes(":") ? "IPv6" : "IPv4",
       });
+      this.#id = request.id;
       this.#body = request.body ? Buffer.from(request.body) : null;
+      this.#streamed = request.bodyStream;
     }
 
     _read() {
+      if (this.#streamed) {
+        this.#pull();
+        return;
+      }
       if (this.#body) {
         const body = this.#body;
         this.#body = null;
@@ -68,6 +102,33 @@
       }
       this.complete = true;
       this.push(null);
+    }
+
+    // One host read per _read(): the connection is only read as fast as
+    // the handler consumes, so an unread body costs no memory here.
+    #pull() {
+      if (this.#reading) return;
+      this.#reading = true;
+      ops.op_nextrs_request_read(this.#id).then(
+        (chunk) => {
+          this.#reading = false;
+          if (chunk === null) {
+            this.complete = true;
+            this.push(null);
+          } else {
+            this.push(Buffer.from(chunk.buffer, chunk.byteOffset, chunk.byteLength));
+          }
+        },
+        (error) => {
+          this.#reading = false;
+          const failure = bodyError(error);
+          if (failure.code === "ECONNRESET") {
+            this.aborted = true;
+            this.emit("aborted");
+          }
+          this.destroy(failure);
+        },
+      );
     }
 
     setTimeout(_ms, callback) {
@@ -177,12 +238,48 @@
       if (!ops.op_nextrs_response_head(this[kId], this.statusCode, pairs)) this.#clientGone();
     }
 
+    // Flow control: the write callback is held while the host's buffer
+    // for this response is full, so writableLength grows, write() returns
+    // false and 'drain' waits for the client, as with a slow socket in
+    // Node. A write after the client left is dropped; destroy() emits
+    // 'close', which aborts the render.
     _write(chunk, _encoding, callback) {
       this.#sendHead();
-      // A write after the client left is dropped, as with a closed socket;
-      // destroy() emits 'close', which aborts the render.
-      if (chunk.length > 0 && !ops.op_nextrs_response_write(this[kId], chunk)) this.#clientGone();
-      callback();
+      if (chunk.length === 0) {
+        callback();
+        return;
+      }
+      this.#offer(chunk, callback);
+    }
+
+    #offer(chunk, callback) {
+      switch (ops.op_nextrs_response_write(this[kId], chunk)) {
+        case WRITE_ACCEPTED:
+          callback();
+          return;
+        case WRITE_FULL:
+          this.#afterDrain(null, callback);
+          return;
+        case WRITE_BUSY:
+          this.#afterDrain(chunk, callback);
+          return;
+        default:
+          this.#clientGone();
+          callback();
+      }
+    }
+
+    #afterDrain(retry, callback) {
+      ops.op_nextrs_response_drain(this[kId]).then((open) => {
+        if (!open) {
+          this.#clientGone();
+          callback();
+        } else if (retry) {
+          this.#offer(retry, callback);
+        } else {
+          callback();
+        }
+      });
     }
 
     _final(callback) {
@@ -233,43 +330,111 @@
     return String(error?.stack ?? error);
   }
 
-  async function serve(request) {
-    const req = new IncomingMessage(request);
-    const res = new ServerResponse(req, request.id);
-    for (const [name, value] of request.initialHeaders) res.appendHeader(name, value);
-    ops.op_nextrs_response_closed(request.id).then(() => {
-      if (!res.writableFinished && !res.destroyed) {
-        req.aborted = true;
-        req.destroy();
-        res.destroy();
-      }
-    });
-    const pending = [];
-    try {
-      const mod = loadEntry(request.entry);
-      if (typeof mod.handler !== "function") {
-        throw new TypeError(`${request.entry} does not export a handler(req, res, ctx) function`);
-      }
-      await mod.handler(req, res, {
-        waitUntil: (promise) => pending.push(promise),
-        requestMeta: { relativeProjectDir: ".", distDir },
-      });
-    } catch (error) {
-      ops.op_nextrs_diagnostic("handler-error", `${request.method} ${request.url}: ${errorText(error)}`);
-      if (!res.headersSent) {
-        res.statusCode = 500;
-        res.setHeader("content-type", "text/plain; charset=utf-8");
-        res.setHeader("x-nextrs-error", "handler-exception");
-        res.end("NextRS: the route handler threw an exception\n");
-      } else if (!res.writableEnded) {
-        // The response already started: abort it, as Node drops the socket.
-        ops.op_nextrs_response_error(request.id, String(error?.message ?? error));
-        res.destroy();
-      }
+  // Paths only: query strings can carry tokens.
+  function describe(request) {
+    return `${request.method} ${request.url.split("?")[0]}`;
+  }
+
+  const encoder = new TextEncoder();
+
+  // The request deadline passed. A response that has not started becomes
+  // a 504 (sent directly, so the handler's own later writes hit a
+  // destroyed stream and are dropped); a started one is aborted. 'close'
+  // then tells Next.js to stop rendering.
+  function expire(request, req, res) {
+    const id = request.id;
+    ops.op_nextrs_count(COUNT_REQUEST_TIMEOUT);
+    ops.op_nextrs_diagnostic("request-timeout", `${describe(request)} exceeded ${request.timeoutMs} ms`);
+    if (!res.headersSent) {
+      res.headersSent = true;
+      ops.op_nextrs_response_head(id, 504, [
+        ["content-type", "text/plain; charset=utf-8"],
+        ["cache-control", "no-store"],
+        ["x-nextrs-error", "request-timeout"],
+      ]);
+      ops.op_nextrs_response_write(id, encoder.encode("NextRS: the request exceeded its deadline\n"));
+      ops.op_nextrs_response_end(id);
+    } else {
+      ops.op_nextrs_response_error(id, "request deadline exceeded");
     }
-    const settled = await Promise.allSettled(pending);
-    for (const result of settled) {
-      if (result.status === "rejected") ops.op_nextrs_diagnostic("wait-until-error", errorText(result.reason));
+    req.aborted = true;
+    req.destroy();
+    res.destroy();
+  }
+
+  async function serve(request) {
+    const id = request.id;
+    let timer;
+    try {
+      const req = new IncomingMessage(request);
+      const res = new ServerResponse(req, id);
+      for (const [name, value] of request.initialHeaders) res.appendHeader(name, value);
+
+      // Settles when the request stops mattering before it finished: the
+      // client left, the request was cancelled, or its deadline passed.
+      // Neither the handler nor waitUntil work is awaited past that, so a
+      // promise that never settles cannot hold the request's slot.
+      let cancel;
+      const cancelled = new Promise((resolve) => (cancel = resolve));
+      ops.op_nextrs_response_closed(id).then(() => {
+        if (res.writableFinished) return;
+        if (!res.destroyed) {
+          req.aborted = true;
+          req.destroy();
+          res.destroy();
+        }
+        cancel("closed");
+      });
+      if (request.timeoutMs != null) {
+        timer = setTimeout(() => {
+          if (res.writableFinished) {
+            ops.op_nextrs_count(COUNT_WAIT_UNTIL_TIMEOUT);
+            ops.op_nextrs_diagnostic("wait-until-timeout", `${describe(request)}: waitUntil work abandoned at the deadline`);
+          } else {
+            expire(request, req, res);
+          }
+          cancel("timeout");
+        }, request.timeoutMs);
+      }
+
+      const pending = [];
+      try {
+        const mod = loadEntry(request.entry);
+        if (typeof mod.handler !== "function") {
+          throw new TypeError(`${request.entry} does not export a handler(req, res, ctx) function`);
+        }
+        await Promise.race([
+          mod.handler(req, res, {
+            waitUntil: (promise) => pending.push(promise),
+            requestMeta: { relativeProjectDir: ".", distDir },
+          }),
+          cancelled,
+        ]);
+      } catch (error) {
+        ops.op_nextrs_count(COUNT_HANDLER_ERROR);
+        ops.op_nextrs_diagnostic("handler-error", `${describe(request)}: ${errorText(error)}`);
+        if (!res.headersSent) {
+          res.statusCode = 500;
+          res.setHeader("content-type", "text/plain; charset=utf-8");
+          res.setHeader("x-nextrs-error", "handler-exception");
+          res.end("NextRS: the route handler threw an exception\n");
+        } else if (!res.writableEnded) {
+          // The response already started: abort it, as Node drops the socket.
+          ops.op_nextrs_response_error(id, String(error?.message ?? error));
+          res.destroy();
+        }
+      }
+      if (pending.length > 0) {
+        const settled = await Promise.race([Promise.allSettled(pending), cancelled]);
+        if (Array.isArray(settled)) {
+          for (const result of settled) {
+            if (result.status === "rejected") ops.op_nextrs_diagnostic("wait-until-error", errorText(result.reason));
+          }
+        }
+      }
+    } finally {
+      clearTimeout(timer);
+      ops.op_nextrs_request_done(id);
     }
   }
 
@@ -278,7 +443,7 @@
       const request = await ops.op_nextrs_next_request();
       if (request === null) return;
       // Concurrent: each request runs in its own async context.
-      serve(request);
+      serve(request).catch((error) => ops.op_nextrs_diagnostic("serve-error", errorText(error)));
     }
   }
 
@@ -293,6 +458,9 @@
     } catch (error) {
       ops.op_nextrs_ready(errorText(error));
       return;
+    }
+    if (boot.faultInjection) {
+      Object.defineProperty(globalThis, "__nextrsFault", { value: (kind) => ops.op_nextrs_fault(kind) });
     }
     ops.op_nextrs_ready(null);
     loop().catch((error) => core.reportUnhandledException(error));

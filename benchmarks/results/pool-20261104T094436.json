@@ -1,0 +1,2488 @@
+{
+  "environment": {
+    "cpu": "Intel(R) Core(TM) i5-9400F CPU @ 2.90GHz",
+    "logical_cpus": 6,
+    "kernel": "7.2.14-200.fc44.x86_64",
+    "node": "v22.20.0",
+    "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+    "ab": "This is ApacheBench, Version 2.3 <$Revision: 1934973 $>",
+    "mem_total_kib": 16303488
+  },
+  "config": {
+    "project": "fixtures/next-app",
+    "out": "benchmarks/results",
+    "nextrs_1a": "<phase-1a build of feat/phase-1a-native-execution (f547e16)>",
+    "isolates": [
+      1,
+      2,
+      4
+    ],
+    "concurrency": [
+      1,
+      8,
+      32,
+      64,
+      128
+    ],
+    "stream_concurrency": [
+      32,
+      128
+    ],
+    "requests": 3000,
+    "repeats": 2,
+    "startup_runs": 3
+  },
+  "startup": {
+    "next-start": {
+      "ready_ms": 385.4321339999842,
+      "first_dynamic_response_ms": 442.5471770000513,
+      "rss_after_first_render_kib": 129368
+    },
+    "nextrs-1a": {
+      "ready_ms": 111.76300299985087,
+      "first_dynamic_response_ms": 220.31944900027156,
+      "rss_after_first_render_kib": 50920
+    },
+    "nextrs-1b-i1": {
+      "ready_ms": 117.11452500003361,
+      "first_dynamic_response_ms": 226.7206219999025,
+      "rss_after_first_render_kib": 64600
+    },
+    "nextrs-1b-i2": {
+      "ready_ms": 117.60588900006042,
+      "first_dynamic_response_ms": 244.32138199972542,
+      "rss_after_first_render_kib": 76624
+    },
+    "nextrs-1b-i4": {
+      "ready_ms": 113.34164300023986,
+      "first_dynamic_response_ms": 241.03542600005312,
+      "rss_after_first_render_kib": 95080
+    }
+  },
+  "load": [
+    {
+      "server": "next-start",
+      "path": "/books/42",
+      "concurrency": 1,
+      "median": {
+        "requests_per_second": 395.32,
+        "p50_ms": 2.365,
+        "p95_ms": 3.6295,
+        "p99_ms": 4.1514999999999995,
+        "server_cpu_ms_per_request": 2.881666666666667,
+        "rss_mib_after": 267.4453125,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 369.39,
+          "failed": 0,
+          "p50_ms": 2.551,
+          "p90_ms": 3.1,
+          "p95_ms": 3.743,
+          "p99_ms": 4.374,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 3.1633333333333336,
+          "rss_kib_after": 265816
+        },
+        {
+          "requests_per_second": 421.25,
+          "failed": 0,
+          "p50_ms": 2.179,
+          "p90_ms": 2.595,
+          "p95_ms": 3.516,
+          "p99_ms": 3.929,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.5999999999999996,
+          "rss_kib_after": 273864
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/books/42",
+      "concurrency": 8,
+      "median": {
+        "requests_per_second": 466.71500000000003,
+        "p50_ms": 17.006,
+        "p95_ms": 18.6155,
+        "p99_ms": 21.056,
+        "server_cpu_ms_per_request": 2.3533333333333335,
+        "rss_mib_after": 269.26953125,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 461.76,
+          "failed": 0,
+          "p50_ms": 17.216,
+          "p90_ms": 18.444,
+          "p95_ms": 18.809,
+          "p99_ms": 21.983,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.3966666666666674,
+          "rss_kib_after": 276468
+        },
+        {
+          "requests_per_second": 471.67,
+          "failed": 0,
+          "p50_ms": 16.796,
+          "p90_ms": 18.117,
+          "p95_ms": 18.422,
+          "p99_ms": 20.129,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.31,
+          "rss_kib_after": 275732
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/books/42",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 469.385,
+        "p50_ms": 67.96600000000001,
+        "p95_ms": 70.6055,
+        "p99_ms": 76.617,
+        "server_cpu_ms_per_request": 2.3033333333333337,
+        "rss_mib_after": 271.390625,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 469.73,
+          "failed": 0,
+          "p50_ms": 67.884,
+          "p90_ms": 69.835,
+          "p95_ms": 70.62,
+          "p99_ms": 76.584,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.2999999999999994,
+          "rss_kib_after": 277896
+        },
+        {
+          "requests_per_second": 469.04,
+          "failed": 0,
+          "p50_ms": 68.048,
+          "p90_ms": 69.558,
+          "p95_ms": 70.591,
+          "p99_ms": 76.65,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.3066666666666675,
+          "rss_kib_after": 277904
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/books/42",
+      "concurrency": 64,
+      "median": {
+        "requests_per_second": 472.645,
+        "p50_ms": 135.003,
+        "p95_ms": 142.469,
+        "p99_ms": 144.798,
+        "server_cpu_ms_per_request": 2.2900000000000005,
+        "rss_mib_after": 271.65234375,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 471.83,
+          "failed": 0,
+          "p50_ms": 135.115,
+          "p90_ms": 142.021,
+          "p95_ms": 143.578,
+          "p99_ms": 144.678,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.289999999999999,
+          "rss_kib_after": 278164
+        },
+        {
+          "requests_per_second": 473.46,
+          "failed": 0,
+          "p50_ms": 134.891,
+          "p90_ms": 138.835,
+          "p95_ms": 141.36,
+          "p99_ms": 144.918,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.290000000000002,
+          "rss_kib_after": 278172
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/books/42",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 472.255,
+        "p50_ms": 270.6735,
+        "p95_ms": 283.057,
+        "p99_ms": 289.93399999999997,
+        "server_cpu_ms_per_request": 2.289999999999999,
+        "rss_mib_after": 272.15234375,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 472.67,
+          "failed": 0,
+          "p50_ms": 269.857,
+          "p90_ms": 280.905,
+          "p95_ms": 282.946,
+          "p99_ms": 289.204,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.289999999999997,
+          "rss_kib_after": 278684
+        },
+        {
+          "requests_per_second": 471.84,
+          "failed": 0,
+          "p50_ms": 271.49,
+          "p90_ms": 279.296,
+          "p95_ms": 283.168,
+          "p99_ms": 290.664,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.290000000000002,
+          "rss_kib_after": 278684
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/api/health",
+      "concurrency": 1,
+      "median": {
+        "requests_per_second": 1202.3400000000001,
+        "p50_ms": 0.7575,
+        "p95_ms": 1.0195,
+        "p99_ms": 1.8415,
+        "server_cpu_ms_per_request": 0.8866666666666678,
+        "rss_mib_after": 290.75390625,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1115.92,
+          "failed": 0,
+          "p50_ms": 0.815,
+          "p90_ms": 1.004,
+          "p95_ms": 1.121,
+          "p99_ms": 1.863,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.9666666666666686,
+          "rss_kib_after": 281532
+        },
+        {
+          "requests_per_second": 1288.76,
+          "failed": 0,
+          "p50_ms": 0.7,
+          "p90_ms": 0.833,
+          "p95_ms": 0.918,
+          "p99_ms": 1.82,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.8066666666666672,
+          "rss_kib_after": 297732
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/api/health",
+      "concurrency": 8,
+      "median": {
+        "requests_per_second": 1494.93,
+        "p50_ms": 5.092499999999999,
+        "p95_ms": 6.5585,
+        "p99_ms": 7.487,
+        "server_cpu_ms_per_request": 0.7100000000000009,
+        "rss_mib_after": 309.7734375,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1469.15,
+          "failed": 0,
+          "p50_ms": 5.194,
+          "p90_ms": 6.311,
+          "p95_ms": 6.614,
+          "p99_ms": 7.219,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.7200000000000036,
+          "rss_kib_after": 305064
+        },
+        {
+          "requests_per_second": 1520.71,
+          "failed": 0,
+          "p50_ms": 4.991,
+          "p90_ms": 6.151,
+          "p95_ms": 6.503,
+          "p99_ms": 7.755,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.6999999999999982,
+          "rss_kib_after": 317208
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/api/health",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 1544.1399999999999,
+        "p50_ms": 20.726,
+        "p95_ms": 21.863,
+        "p99_ms": 27.3495,
+        "server_cpu_ms_per_request": 0.6783333333333346,
+        "rss_mib_after": 316.8671875,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1553.6,
+          "failed": 0,
+          "p50_ms": 20.628,
+          "p90_ms": 21.457,
+          "p95_ms": 21.673,
+          "p99_ms": 22.988,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.6600000000000013,
+          "rss_kib_after": 320872
+        },
+        {
+          "requests_per_second": 1534.68,
+          "failed": 0,
+          "p50_ms": 20.824,
+          "p90_ms": 21.704,
+          "p95_ms": 22.053,
+          "p99_ms": 31.711,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.6966666666666678,
+          "rss_kib_after": 324472
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/api/health",
+      "concurrency": 64,
+      "median": {
+        "requests_per_second": 1555.425,
+        "p50_ms": 40.8105,
+        "p95_ms": 42.587,
+        "p99_ms": 49.817499999999995,
+        "server_cpu_ms_per_request": 0.6716666666666669,
+        "rss_mib_after": 317.78125,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1548.0,
+          "failed": 0,
+          "p50_ms": 40.846,
+          "p90_ms": 42.251,
+          "p95_ms": 42.571,
+          "p99_ms": 56.096,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.6866666666666674,
+          "rss_kib_after": 325148
+        },
+        {
+          "requests_per_second": 1562.85,
+          "failed": 0,
+          "p50_ms": 40.775,
+          "p90_ms": 42.219,
+          "p95_ms": 42.603,
+          "p99_ms": 43.539,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.6566666666666663,
+          "rss_kib_after": 325408
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/api/health",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 1552.895,
+        "p50_ms": 82.01400000000001,
+        "p95_ms": 84.332,
+        "p99_ms": 91.4705,
+        "server_cpu_ms_per_request": 0.6716666666666644,
+        "rss_mib_after": 318.86328125,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1557.11,
+          "failed": 0,
+          "p50_ms": 81.29,
+          "p90_ms": 83.127,
+          "p95_ms": 84.386,
+          "p99_ms": 98.05,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.6833333333333323,
+          "rss_kib_after": 326380
+        },
+        {
+          "requests_per_second": 1548.68,
+          "failed": 0,
+          "p50_ms": 82.738,
+          "p90_ms": 84.033,
+          "p95_ms": 84.278,
+          "p99_ms": 84.891,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.6599999999999966,
+          "rss_kib_after": 326516
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/dynamic",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 381.62,
+        "p50_ms": 80.4805,
+        "p95_ms": 98.679,
+        "p99_ms": 113.127,
+        "server_cpu_ms_per_request": 3.1599999999999966,
+        "rss_mib_after": 317.91796875,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 369.52,
+          "failed": 0,
+          "p50_ms": 82.935,
+          "p90_ms": 94.491,
+          "p95_ms": 100.577,
+          "p99_ms": 114.606,
+          "requests": 750,
+          "server_cpu_ms_per_request": 3.453333333333319,
+          "rss_kib_after": 325888
+        },
+        {
+          "requests_per_second": 393.72,
+          "failed": 0,
+          "p50_ms": 78.026,
+          "p90_ms": 85.096,
+          "p95_ms": 96.781,
+          "p99_ms": 111.648,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.8666666666666742,
+          "rss_kib_after": 325548
+        }
+      ]
+    },
+    {
+      "server": "next-start",
+      "path": "/dynamic",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 419.95500000000004,
+        "p50_ms": 301.22749999999996,
+        "p95_ms": 314.3595,
+        "p99_ms": 334.152,
+        "server_cpu_ms_per_request": 2.7133333333333383,
+        "rss_mib_after": 319.1875,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 418.0,
+          "failed": 0,
+          "p50_ms": 301.351,
+          "p90_ms": 310.801,
+          "p95_ms": 313.075,
+          "p99_ms": 332.01,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.6533333333333458,
+          "rss_kib_after": 325760
+        },
+        {
+          "requests_per_second": 421.91,
+          "failed": 0,
+          "p50_ms": 301.104,
+          "p90_ms": 312.996,
+          "p95_ms": 315.644,
+          "p99_ms": 336.294,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.773333333333331,
+          "rss_kib_after": 326848
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/books/42",
+      "concurrency": 1,
+      "median": {
+        "requests_per_second": 450.765,
+        "p50_ms": 2.074,
+        "p95_ms": 2.755,
+        "p99_ms": 3.8005000000000004,
+        "server_cpu_ms_per_request": 2.458333333333333,
+        "rss_mib_after": 154.953125,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 440.3,
+          "failed": 0,
+          "p50_ms": 2.123,
+          "p90_ms": 2.458,
+          "p95_ms": 2.927,
+          "p99_ms": 4.001,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.5599999999999996,
+          "rss_kib_after": 156684
+        },
+        {
+          "requests_per_second": 461.23,
+          "failed": 0,
+          "p50_ms": 2.025,
+          "p90_ms": 2.352,
+          "p95_ms": 2.583,
+          "p99_ms": 3.6,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.3566666666666665,
+          "rss_kib_after": 158672
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/books/42",
+      "concurrency": 8,
+      "median": {
+        "requests_per_second": 677.4100000000001,
+        "p50_ms": 11.466,
+        "p95_ms": 13.433,
+        "p99_ms": 17.9925,
+        "server_cpu_ms_per_request": 1.875,
+        "rss_mib_after": 160.96484375,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 667.85,
+          "failed": 0,
+          "p50_ms": 11.652,
+          "p90_ms": 13.124,
+          "p95_ms": 13.927,
+          "p99_ms": 17.899,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9166666666666665,
+          "rss_kib_after": 168028
+        },
+        {
+          "requests_per_second": 686.97,
+          "failed": 0,
+          "p50_ms": 11.28,
+          "p90_ms": 12.456,
+          "p95_ms": 12.939,
+          "p99_ms": 18.086,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.8333333333333333,
+          "rss_kib_after": 164828
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/books/42",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 702.5450000000001,
+        "p50_ms": 44.567499999999995,
+        "p95_ms": 50.8125,
+        "p99_ms": 67.17699999999999,
+        "server_cpu_ms_per_request": 1.8650000000000009,
+        "rss_mib_after": 206.578125,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 697.02,
+          "failed": 0,
+          "p50_ms": 45.047,
+          "p90_ms": 47.479,
+          "p95_ms": 50.851,
+          "p99_ms": 67.323,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.7933333333333343,
+          "rss_kib_after": 203020
+        },
+        {
+          "requests_per_second": 708.07,
+          "failed": 0,
+          "p50_ms": 44.088,
+          "p90_ms": 47.706,
+          "p95_ms": 50.774,
+          "p99_ms": 67.031,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9366666666666674,
+          "rss_kib_after": 211536
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/books/42",
+      "concurrency": 64,
+      "median": {
+        "requests_per_second": 680.5799999999999,
+        "p50_ms": 92.7235,
+        "p95_ms": 99.964,
+        "p99_ms": 107.3995,
+        "server_cpu_ms_per_request": 1.9450000000000003,
+        "rss_mib_after": 236.83984375,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 683.1,
+          "failed": 0,
+          "p50_ms": 92.631,
+          "p90_ms": 98.48,
+          "p95_ms": 99.5,
+          "p99_ms": 103.268,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9299999999999997,
+          "rss_kib_after": 194056
+        },
+        {
+          "requests_per_second": 678.06,
+          "failed": 0,
+          "p50_ms": 92.816,
+          "p90_ms": 99.258,
+          "p95_ms": 100.428,
+          "p99_ms": 111.531,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9600000000000009,
+          "rss_kib_after": 242524
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/books/42",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 666.72,
+        "p50_ms": 188.765,
+        "p95_ms": 213.647,
+        "p99_ms": 234.4985,
+        "server_cpu_ms_per_request": 1.939999999999999,
+        "rss_mib_after": 271.0859375,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 675.75,
+          "failed": 0,
+          "p50_ms": 187.009,
+          "p90_ms": 209.38,
+          "p95_ms": 212.049,
+          "p99_ms": 226.223,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9066666666666663,
+          "rss_kib_after": 275544
+        },
+        {
+          "requests_per_second": 657.69,
+          "failed": 0,
+          "p50_ms": 190.521,
+          "p90_ms": 213.146,
+          "p95_ms": 215.245,
+          "p99_ms": 242.774,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9733333333333316,
+          "rss_kib_after": 277592
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/api/health",
+      "concurrency": 1,
+      "median": {
+        "requests_per_second": 1905.53,
+        "p50_ms": 0.4795,
+        "p95_ms": 0.592,
+        "p99_ms": 0.7364999999999999,
+        "server_cpu_ms_per_request": 0.5133333333333331,
+        "rss_mib_after": 285.73828125,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1877.04,
+          "failed": 0,
+          "p50_ms": 0.488,
+          "p90_ms": 0.566,
+          "p95_ms": 0.6,
+          "p99_ms": 0.75,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.5233333333333359,
+          "rss_kib_after": 292532
+        },
+        {
+          "requests_per_second": 1934.02,
+          "failed": 0,
+          "p50_ms": 0.471,
+          "p90_ms": 0.555,
+          "p95_ms": 0.584,
+          "p99_ms": 0.723,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.5033333333333303,
+          "rss_kib_after": 292596
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/api/health",
+      "concurrency": 8,
+      "median": {
+        "requests_per_second": 4192.42,
+        "p50_ms": 1.8744999999999998,
+        "p95_ms": 2.7305,
+        "p99_ms": 4.527,
+        "server_cpu_ms_per_request": 0.36333333333333445,
+        "rss_mib_after": 286.00390625,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 4167.81,
+          "failed": 0,
+          "p50_ms": 1.898,
+          "p90_ms": 2.206,
+          "p95_ms": 2.367,
+          "p99_ms": 4.37,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.36666666666666947,
+          "rss_kib_after": 292724
+        },
+        {
+          "requests_per_second": 4217.03,
+          "failed": 0,
+          "p50_ms": 1.851,
+          "p90_ms": 2.189,
+          "p95_ms": 3.094,
+          "p99_ms": 4.684,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.35999999999999943,
+          "rss_kib_after": 292868
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/api/health",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 4089.7,
+        "p50_ms": 7.5895,
+        "p95_ms": 12.101500000000001,
+        "p99_ms": 13.635,
+        "server_cpu_ms_per_request": 0.4316666666666672,
+        "rss_mib_after": 286.90234375,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 3882.46,
+          "failed": 0,
+          "p50_ms": 7.932,
+          "p90_ms": 11.602,
+          "p95_ms": 12.896,
+          "p99_ms": 14.649,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.40000000000000097,
+          "rss_kib_after": 292948
+        },
+        {
+          "requests_per_second": 4296.94,
+          "failed": 0,
+          "p50_ms": 7.247,
+          "p90_ms": 10.326,
+          "p95_ms": 11.307,
+          "p99_ms": 12.621,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.4633333333333335,
+          "rss_kib_after": 293788
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/api/health",
+      "concurrency": 64,
+      "median": {
+        "requests_per_second": 4383.18,
+        "p50_ms": 13.713000000000001,
+        "p95_ms": 18.053,
+        "p99_ms": 22.085,
+        "server_cpu_ms_per_request": 0.3533333333333341,
+        "rss_mib_after": 216.6484375,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 4439.58,
+          "failed": 0,
+          "p50_ms": 13.701,
+          "p90_ms": 16.019,
+          "p95_ms": 16.233,
+          "p99_ms": 21.962,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.3499999999999991,
+          "rss_kib_after": 215912
+        },
+        {
+          "requests_per_second": 4326.78,
+          "failed": 0,
+          "p50_ms": 13.725,
+          "p90_ms": 16.985,
+          "p95_ms": 19.873,
+          "p99_ms": 22.208,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.35666666666666913,
+          "rss_kib_after": 221848
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/api/health",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 4422.475,
+        "p50_ms": 27.9745,
+        "p95_ms": 34.9025,
+        "p99_ms": 39.2095,
+        "server_cpu_ms_per_request": 0.35166666666666657,
+        "rss_mib_after": 217.7109375,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 4443.13,
+          "failed": 0,
+          "p50_ms": 27.657,
+          "p90_ms": 29.937,
+          "p95_ms": 32.154,
+          "p99_ms": 38.846,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.34666666666666873,
+          "rss_kib_after": 222652
+        },
+        {
+          "requests_per_second": 4401.82,
+          "failed": 0,
+          "p50_ms": 28.292,
+          "p90_ms": 32.589,
+          "p95_ms": 37.651,
+          "p99_ms": 39.573,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.35666666666666436,
+          "rss_kib_after": 222936
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/dynamic",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 424.605,
+        "p50_ms": 68.8245,
+        "p95_ms": 98.2505,
+        "p99_ms": 107.40700000000001,
+        "server_cpu_ms_per_request": 2.3800000000000052,
+        "rss_mib_after": 222.23046875,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 418.74,
+          "failed": 0,
+          "p50_ms": 70.138,
+          "p90_ms": 92.341,
+          "p95_ms": 99.531,
+          "p99_ms": 109.852,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.4399999999999977,
+          "rss_kib_after": 223272
+        },
+        {
+          "requests_per_second": 430.47,
+          "failed": 0,
+          "p50_ms": 67.511,
+          "p90_ms": 83.602,
+          "p95_ms": 96.97,
+          "p99_ms": 104.962,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.3200000000000123,
+          "rss_kib_after": 227564
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1a",
+      "path": "/dynamic",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 627.635,
+        "p50_ms": 195.5635,
+        "p95_ms": 243.954,
+        "p99_ms": 268.275,
+        "server_cpu_ms_per_request": 2.1466666666666656,
+        "rss_mib_after": 270.58203125,
+        "failed": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 629.24,
+          "failed": 0,
+          "p50_ms": 194.211,
+          "p90_ms": 230.206,
+          "p95_ms": 234.552,
+          "p99_ms": 282.081,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.160000000000006,
+          "rss_kib_after": 276700
+        },
+        {
+          "requests_per_second": 626.03,
+          "failed": 0,
+          "p50_ms": 196.916,
+          "p90_ms": 216.561,
+          "p95_ms": 253.356,
+          "p99_ms": 254.469,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.1333333333333258,
+          "rss_kib_after": 277076
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/books/42",
+      "concurrency": 1,
+      "median": {
+        "requests_per_second": 444.33500000000004,
+        "p50_ms": 2.094,
+        "p95_ms": 2.9770000000000003,
+        "p99_ms": 4.086,
+        "server_cpu_ms_per_request": 2.5083333333333337,
+        "rss_mib_after": 167.32421875,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 1.9221988333333335,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 432.26,
+          "failed": 0,
+          "p50_ms": 2.147,
+          "p90_ms": 2.523,
+          "p95_ms": 3.156,
+          "p99_ms": 4.317,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.6133333333333333,
+          "rss_kib_after": 169480
+        },
+        {
+          "requests_per_second": 456.41,
+          "failed": 0,
+          "p50_ms": 2.041,
+          "p90_ms": 2.394,
+          "p95_ms": 2.798,
+          "p99_ms": 3.855,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.4033333333333338,
+          "rss_kib_after": 171340
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/books/42",
+      "concurrency": 8,
+      "median": {
+        "requests_per_second": 679.62,
+        "p50_ms": 11.403500000000001,
+        "p95_ms": 13.7975,
+        "p99_ms": 17.9095,
+        "server_cpu_ms_per_request": 1.8816666666666666,
+        "rss_mib_after": 175.3984375,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 10.743981,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 672.77,
+          "failed": 0,
+          "p50_ms": 11.537,
+          "p90_ms": 13.116,
+          "p95_ms": 13.814,
+          "p99_ms": 18.135,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9199999999999995,
+          "rss_kib_after": 183168
+        },
+        {
+          "requests_per_second": 686.47,
+          "failed": 0,
+          "p50_ms": 11.27,
+          "p90_ms": 12.534,
+          "p95_ms": 13.781,
+          "p99_ms": 17.684,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.8433333333333337,
+          "rss_kib_after": 179608
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/books/42",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 703.1949999999999,
+        "p50_ms": 44.887,
+        "p95_ms": 50.738,
+        "p99_ms": 57.993500000000004,
+        "server_cpu_ms_per_request": 1.8833333333333335,
+        "rss_mib_after": 217.03125,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 41.62102216666667,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 699.12,
+          "failed": 0,
+          "p50_ms": 45.473,
+          "p90_ms": 48.741,
+          "p95_ms": 50.034,
+          "p99_ms": 51.075,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.8333333333333321,
+          "rss_kib_after": 212432
+        },
+        {
+          "requests_per_second": 707.27,
+          "failed": 0,
+          "p50_ms": 44.301,
+          "p90_ms": 47.492,
+          "p95_ms": 51.442,
+          "p99_ms": 64.912,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.933333333333335,
+          "rss_kib_after": 222240
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/books/42",
+      "concurrency": 64,
+      "median": {
+        "requests_per_second": 675.885,
+        "p50_ms": 93.1705,
+        "p95_ms": 101.4625,
+        "p99_ms": 106.881,
+        "server_cpu_ms_per_request": 1.9450000000000003,
+        "rss_mib_after": 249.51171875,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 84.48914183333333,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 672.85,
+          "failed": 0,
+          "p50_ms": 93.878,
+          "p90_ms": 100.03,
+          "p95_ms": 101.327,
+          "p99_ms": 103.605,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9466666666666677,
+          "rss_kib_after": 207088
+        },
+        {
+          "requests_per_second": 678.92,
+          "failed": 0,
+          "p50_ms": 92.463,
+          "p90_ms": 99.606,
+          "p95_ms": 101.598,
+          "p99_ms": 110.157,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9433333333333327,
+          "rss_kib_after": 255500
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/books/42",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 672.675,
+        "p50_ms": 187.161,
+        "p95_ms": 210.946,
+        "p99_ms": 234.0745,
+        "server_cpu_ms_per_request": 1.930000000000001,
+        "rss_mib_after": 266.16015625,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 165.62781583333333,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 669.0,
+          "failed": 0,
+          "p50_ms": 190.014,
+          "p90_ms": 199.781,
+          "p95_ms": 209.891,
+          "p99_ms": 228.697,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.956666666666668,
+          "rss_kib_after": 230132
+        },
+        {
+          "requests_per_second": 676.35,
+          "failed": 0,
+          "p50_ms": 184.308,
+          "p90_ms": 208.414,
+          "p95_ms": 212.001,
+          "p99_ms": 239.452,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9033333333333338,
+          "rss_kib_after": 272548
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/api/health",
+      "concurrency": 1,
+      "median": {
+        "requests_per_second": 1886.13,
+        "p50_ms": 0.4775,
+        "p95_ms": 0.6114999999999999,
+        "p99_ms": 0.7865,
+        "server_cpu_ms_per_request": 0.5333333333333339,
+        "rss_mib_after": 274.90625,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 0.3242868333333414,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1895.06,
+          "failed": 0,
+          "p50_ms": 0.474,
+          "p90_ms": 0.568,
+          "p95_ms": 0.61,
+          "p99_ms": 0.819,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.5433333333333319,
+          "rss_kib_after": 281472
+        },
+        {
+          "requests_per_second": 1877.2,
+          "failed": 0,
+          "p50_ms": 0.481,
+          "p90_ms": 0.574,
+          "p95_ms": 0.613,
+          "p99_ms": 0.754,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.5233333333333359,
+          "rss_kib_after": 281504
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/api/health",
+      "concurrency": 8,
+      "median": {
+        "requests_per_second": 4093.3450000000003,
+        "p50_ms": 1.9385,
+        "p95_ms": 2.6615,
+        "p99_ms": 4.648,
+        "server_cpu_ms_per_request": 0.375,
+        "rss_mib_after": 275.0,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 1.4273573333333616,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 4016.48,
+          "failed": 0,
+          "p50_ms": 1.976,
+          "p90_ms": 2.304,
+          "p95_ms": 2.766,
+          "p99_ms": 4.581,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.38000000000000017,
+          "rss_kib_after": 281544
+        },
+        {
+          "requests_per_second": 4170.21,
+          "failed": 0,
+          "p50_ms": 1.901,
+          "p90_ms": 2.185,
+          "p95_ms": 2.557,
+          "p99_ms": 4.715,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.36999999999999983,
+          "rss_kib_after": 281600
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/api/health",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 3856.345,
+        "p50_ms": 7.9555,
+        "p95_ms": 12.6365,
+        "p99_ms": 15.956499999999998,
+        "server_cpu_ms_per_request": 0.45333333333333314,
+        "rss_mib_after": 275.23046875,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 10.95546783333331,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 3685.99,
+          "failed": 0,
+          "p50_ms": 8.334,
+          "p90_ms": 12.118,
+          "p95_ms": 13.155,
+          "p99_ms": 15.126,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.423333333333332,
+          "rss_kib_after": 281884
+        },
+        {
+          "requests_per_second": 4026.7,
+          "failed": 0,
+          "p50_ms": 7.577,
+          "p90_ms": 11.217,
+          "p95_ms": 12.118,
+          "p99_ms": 16.787,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.4833333333333343,
+          "rss_kib_after": 281836
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/api/health",
+      "concurrency": 64,
+      "median": {
+        "requests_per_second": 4144.16,
+        "p50_ms": 14.453,
+        "p95_ms": 18.423000000000002,
+        "p99_ms": 23.0015,
+        "server_cpu_ms_per_request": 0.378333333333335,
+        "rss_mib_after": 219.5234375,
+        "failed": 0,
+        "queued_fraction": 0.0145,
+        "mean_queue_wait_ms": 0.7417816091954021,
+        "mean_execution_ms": 10.312651500000015,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 4079.37,
+          "failed": 0,
+          "p50_ms": 14.492,
+          "p90_ms": 17.537,
+          "p95_ms": 19.605,
+          "p99_ms": 22.837,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.39000000000000057,
+          "rss_kib_after": 224536
+        },
+        {
+          "requests_per_second": 4208.95,
+          "failed": 0,
+          "p50_ms": 14.414,
+          "p90_ms": 16.999,
+          "p95_ms": 17.241,
+          "p99_ms": 23.166,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.36666666666666947,
+          "rss_kib_after": 224792
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/api/health",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 4265.645,
+        "p50_ms": 29.0045,
+        "p95_ms": 36.079,
+        "p99_ms": 40.3905,
+        "server_cpu_ms_per_request": 0.3683333333333323,
+        "rss_mib_after": 220.23046875,
+        "failed": 0,
+        "queued_fraction": 0.9551666666666667,
+        "mean_queue_wait_ms": 4.7684925841912404,
+        "mean_execution_ms": 10.016686666666677,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 4312.54,
+          "failed": 0,
+          "p50_ms": 28.529,
+          "p90_ms": 31.112,
+          "p95_ms": 33.618,
+          "p99_ms": 40.071,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.3633333333333345,
+          "rss_kib_after": 225200
+        },
+        {
+          "requests_per_second": 4218.75,
+          "failed": 0,
+          "p50_ms": 29.48,
+          "p90_ms": 33.645,
+          "p95_ms": 38.54,
+          "p99_ms": 40.71,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.37333333333333013,
+          "rss_kib_after": 225516
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/dynamic",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 419.695,
+        "p50_ms": 71.23349999999999,
+        "p95_ms": 95.78,
+        "p99_ms": 110.679,
+        "server_cpu_ms_per_request": 2.4133333333333367,
+        "rss_mib_after": 236.94140625,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 73.02866866666652,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 423.38,
+          "failed": 0,
+          "p50_ms": 69.243,
+          "p90_ms": 90.56,
+          "p95_ms": 94.022,
+          "p99_ms": 106.092,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.4666666666666592,
+          "rss_kib_after": 241124
+        },
+        {
+          "requests_per_second": 416.01,
+          "failed": 0,
+          "p50_ms": 73.224,
+          "p90_ms": 86.117,
+          "p95_ms": 97.538,
+          "p99_ms": 115.266,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.3600000000000136,
+          "rss_kib_after": 242628
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i1",
+      "path": "/dynamic",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 633.31,
+        "p50_ms": 190.4435,
+        "p95_ms": 255.841,
+        "p99_ms": 257.4655,
+        "server_cpu_ms_per_request": 2.1599999999999966,
+        "rss_mib_after": 280.74609375,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 177.97032533333308,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 636.01,
+          "failed": 0,
+          "p50_ms": 190.266,
+          "p90_ms": 209.844,
+          "p95_ms": 261.653,
+          "p99_ms": 262.844,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.1199999999999855,
+          "rss_kib_after": 287332
+        },
+        {
+          "requests_per_second": 630.61,
+          "failed": 0,
+          "p50_ms": 190.621,
+          "p90_ms": 203.135,
+          "p95_ms": 250.029,
+          "p99_ms": 252.087,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.2000000000000073,
+          "rss_kib_after": 287484
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/books/42",
+      "concurrency": 1,
+      "median": {
+        "requests_per_second": 385.2,
+        "p50_ms": 2.4515000000000002,
+        "p95_ms": 3.2445,
+        "p99_ms": 4.239,
+        "server_cpu_ms_per_request": 2.8983333333333334,
+        "rss_mib_after": 273.8515625,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 2.2405221666666666,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 374.06,
+          "failed": 0,
+          "p50_ms": 2.513,
+          "p90_ms": 2.912,
+          "p95_ms": 3.457,
+          "p99_ms": 4.47,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 3.0700000000000003,
+          "rss_kib_after": 274440
+        },
+        {
+          "requests_per_second": 396.34,
+          "failed": 0,
+          "p50_ms": 2.39,
+          "p90_ms": 2.707,
+          "p95_ms": 3.032,
+          "p99_ms": 4.008,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.726666666666667,
+          "rss_kib_after": 280424
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/books/42",
+      "concurrency": 8,
+      "median": {
+        "requests_per_second": 1118.755,
+        "p50_ms": 6.8095,
+        "p95_ms": 9.1535,
+        "p99_ms": 11.3835,
+        "server_cpu_ms_per_request": 2.245,
+        "rss_mib_after": 291.50390625,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 6.193435833333334,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1109.32,
+          "failed": 0,
+          "p50_ms": 6.879,
+          "p90_ms": 8.603,
+          "p95_ms": 9.091,
+          "p99_ms": 11.674,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.25,
+          "rss_kib_after": 295856
+        },
+        {
+          "requests_per_second": 1128.19,
+          "failed": 0,
+          "p50_ms": 6.74,
+          "p90_ms": 8.505,
+          "p95_ms": 9.216,
+          "p99_ms": 11.093,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.2399999999999998,
+          "rss_kib_after": 298500
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/books/42",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 1319.07,
+        "p50_ms": 23.7075,
+        "p95_ms": 28.471,
+        "p99_ms": 35.6665,
+        "server_cpu_ms_per_request": 1.9316666666666662,
+        "rss_mib_after": 327.05078125,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 21.83348066666667,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1312.83,
+          "failed": 0,
+          "p50_ms": 23.88,
+          "p90_ms": 26.126,
+          "p95_ms": 28.587,
+          "p99_ms": 34.711,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9199999999999995,
+          "rss_kib_after": 324284
+        },
+        {
+          "requests_per_second": 1325.31,
+          "failed": 0,
+          "p50_ms": 23.535,
+          "p90_ms": 25.916,
+          "p95_ms": 28.355,
+          "p99_ms": 36.622,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9433333333333327,
+          "rss_kib_after": 334900
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/books/42",
+      "concurrency": 64,
+      "median": {
+        "requests_per_second": 1318.47,
+        "p50_ms": 47.366,
+        "p95_ms": 53.828500000000005,
+        "p99_ms": 69.02699999999999,
+        "server_cpu_ms_per_request": 1.896666666666666,
+        "rss_mib_after": 368.87109375,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 44.06341883333333,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1315.43,
+          "failed": 0,
+          "p50_ms": 47.627,
+          "p90_ms": 51.478,
+          "p95_ms": 54.517,
+          "p99_ms": 69.957,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.9066666666666663,
+          "rss_kib_after": 371544
+        },
+        {
+          "requests_per_second": 1321.51,
+          "failed": 0,
+          "p50_ms": 47.105,
+          "p90_ms": 51.359,
+          "p95_ms": 53.14,
+          "p99_ms": 68.097,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.8866666666666656,
+          "rss_kib_after": 377724
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/books/42",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 1248.915,
+        "p50_ms": 99.57,
+        "p95_ms": 109.247,
+        "p99_ms": 125.31049999999999,
+        "server_cpu_ms_per_request": 2.0233333333333334,
+        "rss_mib_after": 409.0390625,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 89.7806915,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1246.98,
+          "failed": 0,
+          "p50_ms": 99.707,
+          "p90_ms": 106.211,
+          "p95_ms": 109.109,
+          "p99_ms": 129.207,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.0266666666666664,
+          "rss_kib_after": 402812
+        },
+        {
+          "requests_per_second": 1250.85,
+          "failed": 0,
+          "p50_ms": 99.433,
+          "p90_ms": 106.551,
+          "p95_ms": 109.385,
+          "p99_ms": 121.414,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.020000000000001,
+          "rss_kib_after": 418856
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/api/health",
+      "concurrency": 1,
+      "median": {
+        "requests_per_second": 1517.83,
+        "p50_ms": 0.5894999999999999,
+        "p95_ms": 0.8440000000000001,
+        "p99_ms": 1.1909999999999998,
+        "server_cpu_ms_per_request": 0.6849999999999998,
+        "rss_mib_after": 413.22265625,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 0.43446533333334025,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1461.52,
+          "failed": 0,
+          "p50_ms": 0.603,
+          "p90_ms": 0.828,
+          "p95_ms": 0.915,
+          "p99_ms": 1.398,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.7233333333333338,
+          "rss_kib_after": 423124
+        },
+        {
+          "requests_per_second": 1574.14,
+          "failed": 0,
+          "p50_ms": 0.576,
+          "p90_ms": 0.732,
+          "p95_ms": 0.773,
+          "p99_ms": 0.984,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.646666666666666,
+          "rss_kib_after": 423140
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/api/health",
+      "concurrency": 8,
+      "median": {
+        "requests_per_second": 6048.764999999999,
+        "p50_ms": 1.1615,
+        "p95_ms": 2.3555,
+        "p99_ms": 4.229,
+        "server_cpu_ms_per_request": 0.42166666666666686,
+        "rss_mib_after": 413.23046875,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 0.7680599999999913,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 6118.91,
+          "failed": 0,
+          "p50_ms": 1.155,
+          "p90_ms": 1.564,
+          "p95_ms": 2.059,
+          "p99_ms": 4.461,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.41333333333333633,
+          "rss_kib_after": 423144
+        },
+        {
+          "requests_per_second": 5978.62,
+          "failed": 0,
+          "p50_ms": 1.168,
+          "p90_ms": 1.72,
+          "p95_ms": 2.652,
+          "p99_ms": 3.997,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.42999999999999733,
+          "rss_kib_after": 423148
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/api/health",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 7331.530000000001,
+        "p50_ms": 4.261,
+        "p95_ms": 7.125500000000001,
+        "p99_ms": 9.3025,
+        "server_cpu_ms_per_request": 0.39833333333333343,
+        "rss_mib_after": 413.203125,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 3.1117285000000265,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 7302.25,
+          "failed": 0,
+          "p50_ms": 4.279,
+          "p90_ms": 6.036,
+          "p95_ms": 7.194,
+          "p99_ms": 10.212,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.39666666666667066,
+          "rss_kib_after": 423072
+        },
+        {
+          "requests_per_second": 7360.81,
+          "failed": 0,
+          "p50_ms": 4.243,
+          "p90_ms": 6.159,
+          "p95_ms": 7.057,
+          "p99_ms": 8.393,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.39999999999999625,
+          "rss_kib_after": 423120
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/api/health",
+      "concurrency": 64,
+      "median": {
+        "requests_per_second": 6897.255,
+        "p50_ms": 9.495000000000001,
+        "p95_ms": 14.1795,
+        "p99_ms": 16.711,
+        "server_cpu_ms_per_request": 0.4283333333333322,
+        "rss_mib_after": 413.390625,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 10.101635853416964,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 6847.99,
+          "failed": 0,
+          "p50_ms": 9.534,
+          "p90_ms": 13.197,
+          "p95_ms": 13.749,
+          "p99_ms": 17.34,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.44333333333333275,
+          "rss_kib_after": 423220
+        },
+        {
+          "requests_per_second": 6946.52,
+          "failed": 0,
+          "p50_ms": 9.456,
+          "p90_ms": 13.444,
+          "p95_ms": 14.61,
+          "p99_ms": 16.082,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.4133333333333316,
+          "rss_kib_after": 423312
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/api/health",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 6697.605,
+        "p50_ms": 18.450499999999998,
+        "p95_ms": 26.2105,
+        "p99_ms": 29.933,
+        "server_cpu_ms_per_request": 0.4299999999999997,
+        "rss_mib_after": 413.9609375,
+        "failed": 0,
+        "queued_fraction": 0.00016644474034620507,
+        "mean_queue_wait_ms": 0.004,
+        "mean_execution_ms": 12.546406125166435,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 6731.76,
+          "failed": 0,
+          "p50_ms": 18.453,
+          "p90_ms": 24.301,
+          "p95_ms": 26.174,
+          "p99_ms": 29.416,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.423333333333332,
+          "rss_kib_after": 423704
+        },
+        {
+          "requests_per_second": 6663.45,
+          "failed": 0,
+          "p50_ms": 18.448,
+          "p90_ms": 23.668,
+          "p95_ms": 26.247,
+          "p99_ms": 30.45,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.4366666666666674,
+          "rss_kib_after": 423896
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/dynamic",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 455.64,
+        "p50_ms": 65.9645,
+        "p95_ms": 78.8025,
+        "p99_ms": 100.863,
+        "server_cpu_ms_per_request": 3.113333333333325,
+        "rss_mib_after": 342.70703125,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 66.80228533333334,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 454.71,
+          "failed": 0,
+          "p50_ms": 65.949,
+          "p90_ms": 73.005,
+          "p95_ms": 77.713,
+          "p99_ms": 99.903,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.919999999999997,
+          "rss_kib_after": 348052
+        },
+        {
+          "requests_per_second": 456.57,
+          "failed": 0,
+          "p50_ms": 65.98,
+          "p90_ms": 72.67,
+          "p95_ms": 79.892,
+          "p99_ms": 101.823,
+          "requests": 750,
+          "server_cpu_ms_per_request": 3.306666666666653,
+          "rss_kib_after": 350932
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i2",
+      "path": "/dynamic",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 1040.505,
+        "p50_ms": 110.95349999999999,
+        "p95_ms": 142.5205,
+        "p99_ms": 143.10399999999998,
+        "server_cpu_ms_per_request": 2.386666666666666,
+        "rss_mib_after": 394.38671875,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 106.40925066666675,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1036.49,
+          "failed": 0,
+          "p50_ms": 109.113,
+          "p90_ms": 140.274,
+          "p95_ms": 141.394,
+          "p99_ms": 142.391,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.4933333333333394,
+          "rss_kib_after": 403440
+        },
+        {
+          "requests_per_second": 1044.52,
+          "failed": 0,
+          "p50_ms": 112.794,
+          "p90_ms": 127.876,
+          "p95_ms": 143.647,
+          "p99_ms": 143.817,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.279999999999992,
+          "rss_kib_after": 403852
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/books/42",
+      "concurrency": 1,
+      "median": {
+        "requests_per_second": 246.5,
+        "p50_ms": 3.4145,
+        "p95_ms": 7.151,
+        "p99_ms": 9.097999999999999,
+        "server_cpu_ms_per_request": 4.7283333333333335,
+        "rss_mib_after": 455.62890625,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 3.601282,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 258.81,
+          "failed": 0,
+          "p50_ms": 3.022,
+          "p90_ms": 5.612,
+          "p95_ms": 6.777,
+          "p99_ms": 9.221,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 4.646666666666667,
+          "rss_kib_after": 457224
+        },
+        {
+          "requests_per_second": 234.19,
+          "failed": 0,
+          "p50_ms": 3.807,
+          "p90_ms": 6.944,
+          "p95_ms": 7.525,
+          "p99_ms": 8.975,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 4.81,
+          "rss_kib_after": 466564
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/books/42",
+      "concurrency": 8,
+      "median": {
+        "requests_per_second": 1446.05,
+        "p50_ms": 5.1129999999999995,
+        "p95_ms": 8.077,
+        "p99_ms": 10.7745,
+        "server_cpu_ms_per_request": 2.96,
+        "rss_mib_after": 488.9765625,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 4.269370833333333,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1420.98,
+          "failed": 0,
+          "p50_ms": 5.207,
+          "p90_ms": 7.349,
+          "p95_ms": 8.311,
+          "p99_ms": 11.21,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 3.043333333333332,
+          "rss_kib_after": 498196
+        },
+        {
+          "requests_per_second": 1471.12,
+          "failed": 0,
+          "p50_ms": 5.019,
+          "p90_ms": 7.095,
+          "p95_ms": 7.843,
+          "p99_ms": 10.339,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.8766666666666674,
+          "rss_kib_after": 500712
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/books/42",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 1893.575,
+        "p50_ms": 16.4545,
+        "p95_ms": 22.4205,
+        "p99_ms": 28.408,
+        "server_cpu_ms_per_request": 2.4183333333333317,
+        "rss_mib_after": 541.5546875,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 14.065816,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1905.72,
+          "failed": 0,
+          "p50_ms": 16.346,
+          "p90_ms": 20.317,
+          "p95_ms": 22.029,
+          "p99_ms": 27.941,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.393333333333333,
+          "rss_kib_after": 537292
+        },
+        {
+          "requests_per_second": 1881.43,
+          "failed": 0,
+          "p50_ms": 16.563,
+          "p90_ms": 20.823,
+          "p95_ms": 22.812,
+          "p99_ms": 28.875,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.4433333333333302,
+          "rss_kib_after": 554552
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/books/42",
+      "concurrency": 64,
+      "median": {
+        "requests_per_second": 2040.1149999999998,
+        "p50_ms": 30.4815,
+        "p95_ms": 39.7765,
+        "p99_ms": 53.8615,
+        "server_cpu_ms_per_request": 2.2816666666666685,
+        "rss_mib_after": 590.328125,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 27.0025935,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 2008.28,
+          "failed": 0,
+          "p50_ms": 30.943,
+          "p90_ms": 37.512,
+          "p95_ms": 39.701,
+          "p99_ms": 57.409,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.356666666666669,
+          "rss_kib_after": 580808
+        },
+        {
+          "requests_per_second": 2071.95,
+          "failed": 0,
+          "p50_ms": 30.02,
+          "p90_ms": 35.582,
+          "p95_ms": 39.852,
+          "p99_ms": 50.314,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.206666666666668,
+          "rss_kib_after": 604496
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/books/42",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 2103.96,
+        "p50_ms": 58.848,
+        "p95_ms": 76.988,
+        "p99_ms": 89.8785,
+        "server_cpu_ms_per_request": 2.156666666666669,
+        "rss_mib_after": 641.5,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 52.41198266666667,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 2095.19,
+          "failed": 0,
+          "p50_ms": 59.186,
+          "p90_ms": 70.211,
+          "p95_ms": 74.587,
+          "p99_ms": 85.239,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.183333333333337,
+          "rss_kib_after": 651668
+        },
+        {
+          "requests_per_second": 2112.73,
+          "failed": 0,
+          "p50_ms": 58.51,
+          "p90_ms": 70.451,
+          "p95_ms": 79.389,
+          "p99_ms": 94.518,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 2.1300000000000003,
+          "rss_kib_after": 656896
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/api/health",
+      "concurrency": 1,
+      "median": {
+        "requests_per_second": 902.07,
+        "p50_ms": 0.9095,
+        "p95_ms": 1.802,
+        "p99_ms": 2.1310000000000002,
+        "server_cpu_ms_per_request": 1.2466666666666673,
+        "rss_mib_after": 584.1171875,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 0.8081080000000043,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1048.15,
+          "failed": 0,
+          "p50_ms": 0.835,
+          "p90_ms": 1.161,
+          "p95_ms": 1.325,
+          "p99_ms": 1.768,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.0666666666666675,
+          "rss_kib_after": 662568
+        },
+        {
+          "requests_per_second": 755.99,
+          "failed": 0,
+          "p50_ms": 0.984,
+          "p90_ms": 2.214,
+          "p95_ms": 2.279,
+          "p99_ms": 2.494,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 1.426666666666667,
+          "rss_kib_after": 598136
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/api/health",
+      "concurrency": 8,
+      "median": {
+        "requests_per_second": 6190.885,
+        "p50_ms": 1.109,
+        "p95_ms": 2.49,
+        "p99_ms": 4.185499999999999,
+        "server_cpu_ms_per_request": 0.6000000000000014,
+        "rss_mib_after": 584.234375,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 0.559501166666659,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 6270.76,
+          "failed": 0,
+          "p50_ms": 1.087,
+          "p90_ms": 1.759,
+          "p95_ms": 2.442,
+          "p99_ms": 4.555,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.5966666666666688,
+          "rss_kib_after": 598204
+        },
+        {
+          "requests_per_second": 6111.01,
+          "failed": 0,
+          "p50_ms": 1.131,
+          "p90_ms": 1.904,
+          "p95_ms": 2.538,
+          "p99_ms": 3.816,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.603333333333334,
+          "rss_kib_after": 598256
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/api/health",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 9616.175,
+        "p50_ms": 2.9635,
+        "p95_ms": 5.793,
+        "p99_ms": 8.4195,
+        "server_cpu_ms_per_request": 0.4366666666666651,
+        "rss_mib_after": 584.27734375,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 1.425502999999992,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 9788.38,
+          "failed": 0,
+          "p50_ms": 2.913,
+          "p90_ms": 4.987,
+          "p95_ms": 5.663,
+          "p99_ms": 7.484,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.4366666666666627,
+          "rss_kib_after": 598284
+        },
+        {
+          "requests_per_second": 9443.97,
+          "failed": 0,
+          "p50_ms": 3.014,
+          "p90_ms": 5.044,
+          "p95_ms": 5.923,
+          "p99_ms": 9.355,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.4366666666666674,
+          "rss_kib_after": 598300
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/api/health",
+      "concurrency": 64,
+      "median": {
+        "requests_per_second": 10226.355,
+        "p50_ms": 5.665,
+        "p95_ms": 10.7355,
+        "p99_ms": 14.298,
+        "server_cpu_ms_per_request": 0.4266666666666671,
+        "rss_mib_after": 584.45703125,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 3.135590333333331,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 10398.18,
+          "failed": 0,
+          "p50_ms": 5.535,
+          "p90_ms": 9.056,
+          "p95_ms": 10.477,
+          "p99_ms": 13.989,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.4200000000000017,
+          "rss_kib_after": 598380
+        },
+        {
+          "requests_per_second": 10054.53,
+          "failed": 0,
+          "p50_ms": 5.795,
+          "p90_ms": 9.51,
+          "p95_ms": 10.994,
+          "p99_ms": 14.607,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.4333333333333324,
+          "rss_kib_after": 598484
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/api/health",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 9949.045,
+        "p50_ms": 12.3265,
+        "p95_ms": 19.207,
+        "p99_ms": 24.0285,
+        "server_cpu_ms_per_request": 0.4450000000000003,
+        "rss_mib_after": 586.1328125,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 9.793992833333334,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 10187.59,
+          "failed": 0,
+          "p50_ms": 12.056,
+          "p90_ms": 16.712,
+          "p95_ms": 18.092,
+          "p99_ms": 20.469,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.4333333333333324,
+          "rss_kib_after": 598956
+        },
+        {
+          "requests_per_second": 9710.5,
+          "failed": 0,
+          "p50_ms": 12.597,
+          "p90_ms": 18.243,
+          "p95_ms": 20.322,
+          "p99_ms": 27.588,
+          "requests": 3000,
+          "server_cpu_ms_per_request": 0.4566666666666682,
+          "rss_kib_after": 600200
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/dynamic",
+      "concurrency": 32,
+      "median": {
+        "requests_per_second": 452.34000000000003,
+        "p50_ms": 67.1405,
+        "p95_ms": 78.0655,
+        "p99_ms": 85.756,
+        "server_cpu_ms_per_request": 6.426666666666667,
+        "rss_mib_after": 587.51953125,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 67.52920200000001,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 448.69,
+          "failed": 0,
+          "p50_ms": 67.522,
+          "p90_ms": 77.069,
+          "p95_ms": 80.29,
+          "p99_ms": 87.53,
+          "requests": 750,
+          "server_cpu_ms_per_request": 6.826666666666654,
+          "rss_kib_after": 601352
+        },
+        {
+          "requests_per_second": 455.99,
+          "failed": 0,
+          "p50_ms": 66.759,
+          "p90_ms": 72.654,
+          "p95_ms": 75.841,
+          "p99_ms": 83.982,
+          "requests": 750,
+          "server_cpu_ms_per_request": 6.02666666666668,
+          "rss_kib_after": 601620
+        }
+      ]
+    },
+    {
+      "server": "nextrs-1b-i4",
+      "path": "/dynamic",
+      "concurrency": 128,
+      "median": {
+        "requests_per_second": 1226.855,
+        "p50_ms": 89.11500000000001,
+        "p95_ms": 143.846,
+        "p99_ms": 152.611,
+        "server_cpu_ms_per_request": 2.9933333333333394,
+        "rss_mib_after": 641.70703125,
+        "failed": 0,
+        "queued_fraction": 0.0,
+        "mean_queue_wait_ms": 0.0,
+        "mean_execution_ms": 91.05432600000002,
+        "rejected": 0
+      },
+      "runs": [
+        {
+          "requests_per_second": 1118.86,
+          "failed": 0,
+          "p50_ms": 91.917,
+          "p90_ms": 167.922,
+          "p95_ms": 176.215,
+          "p99_ms": 190.088,
+          "requests": 750,
+          "server_cpu_ms_per_request": 3.546666666666662,
+          "rss_kib_after": 622628
+        },
+        {
+          "requests_per_second": 1334.85,
+          "failed": 0,
+          "p50_ms": 86.313,
+          "p90_ms": 106.856,
+          "p95_ms": 111.477,
+          "p99_ms": 115.134,
+          "requests": 750,
+          "server_cpu_ms_per_request": 2.440000000000017,
+          "rss_kib_after": 657108
+        }
+      ]
+    }
+  ]
+}

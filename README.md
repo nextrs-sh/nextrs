@@ -39,8 +39,10 @@ Next.js runtime, and it is **not** a production-ready replacement for
 
 NextRS has completed **Phase 0** (serving prerendered build output from
 Rust) and **Phase 1A** (running Next.js's own compiled route handlers in an
-embedded V8 isolate). It is tested against one small App Router fixture built
-with Next.js 16.4.3.
+embedded V8 isolate), and **Phase 1B** (hardening that executor: bounded
+streaming, supervision, limits and an isolate pool). It is tested against
+one small App Router fixture built with Next.js 16.4.3, and also passes the
+same comparison suite on 16.4.4 and 16.4.5.
 
 - **Works:** `nextrs start` serves static assets, prerendered pages, React
   Server Components (RSC) payloads and the not-found page from Rust.
@@ -108,6 +110,9 @@ real applications.
 | Build inspection and unsupported-feature detection | ✅ Supported | `nextrs inspect` and the startup check |
 | Dynamic App Router pages (SSR, streaming) | 🧪 Experimental | Requires `--js-runtime embedded-v8`; otherwise `501` |
 | Route Handlers (`route.ts`, Node.js runtime) | 🧪 Experimental | Requires `--js-runtime embedded-v8`; otherwise `501` |
+| Streamed request bodies | 🧪 Experimental | Pulled as the handler reads them; `--max-request-body` limit, including chunked uploads |
+| Multi-core isolate pool | 🧪 Experimental | `--isolates N`; bounded admission, supervision and restart per isolate |
+| `generateStaticParams` | 🧪 Partial | Listed params are served prerendered; unlisted params need ISR fallback and answer `501` |
 | Edge runtime routes | ⛔ Unsupported | Answers `501` |
 | Server Actions | ⛔ Unsupported | Startup refusal; requests carrying `Next-Action` get `501` |
 | Middleware / `proxy.ts` | ⛔ Unsupported | Startup refusal |
@@ -131,10 +136,16 @@ might be wrong.
   prerendered HTML, RSC payloads and segment prefetches, and the not-found
   page, served from Rust.
 - **Experimental dynamic rendering:** with `--js-runtime embedded-v8`, the
-  four dynamic fixture routes (pages and a Route Handler) render through
-  Next's unmodified compiled handlers. Responses stream, and request-scoped
-  state (`headers()`, `cookies()`, params) stays isolated between concurrent
-  requests.
+  fixture's dynamic pages and Route Handlers render through Next's
+  unmodified compiled handlers. Responses stream, and request-scoped state
+  (`headers()`, `cookies()`, params, `React.cache`, `after()`) stays
+  isolated between concurrent requests.
+- **A bounded, supervised executor:** a configurable pool of V8 isolates
+  (`--isolates`), each on its own thread. Admission is bounded (busy pools
+  answer `503` with `Retry-After`). Responses apply backpressure to the
+  renderer, so a slow client cannot grow server memory. Request bodies
+  stream into the handler, with a size limit for any framing. A failed or
+  stuck isolate is terminated and replaced while the others keep serving.
 - **Unsupported-feature detection:** `nextrs start` refuses builds it would
   serve incorrectly, instead of silently skipping middleware, redirects or
   security headers.
@@ -144,13 +155,18 @@ might be wrong.
 
 ### What's Not Ready Yet
 
-- **Dynamic SSR beyond the fixture:** only four dynamic routes have been
-  verified. Request-scoped caches (`fetch` cache, `React.cache`, `after()`)
-  and `generateStaticParams` are untested.
-- **Server-side JavaScript execution:** the executor runs one V8 isolate on
-  one thread. There is no per-request CPU or time limit and no backpressure
-  on response streams. After an uncaught error, the executor is not restarted.
-  Request bodies are buffered (10 MiB cap).
+- **Dynamic SSR beyond the fixture:** only the fixture's routes have been
+  verified. Outbound `fetch` (and with it Next's data cache) is disabled.
+  `generateStaticParams` routes serve their listed params; unlisted params
+  need ISR fallback rendering and answer `501`.
+- **Execution limits are per isolate, not per request:** many requests share
+  an isolate. A request that keeps the CPU busy past `--js-stall-timeout`
+  is stopped by terminating its **whole isolate**, which fails the other
+  requests in it. Per-request deadlines (`--request-timeout`) cancel the
+  request but do not interrupt running JavaScript.
+- **Caches are per isolate and in memory:** module state, `unstable_cache`
+  and the incremental cache are not shared between isolates and are not
+  persisted (JavaScript gets no write access).
 - **Node.js API coverage:** NextRS provides a narrow Node.js layer. Network
   modules, `zlib`, `child_process`, `worker_threads`, most of `crypto.subtle`,
   `vm` and native addons are unavailable.
@@ -204,11 +220,12 @@ flowchart TB
    `nextrs start` exits instead of serving it incorrectly.
 4. **`nextrs-server`** (axum + Tokio) answers static and prerendered
    requests directly from the build output.
-5. **`nextrs-runtime`** (experimental) runs a V8 isolate on a dedicated
-   thread, built on `deno_core` with a NextRS-owned Node.js compatibility
-   layer. Rust builds the request, calls Next's compiled
-   `handler(req, res, ctx)`, and streams the response back. Without this
-   runtime, dynamic routes answer `501`.
+5. **`nextrs-runtime`** (experimental) runs a supervised pool of V8
+   isolates, each on a dedicated thread, built on `deno_core` with a
+   NextRS-owned Node.js compatibility layer. Rust builds the request, calls
+   Next's compiled `handler(req, res, ctx)`, and streams the response back
+   under a per-response byte budget. Without this runtime, dynamic routes
+   answer `501`.
 
 ## Getting Started
 
@@ -310,6 +327,23 @@ With experimental dynamic rendering:
 | `--allow-unsupported` | off | Start despite unsupported features. This does **not** add those features |
 | `--ignore-adapter-output` | off | Read internal manifests even if adapter output exists |
 
+Runtime limits (with `--js-runtime embedded-v8`; durations in seconds, `0`
+disables a timeout):
+
+| Option | Default | Purpose |
+|---|---|---|
+| `--isolates` | `1` | V8 isolates, each with its own thread, heap and event loop. Each extra isolate costs memory (on the fixture, about 10 MiB idle and 100-130 MiB under load) |
+| `--max-concurrent` | `128` | Requests executing at once in one isolate |
+| `--max-queued`, `--queue-timeout` | `512`, `10` | Requests waiting for an isolate, and for how long; beyond either, `503` with `Retry-After` |
+| `--request-timeout` | `60` | Deadline per dynamic request, including `after()` work: `504`, or an aborted response if it already started |
+| `--js-stall-timeout` | `10` | Terminate and replace an isolate whose JavaScript runs this long without yielding (affects every request in it) |
+| `--js-heap-limit` | V8 default | Heap limit per isolate, in MiB; reaching it replaces the isolate. Lower values trade throughput for memory |
+| `--response-buffer` | `64` | Response KiB buffered per request before the renderer waits for the client |
+| `--max-request-body` | `10` | Request body limit in MiB (`413`), whether a length is declared or the body is chunked |
+| `--max-connections`, `--write-timeout` | `1024`, `30` | Open connections; close clients that stop reading |
+| `--shutdown-grace` | `10` | On SIGINT/SIGTERM, time for in-flight requests to finish |
+| `--metrics-addr` | off | Serve `/metrics` (Prometheus text), `/metrics.json` and `/healthz` on a separate address. Keep it on loopback |
+
 `cargo run --release --bin nextrs -- <command>` works in place of
 `./target/release/nextrs`.
 
@@ -341,6 +375,8 @@ only when it matches what the official server returns for the same build.
 | [`tests/compat/semantic.mjs`](tests/compat/semantic.mjs) | Server-rendered DOM and the parsed RSC Flight tree, for output that is equivalent but chunked differently |
 | [`tests/compat/isolation.mjs`](tests/compat/isolation.mjs) | Many overlapping requests with unique headers, cookies and params, plus client aborts: no request may see another's data |
 | [`tests/compat/streaming.mjs`](tests/compat/streaming.mjs) | The Suspense shell reaches the client before the delayed boundary content |
+| [`tests/compat/features.mjs`](tests/compat/features.mjs) | Isolation beyond headers: `React.cache`, concurrent Suspense, error boundaries, `after()`, concurrent uploads, and the intended scope of `unstable_cache` |
+| [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixture (optionally against another Next.js version, in a temporary copy) and runs all of the above against `next start` |
 
 Recorded runs are kept next to the scripts as JSON (`tests/compat/*.json`).
 
@@ -355,11 +391,21 @@ cargo test --workspace
 `cargo test` links V8 through `nextrs-runtime`. The unit and HTTP tests use
 [`tests/data`](tests/data/), redacted snapshots of real Next.js 16.4.3
 `.next` output (default and adapter builds), so they do not need Node.js.
-Tests that need the real fixture build are ignored by default:
+The executor's own tests (backpressure, supervision and fault injection,
+deadlines, the isolate pool, request bodies) use small handler fixtures
+and need no Next.js build. Tests that need the real fixture build are
+ignored by default. They cover dynamic routes, and reliability over real
+sockets: slow and disconnecting clients, body limits, overload, CPU stalls
+and shutdown, plus process memory with paused clients.
 
 ```bash
-cargo test -p nextrs-server --test dynamic -- --ignored
+cargo test -p nextrs-server --test dynamic --test reliability --test memory -- --ignored
 ```
+
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the Rust
+checks, the ignored tests, and `scripts/compat-suite.sh` on the pinned
+Next.js 16.4.3 build with 1 and 4 isolates. It also runs the suite on
+newer 16.4.x releases without gating.
 
 [`scripts/snapshot-build.mjs`](scripts/snapshot-build.mjs) regenerates a
 snapshot from a `.next` directory and replaces build-time secrets with
@@ -383,10 +429,14 @@ The engine experiments are standalone crates outside the main workspace, so
 
 ### Benchmarks
 
-[`benchmarks/bench.py`](benchmarks/bench.py) (static serving) and
+[`benchmarks/bench.py`](benchmarks/bench.py) (static serving),
 [`benchmarks/dynamic_bench.py`](benchmarks/dynamic_bench.py) (dynamic
-rendering) drive `next start`, NextRS and reference hosts against the same
-build. Each path's responses must be equivalent before it is measured. Raw
+rendering) and [`benchmarks/pool_bench.py`](benchmarks/pool_bench.py)
+(isolate pool sizes) drive `next start`, NextRS and reference hosts against
+the same build. [`slow_clients.py`](benchmarks/slow_clients.py),
+[`soak.mjs`](benchmarks/soak.mjs) and [`recovery.mjs`](benchmarks/recovery.mjs)
+measure memory with paused clients, sustained mixed traffic with injected
+isolate stalls, and recovery time. Each path's responses must be equivalent before it is measured. Raw
 results are in [`benchmarks/results`](benchmarks/results/). They are
 exploratory measurements from one fixture on one machine, not performance
 claims.
@@ -415,7 +465,8 @@ claims.
 |---|---|---|
 | **Phase 0: build output feasibility** | Read `.next` through the adapter API and internal manifests; serve static and prerendered output from Rust; unsupported-feature detection; comparison harness against `next start` | ✅ Completed |
 | **Phase 1A: embedded JavaScript execution** | Run Next's compiled App Router handlers in embedded V8 with no Node.js process; streaming; request isolation; engine evaluation (V8, QuickJS, JavaScriptCore, Deno, Bun) | ✅ Completed |
-| **Phase 1B: executor hardening and broader coverage** | Response backpressure; per-request time and CPU limits; executor supervision and restart; streamed request bodies; an isolate pool for multiple cores; fixtures for `fetch` with the data cache, `React.cache`, `after()` and `generateStaticParams`; then Server Actions; CI against several Next.js 16.x versions | 🗓️ Planned |
+| **Phase 1B: executor hardening** | Response backpressure; executor supervision and restart; request deadlines and a CPU stall watchdog (per isolate); streamed request bodies; a multi-core isolate pool with bounded admission; metrics; fixtures for request bodies, `React.cache`, `after()`, error boundaries and `generateStaticParams`; CI against several Next.js 16.4.x versions | ✅ Completed (conditional: CI on GitHub and a multi-hour soak still to run) |
+| **Phase 1C: capabilities and validation** | CI on GitHub and long soaks; outbound `fetch` as an explicit, SSRF-guarded capability, then Next's data cache; a write capability scoped to `.next/cache` (persistent and shared caches, `generateStaticParams` fallback); Server Actions as a separate experiment | 🗓️ Planned |
 | **Later: advanced Next.js features** | Middleware and `proxy.ts`, ISR regeneration, image optimization, the Pages Router | 🗓️ Planned |
 | **Later: performance and production readiness** | Performance work, measured only once correctness is established; operational hardening | 🗓️ Planned |
 

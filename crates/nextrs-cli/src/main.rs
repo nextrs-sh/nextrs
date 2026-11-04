@@ -1,13 +1,14 @@
 use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
 use std::process::ExitCode;
+use std::time::Duration;
 
 use clap::{Parser, Subcommand, ValueEnum};
 use nextrs_adapter::{
     BuildInfo, InspectOptions, Matcher, MetadataSource, Rendering, RouteKind, Runtime, Severity,
 };
-use nextrs_runtime::{Executor, ExecutorConfig};
-use nextrs_server::ServerOptions;
+use nextrs_runtime::{Executor, ExecutorConfig, Limits};
+use nextrs_server::{ServeOptions, ServerOptions};
 
 #[derive(Parser)]
 #[command(
@@ -54,7 +55,109 @@ enum Command {
         /// Nothing else is inherited; NODE_ENV is always "production".
         #[arg(long = "js-env", value_name = "NAME")]
         js_env: Vec<String>,
+        #[command(flatten)]
+        limits: LimitArgs,
     },
+}
+
+/// Runtime limits. Durations are in seconds; 0 disables a timeout.
+#[derive(clap::Args)]
+#[command(next_help_heading = "Runtime limits")]
+struct LimitArgs {
+    /// V8 isolates for dynamic routes, each with its own thread, heap and
+    /// event loop.
+    #[arg(long, default_value_t = 1)]
+    isolates: usize,
+    /// Requests executing concurrently in one isolate.
+    #[arg(long, default_value_t = 128)]
+    max_concurrent: usize,
+    /// Requests that may wait for an isolate; beyond this they get 503.
+    #[arg(long, default_value_t = 512)]
+    max_queued: usize,
+    /// Longest wait for an isolate before a 503.
+    #[arg(long, value_name = "SECONDS", default_value_t = 10.0)]
+    queue_timeout: f64,
+    /// Deadline per dynamic request, including waitUntil/after() work.
+    /// Expiry gives a 504 (or aborts a started response).
+    #[arg(long, value_name = "SECONDS", default_value_t = 60.0)]
+    request_timeout: f64,
+    /// Terminate and replace an isolate whose JavaScript runs this long
+    /// without yielding. Affects every request in that isolate.
+    #[arg(long, value_name = "SECONDS", default_value_t = 10.0)]
+    js_stall_timeout: f64,
+    /// V8 heap limit per isolate; reaching it replaces the isolate.
+    /// Default: V8's own limit.
+    #[arg(long, value_name = "MIB")]
+    js_heap_limit: Option<usize>,
+    /// Response bytes buffered per request before backpressure applies.
+    #[arg(long, value_name = "KIB", default_value_t = 64)]
+    response_buffer: usize,
+    /// Request bodies above this get a 413 (chunked ones included).
+    #[arg(long, value_name = "MIB", default_value_t = 10)]
+    max_request_body: u64,
+    /// Open connections; more wait in the accept backlog.
+    #[arg(long, default_value_t = 1024)]
+    max_connections: usize,
+    /// Close connections whose client stops reading for this long.
+    #[arg(long, value_name = "SECONDS", default_value_t = 30.0)]
+    write_timeout: f64,
+    /// On SIGINT/SIGTERM, how long in-flight requests may finish.
+    #[arg(long, value_name = "SECONDS", default_value_t = 10.0)]
+    shutdown_grace: f64,
+    /// Serve executor metrics (/metrics, /metrics.json, /healthz) on this
+    /// address. Keep it on loopback.
+    #[arg(long, value_name = "ADDR")]
+    metrics_addr: Option<SocketAddr>,
+}
+
+fn seconds(value: f64) -> Option<Duration> {
+    (value > 0.0).then(|| Duration::from_secs_f64(value))
+}
+
+impl LimitArgs {
+    fn executor_limits(&self) -> Limits {
+        Limits {
+            isolates: self.isolates.max(1),
+            max_active_per_isolate: self.max_concurrent.max(1),
+            max_queued: self.max_queued,
+            queue_timeout: seconds(self.queue_timeout).unwrap_or(Duration::ZERO),
+            request_timeout: seconds(self.request_timeout),
+            stall_timeout: seconds(self.js_stall_timeout),
+            heap_limit_bytes: self.js_heap_limit.map(|mib| mib * 1024 * 1024),
+            response_buffer_bytes: self.response_buffer.max(1) * 1024,
+            shutdown_grace: seconds(self.shutdown_grace).unwrap_or(Duration::ZERO),
+            ..Limits::default()
+        }
+    }
+
+    fn serve_options(&self) -> ServeOptions {
+        ServeOptions {
+            max_connections: self.max_connections.max(1),
+            write_timeout: seconds(self.write_timeout),
+            shutdown_grace: seconds(self.shutdown_grace).unwrap_or(Duration::ZERO),
+            ..ServeOptions::default()
+        }
+    }
+}
+
+/// Resolves on SIGINT or SIGTERM.
+async fn shutdown_signal() {
+    let interrupt = tokio::signal::ctrl_c();
+    #[cfg(unix)]
+    let terminate = async {
+        match tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
+            Ok(mut signal) => {
+                signal.recv().await;
+            }
+            Err(_) => std::future::pending().await,
+        }
+    };
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+    tokio::select! {
+        _ = interrupt => {}
+        () = terminate => {}
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -111,6 +214,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             ignore_adapter_output,
             js_runtime,
             js_env,
+            limits,
         } => {
             let started = std::time::Instant::now();
             let info = nextrs_adapter::inspect_with(
@@ -124,6 +228,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                 JsRuntime::EmbeddedV8 => {
                     let mut config =
                         ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
+                    config.limits = limits.executor_limits();
                     for name in js_env {
                         match std::env::var(&name) {
                             Ok(value) => {
@@ -135,6 +240,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     let executor = Executor::start(config)?;
                     tracing::info!(
                         ready_ms = started.elapsed().as_millis() as u64,
+                        isolates = executor.limits().isolates,
                         "embedded V8 executor ready"
                     );
                     Some(executor)
@@ -146,9 +252,23 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             runtime.block_on(async move {
                 let options = ServerOptions {
                     allow_unsupported,
-                    executor,
+                    executor: executor.clone(),
+                    max_request_body: limits.max_request_body * 1024 * 1024,
                 };
                 let app = nextrs_server::app(&info, &options).await?;
+                if let Some(metrics_addr) = limits.metrics_addr {
+                    let Some(executor) = executor.clone() else {
+                        return Err("--metrics-addr needs --js-runtime embedded-v8".into());
+                    };
+                    if !metrics_addr.ip().is_loopback() {
+                        tracing::warn!(%metrics_addr, "serving metrics on a non-loopback address");
+                    }
+                    let listener = tokio::net::TcpListener::bind(metrics_addr).await?;
+                    tracing::info!(%metrics_addr, "metrics listening");
+                    tokio::spawn(async move {
+                        let _ = axum::serve(listener, nextrs_server::metrics_app(executor)).await;
+                    });
+                }
                 let addr = SocketAddr::new(host, port);
                 if !host.is_loopback() {
                     tracing::warn!(%addr, "binding a non-loopback address; NextRS is experimental");
@@ -160,11 +280,15 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     ready_ms = started.elapsed().as_millis() as u64,
                     "nextrs ready"
                 );
-                axum::serve(listener, app)
-                    .with_graceful_shutdown(async {
-                        let _ = tokio::signal::ctrl_c().await;
-                    })
+                nextrs_server::serve(listener, app, limits.serve_options(), shutdown_signal())
                     .await?;
+                // Connections are drained (or the grace period is over);
+                // now let the isolates finish and stop.
+                if let Some(executor) = executor {
+                    tracing::info!("stopping JavaScript isolates");
+                    tokio::task::spawn_blocking(move || executor.shutdown()).await?;
+                }
+                tracing::info!("nextrs stopped");
                 Ok::<_, Box<dyn std::error::Error>>(())
             })
         }

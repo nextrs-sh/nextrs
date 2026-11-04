@@ -7,7 +7,7 @@
 use std::path::PathBuf;
 use std::time::Instant;
 
-use nextrs_runtime::{Executor, ExecutorConfig, RenderRequest, ResponseEvent};
+use nextrs_runtime::{Executor, ExecutorConfig, RenderRequest, RequestBody, ResponseEvent};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber_init();
@@ -32,16 +32,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         method: "GET".into(),
         url: url.clone(),
         headers,
-        body: Vec::new(),
+        body: RequestBody::Empty,
         entry: PathBuf::from(&dist).join("server").join(entry),
         remote_address: Some("127.0.0.1".into()),
         initial_headers: Vec::new(),
     };
     let rendered = Instant::now();
-    let mut events = executor.render(request)?;
+    let tokio = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()?;
+    let mut events = tokio.block_on(executor.render(request))?;
     let mut body = Vec::new();
     let mut chunks = 0;
-    while let Some(event) = events.blocking_recv() {
+    while let Some(event) = tokio.block_on(events.recv()) {
         match event {
             ResponseEvent::Head { status, headers } => {
                 eprintln!("[render] status {status} after {:?}", rendered.elapsed());

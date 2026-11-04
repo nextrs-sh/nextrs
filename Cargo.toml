@@ -20,11 +20,16 @@ publish = false
 nextrs-adapter = { path = "crates/nextrs-adapter" }
 nextrs-server = { path = "crates/nextrs-server" }
 nextrs-runtime = { path = "crates/nextrs-runtime" }
-axum = { version = "0.8", default-features = false, features = ["http1", "tokio"] }
+axum = { version = "0.8", default-features = false, features = ["http1", "tokio", "json"] }
 futures-util = { version = "0.3", default-features = false }
 base64 = "0.22"
+bytes = "1.9"
 clap = { version = "4", features = ["derive"] }
+http-body = "1"
+http-body-util = "0.1"
 httpdate = "1"
+hyper = { version = "1", features = ["http1", "server"] }
+hyper-util = { version = "0.1", features = ["tokio", "service"] }
 percent-encoding = "2"
 regex = "1"
 serde = { version = "1", features = ["derive"] }

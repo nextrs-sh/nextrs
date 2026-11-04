@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 
-use nextrs_runtime::{Executor, ExecutorConfig, RenderRequest, ResponseEvent};
+use nextrs_runtime::{Executor, ExecutorConfig, Limits, RenderRequest, RequestBody, ResponseEvent};
 
 fn fixture() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/handlers")
@@ -24,6 +24,7 @@ fn executor() -> Arc<Executor> {
         env,
         bootstrap: None,
         trace_node_api: false,
+        limits: Limits::default(),
     })
     .expect("executor starts")
 }
@@ -36,7 +37,7 @@ fn request(entry: &str, headers: &[(&str, &str)]) -> RenderRequest {
             .iter()
             .map(|(n, v)| ((*n).to_owned(), (*v).to_owned()))
             .collect(),
-        body: Vec::new(),
+        body: RequestBody::Empty,
         entry: fixture().join("dist").join(entry),
         remote_address: None,
         initial_headers: Vec::new(),
@@ -52,7 +53,7 @@ struct Collected {
 }
 
 async fn collect(executor: &Executor, request: RenderRequest) -> Collected {
-    let mut events = executor.render(request).expect("queued");
+    let mut events = executor.render(request).await.expect("queued");
     let mut out = Collected {
         status: 0,
         headers: Vec::new(),
@@ -175,7 +176,7 @@ async fn responses_stream_chunks_with_status_and_repeated_headers() {
 #[tokio::test(flavor = "multi_thread")]
 async fn dropping_the_response_closes_it_in_javascript() {
     let executor = executor();
-    let mut events = executor.render(request("streaming.js", &[])).unwrap();
+    let mut events = executor.render(request("streaming.js", &[])).await.unwrap();
     // Head, then the first chunk.
     assert!(matches!(
         events.recv().await,

@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# Builds the compatibility fixture against one Next.js version and runs every
+# HTTP-level comparison against `next start`:
+#
+#   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR]
+#
+# Without --next the fixture's pinned lockfile is used (npm ci, in place).
+# With --next the fixture is copied to a temporary directory and that
+# version is installed there, so the pinned baseline is never modified.
+#
+# Needs target/release/nextrs (cargo build --release -p nextrs-cli), Node.js
+# and npm. Exits non-zero if any suite fails.
+set -euo pipefail
+
+root="$(cd "$(dirname "$0")/.." && pwd)"
+next_version=""
+isolates=1
+out=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --next) next_version="$2"; shift 2 ;;
+    --isolates) isolates="$2"; shift 2 ;;
+    --out) out="$2"; shift 2 ;;
+    *) echo "unknown argument: $1" >&2; exit 2 ;;
+  esac
+done
+
+work=""
+pids=()
+cleanup() {
+  for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done
+  wait 2>/dev/null || true
+  if [[ -n "${work:-}" ]]; then rm -rf "$work"; fi
+}
+trap cleanup EXIT
+
+nextrs="$root/target/release/nextrs"
+[[ -x "$nextrs" ]] || { echo "build target/release/nextrs first" >&2; exit 2; }
+
+if [[ -z "$next_version" ]]; then
+  project="$root/fixtures/next-app"
+  (cd "$project" && npm ci --no-audit --no-fund --loglevel=error)
+else
+  work="$(mktemp -d)"
+  project="$work/next-app"
+  mkdir -p "$project"
+  (cd "$root/fixtures/next-app" && cp -r app next.config.ts tsconfig.json next-env.d.ts package.json package-lock.json "$project/")
+  (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
+fi
+out="${out:-$(mktemp -d)}"
+mkdir -p "$out"
+
+(cd "$project" && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build.log" 2>&1) || {
+  tail -40 "$out/build.log"; exit 1;
+}
+installed="$(node -p "require('$project/node_modules/next/package.json').version")"
+echo "Next.js $installed built ($(cat "$project/.next/BUILD_ID"))"
+
+base_port=$((4100 + RANDOM % 400))
+next_port=$base_port
+nextrs_port=$((base_port + 1))
+
+(cd "$project" && NEXT_TELEMETRY_DISABLED=1 exec npx next start -H 127.0.0.1 -p "$next_port") > "$out/next-start.log" 2>&1 &
+pids+=($!)
+"$nextrs" start "$project" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" > "$out/nextrs.log" 2>&1 &
+pids+=($!)
+
+for port in "$next_port" "$nextrs_port"; do
+  for _ in $(seq 1 120); do
+    curl -sf -o /dev/null "http://127.0.0.1:$port/api/health" && break
+    sleep 0.25
+  done
+  curl -sf -o /dev/null "http://127.0.0.1:$port/api/health" || { echo "server on $port did not start" >&2; tail -20 "$out"/*.log; exit 1; }
+done
+
+baseline="http://127.0.0.1:$next_port"
+candidate="http://127.0.0.1:$nextrs_port"
+status=0
+run() {
+  local name="$1"; shift
+  if node "$@" > "$out/$name.txt" 2>&1; then
+    echo "PASS  $name"
+  else
+    echo "FAIL  $name"; tail -25 "$out/$name.txt"; status=1
+  fi
+}
+cd "$root"
+run compare   tests/compat/compare.mjs   --baseline "$baseline" --candidate "$candidate" --project "$project" --json "$out/compare.json"
+run semantic  tests/compat/semantic.mjs  --baseline "$baseline" --candidate "$candidate" --json "$out/semantic.json"
+run streaming tests/compat/streaming.mjs --target "$candidate" --runs 20
+run isolation tests/compat/isolation.mjs --target "$candidate" --requests 1200 --concurrency 64 --aborts 20 --json "$out/isolation.json"
+run features  tests/compat/features.mjs  --target "$candidate" --requests 600 --concurrency 64 --json "$out/features.json"
+# The same feature checks against next start: the reference must pass too.
+run features-next-start tests/compat/features.mjs --target "$baseline" --requests 600 --concurrency 64 --json "$out/features-next-start.json"
+
+summary="$(node -e "const r=require('$out/compare.json');const c={};for(const x of r.results??r)c[x.verdict]=(c[x.verdict]??0)+1;console.log(JSON.stringify(c))" 2>/dev/null || echo '{}')"
+echo "compare: $summary"
+echo "{\"next\":\"$installed\",\"isolates\":$isolates,\"status\":$status,\"compare\":$summary}" > "$out/summary.json"
+exit $status
