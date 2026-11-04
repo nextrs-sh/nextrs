@@ -29,6 +29,7 @@ pub fn config(limits: Limits) -> ExecutorConfig {
         trace_node_api: false,
         limits,
         network: None,
+        cache: None,
     }
 }
 

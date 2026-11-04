@@ -40,6 +40,16 @@ pub(crate) struct Counters {
     pub fetch_duration_buckets: [AtomicU64; FETCH_BUCKETS.len()],
     pub fetch_duration_micros: AtomicU64,
     pub fetch_duration_count: AtomicU64,
+    pub cache_hits: AtomicU64,
+    pub cache_misses: AtomicU64,
+    pub cache_sets: AtomicU64,
+    pub cache_evictions: AtomicU64,
+    pub cache_revalidations: AtomicU64,
+    /// Entries or tag files that failed verification and were removed.
+    pub cache_corrupt: AtomicU64,
+    pub cache_io_errors: AtomicU64,
+    /// Values over the entry size limit, not stored.
+    pub cache_too_large: AtomicU64,
 }
 
 /// Fetch failure reasons (metric label values), indexed by `FETCH_*`.
@@ -108,6 +118,114 @@ impl Counters {
     }
 }
 
+/// Shared data cache counters and gauges.
+#[derive(Debug, Clone, Serialize)]
+pub struct CacheSnapshot {
+    pub persistent: bool,
+    pub entries: u64,
+    pub memory_bytes: u64,
+    pub storage_bytes: u64,
+    pub hits: u64,
+    pub misses: u64,
+    pub sets: u64,
+    pub evictions: u64,
+    pub revalidated_tags: u64,
+    pub corrupt: u64,
+    pub io_errors: u64,
+    pub too_large: u64,
+}
+
+impl CacheSnapshot {
+    pub(crate) fn new(counters: &Counters, persistent: bool, gauges: (u64, u64, u64)) -> Self {
+        Self {
+            persistent,
+            entries: gauges.0,
+            memory_bytes: gauges.1,
+            storage_bytes: gauges.2,
+            hits: get(&counters.cache_hits),
+            misses: get(&counters.cache_misses),
+            sets: get(&counters.cache_sets),
+            evictions: get(&counters.cache_evictions),
+            revalidated_tags: get(&counters.cache_revalidations),
+            corrupt: get(&counters.cache_corrupt),
+            io_errors: get(&counters.cache_io_errors),
+            too_large: get(&counters.cache_too_large),
+        }
+    }
+
+    fn write_prometheus(&self, out: &mut String) {
+        for (name, kind, help, value) in [
+            (
+                "nextrs_cache_entries",
+                "gauge",
+                "Entries in the shared data cache.",
+                self.entries,
+            ),
+            (
+                "nextrs_cache_memory_bytes",
+                "gauge",
+                "Entry bytes held in memory by the shared data cache.",
+                self.memory_bytes,
+            ),
+            (
+                "nextrs_cache_storage_bytes",
+                "gauge",
+                "Entry file bytes on disk (0 without --cache-dir).",
+                self.storage_bytes,
+            ),
+            (
+                "nextrs_cache_hits_total",
+                "counter",
+                "Data cache lookups answered (fresh or stale).",
+                self.hits,
+            ),
+            (
+                "nextrs_cache_misses_total",
+                "counter",
+                "Data cache lookups without a usable entry.",
+                self.misses,
+            ),
+            (
+                "nextrs_cache_sets_total",
+                "counter",
+                "Data cache entries stored.",
+                self.sets,
+            ),
+            (
+                "nextrs_cache_evictions_total",
+                "counter",
+                "Entries evicted for the memory or disk limit.",
+                self.evictions,
+            ),
+            (
+                "nextrs_cache_revalidated_tags_total",
+                "counter",
+                "Tags revalidated (revalidateTag, revalidatePath).",
+                self.revalidated_tags,
+            ),
+        ] {
+            let _ = writeln!(
+                out,
+                "# HELP {name} {help}\n# TYPE {name} {kind}\n{name} {value}"
+            );
+        }
+        let _ = writeln!(
+            out,
+            "# HELP nextrs_cache_errors_total Data cache entries rejected or not written, by reason.\n# TYPE nextrs_cache_errors_total counter"
+        );
+        for (reason, value) in [
+            ("corrupt", self.corrupt),
+            ("io", self.io_errors),
+            ("too_large", self.too_large),
+        ] {
+            let _ = writeln!(
+                out,
+                "nextrs_cache_errors_total{{reason=\"{reason}\"}} {value}"
+            );
+        }
+    }
+}
+
 /// Outbound fetch counters.
 #[derive(Debug, Clone, Serialize)]
 pub struct FetchSnapshot {
@@ -143,6 +261,8 @@ pub struct MetricsSnapshot {
     pub queue_waits: u64,
     pub execution_seconds_total: f64,
     pub fetch: FetchSnapshot,
+    /// `None` when the shared cache is disabled.
+    pub cache: Option<CacheSnapshot>,
     pub executors: Vec<ExecutorSnapshot>,
 }
 
@@ -212,6 +332,7 @@ impl MetricsSnapshot {
                 duration_seconds_sum: get(&counters.fetch_duration_micros) as f64 / 1e6,
                 duration_count: get(&counters.fetch_duration_count),
             },
+            cache: None,
             executors: Vec::new(),
         }
     }
@@ -396,6 +517,9 @@ impl MetricsSnapshot {
             }
         }
         self.fetch.write_prometheus(&mut out);
+        if let Some(cache) = &self.cache {
+            cache.write_prometheus(&mut out);
+        }
         out
     }
 }

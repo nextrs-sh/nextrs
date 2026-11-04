@@ -8,8 +8,8 @@ use nextrs_adapter::{
     BuildInfo, InspectOptions, Matcher, MetadataSource, Rendering, RouteKind, Runtime, Severity,
 };
 use nextrs_runtime::{
-    AddrRange, AllowRule, Executor, ExecutorConfig, Limits, NetworkConfig, NetworkLimits,
-    NetworkPolicy,
+    AddrRange, AllowRule, CacheConfig, Executor, ExecutorConfig, Limits, NetworkConfig,
+    NetworkLimits, NetworkPolicy,
 };
 use nextrs_server::{ServeOptions, ServerOptions};
 
@@ -64,7 +64,67 @@ enum Command {
         limits: LimitArgs,
         #[command(flatten)]
         net: NetArgs,
+        #[command(flatten)]
+        cache: CacheArgs,
     },
+}
+
+/// The data cache (fetch cache, unstable_cache) shared by all isolates.
+#[derive(clap::Args)]
+#[command(next_help_heading = "Data cache")]
+struct CacheArgs {
+    /// Persist the data cache in this directory (created with mode 0700),
+    /// so entries survive restarts. Must be outside the build and
+    /// node_modules. Without it the cache is in memory only.
+    #[arg(long, value_name = "DIR")]
+    cache_dir: Option<PathBuf>,
+    /// Entry bytes kept in memory.
+    #[arg(long, value_name = "MIB", default_value_t = 50)]
+    cache_max_memory: u64,
+    /// Entry bytes kept on disk (with --cache-dir).
+    #[arg(long, value_name = "MIB", default_value_t = 1024)]
+    cache_max_disk: u64,
+    /// Larger entries are not cached (Next's own limit is 2 MB).
+    #[arg(long, value_name = "MIB", default_value_t = 2)]
+    cache_max_entry: u64,
+    /// Leave caching to Next's default handler: separate per isolate,
+    /// in memory only.
+    #[arg(long, conflicts_with = "cache_dir")]
+    no_shared_cache: bool,
+}
+
+impl CacheArgs {
+    fn config(
+        &self,
+        read_roots: &[PathBuf],
+    ) -> Result<Option<CacheConfig>, Box<dyn std::error::Error>> {
+        if self.no_shared_cache {
+            return Ok(None);
+        }
+        let dir = match &self.cache_dir {
+            None => None,
+            Some(dir) => {
+                std::fs::create_dir_all(dir)?;
+                let canonical = std::fs::canonicalize(dir)?;
+                if let Some(root) = read_roots.iter().find(|root| canonical.starts_with(root)) {
+                    return Err(format!(
+                        "--cache-dir {} is inside {}, which JavaScript can read; choose a directory outside the build and node_modules",
+                        dir.display(),
+                        root.display()
+                    )
+                    .into());
+                }
+                Some(canonical)
+            }
+        };
+        let mib = |value: u64| value.max(1) * 1024 * 1024;
+        Ok(Some(CacheConfig {
+            dir,
+            max_memory_bytes: mib(self.cache_max_memory),
+            max_disk_bytes: mib(self.cache_max_disk),
+            max_entry_bytes: mib(self.cache_max_entry),
+        }))
+    }
 }
 
 /// Outbound `fetch`. Denied entirely unless `--net-allow` is given.
@@ -295,6 +355,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             js_env,
             limits,
             net,
+            cache,
         } => {
             let network = net.config()?;
             if network.is_some() && js_runtime == JsRuntime::None {
@@ -323,6 +384,17 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                         tracing::info!(allow = %allow.join(", "), "outbound fetch enabled");
                     }
                     config.network = network;
+                    config.cache = cache.config(config.fs_policy().read_roots())?;
+                    match &config.cache {
+                        Some(cache) => tracing::info!(
+                            persistent = cache.dir.is_some(),
+                            dir = %cache.dir.as_deref().map(|d| d.display().to_string()).unwrap_or_default(),
+                            "shared data cache enabled"
+                        ),
+                        None => tracing::info!(
+                            "shared data cache disabled (Next's per-isolate default)"
+                        ),
+                    }
                     for name in js_env {
                         match std::env::var(&name) {
                             Ok(value) => {

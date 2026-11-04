@@ -26,6 +26,7 @@ fn executor() -> Arc<Executor> {
         trace_node_api: false,
         limits: Limits::default(),
         network: None,
+        cache: None,
     })
     .expect("executor starts")
 }

@@ -14,6 +14,7 @@ use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 use tokio::sync::{mpsc, oneshot};
 
+use crate::cache::{CacheStore, Hit, Lookup};
 use crate::metrics::{self, Counters};
 use crate::net::{BodyItem, FetchError, FetchHead, FetchRequest, NetClient, OutBody, RedirectMode};
 use crate::pool::{Job, Slot, WorkerShared};
@@ -35,6 +36,8 @@ pub(crate) struct BootConfig {
     pub fault_injection: bool,
     /// Outbound fetch is configured (the policy itself stays in Rust).
     pub network: bool,
+    /// The shared data cache is offered to Next.js as its cache handler.
+    pub cache: bool,
 }
 
 pub(crate) struct Inbox(pub Rc<tokio::sync::Mutex<mpsc::UnboundedReceiver<Box<Job>>>>);
@@ -59,8 +62,19 @@ pub(crate) struct Requests {
 
 pub(crate) struct ReadySignal(pub Option<std::sync::mpsc::Sender<Result<(), String>>>);
 
+/// Host services shared by every isolate of a pool.
+#[derive(Clone)]
+pub(crate) struct HostServices {
+    pub counters: Arc<Counters>,
+    pub net: Option<Arc<NetClient>>,
+    pub cache: Option<Arc<CacheStore>>,
+}
+
 /// The shared outbound HTTP client, if the network is configured.
 pub(crate) struct NetCapability(pub Option<Arc<NetClient>>);
+
+/// The data cache shared by all isolates, if enabled.
+pub(crate) struct CacheCapability(pub Option<Arc<CacheStore>>);
 
 /// Outbound fetches an isolate holds open. Dropping one (`op_nextrs_fetch_close`,
 /// or the whole op state when the isolate goes away) aborts its network task.
@@ -123,6 +137,9 @@ deno_core::extension!(
         op_nextrs_fetch_write,
         op_nextrs_fetch_write_end,
         op_nextrs_fetch_close,
+        op_nextrs_cache_get,
+        op_nextrs_cache_set,
+        op_nextrs_cache_revalidate,
     ],
     options = {
         boot: BootConfig,
@@ -130,8 +147,7 @@ deno_core::extension!(
         inbox: Inbox,
         ready: ReadySignal,
         worker: Arc<WorkerShared>,
-        counters: Arc<Counters>,
-        net: NetCapability,
+        services: HostServices,
     },
     state = |state, options| {
         state.put(options.boot);
@@ -139,10 +155,11 @@ deno_core::extension!(
         state.put(options.inbox);
         state.put(options.ready);
         state.put(options.worker);
-        state.put(options.counters);
+        state.put(options.services.counters);
         state.put(Requests::default());
-        state.put(options.net);
+        state.put(NetCapability(options.services.net));
         state.put(Fetches::default());
+        state.put(CacheCapability(options.services.cache));
     }
 );
 
@@ -797,4 +814,85 @@ fn op_nextrs_fetch_write_end(state: &mut OpState, #[smi] id: u32) {
 #[op2(fast)]
 fn op_nextrs_fetch_close(state: &mut OpState, #[smi] id: u32) {
     state.borrow_mut::<Fetches>().open.remove(&id);
+}
+
+// ---------------------------------------------------------------------------
+// Shared data cache (cache.rs). Keys, tags and values only: JavaScript never
+// names a file. Disk access runs on Tokio's blocking threads.
+// ---------------------------------------------------------------------------
+
+fn cache_store(state: &Rc<RefCell<OpState>>) -> Result<Arc<CacheStore>, JsErrorBox> {
+    state
+        .borrow()
+        .borrow::<CacheCapability>()
+        .0
+        .clone()
+        .ok_or_else(|| JsErrorBox::generic("ERR_NEXTRS_UNSUPPORTED: the shared cache is disabled"))
+}
+
+fn blocking_failed(error: tokio::task::JoinError) -> JsErrorBox {
+    JsErrorBox::generic(format!("cache operation failed: {error}"))
+}
+
+/// An entry for `key`, judged with the stored tags plus `tags` (Next's
+/// `tags` and `softTags`); `null` on a miss.
+#[op2]
+#[serde]
+async fn op_nextrs_cache_get(
+    state: Rc<RefCell<OpState>>,
+    #[string] key: String,
+    #[serde] tags: Vec<String>,
+) -> Result<Option<Hit>, JsErrorBox> {
+    let store = cache_store(&state)?;
+    match store.lookup(&key, &tags) {
+        Lookup::Hit(hit) => Ok(Some(hit)),
+        Lookup::Miss => Ok(None),
+        Lookup::OnDisk { path, generation } => {
+            tokio::task::spawn_blocking(move || store.load(&key, &tags, &path, generation))
+                .await
+                .map_err(blocking_failed)
+        }
+    }
+}
+
+/// Stores a value (`null` removes the entry). Resolves once it is
+/// persisted; every isolate sees it at once.
+#[op2]
+async fn op_nextrs_cache_set(
+    state: Rc<RefCell<OpState>>,
+    #[string] key: String,
+    #[string] value: Option<String>,
+    #[serde] tags: Vec<String>,
+) -> Result<(), JsErrorBox> {
+    let store = cache_store(&state)?;
+    tokio::task::spawn_blocking(move || match value {
+        None => store.delete(&key),
+        Some(value) => {
+            if let Some(write) = store.set(&key, Bytes::from(value), tags) {
+                store.persist(write);
+            }
+        }
+    })
+    .await
+    .map_err(blocking_failed)
+}
+
+/// Next's `revalidateTag(tags, durations)`: `expire` is `durations.expire`
+/// in seconds (negative: not given), `with_durations` whether durations
+/// were given at all.
+#[op2]
+async fn op_nextrs_cache_revalidate(
+    state: Rc<RefCell<OpState>>,
+    #[serde] tags: Vec<String>,
+    expire: f64,
+    with_durations: bool,
+) -> Result<(), JsErrorBox> {
+    let store = cache_store(&state)?;
+    let expire = (expire >= 0.0).then_some(expire);
+    if let Some(contents) = store.revalidate(&tags, expire, with_durations) {
+        tokio::task::spawn_blocking(move || store.persist_tags(contents))
+            .await
+            .map_err(blocking_failed)?;
+    }
+    Ok(())
 }

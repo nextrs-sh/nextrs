@@ -25,6 +25,8 @@ use std::time::{Duration, Instant};
 use deno_core::v8;
 use tokio::sync::{Notify, mpsc, oneshot};
 
+use crate::cache::CacheStore;
+use crate::metrics::CacheSnapshot;
 use crate::metrics::{self, Counters, ExecutorSnapshot, MetricsSnapshot};
 use crate::net::NetClient;
 use crate::response::{self, ResponseSender};
@@ -308,6 +310,8 @@ pub(crate) struct PoolInner {
     /// Shared by every isolate (one connection pool); `None` without a
     /// network configuration.
     pub net: Option<Arc<NetClient>>,
+    /// Shared by every isolate; `None` when disabled.
+    pub cache: Option<Arc<CacheStore>>,
     state: Mutex<PoolState>,
     shutting_down: AtomicBool,
     /// Wakes supervisors sleeping in a restart backoff.
@@ -472,6 +476,13 @@ impl PoolInner {
 
     fn snapshot(&self) -> MetricsSnapshot {
         let mut snapshot = MetricsSnapshot::from_counters(&self.counters);
+        snapshot.cache = self.cache.as_ref().map(|cache| {
+            CacheSnapshot::new(
+                &self.counters,
+                self.config.cache.as_ref().is_some_and(|c| c.dir.is_some()),
+                cache.entries(),
+            )
+        });
         let limits = &self.config.limits;
         snapshot.isolates = limits.isolates;
         snapshot.max_active_per_isolate = limits.max_active_per_isolate;
@@ -547,11 +558,24 @@ impl Executor {
             )),
             None => None,
         };
+        let cache = match &config.cache {
+            Some(cache) => {
+                let build_id =
+                    std::fs::read_to_string(config.dist_dir.join("BUILD_ID")).unwrap_or_default();
+                let namespace = crate::cache::namespace(build_id.trim(), &config.env);
+                Some(Arc::new(
+                    CacheStore::open(cache.clone(), &namespace, counters.clone())
+                        .map_err(|e| ExecutorError::Io(std::io::Error::other(e)))?,
+                ))
+            }
+            None => None,
+        };
         let inner = Arc::new_cyclic(|me| PoolInner {
             me: me.clone(),
             config,
             counters,
             net,
+            cache,
             state: Mutex::new(PoolState {
                 workers: vec![None; isolates],
                 history: (0..isolates).map(|_| SlotHistory::default()).collect(),
@@ -717,8 +741,11 @@ fn supervise(
         let thread = match worker::spawn(
             inner.config.clone(),
             worker.clone(),
-            inner.counters.clone(),
-            inner.net.clone(),
+            crate::ops::HostServices {
+                counters: inner.counters.clone(),
+                net: inner.net.clone(),
+                cache: inner.cache.clone(),
+            },
             jobs,
             ready_tx,
             exit_tx,

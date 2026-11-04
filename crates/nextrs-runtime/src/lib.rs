@@ -18,6 +18,7 @@
 //! `js/` (NextRS-owned) and `js/node-polyfills.js` (vendored npm packages),
 //! and host capabilities only through the ops in `ops.rs`.
 
+mod cache;
 mod metrics;
 mod net;
 mod ops;
@@ -34,7 +35,8 @@ use std::time::Duration;
 
 use bytes::Bytes;
 
-pub use crate::metrics::{ExecutorSnapshot, FetchSnapshot, MetricsSnapshot};
+pub use crate::cache::CacheConfig;
+pub use crate::metrics::{CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MetricsSnapshot};
 pub use crate::net::{AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy};
 pub use crate::pool::{Executor, FailureReason};
 pub use crate::response::{ResponseEvent, ResponseStream};
@@ -64,6 +66,11 @@ pub struct ExecutorConfig {
     /// Outbound `fetch`. `None`: JavaScript has no network access, and
     /// `fetch` fails with `ERR_NEXTRS_NET_DENIED`.
     pub network: Option<NetworkConfig>,
+    /// The data cache shared by every isolate (fetch cache, unstable_cache),
+    /// offered to Next.js as its cache handler. `None`: Next's default
+    /// handler, separate in each isolate and in memory only (the build
+    /// directory is read-only).
+    pub cache: Option<CacheConfig>,
 }
 
 impl ExecutorConfig {
@@ -80,6 +87,7 @@ impl ExecutorConfig {
             trace_node_api: false,
             limits: Limits::default(),
             network: None,
+            cache: Some(CacheConfig::default()),
         }
     }
 

@@ -482,10 +482,72 @@
     }
   }
 
+  // The data cache shared by every isolate (src/cache.rs), offered to
+  // Next.js as hosting platforms do: as the FetchCache handler on
+  // globalThis[Symbol.for("@next/cache-handlers")]. IncrementalCache uses
+  // it unless next.config sets its own `cacheHandler`, which wins. It
+  // implements Next's documented CacheHandler interface. FETCH entries
+  // (the fetch data cache and unstable_cache) are stored; page and route
+  // entries (ISR) are not, and read as misses.
+  const notStored = new Set();
+  class NextRSCacheHandler {
+    constructor(_context) {}
+
+    async get(key, context) {
+      if (context?.kind !== "FETCH") return null;
+      const tags = [...(context.tags ?? []), ...(context.softTags ?? [])];
+      const hit = await ops.op_nextrs_cache_get(String(key), tags);
+      if (hit === null) return null;
+      let value;
+      try {
+        value = JSON.parse(hit.value);
+      } catch {
+        return null;
+      }
+      // A tag marked stale after the entry was written (revalidateTag with
+      // a profile): an age beyond any revalidate period makes Next serve
+      // the entry and refresh it, as its own handler does for stale tags.
+      return { value, lastModified: hit.stale ? Number.MIN_SAFE_INTEGER : hit.lastModified };
+    }
+
+    async set(key, data, context) {
+      if (data === null || data === undefined) {
+        await ops.op_nextrs_cache_set(String(key), null, []);
+        return;
+      }
+      if (data.kind !== "FETCH") {
+        if (!notStored.has(data.kind)) {
+          notStored.add(data.kind);
+          ops.op_nextrs_diagnostic("cache", `${data.kind} cache entries are not stored by NextRS (ISR is not supported)`);
+        }
+        return;
+      }
+      const tags = context?.tags ?? data.tags ?? [];
+      await ops.op_nextrs_cache_set(String(key), JSON.stringify(data), [...tags].map(String));
+    }
+
+    async revalidateTag(tags, durations) {
+      tags = (typeof tags === "string" ? [tags] : [...tags]).map(String);
+      if (tags.length === 0) return;
+      const given = durations !== undefined && durations !== null;
+      await ops.op_nextrs_cache_revalidate(tags, given && typeof durations.expire === "number" ? durations.expire : -1, given);
+    }
+
+    resetRequestCache() {}
+  }
+
   globalThis.__nextrsStart = function start() {
     delete globalThis.__nextrsStart;
     delete globalThis.__nextrsInternal;
     delete globalThis.Deno;
+    if (boot.cache) {
+      Object.defineProperty(globalThis, Symbol.for("@next/cache-handlers"), {
+        value: { FetchCache: NextRSCacheHandler },
+        writable: true,
+        enumerable: false,
+        configurable: true,
+      });
+    }
     try {
       // Next's official adapter bootstrap: AsyncLocalStorage global,
       // require hooks, crypto polyfills, error handling.
