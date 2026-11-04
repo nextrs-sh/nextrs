@@ -104,9 +104,23 @@ impl CacheArgs {
         let dir = match &self.cache_dir {
             None => None,
             Some(dir) => {
-                std::fs::create_dir_all(dir)?;
-                let canonical = std::fs::canonicalize(dir)?;
-                if let Some(root) = read_roots.iter().find(|root| canonical.starts_with(root)) {
+                // Checked before anything is created: the nearest existing
+                // ancestor, symlinks resolved, plus the components to create.
+                let absolute = std::path::absolute(dir)?;
+                let mut existing = absolute.as_path();
+                let mut missing = Vec::new();
+                while !existing.exists() {
+                    missing.push(existing.file_name().ok_or("--cache-dir has no parent")?);
+                    existing = existing.parent().ok_or("--cache-dir has no parent")?;
+                }
+                let mut resolved = std::fs::canonicalize(existing)?;
+                for part in missing.iter().rev() {
+                    if *part == ".." || *part == "." {
+                        return Err("--cache-dir must not contain '.' or '..' components".into());
+                    }
+                    resolved.push(part);
+                }
+                if let Some(root) = read_roots.iter().find(|root| resolved.starts_with(root)) {
                     return Err(format!(
                         "--cache-dir {} is inside {}, which JavaScript can read; choose a directory outside the build and node_modules",
                         dir.display(),
@@ -114,7 +128,8 @@ impl CacheArgs {
                     )
                     .into());
                 }
-                Some(canonical)
+                std::fs::create_dir_all(&resolved)?;
+                Some(resolved)
             }
         };
         let mib = |value: u64| value.max(1) * 1024 * 1024;

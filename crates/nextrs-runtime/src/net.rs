@@ -759,9 +759,15 @@ fn header_map(headers: &[(String, String)]) -> Result<HeaderMap, FetchError> {
                 "the '{name}' header cannot be set"
             )));
         }
-        // Header values are byte strings; JavaScript checked they fit in
-        // Latin-1.
-        let bytes: Vec<u8> = value.chars().map(|c| c as u32 as u8).collect();
+        // Header values are byte strings (Latin-1); JavaScript checks this
+        // too, but nothing is truncated here either.
+        let bytes: Vec<u8> = value
+            .chars()
+            .map(|c| u8::try_from(u32::from(c)))
+            .collect::<Result<_, _>>()
+            .map_err(|_| {
+                FetchError::Invalid(format!("the '{name}' header value is not a byte string"))
+            })?;
         let value = HeaderValue::from_bytes(&bytes)
             .map_err(|_| FetchError::Invalid(format!("invalid value for header '{name}'")))?;
         map.append(name, value);

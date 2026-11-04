@@ -36,6 +36,12 @@ const FORMAT_VERSION: u8 = 1;
 const MAGIC: &[u8; 4] = b"NXRC";
 /// Revalidated tags remembered (oldest dropped beyond this).
 const MAX_TAGS: usize = 10_000;
+/// Next's keys are 64-character hashes; anything far larger is refused, so
+/// keys cannot outgrow the byte budgets (which count values).
+const MAX_KEY_BYTES: usize = 4096;
+/// Next allows 128 tags of 256 characters per entry.
+const MAX_ENTRY_TAGS: usize = 256;
+const MAX_TAG_BYTES: usize = 1024;
 
 #[derive(Debug, Clone)]
 pub struct CacheConfig {
@@ -449,6 +455,10 @@ impl CacheStore {
     /// Looks a key up in memory. Tags are the caller's (`tags` and
     /// `softTags`) in addition to those stored with the entry.
     pub fn lookup(&self, key: &str, tags: &[String]) -> Lookup {
+        if key.len() > MAX_KEY_BYTES {
+            metrics::add(&self.counters.cache_misses, 1);
+            return Lookup::Miss;
+        }
         let now = now_ms();
         let mut state = self.lock();
         let Some(entry) = state.entries.get(key) else {
@@ -549,7 +559,9 @@ impl CacheStore {
     /// write to perform, if the cache persists.
     pub fn set(&self, key: &str, value: Bytes, tags: Vec<String>) -> Option<PendingWrite> {
         let size = value.len() as u64;
-        if size > self.config.max_entry_bytes {
+        let oversized_tags =
+            tags.len() > MAX_ENTRY_TAGS || tags.iter().any(|t| t.len() > MAX_TAG_BYTES);
+        if size > self.config.max_entry_bytes || key.len() > MAX_KEY_BYTES || oversized_tags {
             metrics::add(&self.counters.cache_too_large, 1);
             // Whatever was there is outdated now.
             self.delete(key);
@@ -841,6 +853,21 @@ mod tests {
         assert!(get(&s, "a", &[]).is_some());
         assert!(get(&s, "c", &[]).is_some());
         assert!(s.entries().1 <= 10);
+    }
+
+    #[test]
+    fn oversized_keys_and_tag_sets_are_not_stored() {
+        let s = store(None, "ns", 1 << 20, 1 << 20);
+        let long_key = "k".repeat(MAX_KEY_BYTES + 1);
+        set(&s, &long_key, "v", &[]);
+        assert!(get(&s, &long_key, &[]).is_none());
+        let many: Vec<String> = (0..=MAX_ENTRY_TAGS).map(|i| format!("t{i}")).collect();
+        let many: Vec<&str> = many.iter().map(String::as_str).collect();
+        set(&s, "a", "v", &many);
+        assert!(get(&s, "a", &[]).is_none());
+        set(&s, "b", "v", &[&"t".repeat(MAX_TAG_BYTES + 1)]);
+        assert!(get(&s, "b", &[]).is_none());
+        assert_eq!(s.entries().0, 0);
     }
 
     #[test]
