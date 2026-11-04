@@ -52,7 +52,14 @@ const json = (r) => {
 const api = async (base, query, headers) => {
   const r = await get(base, `/api/data?${query}`, { headers });
   const body = json(r);
-  return { status: r.status, upstreamStatus: body?.status, hit: body?.body?.hit ?? null, auth: body?.body?.auth, code: body?.code ?? null };
+  return {
+    status: r.status,
+    upstreamStatus: body?.status,
+    hit: body?.body?.hit ?? null,
+    auth: body?.body?.auth,
+    cookie: body?.body?.cookie,
+    code: body?.code ?? null,
+  };
 };
 const pageHit = (r) => {
   const m = /hit=(?:<!-- -->)?(\d+)/.exec(r.body ?? "");
@@ -137,6 +144,16 @@ const scenarios = {
       [b2.auth, b2.hit],
     ];
   },
+  // 9b. The same for cookies.
+  async "cookie-identity"(base, ns) {
+    const q = `key=${ns}-cookie&cache=force-cache`;
+    const out = [];
+    for (const who of ["a", "b", "a", "b"]) {
+      const r = await api(base, q, { "x-upstream-cookie": `session=${who}` });
+      out.push([r.cookie, r.hit]);
+    }
+    return out;
+  },
   // 10. Without explicit caching, an authorization header means no cache.
   async "auth-auto-no-cache"(base, ns) {
     const out = [];
@@ -159,6 +176,38 @@ const scenarios = {
     const out = [];
     for (let i = 0; i < 3; i++) out.push(pageHit(await get(base, `/data-cache?key=${ns}-page&cache=force-cache`)));
     return out;
+  },
+  // 12b. A cached entry is one entry for the whole server: concurrent
+  // requests (spread over every isolate) all read it.
+  async "shared-entry"(base, ns) {
+    const q = `key=${ns}-shared&cache=force-cache`;
+    const first = (await api(base, q)).hit;
+    const concurrent = await Promise.all(Array.from({ length: 32 }, () => api(base, `${q}&hold=150`)));
+    return { first, all: [...new Set(concurrent.map((r) => r.hit))], upstreamHits: (await hits(`${ns}-shared`)).hits };
+  },
+  // 12c. Concurrent misses of a cold key: Next has no cross-request lock,
+  // so several may fetch; afterwards every request reads one entry.
+  async "concurrent-misses"(base, ns) {
+    const q = `key=${ns}-cold&cache=force-cache&delay=100`;
+    await Promise.all(Array.from({ length: 8 }, () => api(base, q)));
+    await sleep(300);
+    const after = await Promise.all(Array.from({ length: 16 }, () => api(base, `${q}&hold=100`)));
+    const distinct = new Set(after.map((r) => r.hit)).size;
+    return { compare: { readersAgree: distinct === 1 }, report: { upstreamHits: (await hits(`${ns}-cold`)).hits } };
+  },
+  // 12d. A tag revalidated through one request is gone for every later
+  // request, whichever isolate serves it.
+  async "tag-across-isolates"(base, ns) {
+    const q = `key=${ns}-xtag&revalidate=3600&tag=${ns}-xt`;
+    const first = (await api(base, q)).hit;
+    const warm = await Promise.all(Array.from({ length: 16 }, () => api(base, `${q}&hold=100`)));
+    await get(base, `/api/revalidate?tag=${ns}-xt`);
+    const after = await Promise.all(Array.from({ length: 16 }, () => api(base, `${q}&hold=100`)));
+    return {
+      first,
+      warm: [...new Set(warm.map((r) => r.hit))],
+      noneServedTheOldEntry: after.every((r) => r.hit > 1),
+    };
   },
   // 13. A client that leaves during an upstream fetch: the server stays
   // healthy and serves the next request. (Whether the upstream fetch is

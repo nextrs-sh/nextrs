@@ -1,7 +1,9 @@
 import { fetchOptions, upstream } from "../../lib/upstream";
 
 // One upstream fetch with the cache options given in the query, reported
-// as JSON. x-upstream-auth becomes the upstream request's authorization.
+// as JSON. x-upstream-auth and x-upstream-cookie become the upstream
+// request's authorization and cookie headers; ?hold=ms delays the handler
+// first (so concurrent requests spread over isolates).
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
@@ -10,9 +12,15 @@ export async function GET(request: Request) {
   const target =
     params.get("target") ??
     upstream(`/data?key=${encodeURIComponent(key)}&delay=${params.get("delay") ?? 0}&status=${params.get("status") ?? 200}`);
+  const hold = Number(params.get("hold") ?? 0);
+  if (hold) await new Promise((resolve) => setTimeout(resolve, hold));
+  const forwarded: Record<string, string> = {};
   const auth = request.headers.get("x-upstream-auth");
+  if (auth) forwarded.authorization = auth;
+  const cookie = request.headers.get("x-upstream-cookie");
+  if (cookie) forwarded.cookie = cookie;
   try {
-    const res = await fetch(target, fetchOptions(params, auth ? { authorization: auth } : undefined));
+    const res = await fetch(target, fetchOptions(params, forwarded));
     const text = await res.text();
     let body: unknown = text;
     try {

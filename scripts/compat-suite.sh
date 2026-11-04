@@ -71,20 +71,39 @@ export NEXTRS_UPSTREAM="http://127.0.0.1:$upstream_port"
 
 node "$root/tests/compat/upstream.mjs" --port "$upstream_port" > "$out/upstream.log" 2>&1 &
 pids+=($!)
-(cd "$project" && NEXT_TELEMETRY_DISABLED=1 exec npx next start -H 127.0.0.1 -p "$next_port") > "$out/next-start.log" 2>&1 &
-pids+=($!)
-"$nextrs" start "$project" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
-  --js-env NEXTRS_UPSTREAM --net-allow "http://127.0.0.1:$upstream_port" \
-  --net-allow "http://127.0.0.1:$closed_port" --net-allow-addr 127.0.0.1 > "$out/nextrs.log" 2>&1 &
-pids+=($!)
 
-for port in "$next_port" "$nextrs_port"; do
-  for _ in $(seq 1 120); do
-    curl -sf -o /dev/null "http://127.0.0.1:$port/api/health" && break
-    sleep 0.25
+next_pid=""
+nextrs_pid=""
+start_servers() {
+  (cd "$project" && NEXT_TELEMETRY_DISABLED=1 exec npx next start -H 127.0.0.1 -p "$next_port") >> "$out/next-start.log" 2>&1 &
+  next_pid=$!
+  pids+=($next_pid)
+  "$nextrs" start "$project" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
+    --js-env NEXTRS_UPSTREAM --net-allow "http://127.0.0.1:$upstream_port" \
+    --net-allow "http://127.0.0.1:$closed_port" --net-allow-addr 127.0.0.1 \
+    --cache-dir "$out/nextrs-cache" >> "$out/nextrs.log" 2>&1 &
+  nextrs_pid=$!
+  pids+=($nextrs_pid)
+  for port in "$next_port" "$nextrs_port"; do
+    for _ in $(seq 1 120); do
+      curl -sf -o /dev/null "http://127.0.0.1:$port/api/health" && break
+      sleep 0.25
+    done
+    curl -sf -o /dev/null "http://127.0.0.1:$port/api/health" || { echo "server on $port did not start" >&2; tail -20 "$out"/*.log; exit 1; }
   done
-  curl -sf -o /dev/null "http://127.0.0.1:$port/api/health" || { echo "server on $port did not start" >&2; tail -20 "$out"/*.log; exit 1; }
-done
+}
+stop_servers() {
+  kill -TERM "$next_pid" "$nextrs_pid" 2>/dev/null || true
+  # next start runs as npx's child; wait for both ports to close.
+  for port in "$next_port" "$nextrs_port"; do
+    for _ in $(seq 1 80); do
+      curl -s -o /dev/null "http://127.0.0.1:$port/" || break
+      sleep 0.25
+    done
+  done
+  wait "$next_pid" "$nextrs_pid" 2>/dev/null || true
+}
+start_servers
 
 baseline="http://127.0.0.1:$next_port"
 candidate="http://127.0.0.1:$nextrs_port"
@@ -106,6 +125,15 @@ run features  tests/compat/features.mjs  --target "$candidate" --requests 600 --
 run data      tests/compat/data.mjs      --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --closed-port "$closed_port" --json "$out/data.json"
 # The same feature checks against next start: the reference must pass too.
 run features-next-start tests/compat/features.mjs --target "$baseline" --requests 600 --concurrency 64 --json "$out/features-next-start.json"
+
+# Data cache persistence: prepare, restart both servers, verify.
+restart_ns="restart-$RANDOM"
+node tests/compat/restart.mjs --phase prepare --ns "$restart_ns" --baseline "$baseline" --candidate "$candidate" \
+  --upstream "$NEXTRS_UPSTREAM" --json "$out/restart-prepare.json" > "$out/restart.txt" 2>&1
+sleep 1
+stop_servers
+start_servers
+run restart   tests/compat/restart.mjs   --phase verify --ns "$restart_ns" --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --prepared "$out/restart-prepare.json" --json "$out/restart.json"
 
 summary="$(node -e "const r=require('$out/compare.json');const c={};for(const x of r.results??r)c[x.verdict]=(c[x.verdict]??0)+1;console.log(JSON.stringify(c))" 2>/dev/null || echo '{}')"
 echo "compare: $summary"
