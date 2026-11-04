@@ -42,6 +42,16 @@ pub use crate::pool::{Executor, FailureReason};
 pub use crate::response::{ResponseEvent, ResponseStream};
 pub use crate::sandbox::{FsDenied, FsPolicy};
 
+/// Passes flags to V8 (e.g. `--max-semi-space-size=8`). Process-wide; call
+/// before the first [`Executor`] starts. Returns the flags V8 did not
+/// recognize. For tuning experiments: some V8 flags weaken the sandbox
+/// (`--allow-natives-syntax` exposes engine internals to JavaScript).
+pub fn set_v8_flags(flags: &[String]) -> Vec<String> {
+    let mut args = vec!["nextrs".to_owned()];
+    args.extend(flags.iter().cloned());
+    deno_core::v8_set_flags(args).into_iter().skip(1).collect()
+}
+
 /// The Node.js version the runtime reports in `process.version`: the
 /// version NextRS is compatibility-tested against, not a claim to be Node.
 pub const REPORTED_NODE_VERSION: &str = "22.20.0";

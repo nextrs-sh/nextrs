@@ -243,6 +243,11 @@ struct LimitArgs {
     /// On SIGINT/SIGTERM, how long in-flight requests may finish.
     #[arg(long, value_name = "SECONDS", default_value_t = 10.0)]
     shutdown_grace: f64,
+    /// Experimental: V8 flags, space-separated (e.g.
+    /// "--max-semi-space-size=8"). Apply to every isolate. Some flags
+    /// weaken the sandbox; for tuning experiments only.
+    #[arg(long, value_name = "FLAGS", allow_hyphen_values = true)]
+    v8_flags: Option<String>,
     /// Serve executor metrics (/metrics, /metrics.json, /healthz) on this
     /// address. Keep it on loopback.
     #[arg(long, value_name = "ADDR")]
@@ -402,6 +407,15 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                             }
                             Err(_) => tracing::warn!(%name, "--js-env variable is not set"),
                         }
+                    }
+                    if let Some(flags) = &limits.v8_flags {
+                        let flags: Vec<String> =
+                            flags.split_whitespace().map(str::to_owned).collect();
+                        let unknown = nextrs_runtime::set_v8_flags(&flags);
+                        if !unknown.is_empty() {
+                            return Err(format!("unknown V8 flags: {}", unknown.join(" ")).into());
+                        }
+                        tracing::warn!(flags = %flags.join(" "), "experimental V8 flags set");
                     }
                     let executor = Executor::start(config)?;
                     tracing::info!(
