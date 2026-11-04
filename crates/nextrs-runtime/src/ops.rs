@@ -221,7 +221,8 @@ async fn op_nextrs_next_request(state: Rc<RefCell<OpState>>) -> Option<JsRequest
     let request = job.request;
     let (body, body_stream) = match request.body {
         RequestBody::Empty => (None, None),
-        RequestBody::Full(bytes) => (Some(bytes.to_vec().into()), None),
+        // Vec::from(Bytes) reuses the allocation when it is not shared.
+        RequestBody::Full(bytes) => (Some(Vec::from(bytes).into()), None),
         RequestBody::Stream(stream) => (None, Some(stream)),
     };
     let has_stream = body_stream.is_some();
@@ -283,7 +284,7 @@ async fn op_nextrs_request_read(
             {
                 open.body = Some(stream);
             }
-            Ok(Some(chunk.to_vec().into()))
+            Ok(Some(Vec::from(chunk).into()))
         }
         Some(Err(error)) => {
             state
@@ -762,7 +763,7 @@ async fn op_nextrs_fetch_read(
             if let Some(fetch) = fetch {
                 fetch.body = Some(body);
             }
-            Ok(Some(chunk.to_vec().into()))
+            Ok(Some(Vec::from(chunk).into()))
         }
         Some(BodyItem::End) => {
             if let Some(fetch) = fetch {
