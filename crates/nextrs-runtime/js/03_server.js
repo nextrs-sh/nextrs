@@ -455,6 +455,33 @@
     }
   }
 
+  // `next start` loads every app module at startup and calls its
+  // patchFetch() (next-server.js), so Next's fetch wrapper is built by the
+  // first module in app-paths-manifest order; later calls are no-ops. That
+  // choice matters: route handlers and pages are bundled with separate
+  // React instances, and the wrapper dedupes a render's fetches with
+  // React.cache of the instance that built it. Built from a route handler,
+  // it never dedupes page renders. Make the same first call; the other
+  // modules still load on demand.
+  function patchFetchAsNextStartDoes() {
+    const patched = Symbol.for("next-patch");
+    let manifest;
+    try {
+      manifest = rootRequire(path.join(distDir, "server", "app-paths-manifest.json"));
+    } catch {
+      return;
+    }
+    for (const page of Object.keys(manifest)) {
+      if (globalThis[patched] === true) return;
+      try {
+        loadEntry(path.join(distDir, "server", "app", `${page}.js`)).patchFetch?.();
+      } catch (error) {
+        // next start ignores preload failures too.
+        ops.op_nextrs_diagnostic("preload-error", `${page}: ${errorText(error)}`);
+      }
+    }
+  }
+
   globalThis.__nextrsStart = function start() {
     delete globalThis.__nextrsStart;
     delete globalThis.__nextrsInternal;
@@ -467,6 +494,7 @@
       ops.op_nextrs_ready(errorText(error));
       return;
     }
+    patchFetchAsNextStartDoes();
     if (boot.faultInjection) {
       Object.defineProperty(globalThis, "__nextrsFault", { value: (kind) => ops.op_nextrs_fault(kind) });
     }
