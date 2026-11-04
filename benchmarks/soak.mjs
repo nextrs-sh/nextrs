@@ -46,7 +46,7 @@ const pid = args.pid ? Number(args.pid) : null;
 const metricsUrl = args.metrics ? new URL("/metrics.json", args.metrics) : null;
 const minutes = Number(args.minutes ?? 10);
 const concurrency = Number(args.concurrency ?? 48);
-const injectEvery = args["inject-every"] ? Number(args["inject-every"]) : null;
+const injectEvery = args["inject-every"] && Number(args["inject-every"]) > 0 ? Number(args["inject-every"]) : null;
 const injectMs = Number(args["inject-ms"] ?? 3000);
 const sampleEvery = Number(args["sample-every"] ?? 10);
 const agent = new http.Agent({ keepAlive: true, maxSockets: concurrency + 8 });
@@ -320,6 +320,16 @@ async function sample() {
     cacheMemoryMiB: m?.cache ? +(m.cache.memory_bytes / 1048576).toFixed(1) : null,
     cacheStorageMiB: m?.cache ? +(m.cache.storage_bytes / 1048576).toFixed(1) : null,
     cacheEvictions: m?.cache?.evictions ?? null,
+    // Per slot: isolate generation and live heap, so a long-lived isolate's
+    // trend can be told from restarted ones.
+    slots: m
+      ? m.executors.map((e) => ({
+          slot: e.slot,
+          generation: e.generation,
+          heapAfterGcMiB: +((e.heap_used_after_gc_bytes ?? 0) / 1048576).toFixed(1),
+          heapTotalMiB: +((e.heap_total_bytes ?? 0) / 1048576).toFixed(1),
+        }))
+      : null,
   };
   samples.push(row);
   console.log(JSON.stringify(row));

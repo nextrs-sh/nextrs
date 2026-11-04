@@ -5,7 +5,12 @@
 #
 #   benchmarks/soak-matrix.sh --project fixtures/next-app --out DIR \
 #        [--nextrs target/release/nextrs] [--isolates "1 2 4"] [--minutes 90] \
-#        [--concurrency 24] [--inject-every 180] [--inject-ms 4000] [--stall-timeout 2]
+#        [--concurrency 24] [--inject-every 180] [--inject-ms 4000] [--stall-timeout 2] \
+#        [--data] [--server-args "..."]
+#
+# --data starts tests/compat/upstream.mjs, allows the server to fetch from
+# it, and adds outbound fetch and data cache traffic to the soak.
+# --server-args passes extra flags to nextrs start (e.g. cache limits).
 #
 # Writes DIR/soak-i<N>.json (samples + counts) and DIR/server-i<N>.log per
 # pool size. Exits non-zero if any soak run reports a failure (a leak, a
@@ -22,6 +27,8 @@ concurrency=24
 inject_every=180
 inject_ms=4000
 stall_timeout=2
+data=0
+server_args=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --project) project="$2"; shift 2 ;;
@@ -33,6 +40,8 @@ while [[ $# -gt 0 ]]; do
     --inject-every) inject_every="$2"; shift 2 ;;
     --inject-ms) inject_ms="$2"; shift 2 ;;
     --stall-timeout) stall_timeout="$2"; shift 2 ;;
+    --data) data=1; shift ;;
+    --server-args) server_args="$2"; shift 2 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -41,7 +50,18 @@ mkdir -p "$out"
 out="$(cd "$out" && pwd)"
 
 server=""
-trap '[[ -n "$server" ]] && kill "$server" 2>/dev/null; wait 2>/dev/null || true' EXIT
+upstream_pid=""
+trap '[[ -n "$server" ]] && kill "$server" 2>/dev/null; [[ -n "$upstream_pid" ]] && kill "$upstream_pid" 2>/dev/null; wait 2>/dev/null || true' EXIT
+data_flags=()
+soak_flags=()
+if [[ $data -eq 1 ]]; then
+  upstream_port=$((5200 + RANDOM % 300))
+  node "$root/tests/compat/upstream.mjs" --port "$upstream_port" > "$out/upstream.log" 2>&1 &
+  upstream_pid=$!
+  export NEXTRS_UPSTREAM="http://127.0.0.1:$upstream_port"
+  data_flags=(--js-env NEXTRS_UPSTREAM --net-allow "$NEXTRS_UPSTREAM" --net-allow-addr 127.0.0.1)
+  soak_flags=(--upstream "$NEXTRS_UPSTREAM")
+fi
 
 status=0
 for n in $isolates; do
@@ -49,7 +69,7 @@ for n in $isolates; do
   metrics=$((port + 1000))
   "$nextrs" start "$project" --port "$port" --js-runtime embedded-v8 --isolates "$n" \
     --js-stall-timeout "$stall_timeout" --metrics-addr "127.0.0.1:$metrics" \
-    > "$out/server-i$n.log" 2>&1 &
+    "${data_flags[@]}" $server_args > "$out/server-i$n.log" 2>&1 &
   server=$!
   for _ in $(seq 1 120); do
     curl -sf -o /dev/null "http://127.0.0.1:$port/api/health" && break
@@ -59,7 +79,7 @@ for n in $isolates; do
   node "$root/benchmarks/soak.mjs" --target "http://127.0.0.1:$port" --pid "$server" \
     --metrics "http://127.0.0.1:$metrics" --minutes "$minutes" --concurrency "$concurrency" \
     --inject-every "$inject_every" --inject-ms "$inject_ms" --sample-every 30 \
-    --json "$out/soak-i$n.json" > "$out/soak-i$n.log" 2>&1 || status=1
+    --json "$out/soak-i$n.json" "${soak_flags[@]}" > "$out/soak-i$n.log" 2>&1 || status=1
   tail -n 30 "$out/soak-i$n.log" | sed -n '/^{$/,$p'
   kill -TERM "$server"
   wait "$server" 2>/dev/null || true
