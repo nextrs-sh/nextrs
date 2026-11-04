@@ -102,6 +102,9 @@ pub async fn serve(
         });
     }
 
+    // Refuse new connections at once instead of leaving them in the
+    // kernel backlog, unanswered, for the whole grace period.
+    drop(listener);
     let _ = closing.send(true);
     let drained = tokio::time::timeout(options.shutdown_grace, async {
         while connections.join_next().await.is_some() {}
