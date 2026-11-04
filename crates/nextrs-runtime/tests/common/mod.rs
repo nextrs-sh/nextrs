@@ -58,6 +58,8 @@ pub struct Collected {
     pub chunks: usize,
     pub error: Option<String>,
     pub ended: bool,
+    /// JavaScript received the request (read after the stream ended).
+    pub delivered: bool,
 }
 
 impl Collected {
@@ -97,6 +99,7 @@ pub async fn drain(mut events: ResponseStream) -> Collected {
             }
         }
     }
+    out.delivered = events.was_delivered();
     out
 }
 
