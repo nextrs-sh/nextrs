@@ -6,7 +6,7 @@
 
 ((globalThis) => {
   const internal = globalThis.__nextrsInternal;
-  const { core, ops, boot, Module, Buffer, stream, path } = internal;
+  const { core, ops, boot, Module, Buffer, stream, path, requestScope } = internal;
   const { Readable, Writable } = stream;
 
   // op_nextrs_response_write results (response.rs WriteStatus).
@@ -362,7 +362,7 @@
     res.destroy();
   }
 
-  async function serve(request) {
+  async function serve(request, scope) {
     const id = request.id;
     let timer;
     try {
@@ -434,6 +434,11 @@
       }
     } finally {
       clearTimeout(timer);
+      // Outbound fetches the request left open end with it.
+      if (scope.fetches?.size) {
+        const ended = new DOMException("The request that started this fetch has ended", "AbortError");
+        for (const abort of [...scope.fetches]) abort(ended);
+      }
       ops.op_nextrs_request_done(id);
     }
   }
@@ -443,7 +448,10 @@
       const request = await ops.op_nextrs_next_request();
       if (request === null) return;
       // Concurrent: each request runs in its own async context.
-      serve(request).catch((error) => ops.op_nextrs_diagnostic("serve-error", errorText(error)));
+      const scope = { fetches: null };
+      requestScope
+        .run(scope, () => serve(request, scope))
+        .catch((error) => ops.op_nextrs_diagnostic("serve-error", errorText(error)));
     }
   }
 

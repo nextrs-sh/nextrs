@@ -12,6 +12,7 @@ use deno_core::{JsRuntime, PollEventLoopOptions, RuntimeOptions, v8};
 use tokio::sync::mpsc;
 
 use crate::metrics::Counters;
+use crate::net::NetClient;
 use crate::pool::{FailureReason, Job, Termination, WorkerExit, WorkerShared};
 use crate::{ExecutorConfig, REPORTED_NODE_VERSION, ops};
 
@@ -44,6 +45,7 @@ pub(crate) fn spawn(
     config: ExecutorConfig,
     worker: Arc<WorkerShared>,
     counters: Arc<Counters>,
+    net: Option<Arc<NetClient>>,
     jobs: mpsc::UnboundedReceiver<Box<Job>>,
     ready: Sender<Result<(), String>>,
     exit: Sender<WorkerExit>,
@@ -51,7 +53,7 @@ pub(crate) fn spawn(
     std::thread::Builder::new()
         .name(format!("nextrs-v8-{}", worker.slot))
         .spawn(move || {
-            let outcome = run(config, worker.clone(), counters, jobs, ready.clone());
+            let outcome = run(config, worker.clone(), counters, net, jobs, ready.clone());
             worker.mark_exited();
             if let Err(error) = &outcome {
                 // Only reaches the supervisor if bootstrap had not reported.
@@ -65,6 +67,7 @@ fn run(
     config: ExecutorConfig,
     worker: Arc<WorkerShared>,
     counters: Arc<Counters>,
+    net: Option<Arc<NetClient>>,
     jobs: mpsc::UnboundedReceiver<Box<Job>>,
     ready: Sender<Result<(), String>>,
 ) -> WorkerExit {
@@ -85,6 +88,7 @@ fn run(
             node_version: REPORTED_NODE_VERSION,
             nextrs_version: env!("CARGO_PKG_VERSION"),
             fault_injection: cfg!(feature = "fault-injection"),
+            network: net.is_some(),
         };
         let create_params = config
             .limits
@@ -106,6 +110,7 @@ fn run(
                     ops::ReadySignal(Some(ready)),
                     worker.clone(),
                     counters,
+                    ops::NetCapability(net),
                 ),
             ],
             create_params,

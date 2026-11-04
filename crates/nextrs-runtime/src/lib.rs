@@ -19,6 +19,7 @@
 //! and host capabilities only through the ops in `ops.rs`.
 
 mod metrics;
+mod net;
 mod ops;
 mod pool;
 mod response;
@@ -33,7 +34,8 @@ use std::time::Duration;
 
 use bytes::Bytes;
 
-pub use crate::metrics::{ExecutorSnapshot, MetricsSnapshot};
+pub use crate::metrics::{ExecutorSnapshot, FetchSnapshot, MetricsSnapshot};
+pub use crate::net::{AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy};
 pub use crate::pool::{Executor, FailureReason};
 pub use crate::response::{ResponseEvent, ResponseStream};
 pub use crate::sandbox::{FsDenied, FsPolicy};
@@ -59,6 +61,9 @@ pub struct ExecutorConfig {
     /// research; off by default.
     pub trace_node_api: bool,
     pub limits: Limits,
+    /// Outbound `fetch`. `None`: JavaScript has no network access, and
+    /// `fetch` fails with `ERR_NEXTRS_NET_DENIED`.
+    pub network: Option<NetworkConfig>,
 }
 
 impl ExecutorConfig {
@@ -74,6 +79,7 @@ impl ExecutorConfig {
             bootstrap: Some(bootstrap),
             trace_node_api: false,
             limits: Limits::default(),
+            network: None,
         }
     }
 

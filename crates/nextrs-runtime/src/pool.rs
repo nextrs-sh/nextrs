@@ -26,6 +26,7 @@ use deno_core::v8;
 use tokio::sync::{Notify, mpsc, oneshot};
 
 use crate::metrics::{self, Counters, ExecutorSnapshot, MetricsSnapshot};
+use crate::net::NetClient;
 use crate::response::{self, ResponseSender};
 use crate::{ExecutorConfig, ExecutorError, RenderError, RenderRequest, ResponseStream, worker};
 
@@ -304,6 +305,9 @@ pub(crate) struct PoolInner {
     me: Weak<PoolInner>,
     pub config: ExecutorConfig,
     pub counters: Arc<Counters>,
+    /// Shared by every isolate (one connection pool); `None` without a
+    /// network configuration.
+    pub net: Option<Arc<NetClient>>,
     state: Mutex<PoolState>,
     shutting_down: AtomicBool,
     /// Wakes supervisors sleeping in a restart backoff.
@@ -532,10 +536,22 @@ impl Executor {
     /// error (a broken build fails at startup, not on the first request).
     pub fn start(config: ExecutorConfig) -> Result<Arc<Self>, ExecutorError> {
         let isolates = config.limits.isolates.max(1);
+        let counters = Arc::new(Counters::default());
+        let net = match &config.network {
+            Some(network) => Some(Arc::new(
+                NetClient::new(network, counters.clone()).map_err(|e| {
+                    ExecutorError::Io(std::io::Error::other(format!(
+                        "outbound network client: {e}"
+                    )))
+                })?,
+            )),
+            None => None,
+        };
         let inner = Arc::new_cyclic(|me| PoolInner {
             me: me.clone(),
             config,
-            counters: Arc::new(Counters::default()),
+            counters,
+            net,
             state: Mutex::new(PoolState {
                 workers: vec![None; isolates],
                 history: (0..isolates).map(|_| SlotHistory::default()).collect(),
@@ -702,6 +718,7 @@ fn supervise(
             inner.config.clone(),
             worker.clone(),
             inner.counters.clone(),
+            inner.net.clone(),
             jobs,
             ready_tx,
             exit_tx,

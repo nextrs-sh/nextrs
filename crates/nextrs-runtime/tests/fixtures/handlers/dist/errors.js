@@ -16,7 +16,7 @@ exports.handler = async (req, res) => {
   if (mode === "fetch") {
     return fetch("https://example.com").then(
       () => res.end("fetched"),
-      (error) => res.end(`${error.code}|${error.message}`),
+      (error) => res.end(`${error.cause?.code}|${error.name}|${error.message}|${error.cause?.message}`),
     );
   }
   res.end("ok");

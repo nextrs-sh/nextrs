@@ -7,7 +7,10 @@ use clap::{Parser, Subcommand, ValueEnum};
 use nextrs_adapter::{
     BuildInfo, InspectOptions, Matcher, MetadataSource, Rendering, RouteKind, Runtime, Severity,
 };
-use nextrs_runtime::{Executor, ExecutorConfig, Limits};
+use nextrs_runtime::{
+    AddrRange, AllowRule, Executor, ExecutorConfig, Limits, NetworkConfig, NetworkLimits,
+    NetworkPolicy,
+};
 use nextrs_server::{ServeOptions, ServerOptions};
 
 #[derive(Parser)]
@@ -22,6 +25,8 @@ struct Cli {
 }
 
 #[derive(Subcommand)]
+// Parsed once at startup; the size difference costs nothing.
+#[allow(clippy::large_enum_variant)]
 enum Command {
     /// Report what a `next build` output contains and what NextRS can serve.
     Inspect {
@@ -57,7 +62,81 @@ enum Command {
         js_env: Vec<String>,
         #[command(flatten)]
         limits: LimitArgs,
+        #[command(flatten)]
+        net: NetArgs,
     },
+}
+
+/// Outbound `fetch`. Denied entirely unless `--net-allow` is given.
+#[derive(clap::Args)]
+#[command(next_help_heading = "Outbound network (fetch)")]
+struct NetArgs {
+    /// Destination JavaScript may fetch (repeatable): `host`, `host:port`,
+    /// `scheme://host[:port]` or `*.domain`. Without a scheme only https;
+    /// without a port only the scheme's default. Hosts must also resolve to
+    /// public addresses (see --net-allow-addr).
+    #[arg(long = "net-allow", value_name = "ORIGIN")]
+    allow: Vec<String>,
+    /// Non-public address or CIDR range that allowed hosts may resolve to
+    /// (repeatable), e.g. 127.0.0.1 for a local development API. Loopback,
+    /// private, link-local (cloud metadata) and other special ranges are
+    /// refused otherwise.
+    #[arg(long = "net-allow-addr", value_name = "CIDR")]
+    allow_addr: Vec<String>,
+    /// From sending a request to its response head, redirects included.
+    #[arg(long = "net-timeout", value_name = "SECONDS", default_value_t = 30.0)]
+    timeout: f64,
+    /// Longest wait for the next chunk of a response body.
+    #[arg(
+        long = "net-body-timeout",
+        value_name = "SECONDS",
+        default_value_t = 30.0
+    )]
+    body_timeout: f64,
+    /// Response body limit per fetch (after decompression).
+    #[arg(long = "net-max-response", value_name = "MIB", default_value_t = 32)]
+    max_response: u64,
+}
+
+impl NetArgs {
+    fn config(&self) -> Result<Option<NetworkConfig>, Box<dyn std::error::Error>> {
+        if self.allow.is_empty() {
+            if !self.allow_addr.is_empty() {
+                return Err("--net-allow-addr needs at least one --net-allow".into());
+            }
+            return Ok(None);
+        }
+        let allow = self
+            .allow
+            .iter()
+            .map(|rule| {
+                rule.parse::<AllowRule>()
+                    .map_err(|e| format!("--net-allow {e}"))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let allow_addrs = self
+            .allow_addr
+            .iter()
+            .map(|range| {
+                range
+                    .parse::<AddrRange>()
+                    .map_err(|e| format!("--net-allow-addr {e}"))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let defaults = NetworkLimits::default();
+        let positive = |value: f64, name: &str| {
+            seconds(value).ok_or_else(|| format!("{name} must be positive"))
+        };
+        Ok(Some(NetworkConfig {
+            policy: NetworkPolicy { allow, allow_addrs },
+            limits: NetworkLimits {
+                headers_timeout: positive(self.timeout, "--net-timeout")?,
+                body_idle_timeout: positive(self.body_timeout, "--net-body-timeout")?,
+                max_response_bytes: self.max_response.max(1) * 1024 * 1024,
+                ..defaults
+            },
+        }))
+    }
 }
 
 /// Runtime limits. Durations are in seconds; 0 disables a timeout.
@@ -215,7 +294,12 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             js_runtime,
             js_env,
             limits,
+            net,
         } => {
+            let network = net.config()?;
+            if network.is_some() && js_runtime == JsRuntime::None {
+                return Err("--net-allow needs --js-runtime embedded-v8".into());
+            }
             let started = std::time::Instant::now();
             let info = nextrs_adapter::inspect_with(
                 &path,
@@ -229,6 +313,16 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     let mut config =
                         ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
                     config.limits = limits.executor_limits();
+                    if let Some(network) = &network {
+                        let allow: Vec<String> = network
+                            .policy
+                            .allow
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect();
+                        tracing::info!(allow = %allow.join(", "), "outbound fetch enabled");
+                    }
+                    config.network = network;
                     for name in js_env {
                         match std::env::var(&name) {
                             Ok(value) => {
