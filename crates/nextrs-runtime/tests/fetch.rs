@@ -207,6 +207,19 @@ async fn route(state: Arc<Upstream>, req: Request<Incoming>) -> Response<Body> {
             .header("location", "/loop")
             .body(Full::new(Bytes::new()).boxed())
             .unwrap(),
+        "/gzip" => Response::builder()
+            .header("content-type", "text/plain")
+            .header("content-encoding", "gzip")
+            .header("content-length", GZIP_BODY.len().to_string())
+            .header(
+                "x-accept-encoding",
+                req.headers()
+                    .get("accept-encoding")
+                    .map(|v| v.to_str().unwrap_or("").to_owned())
+                    .unwrap_or_default(),
+            )
+            .body(Full::new(Bytes::from_static(GZIP_BODY)).boxed())
+            .unwrap(),
         "/reason" => Response::builder()
             .status(299)
             .body(Full::new(Bytes::from_static(b"odd")).boxed())
@@ -214,6 +227,12 @@ async fn route(state: Arc<Upstream>, req: Request<Incoming>) -> Response<Body> {
         _ => full(404, "text/plain", "not found"),
     }
 }
+
+/// gzip of "hello gzip " x 100 (1,100 bytes decoded).
+const GZIP_BODY: &[u8] = &[
+    31, 139, 8, 0, 0, 0, 0, 0, 2, 255, 203, 72, 205, 201, 201, 87, 72, 175, 202, 44, 80, 200, 24,
+    101, 142, 50, 71, 153, 163, 76, 114, 153, 0, 76, 86, 215, 15, 76, 4, 0, 0,
+];
 
 fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{b:02x}")).collect()
@@ -342,6 +361,24 @@ async fn authorized_get_returns_status_headers_and_body() {
     let r = run(&executor, "get", &[("target", &format!("{base}/reason"))]).await;
     assert_eq!(r["status"], 299);
     assert_eq!(r["body"], "odd");
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn compressed_responses_are_decoded() {
+    let (base, port, _) = upstream().await;
+    let executor = allowed(&[port]);
+    let r = run(&executor, "get", &[("target", &format!("{base}/gzip"))]).await;
+    assert_eq!(r["body"], "hello gzip ".repeat(100));
+    assert_eq!(r["contentType"], "text/plain");
+    // Recorded differences from Node, which keeps both headers (with the
+    // compressed length) and sends "gzip, deflate" over http: the decoder
+    // removes content-encoding and content-length, and accept-encoding is
+    // the client's.
+    assert!(
+        r["contentEncoding"].is_null() && r["contentLength"].is_null(),
+        "{r}"
+    );
+    assert_eq!(r["acceptEncodingSent"], "gzip,deflate,br");
 }
 
 #[tokio::test(flavor = "multi_thread")]

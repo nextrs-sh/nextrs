@@ -43,6 +43,9 @@ const cases = {
       url: r.url,
       redirected: r.redirected,
       contentType: r.headers.get("content-type"),
+      contentEncoding: r.headers.get("content-encoding"),
+      contentLength: r.headers.get("content-length"),
+      acceptEncodingSent: r.headers.get("x-accept-encoding"),
       headersImmutable: (() => {
         try {
           r.headers.set("x", "y");
