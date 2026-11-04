@@ -6,8 +6,9 @@
 //!   slot is handed directly to the oldest waiter, so nothing can overtake
 //!   the queue.
 //! * **Dispatch.** Least outstanding requests among ready isolates, ties
-//!   broken round-robin; isolates busy on the CPU (event loop not turned
-//!   for 200 ms) only when no other has a free slot.
+//!   to the lowest slot (light load stays on one warm isolate); isolates
+//!   busy on the CPU (event loop not turned for 200 ms) only when no other
+//!   has a free slot.
 //! * **Supervision.** One supervisor thread per slot starts the isolate,
 //!   watches its heartbeat (CPU stall watchdog), and on any exit decides
 //!   whether it failed. A failed isolate is removed from dispatch at once,
@@ -285,7 +286,6 @@ struct PoolState {
     history: Vec<SlotHistory>,
     waiters: VecDeque<Waiter>,
     next_waiter: u64,
-    next_pick: usize,
 }
 
 pub(crate) struct PoolInner {
@@ -317,14 +317,15 @@ impl PoolInner {
     /// Least outstanding requests among ready isolates with a free slot,
     /// preferring isolates whose event loop is turning (a request sent to
     /// one stuck on the CPU would wait behind it, and fail with it if the
-    /// watchdog fires); ties go round-robin. Claims the slot. Requires the
-    /// pool lock.
+    /// watchdog fires). Ties go to the lowest slot: at low concurrency,
+    /// spreading sequential requests round-robin left every isolate's JIT
+    /// and caches lukewarm (4 isolates at concurrency 1: 313 against 441
+    /// req/s on /books/42). Claims the slot. Requires the pool lock.
     fn claim(&self, state: &mut PoolState) -> Option<Arc<WorkerShared>> {
         let limit = self.config.limits.max_active_per_isolate;
         let n = state.workers.len();
         let mut best: Option<((bool, usize), &Arc<WorkerShared>)> = None;
-        for offset in 0..n {
-            let index = (state.next_pick + offset) % n;
+        for index in 0..n {
             let Some(worker) = &state.workers[index] else {
                 continue;
             };
@@ -339,7 +340,6 @@ impl PoolInner {
         }
         let worker = best?.1.clone();
         worker.active.fetch_add(1, Ordering::Relaxed);
-        state.next_pick = (worker.slot + 1) % n.max(1);
         Some(worker)
     }
 

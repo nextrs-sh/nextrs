@@ -125,7 +125,7 @@ def main():
             for path, concurrency in plan:
                 url = f"http://127.0.0.1:{server.port}{path}"
                 requests = args.requests // 4 if path == STREAM_PATH else args.requests
-                run_ab(url, max(requests // 8, 50), concurrency)
+                run_ab(url, max(requests // 8, 2 * concurrency, 50), concurrency)
                 metrics_port = variants[name][1]
                 before = metrics(metrics_port) if metrics_port else None
                 runs = []
