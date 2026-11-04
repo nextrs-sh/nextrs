@@ -4,6 +4,7 @@
 //   node benchmarks/soak.mjs --target http://127.0.0.1:3001 --pid <server pid> \
 //        [--metrics http://127.0.0.1:9101] [--minutes 10] [--concurrency 48] \
 //        [--inject-every 60 --inject-ms 3000] [--sample-every 10] [--json out.json]
+//        [--upstream http://127.0.0.1:4999]
 //
 // Traffic, per worker, in rotation:
 //   * /request-info and /books/<id> with unique tokens; any foreign token in
@@ -16,6 +17,13 @@
 //   * /api/after: after() callbacks observe their own request's headers,
 //     collected in batches with ?report=;
 //   * /api/health.
+// With --upstream (tests/compat/upstream.mjs; the server must be allowed to
+// fetch from it), the rotation adds outbound fetch and data cache traffic:
+//   * /data-fetch: an uncached upstream fetch; the identity rendered after
+//     it must be the request's own;
+//   * /api/data with force-cache on a warm key (hits) and on keys from a
+//     bounded space (misses and stores, evictions under small limits);
+//   * a tag revalidated every minute, and clients that leave mid-fetch.
 // With --inject-every, GET /api/spin?ms=<inject-ms> is sent on that period;
 // run the server with --js-stall-timeout below inject-ms so the stall
 // terminates and replaces an isolate.
@@ -42,6 +50,7 @@ const injectEvery = args["inject-every"] ? Number(args["inject-every"]) : null;
 const injectMs = Number(args["inject-ms"] ?? 3000);
 const sampleEvery = Number(args["sample-every"] ?? 10);
 const agent = new http.Agent({ keepAlive: true, maxSockets: concurrency + 8 });
+const upstream = args.upstream ?? null;
 
 const counts = {};
 const bump = (key) => (counts[key] = (counts[key] ?? 0) + 1);
@@ -51,7 +60,7 @@ const fail = (kind, detail) => {
   if (failures.length < 50) failures.push({ kind, ...detail });
 };
 
-function request(path, { method = "GET", headers = {}, body, abortAfter, slow } = {}) {
+function request(path, { method = "GET", headers = {}, body, abortAfter, slow, timeoutMs } = {}) {
   return new Promise((resolve) => {
     const req = http.request(
       { host: target.hostname, port: target.port, method, path, headers, agent },
@@ -77,6 +86,12 @@ function request(path, { method = "GET", headers = {}, body, abortAfter, slow } 
       },
     );
     req.on("error", (error) => resolve({ error: error.code ?? String(error) }));
+    if (timeoutMs) {
+      setTimeout(() => {
+        req.destroy();
+        resolve({ aborted: true });
+      }, timeoutMs);
+    }
     req.end(body);
   });
 }
@@ -203,6 +218,38 @@ async function afterCase() {
   }
 }
 
+async function dataFetchCase() {
+  const id = `nxd-${seq++}-${randomBytes(4).toString("hex")}`;
+  const r = await request("/data-fetch", { headers: { "x-nextrs-id": id } });
+  if (lostToRestart(r)) return bump("lost-to-restart");
+  if (r.status !== 200) return fail("data-fetch-status", { status: r.status });
+  const text = r.body.toString().replace(/<!-- -->/g, "");
+  const m = /data">id=(\S+) key=(\S+) hit=\d+ after=([^<\s]+)/.exec(text);
+  if (!m) return fail("data-fetch", { id });
+  if (m[1] !== id || m[2] !== id || m[3] !== id) return fail("LEAK", { path: "/data-fetch", id, seen: m[0] });
+  bump("data-fetch-ok");
+}
+
+let coldKey = 0;
+async function dataCacheCase(kind) {
+  let path;
+  if (kind === "warm") path = "/api/data?key=soak-warm&cache=force-cache";
+  else if (kind === "tagged") path = "/api/data?key=soak-tagged&revalidate=3600&tag=soak-tag";
+  // A bounded key space: entries are reused, replaced and evicted.
+  else path = `/api/data?key=soak-cold-${coldKey++ % 20000}&cache=force-cache`;
+  const r = await request(path);
+  if (lostToRestart(r)) return bump("lost-to-restart");
+  if (r.status !== 200) return fail(`data-${kind}-status`, { status: r.status, body: r.body?.toString().slice(0, 200) });
+  const body = JSON.parse(r.body.toString());
+  if (body.status !== 200 || typeof body.body?.hit !== "number") return fail(`data-${kind}`, { body });
+  bump(`data-${kind}-ok`);
+}
+
+async function dataAbortCase() {
+  const r = await request(`/api/data?key=soak-abort-${seq++}&delay=400`, { abortAfter: 0, timeoutMs: 100 });
+  bump(r.aborted || r.error ? "data-aborted" : "data-abort-completed");
+}
+
 async function healthCase() {
   const r = await request("/api/health");
   if (lostToRestart(r)) return bump("lost-to-restart");
@@ -217,6 +264,13 @@ const rotation = [
   uploadCase, healthCase, identityCase, healthCase,
   reactCacheCase, afterCase,
 ];
+if (upstream) {
+  rotation.push(
+    dataFetchCase, () => dataCacheCase("warm"), () => dataCacheCase("cold"),
+    () => dataCacheCase("warm"), () => dataCacheCase("cold"), () => dataCacheCase("tagged"),
+    dataFetchCase, dataAbortCase,
+  );
+}
 
 function procStatus(field) {
   if (!pid) return null;
@@ -260,6 +314,12 @@ async function sample() {
     backpressureWaits: m?.backpressure_waits ?? null,
     rejected: m ? m.rejected_overloaded + m.rejected_queue_timeout + m.rejected_unavailable : null,
     queued: m?.queued ?? null,
+    fetchInFlight: m?.fetch?.in_flight ?? null,
+    fetchRequests: m?.fetch?.requests ?? null,
+    cacheEntries: m?.cache?.entries ?? null,
+    cacheMemoryMiB: m?.cache ? +(m.cache.memory_bytes / 1048576).toFixed(1) : null,
+    cacheStorageMiB: m?.cache ? +(m.cache.storage_bytes / 1048576).toFixed(1) : null,
+    cacheEvictions: m?.cache?.evictions ?? null,
   };
   samples.push(row);
   console.log(JSON.stringify(row));
@@ -267,6 +327,9 @@ async function sample() {
 
 const sampler = setInterval(sample, sampleEvery * 1000);
 const injections = [];
+const revalidator = upstream
+  ? setInterval(() => request("/api/revalidate?tag=soak-tag").then((r) => bump(r.status === 200 ? "revalidate-ok" : "revalidate-failed")), 60_000)
+  : null;
 const injector = injectEvery
   ? setInterval(async () => {
       const at = Math.round((Date.now() - started) / 1000);
@@ -287,6 +350,7 @@ await Promise.all(
 );
 clearInterval(sampler);
 if (injector) clearInterval(injector);
+if (revalidator) clearInterval(revalidator);
 await new Promise((r) => setTimeout(r, 3000));
 await sample();
 
