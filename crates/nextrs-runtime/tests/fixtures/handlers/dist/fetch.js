@@ -196,9 +196,30 @@ const cases = {
   },
 };
 
-exports.handler = async (req, res) => {
+// Results of fetches made in waitUntil work, by id (case wait-until).
+const background = new Map();
+
+exports.handler = async (req, res, ctx) => {
   const params = new URL(req.url, "http://localhost").searchParams;
   const name = params.get("case");
+  if (name === "wait-until") {
+    // The response ends first; the fetch runs as waitUntil work, which
+    // the request's lifetime includes.
+    const id = params.get("id");
+    ctx.waitUntil(
+      (async () => {
+        await sleep(50);
+        const r = await fetch(params.get("target"));
+        background.set(id, await r.text());
+      })().catch((error) => background.set(id, `error: ${error.message}`)),
+    );
+    res.end("scheduled");
+    return;
+  }
+  if (name === "background") {
+    res.end(JSON.stringify({ result: background.get(params.get("id")) ?? null }));
+    return;
+  }
   if (name === "stream") {
     // Upstream chunks are forwarded as they arrive.
     const r = await fetch(params.get("target"));

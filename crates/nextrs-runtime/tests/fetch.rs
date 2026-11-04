@@ -897,6 +897,35 @@ async fn fetches_left_open_end_with_their_request() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn fetches_in_wait_until_work_complete() {
+    let (base, port, _) = upstream().await;
+    let executor = allowed(&[port]);
+    let out = collect(
+        &executor,
+        fetch_request(
+            "wait-until",
+            &[
+                ("target", &format!("{base}/text?v=later&delay=100")),
+                ("id", "w1"),
+            ],
+            &[],
+        ),
+    )
+    .await;
+    assert_eq!(out.text(), "scheduled");
+    // collect() returns when the response ends; the request (and its
+    // waitUntil work) may still be running.
+    assert!(
+        eventually(Duration::from_secs(3), async || {
+            let r = run(&executor, "background", &[("id", "w1")]).await;
+            r["result"] == "later"
+        })
+        .await,
+        "the waitUntil fetch must complete, not be aborted with its request"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn request_bodies_stream_to_the_upstream() {
     let (base, port, _) = upstream().await;
     let executor = allowed(&[port]);
