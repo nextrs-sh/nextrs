@@ -311,3 +311,77 @@ async fn metrics_report_heap_statistics_per_isolate() {
     assert!(text.contains("nextrs_executor_heap_used_bytes{slot=\"1\"}"));
     assert!(text.contains("# TYPE nextrs_executor_external_bytes gauge"));
 }
+
+/// While one isolate is busy on the CPU, new requests go to the others
+/// instead of queueing behind it. Busy isolates are still used when no
+/// other has capacity.
+#[tokio::test(flavor = "multi_thread")]
+async fn dispatch_avoids_an_isolate_busy_on_the_cpu() {
+    let executor = executor(Limits {
+        isolates: 2,
+        stall_timeout: Some(Duration::from_secs(10)),
+        ..small_limits()
+    });
+    let spinner = {
+        let executor = executor.clone();
+        tokio::spawn(async move {
+            collect(
+                &executor,
+                request("faults.js", &[("x-mode", "spin"), ("x-delay", "1500")]),
+            )
+            .await
+        })
+    };
+    // Let the spin start and the heartbeat go stale.
+    tokio::time::sleep(Duration::from_millis(400)).await;
+    let started = std::time::Instant::now();
+    let responses = futures_util::future::join_all((0..40).map(|i| {
+        let executor = executor.clone();
+        async move {
+            collect(
+                &executor,
+                request(
+                    "faults.js",
+                    &[("x-mode", "whoami"), ("x-id", &format!("d{i}"))],
+                ),
+            )
+            .await
+        }
+    }))
+    .await;
+    assert!(
+        started.elapsed() < Duration::from_millis(800),
+        "requests waited behind the busy isolate ({:?})",
+        started.elapsed()
+    );
+    let spun = spinner.await.unwrap();
+    let busy_isolate = spun.text().split(':').next().unwrap().to_owned();
+    for response in &responses {
+        assert!(response.ended);
+        assert_ne!(isolate_of(&response.text()), busy_isolate);
+    }
+
+    // A single busy isolate still gets work: deprioritized, not excluded.
+    let single = executor_one_isolate();
+    let spinner = {
+        let single = single.clone();
+        tokio::spawn(async move {
+            collect(
+                &single,
+                request("faults.js", &[("x-mode", "spin"), ("x-delay", "600")]),
+            )
+            .await
+        })
+    };
+    tokio::time::sleep(Duration::from_millis(300)).await;
+    let late = collect(&single, request("faults.js", &[("x-mode", "whoami")])).await;
+    assert!(late.ended);
+    assert!(spinner.await.unwrap().ended);
+}
+
+fn executor_one_isolate() -> Arc<Executor> {
+    executor(Limits {
+        stall_timeout: Some(Duration::from_secs(10)),
+        ..small_limits()
+    })
+}

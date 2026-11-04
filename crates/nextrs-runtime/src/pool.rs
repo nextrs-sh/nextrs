@@ -6,7 +6,8 @@
 //!   slot is handed directly to the oldest waiter, so nothing can overtake
 //!   the queue.
 //! * **Dispatch.** Least outstanding requests among ready isolates, ties
-//!   broken round-robin.
+//!   broken round-robin; isolates busy on the CPU (event loop not turned
+//!   for 200 ms) only when no other has a free slot.
 //! * **Supervision.** One supervisor thread per slot starts the isolate,
 //!   watches its heartbeat (CPU stall watchdog), and on any exit decides
 //!   whether it failed. A failed isolate is removed from dispatch at once,
@@ -29,6 +30,9 @@ use crate::{ExecutorConfig, ExecutorError, RenderError, RenderRequest, ResponseS
 
 /// How often supervisors check heartbeats and shutdown progress.
 const WATCH_INTERVAL: Duration = Duration::from_millis(50);
+/// An isolate whose event loop has not turned for this long is busy on the
+/// CPU; dispatch prefers others while any is responsive.
+const BUSY_HINT: Duration = Duration::from_millis(200);
 /// Failures within this window count towards the restart backoff.
 const FAILURE_WINDOW: Duration = Duration::from_secs(60);
 
@@ -310,12 +314,15 @@ impl PoolInner {
         }
     }
 
-    /// Least outstanding requests among ready isolates with a free slot;
-    /// ties go round-robin. Claims the slot. Requires the pool lock.
+    /// Least outstanding requests among ready isolates with a free slot,
+    /// preferring isolates whose event loop is turning (a request sent to
+    /// one stuck on the CPU would wait behind it, and fail with it if the
+    /// watchdog fires); ties go round-robin. Claims the slot. Requires the
+    /// pool lock.
     fn claim(&self, state: &mut PoolState) -> Option<Arc<WorkerShared>> {
         let limit = self.config.limits.max_active_per_isolate;
         let n = state.workers.len();
-        let mut best: Option<(usize, &Arc<WorkerShared>)> = None;
+        let mut best: Option<((bool, usize), &Arc<WorkerShared>)> = None;
         for offset in 0..n {
             let index = (state.next_pick + offset) % n;
             let Some(worker) = &state.workers[index] else {
@@ -325,8 +332,9 @@ impl PoolInner {
             if worker.state() != READY || active >= limit {
                 continue;
             }
-            if best.is_none_or(|(a, _)| active < a) {
-                best = Some((active, worker));
+            let key = (worker.busy_for() > BUSY_HINT, active);
+            if best.is_none_or(|(k, _)| key < k) {
+                best = Some((key, worker));
             }
         }
         let worker = best?.1.clone();

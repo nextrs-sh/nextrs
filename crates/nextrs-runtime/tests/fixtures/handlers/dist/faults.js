@@ -22,6 +22,12 @@ exports.handler = async (req, res) => {
     case "rejection":
       Promise.reject(new Error("unhandled rejection"));
       return res.end("scheduled");
+    // Busy on the CPU for x-delay ms, then answers (below the watchdog).
+    case "spin": {
+      const until = Date.now() + Number(req.headers["x-delay"] ?? 200);
+      while (Date.now() < until) {}
+      return res.end(`${globalThis.__isolateId}:spun`);
+    }
     // CPU-bound: only the stall watchdog stops these.
     case "loop":
       for (;;) {}
