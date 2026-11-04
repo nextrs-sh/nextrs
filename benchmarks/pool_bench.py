@@ -78,7 +78,11 @@ def main():
         return Server(name, cmd, cwd, env, port)
 
     ports = {name: 3600 + i for i, name in enumerate(variants)}
-    results = {"environment": environment(), "config": vars(args), "startup": {}, "load": []}
+    config = dict(vars(args))
+    if config["nextrs_1a"]:
+        # Record the file name only: committed results carry no local paths.
+        config["nextrs_1a"] = Path(config["nextrs_1a"]).name
+    results = {"environment": environment(), "config": config, "startup": {}, "load": []}
 
     for name in variants:
         ready, first, idle = [], [], []
