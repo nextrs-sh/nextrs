@@ -392,3 +392,118 @@ async fn graceful_shutdown_finishes_streams_and_refuses_new_connections() {
     server.stopped().await;
     assert_eq!(server.metrics().ready_executors(), 0);
 }
+
+fn restarts(server: &Server) -> u64 {
+    server.metrics().executors.iter().map(|e| e.restarts).sum()
+}
+
+fn failures(server: &Server) -> u64 {
+    server
+        .metrics()
+        .executors
+        .iter()
+        .flat_map(|e| e.failures.iter().map(|(_, n)| *n))
+        .sum()
+}
+
+/// Next's route module installs process error handlers that log and
+/// continue, as `next start` does; NextRS must not restart the isolate (and
+/// fail its other requests) for an application error after the response.
+#[tokio::test(flavor = "multi_thread")]
+#[ignore = "requires fixtures/next-app to be built (npm ci && next build)"]
+async fn uncaught_errors_in_next_routes_are_logged_not_fatal() {
+    let server = Server::start(Setup::default()).await;
+    // In flight on the same (only) isolate the whole time.
+    let size = 2 * MIB;
+    let mut bystander = server.connect().await;
+    bystander.get(&format!("/api/stream?size={size}")).await;
+    assert_eq!(bystander.head().await.unwrap().status, 200);
+
+    let mut client = server.connect().await;
+    for kind in ["uncaught", "rejection", "uncaught", "rejection"] {
+        client.get(&format!("/api/faults?kind={kind}")).await;
+        assert_eq!(client.response().await.unwrap().0.status, 200);
+    }
+    // Let the timers fire and the rejections surface.
+    tokio::time::sleep(Duration::from_millis(300)).await;
+    client.get("/api/health").await;
+    assert_eq!(client.response().await.unwrap().0.status, 200);
+    assert_eq!(restarts(&server), 0, "{:#?}", server.metrics().executors);
+    assert_eq!(failures(&server), 0);
+
+    let mut offset = 0;
+    while let Some(chunk) = bystander.chunk().await.unwrap() {
+        offset = verify_stream(offset, &chunk);
+    }
+    assert_eq!(offset, size, "the bystander request was not disturbed");
+}
+
+/// A route that never yields is stopped by terminating its whole isolate:
+/// the request gets 502, requests sharing the isolate are cut off, and a
+/// fresh isolate (Next modules reloaded) serves the next request.
+#[tokio::test(flavor = "multi_thread")]
+#[ignore = "requires fixtures/next-app to be built (npm ci && next build)"]
+async fn a_cpu_stall_in_a_next_route_replaces_the_isolate() {
+    let server = Server::start(Setup {
+        limits: Limits {
+            stall_timeout: Some(Duration::from_millis(500)),
+            restart_backoff_initial: Duration::from_millis(10),
+            ..Limits::default()
+        },
+        ..Setup::default()
+    })
+    .await;
+    let mut bystander = server.connect().await;
+    bystander
+        .get(&format!("/api/stream?size={}", 64 * MIB))
+        .await;
+    assert_eq!(bystander.head().await.unwrap().status, 200);
+
+    let started = Instant::now();
+    let mut client = server.connect().await;
+    client.get("/api/spin?ms=20000").await;
+    let (head, _) = client.response().await.unwrap();
+    assert_eq!(head.status, 502);
+    assert_eq!(head.header("x-nextrs-error"), Some("executor-failed"));
+    assert!(
+        started.elapsed() < Duration::from_secs(10),
+        "terminated well before the loop ended"
+    );
+
+    // The bystander's response is aborted, not ended cleanly.
+    let mut cut = false;
+    loop {
+        match bystander.chunk().await {
+            Ok(Some(_)) => {}
+            Ok(None) => break,
+            Err(_) => {
+                cut = true;
+                break;
+            }
+        }
+    }
+    assert!(
+        cut,
+        "a response from the terminated isolate looked complete"
+    );
+
+    server
+        .wait_for("isolate replaced", |m| {
+            m.ready_executors() == 1 && m.executors[0].restarts == 1
+        })
+        .await;
+    let snapshot = server.metrics();
+    assert!(
+        snapshot.executors[0]
+            .last_failure
+            .as_deref()
+            .is_some_and(|f| f.starts_with("cpu_stall")),
+        "{:?}",
+        snapshot.executors[0]
+    );
+    let mut client = server.connect().await;
+    client.get("/request-info").await;
+    let (head, body) = client.response().await.unwrap();
+    assert_eq!(head.status, 200);
+    assert!(String::from_utf8_lossy(&body).contains("Request info"));
+}
