@@ -63,10 +63,19 @@ echo "Next.js $installed built ($(cat "$project/.next/BUILD_ID"))"
 base_port=$((4100 + RANDOM % 400))
 next_port=$base_port
 nextrs_port=$((base_port + 1))
+# The data-fetching fixtures' upstream API (tests/compat/upstream.mjs), and
+# a port nothing listens on, both allowed by NextRS's network policy.
+upstream_port=$((base_port + 2))
+closed_port=$((base_port + 3))
+export NEXTRS_UPSTREAM="http://127.0.0.1:$upstream_port"
 
+node "$root/tests/compat/upstream.mjs" --port "$upstream_port" > "$out/upstream.log" 2>&1 &
+pids+=($!)
 (cd "$project" && NEXT_TELEMETRY_DISABLED=1 exec npx next start -H 127.0.0.1 -p "$next_port") > "$out/next-start.log" 2>&1 &
 pids+=($!)
-"$nextrs" start "$project" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" > "$out/nextrs.log" 2>&1 &
+"$nextrs" start "$project" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
+  --js-env NEXTRS_UPSTREAM --net-allow "http://127.0.0.1:$upstream_port" \
+  --net-allow "http://127.0.0.1:$closed_port" --net-allow-addr 127.0.0.1 > "$out/nextrs.log" 2>&1 &
 pids+=($!)
 
 for port in "$next_port" "$nextrs_port"; do
@@ -94,6 +103,7 @@ run semantic  tests/compat/semantic.mjs  --baseline "$baseline" --candidate "$ca
 run streaming tests/compat/streaming.mjs --target "$candidate" --runs 20
 run isolation tests/compat/isolation.mjs --target "$candidate" --requests 1200 --concurrency 64 --aborts 20 --json "$out/isolation.json"
 run features  tests/compat/features.mjs  --target "$candidate" --requests 600 --concurrency 64 --json "$out/features.json"
+run data      tests/compat/data.mjs      --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --closed-port "$closed_port" --json "$out/data.json"
 # The same feature checks against next start: the reference must pass too.
 run features-next-start tests/compat/features.mjs --target "$baseline" --requests 600 --concurrency 64 --json "$out/features-next-start.json"
 
