@@ -11,6 +11,10 @@
 //   * /dynamic (streaming Suspense), some aborted after the first chunk;
 //   * /api/stream, 4 MiB, read slowly; some aborted mid-body;
 //   * POST /api/echo with a 256 KiB body, hash verified;
+//   * /isolation/cache: React.cache gives each render its own nonce and
+//     identity (as in tests/compat/features.mjs);
+//   * /api/after: after() callbacks observe their own request's headers,
+//     collected in batches with ?report=;
 //   * /api/health.
 // With --inject-every, GET /api/spin?ms=<inject-ms> is sent on that period;
 // run the server with --js-stall-timeout below inject-ms so the stall
@@ -153,6 +157,52 @@ async function uploadCase() {
   bump("upload-ok");
 }
 
+const nonces = new Set();
+async function reactCacheCase() {
+  const id = `nxr-${seq++}-${randomBytes(4).toString("hex")}`;
+  const r = await request("/isolation/cache", { headers: { "x-nextrs-id": id } });
+  if (lostToRestart(r)) return bump("lost-to-restart");
+  if (r.status !== 200) return fail("react-cache-status", { status: r.status });
+  const html = r.body.toString().replace(/<!-- -->/g, "");
+  const top = /top=([^/<]+)\/([a-z0-9]+)/.exec(html);
+  const sections = [...html.matchAll(/section-\d=([^/<]+)\/([a-z0-9]+)\/([^<]+)/g)];
+  if (!top || sections.length !== 5) return fail("react-cache", { id, sections: sections.length });
+  const wrong = sections.filter((m) => m[1] !== id || m[2] !== top[2] || m[3] !== id);
+  if (top[1] !== id || wrong.length) return fail("LEAK", { path: "/isolation/cache", id, top: top[0] });
+  if (nonces.has(top[2])) return fail("react-cache-shared-nonce", { id });
+  // Bounded: only recent nonces matter for overlap between requests.
+  if (nonces.size > 10_000) nonces.clear();
+  nonces.add(top[2]);
+  bump("react-cache-ok");
+}
+
+let afterPending = [];
+async function afterCase() {
+  const id = `nxa-${seq++}-${randomBytes(4).toString("hex")}`;
+  const r = await request(`/api/after?id=${id}`, { headers: { "x-nextrs-id": id } });
+  if (lostToRestart(r)) return bump("lost-to-restart");
+  if (r.status !== 200 || JSON.parse(r.body.toString()).id !== id) return fail("after-status", { status: r.status });
+  afterPending.push({ id, at: Date.now(), tries: 0 });
+  if (afterPending.length < 25) return bump("after-sent");
+  // Report on callbacks that have had a second to run. The observations are
+  // module state of the isolate that ran the callback, so with several
+  // isolates a report may land elsewhere: retry those a few times. An
+  // isolate restart also loses them; only a wrong identity is a failure.
+  const due = afterPending.filter((p) => Date.now() - p.at > 1000);
+  afterPending = afterPending.filter((p) => Date.now() - p.at <= 1000);
+  if (!due.length) return bump("after-sent");
+  const report = await request(`/api/after?report=${due.map((p) => p.id).join(",")}`);
+  if (report.status !== 200) return bump("after-report-lost");
+  const seen = JSON.parse(report.body.toString());
+  for (const p of due) {
+    if (seen[p.id] === null || seen[p.id] === undefined) {
+      if (p.tries < 8) afterPending.push({ ...p, tries: p.tries + 1 });
+      else bump("after-unreported");
+    } else if (seen[p.id] !== p.id) fail("LEAK", { path: "/api/after", id: p.id, observed: seen[p.id] });
+    else bump("after-ok");
+  }
+}
+
 async function healthCase() {
   const r = await request("/api/health");
   if (lostToRestart(r)) return bump("lost-to-restart");
@@ -165,12 +215,13 @@ const rotation = [
   () => dynamicCase(false), () => dynamicCase(true),
   () => streamCase(false), () => streamCase(true),
   uploadCase, healthCase, identityCase, healthCase,
+  reactCacheCase, afterCase,
 ];
 
-function rssMiB() {
+function procStatus(field) {
   if (!pid) return null;
   const status = readFileSync(`/proc/${pid}/status`, "utf8");
-  return Number(/VmRSS:\s+(\d+)/.exec(status)[1]) / 1024;
+  return +(Number(new RegExp(`${field}:\\s+(\\d+)`).exec(status)[1]) / 1024).toFixed(1);
 }
 
 async function metrics() {
@@ -193,16 +244,22 @@ async function sample() {
   const m = await metrics();
   const row = {
     t: Math.round((Date.now() - started) / 1000),
-    rssMiB: rssMiB(),
+    rssMiB: procStatus("VmRSS"),
+    rssAnonMiB: procStatus("RssAnon"),
     completed,
     restarts: m ? m.executors.reduce((n, e) => n + e.restarts, 0) : null,
     heapUsedMiB: m ? +(m.executors.reduce((n, e) => n + (e.heap_used_bytes ?? 0), 0) / 1048576).toFixed(1) : null,
     heapTotalMiB: m ? +(m.executors.reduce((n, e) => n + (e.heap_total_bytes ?? 0), 0) / 1048576).toFixed(1) : null,
     externalMiB: m ? +(m.executors.reduce((n, e) => n + (e.external_bytes ?? 0), 0) / 1048576).toFixed(1) : null,
+    // Live data: heap in use right after each isolate's latest full GC.
+    heapAfterGcMiB: m ? +(m.executors.reduce((n, e) => n + (e.heap_used_after_gc_bytes ?? 0), 0) / 1048576).toFixed(1) : null,
+    fullGcs: m ? m.executors.reduce((n, e) => n + (e.full_gcs ?? 0), 0) : null,
+    errors5xx: m ? m.handler_errors : null,
     ready: m ? m.executors.filter((e) => e.state === "ready").length : null,
     cancelled: m?.responses_cancelled ?? null,
     backpressureWaits: m?.backpressure_waits ?? null,
     rejected: m ? m.rejected_overloaded + m.rejected_queue_timeout + m.rejected_unavailable : null,
+    queued: m?.queued ?? null,
   };
   samples.push(row);
   console.log(JSON.stringify(row));

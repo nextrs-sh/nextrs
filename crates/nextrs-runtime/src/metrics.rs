@@ -98,6 +98,12 @@ pub struct ExecutorSnapshot {
     pub heap_used_bytes: usize,
     pub heap_total_bytes: usize,
     pub external_bytes: usize,
+    /// Heap in use right after the latest full (mark-sweep) GC of the
+    /// current isolate: live data, without the garbage `heap_used_bytes`
+    /// includes between collections. 0 before the first full GC.
+    pub heap_used_after_gc_bytes: usize,
+    /// Full GCs of the current isolate.
+    pub full_gcs: u64,
     pub restarts: u64,
     /// Failures by reason, over the life of the pool.
     pub failures: Vec<(&'static str, u64)>,
@@ -273,6 +279,11 @@ impl MetricsSnapshot {
                 "nextrs_executor_external_bytes",
                 "Memory held outside the V8 heap by JavaScript objects, per isolate slot.",
                 |e: &ExecutorSnapshot| e.external_bytes,
+            ),
+            (
+                "nextrs_executor_heap_used_after_gc_bytes",
+                "V8 heap in use after the latest full GC, per isolate slot.",
+                |e: &ExecutorSnapshot| e.heap_used_after_gc_bytes,
             ),
         ] {
             let _ = writeln!(out, "# HELP {name} {help}\n# TYPE {name} gauge");

@@ -120,6 +120,10 @@ pub(crate) struct WorkerShared {
     heap_used: AtomicUsize,
     heap_total: AtomicUsize,
     heap_external: AtomicUsize,
+    /// Heap in use right after the latest full (mark-sweep) collection:
+    /// the live-data floor. 0 until the first full GC (`record_full_gc`).
+    heap_after_gc: AtomicUsize,
+    full_gcs: AtomicU64,
     pub isolate: OnceLock<v8::IsolateHandle>,
     termination: Mutex<Option<Termination>>,
     stop: Notify,
@@ -141,6 +145,8 @@ impl WorkerShared {
             heap_used: AtomicUsize::new(0),
             heap_total: AtomicUsize::new(0),
             heap_external: AtomicUsize::new(0),
+            heap_after_gc: AtomicUsize::new(0),
+            full_gcs: AtomicU64::new(0),
             isolate: OnceLock::new(),
             termination: Mutex::new(None),
             stop: Notify::new(),
@@ -170,6 +176,12 @@ impl WorkerShared {
             .store(stats.total_heap_size(), Ordering::Relaxed);
         self.heap_external
             .store(stats.external_memory(), Ordering::Relaxed);
+    }
+
+    /// Called from V8's GC epilogue after every full collection.
+    pub fn record_full_gc(&self, used_heap: usize) {
+        self.heap_after_gc.store(used_heap, Ordering::Relaxed);
+        self.full_gcs.fetch_add(1, Ordering::Relaxed);
     }
 
     /// Time since the isolate's event loop last got control back.
@@ -476,6 +488,9 @@ impl PoolInner {
                     heap_used_bytes: worker.map_or(0, |w| w.heap_used.load(Ordering::Relaxed)),
                     heap_total_bytes: worker.map_or(0, |w| w.heap_total.load(Ordering::Relaxed)),
                     external_bytes: worker.map_or(0, |w| w.heap_external.load(Ordering::Relaxed)),
+                    heap_used_after_gc_bytes: worker
+                        .map_or(0, |w| w.heap_after_gc.load(Ordering::Relaxed)),
+                    full_gcs: worker.map_or(0, |w| w.full_gcs.load(Ordering::Relaxed)),
                     restarts: history.restarts,
                     failures: FailureReason::ALL
                         .iter()

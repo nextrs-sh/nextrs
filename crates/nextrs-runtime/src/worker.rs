@@ -1,6 +1,7 @@
 //! One isolate thread: a current-thread Tokio runtime driving a `JsRuntime`
 //! until the supervisor stops it or JavaScript fails.
 
+use std::ffi::c_void;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::mpsc::Sender;
@@ -120,6 +121,15 @@ fn run(
                 current + HEAP_HEADROOM
             });
         }
+        // The callback's data pointer owns one reference to `worker`. It is
+        // released below only after the callback is removed; if this thread
+        // unwinds first, the reference leaks instead of dangling.
+        let gc_data = Arc::into_raw(worker.clone()) as *mut c_void;
+        runtime.v8_isolate().add_gc_epilogue_callback(
+            after_full_gc,
+            gc_data,
+            v8::GCType::kGCTypeMarkSweepCompact,
+        );
         worker.beat();
         let heartbeat = {
             let worker = worker.clone();
@@ -134,8 +144,33 @@ fn run(
         };
         let result = drive(&mut runtime, &worker).await;
         heartbeat.abort();
+        runtime
+            .v8_isolate()
+            .remove_gc_epilogue_callback(after_full_gc, gc_data);
+        // SAFETY: from `Arc::into_raw` above; V8 no longer holds the pointer.
+        drop(unsafe { Arc::from_raw(gc_data as *const WorkerShared) });
         result
     })
+}
+
+/// V8 GC epilogue for full collections: records the heap still in use.
+unsafe extern "C" fn after_full_gc(
+    isolate: v8::UnsafeRawIsolatePtr,
+    _type: v8::GCType,
+    _flags: v8::GCCallbackFlags,
+    data: *mut c_void,
+) {
+    // SAFETY: `data` is the `Arc<WorkerShared>` reference registered in
+    // `run`, alive until the callback is removed. V8 calls this on the
+    // isolate's own thread with a valid isolate pointer; reading heap
+    // statistics from a GC callback is permitted.
+    let (worker, mut isolate) = unsafe {
+        (
+            &*(data as *const WorkerShared),
+            v8::Isolate::from_raw_isolate_ptr(isolate),
+        )
+    };
+    worker.record_full_gc(isolate.get_heap_statistics().used_heap_size());
 }
 
 /// `run_event_loop`, sampling V8 heap statistics at most once per
