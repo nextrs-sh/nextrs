@@ -111,6 +111,10 @@ pub(crate) struct WorkerShared {
     inbox: Mutex<Option<mpsc::UnboundedSender<Box<Job>>>>,
     epoch: Instant,
     heartbeat_ms: AtomicU64,
+    /// V8 heap statistics, sampled by the isolate thread (`record_heap`).
+    heap_used: AtomicUsize,
+    heap_total: AtomicUsize,
+    heap_external: AtomicUsize,
     pub isolate: OnceLock<v8::IsolateHandle>,
     termination: Mutex<Option<Termination>>,
     stop: Notify,
@@ -129,6 +133,9 @@ impl WorkerShared {
             inbox: Mutex::new(Some(inbox)),
             epoch: Instant::now(),
             heartbeat_ms: AtomicU64::new(0),
+            heap_used: AtomicUsize::new(0),
+            heap_total: AtomicUsize::new(0),
+            heap_external: AtomicUsize::new(0),
             isolate: OnceLock::new(),
             termination: Mutex::new(None),
             stop: Notify::new(),
@@ -149,6 +156,15 @@ impl WorkerShared {
     pub fn beat(&self) {
         let now = self.epoch.elapsed().as_millis() as u64;
         self.heartbeat_ms.store(now, Ordering::Relaxed);
+    }
+
+    pub fn record_heap(&self, stats: &v8::HeapStatistics) {
+        self.heap_used
+            .store(stats.used_heap_size(), Ordering::Relaxed);
+        self.heap_total
+            .store(stats.total_heap_size(), Ordering::Relaxed);
+        self.heap_external
+            .store(stats.external_memory(), Ordering::Relaxed);
     }
 
     /// Time since the isolate's event loop last got control back.
@@ -449,6 +465,9 @@ impl PoolInner {
                     generation: history.generation,
                     state: worker.map_or("restarting", |w| state_name(w.state())),
                     active: worker.map_or(0, |w| w.active.load(Ordering::Relaxed)),
+                    heap_used_bytes: worker.map_or(0, |w| w.heap_used.load(Ordering::Relaxed)),
+                    heap_total_bytes: worker.map_or(0, |w| w.heap_total.load(Ordering::Relaxed)),
+                    external_bytes: worker.map_or(0, |w| w.heap_external.load(Ordering::Relaxed)),
                     restarts: history.restarts,
                     failures: FailureReason::ALL
                         .iter()

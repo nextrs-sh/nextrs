@@ -92,6 +92,12 @@ pub struct ExecutorSnapshot {
     pub generation: u64,
     pub state: &'static str,
     pub active: usize,
+    /// V8 heap in use, heap reserved, and memory held outside the heap by
+    /// JavaScript objects (ArrayBuffers), sampled at most once a second
+    /// while the isolate runs. 0 while the slot restarts.
+    pub heap_used_bytes: usize,
+    pub heap_total_bytes: usize,
+    pub external_bytes: usize,
     pub restarts: u64,
     /// Failures by reason, over the life of the pool.
     pub failures: Vec<(&'static str, u64)>,
@@ -251,6 +257,28 @@ impl MetricsSnapshot {
                 "nextrs_executor_slot_active_requests{{slot=\"{}\",state=\"{}\"}} {}",
                 e.slot, e.state, e.active
             );
+        }
+        for (name, help, value) in [
+            (
+                "nextrs_executor_heap_used_bytes",
+                "V8 heap in use per isolate slot.",
+                (|e: &ExecutorSnapshot| e.heap_used_bytes) as fn(&ExecutorSnapshot) -> usize,
+            ),
+            (
+                "nextrs_executor_heap_total_bytes",
+                "V8 heap reserved per isolate slot.",
+                |e: &ExecutorSnapshot| e.heap_total_bytes,
+            ),
+            (
+                "nextrs_executor_external_bytes",
+                "Memory held outside the V8 heap by JavaScript objects, per isolate slot.",
+                |e: &ExecutorSnapshot| e.external_bytes,
+            ),
+        ] {
+            let _ = writeln!(out, "# HELP {name} {help}\n# TYPE {name} gauge");
+            for e in &self.executors {
+                let _ = writeln!(out, "{name}{{slot=\"{}\"}} {}", e.slot, value(e));
+            }
         }
         let _ = writeln!(
             out,

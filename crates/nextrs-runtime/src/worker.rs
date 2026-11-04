@@ -5,7 +5,7 @@ use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::mpsc::Sender;
 use std::thread::JoinHandle;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use deno_core::{JsRuntime, PollEventLoopOptions, RuntimeOptions, v8};
 use tokio::sync::mpsc;
@@ -16,6 +16,8 @@ use crate::{ExecutorConfig, REPORTED_NODE_VERSION, ops};
 
 /// How often the isolate's event loop proves it is not stuck in JavaScript.
 const HEARTBEAT: Duration = Duration::from_millis(25);
+/// How often the event loop records V8 heap statistics.
+const HEAP_SAMPLE: Duration = Duration::from_secs(1);
 /// Extra heap granted after the near-limit callback fires, so the
 /// termination can unwind instead of V8 aborting the process.
 const HEAP_HEADROOM: usize = 64 * 1024 * 1024;
@@ -136,6 +138,24 @@ fn run(
     })
 }
 
+/// `run_event_loop`, sampling V8 heap statistics at most once per
+/// `HEAP_SAMPLE` between turns of the loop (the isolate is only reachable
+/// from its own thread).
+async fn event_loop(
+    runtime: &mut JsRuntime,
+    worker: &WorkerShared,
+) -> Result<(), deno_core::error::CoreError> {
+    let mut sampled: Option<Instant> = None;
+    std::future::poll_fn(|cx| {
+        if sampled.is_none_or(|at| at.elapsed() >= HEAP_SAMPLE) {
+            worker.record_heap(&runtime.v8_isolate().get_heap_statistics());
+            sampled = Some(Instant::now());
+        }
+        runtime.poll_event_loop(cx, PollEventLoopOptions::default())
+    })
+    .await
+}
+
 async fn drive(runtime: &mut JsRuntime, worker: &WorkerShared) -> WorkerExit {
     for (name, source) in SCRIPTS {
         runtime
@@ -153,8 +173,6 @@ async fn drive(runtime: &mut JsRuntime, worker: &WorkerShared) -> WorkerExit {
         biased;
         () = worker.stopped() => Ok(()),
         () = fault_panic => panic!("fault injection: executor thread panic"),
-        result = runtime.run_event_loop(PollEventLoopOptions::default()) => {
-            result.map_err(|e| format!("{e}"))
-        }
+        result = event_loop(runtime, worker) => result.map_err(|e| format!("{e}")),
     }
 }

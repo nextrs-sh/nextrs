@@ -284,3 +284,30 @@ async fn shutdown_stops_every_isolate() {
         RenderError::ShuttingDown
     );
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn metrics_report_heap_statistics_per_isolate() {
+    let executor = pool(2);
+    for i in 0..20 {
+        collect(
+            &executor,
+            request("context.js", &[("x-id", &format!("h{i}"))]),
+        )
+        .await;
+    }
+    assert!(
+        eventually(Duration::from_secs(3), async || executor
+            .metrics()
+            .executors
+            .iter()
+            .all(
+                |e| e.heap_used_bytes > 0 && e.heap_total_bytes >= e.heap_used_bytes
+            ))
+        .await,
+        "{:#?}",
+        executor.metrics().executors
+    );
+    let text = executor.metrics().to_prometheus();
+    assert!(text.contains("nextrs_executor_heap_used_bytes{slot=\"1\"}"));
+    assert!(text.contains("# TYPE nextrs_executor_external_bytes gauge"));
+}
