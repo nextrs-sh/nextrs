@@ -158,6 +158,9 @@ pub(crate) struct PrerenderMeta {
     pub headers: BTreeMap<String, Value>,
     #[serde(default)]
     pub segment_paths: Vec<String>,
+    /// Partial Prerendering: the state Next resumes the dynamic parts from.
+    #[serde(default)]
+    pub postponed: Option<Value>,
 }
 
 /// `server/middleware-manifest.json`

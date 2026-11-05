@@ -6,7 +6,10 @@
 //   node tests/compat/restart.mjs --phase prepare|verify --ns NAME \
 //        --baseline URL --candidate URL --upstream URL [--json out.json]
 //
-// Compared: a force-cache fetch and an unstable_cache entry both survive.
+// Compared: a force-cache fetch and an unstable_cache entry both survive,
+// and so does an ISR page generated on demand before the restart (next
+// start keeps it under .next/server/route-cache, NextRS in --cache-dir): it
+// is served afterwards as the same generation, from the cache.
 // Reported only: a tag revalidated before the restart. next start keeps its
 // tag manifest in memory, so it serves the old entry again; NextRS
 // persists tags and refetches.
@@ -34,6 +37,16 @@ function get(base, path, headers = {}) {
 }
 
 const hit = async (base, query) => JSON.parse((await get(base, `/api/data?${query}`)).body).body.hit;
+const isrPage = async (base, slug) => {
+  const r = await new Promise((resolve) => {
+    http.get(new URL(`/isr/${slug}`, base), (res) => {
+      const chunks = [];
+      res.on("data", (c) => chunks.push(c));
+      res.on("end", () => resolve({ cache: res.headers["x-nextjs-cache"] ?? null, body: Buffer.concat(chunks).toString() }));
+    }).on("error", (e) => resolve({ error: e.code }));
+  });
+  return { cache: r.cache, stamp: /stamp-(?:<!-- -->)?(\d+)/.exec(r.body ?? "")?.[1] ?? null };
+};
 const creator = async (base, key, id) => {
   const r = await get(base, "/isolation/persistent", { "x-nextrs-key": key, "x-nextrs-id": id });
   return /createdBy=(?:<!-- -->)?([^<\s]+)/.exec(r.body)?.[1] ?? null;
@@ -47,6 +60,7 @@ async function observe(base, ns, phase) {
       forced: await hit(base, forced),
       tagged: await hit(base, tagged),
       creator: await creator(base, `${ns}-uc`, "before-restart"),
+      isr: await isrPage(base, `rs-${ns}`),
     };
     await get(base, `/api/revalidate?tag=${ns}-t`);
     return result;
@@ -55,6 +69,7 @@ async function observe(base, ns, phase) {
     forced: await hit(base, forced),
     tagged: await hit(base, tagged),
     creator: await creator(base, `${ns}-uc`, "after-restart"),
+    isr: await isrPage(base, `rs-${ns}`),
   };
 }
 
@@ -67,13 +82,15 @@ if (args.phase === "prepare") {
   if (args.json) writeFileSync(args.json, JSON.stringify(observed, null, 2));
   process.exit(0);
 }
-const pick = ({ forced, creator }) => ({ forced, creator });
-const same = JSON.stringify(pick(observed.baseline)) === JSON.stringify(pick(observed.candidate));
-const persisted = observed.candidate.forced === 1 && observed.candidate.creator === "before-restart";
+const prepared = args.prepared ? JSON.parse(readFileSync(args.prepared, "utf8")) : null;
+// The ISR page: served from the cache, and the generation from before.
+const isrKept = (which) => ({ cache: observed[which].isr.cache, sameGeneration: observed[which].isr.stamp !== null && observed[which].isr.stamp === prepared?.[which]?.isr?.stamp });
+const pick = (which) => ({ forced: observed[which].forced, creator: observed[which].creator, isr: isrKept(which) });
+const same = JSON.stringify(pick("baseline")) === JSON.stringify(pick("candidate"));
+const persisted = observed.candidate.forced === 1 && observed.candidate.creator === "before-restart" && isrKept("candidate").sameGeneration;
 console.log(`${same && persisted ? "MATCH" : "DIFF "}  persistence  next=${JSON.stringify(observed.baseline)} nextrs=${JSON.stringify(observed.candidate)}`);
 console.log(`REPORT tag revalidated before restart: next=${observed.baseline.tagged} nextrs=${observed.candidate.tagged} (1 = old entry served)`);
 if (args.json) {
-  const before = args.prepared ? JSON.parse(readFileSync(args.prepared, "utf8")) : null;
-  writeFileSync(args.json, JSON.stringify({ before, after: observed, same, persisted }, null, 2));
+  writeFileSync(args.json, JSON.stringify({ before: prepared, after: observed, same, persisted }, null, 2));
 }
 process.exitCode = same && persisted ? 0 : 1;

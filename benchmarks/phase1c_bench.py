@@ -97,6 +97,9 @@ def main():
     parser.add_argument("--project", default="fixtures/next-app")
     parser.add_argument("--out", default="benchmarks/results")
     parser.add_argument("--nextrs-1b", default=None)
+    # The binary for the 1c-* variants (default: this tree's release build),
+    # e.g. one built at the Phase 1C merge to measure Phase 1C itself.
+    parser.add_argument("--nextrs", default=None)
     parser.add_argument("--concurrency", type=int, nargs="+", default=[32, 128])
     parser.add_argument("--requests", type=int, default=4000)
     parser.add_argument("--repeats", type=int, default=2)
@@ -110,6 +113,8 @@ def main():
     next_cmd, next_cwd, next_env = base["next-start"]
     next_env = {**next_env, "NEXTRS_UPSTREAM": upstream}
     rs_cmd, rs_cwd, rs_env = base["nextrs-v8"]
+    if args.nextrs:
+        rs_cmd = [str(Path(args.nextrs).resolve())] + rs_cmd[1:]
     rs_env = {**rs_env, "NEXTRS_UPSTREAM": upstream}
     net = [
         "--js-env", "NEXTRS_UPSTREAM",
@@ -148,7 +153,7 @@ def main():
     time.sleep(0.5)
 
     ports = {name: 3700 + i for i, name in enumerate(variants)}
-    results = {"environment": environment(), "config": {**vars(args), "nextrs_1b": Path(args.nextrs_1b).name if args.nextrs_1b else None}, "startup": {}, "load": []}
+    results = {"environment": environment(), "config": {**vars(args), "nextrs_1b": Path(args.nextrs_1b).name if args.nextrs_1b else None, "nextrs": Path(args.nextrs).name if args.nextrs else None}, "startup": {}, "load": []}
     reference = None
     try:
         for name in variants:

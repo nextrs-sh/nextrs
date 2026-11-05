@@ -24,6 +24,14 @@
 //   * /api/data with force-cache on a warm key (hits) and on keys from a
 //     bounded space (misses and stores, evictions under small limits);
 //   * a tag revalidated every minute, and clients that leave mid-fetch.
+// With --project (the fixture directory, for Server Action ids) and
+// --upstream, Server Action and ISR traffic is added:
+//   * a client-called Server Function that reports the caller's header
+//     before and after a delay (identity, as above);
+//   * a multipart action with a 256 KiB file, its SHA-256 verified;
+//   * /isr/timed (regenerated every 2 s under load), /isr/<n> over a bounded
+//     space (on-demand ISR entries stored, replaced, evicted), and every
+//     ~200th request an action that calls revalidatePath on /isr/tagged.
 // With --inject-every, GET /api/spin?ms=<inject-ms> is sent on that period;
 // run the server with --js-stall-timeout below inject-ms so the stall
 // terminates and replaces an isolate.
@@ -51,6 +59,13 @@ const injectMs = Number(args["inject-ms"] ?? 3000);
 const sampleEvery = Number(args["sample-every"] ?? 10);
 const agent = new http.Agent({ keepAlive: true, maxSockets: concurrency + 8 });
 const upstream = args.upstream ?? null;
+const project = args.project ?? null;
+const actionIds = (() => {
+  if (!project) return null;
+  const manifest = JSON.parse(readFileSync(`${project}/.next/server/server-reference-manifest.json`, "utf8"));
+  const find = (name, file) => Object.entries(manifest.node).find(([, v]) => v.exportedName === name && v.filename === file)?.[0];
+  return { who: find("whoAmI", "app/actions/server.ts"), echo: find("echoForm", "app/actions/server.ts"), isr: find("isrInvalidate", "app/isr/actions.ts") };
+})();
 
 const counts = {};
 const bump = (key) => (counts[key] = (counts[key] ?? 0) + 1);
@@ -81,7 +96,7 @@ function request(path, { method = "GET", headers = {}, body, abortAfter, slow, t
           }
         });
         res.on("end", () =>
-          resolve({ status: res.statusCode, nextrsError: res.headers["x-nextrs-error"], body: Buffer.concat(chunks) }),
+          resolve({ status: res.statusCode, nextrsError: res.headers["x-nextrs-error"], cache: res.headers["x-nextjs-cache"], body: Buffer.concat(chunks) }),
         );
         res.on("error", () => resolve({ status: res.statusCode, truncated: true }));
         res.on("aborted", () => resolve({ status: res.statusCode, truncated: true }));
@@ -265,6 +280,78 @@ async function healthCase() {
   bump("health-ok");
 }
 
+function multipart(boundary, parts) {
+  const chunks = [];
+  for (const [name, value, filename] of parts) {
+    const disposition = filename ? `form-data; name="${name}"; filename="${filename}"` : `form-data; name="${name}"`;
+    const type = filename ? "Content-Type: application/octet-stream\r\n" : "";
+    chunks.push(Buffer.from(`--${boundary}\r\nContent-Disposition: ${disposition}\r\n${type}\r\n`), Buffer.from(value), Buffer.from("\r\n"));
+  }
+  chunks.push(Buffer.from(`--${boundary}--\r\n`));
+  return Buffer.concat(chunks);
+}
+
+async function actionWhoCase() {
+  const id = `nxw-${seq++}-${randomBytes(4).toString("hex")}`;
+  const r = await request("/actions/client", {
+    method: "POST",
+    headers: { "next-action": actionIds.who, accept: "text/x-component", "content-type": "text/plain;charset=UTF-8", origin: target.origin, "x-test-user": id },
+    body: JSON.stringify([id, 20]),
+  });
+  if (lostToRestart(r)) return bump("lost-to-restart");
+  if (r.status !== 200) return fail("action-status", { status: r.status });
+  const text = r.body.toString();
+  if (!text.includes(`"user":"${id}"`) || !text.includes(`"userAfterDelay":"${id}"`)) return fail("LEAK", { path: "action whoAmI", id, body: text.slice(0, 300) });
+  bump("action-ok");
+}
+
+const uploadBytes = randomBytes(256 * 1024);
+const uploadHash = createHash("sha256").update(uploadBytes).digest("hex");
+async function actionUploadCase() {
+  const boundary = `nxsoak${randomBytes(6).toString("hex")}`;
+  const body = multipart(boundary, [
+    ["_1_$ACTION_REF_1", ""],
+    ["_1_$ACTION_1:0", JSON.stringify({ id: actionIds.echo, bound: "$@1" })],
+    ["_1_$ACTION_1:1", "[null]"],
+    ["_1_title", "soak"],
+    ["_1_file", uploadBytes, "soak.bin"],
+    ["0", '[null,"$K1"]'],
+  ]);
+  const r = await request("/actions/form", {
+    method: "POST",
+    headers: { "next-action": actionIds.echo, accept: "text/x-component", "content-type": `multipart/form-data; boundary=${boundary}`, origin: target.origin },
+    body,
+  });
+  if (lostToRestart(r)) return bump("lost-to-restart");
+  if (r.status !== 200) return fail("action-upload-status", { status: r.status });
+  if (!r.body.toString().includes(uploadHash)) return fail("action-upload-hash", { body: r.body.toString().slice(0, 300) });
+  bump("action-upload-ok");
+}
+
+let isrSlug = 0;
+let isrCount = 0;
+async function isrCase() {
+  const n = isrCount++;
+  let path = n % 2 === 0 ? "/isr/timed" : `/isr/soak-${isrSlug++ % 5000}`;
+  if (n % 200 === 199) {
+    const boundary = `nxisr${randomBytes(6).toString("hex")}`;
+    const body = multipart(boundary, [["_1_how", "revalidatePath"], ["_1_id", `soak-${n}`], ["0", '["$K1"]']]);
+    const r = await request("/isr/tagged", {
+      method: "POST",
+      headers: { "next-action": actionIds.isr, accept: "text/x-component", "content-type": `multipart/form-data; boundary=${boundary}`, origin: target.origin },
+      body,
+    });
+    if (lostToRestart(r)) return bump("lost-to-restart");
+    if (r.status !== 200) return fail("isr-action-status", { status: r.status });
+    bump("isr-revalidated");
+    path = "/isr/tagged";
+  }
+  const r = await request(path);
+  if (lostToRestart(r)) return bump("lost-to-restart");
+  if (r.status !== 200 || !/stamp-(?:<!-- -->)?\d+/.test(r.body.toString())) return fail("isr", { path, status: r.status });
+  bump(`isr-${r.cache ?? "ok"}`);
+}
+
 const rotation = [
   identityCase, identityCase, identityCase, identityCase,
   () => dynamicCase(false), () => dynamicCase(true),
@@ -272,6 +359,9 @@ const rotation = [
   uploadCase, healthCase, identityCase, healthCase,
   reactCacheCase, afterCase,
 ];
+if (upstream && actionIds) {
+  rotation.push(actionWhoCase, actionUploadCase, isrCase, actionWhoCase, isrCase, isrCase);
+}
 if (upstream) {
   rotation.push(
     dataFetchCase, () => dataCacheCase("warm"), () => dataCacheCase("cold"),

@@ -83,7 +83,13 @@ async fn set(executor: &Executor, key: &str, value: &str, tags: &str) {
 }
 
 async fn get(executor: &Executor, key: &str) -> Option<String> {
-    let r = op(executor, &[("op", "get"), ("key", key)]).await;
+    get_tagged(executor, key, "").await
+}
+
+/// A read as Next makes it: with the fetch's tags, which are what a tag
+/// revalidation is judged against (FileSystemCache semantics).
+async fn get_tagged(executor: &Executor, key: &str, tags: &str) -> Option<String> {
+    let r = op(executor, &[("op", "get"), ("key", key), ("tags", tags)]).await;
     assert!(r.get("error").is_none(), "{r}");
     r["entry"]["body"].as_str().map(str::to_owned)
 }
@@ -140,10 +146,13 @@ async fn every_isolate_sees_one_cache() {
     op(&executor, &[("op", "revalidate"), ("tags", "t")]).await;
     tokio::time::sleep(Duration::from_millis(2)).await;
     for _ in 0..16 {
-        assert_eq!(get(&executor, "shared").await, None);
+        assert_eq!(get_tagged(&executor, "shared", "t").await, None);
     }
     let metrics = executor.metrics().cache.unwrap();
-    assert!(metrics.hits >= 64 && metrics.misses >= 16, "{metrics:?}");
+    // The store reports what it found; the 16 entries it returned after
+    // the revalidation were then judged expired by the handler (Next's
+    // rules), so they count as store hits.
+    assert!(metrics.hits >= 80, "{metrics:?}");
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -180,7 +189,7 @@ async fn entries_and_tags_persist_across_processes_and_pool_sizes() {
     // A new executor with another pool size reads the same namespace.
     let executor = start(4, Some(&dir), &[]);
     assert_eq!(get(&executor, "kept").await.as_deref(), Some("persisted"));
-    assert_eq!(get(&executor, "dropped").await, None);
+    assert_eq!(get_tagged(&executor, "dropped", "gone").await, None);
     assert!(executor.metrics().cache.unwrap().persistent);
     executor.shutdown();
     // A different JavaScript environment is a different namespace.
@@ -271,24 +280,166 @@ async fn javascript_cannot_read_cache_files_or_store_page_entries() {
         Some("x")
     );
     assert!(entry_files(&dir).iter().all(|f| f.starts_with(&dir)));
-    // Page and route entries (ISR) are not stored.
+    // Pages Router entries are not stored.
     let r = op(
         &executor,
         &[
             ("op", "set"),
             ("key", "page"),
             ("value", "html"),
-            ("kind", "APP_PAGE"),
+            ("kind", "PAGES"),
         ],
     )
     .await;
     assert!(r.get("error").is_none());
     let r = op(
         &executor,
-        &[("op", "get"), ("key", "page"), ("kind", "APP_PAGE")],
+        &[("op", "get"), ("key", "page"), ("kind", "PAGES")],
     )
     .await;
     assert!(r["entry"].is_null());
     assert_eq!(executor.metrics().cache.unwrap().entries, 2);
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// ISR entries (APP_PAGE) round-trip with their binary parts, are seen by
+/// every isolate, survive a restart, and disappear when one of their tags
+/// expires (judged by the handler with Next's rules).
+#[tokio::test(flavor = "multi_thread")]
+async fn page_entries_are_shared_persisted_and_tag_expired() {
+    let dir = temp_dir("pages");
+    {
+        let executor = start(4, Some(&dir), &[]);
+        let r = op(
+            &executor,
+            &[
+                ("op", "set-page"),
+                ("key", "/route-cache/APP_PAGE/x/$/p"),
+                ("value", "<p>one</p>"),
+                ("tags", "page-tag"),
+            ],
+        )
+        .await;
+        assert!(r.get("error").is_none(), "{r}");
+        let readers: Vec<_> = (0..24)
+            .map(|_| {
+                let executor = executor.clone();
+                tokio::spawn(async move {
+                    op(
+                        &executor,
+                        &[("op", "get-page"), ("key", "/route-cache/APP_PAGE/x/$/p")],
+                    )
+                    .await
+                })
+            })
+            .collect();
+        for reader in readers {
+            let r = reader.await.unwrap();
+            assert_eq!(r["entry"]["html"], "<p>one</p>", "{r}");
+            assert_eq!(r["entry"]["rsc"], "rsc:<p>one</p>");
+            assert_eq!(r["entry"]["segment"], serde_json::json!([0, 255, 1]));
+            assert_eq!(r["entry"]["revalidate"], 60);
+        }
+        assert_eq!(executor.metrics().cache.unwrap().response_sets, 1);
+        executor.shutdown();
+    }
+    let executor = start(1, Some(&dir), &[]);
+    let r = op(
+        &executor,
+        &[("op", "get-page"), ("key", "/route-cache/APP_PAGE/x/$/p")],
+    )
+    .await;
+    assert_eq!(r["entry"]["html"], "<p>one</p>", "{r}");
+    tokio::time::sleep(Duration::from_millis(2)).await;
+    op(&executor, &[("op", "revalidate"), ("tags", "page-tag")]).await;
+    let r = op(
+        &executor,
+        &[("op", "get-page"), ("key", "/route-cache/APP_PAGE/x/$/p")],
+    )
+    .await;
+    assert!(r["entry"].is_null(), "{r}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// A blocking regeneration in one isolate makes another isolate's miss wait
+/// for its result instead of rendering again.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_missing_page_is_regenerated_once_across_isolates() {
+    let executor = start(4, None, &[]);
+    let key = "/route-cache/APP_PAGE/y/$/q";
+    let first = {
+        let executor = executor.clone();
+        tokio::spawn(async move {
+            op(
+                &executor,
+                &[
+                    ("op", "lease"),
+                    ("key", key),
+                    ("then-set", "<p>regenerated</p>"),
+                    ("hold", "300"),
+                ],
+            )
+            .await
+        })
+    };
+    tokio::time::sleep(Duration::from_millis(100)).await;
+    // Held by the first request: this one waits, then reads its result.
+    let second = op(&executor, &[("op", "lease"), ("key", key)]).await;
+    let first = first.await.unwrap();
+    assert!(first["entry"].is_null(), "{first}");
+    assert_eq!(second["entry"]["html"], "<p>regenerated</p>", "{second}");
+    assert_ne!(first["isolate"], second["isolate"], "two isolates");
+    assert!(second["waitedMs"].as_u64().unwrap() >= 100, "{second}");
+    assert_eq!(executor.metrics().cache.unwrap().regeneration_waits, 1);
+}
+
+/// Cache-write visibility, ordered by a barrier instead of timing: request A
+/// calls set() and sends its first bytes before the write's promise
+/// settles; while A is still in flight (holding its isolate), a read in
+/// another isolate must already see the value. Then a restart: the value
+/// was persisted before A ended.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_write_is_visible_to_every_isolate_before_it_is_persisted() {
+    let dir = temp_dir("visibility");
+    {
+        let executor = start(2, Some(&dir), &[]);
+        let mut writer = request("cache.js", &[]);
+        writer.url = "/cache?op=set-then-answer&key=vis&value=written&hold=300".into();
+        let mut events = executor.render(writer).await.expect("admitted");
+        let mut writer_isolate = None;
+        loop {
+            match events.recv().await.expect("writer answers") {
+                nextrs_runtime::ResponseEvent::Head { headers, .. } => {
+                    writer_isolate = headers
+                        .iter()
+                        .find(|(name, _)| name == "x-isolate")
+                        .map(|(_, v)| v.clone());
+                }
+                nextrs_runtime::ResponseEvent::Chunk(chunk) => {
+                    assert_eq!(&chunk[..], b"set-called\n");
+                    break;
+                }
+                other => panic!("unexpected {other:?}"),
+            }
+        }
+        // The writer still holds its isolate (300 ms hold): this read runs
+        // in the other one.
+        let r = op(&executor, &[("op", "get"), ("key", "vis")]).await;
+        assert_eq!(r["entry"]["body"], "written", "{r}");
+        assert_ne!(
+            r["isolate"].as_str(),
+            writer_isolate.as_deref(),
+            "another isolate"
+        );
+        // Drain the writer: it ends after the disk write.
+        while let Some(event) = events.recv().await {
+            if matches!(event, nextrs_runtime::ResponseEvent::End) {
+                break;
+            }
+        }
+        executor.shutdown();
+    }
+    let executor = start(1, Some(&dir), &[]);
+    assert_eq!(get(&executor, "vis").await.as_deref(), Some("written"));
     let _ = std::fs::remove_dir_all(&dir);
 }

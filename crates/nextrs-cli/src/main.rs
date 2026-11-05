@@ -11,7 +11,7 @@ use nextrs_runtime::{
     AddrRange, AllowRule, CacheConfig, Executor, ExecutorConfig, Limits, NetworkConfig,
     NetworkLimits, NetworkPolicy,
 };
-use nextrs_server::{ServeOptions, ServerOptions};
+use nextrs_server::{ForwardedHeaders, ServeOptions, ServerOptions};
 
 #[derive(Parser)]
 #[command(
@@ -66,7 +66,51 @@ enum Command {
         net: NetArgs,
         #[command(flatten)]
         cache: CacheArgs,
+        #[command(flatten)]
+        proxy: ProxyArgs,
     },
+}
+
+/// Reverse proxies and the X-Forwarded-* headers Next.js trusts.
+#[derive(clap::Args)]
+#[command(next_help_heading = "Reverse proxy")]
+struct ProxyArgs {
+    /// Address or CIDR range of a reverse proxy (repeatable). Then only
+    /// connections from these addresses keep X-Forwarded-Host/-Proto/-Port/
+    /// -For and Forwarded; they are removed from every other request before
+    /// Next.js (which uses them for Server Action origin checks, redirects
+    /// and absolute URLs) sees it. Without this or --strip-forwarded-headers
+    /// they are passed through from every client, as next start does, and
+    /// the proxy in front must overwrite them.
+    #[arg(
+        long = "trusted-proxy",
+        value_name = "CIDR",
+        conflicts_with = "strip_forwarded_headers"
+    )]
+    trusted_proxy: Vec<String>,
+    /// Remove forwarded headers from every request (no proxy in front).
+    #[arg(long)]
+    strip_forwarded_headers: bool,
+}
+
+impl ProxyArgs {
+    fn policy(&self) -> Result<ForwardedHeaders, Box<dyn std::error::Error>> {
+        if self.strip_forwarded_headers {
+            return Ok(ForwardedHeaders::Strip);
+        }
+        if self.trusted_proxy.is_empty() {
+            return Ok(ForwardedHeaders::Pass);
+        }
+        let ranges = self
+            .trusted_proxy
+            .iter()
+            .map(|cidr| {
+                cidr.parse::<AddrRange>()
+                    .map_err(|e| format!("--trusted-proxy {e}"))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(ForwardedHeaders::TrustedProxies(ranges))
+    }
 }
 
 /// The data cache (fetch cache, unstable_cache) shared by all isolates.
@@ -84,9 +128,15 @@ struct CacheArgs {
     /// Entry bytes kept on disk (with --cache-dir).
     #[arg(long, value_name = "MIB", default_value_t = 1024)]
     cache_max_disk: u64,
-    /// Larger entries are not cached (Next's own limit is 2 MB).
+    /// Larger data-cache entries (fetch, unstable_cache) are not cached
+    /// (Next's own limit is 2 MB).
     #[arg(long, value_name = "MIB", default_value_t = 2)]
     cache_max_entry: u64,
+    /// Larger response-cache entries (ISR pages and route handler output,
+    /// all of a page's HTML, RSC and segments) are not cached; such a page
+    /// is rendered on every request.
+    #[arg(long, value_name = "MIB", default_value_t = 16)]
+    cache_max_response: u64,
     /// Leave caching to Next's default handler: separate per isolate,
     /// in memory only.
     #[arg(long, conflicts_with = "cache_dir")]
@@ -138,6 +188,7 @@ impl CacheArgs {
             max_memory_bytes: mib(self.cache_max_memory),
             max_disk_bytes: mib(self.cache_max_disk),
             max_entry_bytes: mib(self.cache_max_entry),
+            max_response_bytes: mib(self.cache_max_response),
         }))
     }
 }
@@ -376,7 +427,22 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             limits,
             net,
             cache,
+            proxy,
         } => {
+            let forwarded = proxy.policy()?;
+            match &forwarded {
+                ForwardedHeaders::Pass => tracing::info!(
+                    "X-Forwarded-* headers are passed through from every client (as next start); \
+                     a reverse proxy must overwrite them, or use --trusted-proxy"
+                ),
+                ForwardedHeaders::TrustedProxies(ranges) => tracing::info!(
+                    proxies = ranges.len(),
+                    "X-Forwarded-* headers kept only from trusted proxies"
+                ),
+                ForwardedHeaders::Strip => {
+                    tracing::info!("X-Forwarded-* headers removed from every request")
+                }
+            }
             let network = net.config()?;
             if network.is_some() && js_runtime == JsRuntime::None {
                 return Err("--net-allow needs --js-runtime embedded-v8".into());
@@ -454,6 +520,28 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                 .enable_all()
                 .build()?;
             let max_request_body = limits.max_request_body * 1024 * 1024;
+            if let Some(executor) = &executor
+                && !executor.has_shared_cache()
+            {
+                let isr = info.prerenders.iter().any(|p| p.revalidate.is_some());
+                if (isr || info.server_actions.count > 0) && executor.limits().isolates > 1 {
+                    // Each isolate would keep its own pages and tags: one
+                    // isolate serves a page another regenerated, or old
+                    // data after a Server Action revalidated it.
+                    let message = "--no-shared-cache with more than one isolate: ISR pages and \
+                                   revalidations by Server Actions would differ between \
+                                   isolates; use the shared cache or --isolates 1";
+                    if !allow_unsupported {
+                        return Err(format!("{message} (or pass --allow-unsupported)").into());
+                    }
+                    tracing::warn!("{message}");
+                } else if isr {
+                    tracing::warn!(
+                        "--no-shared-cache: ISR pages are regenerated in memory only (lost on \
+                         restart), as with next start's default handler minus its disk copy"
+                    );
+                }
+            }
             if executor.is_some() && info.server_actions.count > 0 {
                 // Two limits apply to an action body: NextRS's own
                 // (--max-request-body, enforced before JavaScript runs) and
@@ -492,6 +580,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     allow_unsupported,
                     executor: executor.clone(),
                     max_request_body,
+                    forwarded: forwarded.clone(),
                 };
                 let app = nextrs_server::app(&info, &options).await?;
                 if let Some(metrics_addr) = limits.metrics_addr {

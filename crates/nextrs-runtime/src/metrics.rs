@@ -40,6 +40,8 @@ pub(crate) struct Counters {
     pub fetch_duration_buckets: [AtomicU64; FETCH_BUCKETS.len()],
     pub fetch_duration_micros: AtomicU64,
     pub fetch_duration_count: AtomicU64,
+    /// Lookups that found an entry in the store (Next may still judge it
+    /// expired by its tags) and lookups that found none.
     pub cache_hits: AtomicU64,
     pub cache_misses: AtomicU64,
     pub cache_sets: AtomicU64,
@@ -50,6 +52,12 @@ pub(crate) struct Counters {
     pub cache_io_errors: AtomicU64,
     /// Values over the entry size limit, not stored.
     pub cache_too_large: AtomicU64,
+    /// Response-cache entries stored (ISR pages and route handlers).
+    pub cache_response_sets: AtomicU64,
+    /// Blocking regenerations taken over by another isolate's (waited for).
+    pub cache_regen_waits: AtomicU64,
+    /// Waits for another isolate's regeneration that hit the lease limit.
+    pub cache_regen_wait_timeouts: AtomicU64,
 }
 
 /// Fetch failure reasons (metric label values), indexed by `FETCH_*`.
@@ -133,6 +141,9 @@ pub struct CacheSnapshot {
     pub corrupt: u64,
     pub io_errors: u64,
     pub too_large: u64,
+    pub response_sets: u64,
+    pub regeneration_waits: u64,
+    pub regeneration_wait_timeouts: u64,
 }
 
 impl CacheSnapshot {
@@ -150,6 +161,9 @@ impl CacheSnapshot {
             corrupt: get(&counters.cache_corrupt),
             io_errors: get(&counters.cache_io_errors),
             too_large: get(&counters.cache_too_large),
+            response_sets: get(&counters.cache_response_sets),
+            regeneration_waits: get(&counters.cache_regen_waits),
+            regeneration_wait_timeouts: get(&counters.cache_regen_wait_timeouts),
         }
     }
 
@@ -202,6 +216,24 @@ impl CacheSnapshot {
                 "counter",
                 "Tags revalidated (revalidateTag, revalidatePath).",
                 self.revalidated_tags,
+            ),
+            (
+                "nextrs_cache_response_sets_total",
+                "counter",
+                "Response-cache entries stored (ISR pages and route handlers).",
+                self.response_sets,
+            ),
+            (
+                "nextrs_cache_regeneration_waits_total",
+                "counter",
+                "Blocking regenerations left to another isolate that was already regenerating.",
+                self.regeneration_waits,
+            ),
+            (
+                "nextrs_cache_regeneration_wait_timeouts_total",
+                "counter",
+                "Waits for another isolate's regeneration that reached the limit.",
+                self.regeneration_wait_timeouts,
             ),
         ] {
             let _ = writeln!(

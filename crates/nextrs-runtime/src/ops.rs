@@ -14,7 +14,7 @@ use futures_util::StreamExt;
 use serde::{Deserialize, Serialize};
 use tokio::sync::{mpsc, oneshot};
 
-use crate::cache::{CacheStore, Hit, Lookup};
+use crate::cache::{CacheStore, EntryKind, Hit, LeaseOutcome, Lookup, SetOptions, TagSync};
 use crate::metrics::{self, Counters};
 use crate::net::{BodyItem, FetchError, FetchHead, FetchRequest, NetClient, OutBody, RedirectMode};
 use crate::pool::{Job, Slot, WorkerShared};
@@ -141,6 +141,9 @@ deno_core::extension!(
         op_nextrs_cache_get,
         op_nextrs_cache_set,
         op_nextrs_cache_revalidate,
+        op_nextrs_cache_tag_sync,
+        op_nextrs_cache_lease,
+        op_nextrs_cache_release,
         crate::webcrypto::op_nextrs_aes_import,
         crate::webcrypto::op_nextrs_aes_generate,
         crate::webcrypto::op_nextrs_aes_export,
@@ -908,47 +911,123 @@ fn blocking_failed(error: tokio::task::JoinError) -> JsErrorBox {
     JsErrorBox::generic(format!("cache operation failed: {error}"))
 }
 
-/// An entry for `key`, judged with the stored tags plus `tags` (Next's
-/// `tags` and `softTags`); `null` on a miss.
+/// The entry stored for `key` as stored, or `null` on a miss. Tags are
+/// judged in JavaScript by Next's own functions (after `tag_sync`).
 #[op2]
 #[serde]
 async fn op_nextrs_cache_get(
     state: Rc<RefCell<OpState>>,
     #[string] key: String,
-    #[serde] tags: Vec<String>,
 ) -> Result<Option<Hit>, JsErrorBox> {
     let store = cache_store(&state)?;
-    match store.lookup(&key, &tags) {
+    match store.lookup(&key) {
         Lookup::Hit(hit) => Ok(Some(hit)),
         Lookup::Miss => Ok(None),
         Lookup::OnDisk { path, generation } => {
-            tokio::task::spawn_blocking(move || store.load(&key, &tags, &path, generation))
+            tokio::task::spawn_blocking(move || store.load(&key, &path, generation))
                 .await
                 .map_err(blocking_failed)
         }
     }
 }
 
-/// Stores a value (`null` removes the entry). Resolves once it is
-/// persisted; every isolate sees it at once.
+/// Stores a value (`null` removes the entry). The value is in memory, and
+/// visible to every isolate, as soon as this is called; the promise
+/// resolves once it is persisted. `response` marks a response-cache entry
+/// (ISR page or route handler output). `last_modified` (Unix ms, negative:
+/// now) and `if_absent` serve build-time prerenders kept in the store.
 #[op2]
-async fn op_nextrs_cache_set(
+fn op_nextrs_cache_set(
     state: Rc<RefCell<OpState>>,
     #[string] key: String,
     #[string] value: Option<String>,
     #[serde] tags: Vec<String>,
-) -> Result<(), JsErrorBox> {
+    response: bool,
+    last_modified: f64,
+    if_absent: bool,
+) -> Result<impl std::future::Future<Output = Result<(), JsErrorBox>>, JsErrorBox> {
     let store = cache_store(&state)?;
-    tokio::task::spawn_blocking(move || match value {
-        None => store.delete(&key),
-        Some(value) => {
-            if let Some(write) = store.set(&key, Bytes::from(value), tags) {
-                store.persist(write);
-            }
+    let kind = if response {
+        EntryKind::Response
+    } else {
+        EntryKind::Fetch
+    };
+    let options = SetOptions {
+        last_modified: (last_modified >= 0.0).then_some(last_modified as u64),
+        if_absent,
+    };
+    let write = match value {
+        None => {
+            store.delete(&key);
+            None
         }
+        Some(value) => store.set_with(&key, Bytes::from(value), tags, kind, options),
+    };
+    Ok(async move {
+        if let Some(write) = write {
+            tokio::task::spawn_blocking(move || store.persist(write))
+                .await
+                .map_err(blocking_failed)?;
+        }
+        Ok(())
     })
-    .await
-    .map_err(blocking_failed)
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct LeaseResult {
+    acquired: bool,
+    id: f64,
+    timed_out: bool,
+}
+
+/// Single flight for a blocking regeneration across isolates: takes the
+/// lease for `key` (`acquired`, with the `id` to release) or waits up to
+/// `ttl_ms` for the isolate that holds it.
+#[op2]
+#[serde]
+async fn op_nextrs_cache_lease(
+    state: Rc<RefCell<OpState>>,
+    #[string] key: String,
+    ttl_ms: f64,
+) -> Result<LeaseResult, JsErrorBox> {
+    let store = cache_store(&state)?;
+    let owner = {
+        let state = state.borrow();
+        let worker = state.borrow::<Arc<WorkerShared>>();
+        (worker.slot, worker.generation)
+    };
+    let ttl = std::time::Duration::from_millis(ttl_ms.clamp(1.0, 600_000.0) as u64);
+    Ok(match store.acquire_lease(&key, ttl, Some(owner)).await {
+        LeaseOutcome::Acquired(id) => LeaseResult {
+            acquired: true,
+            id: id as f64,
+            timed_out: false,
+        },
+        LeaseOutcome::Waited { timed_out } => LeaseResult {
+            acquired: false,
+            id: 0.0,
+            timed_out,
+        },
+    })
+}
+
+#[op2(fast)]
+fn op_nextrs_cache_release(state: &mut OpState, #[string] key: &str, id: f64) {
+    if let Some(store) = state.borrow::<CacheCapability>().0.as_ref() {
+        store.release_lease(key, id as u64);
+    }
+}
+
+/// Tag changes since `since` for this isolate's mirror of Next's tags
+/// manifest (synchronous: memory only).
+#[op2]
+#[serde]
+fn op_nextrs_cache_tag_sync(state: &mut OpState, since: f64) -> Result<TagSync, JsErrorBox> {
+    let store = state.borrow::<CacheCapability>().0.clone().ok_or_else(|| {
+        JsErrorBox::generic("ERR_NEXTRS_UNSUPPORTED: the shared cache is disabled")
+    })?;
+    Ok(store.tag_sync(since.max(0.0) as u64))
 }
 
 /// Next's `revalidateTag(tags, durations)`: `expire` is `durations.expire`

@@ -201,7 +201,7 @@ impl FromStr for AddrRange {
 }
 
 impl AddrRange {
-    fn contains(&self, ip: IpAddr) -> bool {
+    pub fn contains(&self, ip: IpAddr) -> bool {
         match (self.network, ip.to_canonical()) {
             (IpAddr::V4(net), IpAddr::V4(ip)) => {
                 let mask = u32::MAX << (32 - u32::from(self.prefix));

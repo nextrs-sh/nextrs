@@ -86,15 +86,15 @@ jobs:
         run: npm ci --no-audit --no-fund && npx next build
       - name: Fixture-dependent Rust tests (HTTP layer, sockets, memory)
         if: matrix.next == 'pinned' && matrix.isolates == 1
-        run: cargo test -p nextrs-server --test dynamic --test reliability --test memory -- --ignored
+        run: cargo test -p nextrs-server --test dynamic --test reliability --test memory --test proxy -- --ignored
       # Also runs a local upstream API for the data-fetching suites and
       # restarts both servers once to check data cache persistence.
       - name: HTTP comparison against next start
         run: |
           if [ "${{ matrix.next }}" = pinned ]; then
-            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser
+            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser --cache-components
           else
-            scripts/compat-suite.sh --next ${{ matrix.next }} --isolates ${{ matrix.isolates }} --out compat-out
+            scripts/compat-suite.sh --next ${{ matrix.next }} --isolates ${{ matrix.isolates }} --out compat-out --cache-components
           fi
       - if: always()
         uses: actions/upload-artifact@v4
