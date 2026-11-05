@@ -192,6 +192,49 @@ pub struct RenderRequest {
     /// The status the response starts with (next start sets 404 before it
     /// renders the not-found page). `None` is 200. The handler may change it.
     pub initial_status: Option<u16>,
+    /// What JavaScript calls for the request.
+    pub invocation: Invocation,
+}
+
+/// How a request reaches Next's compiled code.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub enum Invocation {
+    /// The entry's `handler(req, res, ctx)`, which routes the URL itself.
+    #[default]
+    Handler,
+    /// The entry's `handler` with the request meta next start's base
+    /// server adds after routing (see [`RouteMeta`]).
+    Routed(RouteMeta),
+    /// The compiled proxy (`entry` is `server/middleware.js`): its default
+    /// export, called as next start's `runMiddleware` calls it. The
+    /// response is the proxy's `NextResponse` (status, headers, body), for
+    /// the serving layer to apply.
+    Proxy {
+        /// The absolute URL the proxy's `NextRequest` gets
+        /// (`http://localhost:<port><pathname><query>`, as next start).
+        url: String,
+    },
+}
+
+/// Request meta for a routed request.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct RouteMeta {
+    /// Cookies the proxy set (`middlewareCookie`): Next merges them into
+    /// any `Set-Cookie` the route writes.
+    pub middleware_cookies: Vec<String>,
+    /// Set when the request was rewritten to this route.
+    pub rewrite: Option<Rewrite>,
+}
+
+/// A rewrite's target, for the params and query the route renders with.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Rewrite {
+    /// The route's page, e.g. `/blog/[slug]`.
+    pub page: String,
+    /// The rewritten pathname (without basePath) the params come from.
+    pub pathname: String,
+    /// The routed query, as a JSON object (values strings or arrays).
+    pub query_json: String,
 }
 
 /// A request body stream. JavaScript pulls one item per `_read()`, so the

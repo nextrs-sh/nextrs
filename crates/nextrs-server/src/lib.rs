@@ -7,6 +7,9 @@
 
 mod dynamic;
 mod etag;
+mod resolve;
+#[doc(hidden)]
+pub mod routing;
 mod rsc;
 mod serve;
 mod static_files;
@@ -17,6 +20,7 @@ pub use crate::serve::{ClientAddr, ServeOptions, serve};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt;
+use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::UNIX_EPOCH;
@@ -46,7 +50,7 @@ const UNSUPPORTED_HEADER: &str = "x-nextrs-unsupported";
 /// Build features that are unsupported without JavaScript but that the
 /// embedded executor runs (ISR: Next's handler regenerates pages and keeps
 /// them in the shared cache).
-const EXECUTOR_FEATURES: &[&str] = &["server-actions", "isr"];
+const EXECUTOR_FEATURES: &[&str] = &["server-actions", "isr", "proxy"];
 /// Headers in stored prerenders that `next start` does not send to clients.
 const INTERNAL_HEADERS: &[&str] = &["x-next-cache-tags"];
 
@@ -107,6 +111,10 @@ pub struct ServerOptions {
     pub max_request_body: u64,
     /// Forwarded-header policy (reverse proxies).
     pub forwarded: ForwardedHeaders,
+    /// The address the server listens on. The proxy sees request URLs on
+    /// `localhost:<port>` and its redirects are made relative against
+    /// `<host>:<port>`, as next start does with its hostname and port.
+    pub listen: SocketAddr,
 }
 
 impl Default for ServerOptions {
@@ -116,6 +124,7 @@ impl Default for ServerOptions {
             executor: None,
             max_request_body: DEFAULT_MAX_REQUEST_BODY,
             forwarded: ForwardedHeaders::Pass,
+            listen: SocketAddr::from(([127, 0, 0, 1], 3000)),
         }
     }
 }
@@ -130,6 +139,13 @@ pub enum StartError {
     RouteRegex {
         page: String,
         error: regex::Error,
+    },
+    /// A routing rule or proxy matcher NextRS cannot apply exactly. It is
+    /// refused rather than skipped: skipping one could drop a security
+    /// header or an access check.
+    Routing {
+        rule: String,
+        error: String,
     },
 }
 
@@ -148,6 +164,7 @@ impl fmt::Display for StartError {
             }
             Self::Io { path, source } => write!(f, "cannot read {}: {source}", path.display()),
             Self::RouteRegex { page, error } => write!(f, "route {page}: {error}"),
+            Self::Routing { rule, error } => write!(f, "routing rule {rule}: {error}"),
         }
     }
 }
@@ -175,6 +192,7 @@ pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, St
         executor: options.executor.clone(),
         max_request_body: options.max_request_body,
         forwarded: options.forwarded.clone(),
+        listen: Listen::from(options.listen),
         ..state
     });
     if let Some(executor) = &options.executor {
@@ -276,6 +294,84 @@ struct AppState {
     /// `(.)`-style segments: responses then vary on `Next-URL`, which the
     /// executor path does not implement.
     has_interception_routes: bool,
+    rules: CompiledRules,
+    proxy: Option<ProxyRuntime>,
+    listen: Listen,
+    build_id: String,
+}
+
+/// next.config rules, compiled once at startup.
+#[derive(Default)]
+struct CompiledRules {
+    headers: Vec<routing::Rule>,
+    redirects: Vec<routing::Rule>,
+    before_files: Vec<routing::Rule>,
+    after_files: Vec<routing::Rule>,
+    fallback: Vec<routing::Rule>,
+}
+
+struct ProxyRuntime {
+    entry: PathBuf,
+    matchers: routing::ProxyMatchers,
+    /// `proxyClientMaxBodySize`.
+    body_limit: u64,
+}
+
+/// next start's `hostname` (formatted) and `port`.
+struct Listen {
+    host: String,
+    port: u16,
+}
+
+impl From<SocketAddr> for Listen {
+    fn from(addr: SocketAddr) -> Self {
+        // next start uses its hostname for both the proxy's request URL
+        // and the base it relativizes proxy rewrites against. NextURL turns
+        // loopback hosts into `localhost` in the proxy's URLs, so a
+        // loopback bind is named `localhost` here: with `127.0.0.1` the two
+        // origins would differ, and next start (bound with -H 127.0.0.1)
+        // then proxies its own rewrites over HTTP to itself.
+        let host = match addr.ip() {
+            ip if ip.is_loopback() => "localhost".to_owned(),
+            std::net::IpAddr::V6(ip) => format!("[{ip}]"),
+            std::net::IpAddr::V4(ip) => ip.to_string(),
+        };
+        Self {
+            host,
+            port: addr.port(),
+        }
+    }
+}
+
+fn compile_rules(info: &BuildInfo) -> Result<CompiledRules, StartError> {
+    use routing::RuleKind;
+    let sensitive = info.routing.case_sensitive;
+    let list = |kind: RuleKind,
+                specs: &[nextrs_adapter::RuleSpec]|
+     -> Result<Vec<routing::Rule>, StartError> {
+        specs
+            .iter()
+            .map(|spec| {
+                routing::Rule::compile(kind, spec, sensitive).map_err(|error| StartError::Routing {
+                    rule: spec.source.clone(),
+                    error,
+                })
+            })
+            .collect()
+    };
+    if !info.routing.on_match_headers.is_empty() {
+        return Err(StartError::Routing {
+            rule: "onMatchHeaders".into(),
+            error: "routes-manifest onMatchHeaders are not implemented".into(),
+        });
+    }
+    Ok(CompiledRules {
+        headers: list(RuleKind::Header, &info.routing.headers)?,
+        redirects: list(RuleKind::Redirect, &info.routing.redirects)?,
+        before_files: list(RuleKind::BeforeFiles, &info.routing.before_files)?,
+        after_files: list(RuleKind::AfterFiles, &info.routing.after_files)?,
+        fallback: list(RuleKind::Fallback, &info.routing.fallback)?,
+    })
 }
 
 struct Page {
@@ -431,7 +527,24 @@ impl AppState {
             });
         }
 
+        let proxy = match &info.proxy {
+            Some(proxy) => Some(ProxyRuntime {
+                entry: proxy.entry.clone(),
+                matchers: routing::ProxyMatchers::compile(&proxy.matchers).map_err(|error| {
+                    StartError::Routing {
+                        rule: "proxy matcher".into(),
+                        error,
+                    }
+                })?,
+                body_limit: proxy.client_max_body_size,
+            }),
+            None => None,
+        };
         Ok(Self {
+            rules: compile_rules(info)?,
+            build_id: info.build_id.clone(),
+            proxy,
+            listen: Listen::from(SocketAddr::from(([127, 0, 0, 1], 3000))),
             config: info.config.clone(),
             rsc: info.rsc.clone(),
             static_root: canonical_dir(&info.static_dir).await,
@@ -504,156 +617,443 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
             headers.remove(*name);
         }
     }
-    let path = normalize_dot_segments(uri.path());
-    let path = path.as_ref();
-    let query = uri.query();
+    // router-server deletes Next's internal headers from every request
+    // (filterInternalHeaders), its own self-requests included: a client
+    // must not be able to claim a proxy result or a matched path.
+    for name in resolve::NEXT_INTERNAL_HEADERS {
+        headers.remove(*name);
+    }
+
+    let (outcome, resolved, body) = resolve::resolve(
+        &state,
+        resolve::RouteRequest {
+            method: &method,
+            uri: &uri,
+            version,
+            headers: &headers,
+            body,
+            client,
+        },
+    )
+    .await;
+    let res_headers = resolved.res_headers.clone();
+    let response = serve_resolved(
+        &state, outcome, &resolved, body, &method, &uri, &headers, version, client,
+    )
+    .await;
+    with_routing_headers(response, &res_headers)
+}
+
+/// Marks a response that must not get routing's response headers (config
+/// redirects: resolve-routes returns `resHeaders: null` for them).
+#[derive(Clone, Copy)]
+struct NoRoutingHeaders;
+
+/// router-server sets `resHeaders` on the response before the route
+/// writes it; the route's own headers win.
+fn with_routing_headers(mut response: Response, res_headers: &routing::query::JsMap) -> Response {
+    if response.extensions().get::<NoRoutingHeaders>().is_some() || res_headers.is_empty() {
+        return response;
+    }
+    let headers = response.headers_mut();
+    for (name, value) in res_headers.iter() {
+        let Ok(name) = HeaderName::from_bytes(name.as_bytes()) else {
+            continue;
+        };
+        if headers.contains_key(&name) {
+            continue;
+        }
+        for item in value.values() {
+            if let Ok(value) = HeaderValue::from_bytes(&resolve::latin1_bytes(item)) {
+                headers.append(name.clone(), value);
+            }
+        }
+    }
+    response
+}
+
+/// The executor invocation for a routed request: next start's request
+/// meta after a rewrite or after the proxy set cookies.
+fn invocation_for(
+    state: &AppState,
+    resolved: &resolve::Resolved,
+    page: &str,
+    item_path: &str,
+) -> nextrs_runtime::Invocation {
+    let rewrite = resolved.did_rewrite.then(|| nextrs_runtime::Rewrite {
+        page: page.to_owned(),
+        pathname: if state.config.base_path.is_empty() {
+            item_path.to_owned()
+        } else {
+            resolve::strip_base_path(item_path, &state.config.base_path)
+                .unwrap_or(item_path)
+                .to_owned()
+        },
+        query_json: query_json(&resolved.query),
+    });
+    if rewrite.is_none() && resolved.middleware_cookies.is_empty() {
+        return nextrs_runtime::Invocation::Handler;
+    }
+    nextrs_runtime::Invocation::Routed(nextrs_runtime::RouteMeta {
+        middleware_cookies: resolved.middleware_cookies.clone(),
+        rewrite,
+    })
+}
+
+/// A query object as JSON (JavaScript reads it back with its own key order).
+fn query_json(query: &routing::query::JsMap) -> String {
+    use routing::query::Value;
+    let mut out = String::from("{");
+    for (i, (key, value)) in query.iter().enumerate() {
+        if i > 0 {
+            out.push(',');
+        }
+        out.push_str(&serde_json_string(key));
+        out.push(':');
+        match value {
+            Value::Str(s) => out.push_str(&serde_json_string(s)),
+            Value::Arr(items) => {
+                out.push('[');
+                out.push_str(
+                    &items
+                        .iter()
+                        .map(|s| serde_json_string(s))
+                        .collect::<Vec<_>>()
+                        .join(","),
+                );
+                out.push(']');
+            }
+        }
+    }
+    out.push('}');
+    out
+}
+
+fn serde_json_string(value: &str) -> String {
+    let mut out = String::with_capacity(value.len() + 2);
+    out.push('"');
+    for c in value.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
+}
+
+/// next start's 500 for an exception in the proxy (or in routing).
+fn proxy_failed() -> Response {
+    let mut response = (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error").into_response();
+    let headers = response.headers_mut();
+    headers.insert(header::CONTENT_TYPE, HeaderValue::from_static("text/plain"));
+    headers.insert(header::CACHE_CONTROL, HeaderValue::from_static(NO_STORE));
+    response.extensions_mut().insert(NoRoutingHeaders);
+    response
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn serve_resolved(
+    state: &AppState,
+    outcome: resolve::Outcome,
+    resolved: &resolve::Resolved,
+    body: Body,
+    method: &Method,
+    uri: &axum::http::Uri,
+    original_headers: &HeaderMap,
+    version: axum::http::Version,
+    client: Option<SocketAddr>,
+) -> Response {
+    use resolve::{Outcome, Output};
     let readonly = method == Method::GET || method == Method::HEAD;
+    // The route sees the headers as the proxy left them.
+    let routed_headers;
+    let headers: &HeaderMap = if resolved.headers_modified {
+        routed_headers = resolve::header_map(&resolved.headers);
+        &routed_headers
+    } else {
+        original_headers
+    };
+    let request_path = normalize_dot_segments(uri.path()).into_owned();
+    let query = uri.query();
+    let initial: Vec<(String, String)> = resolve::pairs(&resolved.res_headers);
 
-    // routes-manifest always carries this redirect when trailingSlash is false.
-    if !state.config.trailing_slash && path.len() > 1 && path.ends_with('/') {
-        let trimmed = path.trim_end_matches('/');
-        let target = match query {
-            Some(q) => format!("{}?{q}", if trimmed.is_empty() { "/" } else { trimmed }),
-            None => if trimmed.is_empty() { "/" } else { trimmed }.to_owned(),
-        };
-        return redirect(StatusCode::PERMANENT_REDIRECT, &target, true);
-    }
-
-    if let Some(rest) = path.strip_prefix("/_next/static/") {
-        if !readonly {
-            return method_not_allowed(&state);
-        }
-        return match &state.static_root {
-            Some(root) => serve_file(root, rest, IMMUTABLE, &method, &headers).await,
-            None => not_found_plain(),
-        };
-    }
-    if path == "/_next/image" {
-        return unsupported(
-            "image-optimizer",
-            "/_next/image (image optimization) is not implemented in NextRS Phase 0",
-        );
-    }
-
-    if let Some(page) = state.pages.get(path) {
-        // Revalidated since the build: Next's handler serves it from the
-        // shared cache (regenerating it first if needed), as next start
-        // would, instead of the stale prerender.
-        if readonly
-            && page.is_revalidated(state.executor.as_deref())
-            && let (Some(executor), Some(entry)) = (&state.executor, state.action_entry(path))
-        {
-            if headers.get(&state.rsc.header).is_some_and(|v| v == "1")
-                && let Some(redirect) = rsc_redirect(&state, path, query, &headers)
-            {
-                return redirect;
+    let output = match outcome {
+        Outcome::Redirect {
+            status,
+            location,
+            with_res_headers,
+        } => {
+            let status = StatusCode::from_u16(status).unwrap_or(StatusCode::TEMPORARY_REDIRECT);
+            let mut response = redirect(
+                status,
+                &location,
+                status == StatusCode::PERMANENT_REDIRECT,
+                true,
+            );
+            if !with_res_headers {
+                response.extensions_mut().insert(NoRoutingHeaders);
             }
-            let incoming = dynamic::Incoming {
-                method: &method,
-                uri: &uri,
-                headers: &headers,
-                body,
-                client,
-                max_body: state.max_request_body,
+            return response;
+        }
+        Outcome::ProxyFailed => return proxy_failed(),
+        Outcome::External(url) => {
+            let mut response = unsupported(
+                "external-rewrite",
+                &format!("rewrites to other origins ({url}) are not proxied by NextRS"),
+            );
+            response.extensions_mut().insert(NoRoutingHeaders);
+            return response;
+        }
+        Outcome::Respond(response) => return response,
+        Outcome::NotFound => None,
+        Outcome::Output(output) => Some(output),
+    };
+    let resolved_ref = resolved;
+    let incoming = |body: Body| dynamic::Incoming {
+        method,
+        uri,
+        headers,
+        body,
+        client,
+        max_body: state.max_request_body,
+    };
+
+    let Some(output) = output else {
+        return not_found(
+            state,
+            method,
+            headers,
+            &request_path,
+            &initial,
+            incoming(body),
+            version,
+            resolved_ref,
+        )
+        .await;
+    };
+    match output {
+        Output::Static(rest) => {
+            if !readonly {
+                return method_not_allowed(state);
+            }
+            match &state.static_root {
+                Some(root) => serve_file(root, &rest, IMMUTABLE, method, headers).await,
+                None => not_found_plain(),
+            }
+        }
+        Output::EncodedApp => {
+            let Some(page) = &state.not_found else {
+                return not_found_plain();
             };
-            return execute(&state, executor, entry, incoming, version).await;
-        }
-        if !readonly {
-            // next start hands a POST that may carry a Server Action to the
-            // page's compiled handler even when the page is prerendered;
-            // Next's action handler decides whether it is one.
-            if is_possible_server_action(&method, &headers) {
-                if let Some(executor) = &state.executor
-                    && let Some(entry) = state.action_entry(path)
-                {
-                    let incoming = dynamic::Incoming {
-                        method: &method,
-                        uri: &uri,
-                        headers: &headers,
-                        body,
-                        client,
-                        max_body: state.max_request_body,
-                    };
-                    return execute(&state, executor, entry, incoming, version).await;
-                }
-                if headers.contains_key("next-action") || state.executor.is_none() {
-                    return unsupported(
-                        "server-actions",
-                        "Server Actions require JavaScript execution (start with --js-runtime embedded-v8)",
-                    );
-                }
-            }
-            return method_not_allowed(&state);
-        }
-        if headers.get(&state.rsc.header).is_some_and(|v| v == "1") {
-            return serve_rsc(&state, page, path, query, &headers, &method);
-        }
-        if let Some(html) = &page.html {
-            return prerendered(
-                &state,
-                html,
-                page.status,
+            prerendered(
+                state,
+                page,
+                StatusCode::NOT_FOUND,
                 CACHE_FOREVER,
                 HTML,
                 true,
-                &headers,
-                &method,
-            );
+                headers,
+                method,
+            )
         }
-    }
-
-    if readonly
-        && let Some(root) = &state.public_root
-        && let Some(file) = static_files::resolve(root, path.trim_start_matches('/')).await
-    {
-        return file_response(&file, PUBLIC_FILE, &method, &headers).await;
-    }
-
-    // Framework routes (`/_not-found`) are not addressable; they fall
-    // through to the not-found page like any unknown path.
-    if let Some(route) = state.route_for(path) {
-        if let (Some(executor), Some(entry)) = (&state.executor, executable_entry(route)) {
-            if state.has_interception_routes {
-                return unsupported(
-                    "interception-routes",
-                    "builds with interception routes are not supported by the NextRS executor",
-                );
+        Output::Image => unsupported(
+            "image-optimizer",
+            "/_next/image (image optimization) is not implemented in NextRS Phase 0",
+        ),
+        Output::Public(file) => {
+            if !readonly {
+                // next start answers 405 for other methods on public files;
+                // NextRS keeps its earlier behaviour: not found.
+                return not_found(
+                    state,
+                    method,
+                    headers,
+                    &request_path,
+                    &initial,
+                    incoming(body),
+                    version,
+                    resolved_ref,
+                )
+                .await;
             }
-            if route.kind == RouteKind::AppPage
-                && headers.get(&state.rsc.header).is_some_and(|v| v == "1")
-                && let Some(redirect) = rsc_redirect(&state, path, query, &headers)
-            {
-                return redirect;
-            }
-            let incoming = dynamic::Incoming {
-                method: &method,
-                uri: &uri,
-                headers: &headers,
-                body,
-                client,
-                max_body: state.max_request_body,
+            file_response(&file, PUBLIC_FILE, method, headers).await
+        }
+        Output::App { route, item_path } => {
+            let route = &state.routes[route];
+            let path = item_path.as_str();
+            let invocation = invocation_for(state, resolved_ref, &route.page, path);
+            let run = |entry: &Path,
+                       body: Body,
+                       status: Option<u16>,
+                       invocation: nextrs_runtime::Invocation| {
+                let policy = dynamic::AppPathPolicy {
+                    headers: &initial,
+                    vary: Some(&state.rsc.vary_header),
+                    status,
+                    invocation,
+                };
+                let entry = entry.to_path_buf();
+                async move {
+                    let executor = state.executor.as_deref().expect("checked by caller");
+                    let response = dynamic::render(executor, &entry, &policy, incoming(body)).await;
+                    dynamic::frame_for(version, response)
+                }
             };
-            return execute(&state, executor, entry, incoming, version).await;
+            if let Some(page) = state.pages.get(path) {
+                // Revalidated since the build: Next's handler serves it from
+                // the shared cache (regenerating it first if needed), as next
+                // start would, instead of the stale prerender.
+                if readonly
+                    && page.is_revalidated(state.executor.as_deref())
+                    && state.executor.is_some()
+                    && let Some(entry) = state.action_entry(path)
+                {
+                    if headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                        && let Some(redirect) = rsc_redirect(state, &request_path, query, headers)
+                    {
+                        return redirect;
+                    }
+                    return run(entry, body, None, invocation).await;
+                }
+                if !readonly {
+                    // next start hands a POST that may carry a Server Action
+                    // to the page's compiled handler even when the page is
+                    // prerendered; Next's action handler decides.
+                    if is_possible_server_action(method, headers) {
+                        if state.executor.is_some()
+                            && let Some(entry) = state.action_entry(path)
+                        {
+                            return run(entry, body, None, invocation).await;
+                        }
+                        if headers.contains_key("next-action") || state.executor.is_none() {
+                            return unsupported(
+                                "server-actions",
+                                "Server Actions require JavaScript execution (start with --js-runtime embedded-v8)",
+                            );
+                        }
+                    }
+                    return method_not_allowed(state);
+                }
+                if headers.get(&state.rsc.header).is_some_and(|v| v == "1") {
+                    return serve_rsc(state, page, &request_path, query, headers, method);
+                }
+                if let Some(html) = &page.html {
+                    let mut response = prerendered(
+                        state,
+                        html,
+                        page.status,
+                        CACHE_FOREVER,
+                        HTML,
+                        true,
+                        headers,
+                        method,
+                    );
+                    // Next's handler names the route a data request matched.
+                    if headers.contains_key("x-nextjs-data")
+                        && let Ok(value) = HeaderValue::from_str(path)
+                    {
+                        response
+                            .headers_mut()
+                            .insert("x-nextjs-matched-path", value);
+                    }
+                    return response;
+                }
+            }
+            if let (Some(_), Some(entry)) = (&state.executor, executable_entry(route)) {
+                if state.has_interception_routes {
+                    return unsupported(
+                        "interception-routes",
+                        "builds with interception routes are not supported by the NextRS executor",
+                    );
+                }
+                if route.kind == RouteKind::AppPage
+                    && headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                    && let Some(redirect) = rsc_redirect(state, &request_path, query, headers)
+                {
+                    return redirect;
+                }
+                return run(entry, body, None, invocation).await;
+            }
+            let reason = match &route.rendering {
+                Rendering::Static => "is prerendered but its stored response is missing",
+                Rendering::Revalidated { .. } => "uses ISR, which needs JavaScript to regenerate",
+                Rendering::Dynamic => "is rendered on demand by the Next.js server bundle",
+                Rendering::Unknown { .. } => "could not be classified from build metadata",
+            };
+            unsupported(
+                "javascript-required",
+                &format!(
+                    "route {} {reason}; executing it requires JavaScript (start with --js-runtime embedded-v8)",
+                    route.page
+                ),
+            )
         }
-        let reason = match &route.rendering {
-            Rendering::Static => "is prerendered but its stored response is missing",
-            Rendering::Revalidated { .. } => "uses ISR, which needs JavaScript to regenerate",
-            Rendering::Dynamic => "is rendered on demand by the Next.js server bundle",
-            Rendering::Unknown { .. } => "could not be classified from build metadata",
-        };
-        return unsupported(
-            "javascript-required",
-            &format!(
-                "route {} {reason}; executing it requires JavaScript (start with --js-runtime embedded-v8)",
-                route.page
-            ),
-        );
     }
+}
 
+/// Next's `isNonHtmlSecFetchDest`: subresource requests get a plain 404.
+const NON_HTML_SEC_FETCH_DESTS: &[&str] = &[
+    "audio",
+    "audioworklet",
+    "font",
+    "image",
+    "json",
+    "manifest",
+    "paintworklet",
+    "report",
+    "script",
+    "serviceworker",
+    "sharedworker",
+    "style",
+    "track",
+    "video",
+    "webidentity",
+    "worker",
+    "xslt",
+];
+
+#[allow(clippy::too_many_arguments)]
+async fn not_found(
+    state: &AppState,
+    method: &Method,
+    headers: &HeaderMap,
+    request_path: &str,
+    initial: &[(String, String)],
+    incoming: dynamic::Incoming<'_>,
+    version: axum::http::Version,
+    resolved: &resolve::Resolved,
+) -> Response {
+    let readonly = method == Method::GET || method == Method::HEAD;
+    let routed = resolved.pathname.as_str();
+    let real = if state.config.base_path.is_empty() {
+        routed
+    } else {
+        resolve::strip_base_path(routed, &state.config.base_path).unwrap_or(routed)
+    };
+    if real.starts_with("/_next/static/") {
+        return not_found_plain();
+    }
+    if readonly
+        && headers
+            .get("sec-fetch-dest")
+            .and_then(|v| v.to_str().ok())
+            .is_some_and(|dest| NON_HTML_SEC_FETCH_DESTS.contains(&dest))
+    {
+        return not_found_plain();
+    }
     // next start renders an unmatched possible-action POST with the
     // not-found page's handler, whose action handler answers it (an
-    // unknown action is 409, a known one is forwarded to its page).
-    if is_possible_server_action(&method, &headers)
+    // unknown action is 409, a known one is forwarded to its page); an
+    // RSC request for an unknown path gets the not-found page's payload
+    // from the same handler.
+    let rsc = headers.get(&state.rsc.header).is_some_and(|v| v == "1");
+    if (is_possible_server_action(method, headers) || (readonly && rsc))
         && let Some(executor) = &state.executor
         && !state.has_interception_routes
         && let Some(entry) = state
@@ -662,34 +1062,32 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
             .find(|route| route.internal && route.page == "/_not-found")
             .and_then(|route| route.entry.as_deref())
     {
-        let incoming = dynamic::Incoming {
-            method: &method,
-            uri: &uri,
-            headers: &headers,
-            body,
-            client,
-            max_body: state.max_request_body,
+        let policy = dynamic::AppPathPolicy {
+            headers: initial,
+            vary: Some(&state.rsc.vary_header),
+            status: Some(404),
+            invocation: invocation_for(state, resolved, "/_not-found", real),
         };
-        return execute_with_status(&state, executor, entry, incoming, version, Some(404)).await;
+        let response = dynamic::render(executor, entry, &policy, incoming).await;
+        return dynamic::frame_for(version, response);
     }
-
     // next start marks the not-found shell cacheable only when it is
     // requested by its own path.
-    let cache_control = if path == "/_not-found" {
+    let cache_control = if request_path == "/_not-found" {
         CACHE_FOREVER
     } else {
         NO_STORE
     };
     match &state.not_found {
         Some(page) => prerendered(
-            &state,
+            state,
             page,
             StatusCode::NOT_FOUND,
             cache_control,
             HTML,
             true,
-            &headers,
-            &method,
+            headers,
+            method,
         ),
         None => not_found_plain(),
     }
@@ -728,32 +1126,6 @@ pub fn metrics_app(executor: Arc<Executor>) -> Router {
         )
 }
 
-async fn execute(
-    state: &AppState,
-    executor: &Executor,
-    entry: &Path,
-    incoming: dynamic::Incoming<'_>,
-    version: axum::http::Version,
-) -> Response {
-    execute_with_status(state, executor, entry, incoming, version, None).await
-}
-
-async fn execute_with_status(
-    state: &AppState,
-    executor: &Executor,
-    entry: &Path,
-    incoming: dynamic::Incoming<'_>,
-    version: axum::http::Version,
-    status: Option<u16>,
-) -> Response {
-    let policy = dynamic::AppPathPolicy {
-        vary: &state.rsc.vary_header,
-        status,
-    };
-    let response = dynamic::render(executor, entry, &policy, incoming).await;
-    dynamic::frame_for(version, response)
-}
-
 /// Next's `getIsPossibleServerAction` (server-action-request-meta.ts): a POST
 /// with a `Next-Action` header, or a multipart or URL-encoded form POST
 /// (a progressively enhanced form submission). The comparisons are Next's:
@@ -774,6 +1146,25 @@ fn is_possible_server_action(method: &Method, headers: &HeaderMap) -> bool {
 }
 
 impl AppState {
+    /// `fsChecker`'s app files: a route without parameters (framework
+    /// routes only where their output is prerendered, as `/_global-error`).
+    fn exact_route(&self, path: &str) -> Option<usize> {
+        self.routes.iter().position(|route| {
+            matches!(route.matcher, CompiledMatcher::Exact(_))
+                && route.matches(path)
+                && (!route.internal || self.pages.contains_key(path))
+        })
+    }
+
+    /// The first dynamic route matching `path`, in Next's order.
+    fn dynamic_route(&self, path: &str) -> Option<usize> {
+        self.routes.iter().position(|route| {
+            !route.internal
+                && matches!(route.matcher, CompiledMatcher::Pattern(_))
+                && route.matches(path)
+        })
+    }
+
     /// The addressable route for `path`, as Next's router picks it: a
     /// route without parameters first, then dynamic routes in
     /// routes-manifest order (which Next sorts by specificity).
@@ -851,7 +1242,12 @@ fn rsc_redirect(
         return None;
     }
     let target = rsc::redirect_target(path, query, &router.expected_hash());
-    Some(redirect(StatusCode::TEMPORARY_REDIRECT, &target, false))
+    Some(redirect(
+        StatusCode::TEMPORARY_REDIRECT,
+        &target,
+        false,
+        false,
+    ))
 }
 
 fn serve_rsc(
@@ -870,7 +1266,7 @@ fn serve_rsc(
     let actual = rsc::query_hash(query);
     if !router.matches(actual.as_deref()) {
         let target = rsc::redirect_target(path, query, &router.expected_hash());
-        return redirect(StatusCode::TEMPORARY_REDIRECT, &target, false);
+        return redirect(StatusCode::TEMPORARY_REDIRECT, &target, false, false);
     }
     let content_type = state.rsc.content_type.as_str();
     let stored = match router.segment_prefetch {
@@ -1039,20 +1435,23 @@ fn is_fresh(
     }
 }
 
-/// The trailing-slash redirect (308) carries the target as body and a
-/// `Refresh` header; the RSC cache-busting redirect (307) is empty.
-fn redirect(status: StatusCode, target: &str, with_refresh: bool) -> Response {
-    let Ok(location) = HeaderValue::from_str(target) else {
+/// Routing redirects (router-server) carry the target as body, with a
+/// `Refresh` header for 308; the RSC cache-busting redirect (307) is empty.
+fn redirect(status: StatusCode, target: &str, with_refresh: bool, with_body: bool) -> Response {
+    let Ok(location) = HeaderValue::from_bytes(&resolve::latin1_bytes(target)) else {
         return (StatusCode::BAD_REQUEST, "Bad Request").into_response();
     };
-    let body = if with_refresh {
+    let body = if with_body {
         target.to_owned()
     } else {
         String::new()
     };
     let mut response = (status, body).into_response();
     let headers = response.headers_mut();
-    if with_refresh && let Ok(refresh) = HeaderValue::from_str(&format!("0;url={target}")) {
+    if with_refresh
+        && let Ok(refresh) =
+            HeaderValue::from_bytes(&resolve::latin1_bytes(&format!("0;url={target}")))
+    {
         headers.insert(header::REFRESH, refresh);
     }
     headers.insert(header::LOCATION, location);

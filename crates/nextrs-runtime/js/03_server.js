@@ -399,27 +399,36 @@
       }
 
       const pending = [];
+      const invocation = request.invocation ?? { kind: "handler" };
       try {
-        const mod = loadEntry(request.entry);
-        if (typeof mod.handler !== "function") {
-          throw new TypeError(`${request.entry} does not export a handler(req, res, ctx) function`);
+        if (invocation.kind === "proxy") {
+          await Promise.race([runProxy(request, invocation, req, res, pending), cancelled]);
+        } else {
+          const mod = loadEntry(request.entry);
+          if (typeof mod.handler !== "function") {
+            throw new TypeError(`${request.entry} does not export a handler(req, res, ctx) function`);
+          }
+          const requestMeta = { relativeProjectDir: ".", distDir };
+          if (invocation.kind === "routed") Object.assign(requestMeta, routedMeta(invocation));
+          await Promise.race([
+            mod.handler(req, res, {
+              waitUntil: (promise) => pending.push(promise),
+              requestMeta,
+            }),
+            cancelled,
+          ]);
         }
-        await Promise.race([
-          mod.handler(req, res, {
-            waitUntil: (promise) => pending.push(promise),
-            requestMeta: { relativeProjectDir: ".", distDir },
-          }),
-          cancelled,
-        ]);
       } catch (error) {
         ops.op_nextrs_count(COUNT_HANDLER_ERROR);
         ops.op_nextrs_diagnostic("handler-error", `${describe(request)}: ${errorText(error)}`);
         if (!res.headersSent) {
           // next start answers an exception that escapes the handler
-          // (an MPA Server Action error, a CSRF rejection) this way.
+          // (an MPA Server Action error, a CSRF rejection) this way; a
+          // proxy exception too (Rust turns the marker into next start's
+          // response and never continues to the route).
           res.statusCode = 500;
           res.setHeader("content-type", "text/plain");
-          res.setHeader("x-nextrs-error", "handler-exception");
+          res.setHeader("x-nextrs-error", invocation.kind === "proxy" ? "proxy-exception" : "handler-exception");
           res.end("Internal Server Error");
         } else if (!res.writableEnded) {
           // The response already started: abort it, as Node drops the socket.
@@ -457,6 +466,147 @@
         .run(scope, () => serve(request, scope))
         .catch((error) => ops.op_nextrs_diagnostic("serve-error", errorText(error)));
     }
+  }
+
+  // ---------------------------------------------------------------------
+  // Proxy (proxy.ts / middleware.ts) and routed requests
+  // ---------------------------------------------------------------------
+
+  // What next start's NextNodeServer passes the proxy as nextConfig.
+  let proxyConfig;
+  function proxyNextConfig() {
+    if (proxyConfig === undefined) {
+      let config = {};
+      try {
+        config = rootRequire(path.join(distDir, "required-server-files.json")).config ?? {};
+      } catch {
+        // A build without it has no config to pass.
+      }
+      proxyConfig = {
+        basePath: config.basePath ?? "",
+        i18n: config.i18n ?? null,
+        trailingSlash: Boolean(config.trailingSlash),
+        experimental: config.experimental ?? {},
+      };
+    }
+    return proxyConfig;
+  }
+
+  const nextServerModule = (relative) => {
+    try {
+      return rootRequire(`next/dist/${relative}.js`);
+    } catch {
+      return null;
+    }
+  };
+
+  // Next's toNodeOutgoingHttpHeaders (server/web/utils.js): lowercase
+  // names, set-cookie split into an array.
+  let toNodeHeaders;
+  function nodeOutgoingHeaders(headers) {
+    toNodeHeaders ??= nextServerModule("server/web/utils")?.toNodeOutgoingHttpHeaders ?? null;
+    if (toNodeHeaders) return toNodeHeaders(headers);
+    const out = {};
+    for (const [key, value] of headers.entries()) out[key] = value;
+    const cookies = headers.getSetCookie?.() ?? [];
+    if (cookies.length) out["set-cookie"] = cookies.length === 1 ? cookies[0] : cookies;
+    return out;
+  }
+
+  // The compiled proxy (server/middleware.js), called as next start's
+  // NextNodeServer.runMiddleware calls it: its default export is Next's
+  // adapter, which builds the NextRequest, runs the user's proxy in its
+  // request scope and returns the NextResponse. The response's status and
+  // headers go back to Rust, which applies them as resolve-routes does; a
+  // direct response streams its body.
+  async function runProxy(request, invocation, req, res, pending) {
+    const mod = loadEntry(request.entry);
+    const adapterFn = mod.default || mod;
+    if (typeof adapterFn !== "function") {
+      throw new TypeError(`${request.entry} does not export the proxy adapter`);
+    }
+    const method = String(request.method || "GET").toUpperCase();
+    const hasBody = method !== "GET" && method !== "HEAD" && (request.body != null || request.bodyStream);
+    // signalFromNodeResponse: aborted when the response closes unfinished.
+    const controller = new AbortController();
+    res.once("close", () => {
+      if (!res.writableFinished) controller.abort();
+    });
+    const result = await adapterFn({
+      handler: mod.proxy || mod.middleware || mod,
+      request: {
+        headers: req.headers,
+        method,
+        nextConfig: proxyNextConfig(),
+        url: invocation.url,
+        page: {},
+        // next start passes a clone of the body stream; the route gets
+        // its own copy (Rust buffered the body for both).
+        body: hasBody ? req : undefined,
+        signal: controller.signal,
+        waitUntil: (promise) => pending.push(promise),
+      },
+      page: "middleware",
+    });
+    if (result?.waitUntil) pending.push(Promise.resolve(result.waitUntil));
+    const response = result?.response;
+    if (!response) {
+      // runMiddleware renders a 404 when the adapter returns nothing.
+      res.statusCode = 404;
+      res.setHeader("x-nextrs-error", "proxy-no-response");
+      res.end();
+      return;
+    }
+    res.statusCode = response.status;
+    const headers = nodeOutgoingHeaders(response.headers);
+    for (const [name, value] of Object.entries(headers)) {
+      if (value !== undefined) res.setHeader(name, value);
+    }
+    if (!response.body) {
+      res.end();
+      return;
+    }
+    const reader = response.body.getReader();
+    res.once("close", () => {
+      if (!res.writableFinished) reader.cancel().catch(() => {});
+    });
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done || res.destroyed) break;
+      const chunk = typeof value === "string" ? Buffer.from(value) : Buffer.from(value.buffer, value.byteOffset, value.byteLength);
+      if (!res.write(chunk)) await new Promise((resolve) => res.once("drain", resolve));
+    }
+    if (!res.destroyed) res.end();
+  }
+
+  // Request meta next start's base server gives a handler after routing:
+  // the cookies the proxy set (patchSetHeaderWithCookieSupport merges
+  // them with the route's own), and for a rewritten request the params
+  // and query of the route it was rewritten to. The params are taken from
+  // the rewritten pathname with Next's own route matcher.
+  const routeMatchers = new Map();
+  function paramsFor(page, pathname) {
+    let matcher = routeMatchers.get(page);
+    if (matcher === undefined) {
+      const regexModule = nextServerModule("shared/lib/router/utils/route-regex");
+      const matcherModule = nextServerModule("shared/lib/router/utils/route-matcher");
+      matcher = regexModule && matcherModule ? matcherModule.getRouteMatcher(regexModule.getRouteRegex(page)) : null;
+      routeMatchers.set(page, matcher);
+    }
+    if (!matcher) throw new Error("Next's route matcher (next/dist/shared/lib/router/utils) is not available");
+    return matcher(pathname) || undefined;
+  }
+
+  function routedMeta(invocation) {
+    const meta = {};
+    if (invocation.middlewareCookies?.length) meta.middlewareCookie = invocation.middlewareCookies;
+    if (invocation.page != null) {
+      const params = paramsFor(invocation.page, invocation.invokePath);
+      if (params) meta.params = params;
+      meta.query = JSON.parse(invocation.query ?? "{}");
+      meta.rewrittenPathname = invocation.invokePath;
+    }
+    return meta;
   }
 
   // `next start` loads every app module at startup and calls its

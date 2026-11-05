@@ -217,6 +217,49 @@ struct JsRequest {
     initial_headers: Vec<(String, String)>,
     initial_status: Option<u16>,
     timeout_ms: Option<u64>,
+    invocation: JsInvocation,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct JsInvocation {
+    /// `handler`, `routed` or `proxy`.
+    kind: &'static str,
+    url: Option<String>,
+    middleware_cookies: Vec<String>,
+    page: Option<String>,
+    invoke_path: Option<String>,
+    query: Option<String>,
+}
+
+impl From<crate::Invocation> for JsInvocation {
+    fn from(invocation: crate::Invocation) -> Self {
+        let mut js = Self {
+            kind: "handler",
+            url: None,
+            middleware_cookies: Vec::new(),
+            page: None,
+            invoke_path: None,
+            query: None,
+        };
+        match invocation {
+            crate::Invocation::Handler => {}
+            crate::Invocation::Proxy { url } => {
+                js.kind = "proxy";
+                js.url = Some(url);
+            }
+            crate::Invocation::Routed(meta) => {
+                js.kind = "routed";
+                js.middleware_cookies = meta.middleware_cookies;
+                if let Some(rewrite) = meta.rewrite {
+                    js.page = Some(rewrite.page);
+                    js.invoke_path = Some(rewrite.pathname);
+                    js.query = Some(rewrite.query_json);
+                }
+            }
+        }
+        js
+    }
 }
 
 /// Resolves with the next request, or `null` once the executor shuts down.
@@ -268,6 +311,7 @@ async fn op_nextrs_next_request(state: Rc<RefCell<OpState>>) -> Option<JsRequest
         initial_headers: request.initial_headers,
         initial_status: request.initial_status,
         timeout_ms: job.timeout_ms,
+        invocation: request.invocation.into(),
     })
 }
 
