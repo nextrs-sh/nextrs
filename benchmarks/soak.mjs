@@ -80,7 +80,9 @@ function request(path, { method = "GET", headers = {}, body, abortAfter, slow, t
             setTimeout(() => res.resume(), slow);
           }
         });
-        res.on("end", () => resolve({ status: res.statusCode, body: Buffer.concat(chunks) }));
+        res.on("end", () =>
+          resolve({ status: res.statusCode, nextrsError: res.headers["x-nextrs-error"], body: Buffer.concat(chunks) }),
+        );
         res.on("error", () => resolve({ status: res.statusCode, truncated: true }));
         res.on("aborted", () => resolve({ status: res.statusCode, truncated: true }));
       },
@@ -96,9 +98,15 @@ function request(path, { method = "GET", headers = {}, body, abortAfter, slow, t
   });
 }
 
-// A response cut short by an isolate restart: 502 before the head, or a
-// body that ended without its terminating chunk.
+// A response cut short by an isolate restart: 502 before the head, a body
+// that ended without its terminating chunk, or the retry-safe 503 for a
+// request that was still waiting in the failed isolate's inbox (never
+// delivered to JavaScript).
 function lostToRestart(r) {
+  if (r.status === 503 && r.nextrsError === "executor-unavailable") {
+    bump("undelivered-503");
+    return true;
+  }
   return r.status === 502 || r.truncated || r.error === "ECONNRESET" || r.error === "UND_ERR_SOCKET";
 }
 
