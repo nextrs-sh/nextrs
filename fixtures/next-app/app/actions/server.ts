@@ -106,6 +106,9 @@ export async function invalidate(formData: FormData) {
     case 'revalidatePath':
       revalidatePath('/actions/revalidate');
       break;
+    case 'revalidateStaticPath':
+      revalidatePath('/actions/static-time');
+      break;
     case 'revalidateTag':
       revalidateTag(tag, 'max');
       break;

@@ -228,6 +228,22 @@ struct Page {
     html: Option<Cached>,
     rsc: Option<Cached>,
     segments: HashMap<String, Cached>,
+    /// The cache tags Next stored with the prerender (`x-next-cache-tags`:
+    /// its implicit path tags and the tags of fetches it made).
+    tags: Vec<String>,
+    /// When the prerender was written (Unix ms): a revalidation of one of
+    /// its tags after this makes it stale.
+    written_ms: u64,
+}
+
+impl Page {
+    /// A Server Action (or route handler) revalidated this page's path or
+    /// one of its tags since it was prerendered. next start would render it
+    /// again; serving the stored copy would be stale.
+    fn is_revalidated(&self, executor: Option<&Executor>) -> bool {
+        !self.tags.is_empty()
+            && executor.is_some_and(|e| e.tags_revalidated_since(&self.tags, self.written_ms))
+    }
 }
 
 /// A stored response, read once at startup. Phase 0 only serves builds
@@ -291,6 +307,31 @@ impl AppState {
             } else {
                 StatusCode::from_u16(prerender.status).unwrap_or(StatusCode::OK)
             };
+            let stored = prerender.html.as_ref().or(prerender.rsc.as_ref());
+            let tags = stored
+                .and_then(|s| {
+                    s.headers
+                        .iter()
+                        .find(|(name, _)| name == "x-next-cache-tags")
+                })
+                .map(|(_, value)| {
+                    value
+                        .split(',')
+                        .map(str::trim)
+                        .filter(|t| !t.is_empty())
+                        .map(str::to_owned)
+                        .collect()
+                })
+                .unwrap_or_default();
+            let written_ms = match stored {
+                Some(stored) => tokio::fs::metadata(&stored.file)
+                    .await
+                    .ok()
+                    .and_then(|m| m.modified().ok())
+                    .and_then(|m| m.duration_since(UNIX_EPOCH).ok())
+                    .map_or(0, |d| d.as_millis() as u64),
+                None => 0,
+            };
             pages.insert(
                 prerender.pathname.clone(),
                 Page {
@@ -298,6 +339,8 @@ impl AppState {
                     html,
                     rsc: load_cached(prerender.rsc.as_ref(), false).await?,
                     segments,
+                    tags,
+                    written_ms,
                 },
             );
         }
@@ -424,6 +467,28 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
     }
 
     if let Some(page) = state.pages.get(path) {
+        // Revalidated since the build: render it on demand with Next's
+        // handler instead of serving the stale prerender (NextRS does not
+        // store regenerated pages yet).
+        if readonly
+            && page.is_revalidated(state.executor.as_deref())
+            && let (Some(executor), Some(entry)) = (&state.executor, state.action_entry(path))
+        {
+            if headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                && let Some(redirect) = rsc_redirect(&state, path, query, &headers)
+            {
+                return redirect;
+            }
+            let incoming = dynamic::Incoming {
+                method: &method,
+                uri: &uri,
+                headers: &headers,
+                body,
+                client,
+                max_body: state.max_request_body,
+            };
+            return execute(&state, executor, entry, incoming, version).await;
+        }
         if !readonly {
             // next start hands a POST that may carry a Server Action to the
             // page's compiled handler even when the page is prerendered;

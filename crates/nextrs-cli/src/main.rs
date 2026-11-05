@@ -467,6 +467,13 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     effective = next_limit.min(max_request_body),
                     "Server Actions enabled"
                 );
+                if !executor.as_ref().is_some_and(|e| e.has_shared_cache()) {
+                    tracing::warn!(
+                        "--no-shared-cache: revalidatePath/revalidateTag/updateTag called by \
+                         Server Actions stay inside one isolate, and prerendered pages are not \
+                         refreshed after them"
+                    );
+                }
                 if next_limit > max_request_body {
                     tracing::warn!(
                         "serverActions.bodySizeLimit ({}) is above --max-request-body ({} MiB): \

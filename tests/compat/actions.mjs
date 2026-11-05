@@ -193,6 +193,9 @@ function withEncrypted(fields, mutate) {
 const cases = {};
 const compareCase = (name, fn) => (cases[name] = { kind: "compare", fn });
 const candidateCase = (name, fn) => (cases[name] = { kind: "candidate", fn });
+// Compared, but a difference is a documented divergence (reported as
+// KNOWN-DIFF, not a failure) until the phase named in `note` closes it.
+const knownCase = (name, note, fn) => (cases[name] = { kind: "known", note, fn });
 
 // --- Origin and method checks (CSRF) -------------------------------------
 compareCase("invalid-origin-fetch", async (base, tag) => {
@@ -356,6 +359,57 @@ for (const [name, fields] of Object.entries(hostile)) {
   });
 }
 
+// --- Cache invalidation from actions (Phase 1E boundary) ------------------
+const invalidateId = actionId("invalidate");
+async function invalidate(base, how) {
+  // The reply React sends for invalidate(formData): multipart, fields of
+  // argument 1 prefixed "_1_".
+  const form = new FormData();
+  form.append("_1_how", how);
+  form.append("_1_tag", "actions-revalidate");
+  form.append("0", '["$K1"]');
+  const response = await fetch(`${base}/actions/revalidate`, {
+    method: "POST",
+    body: form,
+    headers: { origin: base, "next-action": invalidateId, accept: "text/x-component" },
+  });
+  await response.text();
+  return { status: response.status, revalidated: response.headers.get("x-action-revalidated") };
+}
+const hitOf = async (base) => Number(/<p id="hit">(\d+)<\/p>/.exec(await (await fetch(`${base}/actions/revalidate`)).text())[1]);
+const stampOf = async (base, headers = {}) => /stamp-(\d+)/.exec(await (await fetch(`${base}/actions/static-time`, { headers })).text())[1];
+for (const how of ["updateTag", "revalidatePath", "refresh"]) {
+  compareCase(`invalidate-${how}`, async (base) => {
+    const before = await hitOf(base);
+    const r = await invalidate(base, how);
+    return { ...r, refetched: (await hitOf(base)) > before };
+  });
+}
+// The stale-while-revalidate profile: the first read after it serves the
+// cached value on both servers. (When the refresh lands differs; see the
+// candidate case below.)
+knownCase("invalidate-revalidateTag-max", "Phase 1E: a profiled revalidateTag makes NextRS's shared cache refetch on the next read; next start keeps serving the cached value", async (base) => {
+  const before = await hitOf(base);
+  const r = await invalidate(base, "revalidateTag");
+  return { ...r, firstReadRefetched: (await hitOf(base)) > before };
+});
+candidateCase("revalidateTag-max-refresh-timing", async () => {
+  const before = await hitOf(candidate);
+  await invalidate(candidate, "revalidateTag");
+  const first = await hitOf(candidate);
+  await sleep(300);
+  return { firstRead: first - before, secondRead: (await hitOf(candidate)) - before };
+});
+// revalidatePath on a prerendered page: next start regenerates it; NextRS
+// renders it on demand from then on (it does not store regenerated pages
+// yet) rather than serving the stale prerender.
+compareCase("invalidate-static-path", async (base) => {
+  const before = await stampOf(base);
+  const r = await invalidate(base, "revalidateStaticPath");
+  await sleep(300);
+  return { ...r, htmlRerendered: (await stampOf(base)) !== before, rscRerendered: (await stampOf(base, { rsc: "1" })) !== before };
+});
+
 // --- Mutations ---------------------------------------------------------------
 compareCase("mutation-once", async (base, tag) => {
   const key = `${run}-${tag}-once`;
@@ -468,13 +522,14 @@ for (const [name, { kind, fn }] of Object.entries(cases)) {
   let verdict;
   let detail;
   try {
-    if (kind === "compare") {
+    if (kind === "compare" || kind === "known") {
       comparing = true;
       const b = await fn(baseline, "b");
       const c = await fn(candidate, "c");
       comparing = false;
-      verdict = JSON.stringify(b) === JSON.stringify(c) ? "MATCH" : "DIFF";
-      detail = { baseline: b, candidate: c };
+      const same = JSON.stringify(b) === JSON.stringify(c);
+      verdict = same ? "MATCH" : kind === "known" ? "KNOWN-DIFF" : "DIFF";
+      detail = { baseline: b, candidate: c, ...(kind === "known" ? { note: cases[name].note } : {}) };
     } else {
       detail = { candidate: await fn() };
       verdict = "OBSERVED";
@@ -494,5 +549,6 @@ if (!(await healthy())) {
   console.log("FAIL      candidate unhealthy after the suite");
 }
 if (args.json) writeFileSync(args.json, JSON.stringify({ run, ids, results }, null, 2));
-console.log(`${results.filter((r) => r.verdict === "MATCH").length} match, ${results.filter((r) => r.verdict === "OBSERVED").length} observed, ${failures} failing`);
+const count = (v) => results.filter((r) => r.verdict === v).length;
+console.log(`${count("MATCH")} match, ${count("KNOWN-DIFF")} known divergences, ${count("OBSERVED")} observed, ${failures} failing`);
 process.exit(failures ? 1 : 0);

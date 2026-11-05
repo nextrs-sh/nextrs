@@ -12,7 +12,7 @@ export default async function RevalidatePage() {
     <main>
       <h1>Revalidation from actions</h1>
       <p id="hit">{data.hit}</p>
-      {['revalidatePath', 'revalidateTag', 'updateTag', 'refresh'].map((how) => (
+      {['revalidatePath', 'revalidateTag', 'updateTag', 'refresh', 'revalidateStaticPath'].map((how) => (
         <form action={invalidate} key={how}>
           <input type="hidden" name="how" value={how} />
           <button type="submit" id={`do-${how}`}>{how}</button>

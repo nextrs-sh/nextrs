@@ -261,6 +261,31 @@ const scenarios = {
   },
 };
 
+// Cache invalidation from actions. Hit counts come from the upstream both
+// servers share, so the observation is whether each step refetched.
+scenarios.revalidate = async (page, base) => {
+  const actions = trackActions(page);
+  await page.goto(`${base}/actions/revalidate`);
+  const out = {};
+  for (const how of ["updateTag", "revalidatePath", "refresh", "revalidateTag"]) {
+    const before = Number(await textOf(page, "#hit"));
+    await page.click(`#do-${how}`);
+    await page.waitForResponse((r) => r.request().method() === "POST", { timeout: TIMEOUT });
+    await page.waitForTimeout(400);
+    out[how] = { visibleRefetch: Number(await textOf(page, "#hit")) > before };
+  }
+  // revalidatePath on a prerendered page, then a client navigation to it.
+  await page.goto(`${base}/actions/static-time`);
+  const stamp = await textOf(page, "#stamp");
+  await page.goto(`${base}/actions/revalidate`);
+  await page.click("#do-revalidateStaticPath");
+  await page.waitForResponse((r) => r.request().method() === "POST", { timeout: TIMEOUT });
+  await page.waitForTimeout(300);
+  await page.goto(`${base}/actions/static-time`);
+  out.staticPage = { rerendered: (await textOf(page, "#stamp")) !== stamp };
+  return { ...out, actions: actions.map(({ status, revalidated }) => ({ status, revalidated })) };
+};
+
 async function runScenario(browser, name, base) {
   const nojs = name.endsWith("-nojs");
   const context = await browser.newContext({ javaScriptEnabled: !nojs });

@@ -678,6 +678,23 @@ impl Executor {
         &self.inner.config.limits
     }
 
+    /// Whether the shared data cache saw a revalidation of any of `tags`
+    /// (revalidateTag, updateTag, revalidatePath) after `since_ms` (Unix
+    /// milliseconds). Always false without the shared cache, which is the
+    /// only place NextRS sees revalidations.
+    pub fn tags_revalidated_since(&self, tags: &[String], since_ms: u64) -> bool {
+        self.inner
+            .cache
+            .as_ref()
+            .is_some_and(|cache| cache.revalidated_since(tags, since_ms))
+    }
+
+    /// Whether the data cache is shared by the isolates (and revalidations
+    /// are visible to the server).
+    pub fn has_shared_cache(&self) -> bool {
+        self.inner.cache.is_some()
+    }
+
     /// Lets Next.js reach its own server (`fetch(.., { next: { internal } })`
     /// to `http://localhost`) through `dispatch` instead of the network;
     /// see `InternalDispatch`. Must be called inside a Tokio runtime, which
