@@ -11,7 +11,7 @@ use nextrs_runtime::{
     AddrRange, AllowRule, CacheConfig, Executor, ExecutorConfig, Limits, NetworkConfig,
     NetworkLimits, NetworkPolicy,
 };
-use nextrs_server::{ServeOptions, ServerOptions};
+use nextrs_server::{ForwardedHeaders, ServeOptions, ServerOptions};
 
 #[derive(Parser)]
 #[command(
@@ -66,7 +66,51 @@ enum Command {
         net: NetArgs,
         #[command(flatten)]
         cache: CacheArgs,
+        #[command(flatten)]
+        proxy: ProxyArgs,
     },
+}
+
+/// Reverse proxies and the X-Forwarded-* headers Next.js trusts.
+#[derive(clap::Args)]
+#[command(next_help_heading = "Reverse proxy")]
+struct ProxyArgs {
+    /// Address or CIDR range of a reverse proxy (repeatable). Then only
+    /// connections from these addresses keep X-Forwarded-Host/-Proto/-Port/
+    /// -For and Forwarded; they are removed from every other request before
+    /// Next.js (which uses them for Server Action origin checks, redirects
+    /// and absolute URLs) sees it. Without this or --strip-forwarded-headers
+    /// they are passed through from every client, as next start does, and
+    /// the proxy in front must overwrite them.
+    #[arg(
+        long = "trusted-proxy",
+        value_name = "CIDR",
+        conflicts_with = "strip_forwarded_headers"
+    )]
+    trusted_proxy: Vec<String>,
+    /// Remove forwarded headers from every request (no proxy in front).
+    #[arg(long)]
+    strip_forwarded_headers: bool,
+}
+
+impl ProxyArgs {
+    fn policy(&self) -> Result<ForwardedHeaders, Box<dyn std::error::Error>> {
+        if self.strip_forwarded_headers {
+            return Ok(ForwardedHeaders::Strip);
+        }
+        if self.trusted_proxy.is_empty() {
+            return Ok(ForwardedHeaders::Pass);
+        }
+        let ranges = self
+            .trusted_proxy
+            .iter()
+            .map(|cidr| {
+                cidr.parse::<AddrRange>()
+                    .map_err(|e| format!("--trusted-proxy {e}"))
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(ForwardedHeaders::TrustedProxies(ranges))
+    }
 }
 
 /// The data cache (fetch cache, unstable_cache) shared by all isolates.
@@ -383,7 +427,22 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             limits,
             net,
             cache,
+            proxy,
         } => {
+            let forwarded = proxy.policy()?;
+            match &forwarded {
+                ForwardedHeaders::Pass => tracing::info!(
+                    "X-Forwarded-* headers are passed through from every client (as next start); \
+                     a reverse proxy must overwrite them, or use --trusted-proxy"
+                ),
+                ForwardedHeaders::TrustedProxies(ranges) => tracing::info!(
+                    proxies = ranges.len(),
+                    "X-Forwarded-* headers kept only from trusted proxies"
+                ),
+                ForwardedHeaders::Strip => {
+                    tracing::info!("X-Forwarded-* headers removed from every request")
+                }
+            }
             let network = net.config()?;
             if network.is_some() && js_runtime == JsRuntime::None {
                 return Err("--net-allow needs --js-runtime embedded-v8".into());
@@ -521,6 +580,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     allow_unsupported,
                     executor: executor.clone(),
                     max_request_body,
+                    forwarded: forwarded.clone(),
                 };
                 let app = nextrs_server::app(&info, &options).await?;
                 if let Some(metrics_addr) = limits.metrics_addr {

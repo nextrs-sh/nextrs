@@ -50,6 +50,52 @@ const EXECUTOR_FEATURES: &[&str] = &["server-actions", "isr"];
 /// Headers in stored prerenders that `next start` does not send to clients.
 const INTERNAL_HEADERS: &[&str] = &["x-next-cache-tags"];
 
+/// Which requests may carry `X-Forwarded-*` / `Forwarded` headers to Next
+/// (which trusts `X-Forwarded-Host` and `-Proto` for Server Action origin
+/// checks, redirects and absolute URLs).
+#[derive(Debug, Clone, Default)]
+pub enum ForwardedHeaders {
+    /// Passed through from every client, as `next start` does: the reverse
+    /// proxy in front must overwrite them.
+    #[default]
+    Pass,
+    /// Kept only on connections from these addresses (the reverse
+    /// proxies); removed from every other request before Next sees it.
+    TrustedProxies(Vec<nextrs_runtime::AddrRange>),
+    /// Removed from every request (no proxy in front).
+    Strip,
+}
+
+/// Headers a client could use to claim another host, scheme, port or
+/// address.
+const FORWARDED_HEADERS: &[&str] = &[
+    "x-forwarded-host",
+    "x-forwarded-proto",
+    "x-forwarded-port",
+    "x-forwarded-for",
+    "x-forwarded-ssl",
+    "x-real-ip",
+    "forwarded",
+];
+
+impl ForwardedHeaders {
+    /// Whether a request from `peer` keeps its forwarded headers. Requests
+    /// Next sends to itself (internal dispatch) carry what it was given.
+    fn trusts(&self, peer: Option<std::net::SocketAddr>, internal: bool) -> bool {
+        match self {
+            Self::Pass => true,
+            Self::Strip => internal,
+            Self::TrustedProxies(ranges) => {
+                internal || peer.is_some_and(|peer| ranges.iter().any(|r| r.contains(peer.ip())))
+            }
+        }
+    }
+}
+
+/// Marks a request Next made to its own server (see `SelfDispatch`).
+#[derive(Clone, Copy)]
+struct SelfDispatched;
+
 #[derive(Debug, Clone)]
 pub struct ServerOptions {
     /// Start even when the build uses features NextRS cannot serve.
@@ -59,6 +105,8 @@ pub struct ServerOptions {
     /// Request bodies for dynamic routes above this many bytes get a 413,
     /// whether they declare a length or are chunked.
     pub max_request_body: u64,
+    /// Forwarded-header policy (reverse proxies).
+    pub forwarded: ForwardedHeaders,
 }
 
 impl Default for ServerOptions {
@@ -67,6 +115,7 @@ impl Default for ServerOptions {
             allow_unsupported: false,
             executor: None,
             max_request_body: DEFAULT_MAX_REQUEST_BODY,
+            forwarded: ForwardedHeaders::Pass,
         }
     }
 }
@@ -125,6 +174,7 @@ pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, St
     let state = Arc::new(AppState {
         executor: options.executor.clone(),
         max_request_body: options.max_request_body,
+        forwarded: options.forwarded.clone(),
         ..state
     });
     if let Some(executor) = &options.executor {
@@ -174,6 +224,7 @@ impl nextrs_runtime::InternalDispatch for SelfDispatch {
                     }))
                 }
             };
+            let builder = builder.extension(SelfDispatched);
             let Ok(request) = builder.body(body) else {
                 return internal_failure(StatusCode::BAD_REQUEST);
             };
@@ -221,6 +272,7 @@ struct AppState {
     routes: Vec<CompiledRoute>,
     executor: Option<Arc<Executor>>,
     max_request_body: u64,
+    forwarded: ForwardedHeaders,
     /// `(.)`-style segments: responses then vary on `Next-URL`, which the
     /// executor path does not implement.
     has_interception_routes: bool,
@@ -393,6 +445,7 @@ impl AppState {
             routes,
             executor: None,
             max_request_body: DEFAULT_MAX_REQUEST_BODY,
+            forwarded: ForwardedHeaders::Pass,
         })
     }
 }
@@ -438,13 +491,19 @@ async fn load_cached(
 async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Response {
     let (parts, body) = request.into_parts();
     let client = parts.extensions.get::<ClientAddr>().map(|c| c.0);
+    let internal = parts.extensions.get::<SelfDispatched>().is_some();
     let axum::http::request::Parts {
         method,
         uri,
         version,
-        headers,
+        mut headers,
         ..
     } = parts;
+    if !state.forwarded.trusts(client, internal) {
+        for name in FORWARDED_HEADERS {
+            headers.remove(*name);
+        }
+    }
     let path = normalize_dot_segments(uri.path());
     let path = path.as_ref();
     let query = uri.query();
