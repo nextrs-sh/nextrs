@@ -1,0 +1,181 @@
+{
+  "crypto": {
+    "katCiphertext": "522dc1f099567d07f47f37a32a84427d643a8cdcbfe5c0c97598a2bd2555d1aa8cb08e48590dbb3da7b08b1056828838c5f61e6393ba7a0abcc9f66276fc6ece0f4e1768cddf8853bb2d551b",
+    "katDecrypt": "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39",
+    "katWrongAad": {
+      "error": "OperationError"
+    },
+    "keyType": "secret",
+    "keyAlgorithm": {
+      "name": "AES-GCM",
+      "length": 256
+    },
+    "keyUsages": [
+      "encrypt",
+      "decrypt"
+    ],
+    "keyExtractable": true,
+    "keyTag": "[object CryptoKey]",
+    "keyInstance": true,
+    "nextCiphertext": "f6babf565a150d14350f7eda84121a0fee618eace7055c30e82102a1ab3fb9fab608d83664437f958b0c4aaee59c945ba0898b7c9b1533d744dc55ed0e7b31bae028273fe5fea64a1fab00808355dc",
+    "nextDecrypt": "402c5c9cb77c704c278b15a8793d4cef4cfbb64da0[\"$@1\",[\"closure\",3]]",
+    "tamperedCiphertext": {
+      "error": "OperationError"
+    },
+    "tamperedTag": {
+      "error": "OperationError"
+    },
+    "truncated": {
+      "error": "OperationError"
+    },
+    "wrongIv": {
+      "error": "OperationError"
+    },
+    "wrongKey": {
+      "error": "OperationError"
+    },
+    "exported": "0707070707070707070707070707070707070707070707070707070707070707",
+    "exportNonExtractable": {
+      "error": "InvalidAccessException"
+    },
+    "encryptWithoutUsage": {
+      "error": "InvalidAccessError"
+    },
+    "badKeyLength": {
+      "error": "DataError"
+    },
+    "badUsage": {
+      "error": "SyntaxError"
+    },
+    "noUsages": {
+      "error": "SyntaxError"
+    },
+    "missingIv": {
+      "error": "TypeError"
+    },
+    "badTagLength": {
+      "error": "OperationError"
+    },
+    "notAKey": {
+      "error": "TypeError"
+    },
+    "generatedLength": 32,
+    "generatedRoundTrip": "402c5c9cb77c704c278b15a8793d4cef4cfbb64da0[\"$@1\",[\"closure\",3]]",
+    "illegalConstructor": {
+      "error": "TypeError"
+    }
+  },
+  "formData": {
+    "getA": "1",
+    "getAllA": [
+      "1",
+      "2"
+    ],
+    "missing": null,
+    "has": [
+      true,
+      false
+    ],
+    "blobName": [
+      "blob",
+      "text/x-test",
+      true
+    ],
+    "namedName": "named.txt",
+    "fileName": [
+      "orig.bin",
+      "application/x-orig"
+    ],
+    "lone": "�x",
+    "afterSet": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "lone"
+    ],
+    "afterSetA": [
+      "3"
+    ],
+    "afterDelete": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "tag": "[object FormData]",
+    "threeArgString": {
+      "error": "TypeError"
+    },
+    "forEach": [
+      "a",
+      "b",
+      "c",
+      "d"
+    ],
+    "contentType": "multipart/form-data; boundary=…",
+    "serialized": "--BOUNDARY\r\nContent-Disposition: form-data; name=\"q%22uote%0D%0Aname\"\r\n\r\nline1\r\nline2\r\nline3\r\n--BOUNDARY\r\nContent-Disposition: form-data; name=\"unicode ✓\"\r\n\r\ncafé 📚\r\n--BOUNDARY\r\nContent-Disposition: form-data; name=\"file\"; filename=\"f%22%0D.bin\"\r\nContent-Type: application/octet-stream\r\n\r\n\u0000\u0001\u0002�\r\n--\r\n--BOUNDARY\r\nContent-Disposition: form-data; name=\"empty\"\r\n\r\n\r\n--BOUNDARY--",
+    "parsed": [
+      [
+        "q\"uote\r\nname",
+        "line1\r\nline2\r\nline3"
+      ],
+      [
+        "unicode ✓",
+        "café 📚"
+      ],
+      [
+        "file",
+        {
+          "name": "f\"\r.bin",
+          "type": "application/octet-stream",
+          "bytes": "000102efbfbd0d0a2d2d"
+        }
+      ],
+      [
+        "empty",
+        ""
+      ]
+    ],
+    "defaultFileType": [
+      "text/plain",
+      "",
+      0
+    ],
+    "urlencoded": [
+      [
+        "a",
+        "1"
+      ],
+      [
+        "a",
+        "2"
+      ],
+      [
+        "b",
+        "📚 x"
+      ],
+      [
+        "c",
+        ""
+      ]
+    ],
+    "truncated": {
+      "error": "TypeError"
+    },
+    "noBoundary": {
+      "error": "TypeError"
+    },
+    "wrongType": {
+      "error": "TypeError"
+    }
+  },
+  "buffers": {
+    "latin1": "cafÃ©ÿ",
+    "latin1Default": "cafÃ©ÿ",
+    "utf8": "café",
+    "ascii": "af",
+    "hex": "66c3",
+    "base64": "Y2Fm"
+  }
+}

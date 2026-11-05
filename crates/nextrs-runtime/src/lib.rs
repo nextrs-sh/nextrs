@@ -20,11 +20,13 @@
 
 mod cache;
 mod metrics;
+mod multipart;
 mod net;
 mod ops;
 mod pool;
 mod response;
 mod sandbox;
+mod webcrypto;
 mod worker;
 
 use std::collections::BTreeMap;

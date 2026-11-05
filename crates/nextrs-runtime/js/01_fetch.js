@@ -1,7 +1,8 @@
 // NextRS bootstrap, part 2: Headers, Request and Response (WHATWG Fetch),
 // built on deno_web's streams, and outbound `fetch`. Next.js needs these
 // classes (NextRequest extends Request; route handlers return Response).
-// FormData is not supported and fails explicitly.
+// FormData follows the XHR standard; multipart bodies are parsed in Rust
+// (src/multipart.rs) and serialized here as the HTML standard specifies.
 //
 // `fetch` goes through the host's network capability (src/net.rs): the
 // destination policy, DNS checks, redirects, timeouts and size limits are
@@ -156,8 +157,9 @@
       bytes = new Uint8Array(init.buffer.slice(init.byteOffset, init.byteOffset + init.byteLength));
     } else if (init instanceof Blob) {
       return { stream: init.stream(), contentType: init.type || null, source: init };
-    } else if (typeof FormData !== "undefined" && init instanceof FormData) {
-      unsupported("Fetch body", "FormData");
+    } else if (init instanceof FormData) {
+      const blob = serializeFormData(init);
+      return { stream: blob.stream(), contentType: blob.type, source: blob };
     } else if (typeof init[Symbol.asyncIterator] === "function") {
       return { stream: ReadableStream.from(init), contentType: null, source: null };
     } else {
@@ -222,9 +224,41 @@
       return new Blob([await consumeBytes(this)], { type: this.headers.get("content-type") ?? "" });
     },
     async formData() {
-      return unsupported("Body", "formData");
+      const contentType = this.headers.get("content-type") ?? "";
+      const essence = contentType.split(";")[0].trim().toLowerCase();
+      if (essence === "multipart/form-data") {
+        const bytes = await consumeBytes(this);
+        let parts;
+        try {
+          parts = await ops.op_nextrs_multipart_parse(contentType, bytes);
+        } catch (error) {
+          throw new TypeError(String(error?.message ?? error));
+        }
+        const form = new FormData();
+        for (const part of parts) {
+          const name = decodeMultipartName(part.name);
+          if (part.filename === null || part.filename === undefined) {
+            form.append(name, decoder.decode(part.data));
+          } else {
+            // Node (undici) types a file part without Content-Type text/plain.
+            const file = new File([part.data], decodeMultipartName(part.filename), { type: part.contentType ?? "text/plain" });
+            form.append(name, file);
+          }
+        }
+        return form;
+      }
+      if (essence === "application/x-www-form-urlencoded") {
+        const form = new FormData();
+        for (const [name, value] of new URLSearchParams(decoder.decode(await consumeBytes(this)))) form.append(name, value);
+        return form;
+      }
+      throw new TypeError('Content-Type was not one of "multipart/form-data" or "application/x-www-form-urlencoded".');
     },
   };
+
+  // The escapes the HTML standard applies to multipart names and filenames,
+  // undone as Node's parser does.
+  const decodeMultipartName = (name) => name.replace(/%0A/gi, "\n").replace(/%0D/gi, "\r").replace(/%22/g, '"');
 
   // deno_web keeps a stream's "disturbed" flag private. Bodies consumed
   // through these classes are tracked here; a body read through its own
@@ -421,10 +455,130 @@
   }
   mixBody(Response);
 
-  class FormData {
-    constructor() {
-      unsupported("FormData", "constructor");
+  // ---------------------------------------------------------------------
+  // FormData (XHR standard). There is no DOM, so no form element argument.
+  // ---------------------------------------------------------------------
+  const kEntries = Symbol("form entries");
+  const usv = (value) => String(value).toWellFormed();
+
+  // "Create an entry": Blobs become Files (named "blob" unless given a name).
+  function formEntry(name, value, filename, args) {
+    name = usv(name);
+    if (value instanceof Blob) {
+      if (!(value instanceof File) || filename !== undefined) {
+        const options = { type: value.type };
+        if (value instanceof File) options.lastModified = value.lastModified;
+        value = new File([value], filename !== undefined ? usv(filename) : value instanceof File ? value.name : "blob", options);
+      }
+    } else {
+      if (args > 2) throw new TypeError("FormData: a filename is only allowed with a Blob value");
+      value = usv(value);
     }
+    return [name, value];
+  }
+
+  class FormData {
+    constructor(form, submitter) {
+      if (form !== undefined) unsupported("FormData", "constructor", "HTML form elements do not exist on the server");
+      void submitter;
+      this[kEntries] = [];
+    }
+
+    append(name, value, filename) {
+      if (arguments.length < 2) throw new TypeError("FormData.append requires 2 arguments");
+      this[kEntries].push(formEntry(name, value, filename, arguments.length));
+    }
+
+    delete(name) {
+      name = usv(name);
+      this[kEntries] = this[kEntries].filter(([n]) => n !== name);
+    }
+
+    get(name) {
+      name = usv(name);
+      const entry = this[kEntries].find(([n]) => n === name);
+      return entry ? entry[1] : null;
+    }
+
+    getAll(name) {
+      name = usv(name);
+      return this[kEntries].filter(([n]) => n === name).map(([, v]) => v);
+    }
+
+    has(name) {
+      name = usv(name);
+      return this[kEntries].some(([n]) => n === name);
+    }
+
+    set(name, value, filename) {
+      if (arguments.length < 2) throw new TypeError("FormData.set requires 2 arguments");
+      const entry = formEntry(name, value, filename, arguments.length);
+      const index = this[kEntries].findIndex(([n]) => n === entry[0]);
+      if (index === -1) {
+        this[kEntries].push(entry);
+        return;
+      }
+      this[kEntries][index] = entry;
+      this[kEntries] = this[kEntries].filter(([n], i) => n !== entry[0] || i <= index);
+    }
+
+    // Live iteration, by index, as the standard's iterator does.
+    *entries() {
+      for (let i = 0; i < this[kEntries].length; i++) {
+        const [name, value] = this[kEntries][i];
+        yield [name, value];
+      }
+    }
+
+    *keys() {
+      for (const [name] of this.entries()) yield name;
+    }
+
+    *values() {
+      for (const [, value] of this.entries()) yield value;
+    }
+
+    forEach(callback, thisArg) {
+      if (typeof callback !== "function") throw new TypeError("FormData.forEach requires a function");
+      for (const [name, value] of this.entries()) callback.call(thisArg, value, name, this);
+    }
+
+    [Symbol.iterator]() {
+      return this.entries();
+    }
+
+    get [Symbol.toStringTag]() {
+      return "FormData";
+    }
+  }
+
+  // The HTML standard's multipart/form-data encoding: line breaks in names
+  // and string values become CRLF; '"', CR and LF in names and filenames
+  // are percent-escaped.
+  const crlf = (value) => value.replace(/\r\n|\r|\n/g, "\r\n");
+  const escapeName = (value) => value.replace(/\n/g, "%0A").replace(/\r/g, "%0D").replace(/"/g, "%22");
+
+  function serializeFormData(form) {
+    const random = new Uint8Array(12);
+    crypto.getRandomValues(random);
+    const boundary = `----formdata-nextrs-${[...random].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
+    const parts = [];
+    for (const [name, value] of form) {
+      const field = escapeName(crlf(name));
+      if (typeof value === "string") {
+        parts.push(`--${boundary}\r\nContent-Disposition: form-data; name="${field}"\r\n\r\n${crlf(value)}\r\n`);
+      } else {
+        parts.push(
+          `--${boundary}\r\nContent-Disposition: form-data; name="${field}"; filename="${escapeName(value.name)}"\r\n` +
+            `Content-Type: ${value.type || "application/octet-stream"}\r\n\r\n`,
+          value,
+          "\r\n",
+        );
+      }
+    }
+    // No CRLF after the close delimiter, as Node (undici) sends it.
+    parts.push(`--${boundary}--`);
+    return new Blob(parts, { type: `multipart/form-data; boundary=${boundary}` });
   }
 
   // ---------------------------------------------------------------------

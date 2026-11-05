@@ -140,6 +140,12 @@ deno_core::extension!(
         op_nextrs_cache_get,
         op_nextrs_cache_set,
         op_nextrs_cache_revalidate,
+        crate::webcrypto::op_nextrs_aes_import,
+        crate::webcrypto::op_nextrs_aes_generate,
+        crate::webcrypto::op_nextrs_aes_export,
+        crate::webcrypto::op_nextrs_aes_release,
+        crate::webcrypto::op_nextrs_aes_gcm,
+        crate::multipart::op_nextrs_multipart_parse,
     ],
     options = {
         boot: BootConfig,
@@ -160,6 +166,7 @@ deno_core::extension!(
         state.put(NetCapability(options.services.net));
         state.put(Fetches::default());
         state.put(CacheCapability(options.services.cache));
+        state.put(crate::webcrypto::CryptoKeys::default());
     }
 );
 
