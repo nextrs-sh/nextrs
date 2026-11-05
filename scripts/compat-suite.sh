@@ -37,7 +37,7 @@ done
 work=""
 pids=()
 cleanup() {
-  for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done
+  for pid in "${pids[@]}"; do kill -- "-$pid" 2>/dev/null || kill "$pid" 2>/dev/null || true; done
   wait 2>/dev/null || true
   if [[ -n "${work:-}" ]]; then rm -rf "$work"; fi
 }
@@ -90,7 +90,16 @@ echo "Next.js $installed built ($(cat "$project/.next/BUILD_ID"))"
 next_pid=""
 nextrs_pid=""
 start_servers() {
-  (cd "$project" && NEXT_TELEMETRY_DISABLED=1 exec npx next start -H 127.0.0.1 -p "$next_port") >> "$out/next-start.log" 2>&1 &
+  # A server left over from a previous start would answer instead of the
+  # one started now (and the new one would fail to bind): refuse.
+  for port in "$next_port" "$nextrs_port"; do
+    if curl -s -o /dev/null "http://127.0.0.1:$port/"; then
+      echo "port $port is still in use before starting the servers" >&2; exit 1
+    fi
+  done
+  # next start runs as npx's child: give it its own process group (setsid
+  # execs in place, so the group id is this pid) and signal the group.
+  (cd "$project" && NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 127.0.0.1 -p "$next_port") >> "$out/next-start.log" 2>&1 &
   next_pid=$!
   pids+=($next_pid)
   # Short stall and request deadlines: the Server Action suite checks what
@@ -111,13 +120,25 @@ start_servers() {
   done
 }
 stop_servers() {
-  kill -TERM "$next_pid" "$nextrs_pid" 2>/dev/null || true
-  # next start runs as npx's child; wait for both ports to close.
+  kill -TERM -- "-$next_pid" 2>/dev/null || kill -TERM "$next_pid" 2>/dev/null || true
+  kill -TERM "$nextrs_pid" 2>/dev/null || true
+  # Wait for both ports to close; escalate, and fail rather than let a
+  # later start talk to a server that is still running.
   for port in "$next_port" "$nextrs_port"; do
     for _ in $(seq 1 80); do
       curl -s -o /dev/null "http://127.0.0.1:$port/" || break
       sleep 0.25
     done
+  done
+  if curl -s -o /dev/null "http://127.0.0.1:$next_port/" || curl -s -o /dev/null "http://127.0.0.1:$nextrs_port/"; then
+    kill -KILL -- "-$next_pid" 2>/dev/null || true
+    kill -KILL "$nextrs_pid" 2>/dev/null || true
+    sleep 1
+  fi
+  for port in "$next_port" "$nextrs_port"; do
+    if curl -s -o /dev/null "http://127.0.0.1:$port/"; then
+      echo "a server on port $port did not stop" >&2; exit 1
+    fi
   done
   wait "$next_pid" "$nextrs_pid" 2>/dev/null || true
 }
