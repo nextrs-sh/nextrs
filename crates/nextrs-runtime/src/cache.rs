@@ -246,6 +246,9 @@ struct Lease {
     id: u64,
     until: std::time::Instant,
     released: Arc<tokio::sync::Notify>,
+    /// The isolate (slot, generation) that holds it: released at once if
+    /// that isolate fails, since its request can no longer release it.
+    owner: Option<(usize, u64)>,
 }
 
 /// What `acquire_lease` did.
@@ -862,7 +865,12 @@ impl CacheStore {
     /// the isolate holding it. A lease lasts `ttl` at most, so a holder
     /// that never releases it delays others by that much, once. No lock
     /// is held while waiting.
-    pub async fn acquire_lease(&self, key: &str, ttl: std::time::Duration) -> LeaseOutcome {
+    pub async fn acquire_lease(
+        &self,
+        key: &str,
+        ttl: std::time::Duration,
+        owner: Option<(usize, u64)>,
+    ) -> LeaseOutcome {
         let now = std::time::Instant::now();
         let (released, until) = {
             let mut leases = self.leases.lock().unwrap_or_else(|e| e.into_inner());
@@ -878,6 +886,7 @@ impl CacheStore {
                             id,
                             until: now + ttl,
                             released: Arc::new(tokio::sync::Notify::new()),
+                            owner,
                         },
                     );
                     if leases.len() > 4096 {
@@ -920,6 +929,18 @@ impl CacheStore {
         {
             lease.released.notify_waiters();
         }
+    }
+
+    /// Ends every lease held by a failed isolate and wakes its waiters.
+    pub fn release_leases_of(&self, owner: (usize, u64)) {
+        let mut leases = self.leases.lock().unwrap_or_else(|e| e.into_inner());
+        leases.retain(|_, lease| {
+            let held = lease.owner == Some(owner);
+            if held {
+                lease.released.notify_waiters();
+            }
+            !held
+        });
     }
 
     /// Evicts values from memory and entries from disk beyond the limits.

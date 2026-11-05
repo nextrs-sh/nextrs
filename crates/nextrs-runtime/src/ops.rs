@@ -992,8 +992,13 @@ async fn op_nextrs_cache_lease(
     ttl_ms: f64,
 ) -> Result<LeaseResult, JsErrorBox> {
     let store = cache_store(&state)?;
+    let owner = {
+        let state = state.borrow();
+        let worker = state.borrow::<Arc<WorkerShared>>();
+        (worker.slot, worker.generation)
+    };
     let ttl = std::time::Duration::from_millis(ttl_ms.clamp(1.0, 600_000.0) as u64);
-    Ok(match store.acquire_lease(&key, ttl).await {
+    Ok(match store.acquire_lease(&key, ttl, Some(owner)).await {
         LeaseOutcome::Acquired(id) => LeaseResult {
             acquired: true,
             id: id as f64,

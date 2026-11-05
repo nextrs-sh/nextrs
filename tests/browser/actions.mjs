@@ -286,6 +286,75 @@ scenarios.revalidate = async (page, base) => {
   return { ...out, actions: actions.map(({ status, revalidated }) => ({ status, revalidated })) };
 };
 
+// Server Actions on an ISR page (/isr/tagged, revalidate 1 h): what the
+// user sees after each invalidation, after a reload (the regenerated page
+// served from the cache), after client navigation and a repeat submission.
+// Stamps are compared as "changed or not", never across servers.
+async function submit(page, id) {
+  await Promise.all([page.waitForResponse((r) => r.request().method() === "POST", { timeout: TIMEOUT }), page.click(`#${id}`)]);
+  await page.waitForTimeout(300);
+}
+scenarios["isr-actions"] = async (page, base) => {
+  const actions = trackActions(page);
+  const stamp = () => textOf(page, "#stamp");
+  const reload = async () => {
+    await page.reload();
+    return stamp();
+  };
+  await page.goto(`${base}/isr/tagged`);
+  const out = {};
+  let s = await stamp();
+  await submit(page, "isr-none");
+  out.none = { changed: (await stamp()) !== s };
+  for (const how of ["revalidatePath", "updateTag"]) {
+    s = await stamp();
+    await submit(page, `isr-${how}`);
+    const afterAction = await stamp();
+    const first = await reload();
+    const second = await reload();
+    out[how] = { visibleRerender: afterAction !== s, reloadFresh: first !== s, reloadCached: second === first };
+  }
+  // Stale-while-revalidate: no re-render; the first reload is the stale
+  // page, a later one the regenerated page.
+  s = await stamp();
+  await submit(page, "isr-revalidateTag");
+  const afterTag = await stamp();
+  const staleReload = await reload();
+  await page.waitForTimeout(500);
+  const freshReload = await reload();
+  out.revalidateTag = { visibleRerender: afterTag !== s, firstReloadStale: staleReload === s, laterReloadFresh: freshReload !== s };
+  // Client navigation away and back, then a repeat submission.
+  await Promise.all([page.waitForURL(`${base}/isr/one`, { timeout: TIMEOUT }), page.click("#to-one")]);
+  out.navigated = await textOf(page, "#title");
+  await page.goBack();
+  await page.waitForURL(`${base}/isr/tagged`, { timeout: TIMEOUT });
+  s = await stamp();
+  await submit(page, "isr-revalidatePath");
+  const once = await stamp();
+  await submit(page, "isr-revalidatePath");
+  out.repeat = { first: once !== s, second: (await stamp()) !== once };
+  return { ...out, actions: actions.map(({ status, type, revalidated }) => ({ status, type, revalidated })) };
+};
+
+scenarios["isr-actions-nojs"] = async (page, base) => {
+  const actions = trackActions(page);
+  await page.goto(`${base}/isr/tagged`);
+  const before = await textOf(page, "#stamp");
+  await Promise.all([page.waitForNavigation({ timeout: TIMEOUT }), page.click("#isr-revalidatePath")]);
+  const afterPost = await textOf(page, "#stamp");
+  await page.goto(`${base}/isr/tagged`);
+  const regenerated = await textOf(page, "#stamp");
+  await page.goto(`${base}/isr/tagged`);
+  const cached = await textOf(page, "#stamp");
+  return {
+    url: new URL(page.url()).pathname,
+    postRendered: afterPost !== before,
+    regenerated: regenerated !== before,
+    cached: cached === regenerated,
+    actions: actions.map(({ status, type }) => ({ status, type })),
+  };
+};
+
 async function runScenario(browser, name, base) {
   const nojs = name.endsWith("-nojs");
   const context = await browser.newContext({ javaScriptEnabled: !nojs });

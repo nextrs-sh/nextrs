@@ -842,6 +842,11 @@ fn supervise(
         }
         worker.set_state(if failure.is_some() { FAILED } else { STOPPED });
         inner.uninstall(&worker, failure.as_ref().map(|(r, d)| (*r, d.as_str())));
+        // Regeneration leases its requests held can no longer be released
+        // by them; let the other isolates' waiters go now.
+        if let Some(cache) = &inner.cache {
+            cache.release_leases_of((slot, generation));
+        }
 
         let Some((reason, detail)) = failure else {
             break;

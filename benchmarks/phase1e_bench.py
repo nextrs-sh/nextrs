@@ -148,7 +148,8 @@ def main():
         net = ["--js-env", "NEXTRS_UPSTREAM", "--net-allow", upstream, "--net-allow-addr", "127.0.0.1"]
         out = {"next-start": ((next_cmd, next_cwd, {**next_env, **env}), None)}
         if args.nextrs_1d:
-            out["1d"] = (([args.nextrs_1d] + rs_cmd[1:] + net, rs_cwd, {**rs_env, **env}), 9411)
+            # 1D refuses ISR builds at startup; its ISR routes then answer 501.
+            out["1d"] = (([args.nextrs_1d] + rs_cmd[1:] + net + ["--allow-unsupported"], rs_cwd, {**rs_env, **env}), 9411)
         out["1e"] = ((rs_cmd + net, rs_cwd, {**rs_env, **env}), 9412)
         out["1e-disk"] = ((rs_cmd + net + ["--cache-dir", str(work / "cache")], rs_cwd, {**rs_env, **env}), 9413)
         out["1e-i4"] = ((rs_cmd + net + ["--isolates", "4"], rs_cwd, {**rs_env, **env}), 9414)
@@ -198,6 +199,12 @@ def main():
     try:
         # --- The main fixture ------------------------------------------------
         project = (ROOT / args.project).resolve()
+        # next start writes regenerated pages and fetch results into the
+        # build (server/route-cache, cache/fetch-cache); earlier runs' files
+        # would make it serve those instead of the build's prerenders.
+        for written in (project / ".next/server/route-cache", project / ".next/cache/fetch-cache"):
+            shutil.rmtree(written, ignore_errors=True)
+        build_stamp = stamp((project / ".next/server/app/actions/static-time.html").read_bytes())
         tagged_id = action_id(project, "isrInvalidate", "app/isr/actions.ts")
         reference = {}
         for i, (name, spec) in enumerate(variants(project).items()):
@@ -212,8 +219,7 @@ def main():
                 if status != 200 or body != reference["ssr"]:
                     sys.exit(f"{name}: /books/42 differs from next start")
                 status, _, body = get(server.port, "/actions/static-time")
-                reference.setdefault("static", stamp(body))
-                if status != 200 or stamp(body) != reference["static"]:
+                if status != 200 or stamp(body) != build_stamp:
                     sys.exit(f"{name}: /actions/static-time is not the prerender")
                 isr = name != "1d"
                 if isr:
