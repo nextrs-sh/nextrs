@@ -19,7 +19,60 @@ pub struct BuildInfo {
     pub static_dir: PathBuf,
     /// `<project>/public`, when present.
     pub public_dir: Option<PathBuf>,
+    pub server_actions: ServerActionsInfo,
     pub diagnostics: Vec<Diagnostic>,
+}
+
+/// Server Actions in the build, and the `experimental.serverActions`
+/// options Next's action handler enforces at runtime.
+#[derive(Debug, Clone, Serialize)]
+pub struct ServerActionsInfo {
+    /// Node.js-runtime actions in `server-reference-manifest.json`.
+    pub count: usize,
+    /// Edge-runtime actions (not run by NextRS).
+    pub edge_count: usize,
+    /// `bodySizeLimit` in bytes, parsed as Next parses it (the `bytes`
+    /// package: 1 MB = 1024 * 1024). Next's default is 1 MB.
+    pub body_size_limit: u64,
+    /// The configured value, when not the default.
+    pub body_size_limit_config: Option<String>,
+    pub allowed_origins: Vec<String>,
+}
+
+impl Default for ServerActionsInfo {
+    fn default() -> Self {
+        Self {
+            count: 0,
+            edge_count: 0,
+            body_size_limit: DEFAULT_ACTION_BODY_LIMIT,
+            body_size_limit_config: None,
+            allowed_origins: Vec::new(),
+        }
+    }
+}
+
+/// Next's default `serverActions.bodySizeLimit` ("1 MB").
+pub const DEFAULT_ACTION_BODY_LIMIT: u64 = 1024 * 1024;
+
+/// Parses a size the way the `bytes` npm package does (`500kb`, `2mb`,
+/// `1.5 GB`, a plain number of bytes). Returns `None` for what it rejects.
+pub fn parse_byte_size(value: &str) -> Option<u64> {
+    let value = value.trim();
+    let split = value
+        .find(|c: char| !(c.is_ascii_digit() || c == '.' || c == '+'))
+        .unwrap_or(value.len());
+    let (number, unit) = value.split_at(split);
+    let number: f64 = number.parse().ok()?;
+    let multiplier: f64 = match unit.trim().to_ascii_lowercase().as_str() {
+        "" | "b" => 1.0,
+        "kb" => 1024.0,
+        "mb" => 1024.0 * 1024.0,
+        "gb" => 1024.0 * 1024.0 * 1024.0,
+        "tb" => 1024f64.powi(4),
+        "pb" => 1024f64.powi(5),
+        _ => return None,
+    };
+    (number.is_finite() && number >= 0.0).then(|| (number * multiplier).floor() as u64)
 }
 
 impl BuildInfo {
@@ -197,4 +250,22 @@ pub enum Severity {
     Warning,
     /// The build uses something NextRS cannot serve correctly yet.
     Unsupported,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_byte_size;
+
+    /// The `bytes` package's parse, as Next uses it for bodySizeLimit.
+    #[test]
+    fn byte_sizes_parse_as_next_parses_them() {
+        assert_eq!(parse_byte_size("1mb"), Some(1024 * 1024));
+        assert_eq!(parse_byte_size("1 MB"), Some(1024 * 1024));
+        assert_eq!(parse_byte_size("500kb"), Some(500 * 1024));
+        assert_eq!(parse_byte_size("1.5gb"), Some(1024 * 1024 * 1536));
+        assert_eq!(parse_byte_size("2048"), Some(2048));
+        assert_eq!(parse_byte_size("10b"), Some(10));
+        assert_eq!(parse_byte_size("ten mb"), None);
+        assert_eq!(parse_byte_size("5 parsecs"), None);
+    }
 }
