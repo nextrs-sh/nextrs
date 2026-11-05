@@ -1062,8 +1062,12 @@ async fn not_found(
             .find(|route| route.internal && route.page == "/_not-found")
             .and_then(|route| route.entry.as_deref())
     {
+        // router-server sets the no-store Cache-Control before it renders
+        // the not-found route (after routing's own headers).
+        let mut headers_404 = initial.to_vec();
+        headers_404.push(("cache-control".to_owned(), NO_STORE.to_owned()));
         let policy = dynamic::AppPathPolicy {
-            headers: initial,
+            headers: &headers_404,
             vary: Some(&state.rsc.vary_header),
             status: Some(404),
             invocation: invocation_for(state, resolved, "/_not-found", real),
