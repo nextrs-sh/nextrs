@@ -60,7 +60,9 @@ if [[ $data -eq 1 ]]; then
   upstream_pid=$!
   export NEXTRS_UPSTREAM="http://127.0.0.1:$upstream_port"
   data_flags=(--js-env NEXTRS_UPSTREAM --net-allow "$NEXTRS_UPSTREAM" --net-allow-addr 127.0.0.1)
-  soak_flags=(--upstream "$NEXTRS_UPSTREAM")
+  # The fixture directory gives soak.mjs the Server Action ids (action and
+  # ISR traffic).
+  soak_flags=(--upstream "$NEXTRS_UPSTREAM" --project "$project")
 fi
 
 status=0
