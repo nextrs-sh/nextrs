@@ -4,27 +4,37 @@ import { NextResponse, type NextRequest } from "next/server";
 const SESSION = "synthetic-valid-session";
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// A URL on this app (nextUrl keeps basePath; `new URL(path, request.url)`
+// would drop it).
+function at(request: NextRequest, path: string) {
+  const url = request.nextUrl.clone();
+  const [pathname, search] = path.split("?");
+  url.pathname = pathname;
+  url.search = search ? `?${search}` : "";
+  return url;
+}
+
 export async function proxy(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   // The same branches with and without trailingSlash.
   const pathname = request.nextUrl.pathname.replace(/(.)\/$/, "$1");
 
-  if (pathname === "/proxy/redirect") return NextResponse.redirect(new URL("/target", request.url));
-  if (pathname === "/proxy/redirect-308") return NextResponse.redirect(new URL("/target?x=1", request.url), 308);
+  if (pathname === "/proxy/redirect") return NextResponse.redirect(at(request, "/target"));
+  if (pathname === "/proxy/redirect-308") return NextResponse.redirect(at(request, "/target?x=1"), 308);
   if (pathname === "/proxy/redirect-external") return NextResponse.redirect("https://example.com/landing");
-  if (pathname === "/proxy/response-redirect") return Response.redirect(new URL("/target", request.url), 303);
-  if (pathname === "/proxy/rewrite") return NextResponse.rewrite(new URL("/target", request.url));
-  if (pathname === "/proxy/rewrite-query") return NextResponse.rewrite(new URL("/rewritten/from-proxy?added=1", request.url));
+  if (pathname === "/proxy/response-redirect") return Response.redirect(at(request, "/target"), 303);
+  if (pathname === "/proxy/rewrite") return NextResponse.rewrite(at(request, "/target"));
+  if (pathname === "/proxy/rewrite-query") return NextResponse.rewrite(at(request, "/rewritten/from-proxy?added=1"));
   if (pathname.startsWith("/proxy/rewrite-dynamic/")) {
     const slug = pathname.slice("/proxy/rewrite-dynamic/".length);
-    return NextResponse.rewrite(new URL(`/rewritten/${slug}${request.nextUrl.search}`, request.url));
+    return NextResponse.rewrite(at(request, `/rewritten/${slug}${request.nextUrl.search}`));
   }
-  if (pathname === "/proxy/rewrite-isr") return NextResponse.rewrite(new URL("/isr", request.url));
-  if (pathname === "/proxy/rewrite-static") return NextResponse.rewrite(new URL("/static", request.url));
-  if (pathname === "/proxy/rewrite-api") return NextResponse.rewrite(new URL("/api/echo?via=proxy", request.url));
-  if (pathname === "/proxy/rewrite-missing") return NextResponse.rewrite(new URL("/does-not-exist", request.url));
-  if (pathname === "/proxy/rewrite-loop") return NextResponse.rewrite(new URL("/proxy/rewrite-loop", request.url));
-  if (pathname === "/proxy/rewrite-protected") return NextResponse.rewrite(new URL("/protected", request.url));
+  if (pathname === "/proxy/rewrite-isr") return NextResponse.rewrite(at(request, "/isr"));
+  if (pathname === "/proxy/rewrite-static") return NextResponse.rewrite(at(request, "/static"));
+  if (pathname === "/proxy/rewrite-api") return NextResponse.rewrite(at(request, "/api/echo?via=proxy"));
+  if (pathname === "/proxy/rewrite-missing") return NextResponse.rewrite(at(request, "/does-not-exist"));
+  if (pathname === "/proxy/rewrite-loop") return NextResponse.rewrite(at(request, "/proxy/rewrite-loop"));
+  if (pathname === "/proxy/rewrite-protected") return NextResponse.rewrite(at(request, "/protected"));
   if (pathname === "/proxy/rewrite-external") {
     return NextResponse.rewrite(`http://127.0.0.1:${process.env.NEXTRS_CLOSED_PORT ?? "9"}/ext`);
   }
@@ -55,7 +65,7 @@ export async function proxy(request: NextRequest) {
   }
   if (pathname === "/proxy/body-pass") {
     const text = await request.text();
-    const res = NextResponse.rewrite(new URL("/api/echo", request.url));
+    const res = NextResponse.rewrite(at(request, "/api/echo"));
     res.headers.set("x-proxy-body-length", String(text.length));
     return res;
   }
@@ -66,7 +76,7 @@ export async function proxy(request: NextRequest) {
 
   if (pathname === "/protected" || pathname.startsWith("/protected/")) {
     if (request.cookies.get("session")?.value !== SESSION) {
-      const login = new URL("/login", request.url);
+      const login = at(request, "/login");
       login.searchParams.set("next", pathname);
       return NextResponse.redirect(login);
     }
