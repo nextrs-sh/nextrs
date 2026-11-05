@@ -84,9 +84,15 @@ struct CacheArgs {
     /// Entry bytes kept on disk (with --cache-dir).
     #[arg(long, value_name = "MIB", default_value_t = 1024)]
     cache_max_disk: u64,
-    /// Larger entries are not cached (Next's own limit is 2 MB).
+    /// Larger data-cache entries (fetch, unstable_cache) are not cached
+    /// (Next's own limit is 2 MB).
     #[arg(long, value_name = "MIB", default_value_t = 2)]
     cache_max_entry: u64,
+    /// Larger response-cache entries (ISR pages and route handler output,
+    /// all of a page's HTML, RSC and segments) are not cached; such a page
+    /// is rendered on every request.
+    #[arg(long, value_name = "MIB", default_value_t = 16)]
+    cache_max_response: u64,
     /// Leave caching to Next's default handler: separate per isolate,
     /// in memory only.
     #[arg(long, conflicts_with = "cache_dir")]
@@ -138,6 +144,7 @@ impl CacheArgs {
             max_memory_bytes: mib(self.cache_max_memory),
             max_disk_bytes: mib(self.cache_max_disk),
             max_entry_bytes: mib(self.cache_max_entry),
+            max_response_bytes: mib(self.cache_max_response),
         }))
     }
 }
@@ -454,6 +461,28 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                 .enable_all()
                 .build()?;
             let max_request_body = limits.max_request_body * 1024 * 1024;
+            if let Some(executor) = &executor
+                && !executor.has_shared_cache()
+            {
+                let isr = info.prerenders.iter().any(|p| p.revalidate.is_some());
+                if (isr || info.server_actions.count > 0) && executor.limits().isolates > 1 {
+                    // Each isolate would keep its own pages and tags: one
+                    // isolate serves a page another regenerated, or old
+                    // data after a Server Action revalidated it.
+                    let message = "--no-shared-cache with more than one isolate: ISR pages and \
+                                   revalidations by Server Actions would differ between \
+                                   isolates; use the shared cache or --isolates 1";
+                    if !allow_unsupported {
+                        return Err(format!("{message} (or pass --allow-unsupported)").into());
+                    }
+                    tracing::warn!("{message}");
+                } else if isr {
+                    tracing::warn!(
+                        "--no-shared-cache: ISR pages are regenerated in memory only (lost on \
+                         restart), as with next start's default handler minus its disk copy"
+                    );
+                }
+            }
             if executor.is_some() && info.server_actions.count > 0 {
                 // Two limits apply to an action body: NextRS's own
                 // (--max-request-body, enforced before JavaScript runs) and

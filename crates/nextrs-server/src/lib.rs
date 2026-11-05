@@ -44,8 +44,9 @@ const PUBLIC_FILE: &str = "public, max-age=0";
 const HTML: &str = "text/html; charset=utf-8";
 const UNSUPPORTED_HEADER: &str = "x-nextrs-unsupported";
 /// Build features that are unsupported without JavaScript but that the
-/// embedded executor runs.
-const EXECUTOR_FEATURES: &[&str] = &["server-actions"];
+/// embedded executor runs (ISR: Next's handler regenerates pages and keeps
+/// them in the shared cache).
+const EXECUTOR_FEATURES: &[&str] = &["server-actions", "isr"];
 /// Headers in stored prerenders that `next start` does not send to clients.
 const INTERNAL_HEADERS: &[&str] = &["x-next-cache-tags"];
 
@@ -213,6 +214,8 @@ struct AppState {
     rsc: RscConfig,
     static_root: Option<PathBuf>,
     public_root: Option<PathBuf>,
+    /// Prerendered pages that never revalidate on a timer, served from
+    /// memory until a revalidation touches one of their tags.
     pages: HashMap<String, Page>,
     not_found: Option<Cached>,
     routes: Vec<CompiledRoute>,
@@ -284,8 +287,8 @@ impl AppState {
         let mut pages = HashMap::new();
         let mut not_found = None;
         for prerender in &info.prerenders {
-            // Phase 0 does not regenerate, so revalidating pages are skipped
-            // rather than served stale forever.
+            // ISR pages are served by Next's handler (from the shared cache,
+            // seeded from these files), which decides when to regenerate.
             if prerender.revalidate.is_some() {
                 continue;
             }
@@ -346,7 +349,9 @@ impl AppState {
         }
 
         let mut routes = Vec::new();
-        for route in &info.routes {
+        let mut ordered: Vec<&nextrs_adapter::Route> = info.routes.iter().collect();
+        ordered.sort_by(|a, b| route_specificity(&a.page).cmp(&route_specificity(&b.page)));
+        for route in ordered {
             let matcher = match &route.matcher {
                 Matcher::Exact { pathname } => CompiledMatcher::Exact(pathname.clone()),
                 Matcher::Pattern { regex, .. } => {
@@ -467,9 +472,9 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
     }
 
     if let Some(page) = state.pages.get(path) {
-        // Revalidated since the build: render it on demand with Next's
-        // handler instead of serving the stale prerender (NextRS does not
-        // store regenerated pages yet).
+        // Revalidated since the build: Next's handler serves it from the
+        // shared cache (regenerating it first if needed), as next start
+        // would, instead of the stale prerender.
         if readonly
             && page.is_revalidated(state.executor.as_deref())
             && let (Some(executor), Some(entry)) = (&state.executor, state.action_entry(path))
@@ -542,11 +547,7 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
 
     // Framework routes (`/_not-found`) are not addressable; they fall
     // through to the not-found page like any unknown path.
-    if let Some(route) = state
-        .routes
-        .iter()
-        .find(|route| !route.internal && route.matches(path))
-    {
+    if let Some(route) = state.route_for(path) {
         if let (Some(executor), Some(entry)) = (&state.executor, executable_entry(route)) {
             if state.has_interception_routes {
                 return unsupported(
@@ -709,30 +710,62 @@ fn is_possible_server_action(method: &Method, headers: &HeaderMap) -> bool {
 }
 
 impl AppState {
+    /// The addressable route for `path`, as Next's router picks it: a
+    /// route without parameters first, then dynamic routes in
+    /// routes-manifest order (which Next sorts by specificity).
+    fn route_for(&self, path: &str) -> Option<&CompiledRoute> {
+        let addressable = || self.routes.iter().filter(|route| !route.internal);
+        addressable()
+            .find(|route| matches!(route.matcher, CompiledMatcher::Exact(_)) && route.matches(path))
+            .or_else(|| addressable().find(|route| route.matches(path)))
+    }
+}
+
+/// Next's ordering of dynamic routes (`getSortedRoutes`): segment by
+/// segment, a static segment before `[param]`, before `[...rest]`, before
+/// `[[...rest]]`.
+fn route_specificity(page: &str) -> Vec<(u8, &str)> {
+    page.split('/')
+        .filter(|segment| !segment.is_empty())
+        .map(|segment| {
+            let rank = if segment.starts_with("[[...") {
+                3
+            } else if segment.starts_with("[...") {
+                2
+            } else if segment.starts_with('[') {
+                1
+            } else {
+                0
+            };
+            (rank, segment)
+        })
+        .collect()
+}
+
+impl AppState {
     /// The compiled page that handles a Server Action POST to `path`: the
-    /// App Router page serving it, prerendered or dynamic, on the Node.js
-    /// runtime. ISR pages are excluded until NextRS can regenerate them.
+    /// App Router page serving it (prerendered, ISR or dynamic) on the
+    /// Node.js runtime.
     fn action_entry(&self, path: &str) -> Option<&Path> {
         if self.has_interception_routes {
             return None;
         }
-        let route = self
-            .routes
-            .iter()
-            .find(|route| !route.internal && route.matches(path))?;
-        let rendering_ok = matches!(route.rendering, Rendering::Static | Rendering::Dynamic);
-        (route.kind == RouteKind::AppPage && rendering_ok && route.runtime == Runtime::Nodejs)
+        let route = self.route_for(path)?;
+        (route.kind == RouteKind::AppPage && route.runtime == Runtime::Nodejs)
             .then_some(route.entry.as_deref())
             .flatten()
     }
 }
 
-/// Dynamic routes the executor can run: App Router pages and route handlers
-/// compiled for the Node.js runtime.
+/// Routes the executor runs with Next's compiled handler: App Router pages
+/// and route handlers for the Node.js runtime. Next's handler decides what
+/// to render and what to cache: dynamic routes; ISR routes (served from
+/// the shared cache or the build's prerender, regenerated when stale);
+/// generateStaticParams routes for params that were not prerendered; and
+/// prerendered routes whose output Rust does not hold (route handlers).
 fn executable_entry(route: &CompiledRoute) -> Option<&Path> {
     let kind_ok = matches!(route.kind, RouteKind::AppPage | RouteKind::AppRoute);
-    let dynamic = route.rendering == Rendering::Dynamic;
-    (kind_ok && dynamic && route.runtime == Runtime::Nodejs)
+    (kind_ok && route.runtime == Runtime::Nodejs)
         .then_some(route.entry.as_deref())
         .flatten()
 }
