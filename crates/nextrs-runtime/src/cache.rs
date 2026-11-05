@@ -1,24 +1,26 @@
-//! The data cache shared by every isolate: Next.js `fetch` caching and
-//! `unstable_cache`, stored in Rust and optionally persisted to disk.
+//! The cache shared by every isolate: Next.js `fetch` caching,
+//! `unstable_cache`, and the response cache (ISR: `APP_PAGE` and
+//! `APP_ROUTE` entries), stored in Rust and optionally persisted to disk.
 //!
 //! JavaScript reaches it through a `CacheHandler` (Next's documented
-//! interface, `js/03_server.js`) and four ops; it passes cache keys, tags and
-//! opaque values, never paths. Entries live in memory up to a byte budget
+//! interface, `js/03_server.js`) and a few ops; it passes cache keys, tags
+//! and opaque values, never paths. Entries live in memory up to a byte budget
 //! and, with a directory, in files named by the SHA-256 of their key under a
 //! namespace derived from the build ID and the JavaScript environment, so a
 //! different build or environment never reads another's entries.
 //!
-//! Tag semantics follow Next's own `FileSystemCache` (tags manifest with
-//! `stale`/`expired` times): a tag expired after an entry was written makes
-//! it a miss; a tag marked stale after it makes it stale (served, then
-//! refreshed by Next in the background).
+//! Tags are recorded as Next's `FileSystemCache` records them (a manifest of
+//! `stale`/`expired` times per tag), once for the whole pool. The store does
+//! not judge entries by them: every isolate mirrors the manifest into Next's
+//! own `tagsManifest` module (`tag_sync`, versioned) and Next's
+//! `areTagsExpired`/`areTagsStale` decide, as under `next start`.
 //!
 //! Files are written to a temporary name and renamed into place, carry a
 //! checksum, and are verified when read: a torn or corrupted file is a miss
 //! and is removed. Disk access runs on blocking threads, never on a V8
 //! thread.
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use std::fs;
 use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
@@ -36,6 +38,13 @@ const FORMAT_VERSION: u8 = 1;
 const MAGIC: &[u8; 4] = b"NXRC";
 /// Revalidated tags remembered (oldest dropped beyond this).
 const MAX_TAGS: usize = 10_000;
+/// Tag changes kept for incremental `tag_sync`; an isolate further behind
+/// receives the whole manifest.
+const TAG_LOG: usize = 4096;
+/// Response entries evicted from memory without a disk copy are remembered
+/// (key and time only) so that a later read misses instead of falling back
+/// to the older build-time prerender; at most this many.
+const MAX_EVICTED_MARKERS: usize = 100_000;
 /// Next's keys are 64-character hashes; anything far larger is refused, so
 /// keys cannot outgrow the byte budgets (which count values).
 const MAX_KEY_BYTES: usize = 4096;
@@ -53,8 +62,12 @@ pub struct CacheConfig {
     pub max_memory_bytes: u64,
     /// Entry files on disk; least recently used entries are removed beyond.
     pub max_disk_bytes: u64,
-    /// Larger values are not stored (Next's own limit is 2 MB).
+    /// Larger data-cache values (`fetch`, `unstable_cache`) are not stored
+    /// (Next's own limit is 2 MB).
     pub max_entry_bytes: u64,
+    /// Larger response-cache values (ISR pages and route handlers) are not
+    /// stored; Next sets no limit of its own for them.
+    pub max_response_bytes: u64,
 }
 
 impl Default for CacheConfig {
@@ -64,6 +77,7 @@ impl Default for CacheConfig {
             max_memory_bytes: 50 * 1024 * 1024,
             max_disk_bytes: 1024 * 1024 * 1024,
             max_entry_bytes: 2 * 1024 * 1024,
+            max_response_bytes: 16 * 1024 * 1024,
         }
     }
 }
@@ -72,6 +86,16 @@ pub(crate) fn now_ms() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_or(0, |d| d.as_millis() as u64)
+}
+
+/// What an entry holds: Next's data cache (`FETCH`) or its response cache
+/// (`APP_PAGE`, `APP_ROUTE`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub(crate) enum EntryKind {
+    #[default]
+    Fetch,
+    Response,
 }
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq)]
@@ -83,11 +107,12 @@ struct TagState {
 }
 
 struct Entry {
-    /// `None` when evicted from memory; then the entry is on disk.
+    /// `None` when evicted from memory; then the entry is on disk, or, for
+    /// a response entry, only remembered as evicted (`size` 0).
     value: Option<Bytes>,
+    kind: EntryKind,
     size: u64,
     last_modified: u64,
-    tags: Vec<String>,
     /// Which `set` produced this entry (orders concurrent disk writes).
     generation: u64,
     on_disk: bool,
@@ -104,6 +129,12 @@ struct State {
     memory_bytes: u64,
     disk_bytes: u64,
     tags: HashMap<String, TagState>,
+    /// Bumped by every tag change; `tag_log` holds the changes after
+    /// `tag_log_base` (version, tag).
+    tags_version: u64,
+    tag_log: VecDeque<(u64, String)>,
+    tag_log_base: u64,
+    evicted_markers: usize,
 }
 
 impl State {
@@ -126,55 +157,34 @@ impl State {
         if entry.on_disk {
             self.disk_bytes -= entry.size;
         }
+        if entry.value.is_none() && !entry.on_disk {
+            self.evicted_markers -= 1;
+        }
         Some(entry)
     }
 
-    /// Fresh, stale, or gone, judged by every tag that applies.
-    fn judge<'a>(
-        &self,
-        last_modified: u64,
-        tags: impl Iterator<Item = &'a String>,
-        now: u64,
-    ) -> Freshness {
-        let mut stale = false;
-        for tag in tags {
-            let Some(state) = self.tags.get(tag) else {
-                continue;
-            };
-            if state
-                .expired
-                .is_some_and(|at| at <= now && at > last_modified)
-            {
-                return Freshness::Expired;
+    fn record_tag(&mut self, tag: &str) {
+        self.tags_version += 1;
+        let version = self.tags_version;
+        self.tag_log.push_back((version, tag.to_owned()));
+        while self.tag_log.len() > TAG_LOG {
+            if let Some((dropped, _)) = self.tag_log.pop_front() {
+                self.tag_log_base = dropped;
             }
-            if state.stale.is_some_and(|at| at > last_modified) {
-                stale = true;
-            }
-        }
-        if stale {
-            Freshness::Stale
-        } else {
-            Freshness::Fresh
         }
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Freshness {
-    Fresh,
-    Stale,
-    Expired,
-}
-
-/// A cache hit.
+/// A cache hit. Tags are not judged here (see the module comment).
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct Hit {
-    pub value: String,
+    /// `None` for a response entry that left memory without a disk copy:
+    /// a newer value existed, so the caller must not fall back to the
+    /// build-time prerender.
+    pub value: Option<String>,
     /// Milliseconds since the epoch.
     pub last_modified: f64,
-    /// A tag was marked stale after the entry was written.
-    pub stale: bool,
 }
 
 /// What `lookup` found without touching the disk.
@@ -186,6 +196,23 @@ pub(crate) enum Lookup {
         path: PathBuf,
         generation: u64,
     },
+}
+
+/// Tag changes for one isolate's mirror of the manifest (`tag_sync`).
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct TagSync {
+    pub version: f64,
+    /// The mirror must be replaced, not updated.
+    pub full: bool,
+    /// `[tag, stale, expired]`; both `None` means the tag was forgotten.
+    pub tags: Vec<(String, Option<f64>, Option<f64>)>,
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub(crate) struct SetOptions {
+    pub last_modified: Option<u64>,
+    pub if_absent: bool,
 }
 
 /// A file to write for a `set` (blocking, outside the lock).
@@ -209,6 +236,24 @@ pub(crate) struct CacheStore {
     counters: Arc<Counters>,
     /// Serializes file writes so the newest generation wins on disk.
     write_lock: Mutex<()>,
+    leases: Mutex<HashMap<String, Lease>>,
+    next_lease: std::sync::atomic::AtomicU64,
+}
+
+/// One isolate regenerating a response entry that others found missing
+/// (single flight across the pool; Next's own batcher covers one isolate).
+struct Lease {
+    id: u64,
+    until: std::time::Instant,
+    released: Arc<tokio::sync::Notify>,
+}
+
+/// What `acquire_lease` did.
+pub(crate) enum LeaseOutcome {
+    /// The caller regenerates and releases the lease with this id.
+    Acquired(u64),
+    /// Another isolate was regenerating; it finished (or `timed_out`).
+    Waited { timed_out: bool },
 }
 
 #[derive(Serialize, Deserialize)]
@@ -218,6 +263,9 @@ struct FileHeader {
     last_modified: u64,
     tags: Vec<String>,
     sha256: String,
+    /// Absent in files written before response entries existed.
+    #[serde(default)]
+    kind: EntryKind,
 }
 
 fn hex(bytes: &[u8]) -> String {
@@ -242,12 +290,19 @@ pub(crate) fn namespace(build_id: &str, env: &BTreeMap<String, String>) -> Strin
     format!("v{FORMAT_VERSION}-{}", &hex(&hash.finalize())[..24])
 }
 
-fn encode(key: &str, value: &[u8], last_modified: u64, tags: &[String]) -> Vec<u8> {
+fn encode(
+    key: &str,
+    value: &[u8],
+    last_modified: u64,
+    tags: &[String],
+    kind: EntryKind,
+) -> Vec<u8> {
     let header = serde_json::to_vec(&FileHeader {
         key: key.to_owned(),
         last_modified,
         tags: tags.to_vec(),
         sha256: hex(&Sha256::digest(value)),
+        kind,
     })
     .expect("header serializes");
     let mut out = Vec::with_capacity(9 + header.len() + value.len());
@@ -384,7 +439,7 @@ impl CacheStore {
                         }
                     }
                 }
-                let mut found: Vec<(u64, String, u64, Vec<String>)> = Vec::new();
+                let mut found: Vec<(u64, String, u64, EntryKind)> = Vec::new();
                 for file in fs::read_dir(&disk.entries).map_err(fail)?.flatten() {
                     let path = file.path();
                     match decode(&path, false) {
@@ -394,7 +449,7 @@ impl CacheStore {
                                 .is_some_and(|n| n.to_string_lossy() == file_name(&header.key)) =>
                         {
                             let size = file.metadata().map_or(0, |m| m.len());
-                            found.push((header.last_modified, header.key, size, header.tags));
+                            found.push((header.last_modified, header.key, size, header.kind));
                         }
                         _ => {
                             metrics::add(&counters.cache_corrupt, 1);
@@ -404,7 +459,7 @@ impl CacheStore {
                 }
                 // Oldest first, so recency follows modification time.
                 found.sort_by_key(|(modified, ..)| *modified);
-                for (last_modified, key, size, tags) in found {
+                for (last_modified, key, size, kind) in found {
                     let stamp = state.next_stamp;
                     state.next_stamp += 1;
                     state.lru.insert(stamp, key.clone());
@@ -413,9 +468,9 @@ impl CacheStore {
                         key,
                         Entry {
                             value: None,
+                            kind,
                             size,
                             last_modified,
-                            tags,
                             generation: 0,
                             on_disk: true,
                             lru: stamp,
@@ -426,12 +481,18 @@ impl CacheStore {
             }
         };
         state.next_generation = 1;
+        // Isolates start at version 0, below the base: their first sync
+        // receives the whole manifest.
+        state.tags_version = 1;
+        state.tag_log_base = 1;
         let store = Self {
             state: Mutex::new(state),
             disk,
             config,
             counters,
             write_lock: Mutex::new(()),
+            leases: Mutex::new(HashMap::new()),
+            next_lease: std::sync::atomic::AtomicU64::new(1),
         };
         // An index loaded from disk may exceed a smaller limit.
         let removed = store.enforce_limits(&mut store.lock());
@@ -452,54 +513,56 @@ impl CacheStore {
         )
     }
 
-    /// Looks a key up in memory. Tags are the caller's (`tags` and
-    /// `softTags`) in addition to those stored with the entry.
-    pub fn lookup(&self, key: &str, tags: &[String]) -> Lookup {
+    /// Looks a key up in memory.
+    pub fn lookup(&self, key: &str) -> Lookup {
         if key.len() > MAX_KEY_BYTES {
             metrics::add(&self.counters.cache_misses, 1);
             return Lookup::Miss;
         }
-        let now = now_ms();
         let mut state = self.lock();
         let Some(entry) = state.entries.get(key) else {
             drop(state);
             metrics::add(&self.counters.cache_misses, 1);
             return Lookup::Miss;
         };
-        let freshness = state.judge(entry.last_modified, entry.tags.iter().chain(tags), now);
-        if freshness == Freshness::Expired {
-            drop(state);
-            metrics::add(&self.counters.cache_misses, 1);
-            return Lookup::Miss;
-        }
-        match &entry.value {
-            Some(value) => {
+        let last_modified = entry.last_modified as f64;
+        match (&entry.value, entry.on_disk) {
+            (Some(value), _) => {
                 let hit = Hit {
-                    value: String::from_utf8_lossy(value).into_owned(),
-                    last_modified: entry.last_modified as f64,
-                    stale: freshness == Freshness::Stale,
+                    value: Some(String::from_utf8_lossy(value).into_owned()),
+                    last_modified,
                 };
                 state.touch(key);
                 drop(state);
                 metrics::add(&self.counters.cache_hits, 1);
                 Lookup::Hit(hit)
             }
-            None => {
+            (None, true) => {
                 let generation = entry.generation;
                 let path = self
                     .disk
                     .as_ref()
-                    .expect("values leave memory only when on disk")
+                    .expect("entries are on disk only with a directory")
                     .entries
                     .join(file_name(key));
                 Lookup::OnDisk { path, generation }
             }
+            (None, false) => {
+                // An evicted response entry: a miss that must not fall back
+                // to the build's prerender.
+                drop(state);
+                metrics::add(&self.counters.cache_misses, 1);
+                Lookup::Hit(Hit {
+                    value: None,
+                    last_modified,
+                })
+            }
         }
     }
 
-    /// Reads an entry that was only on disk (blocking), keeps its value in
-    /// memory, and judges it again.
-    pub fn load(&self, key: &str, tags: &[String], path: &Path, generation: u64) -> Option<Hit> {
+    /// Reads an entry that was only on disk (blocking) and keeps its value
+    /// in memory.
+    pub fn load(&self, key: &str, path: &Path, generation: u64) -> Option<Hit> {
         let read = decode(path, true);
         let mut state = self.lock();
         let current = state.entries.get(key).map(|e| e.generation);
@@ -524,14 +587,13 @@ impl CacheStore {
         if current != Some(generation) {
             // A newer set replaced it while we read: ask again.
             drop(state);
-            return match self.lookup(key, tags) {
+            return match self.lookup(key) {
                 Lookup::Hit(hit) => Some(hit),
                 _ => None,
             };
         }
         let value = Bytes::from(value);
         let entry = state.entries.get_mut(key).expect("checked above");
-        let hit_tags = entry.tags.clone();
         let last_modified = entry.last_modified;
         if entry.value.is_none() {
             entry.value = Some(value.clone());
@@ -539,36 +601,60 @@ impl CacheStore {
             state.memory_bytes += size;
         }
         state.touch(key);
-        let freshness = state.judge(last_modified, hit_tags.iter().chain(tags), now_ms());
         let removed = self.enforce_limits(&mut state);
         drop(state);
         self.delete_files(removed);
-        if freshness == Freshness::Expired {
-            metrics::add(&self.counters.cache_misses, 1);
-            return None;
-        }
         metrics::add(&self.counters.cache_hits, 1);
         Some(Hit {
-            value: String::from_utf8_lossy(&value).into_owned(),
+            value: Some(String::from_utf8_lossy(&value).into_owned()),
             last_modified: last_modified as f64,
-            stale: freshness == Freshness::Stale,
         })
     }
 
-    /// Stores a value (visible to every isolate at once). Returns the file
-    /// write to perform, if the cache persists.
-    pub fn set(&self, key: &str, value: Bytes, tags: Vec<String>) -> Option<PendingWrite> {
+    /// Stores a value: in memory, visible to every isolate before this
+    /// returns. Returns the file write to perform, if the cache persists.
+    #[cfg(test)]
+    pub fn set(
+        &self,
+        key: &str,
+        value: Bytes,
+        tags: Vec<String>,
+        kind: EntryKind,
+    ) -> Option<PendingWrite> {
+        self.set_with(key, value, tags, kind, SetOptions::default())
+    }
+
+    /// `set`, with the time the value was produced (a build-time prerender
+    /// keeps its own) and, with `if_absent`, only when the store holds
+    /// nothing for the key (an older seed never replaces a newer value).
+    pub fn set_with(
+        &self,
+        key: &str,
+        value: Bytes,
+        tags: Vec<String>,
+        kind: EntryKind,
+        options: SetOptions,
+    ) -> Option<PendingWrite> {
         let size = value.len() as u64;
+        let limit = match kind {
+            EntryKind::Fetch => self.config.max_entry_bytes,
+            EntryKind::Response => self.config.max_response_bytes,
+        };
         let oversized_tags =
             tags.len() > MAX_ENTRY_TAGS || tags.iter().any(|t| t.len() > MAX_TAG_BYTES);
-        if size > self.config.max_entry_bytes || key.len() > MAX_KEY_BYTES || oversized_tags {
+        if size > limit || key.len() > MAX_KEY_BYTES || oversized_tags {
             metrics::add(&self.counters.cache_too_large, 1);
             // Whatever was there is outdated now.
             self.delete(key);
             return None;
         }
-        let last_modified = now_ms();
+        let last_modified = options.last_modified.unwrap_or_else(now_ms);
         let mut state = self.lock();
+        if options.if_absent && state.entries.contains_key(key) {
+            return None;
+        }
+        // An older file stays until the new one is renamed over it, so a
+        // crash in between leaves the older complete entry, never a torn one.
         state.remove(key);
         let generation = state.next_generation;
         state.next_generation += 1;
@@ -578,7 +664,7 @@ impl CacheStore {
             key: key.to_owned(),
             generation,
             path: disk.entries.join(file_name(key)),
-            contents: encode(key, &value, last_modified, &tags),
+            contents: encode(key, &value, last_modified, &tags, kind),
         });
         state.memory_bytes += size;
         state.lru.insert(stamp, key.to_owned());
@@ -586,15 +672,18 @@ impl CacheStore {
             key.to_owned(),
             Entry {
                 value: Some(value),
+                kind,
                 size,
                 last_modified,
-                tags,
                 generation,
                 on_disk: false,
                 lru: stamp,
             },
         );
         metrics::add(&self.counters.cache_sets, 1);
+        if kind == EntryKind::Response {
+            metrics::add(&self.counters.cache_response_sets, 1);
+        }
         let removed = self.enforce_limits(&mut state);
         drop(state);
         self.delete_files(removed);
@@ -614,6 +703,9 @@ impl CacheStore {
         if let Err(error) = write_atomic(&disk.tmp, &write.path, &write.contents) {
             metrics::add(&self.counters.cache_io_errors, 1);
             tracing::warn!(target: "nextrs::cache", %error, "cannot persist a cache entry");
+            // An older file for this key would come back after a restart
+            // although memory holds a newer value: remove it.
+            let _ = fs::remove_file(&write.path);
             return;
         }
         let mut state = self.lock();
@@ -635,8 +727,11 @@ impl CacheStore {
                 drop(state);
                 self.delete_files(removed);
             }
-            _ => {
-                // Replaced or removed while writing.
+            Some(_) => {
+                // Replaced while writing: the newer write renames over it.
+            }
+            None => {
+                // Removed while writing.
                 drop(state);
                 let _ = fs::remove_file(&write.path);
             }
@@ -672,6 +767,7 @@ impl CacheStore {
             } else {
                 entry.expired = Some(now);
             }
+            state.record_tag(tag);
         }
         if state.tags.len() > MAX_TAGS {
             // Forget the tags whose last event is oldest.
@@ -683,12 +779,56 @@ impl CacheStore {
             by_age.sort();
             for (_, tag) in by_age.into_iter().take(state.tags.len() - MAX_TAGS) {
                 state.tags.remove(&tag);
+                state.record_tag(&tag);
             }
         }
         metrics::add(&self.counters.cache_revalidations, tags.len() as u64);
         self.disk
             .as_ref()
             .map(|_| serde_json::to_vec(&state.tags).expect("tags serialize"))
+    }
+
+    /// The tag changes after `since` (a version an isolate synced to
+    /// before; 0 for none), or the whole manifest if the log no longer
+    /// reaches back that far.
+    pub fn tag_sync(&self, since: u64) -> TagSync {
+        let state = self.lock();
+        let version = state.tags_version;
+        let entry = |tag: &str| {
+            let s = state.tags.get(tag).copied().unwrap_or_default();
+            (
+                tag.to_owned(),
+                s.stale.map(|v| v as f64),
+                s.expired.map(|v| v as f64),
+            )
+        };
+        if since == version {
+            return TagSync {
+                version: version as f64,
+                full: false,
+                tags: Vec::new(),
+            };
+        }
+        if since < state.tag_log_base || since > version {
+            return TagSync {
+                version: version as f64,
+                full: true,
+                tags: state.tags.keys().map(|tag| entry(tag)).collect(),
+            };
+        }
+        let mut seen = HashSet::new();
+        let tags = state
+            .tag_log
+            .iter()
+            .filter(|(v, _)| *v > since)
+            .filter(|(_, tag)| seen.insert(tag.as_str()))
+            .map(|(_, tag)| entry(tag))
+            .collect();
+        TagSync {
+            version: version as f64,
+            full: false,
+            tags,
+        }
     }
 
     /// Whether any of `tags` was revalidated (marked stale or expired)
@@ -718,6 +858,70 @@ impl CacheStore {
         }
     }
 
+    /// Takes the regeneration lease for `key`, or waits (at most `ttl`) for
+    /// the isolate holding it. A lease lasts `ttl` at most, so a holder
+    /// that never releases it delays others by that much, once. No lock
+    /// is held while waiting.
+    pub async fn acquire_lease(&self, key: &str, ttl: std::time::Duration) -> LeaseOutcome {
+        let now = std::time::Instant::now();
+        let (released, until) = {
+            let mut leases = self.leases.lock().unwrap_or_else(|e| e.into_inner());
+            match leases.get(key) {
+                Some(lease) if lease.until > now => (lease.released.clone(), lease.until),
+                _ => {
+                    let id = self
+                        .next_lease
+                        .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                    leases.insert(
+                        key.to_owned(),
+                        Lease {
+                            id,
+                            until: now + ttl,
+                            released: Arc::new(tokio::sync::Notify::new()),
+                        },
+                    );
+                    if leases.len() > 4096 {
+                        leases.retain(|_, lease| lease.until > now);
+                    }
+                    return LeaseOutcome::Acquired(id);
+                }
+            }
+        };
+        // notify_waiters wakes every future created before it; a release
+        // between dropping the lock and creating this one is caught by the
+        // re-check.
+        let notified = released.notified();
+        let gone = self
+            .leases
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .get(key)
+            .is_none_or(|lease| !Arc::ptr_eq(&lease.released, &released));
+        if gone {
+            metrics::add(&self.counters.cache_regen_waits, 1);
+            return LeaseOutcome::Waited { timed_out: false };
+        }
+        let timed_out = tokio::time::timeout_at(until.into(), notified)
+            .await
+            .is_err();
+        metrics::add(&self.counters.cache_regen_waits, 1);
+        if timed_out {
+            metrics::add(&self.counters.cache_regen_wait_timeouts, 1);
+        }
+        LeaseOutcome::Waited { timed_out }
+    }
+
+    /// Ends a lease taken with `acquire_lease` (after storing the entry, or
+    /// when the request that took it ends) and wakes the waiters.
+    pub fn release_lease(&self, key: &str, id: u64) {
+        let mut leases = self.leases.lock().unwrap_or_else(|e| e.into_inner());
+        if leases.get(key).is_some_and(|lease| lease.id == id)
+            && let Some(lease) = leases.remove(key)
+        {
+            lease.released.notify_waiters();
+        }
+    }
+
     /// Evicts values from memory and entries from disk beyond the limits.
     /// Returns keys whose files must be deleted.
     fn enforce_limits(&self, state: &mut State) -> Vec<String> {
@@ -725,25 +929,45 @@ impl CacheStore {
         let mut stamps: Vec<u64> = Vec::new();
         if state.memory_bytes > self.config.max_memory_bytes
             || state.disk_bytes > self.config.max_disk_bytes
+            || state.evicted_markers > MAX_EVICTED_MARKERS
         {
             stamps.extend(state.lru.keys().copied());
         }
         for stamp in stamps {
             let over_memory = state.memory_bytes > self.config.max_memory_bytes;
             let over_disk = state.disk_bytes > self.config.max_disk_bytes;
-            if !over_memory && !over_disk {
+            let over_markers = state.evicted_markers > MAX_EVICTED_MARKERS;
+            if !over_memory && !over_disk && !over_markers {
                 break;
             }
             let Some(key) = state.lru.get(&stamp).cloned() else {
                 continue;
             };
             let entry = state.entries.get_mut(&key).expect("lru and entries agree");
-            if over_disk && entry.on_disk || over_memory && !entry.on_disk {
+            let marker = entry.value.is_none() && !entry.on_disk;
+            if marker {
+                if over_markers {
+                    state.remove(&key);
+                }
+            } else if over_disk && entry.on_disk {
                 // Gone entirely.
                 let entry = state.remove(&key).expect("present");
                 metrics::add(&self.counters.cache_evictions, 1);
                 if entry.on_disk {
                     delete.push(key);
+                }
+            } else if over_memory && !entry.on_disk {
+                metrics::add(&self.counters.cache_evictions, 1);
+                if entry.kind == EntryKind::Response {
+                    // Keep the key and time: a later read misses rather
+                    // than serving the older build-time prerender.
+                    let size = entry.size;
+                    entry.value = None;
+                    entry.size = 0;
+                    state.memory_bytes -= size;
+                    state.evicted_markers += 1;
+                } else {
+                    state.remove(&key);
                 }
             } else if over_memory && entry.on_disk && entry.value.take().is_some() {
                 // Still on disk; only the in-memory copy goes.
@@ -785,6 +1009,7 @@ mod tests {
                 max_memory_bytes: max_memory,
                 max_disk_bytes: max_disk,
                 max_entry_bytes: 1024 * 1024,
+                max_response_bytes: 1024 * 1024,
             },
             ns,
             Arc::new(Counters::default()),
@@ -792,24 +1017,40 @@ mod tests {
         .unwrap()
     }
 
-    fn set(store: &CacheStore, key: &str, value: &str, tags: &[&str]) {
+    fn set_kind(store: &CacheStore, key: &str, value: &str, tags: &[&str], kind: EntryKind) {
         let write = store.set(
             key,
             Bytes::from(value.to_owned()),
             tags.iter().map(|t| (*t).to_owned()).collect(),
+            kind,
         );
         if let Some(write) = write {
             store.persist(write);
         }
     }
 
-    fn get(store: &CacheStore, key: &str, tags: &[&str]) -> Option<Hit> {
-        let tags: Vec<String> = tags.iter().map(|t| (*t).to_owned()).collect();
-        match store.lookup(key, &tags) {
+    fn set(store: &CacheStore, key: &str, value: &str, tags: &[&str]) {
+        set_kind(store, key, value, tags, EntryKind::Fetch);
+    }
+
+    fn hit(store: &CacheStore, key: &str) -> Option<Hit> {
+        match store.lookup(key) {
             Lookup::Hit(hit) => Some(hit),
             Lookup::Miss => None,
-            Lookup::OnDisk { path, generation } => store.load(key, &tags, &path, generation),
+            Lookup::OnDisk { path, generation } => store.load(key, &path, generation),
         }
+    }
+
+    /// The value, if the store holds one.
+    fn get(store: &CacheStore, key: &str, _tags: &[&str]) -> Option<String> {
+        hit(store, key).and_then(|hit| hit.value)
+    }
+
+    fn tag_map(sync: &TagSync) -> HashMap<String, (Option<f64>, Option<f64>)> {
+        sync.tags
+            .iter()
+            .map(|(tag, stale, expired)| (tag.clone(), (*stale, *expired)))
+            .collect()
     }
 
     #[test]
@@ -817,9 +1058,9 @@ mod tests {
         let s = store(None, "ns", 1 << 20, 1 << 20);
         assert!(get(&s, "a", &[]).is_none());
         set(&s, "a", "one", &[]);
-        assert_eq!(get(&s, "a", &[]).unwrap().value, "one");
+        assert_eq!(get(&s, "a", &[]).unwrap(), "one");
         set(&s, "a", "two", &[]);
-        assert_eq!(get(&s, "a", &[]).unwrap().value, "two");
+        assert_eq!(get(&s, "a", &[]).unwrap(), "two");
         s.delete("a");
         assert!(get(&s, "a", &[]).is_none());
     }
@@ -830,31 +1071,97 @@ mod tests {
         std::thread::sleep(std::time::Duration::from_millis(2));
     }
 
+    /// Tag times are recorded as FileSystemCache.revalidateTag records
+    /// them; judging is left to Next (the store returns entries as stored).
     #[test]
-    fn tags_expire_or_mark_stale_like_next() {
+    fn tags_are_recorded_like_next_and_synced_by_version() {
         let s = store(None, "ns", 1 << 20, 1 << 20);
         set(&s, "a", "v", &["t1"]);
-        set(&s, "b", "v", &[]);
+        let first = s.tag_sync(0);
+        assert!(first.full && first.tags.is_empty(), "{first:?}");
+        let v0 = first.version as u64;
         tick();
+        let before = now_ms() as f64;
         // Immediate expiration (no durations).
         s.revalidate(&["t1".into()], None, false);
-        assert!(get(&s, "a", &[]).is_none());
-        // Tags given at lookup (softTags) count too.
-        assert!(get(&s, "b", &["t1"]).is_none());
-        // Entries written after the revalidation are fresh.
+        // The store does not judge: the entry is still returned.
+        assert_eq!(get(&s, "a", &[]).as_deref(), Some("v"));
+        let sync = s.tag_sync(v0);
+        assert!(!sync.full);
+        let (stale, expired) = tag_map(&sync)["t1"];
+        assert_eq!(stale, None);
+        assert!(expired.unwrap() >= before);
+        // Stale-while-revalidate keeps the stale mark and moves the expiry.
         tick();
-        set(&s, "a", "v2", &["t1"]);
-        assert_eq!(get(&s, "a", &[]).unwrap().value, "v2");
+        s.revalidate(&["t1".into(), "t2".into()], Some(60.0), true);
+        let sync2 = s.tag_sync(sync.version as u64);
+        let tags = tag_map(&sync2);
+        assert_eq!(tags.len(), 2);
+        let (stale, expired) = tags["t1"];
+        assert!(stale.unwrap() > before);
+        assert!(expired.unwrap() >= stale.unwrap() + 59_000.0);
+        // Durations without expire: stale only, an earlier expiry is kept.
         tick();
-        // Stale-while-revalidate: stale now, expired later.
-        s.revalidate(&["t1".into()], Some(60.0), true);
-        let hit = get(&s, "a", &[]).unwrap();
-        assert!(hit.stale);
-        // Durations without expire: stale only.
-        set(&s, "c", "v", &["t2"]);
-        tick();
-        s.revalidate(&["t2".into()], None, true);
-        assert!(get(&s, "c", &[]).unwrap().stale);
+        s.revalidate(&["t1".into()], None, true);
+        let (_, kept) = tag_map(&s.tag_sync(sync2.version as u64))["t1"];
+        assert_eq!(kept, expired);
+        // Up to date: nothing to send.
+        let current = s.tag_sync(0).version as u64;
+        assert!(s.tag_sync(current).tags.is_empty());
+    }
+
+    #[test]
+    fn an_isolate_behind_the_tag_log_gets_the_whole_manifest() {
+        let s = store(None, "ns", 1 << 20, 1 << 20);
+        let start = s.tag_sync(0).version as u64;
+        for i in 0..(TAG_LOG + 10) {
+            s.revalidate(&[format!("t{i}")], None, false);
+        }
+        let behind = s.tag_sync(start);
+        assert!(behind.full);
+        assert_eq!(behind.tags.len(), TAG_LOG + 10);
+        // Close behind: only the changes.
+        let recent = s.tag_sync(behind.version as u64 - 3);
+        assert!(!recent.full);
+        assert_eq!(recent.tags.len(), 3);
+    }
+
+    #[test]
+    fn evicted_response_entries_are_remembered_not_forgotten() {
+        let s = store(None, "ns", 10, 1 << 20);
+        set_kind(&s, "page", "aaaa", &[], EntryKind::Response);
+        set(&s, "fetch", "bbbb", &[]);
+        set(&s, "other", "cccccccc", &[]);
+        // Over 10 bytes: the oldest go. The page leaves a marker (a hit
+        // without a value); the fetch entry is simply gone.
+        let page = hit(&s, "page").expect("marker");
+        assert!(page.value.is_none());
+        assert!(hit(&s, "fetch").is_none());
+        assert_eq!(get(&s, "other", &[]).as_deref(), Some("cccccccc"));
+        // A new value replaces the marker.
+        s.delete("other");
+        set_kind(&s, "page", "new", &[], EntryKind::Response);
+        assert_eq!(get(&s, "page", &[]).as_deref(), Some("new"));
+    }
+
+    #[test]
+    fn response_entries_have_their_own_size_limit() {
+        let s = CacheStore::open(
+            CacheConfig {
+                dir: None,
+                max_memory_bytes: 1 << 20,
+                max_disk_bytes: 1 << 20,
+                max_entry_bytes: 4,
+                max_response_bytes: 64,
+            },
+            "ns",
+            Arc::new(Counters::default()),
+        )
+        .unwrap();
+        set(&s, "f", "too long", &[]);
+        assert!(get(&s, "f", &[]).is_none());
+        set_kind(&s, "p", "page value", &[], EntryKind::Response);
+        assert_eq!(get(&s, "p", &[]).as_deref(), Some("page value"));
     }
 
     #[test]
@@ -908,8 +1215,11 @@ mod tests {
             }
         }
         let s = store(Some(dir.clone()), "v1-ns", 1 << 20, 1 << 20);
-        assert_eq!(get(&s, "a", &[]).unwrap().value, "persisted");
-        assert!(get(&s, "b", &[]).is_none(), "revalidated before restart");
+        assert_eq!(get(&s, "a", &[]).unwrap(), "persisted");
+        // The tag state survives; judging it is Next's (see tag_sync).
+        assert!(s.revalidated_since(&["gone".to_owned()], 1));
+        let sync = s.tag_sync(0);
+        assert!(sync.full && tag_map(&sync)["gone"].1.is_some());
         // Files are private to this user.
         use std::os::unix::fs::PermissionsExt;
         let file = dir.join("v1-ns/entries").join(file_name("a"));
@@ -998,7 +1308,7 @@ mod tests {
         set(&s, "a", &"a".repeat(200), &[]);
         set(&s, "b", &"b".repeat(200), &[]);
         // a's value left memory but its file remains.
-        assert_eq!(get(&s, "a", &[]).unwrap().value, "a".repeat(200));
+        assert_eq!(get(&s, "a", &[]).unwrap(), "a".repeat(200));
         let _ = fs::remove_dir_all(&dir);
     }
 
@@ -1031,7 +1341,12 @@ mod tests {
                 let s = s.clone();
                 std::thread::spawn(move || {
                     for i in 0..50 {
-                        let write = s.set("k", Bytes::from(format!("{t}-{i}")), vec![]);
+                        let write = s.set(
+                            "k",
+                            Bytes::from(format!("{t}-{i}")),
+                            vec![],
+                            EntryKind::Fetch,
+                        );
                         if let Some(write) = write {
                             s.persist(write);
                         }
@@ -1042,10 +1357,10 @@ mod tests {
         for t in threads {
             t.join().unwrap();
         }
-        let in_memory = get(&s, "k", &[]).unwrap().value;
+        let in_memory = get(&s, "k", &[]).unwrap();
         drop(s);
         let reopened = store(Some(dir.clone()), "v1-ns", 1 << 20, 1 << 22);
-        assert_eq!(get(&reopened, "k", &[]).unwrap().value, in_memory);
+        assert_eq!(get(&reopened, "k", &[]).unwrap(), in_memory);
         let _ = fs::remove_dir_all(&dir);
     }
 

@@ -437,6 +437,7 @@
       }
     } finally {
       clearTimeout(timer);
+      releaseAllLeases(scope);
       // Outbound fetches the request left open end with it.
       if (scope.fetches?.size) {
         const ended = new DOMException("The request that started this fetch has ended", "AbortError");
@@ -451,7 +452,7 @@
       const request = await ops.op_nextrs_next_request();
       if (request === null) return;
       // Concurrent: each request runs in its own async context.
-      const scope = { fetches: null };
+      const scope = { fetches: null, leases: null };
       requestScope
         .run(scope, () => serve(request, scope))
         .catch((error) => ops.op_nextrs_diagnostic("serve-error", errorText(error)));
@@ -485,48 +486,289 @@
     }
   }
 
-  // The data cache shared by every isolate (src/cache.rs), offered to
-  // Next.js as hosting platforms do: as the FetchCache handler on
+  // The cache shared by every isolate (src/cache.rs), offered to Next.js
+  // as hosting platforms do: as the FetchCache handler on
   // globalThis[Symbol.for("@next/cache-handlers")]. IncrementalCache uses
   // it unless next.config sets its own `cacheHandler`, which wins. It
-  // implements Next's documented CacheHandler interface. FETCH entries
-  // (the fetch data cache and unstable_cache) are stored; page and route
-  // entries (ISR) are not, and read as misses.
+  // implements Next's documented CacheHandler interface and behaves as
+  // Next's own FileSystemCache does, with one store for every isolate:
+  //
+  // * FETCH entries (the fetch data cache and unstable_cache), and APP_PAGE
+  //   and APP_ROUTE entries (ISR: regenerated pages and route handler
+  //   output) are stored; PAGES and IMAGE entries are not.
+  // * Tags: Rust records revalidations for the whole pool. Before judging
+  //   an entry, each isolate mirrors them into Next's own tags manifest
+  //   (the `tags-manifest.external` module every Next bundle shares), so
+  //   Next's areTagsExpired/areTagsStale decide, in this handler as in
+  //   IncrementalCache, exactly as under next start.
+  // * A response entry the store has never held is read from the build's
+  //   prerendered files with Next's own FileSystemCache (no writes, no
+  //   memory cache), then kept in the store with its original time, as
+  //   next start promotes such "seeds".
+  const NEXT_CACHE_TAGS_HEADER = "x-next-cache-tags";
+  const RESPONSE_KINDS = new Set(["APP_PAGE", "APP_ROUTE"]);
+  const ENVELOPE = 1;
   const notStored = new Set();
+  const nextModule = (name) => {
+    try {
+      return rootRequire(`next/dist/server/lib/incremental-cache/${name}.js`);
+    } catch {
+      return null;
+    }
+  };
+
+  // Next's areTagsExpired/areTagsStale (tags-manifest.external.js), used
+  // only when Next's module cannot be loaded (handler tests without Next).
+  function localTags() {
+    const tagsManifest = new Map();
+    const now = () => performance.timeOrigin + performance.now();
+    return {
+      tagsManifest,
+      areTagsExpired(tags, timestamp) {
+        for (const tag of tags) {
+          const expiredAt = tagsManifest.get(tag)?.expired;
+          if (typeof expiredAt === "number" && expiredAt <= now() && expiredAt > timestamp) return true;
+        }
+        return false;
+      },
+      areTagsStale(tags, timestamp) {
+        for (const tag of tags) {
+          const staleAt = tagsManifest.get(tag)?.stale ?? 0;
+          if (typeof staleAt === "number" && staleAt > timestamp) return true;
+        }
+        return false;
+      },
+    };
+  }
+
+  let tagsModule;
+  let tagVersion = 0;
+  // Brings this isolate's copy of Next's tags manifest up to date with the
+  // store's (a version check when nothing changed).
+  function syncTags() {
+    if (tagsModule === undefined) {
+      const loaded = nextModule("tags-manifest.external");
+      tagsModule = loaded?.tagsManifest instanceof Map ? loaded : localTags();
+    }
+    const sync = ops.op_nextrs_cache_tag_sync(tagVersion);
+    if (sync.version !== tagVersion) {
+      const manifest = tagsModule.tagsManifest;
+      if (sync.full) manifest.clear();
+      for (const [tag, stale, expired] of sync.tags) {
+        if (stale == null && expired == null) {
+          manifest.delete(tag);
+          continue;
+        }
+        const entry = {};
+        if (stale != null) entry.stale = stale;
+        if (expired != null) entry.expired = expired;
+        manifest.set(tag, entry);
+      }
+      tagVersion = sync.version;
+    }
+    return tagsModule;
+  }
+
+  const b64 = (bytes) => (bytes == null ? undefined : Buffer.from(bytes).toString("base64"));
+  const unb64 = (text) => (text == null ? undefined : Buffer.from(text, "base64"));
+
+  // Response values hold Buffers (RSC payloads, segments, route bodies);
+  // they are stored as base64 inside JSON.
+  function encodeResponse(value) {
+    if (value == null) return null;
+    if (value.kind === "APP_PAGE") {
+      return {
+        kind: value.kind,
+        html: typeof value.html === "string" ? value.html : String(value.html ?? ""),
+        rscData: b64(value.rscData),
+        postponed: value.postponed,
+        headers: value.headers,
+        status: value.status,
+        segmentData: value.segmentData ? [...value.segmentData].map(([path, data]) => [path, b64(data)]) : undefined,
+      };
+    }
+    return { kind: value.kind, body: b64(value.body), headers: value.headers, status: value.status };
+  }
+
+  function decodeResponse(stored) {
+    if (stored == null) return null;
+    if (stored.kind === "APP_PAGE") {
+      return {
+        kind: stored.kind,
+        html: stored.html,
+        rscData: unb64(stored.rscData),
+        postponed: stored.postponed,
+        headers: stored.headers,
+        status: stored.status,
+        segmentData: stored.segmentData ? new Map(stored.segmentData.map(([path, data]) => [path, unb64(data)])) : undefined,
+      };
+    }
+    return { kind: stored.kind, body: unb64(stored.body) ?? Buffer.alloc(0), headers: stored.headers, status: stored.status };
+  }
+
+  function responseTags(value) {
+    const header = value?.headers?.[NEXT_CACHE_TAGS_HEADER];
+    return typeof header === "string" ? header.split(",") : [];
+  }
+
+  async function storeResponse(key, value, cacheControl, options = {}) {
+    const envelope = JSON.stringify({ v: ENVELOPE, value: encodeResponse(value), cacheControl });
+    const tags = responseTags(value).filter(Boolean);
+    await ops.op_nextrs_cache_set(key, envelope, tags, true, options.lastModified ?? -1, options.ifAbsent ?? false);
+  }
+
+  // The build's own files only. A server that writes into the build (next
+  // start keeps regenerated pages under server/route-cache) must not feed
+  // this process: such files are reported missing, so FileSystemCache
+  // falls back to the immutable build prerender, verified by its
+  // route-cache ownership record.
+  function buildOnlyFs(fs, serverDistDir) {
+    const scoped = path.join(serverDistDir, "route-cache") + path.sep;
+    const hidden = (file) => String(file).startsWith(scoped);
+    const missing = (file) => {
+      const error = new Error(`ENOENT: no such file or directory, open '${file}'`);
+      error.code = "ENOENT";
+      return error;
+    };
+    return {
+      existsSync: (file) => !hidden(file) && fs.existsSync(file),
+      readFile: (file, ...rest) => (hidden(file) ? Promise.reject(missing(file)) : fs.readFile(file, ...rest)),
+      readFileSync: (file, ...rest) => {
+        if (hidden(file)) throw missing(file);
+        return fs.readFileSync(file, ...rest);
+      },
+      stat: (file) => (hidden(file) ? Promise.reject(missing(file)) : fs.stat(file)),
+    };
+  }
+
+  // Regeneration leases this request holds (see get()): released when it
+  // stores the entry, or when the request ends whatever happened.
+  const LEASE_MS = 10_000;
+  function holdLease(key, id) {
+    const scope = requestScope.getStore();
+    if (scope) (scope.leases ??= new Map()).set(key, id);
+  }
+  function releaseLease(key) {
+    const leases = requestScope.getStore()?.leases;
+    const id = leases?.get(key);
+    if (id !== undefined) {
+      leases.delete(key);
+      ops.op_nextrs_cache_release(key, id);
+    }
+  }
+  function releaseAllLeases(scope) {
+    if (!scope.leases) return;
+    for (const [key, id] of scope.leases) ops.op_nextrs_cache_release(key, id);
+    scope.leases = null;
+  }
+
+  let SeedCache;
   class NextRSCacheHandler {
-    constructor(_context) {}
+    #ctx;
+    #seed;
+
+    constructor(ctx) {
+      this.#ctx = ctx ?? {};
+    }
+
+    // The build's prerender for a response entry, read by Next's own
+    // FileSystemCache (which also checks its route-cache ownership).
+    async #readSeed(key, ctx) {
+      const { fs, serverDistDir } = this.#ctx;
+      if (!fs || !serverDistDir) return null;
+      if (SeedCache === undefined) SeedCache = nextModule("file-system-cache")?.default ?? null;
+      if (!SeedCache) return null;
+      this.#seed ??= new SeedCache({ fs: buildOnlyFs(fs, serverDistDir), serverDistDir, flushToDisk: false, maxMemoryCacheSize: 0, revalidatedTags: [] });
+      const data = await this.#seed.get(key, ctx);
+      if (data?.value && RESPONSE_KINDS.has(data.value.kind)) {
+        // Keep it, with the build's time, unless something newer was stored.
+        await storeResponse(key, data.value, data.cacheControl, { lastModified: data.lastModified, ifAbsent: true });
+      }
+      return data;
+    }
 
     async get(key, context) {
-      if (context?.kind !== "FETCH") return null;
-      const tags = [...(context.tags ?? []), ...(context.softTags ?? [])];
-      const hit = await ops.op_nextrs_cache_get(String(key), tags);
-      if (hit === null) return null;
-      let value;
+      const kind = context?.kind;
+      if (kind === "FETCH") return this.#fetchEntry(String(key), context);
+      if (!RESPONSE_KINDS.has(kind)) return null;
+      key = String(key);
+      const found = await this.#responseEntry(key, context);
+      if (found !== null) return found;
+      // Missing or expired: the caller regenerates before it answers. If
+      // another isolate already is, wait for its result instead (Next's
+      // batcher does the same between requests of one isolate).
+      const lease = await ops.op_nextrs_cache_lease(key, LEASE_MS);
+      if (lease.acquired) {
+        holdLease(key, lease.id);
+        return null;
+      }
+      return this.#responseEntry(key, context);
+    }
+
+    async #fetchEntry(key, context) {
+      const hit = await ops.op_nextrs_cache_get(key);
+      const tags = syncTags();
+      if (hit === null || hit.value === null) return null;
+      let stored;
       try {
-        value = JSON.parse(hit.value);
+        stored = JSON.parse(hit.value);
       } catch {
         return null;
       }
-      // A tag marked stale after the entry was written (revalidateTag with
-      // a profile): an age beyond any revalidate period makes Next serve
-      // the entry and refresh it, as its own handler does for stale tags.
-      return { value, lastModified: hit.stale ? Number.MIN_SAFE_INTEGER : hit.lastModified };
+      if (stored?.kind !== "FETCH") return null;
+      // FileSystemCache: a tag expired after the entry was written is a
+      // miss. IncrementalCache then applies stale tags itself.
+      const combined = [...(context.tags ?? []), ...(context.softTags ?? [])];
+      if (tags.areTagsExpired(combined, hit.lastModified)) return null;
+      return { value: stored, lastModified: hit.lastModified };
+    }
+
+    async #responseEntry(key, context) {
+      const kind = context.kind;
+      const hit = await ops.op_nextrs_cache_get(key);
+      const tags = syncTags();
+      if (hit === null) return this.#readSeed(key, context);
+      // A response entry that left memory without a disk copy: a miss,
+      // never the (older) build prerender.
+      if (hit.value === null) return null;
+      let stored;
+      try {
+        stored = JSON.parse(hit.value);
+      } catch {
+        return null;
+      }
+      if (stored?.v !== ENVELOPE) return null;
+      const value = decodeResponse(stored.value);
+      if (value !== null && value.kind !== kind) return null;
+      const cacheTags = responseTags(value);
+      if (cacheTags.length > 0 && tags.areTagsExpired(cacheTags, hit.lastModified)) return null;
+      return { value, lastModified: hit.lastModified, cacheControl: stored.cacheControl };
     }
 
     async set(key, data, context) {
+      key = String(key);
+      const response = !context?.fetchCache && RESPONSE_KINDS.has(data?.kind ?? context?.kind);
+      if (response) {
+        try {
+          await storeResponse(key, data ?? null, context?.cacheControl);
+        } finally {
+          releaseLease(key);
+        }
+        return;
+      }
       if (data === null || data === undefined) {
-        await ops.op_nextrs_cache_set(String(key), null, []);
+        await ops.op_nextrs_cache_set(key, null, [], false, -1, false);
         return;
       }
       if (data.kind !== "FETCH") {
         if (!notStored.has(data.kind)) {
           notStored.add(data.kind);
-          ops.op_nextrs_diagnostic("cache", `${data.kind} cache entries are not stored by NextRS (ISR is not supported)`);
+          ops.op_nextrs_diagnostic("cache", `${data.kind} cache entries are not stored by NextRS`);
         }
         return;
       }
       const tags = context?.tags ?? data.tags ?? [];
-      await ops.op_nextrs_cache_set(String(key), JSON.stringify(data), [...tags].map(String));
+      await ops.op_nextrs_cache_set(key, JSON.stringify(data), [...tags].map(String), false, -1, false);
     }
 
     async revalidateTag(tags, durations) {
@@ -534,6 +776,7 @@
       if (tags.length === 0) return;
       const given = durations !== undefined && durations !== null;
       await ops.op_nextrs_cache_revalidate(tags, given && typeof durations.expire === "number" ? durations.expire : -1, given);
+      syncTags();
     }
 
     resetRequestCache() {}

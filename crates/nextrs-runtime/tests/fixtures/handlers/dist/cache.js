@@ -1,7 +1,8 @@
 // Drives the cache handler NextRS offers to Next.js
 // (globalThis[Symbol.for("@next/cache-handlers")].FetchCache) the way
 // IncrementalCache does, for tests/cache.rs. ?op=set|get|revalidate|
-// handler|read-file, with key/value/tags/kind/expire/path parameters.
+// handler|read-file|set-page|get-page|lease, with key/value/tags/kind/
+// expire/path parameters.
 globalThis.__isolateId ??= Math.random().toString(36).slice(2);
 const fs = require("node:fs");
 
@@ -31,6 +32,43 @@ exports.handler = async (req, res) => {
           softTags: [],
         });
         out.entry = entry && { body: entry.value.data.body, lastModified: entry.lastModified };
+        break;
+      }
+      // Response-cache (ISR) entries, as ResponseCache stores an APP_PAGE.
+      case "set-page": {
+        const value = {
+          kind: "APP_PAGE",
+          html: p.get("value"),
+          rscData: Buffer.from(`rsc:${p.get("value")}`),
+          headers: { "x-next-cache-tags": tags.join(",") },
+          status: 200,
+          segmentData: new Map([["/_tree", Buffer.from([0, 255, 1])]]),
+        };
+        await new Handler({}).set(p.get("key"), value, { kind: "APP_PAGE", cacheControl: { revalidate: 60, expire: 600 } });
+        break;
+      }
+      case "get-page": {
+        const entry = await new Handler({}).get(p.get("key"), { kind: "APP_PAGE", isFallback: false });
+        out.entry = entry && {
+          html: entry.value.html,
+          rsc: entry.value.rscData.toString(),
+          segment: [...entry.value.segmentData.get("/_tree")],
+          revalidate: entry.cacheControl?.revalidate,
+          lastModified: entry.lastModified,
+        };
+        break;
+      }
+      // Regeneration single flight: take the lease for key, hold it ms.
+      case "lease": {
+        const handler = new Handler({});
+        const started = Date.now();
+        const entry = await handler.get(p.get("key"), { kind: "APP_PAGE", isFallback: false });
+        out.waitedMs = Date.now() - started;
+        out.entry = entry && { html: entry.value.html };
+        if (!entry && p.get("then-set")) {
+          await new Promise((resolve) => setTimeout(resolve, Number(p.get("hold") ?? 0)));
+          await handler.set(p.get("key"), { kind: "APP_PAGE", html: p.get("then-set"), headers: {}, status: 200 }, { kind: "APP_PAGE", cacheControl: { revalidate: 60 } });
+        }
         break;
       }
       case "revalidate": {
