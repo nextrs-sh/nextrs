@@ -12,6 +12,8 @@
 //   GET /stream?chunks=N&gap=ms             -> N lines, one every gap ms
 //   POST /mutations?key=K&id=I              -> records one side effect
 //   GET /mutations?key=K                    -> {"key","ids"} in arrival order
+//   GET /flag?name=N, POST /flag?name=N&on=1 -> {"name","on"}: switches the
+//       fixtures read (an ISR page fails its regeneration while one is on)
 //       The Server Action suites count side effects here, outside every
 //       isolate, to tell an executed mutation from a replayed or lost one.
 import http from "node:http";
@@ -27,6 +29,7 @@ const hits = new Map();
 const aborted = new Map();
 const bump = (map, key) => map.set(key, (map.get(key) ?? 0) + 1);
 const mutations = new Map();
+const flags = new Map();
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://upstream");
@@ -64,6 +67,10 @@ const server = http.createServer(async (req, res) => {
     }
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ key, ids: mutations.get(key) ?? [] }));
+  } else if (url.pathname === "/flag") {
+    if (req.method === "POST") flags.set(p.get("name") ?? "", p.get("on") === "1");
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ name: p.get("name"), on: flags.get(p.get("name") ?? "") ?? false }));
   } else if (url.pathname === "/stream") {
     const chunks = Number(p.get("chunks") ?? 5);
     const gap = Number(p.get("gap") ?? 50);

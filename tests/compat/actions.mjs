@@ -386,9 +386,11 @@ for (const how of ["updateTag", "revalidatePath", "refresh"]) {
   });
 }
 // The stale-while-revalidate profile: the first read after it serves the
-// cached value on both servers. (When the refresh lands differs; see the
-// candidate case below.)
-knownCase("invalidate-revalidateTag-max", "Phase 1E: a profiled revalidateTag makes NextRS's shared cache refetch on the next read; next start keeps serving the cached value", async (base) => {
+// cached value on both servers and refreshes it in the background. Runs
+// after revalidatePath, whose expired path tag stays in Next's manifest:
+// before Phase 1E NextRS refetched here (a stale entry was reported with a
+// fake timestamp that the earlier expiry then matched).
+compareCase("invalidate-revalidateTag-max", async (base) => {
   const before = await hitOf(base);
   const r = await invalidate(base, "revalidateTag");
   return { ...r, firstReadRefetched: (await hitOf(base)) > before };
@@ -400,9 +402,9 @@ candidateCase("revalidateTag-max-refresh-timing", async () => {
   await sleep(300);
   return { firstRead: first - before, secondRead: (await hitOf(candidate)) - before };
 });
-// revalidatePath on a prerendered page: next start regenerates it; NextRS
-// renders it on demand from then on (it does not store regenerated pages
-// yet) rather than serving the stale prerender.
+// revalidatePath on a prerendered page: both servers regenerate it once
+// and serve the stored result afterwards (tests/compat/isr.mjs covers the
+// cache states in detail).
 compareCase("invalidate-static-path", async (base) => {
   const before = await stampOf(base);
   const r = await invalidate(base, "revalidateStaticPath");

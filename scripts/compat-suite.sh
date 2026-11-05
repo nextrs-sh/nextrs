@@ -58,12 +58,6 @@ mkdir -p "$out"
 # Absolute: the steps below run from other directories.
 out="$(cd "$out" && pwd)"
 
-(cd "$project" && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build.log" 2>&1) || {
-  tail -40 "$out/build.log"; exit 1;
-}
-installed="$(node -p "require('$project/node_modules/next/package.json').version")"
-echo "Next.js $installed built ($(cat "$project/.next/BUILD_ID"))"
-
 # 5100-5499 holds none of the Fetch standard's "bad ports", which Node's
 # fetch refuses (a random 4190, ManageSieve, failed every next start fetch).
 base_port=$((5100 + RANDOM % 400))
@@ -78,6 +72,15 @@ export NEXTRS_UPSTREAM="http://127.0.0.1:$upstream_port"
 
 node "$root/tests/compat/upstream.mjs" --port "$upstream_port" > "$out/upstream.log" 2>&1 &
 pids+=($!)
+
+# The upstream runs during the build too: the ISR fixtures fetch from it
+# when they are prerendered, as applications fetch their data at build time.
+(cd "$project" && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build.log" 2>&1) || {
+  tail -40 "$out/build.log"; exit 1;
+}
+installed="$(node -p "require('$project/node_modules/next/package.json').version")"
+echo "Next.js $installed built ($(cat "$project/.next/BUILD_ID"))"
+
 
 next_pid=""
 nextrs_pid=""
@@ -135,6 +138,8 @@ run features  tests/compat/features.mjs  --target "$candidate" --requests 600 --
 run data      tests/compat/data.mjs      --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --closed-port "$closed_port" --json "$out/data.json"
 run actions   tests/compat/actions.mjs   --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
   --project "$project" --stall-ms 3000 --request-timeout-ms 15000 --json "$out/actions.json"
+run isr       tests/compat/isr.mjs       --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
+  --project "$project" --isolates "$isolates" --json "$out/isr.json"
 if [[ $browser == 1 ]]; then
   run browser tests/browser/actions.mjs --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --json "$out/browser.json"
 fi
