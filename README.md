@@ -43,11 +43,13 @@ embedded V8 isolate), **Phase 1B** (hardening that executor: bounded
 streaming, supervision, limits and an isolate pool), **Phase 1C**
 (outbound `fetch` as an explicit, SSRF-guarded capability, and a data cache
 shared by every isolate and optionally persisted), **Phase 1D** (Server
-Actions, run by Next's own compiled handlers) and **Phase 1E** (ISR,
+Actions, run by Next's own compiled handlers), **Phase 1E** (ISR,
 regenerated pages stored in that shared cache, revalidation from Server
-Actions, and Cache Components). It is tested against
-two small App Router fixtures built with Next.js 16.4.3, and also passes the
-same comparison suite on 16.4.4 and 16.4.5.
+Actions, and Cache Components) and, experimentally, **Phase 2A** (`proxy.ts`,
+run as Next's compiled proxy in the same isolates, and `next.config`
+headers, redirects, rewrites, `basePath` and `trailingSlash`). It is tested
+against three small App Router fixtures built with Next.js 16.4.3, and also
+passes the same comparison suites on 16.4.4 and 16.4.5.
 
 - **Works:** `nextrs start` serves static assets, prerendered pages, React
   Server Components (RSC) payloads and the not-found page from Rust.
@@ -56,10 +58,10 @@ same comparison suite on 16.4.4 and 16.4.5.
   `next build` produced. No Node.js or Deno process runs.
 - **Off by default:** without that flag, every dynamic route answers an
   explicit `501 Not Implemented`.
-- **Unsupported:** middleware, `next/image`
-  optimization, the Pages Router and most routing-related `next.config`
-  options. NextRS **refuses to start** when a build uses one of these, unless
-  you pass `--allow-unsupported`.
+- **Unsupported:** edge-runtime middleware, `next/image` optimization, the
+  Pages Router, i18n and external rewrites. NextRS **refuses to start** when
+  a build uses one it cannot answer explicitly, unless you pass
+  `--allow-unsupported`.
 
 > [!WARNING]
 > NextRS is not ready for untrusted public traffic. It binds to `127.0.0.1`
@@ -122,11 +124,14 @@ real applications.
 | `generateStaticParams` | 🧪 Experimental | Listed params are served prerendered; with the executor, other params are rendered on their first request and cached (Next's `dynamicParams`) |
 | Edge runtime routes | ⛔ Unsupported | Answers `501` |
 | Server Actions (forms, client calls, bound and closure actions, uploads, redirects, cookies) | 🧪 Experimental | Requires `--js-runtime embedded-v8` (otherwise a startup refusal); Node.js runtime only; also on ISR pages; not with interception routes |
-| Middleware / `proxy.ts` | ⛔ Unsupported | Startup refusal |
+| `proxy.ts` / `middleware.ts` (Node.js runtime) | 🧪 Experimental | Requires `--js-runtime embedded-v8` (otherwise a startup refusal). Next's compiled proxy runs in the isolate pool before every matched request, prerendered and cached pages included: redirects, rewrites, request and response headers, cookies, direct responses. A proxy error, timeout or isolate failure never falls through to the route |
+| Edge-runtime middleware | ⛔ Unsupported | Startup refusal |
 | ISR (`revalidate`, on-demand `revalidatePath`/`revalidateTag`/`updateTag`) | 🧪 Experimental | Requires `--js-runtime embedded-v8`. Next's handler regenerates; pages are stored in the shared cache (persisted with `--cache-dir`) and seen by every isolate |
 | Cache Components (`"use cache"`, `cacheLife`, `cacheTag`) | 🧪 Partial | `"use cache"` functions share one cache across isolates; Partial Prerendering shells are completed by Next's handler. `"use cache: private"` and custom `cacheHandlers` are untested |
-| `next.config` headers, redirects, rewrites | ⛔ Unsupported | Startup refusal |
-| `basePath`, i18n, `trailingSlash` | ⛔ Unsupported | Startup refusal |
+| `next.config` headers, redirects, rewrites (beforeFiles, afterFiles, fallback; `has`/`missing`) | 🧪 Experimental | Applied in Rust in `next start`'s order from `routes-manifest.json`; no executor needed |
+| Rewrites to another origin (config or proxy) | ⛔ Unsupported | Answers `501` (`external-rewrite`); not proxied |
+| `basePath`, `trailingSlash` | 🧪 Experimental | Tested in separate fixture builds |
+| i18n | ⛔ Unsupported | Startup refusal |
 | Pages Router | ⛔ Unsupported | Startup refusal |
 | Image optimization (`/_next/image`) | ⛔ Unsupported | Answers `501` |
 | Interception routes (with the executor) | ⛔ Unsupported | Answers `501` |
@@ -176,6 +181,13 @@ might be wrong.
   the requests and provides the Web APIs it needs (`FormData`, multipart
   parsing, AES-GCM in `crypto.subtle`). Mutations are never retried
   automatically.
+- **Proxy and routing rules:** an unchanged `proxy.ts` runs as Next compiled
+  it, at the point in the pipeline where `next start` runs it (after
+  `next.config` headers and redirects, before rewrites, files, prerendered
+  pages, ISR, routes and Server Actions). `next.config` headers, redirects
+  and rewrites, `basePath` and `trailingSlash` are applied from Next's own
+  compiled rules; the routing functions are checked against Next's own on
+  thousands of generated cases.
 - **Unsupported-feature detection:** `nextrs start` refuses builds it would
   serve incorrectly, instead of silently skipping middleware, redirects or
   security headers.
@@ -206,10 +218,15 @@ might be wrong.
   network modules (`http`, `https`, `net`, `dns`; use `fetch`), `zlib`,
   `child_process`, `worker_threads`, `crypto.subtle` beyond AES-GCM and
   `digest`, `vm` and native addons are unavailable.
-- **Middleware and image optimization:** neither is implemented.
-  Server Actions on the edge runtime are refused.
-- **`next.config` compatibility:** custom headers, redirects, rewrites,
-  `basePath`, i18n and `trailingSlash` are detected but not applied.
+- **Proxy limits:** edge-runtime middleware, external rewrites,
+  `skipProxyUrlNormalize` and i18n are refused. A request body that reaches
+  the proxy is buffered for the proxy and the route; above
+  `proxyClientMaxBodySize` (10 MB by default) NextRS answers `413`, where
+  `next start` truncates it. Each proxied request takes one more trip
+  through an isolate. Only the fixture's proxy and rules have been
+  verified; other combinations of `next.config` options are untested.
+- **Image optimization:** not implemented. Server Actions on the edge
+  runtime are refused.
 - **Other framework features:** the Pages Router, edge runtime routes,
   interception routes and response compression are not implemented.
 - **Browser verification:** the Server Action pages are tested in Chromium
@@ -463,7 +480,10 @@ only when it matches what the official server returns for the same build.
 | [`tests/compat/cache-components.mjs`](tests/compat/cache-components.mjs) | `"use cache"`, `cacheLife` and `cacheTag` on the Cache Components fixture ([`fixtures/next-cache-components`](fixtures/next-cache-components)) against `next start`, sharing across isolates, and an entry across a restart |
 | [`tests/compat/actions.mjs`](tests/compat/actions.mjs) | Server Action requests against `next start`: origin (CSRF) and method checks, invalid and foreign action IDs, encrypted closures (valid and tampered), body limits, malformed and hostile payloads, concurrent mutations and request identity, disconnects, cache invalidation; plus NextRS's own limits, isolate failure (no replay) and deadlines |
 | [`tests/browser/actions.mjs`](tests/browser/actions.mjs) | The Server Action fixtures driven in Chromium (playwright-core), with and without JavaScript: what a user sees, cookies, and every action request's status and headers, against `next start` |
-| [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixture (optionally against another Next.js version, in a temporary copy) and runs all of the above against `next start` (the browser suite with `--browser`) |
+| [`tests/compat/proxy.mjs`](tests/compat/proxy.mjs) | `proxy.ts` on [`fixtures/next-proxy`](fixtures/next-proxy) against `next start`: continue, redirects, rewrites, header and cookie changes, matchers with `has`/`missing`, direct responses, errors, bodies, prerendered and ISR pages behind a synthetic login, Server Actions through the proxy (executed once, or never when redirected), concurrent isolation, internal-header and path-normalization bypass attempts; plus NextRS's timeout, stall and abort handling |
+| [`tests/compat/routing-config.mjs`](tests/compat/routing-config.mjs) | `next.config` headers, redirects and rewrites on the same fixture, in its default, `basePath` and `trailingSlash` builds |
+| [`tests/browser/proxy.mjs`](tests/browser/proxy.mjs) | Client-side navigation through the proxy and config rules in Chromium, against `next start` |
+| [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixtures (optionally against another Next.js version, in a temporary copy) and runs all of the above against `next start` (the browser suites with `--browser`, the proxy suites with `--proxy`) |
 
 Recorded runs are kept next to the scripts as JSON (`tests/compat/*.json`).
 
@@ -563,7 +583,8 @@ claims.
 | **Phase 1C: capabilities and validation** | CI on GitHub and long soaks; outbound `fetch` as an explicit, SSRF-guarded capability; Next's data cache, shared by every isolate and optionally persisted | 🧪 Implemented (final report pending; a 6-hour soak remains a production gate) |
 | **Phase 1D: Server Actions** | Server Actions and Server Functions through Next's compiled handlers: routing, `FormData` and multipart, AES-GCM for encrypted closures, Next's requests to its own server, mutation failure semantics, browser tests | 🧪 Implemented (conditional: see What's Not Ready Yet) |
 | **Phase 1E: regeneration** | ISR through Next's handler with regenerated pages in the shared cache, single-flight regeneration across isolates, tag revalidation semantics, Server Actions on ISR pages, Cache Components (`"use cache"`), a trusted reverse proxy mode | 🧪 Implemented (see What's Not Ready Yet) |
-| **Later: advanced Next.js features** | Middleware and `proxy.ts`, image optimization, the Pages Router | 🗓️ Planned |
+| **Phase 2A: proxy and routing** | Next's compiled `proxy.ts` in the isolate pool, `next start`'s routing order, `next.config` headers, redirects and rewrites, `basePath`, `trailingSlash`, proxy security regression tests | 🧪 Experimental (see What's Not Ready Yet) |
+| **Later: advanced Next.js features** | Image optimization, draft mode, ISR fallback shells, the Pages Router | 🗓️ Planned |
 | **Later: performance and production readiness** | Performance work, measured only once correctness is established; operational hardening | 🗓️ Planned |
 
 No release dates are planned. Scope changes as the experiments produce
@@ -650,10 +671,14 @@ affects serving behavior, also run the comparison against `next start`.
   per-isolate state and the first line of the last isolate failure (which
   can contain application error text). No request paths, headers, URLs or
   cache keys are used as labels. Keep it on loopback.
+- **A proxy is not authorization:** NextRS runs the proxy exactly where and
+  as `next start` does, including Next's matcher semantics, so a matcher
+  that misses a path misses it here too. Check the session in Server
+  Actions and route handlers as well.
 - **`--allow-unsupported` removes a safety check:** it lets NextRS start a
-  build that uses middleware, redirects, security headers or other features
-  it cannot apply. It does **not** implement them, so those features are
-  silently skipped.
+  build that uses features it cannot apply (edge middleware, i18n, Pages
+  Router). It does **not** implement them; a build with a proxy started
+  without the executor answers `501` for every request the proxy matches.
 
 ## License
 
