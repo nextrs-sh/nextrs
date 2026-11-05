@@ -43,6 +43,9 @@ const IMMUTABLE: &str = "public, max-age=31536000, immutable";
 const PUBLIC_FILE: &str = "public, max-age=0";
 const HTML: &str = "text/html; charset=utf-8";
 const UNSUPPORTED_HEADER: &str = "x-nextrs-unsupported";
+/// Build features that are unsupported without JavaScript but that the
+/// embedded executor runs.
+const EXECUTOR_FEATURES: &[&str] = &["server-actions"];
 /// Headers in stored prerenders that `next start` does not send to clients.
 const INTERNAL_HEADERS: &[&str] = &["x-next-cache-tags"];
 
@@ -108,6 +111,11 @@ pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, St
         .iter()
         .filter(|d| d.severity == Severity::Unsupported)
         .cloned()
+        .collect();
+    // Server Actions run in the executor; without one they stay a refusal.
+    let unsupported: Vec<Diagnostic> = unsupported
+        .into_iter()
+        .filter(|d| !(options.executor.is_some() && EXECUTOR_FEATURES.contains(&d.code)))
         .collect();
     if !unsupported.is_empty() && !options.allow_unsupported {
         return Err(StartError::Unsupported(unsupported));
@@ -338,11 +346,29 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
 
     if let Some(page) = state.pages.get(path) {
         if !readonly {
-            if headers.contains_key("next-action") {
-                return unsupported(
-                    "server-actions",
-                    "Server Actions require JavaScript execution, which NextRS Phase 0 does not implement",
-                );
+            // next start hands a POST that may carry a Server Action to the
+            // page's compiled handler even when the page is prerendered;
+            // Next's action handler decides whether it is one.
+            if is_possible_server_action(&method, &headers) {
+                if let Some(executor) = &state.executor
+                    && let Some(entry) = state.action_entry(path)
+                {
+                    let incoming = dynamic::Incoming {
+                        method: &method,
+                        uri: &uri,
+                        headers: &headers,
+                        body,
+                        client,
+                        max_body: state.max_request_body,
+                    };
+                    return execute(&state, executor, entry, incoming, version).await;
+                }
+                if headers.contains_key("next-action") || state.executor.is_none() {
+                    return unsupported(
+                        "server-actions",
+                        "Server Actions require JavaScript execution (start with --js-runtime embedded-v8)",
+                    );
+                }
             }
             return method_not_allowed(&state);
         }
@@ -384,21 +410,12 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
                     "builds with interception routes are not supported by the NextRS executor",
                 );
             }
-            if headers.contains_key("next-action") {
-                return unsupported(
-                    "server-actions",
-                    "Server Actions are not implemented by the NextRS executor",
-                );
-            }
             if route.kind == RouteKind::AppPage
                 && headers.get(&state.rsc.header).is_some_and(|v| v == "1")
                 && let Some(redirect) = rsc_redirect(&state, path, query, &headers)
             {
                 return redirect;
             }
-            let policy = dynamic::AppPathPolicy {
-                vary: &state.rsc.vary_header,
-            };
             let incoming = dynamic::Incoming {
                 method: &method,
                 uri: &uri,
@@ -407,8 +424,7 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
                 client,
                 max_body: state.max_request_body,
             };
-            let response = dynamic::render(executor, entry, &policy, incoming).await;
-            return dynamic::frame_for(version, response);
+            return execute(&state, executor, entry, incoming, version).await;
         }
         let reason = match &route.rendering {
             Rendering::Static => "is prerendered but its stored response is missing",
@@ -478,6 +494,58 @@ pub fn metrics_app(executor: Arc<Executor>) -> Router {
                 }
             }),
         )
+}
+
+async fn execute(
+    state: &AppState,
+    executor: &Executor,
+    entry: &Path,
+    incoming: dynamic::Incoming<'_>,
+    version: axum::http::Version,
+) -> Response {
+    let policy = dynamic::AppPathPolicy {
+        vary: &state.rsc.vary_header,
+    };
+    let response = dynamic::render(executor, entry, &policy, incoming).await;
+    dynamic::frame_for(version, response)
+}
+
+/// Next's `getIsPossibleServerAction` (server-action-request-meta.ts): a POST
+/// with a `Next-Action` header, or a multipart or URL-encoded form POST
+/// (a progressively enhanced form submission). The comparisons are Next's:
+/// exact for URL-encoded, a prefix for multipart.
+fn is_possible_server_action(method: &Method, headers: &HeaderMap) -> bool {
+    if method != Method::POST {
+        return false;
+    }
+    if headers.contains_key("next-action") {
+        return true;
+    }
+    let content_type = headers
+        .get(header::CONTENT_TYPE)
+        .map(HeaderValue::as_bytes)
+        .unwrap_or_default();
+    content_type.starts_with(b"multipart/form-data")
+        || content_type == b"application/x-www-form-urlencoded"
+}
+
+impl AppState {
+    /// The compiled page that handles a Server Action POST to `path`: the
+    /// App Router page serving it, prerendered or dynamic, on the Node.js
+    /// runtime. ISR pages are excluded until NextRS can regenerate them.
+    fn action_entry(&self, path: &str) -> Option<&Path> {
+        if self.has_interception_routes {
+            return None;
+        }
+        let route = self
+            .routes
+            .iter()
+            .find(|route| !route.internal && route.matches(path))?;
+        let rendering_ok = matches!(route.rendering, Rendering::Static | Rendering::Dynamic);
+        (route.kind == RouteKind::AppPage && rendering_ok && route.runtime == Runtime::Nodejs)
+            .then_some(route.entry.as_deref())
+            .flatten()
+    }
 }
 
 /// Dynamic routes the executor can run: App Router pages and route handlers

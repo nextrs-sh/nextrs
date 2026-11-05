@@ -350,12 +350,24 @@ fn detect_features(
             "Pages Router routes are classified but not served in Phase 0".into(),
         );
     }
-    let action_count = actions.node.len() + actions.edge.len();
-    if action_count > 0 {
+    if !actions.node.is_empty() {
         push(
             Severity::Unsupported,
             "server-actions",
-            format!("{action_count} Server Actions require JavaScript execution"),
+            format!(
+                "{} Server Actions require JavaScript execution",
+                actions.node.len()
+            ),
+        );
+    }
+    if !actions.edge.is_empty() {
+        push(
+            Severity::Unsupported,
+            "edge-server-actions",
+            format!(
+                "{} Server Actions target the edge runtime, which NextRS does not run",
+                actions.edge.len()
+            ),
         );
     }
     let revalidated: Vec<&str> = info
