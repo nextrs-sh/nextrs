@@ -210,7 +210,8 @@ def main():
                             hits = after["cache"]["hits"] - before["cache"]["hits"]
                             misses = after["cache"]["misses"] - before["cache"]["misses"]
                             summary["cache_hit_ratio"] = hits / max(hits + misses, 1)
-                        fetched = after["fetch"]["duration_count"] - before["fetch"]["duration_count"]
+                        # The Phase 1B binary's metrics have no fetch section.
+                        fetched = after["fetch"]["duration_count"] - before["fetch"]["duration_count"] if "fetch" in after and "fetch" in before else 0
                         if fetched:
                             summary["fetch_time_to_head_ms"] = (after["fetch"]["duration_seconds_sum"] - before["fetch"]["duration_seconds_sum"]) / fetched * 1000
                     results["load"].append({"server": name, "path": path, "concurrency": concurrency, "median": summary, "runs": runs})

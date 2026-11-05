@@ -76,6 +76,10 @@ jobs:
           cache: npm
           cache-dependency-path: fixtures/next-app/package-lock.json
       - run: cargo build --release -p nextrs-cli
+      - name: Browser for the Server Action suite
+        if: matrix.next == 'pinned'
+        working-directory: tests/browser
+        run: npm ci --no-audit --no-fund && npx playwright-core install --with-deps chromium-headless-shell
       - name: Build the pinned fixture
         if: matrix.next == 'pinned'
         working-directory: fixtures/next-app
@@ -88,7 +92,7 @@ jobs:
       - name: HTTP comparison against next start
         run: |
           if [ "${{ matrix.next }}" = pinned ]; then
-            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out
+            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser
           else
             scripts/compat-suite.sh --next ${{ matrix.next }} --isolates ${{ matrix.isolates }} --out compat-out
           fi
