@@ -164,9 +164,11 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         routes,
         prerenders,
         public_dir,
+        server_actions: ServerActionsInfo::default(),
         diagnostics,
     };
     detect_features(&mut info, &routes_manifest)?;
+    info.server_actions = server_actions_info(&info, required.as_ref())?;
     Ok(info)
 }
 
@@ -204,6 +206,45 @@ fn routing_config(required: Option<&RequiredServerFiles>, base_path: &str) -> Ro
         powered_by_header: flag("poweredByHeader", true),
         generate_etags: flag("generateEtags", true),
     }
+}
+
+fn server_actions_info(
+    info: &BuildInfo,
+    required: Option<&RequiredServerFiles>,
+) -> Result<ServerActionsInfo, InspectError> {
+    let manifest: ServerReferenceManifest =
+        read_json_optional(&info.dist_dir.join("server/server-reference-manifest.json"))?
+            .unwrap_or_default();
+    let options = required
+        .and_then(|r| r.config.get("experimental"))
+        .and_then(|e| e.get("serverActions"));
+    let configured = options
+        .and_then(|o| o.get("bodySizeLimit"))
+        .and_then(|v| match v {
+            serde_json::Value::String(s) => Some(s.clone()),
+            serde_json::Value::Number(n) => Some(n.to_string()),
+            _ => None,
+        });
+    let body_size_limit = configured
+        .as_deref()
+        .and_then(parse_byte_size)
+        .unwrap_or(DEFAULT_ACTION_BODY_LIMIT);
+    let allowed_origins = options
+        .and_then(|o| o.get("allowedOrigins"))
+        .and_then(|v| v.as_array())
+        .map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str().map(str::to_owned))
+                .collect()
+        })
+        .unwrap_or_default();
+    Ok(ServerActionsInfo {
+        count: manifest.node.len(),
+        edge_count: manifest.edge.len(),
+        body_size_limit,
+        body_size_limit_config: configured,
+        allowed_origins,
+    })
 }
 
 /// The adapter API does not list prerendered shells of framework routes such
@@ -350,12 +391,24 @@ fn detect_features(
             "Pages Router routes are classified but not served in Phase 0".into(),
         );
     }
-    let action_count = actions.node.len() + actions.edge.len();
-    if action_count > 0 {
+    if !actions.node.is_empty() {
         push(
             Severity::Unsupported,
             "server-actions",
-            format!("{action_count} Server Actions require JavaScript execution"),
+            format!(
+                "{} Server Actions require JavaScript execution",
+                actions.node.len()
+            ),
+        );
+    }
+    if !actions.edge.is_empty() {
+        push(
+            Severity::Unsupported,
+            "edge-server-actions",
+            format!(
+                "{} Server Actions target the edge runtime, which NextRS does not run",
+                actions.edge.len()
+            ),
         );
     }
     let revalidated: Vec<&str> = info

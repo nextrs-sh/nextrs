@@ -691,6 +691,21 @@ impl CacheStore {
             .map(|_| serde_json::to_vec(&state.tags).expect("tags serialize"))
     }
 
+    /// Whether any of `tags` was revalidated (marked stale or expired)
+    /// after `since_ms` (Unix milliseconds).
+    pub fn revalidated_since(&self, tags: &[String], since_ms: u64) -> bool {
+        let now = now_ms();
+        let state = self.lock();
+        tags.iter().any(|tag| {
+            state.tags.get(tag).is_some_and(|s| {
+                // A profiled revalidation marks the tag stale now and sets
+                // its expiry in the future; only a reached expiry counts.
+                s.stale.is_some_and(|at| at > since_ms)
+                    || s.expired.is_some_and(|at| at > since_ms && at <= now)
+            })
+        })
+    }
+
     /// Writes the tags file (blocking).
     pub fn persist_tags(&self, contents: Vec<u8>) {
         let Some(disk) = &self.disk else {
@@ -1032,5 +1047,28 @@ mod tests {
         let reopened = store(Some(dir.clone()), "v1-ns", 1 << 20, 1 << 22);
         assert_eq!(get(&reopened, "k", &[]).unwrap().value, in_memory);
         let _ = fs::remove_dir_all(&dir);
+    }
+
+    /// What the server checks before serving a prerendered page: a
+    /// revalidation of one of its tags after the prerender was written.
+    #[test]
+    fn revalidated_since_sees_tag_events_after_a_time() {
+        let s = store(None, "revalidated-since", 1 << 20, 0);
+        let tags = vec!["_N_T_/page".to_owned(), "_N_T_/layout".to_owned()];
+        let written = now_ms();
+        assert!(!s.revalidated_since(&tags, written));
+        std::thread::sleep(std::time::Duration::from_millis(2));
+        s.revalidate(&["_N_T_/other".to_owned()], None, false);
+        assert!(!s.revalidated_since(&tags, written), "another path");
+        s.revalidate(&["_N_T_/layout".to_owned()], Some(3600.0), true);
+        assert!(s.revalidated_since(&tags, written), "stale (profiled)");
+        assert!(
+            !s.revalidated_since(&tags, now_ms() + 1_000),
+            "before a later write"
+        );
+        let s = store(None, "revalidated-since-2", 1 << 20, 0);
+        std::thread::sleep(std::time::Duration::from_millis(2));
+        s.revalidate(&["_N_T_/page".to_owned()], None, false);
+        assert!(s.revalidated_since(&tags, written), "expired");
     }
 }

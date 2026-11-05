@@ -10,6 +10,10 @@
 //   GET /hits?key=K                         -> {"key","hits","aborted"}
 //       aborted counts /data responses whose client left before the end.
 //   GET /stream?chunks=N&gap=ms             -> N lines, one every gap ms
+//   POST /mutations?key=K&id=I              -> records one side effect
+//   GET /mutations?key=K                    -> {"key","ids"} in arrival order
+//       The Server Action suites count side effects here, outside every
+//       isolate, to tell an executed mutation from a replayed or lost one.
 import http from "node:http";
 
 const args = Object.fromEntries(
@@ -22,6 +26,7 @@ const port = Number(args.port ?? 4999);
 const hits = new Map();
 const aborted = new Map();
 const bump = (map, key) => map.set(key, (map.get(key) ?? 0) + 1);
+const mutations = new Map();
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://upstream");
@@ -51,6 +56,14 @@ const server = http.createServer(async (req, res) => {
   } else if (url.pathname === "/hits") {
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ key, hits: hits.get(key) ?? 0, aborted: aborted.get(key) ?? 0 }));
+  } else if (url.pathname === "/mutations") {
+    if (req.method === "POST") {
+      const ids = mutations.get(key) ?? [];
+      ids.push(p.get("id") ?? "");
+      mutations.set(key, ids);
+    }
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ key, ids: mutations.get(key) ?? [] }));
   } else if (url.pathname === "/stream") {
     const chunks = Number(p.get("chunks") ?? 5);
     const gap = Number(p.get("gap") ?? 50);

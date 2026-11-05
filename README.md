@@ -40,9 +40,10 @@ Next.js runtime, and it is **not** a production-ready replacement for
 NextRS has completed **Phase 0** (serving prerendered build output from
 Rust) and **Phase 1A** (running Next.js's own compiled route handlers in an
 embedded V8 isolate), **Phase 1B** (hardening that executor: bounded
-streaming, supervision, limits and an isolate pool) and **Phase 1C**
+streaming, supervision, limits and an isolate pool), **Phase 1C**
 (outbound `fetch` as an explicit, SSRF-guarded capability, and a data cache
-shared by every isolate and optionally persisted). It is tested against
+shared by every isolate and optionally persisted) and **Phase 1D** (Server
+Actions, run by Next's own compiled handlers). It is tested against
 one small App Router fixture built with Next.js 16.4.3, and also passes the
 same comparison suite on 16.4.4 and 16.4.5.
 
@@ -53,7 +54,7 @@ same comparison suite on 16.4.4 and 16.4.5.
   `next build` produced. No Node.js or Deno process runs.
 - **Off by default:** without that flag, every dynamic route answers an
   explicit `501 Not Implemented`.
-- **Unsupported:** Server Actions, middleware, ISR, `next/image`
+- **Unsupported:** middleware, ISR, `next/image`
   optimization, the Pages Router and most routing-related `next.config`
   options. NextRS **refuses to start** when a build uses one of these, unless
   you pass `--allow-unsupported`.
@@ -118,7 +119,7 @@ real applications.
 | Next.js data cache (`fetch` cache, `unstable_cache`, `revalidateTag`) | 🧪 Experimental | One cache for all isolates; persisted across restarts with `--cache-dir` |
 | `generateStaticParams` | 🧪 Partial | Listed params are served prerendered; unlisted params need ISR fallback and answer `501` |
 | Edge runtime routes | ⛔ Unsupported | Answers `501` |
-| Server Actions | ⛔ Unsupported | Startup refusal; requests carrying `Next-Action` get `501` |
+| Server Actions (forms, client calls, bound and closure actions, uploads, redirects, cookies) | 🧪 Experimental | Requires `--js-runtime embedded-v8` (otherwise a startup refusal); Node.js runtime only; not on ISR pages or with interception routes |
 | Middleware / `proxy.ts` | ⛔ Unsupported | Startup refusal |
 | ISR (`revalidate`) | ⛔ Unsupported | Startup refusal |
 | `next.config` headers, redirects, rewrites | ⛔ Unsupported | Startup refusal |
@@ -159,6 +160,13 @@ might be wrong.
   entries live in one Rust store for every isolate, follow Next's
   revalidation and tag rules, and persist across restarts with
   `--cache-dir`. JavaScript never gets file access to it.
+- **Server Actions:** form actions (with and without JavaScript), Server
+  Functions called from client code, bound arguments and encrypted
+  closures, file uploads, redirects, cookies and errors behave as they do
+  under `next start`. Next's compiled handler does the work: NextRS routes
+  the requests and provides the Web APIs it needs (`FormData`, multipart
+  parsing, AES-GCM in `crypto.subtle`). Mutations are never retried
+  automatically.
 - **Unsupported-feature detection:** `nextrs start` refuses builds it would
   serve incorrectly, instead of silently skipping middleware, redirects or
   security headers.
@@ -178,21 +186,26 @@ might be wrong.
   request but do not interrupt running JavaScript.
 - **Caching beyond the data cache:** ISR and response-cache entries are not
   stored, `'use cache'` uses Next's per-isolate default, and module state is
-  per isolate. One cache directory serves one process.
+  per isolate. One cache directory serves one process. A prerendered page
+  that a Server Action revalidates (`revalidatePath`) is rendered on every
+  request afterwards rather than regenerated once, and `revalidateTag` with
+  a cache profile refreshes sooner than under `next start`.
 - **Outbound fetch gaps:** no `data:` URLs, custom CAs, client certificates,
   proxies or HTTP/2. A fetch does not outlive the request that started it.
 - **Node.js API coverage:** NextRS provides a narrow Node.js layer. Node's
   network modules (`http`, `https`, `net`, `dns`; use `fetch`), `zlib`,
-  `child_process`, `worker_threads`, most of `crypto.subtle`, `vm` and
-  native addons are unavailable.
-- **Server Actions, middleware, ISR and image optimization:** none of these is
-  implemented.
+  `child_process`, `worker_threads`, `crypto.subtle` beyond AES-GCM and
+  `digest`, `vm` and native addons are unavailable.
+- **Middleware, ISR and image optimization:** none of these is implemented.
+  Server Actions on the edge runtime are refused.
 - **`next.config` compatibility:** custom headers, redirects, rewrites,
   `basePath`, i18n and `trailingSlash` are detected but not applied.
 - **Other framework features:** the Pages Router, edge runtime routes,
   interception routes and response compression are not implemented.
-- **Browser verification:** client hydration has not been tested in a browser.
-  The HTML and RSC bytes match `next start`.
+- **Browser verification:** the Server Action pages are tested in Chromium
+  against `next start` (hydration, submissions, pending states, redirects,
+  cookies, errors, progressive enhancement). The other fixture pages are
+  compared by their HTML and RSC bytes only.
 
 ## Architecture
 
@@ -420,7 +433,9 @@ only when it matches what the official server returns for the same build.
 | [`tests/compat/features.mjs`](tests/compat/features.mjs) | Isolation beyond headers: `React.cache`, concurrent Suspense, error boundaries, `after()`, concurrent uploads, and the intended scope of `unstable_cache` |
 | [`tests/compat/data.mjs`](tests/compat/data.mjs) | Server-side `fetch` and the data cache against `next start`, through a local upstream ([`upstream.mjs`](tests/compat/upstream.mjs)) that counts requests: caching modes, revalidation, tags, cache identity, dedupe, errors, cancellation, and sharing across isolates |
 | [`tests/compat/restart.mjs`](tests/compat/restart.mjs) | Data cache persistence across a restart of both servers |
-| [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixture (optionally against another Next.js version, in a temporary copy) and runs all of the above against `next start` |
+| [`tests/compat/actions.mjs`](tests/compat/actions.mjs) | Server Action requests against `next start`: origin (CSRF) and method checks, invalid and foreign action IDs, encrypted closures (valid and tampered), body limits, malformed and hostile payloads, concurrent mutations and request identity, disconnects, cache invalidation; plus NextRS's own limits, isolate failure (no replay) and deadlines |
+| [`tests/browser/actions.mjs`](tests/browser/actions.mjs) | The Server Action fixtures driven in Chromium (playwright-core), with and without JavaScript: what a user sees, cookies, and every action request's status and headers, against `next start` |
+| [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixture (optionally against another Next.js version, in a temporary copy) and runs all of the above against `next start` (the browser suite with `--browser`) |
 
 Recorded runs are kept next to the scripts as JSON (`tests/compat/*.json`).
 
@@ -477,7 +492,9 @@ The engine experiments are standalone crates outside the main workspace, so
 [`benchmarks/dynamic_bench.py`](benchmarks/dynamic_bench.py) (dynamic
 rendering) [`benchmarks/pool_bench.py`](benchmarks/pool_bench.py)
 (isolate pool sizes) and [`benchmarks/phase1c_bench.py`](benchmarks/phase1c_bench.py)
-(outbound fetch and the data cache, warm and cold) drive `next start`, NextRS and reference hosts against
+(outbound fetch and the data cache, warm and cold) and [`benchmarks/actions_bench.py`](benchmarks/actions_bench.py)
+(Server Actions: small and multipart calls, uploads, no-JavaScript forms
+and encrypted closures) drive `next start`, NextRS and reference hosts against
 the same build. [`slow_clients.py`](benchmarks/slow_clients.py),
 [`soak.mjs`](benchmarks/soak.mjs) (run per pool size by
 [`soak-matrix.sh`](benchmarks/soak-matrix.sh)) and
@@ -513,8 +530,10 @@ claims.
 | **Phase 0: build output feasibility** | Read `.next` through the adapter API and internal manifests; serve static and prerendered output from Rust; unsupported-feature detection; comparison harness against `next start` | ✅ Completed |
 | **Phase 1A: embedded JavaScript execution** | Run Next's compiled App Router handlers in embedded V8 with no Node.js process; streaming; request isolation; engine evaluation (V8, QuickJS, JavaScriptCore, Deno, Bun) | ✅ Completed |
 | **Phase 1B: executor hardening** | Response backpressure; executor supervision and restart; request deadlines and a CPU stall watchdog (per isolate); streamed request bodies; a multi-core isolate pool with bounded admission; metrics; fixtures for request bodies, `React.cache`, `after()`, error boundaries and `generateStaticParams`; CI against several Next.js 16.4.x versions | ✅ Completed (conditional: CI on GitHub and a multi-hour soak still to run) |
-| **Phase 1C: capabilities and validation** | CI on GitHub and long soaks; outbound `fetch` as an explicit, SSRF-guarded capability, then Next's data cache; a write capability scoped to `.next/cache` (persistent and shared caches, `generateStaticParams` fallback); Server Actions as a separate experiment | 🗓️ Planned |
-| **Later: advanced Next.js features** | Middleware and `proxy.ts`, ISR regeneration, image optimization, the Pages Router | 🗓️ Planned |
+| **Phase 1C: capabilities and validation** | CI on GitHub and long soaks; outbound `fetch` as an explicit, SSRF-guarded capability; Next's data cache, shared by every isolate and optionally persisted | 🧪 Implemented (final report pending; a 6-hour soak remains a production gate) |
+| **Phase 1D: Server Actions** | Server Actions and Server Functions through Next's compiled handlers: routing, `FormData` and multipart, AES-GCM for encrypted closures, Next's requests to its own server, mutation failure semantics, browser tests | 🧪 Implemented (conditional: see What's Not Ready Yet) |
+| **Phase 1E: regeneration** | ISR and regenerated-page storage, tag revalidation semantics, Cache Components | 🗓️ Planned |
+| **Later: advanced Next.js features** | Middleware and `proxy.ts`, image optimization, the Pages Router | 🗓️ Planned |
 | **Later: performance and production readiness** | Performance work, measured only once correctness is established; operational hardening | 🗓️ Planned |
 
 No release dates are planned. Scope changes as the experiments produce
@@ -568,7 +587,9 @@ affects serving behavior, also run the comparison against `next start`.
   also require operating-system sandboxing.
 - **The executor's sandbox is narrow:** JavaScript can read only `.next`
   and `node_modules`. It cannot write files or spawn processes. It sees only
-  `NODE_ENV=production` and the variables passed with `--js-env NAME`.
+  `NODE_ENV=production`, the variables passed with `--js-env NAME`, and
+  `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` when it is set (as `next start`
+  reads it).
 - **Network access is opt-in and checked in Rust:** without `--net-allow`,
   `fetch` fails. With it, only the listed origins are reachable, and only at
   public addresses unless `--net-allow-addr` names a range. Proxy variables
@@ -583,6 +604,17 @@ affects serving behavior, also run the comparison against `next start`.
   limit. A request that keeps the CPU busy past `--js-stall-timeout`, or
   exhausts the heap, terminates its whole isolate and fails every request
   in it. Run more than one isolate to contain this.
+- **Server Actions are public endpoints:** anyone who has a page can call
+  its actions, so authorization belongs in each action, as with `next
+  start`. Next's own checks run unchanged: the `Origin` comparison (with
+  `serverActions.allowedOrigins`), body limits and closure decryption.
+  That comparison trusts `X-Forwarded-Host`, so behind a proxy, make the
+  proxy overwrite it. Next's requests to its own server (redirect
+  payloads, forwarding an action to another page) are served inside the
+  process and never use the network. A request that reached JavaScript is
+  never retried: if its isolate fails, the client gets a `502` and cannot
+  know whether the mutation happened, so do not retry actions on `502` or
+  `504` automatically.
 - **The metrics endpoint is internal:** `--metrics-addr` exposes counters,
   per-isolate state and the first line of the last isolate failure (which
   can contain application error text). No request paths, headers, URLs or

@@ -369,6 +369,7 @@
       const req = new IncomingMessage(request);
       const res = new ServerResponse(req, id);
       for (const [name, value] of request.initialHeaders) res.appendHeader(name, value);
+      if (request.initialStatus != null) res.statusCode = request.initialStatus;
 
       // Settles when the request stops mattering before it finished: the
       // client left, the request was cancelled, or its deadline passed.
@@ -414,10 +415,12 @@
         ops.op_nextrs_count(COUNT_HANDLER_ERROR);
         ops.op_nextrs_diagnostic("handler-error", `${describe(request)}: ${errorText(error)}`);
         if (!res.headersSent) {
+          // next start answers an exception that escapes the handler
+          // (an MPA Server Action error, a CSRF rejection) this way.
           res.statusCode = 500;
-          res.setHeader("content-type", "text/plain; charset=utf-8");
+          res.setHeader("content-type", "text/plain");
           res.setHeader("x-nextrs-error", "handler-exception");
-          res.end("NextRS: the route handler threw an exception\n");
+          res.end("Internal Server Error");
         } else if (!res.writableEnded) {
           // The response already started: abort it, as Node drops the socket.
           ops.op_nextrs_response_error(id, String(error?.message ?? error));

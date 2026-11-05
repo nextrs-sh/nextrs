@@ -2,25 +2,29 @@
 # Builds the compatibility fixture against one Next.js version and runs every
 # HTTP-level comparison against `next start`:
 #
-#   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR]
+#   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
 #
 # Without --next the fixture's pinned lockfile is used (npm ci, in place).
 # With --next the fixture is copied to a temporary directory and that
 # version is installed there, so the pinned baseline is never modified.
 #
 # Needs target/release/nextrs (cargo build --release -p nextrs-cli), Node.js
-# and npm. Exits non-zero if any suite fails.
+# and npm. --browser also runs the browser-driven Server Action suite
+# (tests/browser: npm ci there, and a Chromium for playwright-core).
+# Exits non-zero if any suite fails.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 next_version=""
 isolates=1
 out=""
+browser=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
     --isolates) isolates="$2"; shift 2 ;;
     --out) out="$2"; shift 2 ;;
+    --browser) browser=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -67,6 +71,7 @@ next_port=$base_port
 nextrs_port=$((base_port + 1))
 # The data-fetching fixtures' upstream API (tests/compat/upstream.mjs), and
 # a port nothing listens on, both allowed by NextRS's network policy.
+# The upstream also keeps the Server Action suites' mutation ledger.
 upstream_port=$((base_port + 2))
 closed_port=$((base_port + 3))
 export NEXTRS_UPSTREAM="http://127.0.0.1:$upstream_port"
@@ -80,7 +85,10 @@ start_servers() {
   (cd "$project" && NEXT_TELEMETRY_DISABLED=1 exec npx next start -H 127.0.0.1 -p "$next_port") >> "$out/next-start.log" 2>&1 &
   next_pid=$!
   pids+=($next_pid)
+  # Short stall and request deadlines: the Server Action suite checks what
+  # happens to a mutation when they fire. No other suite comes near them.
   "$nextrs" start "$project" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
+    --js-stall-timeout 3 --request-timeout 15 \
     --js-env NEXTRS_UPSTREAM --net-allow "http://127.0.0.1:$upstream_port" \
     --net-allow "http://127.0.0.1:$closed_port" --net-allow-addr 127.0.0.1 \
     --cache-dir "$out/nextrs-cache" >> "$out/nextrs.log" 2>&1 &
@@ -125,6 +133,11 @@ run streaming tests/compat/streaming.mjs --target "$candidate" --runs 20
 run isolation tests/compat/isolation.mjs --target "$candidate" --requests 1200 --concurrency 64 --aborts 20 --json "$out/isolation.json"
 run features  tests/compat/features.mjs  --target "$candidate" --requests 600 --concurrency 64 --json "$out/features.json"
 run data      tests/compat/data.mjs      --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --closed-port "$closed_port" --json "$out/data.json"
+run actions   tests/compat/actions.mjs   --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
+  --project "$project" --stall-ms 3000 --request-timeout-ms 15000 --json "$out/actions.json"
+if [[ $browser == 1 ]]; then
+  run browser tests/browser/actions.mjs --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --json "$out/browser.json"
+fi
 # The same feature checks against next start: the reference must pass too.
 run features-next-start tests/compat/features.mjs --target "$baseline" --requests 600 --concurrency 64 --json "$out/features-next-start.json"
 

@@ -312,6 +312,8 @@ pub(crate) struct PoolInner {
     pub net: Option<Arc<NetClient>>,
     /// Shared by every isolate; `None` when disabled.
     pub cache: Option<Arc<CacheStore>>,
+    /// Next.js requests to its own server, served in-process.
+    pub internal: crate::internal::InternalRoute,
     state: Mutex<PoolState>,
     shutting_down: AtomicBool,
     /// Wakes supervisors sleeping in a restart backoff.
@@ -576,6 +578,7 @@ impl Executor {
             counters,
             net,
             cache,
+            internal: crate::internal::InternalRoute::default(),
             state: Mutex::new(PoolState {
                 workers: vec![None; isolates],
                 history: (0..isolates).map(|_| SlotHistory::default()).collect(),
@@ -675,6 +678,31 @@ impl Executor {
         &self.inner.config.limits
     }
 
+    /// Whether the shared data cache saw a revalidation of any of `tags`
+    /// (revalidateTag, updateTag, revalidatePath) after `since_ms` (Unix
+    /// milliseconds). Always false without the shared cache, which is the
+    /// only place NextRS sees revalidations.
+    pub fn tags_revalidated_since(&self, tags: &[String], since_ms: u64) -> bool {
+        self.inner
+            .cache
+            .as_ref()
+            .is_some_and(|cache| cache.revalidated_since(tags, since_ms))
+    }
+
+    /// Whether the data cache is shared by the isolates (and revalidations
+    /// are visible to the server).
+    pub fn has_shared_cache(&self) -> bool {
+        self.inner.cache.is_some()
+    }
+
+    /// Lets Next.js reach its own server (`fetch(.., { next: { internal } })`
+    /// to `http://localhost`) through `dispatch` instead of the network;
+    /// see `InternalDispatch`. Must be called inside a Tokio runtime, which
+    /// runs the dispatched requests. Replaces an earlier dispatcher.
+    pub fn set_internal_dispatch(&self, dispatch: Arc<dyn crate::InternalDispatch>) {
+        self.inner.internal.install(dispatch);
+    }
+
     /// Stops admitting requests, lets in-flight requests finish for up to
     /// `shutdown_grace`, then terminates whatever still runs. Blocks until
     /// every isolate thread has exited. Idempotent.
@@ -745,6 +773,7 @@ fn supervise(
                 counters: inner.counters.clone(),
                 net: inner.net.clone(),
                 cache: inner.cache.clone(),
+                internal: inner.internal.clone(),
             },
             jobs,
             ready_tx,

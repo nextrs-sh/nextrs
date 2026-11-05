@@ -43,6 +43,9 @@ const IMMUTABLE: &str = "public, max-age=31536000, immutable";
 const PUBLIC_FILE: &str = "public, max-age=0";
 const HTML: &str = "text/html; charset=utf-8";
 const UNSUPPORTED_HEADER: &str = "x-nextrs-unsupported";
+/// Build features that are unsupported without JavaScript but that the
+/// embedded executor runs.
+const EXECUTOR_FEATURES: &[&str] = &["server-actions"];
 /// Headers in stored prerenders that `next start` does not send to clients.
 const INTERNAL_HEADERS: &[&str] = &["x-next-cache-tags"];
 
@@ -109,16 +112,100 @@ pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, St
         .filter(|d| d.severity == Severity::Unsupported)
         .cloned()
         .collect();
+    // Server Actions run in the executor; without one they stay a refusal.
+    let unsupported: Vec<Diagnostic> = unsupported
+        .into_iter()
+        .filter(|d| !(options.executor.is_some() && EXECUTOR_FEATURES.contains(&d.code)))
+        .collect();
     if !unsupported.is_empty() && !options.allow_unsupported {
         return Err(StartError::Unsupported(unsupported));
     }
     let state = AppState::load(info).await?;
-    let state = AppState {
+    let state = Arc::new(AppState {
         executor: options.executor.clone(),
         max_request_body: options.max_request_body,
         ..state
-    };
-    Ok(Router::new().fallback(handle).with_state(Arc::new(state)))
+    });
+    if let Some(executor) = &options.executor {
+        // Weak: the executor must not keep the app (and itself) alive.
+        executor.set_internal_dispatch(Arc::new(SelfDispatch(Arc::downgrade(&state))));
+    }
+    Ok(Router::new().fallback(handle).with_state(state))
+}
+
+/// Serves Next.js's requests to its own server (Server Action redirects
+/// and forwarding; see nextrs_runtime::InternalDispatch) through the same
+/// routing as a client request, without a socket.
+struct SelfDispatch(std::sync::Weak<AppState>);
+
+impl nextrs_runtime::InternalDispatch for SelfDispatch {
+    fn dispatch(
+        &self,
+        request: nextrs_runtime::InternalRequest,
+    ) -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = nextrs_runtime::InternalResponse> + Send + 'static>,
+    > {
+        let state = self.0.upgrade();
+        Box::pin(async move {
+            let Some(state) = state else {
+                return internal_failure(StatusCode::SERVICE_UNAVAILABLE);
+            };
+            let mut builder = Request::builder()
+                .method(request.method.as_str())
+                .uri(request.path_and_query.as_str());
+            for (name, value) in &request.headers {
+                let bytes: Vec<u8> = value.chars().map(|c| c as u32 as u8).collect();
+                if let (Ok(name), Ok(value)) = (
+                    HeaderName::from_bytes(name.as_bytes()),
+                    HeaderValue::from_bytes(&bytes),
+                ) {
+                    builder = builder.header(name, value);
+                }
+            }
+            let body = match request.body {
+                nextrs_runtime::InternalBody::Empty => Body::empty(),
+                nextrs_runtime::InternalBody::Bytes(bytes) => Body::from(bytes),
+                nextrs_runtime::InternalBody::Stream(rx) => {
+                    Body::from_stream(futures_util::stream::unfold(rx, |mut rx| async move {
+                        rx.recv()
+                            .await
+                            .map(|chunk| (Ok::<_, std::io::Error>(chunk), rx))
+                    }))
+                }
+            };
+            let Ok(request) = builder.body(body) else {
+                return internal_failure(StatusCode::BAD_REQUEST);
+            };
+            let response = handle(State(state), request).await;
+            let (parts, body) = response.into_parts();
+            use futures_util::StreamExt;
+            nextrs_runtime::InternalResponse {
+                status: parts.status.as_u16(),
+                headers: parts
+                    .headers
+                    .iter()
+                    .map(|(name, value)| {
+                        (
+                            name.as_str().to_owned(),
+                            value.as_bytes().iter().map(|&b| b as char).collect(),
+                        )
+                    })
+                    .collect(),
+                body: body
+                    .into_data_stream()
+                    .map(|item| item.map_err(|error| error.to_string()))
+                    .boxed(),
+            }
+        })
+    }
+}
+
+fn internal_failure(status: StatusCode) -> nextrs_runtime::InternalResponse {
+    nextrs_runtime::InternalResponse {
+        status: status.as_u16(),
+        headers: Vec::new(),
+        body: Box::pin(futures_util::stream::empty()),
+    }
 }
 
 struct AppState {
@@ -141,6 +228,22 @@ struct Page {
     html: Option<Cached>,
     rsc: Option<Cached>,
     segments: HashMap<String, Cached>,
+    /// The cache tags Next stored with the prerender (`x-next-cache-tags`:
+    /// its implicit path tags and the tags of fetches it made).
+    tags: Vec<String>,
+    /// When the prerender was written (Unix ms): a revalidation of one of
+    /// its tags after this makes it stale.
+    written_ms: u64,
+}
+
+impl Page {
+    /// A Server Action (or route handler) revalidated this page's path or
+    /// one of its tags since it was prerendered. next start would render it
+    /// again; serving the stored copy would be stale.
+    fn is_revalidated(&self, executor: Option<&Executor>) -> bool {
+        !self.tags.is_empty()
+            && executor.is_some_and(|e| e.tags_revalidated_since(&self.tags, self.written_ms))
+    }
 }
 
 /// A stored response, read once at startup. Phase 0 only serves builds
@@ -204,6 +307,31 @@ impl AppState {
             } else {
                 StatusCode::from_u16(prerender.status).unwrap_or(StatusCode::OK)
             };
+            let stored = prerender.html.as_ref().or(prerender.rsc.as_ref());
+            let tags = stored
+                .and_then(|s| {
+                    s.headers
+                        .iter()
+                        .find(|(name, _)| name == "x-next-cache-tags")
+                })
+                .map(|(_, value)| {
+                    value
+                        .split(',')
+                        .map(str::trim)
+                        .filter(|t| !t.is_empty())
+                        .map(str::to_owned)
+                        .collect()
+                })
+                .unwrap_or_default();
+            let written_ms = match stored {
+                Some(stored) => tokio::fs::metadata(&stored.file)
+                    .await
+                    .ok()
+                    .and_then(|m| m.modified().ok())
+                    .and_then(|m| m.duration_since(UNIX_EPOCH).ok())
+                    .map_or(0, |d| d.as_millis() as u64),
+                None => 0,
+            };
             pages.insert(
                 prerender.pathname.clone(),
                 Page {
@@ -211,6 +339,8 @@ impl AppState {
                     html,
                     rsc: load_cached(prerender.rsc.as_ref(), false).await?,
                     segments,
+                    tags,
+                    written_ms,
                 },
             );
         }
@@ -337,12 +467,52 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
     }
 
     if let Some(page) = state.pages.get(path) {
+        // Revalidated since the build: render it on demand with Next's
+        // handler instead of serving the stale prerender (NextRS does not
+        // store regenerated pages yet).
+        if readonly
+            && page.is_revalidated(state.executor.as_deref())
+            && let (Some(executor), Some(entry)) = (&state.executor, state.action_entry(path))
+        {
+            if headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                && let Some(redirect) = rsc_redirect(&state, path, query, &headers)
+            {
+                return redirect;
+            }
+            let incoming = dynamic::Incoming {
+                method: &method,
+                uri: &uri,
+                headers: &headers,
+                body,
+                client,
+                max_body: state.max_request_body,
+            };
+            return execute(&state, executor, entry, incoming, version).await;
+        }
         if !readonly {
-            if headers.contains_key("next-action") {
-                return unsupported(
-                    "server-actions",
-                    "Server Actions require JavaScript execution, which NextRS Phase 0 does not implement",
-                );
+            // next start hands a POST that may carry a Server Action to the
+            // page's compiled handler even when the page is prerendered;
+            // Next's action handler decides whether it is one.
+            if is_possible_server_action(&method, &headers) {
+                if let Some(executor) = &state.executor
+                    && let Some(entry) = state.action_entry(path)
+                {
+                    let incoming = dynamic::Incoming {
+                        method: &method,
+                        uri: &uri,
+                        headers: &headers,
+                        body,
+                        client,
+                        max_body: state.max_request_body,
+                    };
+                    return execute(&state, executor, entry, incoming, version).await;
+                }
+                if headers.contains_key("next-action") || state.executor.is_none() {
+                    return unsupported(
+                        "server-actions",
+                        "Server Actions require JavaScript execution (start with --js-runtime embedded-v8)",
+                    );
+                }
             }
             return method_not_allowed(&state);
         }
@@ -384,21 +554,12 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
                     "builds with interception routes are not supported by the NextRS executor",
                 );
             }
-            if headers.contains_key("next-action") {
-                return unsupported(
-                    "server-actions",
-                    "Server Actions are not implemented by the NextRS executor",
-                );
-            }
             if route.kind == RouteKind::AppPage
                 && headers.get(&state.rsc.header).is_some_and(|v| v == "1")
                 && let Some(redirect) = rsc_redirect(&state, path, query, &headers)
             {
                 return redirect;
             }
-            let policy = dynamic::AppPathPolicy {
-                vary: &state.rsc.vary_header,
-            };
             let incoming = dynamic::Incoming {
                 method: &method,
                 uri: &uri,
@@ -407,8 +568,7 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
                 client,
                 max_body: state.max_request_body,
             };
-            let response = dynamic::render(executor, entry, &policy, incoming).await;
-            return dynamic::frame_for(version, response);
+            return execute(&state, executor, entry, incoming, version).await;
         }
         let reason = match &route.rendering {
             Rendering::Static => "is prerendered but its stored response is missing",
@@ -423,6 +583,29 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
                 route.page
             ),
         );
+    }
+
+    // next start renders an unmatched possible-action POST with the
+    // not-found page's handler, whose action handler answers it (an
+    // unknown action is 409, a known one is forwarded to its page).
+    if is_possible_server_action(&method, &headers)
+        && let Some(executor) = &state.executor
+        && !state.has_interception_routes
+        && let Some(entry) = state
+            .routes
+            .iter()
+            .find(|route| route.internal && route.page == "/_not-found")
+            .and_then(|route| route.entry.as_deref())
+    {
+        let incoming = dynamic::Incoming {
+            method: &method,
+            uri: &uri,
+            headers: &headers,
+            body,
+            client,
+            max_body: state.max_request_body,
+        };
+        return execute_with_status(&state, executor, entry, incoming, version, Some(404)).await;
     }
 
     // next start marks the not-found shell cacheable only when it is
@@ -478,6 +661,70 @@ pub fn metrics_app(executor: Arc<Executor>) -> Router {
                 }
             }),
         )
+}
+
+async fn execute(
+    state: &AppState,
+    executor: &Executor,
+    entry: &Path,
+    incoming: dynamic::Incoming<'_>,
+    version: axum::http::Version,
+) -> Response {
+    execute_with_status(state, executor, entry, incoming, version, None).await
+}
+
+async fn execute_with_status(
+    state: &AppState,
+    executor: &Executor,
+    entry: &Path,
+    incoming: dynamic::Incoming<'_>,
+    version: axum::http::Version,
+    status: Option<u16>,
+) -> Response {
+    let policy = dynamic::AppPathPolicy {
+        vary: &state.rsc.vary_header,
+        status,
+    };
+    let response = dynamic::render(executor, entry, &policy, incoming).await;
+    dynamic::frame_for(version, response)
+}
+
+/// Next's `getIsPossibleServerAction` (server-action-request-meta.ts): a POST
+/// with a `Next-Action` header, or a multipart or URL-encoded form POST
+/// (a progressively enhanced form submission). The comparisons are Next's:
+/// exact for URL-encoded, a prefix for multipart.
+fn is_possible_server_action(method: &Method, headers: &HeaderMap) -> bool {
+    if method != Method::POST {
+        return false;
+    }
+    if headers.contains_key("next-action") {
+        return true;
+    }
+    let content_type = headers
+        .get(header::CONTENT_TYPE)
+        .map(HeaderValue::as_bytes)
+        .unwrap_or_default();
+    content_type.starts_with(b"multipart/form-data")
+        || content_type == b"application/x-www-form-urlencoded"
+}
+
+impl AppState {
+    /// The compiled page that handles a Server Action POST to `path`: the
+    /// App Router page serving it, prerendered or dynamic, on the Node.js
+    /// runtime. ISR pages are excluded until NextRS can regenerate them.
+    fn action_entry(&self, path: &str) -> Option<&Path> {
+        if self.has_interception_routes {
+            return None;
+        }
+        let route = self
+            .routes
+            .iter()
+            .find(|route| !route.internal && route.matches(path))?;
+        let rendering_ok = matches!(route.rendering, Rendering::Static | Rendering::Dynamic);
+        (route.kind == RouteKind::AppPage && rendering_ok && route.runtime == Runtime::Nodejs)
+            .then_some(route.entry.as_deref())
+            .flatten()
+    }
 }
 
 /// Dynamic routes the executor can run: App Router pages and route handlers

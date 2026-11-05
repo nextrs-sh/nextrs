@@ -415,6 +415,15 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                             "shared data cache disabled (Next's per-isolate default)"
                         ),
                     }
+                    // next start reads the Server Actions key from the
+                    // environment before the build's manifest; a
+                    // deployment that sets it must get the same key here.
+                    // Logged by name only.
+                    const ACTION_KEY: &str = "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY";
+                    if let Ok(value) = std::env::var(ACTION_KEY) {
+                        config.env.insert(ACTION_KEY.to_owned(), value);
+                        tracing::info!("{ACTION_KEY} is set; Server Actions use it");
+                    }
                     for name in js_env {
                         match std::env::var(&name) {
                             Ok(value) => {
@@ -444,11 +453,45 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             let runtime = tokio::runtime::Builder::new_multi_thread()
                 .enable_all()
                 .build()?;
+            let max_request_body = limits.max_request_body * 1024 * 1024;
+            if executor.is_some() && info.server_actions.count > 0 {
+                // Two limits apply to an action body: NextRS's own
+                // (--max-request-body, enforced before JavaScript runs) and
+                // Next's serverActions.bodySizeLimit (enforced by Next's
+                // action handler). The lower one is the effective limit.
+                let next_limit = info.server_actions.body_size_limit;
+                tracing::info!(
+                    actions = info.server_actions.count,
+                    next_body_limit = next_limit,
+                    nextrs_body_limit = max_request_body,
+                    effective = next_limit.min(max_request_body),
+                    "Server Actions enabled"
+                );
+                if !executor.as_ref().is_some_and(|e| e.has_shared_cache()) {
+                    tracing::warn!(
+                        "--no-shared-cache: revalidatePath/revalidateTag/updateTag called by \
+                         Server Actions stay inside one isolate, and prerendered pages are not \
+                         refreshed after them"
+                    );
+                }
+                if next_limit > max_request_body {
+                    tracing::warn!(
+                        "serverActions.bodySizeLimit ({}) is above --max-request-body ({} MiB): \
+                         action bodies over {max_request_body} bytes get a 413 from NextRS; \
+                         raise --max-request-body to accept what Next accepts",
+                        info.server_actions
+                            .body_size_limit_config
+                            .as_deref()
+                            .unwrap_or("1 MB"),
+                        limits.max_request_body
+                    );
+                }
+            }
             runtime.block_on(async move {
                 let options = ServerOptions {
                     allow_unsupported,
                     executor: executor.clone(),
-                    max_request_body: limits.max_request_body * 1024 * 1024,
+                    max_request_body,
                 };
                 let app = nextrs_server::app(&info, &options).await?;
                 if let Some(metrics_addr) = limits.metrics_addr {

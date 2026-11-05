@@ -30,6 +30,8 @@ async fn app(with_executor: bool) -> Router {
     nextrs_server::app(
         &info,
         &ServerOptions {
+            // The fixture has Server Actions, which only the executor runs.
+            allow_unsupported: !with_executor,
             executor,
             ..ServerOptions::default()
         },
@@ -129,15 +131,73 @@ async fn without_an_executor_dynamic_routes_are_refused() {
 
 #[tokio::test(flavor = "multi_thread")]
 #[ignore = "requires fixtures/next-app to be built (npm ci && next build)"]
-async fn server_actions_are_refused_explicitly() {
+async fn server_action_requests_reach_next_action_handler() {
+    // Without the executor, the build is refused at startup (it has
+    // Server Actions); with --allow-unsupported, requests get a 501.
+    let info = nextrs_adapter::inspect(&fixture()).expect("fixture is built");
+    let refused = nextrs_server::app(&info, &ServerOptions::default()).await;
+    assert!(
+        matches!(refused, Err(nextrs_server::StartError::Unsupported(ref d)) if d.iter().any(|d| d.code == "server-actions"))
+    );
+    let static_only = nextrs_server::app(
+        &info,
+        &ServerOptions {
+            allow_unsupported: true,
+            ..ServerOptions::default()
+        },
+    )
+    .await
+    .unwrap();
+    let request = Request::post("/actions/simple")
+        .header("next-action", "40ffffffffffffffffffffffffffffffffffffffff")
+        .body(Body::empty())
+        .unwrap();
+    let (status, headers, _) = get(&static_only, request).await;
+    assert_eq!(status, StatusCode::NOT_IMPLEMENTED);
+    assert_eq!(headers["x-nextrs-unsupported"], "server-actions");
+
+    // With it, Next's own action handler answers, on prerendered and
+    // dynamic pages alike: an ID it does not know is "unavailable" (409),
+    // a malformed one is "invalid" (400), as next start does.
     let app = app(true).await;
-    let request = Request::post("/dynamic")
-        .header("next-action", "abc")
+    for path in ["/actions/simple", "/dynamic"] {
+        for (id, expected) in [
+            (
+                "40ffffffffffffffffffffffffffffffffffffffff",
+                StatusCode::CONFLICT,
+            ),
+            ("not-an-action", StatusCode::BAD_REQUEST),
+        ] {
+            let request = Request::post(path)
+                .header("next-action", id)
+                .header("content-type", "text/plain;charset=UTF-8")
+                .body(Body::from("[]"))
+                .unwrap();
+            let (status, headers, _) = get(&app, request).await;
+            assert_eq!(status, expected, "{path} {id}");
+            assert_eq!(headers["x-nextjs-action-not-found"], "1");
+            assert_eq!(
+                headers["cache-control"],
+                "no-cache, no-store, max-age=0, must-revalidate"
+            );
+        }
+    }
+
+    // A POST that cannot be an action still gets 405 on a prerendered page.
+    let request = Request::post("/actions/simple")
+        .header("content-type", "text/plain")
+        .body(Body::from("x"))
+        .unwrap();
+    let (status, _, _) = get(&app, request).await;
+    assert_eq!(status, StatusCode::METHOD_NOT_ALLOWED);
+    // GET with a Next-Action header is an ordinary page request.
+    let request = Request::get("/actions/simple")
+        .header("next-action", "40ffffffffffffffffffffffffffffffffffffffff")
         .body(Body::empty())
         .unwrap();
     let (status, headers, _) = get(&app, request).await;
-    assert_eq!(status, StatusCode::NOT_IMPLEMENTED);
-    assert_eq!(headers["x-nextrs-unsupported"], "server-actions");
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(headers["x-nextjs-cache"], "HIT");
 }
 
 /// HTTP/1.0 cannot carry a chunked body: like Node, close the connection

@@ -61,6 +61,21 @@
     const originalIsEncoding = Buffer.isEncoding;
     Buffer.isEncoding = (encoding) => encoding === "base64url" || originalIsEncoding(encoding);
 
+    // Node's per-encoding slice methods (undocumented, but busboy, which
+    // Next.js uses to parse multipart Server Action bodies, calls them).
+    // Node defaults start to 0 and end to the length, and clamps them.
+    for (const encoding of ["latin1", "ascii", "utf8", "hex", "base64", "ucs2", "utf16le"]) {
+      const name = `${encoding}Slice`;
+      if (typeof Buffer.prototype[name] === "function") continue;
+      Object.defineProperty(Buffer.prototype, name, {
+        value: function slice(start = 0, end = this.length) {
+          return originalToString.call(this, encoding, start, end);
+        },
+        writable: true,
+        configurable: true,
+      });
+    }
+
     // Node accepts any Uint8Array as the search value; buffer@6 only Buffers.
     for (const name of ["indexOf", "lastIndexOf", "includes"]) {
       const original = Buffer.prototype[name];
@@ -455,23 +470,197 @@
   }
 
   const SUBTLE_DIGESTS = { "SHA-1": "sha1", "SHA-256": "sha256", "SHA-384": "sha384", "SHA-512": "sha512" };
-  const subtle = {
+
+  // AES-GCM secret keys (src/webcrypto.rs), the Web Crypto that Server
+  // Actions need: Next encrypts bound closure arguments with the build's
+  // key. Key bytes stay in Rust; a CryptoKey holds a handle, released when
+  // the key is garbage collected. Other algorithms and formats fail with
+  // NextRSUnsupportedError instead of an approximation.
+  const kHandle = Symbol("key handle");
+  const kKeyData = Symbol("key data");
+  const releaseKey = new FinalizationRegistry((id) => ops.op_nextrs_aes_release(id));
+  const AES_USAGES = ["encrypt", "decrypt", "wrapKey", "unwrapKey"];
+  const ALL_USAGES = [...AES_USAGES, "sign", "verify", "deriveKey", "deriveBits"];
+
+  const domError = (name, message) => new DOMException(message, name);
+  // Host errors are "Name: message" with a DOMException name.
+  function hostError(error) {
+    const match = /^(\w+Error): ([\s\S]*)$/.exec(String(error?.message ?? error));
+    return match ? domError(match[1], match[2]) : domError("OperationError", String(error?.message ?? error));
+  }
+
+  class CryptoKey {
+    constructor() {
+      throw new TypeError("Illegal constructor");
+    }
+    get type() { return this[kKeyData].type; }
+    get extractable() { return this[kKeyData].extractable; }
+    get algorithm() { return this[kKeyData].algorithm; }
+    get usages() { return this[kKeyData].usages; }
+    get [Symbol.toStringTag]() { return "CryptoKey"; }
+  }
+
+  function secretKey(handle, bits, extractable, usages) {
+    const key = Object.create(CryptoKey.prototype);
+    key[kHandle] = handle;
+    key[kKeyData] = {
+      type: "secret",
+      extractable: Boolean(extractable),
+      algorithm: Object.freeze({ name: "AES-GCM", length: bits }),
+      usages: Object.freeze(AES_USAGES.filter((usage) => usages.includes(usage))),
+    };
+    releaseKey.register(key, handle);
+    return key;
+  }
+
+  function algorithmName(algorithm, operation) {
+    const name = typeof algorithm === "string" ? algorithm : algorithm?.name;
+    if (typeof name !== "string") throw new TypeError(`crypto.subtle.${operation}: algorithm.name is required`);
+    return name;
+  }
+
+  function requireAesGcm(algorithm, operation) {
+    const name = algorithmName(algorithm, operation);
+    if (name.toUpperCase() !== "AES-GCM") throw new NextRSUnsupportedError("crypto.subtle", operation, `algorithm ${name} (NextRS implements AES-GCM)`);
+  }
+
+  function checkUsages(usages, operation) {
+    usages = [...(usages ?? [])].map(String);
+    for (const usage of usages) {
+      if (!ALL_USAGES.includes(usage)) throw new TypeError(`crypto.subtle.${operation}: invalid key usage '${usage}'`);
+      if (!AES_USAGES.includes(usage)) throw domError("SyntaxError", `'${usage}' is not a valid usage for an AES-GCM key`);
+    }
+    if (usages.length === 0) throw domError("SyntaxError", "a secret key needs at least one usage");
+    return usages;
+  }
+
+  function bufferSource(data, what) {
+    if (ArrayBuffer.isView(data)) return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+    if (data instanceof ArrayBuffer || (typeof SharedArrayBuffer !== "undefined" && data instanceof SharedArrayBuffer)) return new Uint8Array(data);
+    throw new TypeError(`${what} must be an ArrayBuffer or ArrayBufferView`);
+  }
+
+  function useKey(key, usage, operation) {
+    if (!(key instanceof CryptoKey) || key[kHandle] === undefined) throw new TypeError(`crypto.subtle.${operation}: key is not a CryptoKey`);
+    if (key.algorithm.name !== "AES-GCM") throw domError("InvalidAccessError", "the key's algorithm does not match");
+    if (!key.usages.includes(usage)) throw domError("InvalidAccessError", `the key does not allow '${usage}'`);
+    return key[kHandle];
+  }
+
+  function aesGcm(encrypt, algorithm, key, data) {
+    const operation = encrypt ? "encrypt" : "decrypt";
+    requireAesGcm(algorithm, operation);
+    if (algorithm.iv === undefined) throw new TypeError(`crypto.subtle.${operation}: AES-GCM needs an iv`);
+    const iv = bufferSource(algorithm.iv, "iv");
+    const aad = algorithm.additionalData === undefined ? new Uint8Array(0) : bufferSource(algorithm.additionalData, "additionalData");
+    if (algorithm.tagLength !== undefined && algorithm.tagLength !== 128) {
+      if ([32, 64, 96, 104, 112, 120].includes(algorithm.tagLength)) {
+        throw new NextRSUnsupportedError("crypto.subtle", operation, `AES-GCM tagLength ${algorithm.tagLength} (NextRS supports 128)`);
+      }
+      throw domError("OperationError", "invalid AES-GCM tagLength");
+    }
+    const handle = useKey(key, operation, operation);
+    const input = bufferSource(data, "data");
+    let out;
+    try {
+      out = ops.op_nextrs_aes_gcm(handle, encrypt, iv, aad, input);
+    } catch (error) {
+      throw hostError(error);
+    }
+    return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
+  }
+
+  class SubtleCrypto {
+    constructor() {
+      throw new TypeError("Illegal constructor");
+    }
+
     async digest(algorithm, data) {
       const name = typeof algorithm === "string" ? algorithm : algorithm?.name;
       const hash = SUBTLE_DIGESTS[String(name).toUpperCase()];
       if (!hash) throw new NextRSUnsupportedError("crypto.subtle", "digest", `algorithm ${name}`);
       const out = digestBytes(hash, toBytes(data));
       return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
-    },
-  };
-  for (const name of ["encrypt", "decrypt", "sign", "verify", "generateKey", "deriveKey", "deriveBits", "importKey", "exportKey", "wrapKey", "unwrapKey"]) {
-    subtle[name] = async () => {
-      throw new NextRSUnsupportedError("crypto.subtle", name);
-    };
-  }
+    }
 
-  const webcrypto = { getRandomValues, randomUUID, subtle };
+    async importKey(format, keyData, algorithm, extractable, keyUsages) {
+      requireAesGcm(algorithm, "importKey");
+      if (format !== "raw") throw new NextRSUnsupportedError("crypto.subtle", "importKey", `format '${format}' (NextRS supports 'raw' for AES-GCM)`);
+      const usages = checkUsages(keyUsages, "importKey");
+      const bytes = bufferSource(keyData, "keyData");
+      let handle;
+      try {
+        handle = ops.op_nextrs_aes_import(bytes);
+      } catch (error) {
+        throw hostError(error);
+      }
+      return secretKey(handle, bytes.byteLength * 8, extractable, usages);
+    }
+
+    async generateKey(algorithm, extractable, keyUsages) {
+      requireAesGcm(algorithm, "generateKey");
+      const bits = algorithm?.length;
+      if (![128, 192, 256].includes(bits)) throw domError("OperationError", "AES key length must be 128, 192 or 256 bits");
+      const usages = checkUsages(keyUsages, "generateKey");
+      let handle;
+      try {
+        handle = ops.op_nextrs_aes_generate(bits);
+      } catch (error) {
+        throw hostError(error);
+      }
+      return secretKey(handle, bits, extractable, usages);
+    }
+
+    async exportKey(format, key) {
+      if (!(key instanceof CryptoKey) || key[kHandle] === undefined) throw new TypeError("crypto.subtle.exportKey: key is not a CryptoKey");
+      if (format !== "raw") throw new NextRSUnsupportedError("crypto.subtle", "exportKey", `format '${format}' (NextRS supports 'raw' for AES-GCM)`);
+      if (!key.extractable) throw domError("InvalidAccessError", "the key is not extractable");
+      let out;
+      try {
+        out = ops.op_nextrs_aes_export(key[kHandle]);
+      } catch (error) {
+        throw hostError(error);
+      }
+      return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
+    }
+
+    async encrypt(algorithm, key, data) {
+      return aesGcm(true, algorithm, key, data);
+    }
+
+    async decrypt(algorithm, key, data) {
+      return aesGcm(false, algorithm, key, data);
+    }
+
+    get [Symbol.toStringTag]() {
+      return "SubtleCrypto";
+    }
+  }
+  for (const name of ["sign", "verify", "deriveKey", "deriveBits", "wrapKey", "unwrapKey"]) {
+    Object.defineProperty(SubtleCrypto.prototype, name, {
+      value: async function () {
+        throw new NextRSUnsupportedError("crypto.subtle", name);
+      },
+      writable: true,
+      configurable: true,
+    });
+  }
+  const subtle = Object.create(SubtleCrypto.prototype);
+
+  class Crypto {
+    constructor() {
+      throw new TypeError("Illegal constructor");
+    }
+    get subtle() { return subtle; }
+    getRandomValues(array) { return getRandomValues(array); }
+    randomUUID() { return randomUUID(); }
+    get [Symbol.toStringTag]() { return "Crypto"; }
+  }
+  const webcrypto = Object.create(Crypto.prototype);
   Object.defineProperty(globalThis, "crypto", { value: webcrypto, writable: true, configurable: true });
+  for (const [name, value] of Object.entries({ Crypto, CryptoKey, SubtleCrypto })) {
+    Object.defineProperty(globalThis, name, { value, writable: true, enumerable: false, configurable: true });
+  }
 
   const crypto = {
     createHash: (algorithm) => new Hash(algorithm),
