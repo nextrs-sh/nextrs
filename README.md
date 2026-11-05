@@ -39,8 +39,10 @@ Next.js runtime, and it is **not** a production-ready replacement for
 
 NextRS has completed **Phase 0** (serving prerendered build output from
 Rust) and **Phase 1A** (running Next.js's own compiled route handlers in an
-embedded V8 isolate), and **Phase 1B** (hardening that executor: bounded
-streaming, supervision, limits and an isolate pool). It is tested against
+embedded V8 isolate), **Phase 1B** (hardening that executor: bounded
+streaming, supervision, limits and an isolate pool) and **Phase 1C**
+(outbound `fetch` as an explicit, SSRF-guarded capability, and a data cache
+shared by every isolate and optionally persisted). It is tested against
 one small App Router fixture built with Next.js 16.4.3, and also passes the
 same comparison suite on 16.4.4 and 16.4.5.
 
@@ -112,6 +114,8 @@ real applications.
 | Route Handlers (`route.ts`, Node.js runtime) | 🧪 Experimental | Requires `--js-runtime embedded-v8`; otherwise `501` |
 | Streamed request bodies | 🧪 Experimental | Pulled as the handler reads them; `--max-request-body` limit, including chunked uploads |
 | Multi-core isolate pool | 🧪 Experimental | `--isolates N`; bounded admission, supervision and restart per isolate |
+| Outbound `fetch` from server code | 🧪 Experimental | Denied unless `--net-allow` names the destination; hosts must resolve to public addresses (or `--net-allow-addr` ranges); redirects re-checked |
+| Next.js data cache (`fetch` cache, `unstable_cache`, `revalidateTag`) | 🧪 Experimental | One cache for all isolates; persisted across restarts with `--cache-dir` |
 | `generateStaticParams` | 🧪 Partial | Listed params are served prerendered; unlisted params need ISR fallback and answer `501` |
 | Edge runtime routes | ⛔ Unsupported | Answers `501` |
 | Server Actions | ⛔ Unsupported | Startup refusal; requests carrying `Next-Action` get `501` |
@@ -122,7 +126,6 @@ real applications.
 | Pages Router | ⛔ Unsupported | Startup refusal |
 | Image optimization (`/_next/image`) | ⛔ Unsupported | Answers `501` |
 | Interception routes (with the executor) | ⛔ Unsupported | Answers `501` |
-| Outbound `fetch` from server code | ⛔ Unsupported | The sandbox has no network access |
 
 Every refusal is a `501` response with an `x-nextrs-unsupported` header that
 names the missing feature. NextRS returns this rather than an answer that
@@ -146,6 +149,16 @@ might be wrong.
   renderer, so a slow client cannot grow server memory. Request bodies
   stream into the handler, with a size limit for any framing. A failed or
   stuck isolate is terminated and replaced while the others keep serving.
+- **Outbound fetch, as a capability:** with `--net-allow`, server code can
+  call allowed APIs. Addresses are checked after DNS resolution by the same
+  resolver the client connects with, so DNS tricks, redirects and encoded
+  IP literals cannot reach loopback, private networks or cloud metadata
+  services. Responses stream with backpressure, and every fetch is bounded
+  by timeouts and a size limit and aborted when its request ends.
+- **A shared data cache:** cached `fetch` results and `unstable_cache`
+  entries live in one Rust store for every isolate, follow Next's
+  revalidation and tag rules, and persist across restarts with
+  `--cache-dir`. JavaScript never gets file access to it.
 - **Unsupported-feature detection:** `nextrs start` refuses builds it would
   serve incorrectly, instead of silently skipping middleware, redirects or
   security headers.
@@ -156,20 +169,22 @@ might be wrong.
 ### What's Not Ready Yet
 
 - **Dynamic SSR beyond the fixture:** only the fixture's routes have been
-  verified. Outbound `fetch` (and with it Next's data cache) is disabled.
-  `generateStaticParams` routes serve their listed params; unlisted params
-  need ISR fallback rendering and answer `501`.
+  verified. `generateStaticParams` routes serve their listed params;
+  unlisted params need ISR fallback rendering and answer `501`.
 - **Execution limits are per isolate, not per request:** many requests share
   an isolate. A request that keeps the CPU busy past `--js-stall-timeout`
   is stopped by terminating its **whole isolate**, which fails the other
   requests in it. Per-request deadlines (`--request-timeout`) cancel the
   request but do not interrupt running JavaScript.
-- **Caches are per isolate and in memory:** module state, `unstable_cache`
-  and the incremental cache are not shared between isolates and are not
-  persisted (JavaScript gets no write access).
-- **Node.js API coverage:** NextRS provides a narrow Node.js layer. Network
-  modules, `zlib`, `child_process`, `worker_threads`, most of `crypto.subtle`,
-  `vm` and native addons are unavailable.
+- **Caching beyond the data cache:** ISR and response-cache entries are not
+  stored, `'use cache'` uses Next's per-isolate default, and module state is
+  per isolate. One cache directory serves one process.
+- **Outbound fetch gaps:** no `data:` URLs, custom CAs, client certificates,
+  proxies or HTTP/2. A fetch does not outlive the request that started it.
+- **Node.js API coverage:** NextRS provides a narrow Node.js layer. Node's
+  network modules (`http`, `https`, `net`, `dns`; use `fetch`), `zlib`,
+  `child_process`, `worker_threads`, most of `crypto.subtle`, `vm` and
+  native addons are unavailable.
 - **Server Actions, middleware, ISR and image optimization:** none of these is
   implemented.
 - **`next.config` compatibility:** custom headers, redirects, rewrites,
@@ -197,8 +212,11 @@ flowchart TB
         server --> pre["static assets · prerendered<br/>HTML and RSC · not-found"]
         server --> dyn{"dynamic<br/>route"}
         dyn -->|"default"| r501["501 Not Implemented"]
-        dyn -->|"--js-runtime embedded-v8<br/>(experimental)"| v8["nextrs-runtime<br/>V8 isolate runs Next's<br/>compiled handler"]
+        dyn -->|"--js-runtime embedded-v8<br/>(experimental)"| v8["nextrs-runtime<br/>V8 isolates run Next's<br/>compiled handlers"]
+        v8 -->|"fetch (only with --net-allow)"| net["Rust HTTP client<br/>allowlist · address checks<br/>after DNS · redirects"]
+        v8 -->|"cache handler"| cache["shared data cache<br/>memory · --cache-dir"]
     end
+    net --> api(["allowed APIs"])
 
     out --> reader
     bo --> reader
@@ -343,6 +361,30 @@ disables a timeout):
 | `--max-connections`, `--write-timeout` | `1024`, `30` | Open connections; close clients that stop reading |
 | `--shutdown-grace` | `10` | On SIGINT/SIGTERM, time for in-flight requests to finish |
 | `--metrics-addr` | off | Serve `/metrics` (Prometheus text), `/metrics.json` and `/healthz` on a separate address. Keep it on loopback |
+| `--v8-flags` | none | Experimental: V8 flags for tuning experiments (e.g. `"--max-semi-space-size=8"`). Unknown flags are refused; some flags weaken the sandbox |
+
+Outbound network (denied unless `--net-allow` is given):
+
+| Option | Default | Purpose |
+|---|---|---|
+| `--net-allow ORIGIN` | none | A destination JavaScript may fetch (repeatable): `api.example.com` (https, port 443 only), `api.example.com:8443`, `http://host:port`, or `*.example.com` (subdomains). Redirects must stay within these |
+| `--net-allow-addr CIDR` | none | A non-public address or range allowed hosts may resolve to (repeatable), e.g. `127.0.0.1` for a local API. Loopback, private, link-local (cloud metadata) and other special ranges are refused otherwise |
+| `--net-timeout`, `--net-body-timeout` | `30`, `30` | Time to the response head (including redirects and the request body); longest wait for the next body chunk |
+| `--net-max-response` | `32` | Response body limit per fetch in MiB, after decompression |
+
+```bash
+./target/release/nextrs start ./my-app --js-runtime embedded-v8 \
+  --net-allow api.example.com --net-allow "*.cdn.example.net"
+```
+
+Data cache (the fetch cache and `unstable_cache`, shared by all isolates):
+
+| Option | Default | Purpose |
+|---|---|---|
+| `--cache-dir DIR` | none (memory only) | Persist the cache (directory created with mode 0700). Must be outside `.next` and `node_modules`. Entries are namespaced by build ID and JavaScript environment |
+| `--cache-max-memory`, `--cache-max-disk` | `50`, `1024` | MiB of entries kept in memory and on disk; least recently used entries are evicted |
+| `--cache-max-entry` | `2` | Larger values are not cached (MiB) |
+| `--no-shared-cache` | off | Use Next's default handler instead: separate per isolate, memory only |
 
 `cargo run --release --bin nextrs -- <command>` works in place of
 `./target/release/nextrs`.
@@ -376,6 +418,8 @@ only when it matches what the official server returns for the same build.
 | [`tests/compat/isolation.mjs`](tests/compat/isolation.mjs) | Many overlapping requests with unique headers, cookies and params, plus client aborts: no request may see another's data |
 | [`tests/compat/streaming.mjs`](tests/compat/streaming.mjs) | The Suspense shell reaches the client before the delayed boundary content |
 | [`tests/compat/features.mjs`](tests/compat/features.mjs) | Isolation beyond headers: `React.cache`, concurrent Suspense, error boundaries, `after()`, concurrent uploads, and the intended scope of `unstable_cache` |
+| [`tests/compat/data.mjs`](tests/compat/data.mjs) | Server-side `fetch` and the data cache against `next start`, through a local upstream ([`upstream.mjs`](tests/compat/upstream.mjs)) that counts requests: caching modes, revalidation, tags, cache identity, dedupe, errors, cancellation, and sharing across isolates |
+| [`tests/compat/restart.mjs`](tests/compat/restart.mjs) | Data cache persistence across a restart of both servers |
 | [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixture (optionally against another Next.js version, in a temporary copy) and runs all of the above against `next start` |
 
 Recorded runs are kept next to the scripts as JSON (`tests/compat/*.json`).
@@ -431,12 +475,15 @@ The engine experiments are standalone crates outside the main workspace, so
 
 [`benchmarks/bench.py`](benchmarks/bench.py) (static serving),
 [`benchmarks/dynamic_bench.py`](benchmarks/dynamic_bench.py) (dynamic
-rendering) and [`benchmarks/pool_bench.py`](benchmarks/pool_bench.py)
-(isolate pool sizes) drive `next start`, NextRS and reference hosts against
+rendering) [`benchmarks/pool_bench.py`](benchmarks/pool_bench.py)
+(isolate pool sizes) and [`benchmarks/phase1c_bench.py`](benchmarks/phase1c_bench.py)
+(outbound fetch and the data cache, warm and cold) drive `next start`, NextRS and reference hosts against
 the same build. [`slow_clients.py`](benchmarks/slow_clients.py),
-[`soak.mjs`](benchmarks/soak.mjs) and [`recovery.mjs`](benchmarks/recovery.mjs)
-measure memory with paused clients, sustained mixed traffic with injected
-isolate stalls, and recovery time. Each path's responses must be equivalent before it is measured. Raw
+[`soak.mjs`](benchmarks/soak.mjs) (run per pool size by
+[`soak-matrix.sh`](benchmarks/soak-matrix.sh)) and
+[`recovery.mjs`](benchmarks/recovery.mjs) measure memory with paused
+clients, sustained mixed traffic with injected isolate stalls (including
+V8 heap after full GC), and recovery time. Each path's responses must be equivalent before it is measured. Raw
 results are in [`benchmarks/results`](benchmarks/results/). They are
 exploratory measurements from one fixture on one machine, not performance
 claims.
@@ -520,12 +567,26 @@ affects serving behavior, also run the comparison against `next start`.
   application per process. Running untrusted applications side by side would
   also require operating-system sandboxing.
 - **The executor's sandbox is narrow:** JavaScript can read only `.next`
-  and `node_modules`. It cannot write files, open network connections or
-  spawn processes. It sees only `NODE_ENV=production` and the variables
-  passed with `--js-env NAME`.
-- **Some availability protections are missing:** there is no per-request CPU
-  or time limit and no response backpressure. One slow or CPU-heavy request
-  can delay all others.
+  and `node_modules`. It cannot write files or spawn processes. It sees only
+  `NODE_ENV=production` and the variables passed with `--js-env NAME`.
+- **Network access is opt-in and checked in Rust:** without `--net-allow`,
+  `fetch` fails. With it, only the listed origins are reachable, and only at
+  public addresses unless `--net-allow-addr` names a range. Proxy variables
+  are ignored. Allow only what the application needs: an allowed
+  destination receives whatever the application sends it.
+- **The data cache is written by Rust, not by JavaScript:** JavaScript passes
+  cache keys and values; file names are hashes of the keys, files are
+  private to the user, and the directory must be outside the paths
+  JavaScript can read. Cached responses can contain user data, so treat the
+  cache directory like application data.
+- **CPU and heap limits are per isolate:** there is no per-request CPU
+  limit. A request that keeps the CPU busy past `--js-stall-timeout`, or
+  exhausts the heap, terminates its whole isolate and fails every request
+  in it. Run more than one isolate to contain this.
+- **The metrics endpoint is internal:** `--metrics-addr` exposes counters,
+  per-isolate state and the first line of the last isolate failure (which
+  can contain application error text). No request paths, headers, URLs or
+  cache keys are used as labels. Keep it on loopback.
 - **`--allow-unsupported` removes a safety check:** it lets NextRS start a
   build that uses middleware, redirects, security headers or other features
   it cannot apply. It does **not** implement them, so those features are
