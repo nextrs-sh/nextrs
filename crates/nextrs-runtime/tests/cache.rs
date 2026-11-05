@@ -392,3 +392,54 @@ async fn a_missing_page_is_regenerated_once_across_isolates() {
     assert!(second["waitedMs"].as_u64().unwrap() >= 100, "{second}");
     assert_eq!(executor.metrics().cache.unwrap().regeneration_waits, 1);
 }
+
+/// Cache-write visibility, ordered by a barrier instead of timing: request A
+/// calls set() and sends its first bytes before the write's promise
+/// settles; while A is still in flight (holding its isolate), a read in
+/// another isolate must already see the value. Then a restart: the value
+/// was persisted before A ended.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_write_is_visible_to_every_isolate_before_it_is_persisted() {
+    let dir = temp_dir("visibility");
+    {
+        let executor = start(2, Some(&dir), &[]);
+        let mut writer = request("cache.js", &[]);
+        writer.url = "/cache?op=set-then-answer&key=vis&value=written&hold=300".into();
+        let mut events = executor.render(writer).await.expect("admitted");
+        let mut writer_isolate = None;
+        loop {
+            match events.recv().await.expect("writer answers") {
+                nextrs_runtime::ResponseEvent::Head { headers, .. } => {
+                    writer_isolate = headers
+                        .iter()
+                        .find(|(name, _)| name == "x-isolate")
+                        .map(|(_, v)| v.clone());
+                }
+                nextrs_runtime::ResponseEvent::Chunk(chunk) => {
+                    assert_eq!(&chunk[..], b"set-called\n");
+                    break;
+                }
+                other => panic!("unexpected {other:?}"),
+            }
+        }
+        // The writer still holds its isolate (300 ms hold): this read runs
+        // in the other one.
+        let r = op(&executor, &[("op", "get"), ("key", "vis")]).await;
+        assert_eq!(r["entry"]["body"], "written", "{r}");
+        assert_ne!(
+            r["isolate"].as_str(),
+            writer_isolate.as_deref(),
+            "another isolate"
+        );
+        // Drain the writer: it ends after the disk write.
+        while let Some(event) = events.recv().await {
+            if matches!(event, nextrs_runtime::ResponseEvent::End) {
+                break;
+            }
+        }
+        executor.shutdown();
+    }
+    let executor = start(1, Some(&dir), &[]);
+    assert_eq!(get(&executor, "vis").await.as_deref(), Some("written"));
+    let _ = std::fs::remove_dir_all(&dir);
+}

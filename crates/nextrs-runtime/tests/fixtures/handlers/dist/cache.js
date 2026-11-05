@@ -8,6 +8,20 @@ const fs = require("node:fs");
 
 exports.handler = async (req, res) => {
   const p = new URL(req.url, "http://localhost").searchParams;
+  // Barrier for the write-visibility test: the first chunk is sent after
+  // set() was called but before its promise (the disk write) settled; the
+  // response ends once it has.
+  if (p.get("op") === "set-then-answer") {
+    const Handler = globalThis[Symbol.for("@next/cache-handlers")].FetchCache;
+    const data = { kind: "FETCH", data: { headers: {}, body: p.get("value"), status: 200, url: "" }, revalidate: 60 };
+    const pending = new Handler({}).set(p.get("key"), data, { fetchCache: true, tags: [] });
+    res.setHeader("x-isolate", globalThis.__isolateId);
+    res.write("set-called\n");
+    await new Promise((resolve) => setTimeout(resolve, Number(p.get("hold") ?? 0)));
+    await pending;
+    res.end("persisted\n");
+    return;
+  }
   const Handler = globalThis[Symbol.for("@next/cache-handlers")]?.FetchCache;
   const tags = (p.get("tags") ?? "").split(",").filter(Boolean);
   const out = { isolate: globalThis.__isolateId };
