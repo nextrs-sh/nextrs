@@ -22,6 +22,7 @@ from pathlib import Path
 SERIES = [
     ("rssMiB", "RSS"),
     ("rssAnonMiB", "anonymous RSS"),
+    ("swapMiB", "server memory in swap"),
     ("heapAfterGcMiB", "heap after full GC"),
     ("heapTotalMiB", "heap reserved"),
     ("heapUsedMiB", "heap used"),
