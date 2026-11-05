@@ -36,6 +36,8 @@ const BACKSTOP_GRACE: Duration = Duration::from_secs(5);
 pub(crate) struct AppPathPolicy<'a> {
     /// Appended as `Vary` before the handler runs.
     pub vary: &'a str,
+    /// The status before the handler runs (404 for the not-found page).
+    pub status: Option<u16>,
 }
 
 pub(crate) struct Incoming<'a> {
@@ -88,6 +90,7 @@ pub(crate) async fn render(
         entry: entry.to_path_buf(),
         remote_address: client.map(|addr| addr.ip().to_string()),
         initial_headers: vec![("vary".to_owned(), policy.vary.to_owned())],
+        initial_status: policy.status,
     };
     let mut events = match executor.render(request).await {
         Ok(events) => events,

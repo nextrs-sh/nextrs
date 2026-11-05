@@ -369,6 +369,7 @@
       const req = new IncomingMessage(request);
       const res = new ServerResponse(req, id);
       for (const [name, value] of request.initialHeaders) res.appendHeader(name, value);
+      if (request.initialStatus != null) res.statusCode = request.initialStatus;
 
       // Settles when the request stops mattering before it finished: the
       // client left, the request was cancelled, or its deadline passed.

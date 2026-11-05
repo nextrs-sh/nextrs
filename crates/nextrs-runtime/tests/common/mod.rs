@@ -49,6 +49,7 @@ pub fn request(entry: &str, headers: &[(&str, &str)]) -> RenderRequest {
         entry: fixture().join("dist").join(entry),
         remote_address: None,
         initial_headers: Vec::new(),
+        initial_status: None,
     }
 }
 

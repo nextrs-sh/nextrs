@@ -121,12 +121,91 @@ pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, St
         return Err(StartError::Unsupported(unsupported));
     }
     let state = AppState::load(info).await?;
-    let state = AppState {
+    let state = Arc::new(AppState {
         executor: options.executor.clone(),
         max_request_body: options.max_request_body,
         ..state
-    };
-    Ok(Router::new().fallback(handle).with_state(Arc::new(state)))
+    });
+    if let Some(executor) = &options.executor {
+        // Weak: the executor must not keep the app (and itself) alive.
+        executor.set_internal_dispatch(Arc::new(SelfDispatch(Arc::downgrade(&state))));
+    }
+    Ok(Router::new().fallback(handle).with_state(state))
+}
+
+/// Serves Next.js's requests to its own server (Server Action redirects
+/// and forwarding; see nextrs_runtime::InternalDispatch) through the same
+/// routing as a client request, without a socket.
+struct SelfDispatch(std::sync::Weak<AppState>);
+
+impl nextrs_runtime::InternalDispatch for SelfDispatch {
+    fn dispatch(
+        &self,
+        request: nextrs_runtime::InternalRequest,
+    ) -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = nextrs_runtime::InternalResponse> + Send + 'static>,
+    > {
+        let state = self.0.upgrade();
+        Box::pin(async move {
+            let Some(state) = state else {
+                return internal_failure(StatusCode::SERVICE_UNAVAILABLE);
+            };
+            let mut builder = Request::builder()
+                .method(request.method.as_str())
+                .uri(request.path_and_query.as_str());
+            for (name, value) in &request.headers {
+                let bytes: Vec<u8> = value.chars().map(|c| c as u32 as u8).collect();
+                if let (Ok(name), Ok(value)) = (
+                    HeaderName::from_bytes(name.as_bytes()),
+                    HeaderValue::from_bytes(&bytes),
+                ) {
+                    builder = builder.header(name, value);
+                }
+            }
+            let body = match request.body {
+                nextrs_runtime::InternalBody::Empty => Body::empty(),
+                nextrs_runtime::InternalBody::Bytes(bytes) => Body::from(bytes),
+                nextrs_runtime::InternalBody::Stream(rx) => {
+                    Body::from_stream(futures_util::stream::unfold(rx, |mut rx| async move {
+                        rx.recv()
+                            .await
+                            .map(|chunk| (Ok::<_, std::io::Error>(chunk), rx))
+                    }))
+                }
+            };
+            let Ok(request) = builder.body(body) else {
+                return internal_failure(StatusCode::BAD_REQUEST);
+            };
+            let response = handle(State(state), request).await;
+            let (parts, body) = response.into_parts();
+            use futures_util::StreamExt;
+            nextrs_runtime::InternalResponse {
+                status: parts.status.as_u16(),
+                headers: parts
+                    .headers
+                    .iter()
+                    .map(|(name, value)| {
+                        (
+                            name.as_str().to_owned(),
+                            value.as_bytes().iter().map(|&b| b as char).collect(),
+                        )
+                    })
+                    .collect(),
+                body: body
+                    .into_data_stream()
+                    .map(|item| item.map_err(|error| error.to_string()))
+                    .boxed(),
+            }
+        })
+    }
+}
+
+fn internal_failure(status: StatusCode) -> nextrs_runtime::InternalResponse {
+    nextrs_runtime::InternalResponse {
+        status: status.as_u16(),
+        headers: Vec::new(),
+        body: Box::pin(futures_util::stream::empty()),
+    }
 }
 
 struct AppState {
@@ -441,6 +520,29 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
         );
     }
 
+    // next start renders an unmatched possible-action POST with the
+    // not-found page's handler, whose action handler answers it (an
+    // unknown action is 409, a known one is forwarded to its page).
+    if is_possible_server_action(&method, &headers)
+        && let Some(executor) = &state.executor
+        && !state.has_interception_routes
+        && let Some(entry) = state
+            .routes
+            .iter()
+            .find(|route| route.internal && route.page == "/_not-found")
+            .and_then(|route| route.entry.as_deref())
+    {
+        let incoming = dynamic::Incoming {
+            method: &method,
+            uri: &uri,
+            headers: &headers,
+            body,
+            client,
+            max_body: state.max_request_body,
+        };
+        return execute_with_status(&state, executor, entry, incoming, version, Some(404)).await;
+    }
+
     // next start marks the not-found shell cacheable only when it is
     // requested by its own path.
     let cache_control = if path == "/_not-found" {
@@ -503,8 +605,20 @@ async fn execute(
     incoming: dynamic::Incoming<'_>,
     version: axum::http::Version,
 ) -> Response {
+    execute_with_status(state, executor, entry, incoming, version, None).await
+}
+
+async fn execute_with_status(
+    state: &AppState,
+    executor: &Executor,
+    entry: &Path,
+    incoming: dynamic::Incoming<'_>,
+    version: axum::http::Version,
+    status: Option<u16>,
+) -> Response {
     let policy = dynamic::AppPathPolicy {
         vary: &state.rsc.vary_header,
+        status,
     };
     let response = dynamic::render(executor, entry, &policy, incoming).await;
     dynamic::frame_for(version, response)

@@ -68,6 +68,7 @@ pub(crate) struct HostServices {
     pub counters: Arc<Counters>,
     pub net: Option<Arc<NetClient>>,
     pub cache: Option<Arc<CacheStore>>,
+    pub internal: crate::internal::InternalRoute,
 }
 
 /// The shared outbound HTTP client, if the network is configured.
@@ -167,6 +168,7 @@ deno_core::extension!(
         state.put(Fetches::default());
         state.put(CacheCapability(options.services.cache));
         state.put(crate::webcrypto::CryptoKeys::default());
+        state.put(options.services.internal);
     }
 );
 
@@ -210,6 +212,7 @@ struct JsRequest {
     entry: String,
     remote_address: Option<String>,
     initial_headers: Vec<(String, String)>,
+    initial_status: Option<u16>,
     timeout_ms: Option<u64>,
 }
 
@@ -260,6 +263,7 @@ async fn op_nextrs_next_request(state: Rc<RefCell<OpState>>) -> Option<JsRequest
         entry: request.entry.to_string_lossy().into_owned(),
         remote_address: request.remote_address,
         initial_headers: request.initial_headers,
+        initial_status: request.initial_status,
         timeout_ms: job.timeout_ms,
     })
 }
@@ -644,6 +648,9 @@ struct FetchArgs {
     /// `op_nextrs_fetch_write`).
     body_kind: String,
     redirect: String,
+    /// Next's `next: { internal }` marker: a request to its own server.
+    #[serde(default)]
+    internal: bool,
 }
 
 fn aborted() -> JsErrorBox {
@@ -660,6 +667,12 @@ fn op_nextrs_fetch_start(
     #[serde] args: FetchArgs,
     #[buffer(copy)] body: Vec<u8>,
 ) -> Result<u32, JsErrorBox> {
+    if args.internal
+        && let Ok(url) = url::Url::parse(&args.url)
+        && crate::internal::InternalRoute::handles(&url)
+    {
+        return start_internal(state, args, url, body);
+    }
     let Some(net) = state.borrow::<NetCapability>().0.clone() else {
         return Err(JsErrorBox::generic(
             "ERR_NEXTRS_NET_DENIED: outbound network access is not enabled (see --net-allow)",
@@ -697,6 +710,59 @@ fn op_nextrs_fetch_start(
             body,
             redirect,
         })
+        .map_err(|error| JsErrorBox::generic(error.to_js()))?;
+    let counters = state.borrow::<Arc<Counters>>().clone();
+    metrics::add(&counters.fetch_in_flight, 1);
+    let fetches = state.borrow_mut::<Fetches>();
+    fetches.next_id = fetches.next_id.wrapping_add(1);
+    let id = fetches.next_id;
+    fetches.open.insert(
+        id,
+        OpenFetch {
+            head: Some(task.head),
+            body: Some(task.body),
+            upload,
+            abort: task.abort,
+            settled: false,
+            counters,
+        },
+    );
+    Ok(id)
+}
+
+/// Next.js fetching its own server (see internal.rs): served by the HTTP
+/// layer in-process, with the same per-isolate fetch limit.
+fn start_internal(
+    state: &mut OpState,
+    args: FetchArgs,
+    url: url::Url,
+    body: Vec<u8>,
+) -> Result<u32, JsErrorBox> {
+    let limit = state.borrow::<NetCapability>().0.as_ref().map_or(
+        crate::net::NetworkLimits::default().max_in_flight_per_isolate,
+        |net| net.limits().max_in_flight_per_isolate,
+    );
+    if state.borrow::<Fetches>().open.len() >= limit {
+        return Err(JsErrorBox::generic(format!(
+            "ERR_NEXTRS_NET_LIMIT: this isolate already has {limit} outbound fetches open"
+        )));
+    }
+    let (body, upload) = match args.body_kind.as_str() {
+        "none" => (OutBody::None, None),
+        "bytes" => (OutBody::Bytes(Bytes::from(body)), None),
+        "stream" => {
+            let (tx, rx) = mpsc::channel(1);
+            (OutBody::Stream(rx), Some(tx))
+        }
+        _ => {
+            return Err(JsErrorBox::generic(
+                "ERR_INVALID_ARG_VALUE: body kind".to_owned(),
+            ));
+        }
+    };
+    let route = state.borrow::<crate::internal::InternalRoute>().clone();
+    let task = route
+        .start(args.method, &url, args.headers, body)
         .map_err(|error| JsErrorBox::generic(error.to_js()))?;
     let counters = state.borrow::<Arc<Counters>>().clone();
     metrics::add(&counters.fetch_in_flight, 1);

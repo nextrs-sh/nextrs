@@ -615,9 +615,16 @@
   // Framing and connection headers belong to the client.
   const FORBIDDEN_HEADERS = new Set(["connection", "keep-alive", "transfer-encoding", "upgrade", "te", "trailer", "host"]);
 
-  function outgoingHeaders(headers) {
+  // `internal`: Next.js requesting its own server (see 03_server.js and
+  // src/internal.rs). It forwards the browser request's headers, Host
+  // included (its origin check needs it); framing headers are dropped.
+  function outgoingHeaders(headers, internal = false) {
     const list = [];
     for (const [name, value] of headers[kList]) {
+      if (internal && (FORBIDDEN_HEADERS.has(name) || name.startsWith("proxy-"))) {
+        if (name === "host") list.push([name, value]);
+        continue;
+      }
       if (FORBIDDEN_HEADERS.has(name) || name.startsWith("proxy-")) {
         throw new TypeError(`fetch: the '${name}' request header cannot be set`);
       }
@@ -680,11 +687,20 @@
 
   const EMPTY = new Uint8Array(0);
 
+  function isInternalUrl(href) {
+    const url = new URL(href);
+    return url.protocol === "http:" && url.hostname === "localhost" && url.port === "";
+  }
+
   async function fetch(input, init = undefined) {
     const request = new Request(input, init);
     const signal = request.signal;
     if (signal.aborted) throw signal.reason;
-    const headers = outgoingHeaders(request.headers);
+    // Next marks requests to its own server with `next: { internal: 1 }`
+    // (Server Action redirects and forwarding). The host serves those for
+    // http://localhost in-process; any other URL is an ordinary fetch.
+    const internal = Boolean(init?.next?.internal) && isInternalUrl(request.url);
+    const headers = outgoingHeaders(request.headers, internal);
     let bodyKind = "none";
     let bytes = EMPTY;
     let stream = null;
@@ -706,7 +722,7 @@
     let id;
     try {
       id = ops.op_nextrs_fetch_start(
-        { method: request.method, url: request.url, headers, bodyKind, redirect: request.redirect },
+        { method: request.method, url: request.url, headers, bodyKind, redirect: request.redirect, internal },
         bytes,
       );
     } catch (error) {

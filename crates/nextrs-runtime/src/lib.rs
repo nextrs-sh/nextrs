@@ -19,6 +19,7 @@
 //! and host capabilities only through the ops in `ops.rs`.
 
 mod cache;
+mod internal;
 mod metrics;
 mod multipart;
 mod net;
@@ -38,6 +39,9 @@ use std::time::Duration;
 use bytes::Bytes;
 
 pub use crate::cache::CacheConfig;
+pub use crate::internal::{
+    InternalBody, InternalDispatch, InternalRequest, InternalResponse, MAX_INTERNAL_REQUESTS,
+};
 pub use crate::metrics::{CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MetricsSnapshot};
 pub use crate::net::{AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy};
 pub use crate::pool::{Executor, FailureReason};
@@ -185,6 +189,9 @@ pub struct RenderRequest {
     /// runs (next start's base server does this for `Vary`). The handler
     /// may override them.
     pub initial_headers: Vec<(String, String)>,
+    /// The status the response starts with (next start sets 404 before it
+    /// renders the not-found page). `None` is 200. The handler may change it.
+    pub initial_status: Option<u16>,
 }
 
 /// A request body stream. JavaScript pulls one item per `_read()`, so the
