@@ -77,7 +77,8 @@ export async function setFlavor(formData: FormData) {
 
 // Records one side effect in the test upstream (tests/compat/upstream.mjs),
 // which counts them outside every isolate.
-export async function recordMutation(key: string, id: string, delayMs = 0, spinMs = 0) {
+export async function recordMutation(key: string, id: string, delayMs = 0, spinMs = 0, waitBeforeMs = 0) {
+  if (waitBeforeMs > 0) await new Promise((resolve) => setTimeout(resolve, waitBeforeMs));
   const res = await fetch(upstream(`/mutations?key=${encodeURIComponent(key)}&id=${encodeURIComponent(id)}`), { method: 'POST' });
   if (!res.ok) throw new Error(`upstream refused the mutation: ${res.status}`);
   if (spinMs > 0) {
