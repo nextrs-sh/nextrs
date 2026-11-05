@@ -926,14 +926,17 @@ fn watch(inner: &PoolInner, worker: &WorkerShared, exit: &Receiver<WorkerExit>) 
             Err(RecvTimeoutError::Disconnected) => return Ok(()),
             Err(RecvTimeoutError::Timeout) => {}
         }
+        // One reading: the turn may end between a second call and the log,
+        // which then showed the stall as busy_ms=0.
+        let busy = worker.busy_for();
         if let Some(limit) = limits.stall_timeout
-            && worker.busy_for() > limit
+            && busy > limit
             && worker.termination().is_none()
         {
             tracing::error!(
                 target: "nextrs::executor",
                 slot = worker.slot,
-                busy_ms = worker.busy_for().as_millis() as u64,
+                busy_ms = busy.as_millis() as u64,
                 active = worker.active.load(Ordering::Relaxed),
                 "JavaScript exceeded the stall timeout; terminating the isolate"
             );

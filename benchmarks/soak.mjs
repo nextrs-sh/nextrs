@@ -72,7 +72,7 @@ const bump = (key) => (counts[key] = (counts[key] ?? 0) + 1);
 const failures = [];
 const fail = (kind, detail) => {
   bump(`${kind}-FAILED`);
-  if (failures.length < 50) failures.push({ kind, ...detail });
+  if (failures.length < 50) failures.push({ kind, t: Math.round((Date.now() - started) / 1000), ...detail });
 };
 
 function request(path, { method = "GET", headers = {}, body, abortAfter, slow, timeoutMs } = {}) {
@@ -276,7 +276,7 @@ async function dataAbortCase() {
 async function healthCase() {
   const r = await request("/api/health");
   if (lostToRestart(r)) return bump("lost-to-restart");
-  if (r.status !== 200) return fail("health", { status: r.status });
+  if (r.status !== 200) return fail("health", { status: r.status, error: r.error ?? (r.aborted ? "aborted" : undefined) });
   bump("health-ok");
 }
 
@@ -398,6 +398,9 @@ async function sample() {
     t: Math.round((Date.now() - started) / 1000),
     rssMiB: procStatus("VmRSS"),
     rssAnonMiB: procStatus("RssAnon"),
+    // Pages of the server in swap are missing from RSS: a host under memory
+    // pressure can hide growth there.
+    swapMiB: procStatus("VmSwap"),
     completed,
     restarts: m ? m.executors.reduce((n, e) => n + e.restarts, 0) : null,
     heapUsedMiB: m ? +(m.executors.reduce((n, e) => n + (e.heap_used_bytes ?? 0), 0) / 1048576).toFixed(1) : null,
