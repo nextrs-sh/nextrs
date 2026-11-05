@@ -321,6 +321,40 @@ compare("authorization-dependent-route-not-shared", async (base, tag) => {
   return { cacheControl: responses[0].cc, eachOwn: responses.every((r, i) => r.body.auth === users[i]) };
 });
 
+// --- Cache poisoning ---------------------------------------------------------
+// Request data that must not select, create or replace a cached entry.
+compare("poisoning-query-and-headers", async (base, tag) => {
+  await page(base, "/isr/two");
+  const reference = await page(base, "/isr/two");
+  const before = await hits("isr-slug-two");
+  const attempts = [
+    ["/isr/two?evil=<script>", {}],
+    ["/isr/two", { "x-prerender-revalidate": "guessed-preview-id" }],
+    ["/isr/two", { "x-next-revalidated-tags": "isr-slug-two", "x-next-revalidate-tag-token": "guess" }],
+    ["/isr/two", { "x-forwarded-host": "evil.example", host: "evil.example" }],
+    ["/isr/two", { cookie: `session=${tag}`, authorization: "Bearer x" }],
+    ["/isr/two", { "x-nextjs-data": "1", "next-router-prefetch": "1" }],
+  ];
+  const out = [];
+  for (const [path, headers] of attempts) {
+    const r = await page(base, path, headers);
+    out.push({ status: r.status, cache: r.cache, sameGeneration: r.stamp === reference.stamp, setCookie: r.body.includes("Set-Cookie") });
+  }
+  const after = await page(base, "/isr/two");
+  return { attempts: out, renders: (await hits("isr-slug-two")) - before, unchanged: after.stamp === reference.stamp && !after.body.includes("evil") };
+});
+
+compare("rsc-and-html-entries-not-confused", async (base) => {
+  const html = await page(base, "/isr/one");
+  const rsc = await fetch(`${base}/isr/one`, { headers: { rsc: "1" }, redirect: "manual" });
+  const location = rsc.headers.get("location");
+  const flight = location ? await fetch(new URL(location, base), { headers: { rsc: "1" } }) : rsc;
+  const flightType = (flight.headers.get("content-type") ?? "").split(";")[0];
+  const after = await page(base, "/isr/one");
+  return { htmlType: html.type, flightType, // next start compresses and adds Accept-Encoding; NextRS does not compress.
+    vary: (flight.headers.get("vary") ?? "").replace(/, Accept-Encoding$/, ""), afterType: after.type, afterIsHtml: after.body.startsWith("<!DOCTYPE html>") };
+});
+
 // ---------------------------------------------------------------------------
 const results = [];
 let failures = 0;
