@@ -6,7 +6,7 @@
 
 ((globalThis) => {
   const internal = globalThis.__nextrsInternal;
-  const { core, ops, boot, Module, Buffer, stream, path } = internal;
+  const { core, ops, boot, Module, Buffer, stream, path, requestScope } = internal;
   const { Readable, Writable } = stream;
 
   // op_nextrs_response_write results (response.rs WriteStatus).
@@ -362,7 +362,7 @@
     res.destroy();
   }
 
-  async function serve(request) {
+  async function serve(request, scope) {
     const id = request.id;
     let timer;
     try {
@@ -434,6 +434,11 @@
       }
     } finally {
       clearTimeout(timer);
+      // Outbound fetches the request left open end with it.
+      if (scope.fetches?.size) {
+        const ended = new DOMException("The request that started this fetch has ended", "AbortError");
+        for (const abort of [...scope.fetches]) abort(ended);
+      }
       ops.op_nextrs_request_done(id);
     }
   }
@@ -443,14 +448,106 @@
       const request = await ops.op_nextrs_next_request();
       if (request === null) return;
       // Concurrent: each request runs in its own async context.
-      serve(request).catch((error) => ops.op_nextrs_diagnostic("serve-error", errorText(error)));
+      const scope = { fetches: null };
+      requestScope
+        .run(scope, () => serve(request, scope))
+        .catch((error) => ops.op_nextrs_diagnostic("serve-error", errorText(error)));
     }
+  }
+
+  // `next start` loads every app module at startup and calls its
+  // patchFetch() (next-server.js), so Next's fetch wrapper is built by the
+  // first module in app-paths-manifest order; later calls are no-ops. That
+  // choice matters: route handlers and pages are bundled with separate
+  // React instances, and the wrapper dedupes a render's fetches with
+  // React.cache of the instance that built it. Built from a route handler,
+  // it never dedupes page renders. Make the same first call; the other
+  // modules still load on demand.
+  function patchFetchAsNextStartDoes() {
+    const patched = Symbol.for("next-patch");
+    let manifest;
+    try {
+      manifest = rootRequire(path.join(distDir, "server", "app-paths-manifest.json"));
+    } catch {
+      return;
+    }
+    for (const page of Object.keys(manifest)) {
+      if (globalThis[patched] === true) return;
+      try {
+        loadEntry(path.join(distDir, "server", "app", `${page}.js`)).patchFetch?.();
+      } catch (error) {
+        // next start ignores preload failures too.
+        ops.op_nextrs_diagnostic("preload-error", `${page}: ${errorText(error)}`);
+      }
+    }
+  }
+
+  // The data cache shared by every isolate (src/cache.rs), offered to
+  // Next.js as hosting platforms do: as the FetchCache handler on
+  // globalThis[Symbol.for("@next/cache-handlers")]. IncrementalCache uses
+  // it unless next.config sets its own `cacheHandler`, which wins. It
+  // implements Next's documented CacheHandler interface. FETCH entries
+  // (the fetch data cache and unstable_cache) are stored; page and route
+  // entries (ISR) are not, and read as misses.
+  const notStored = new Set();
+  class NextRSCacheHandler {
+    constructor(_context) {}
+
+    async get(key, context) {
+      if (context?.kind !== "FETCH") return null;
+      const tags = [...(context.tags ?? []), ...(context.softTags ?? [])];
+      const hit = await ops.op_nextrs_cache_get(String(key), tags);
+      if (hit === null) return null;
+      let value;
+      try {
+        value = JSON.parse(hit.value);
+      } catch {
+        return null;
+      }
+      // A tag marked stale after the entry was written (revalidateTag with
+      // a profile): an age beyond any revalidate period makes Next serve
+      // the entry and refresh it, as its own handler does for stale tags.
+      return { value, lastModified: hit.stale ? Number.MIN_SAFE_INTEGER : hit.lastModified };
+    }
+
+    async set(key, data, context) {
+      if (data === null || data === undefined) {
+        await ops.op_nextrs_cache_set(String(key), null, []);
+        return;
+      }
+      if (data.kind !== "FETCH") {
+        if (!notStored.has(data.kind)) {
+          notStored.add(data.kind);
+          ops.op_nextrs_diagnostic("cache", `${data.kind} cache entries are not stored by NextRS (ISR is not supported)`);
+        }
+        return;
+      }
+      const tags = context?.tags ?? data.tags ?? [];
+      await ops.op_nextrs_cache_set(String(key), JSON.stringify(data), [...tags].map(String));
+    }
+
+    async revalidateTag(tags, durations) {
+      tags = (typeof tags === "string" ? [tags] : [...tags]).map(String);
+      if (tags.length === 0) return;
+      const given = durations !== undefined && durations !== null;
+      await ops.op_nextrs_cache_revalidate(tags, given && typeof durations.expire === "number" ? durations.expire : -1, given);
+    }
+
+    resetRequestCache() {}
   }
 
   globalThis.__nextrsStart = function start() {
     delete globalThis.__nextrsStart;
     delete globalThis.__nextrsInternal;
     delete globalThis.Deno;
+    if (boot.cache) {
+      Object.defineProperty(globalThis, Symbol.for("@next/cache-handlers"), {
+        value: { FetchCache: NextRSCacheHandler },
+        writable: true,
+        enumerable: false,
+        configurable: true,
+      });
+    }
     try {
       // Next's official adapter bootstrap: AsyncLocalStorage global,
       // require hooks, crypto polyfills, error handling.
@@ -459,6 +556,7 @@
       ops.op_nextrs_ready(errorText(error));
       return;
     }
+    patchFetchAsNextStartDoes();
     if (boot.faultInjection) {
       Object.defineProperty(globalThis, "__nextrsFault", { value: (kind) => ops.op_nextrs_fault(kind) });
     }

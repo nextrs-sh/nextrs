@@ -28,6 +28,8 @@ pub fn config(limits: Limits) -> ExecutorConfig {
         bootstrap: None,
         trace_node_api: false,
         limits,
+        network: None,
+        cache: None,
     }
 }
 

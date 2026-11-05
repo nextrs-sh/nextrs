@@ -25,6 +25,8 @@ fn executor() -> Arc<Executor> {
         bootstrap: None,
         trace_node_api: false,
         limits: Limits::default(),
+        network: None,
+        cache: None,
     })
     .expect("executor starts")
 }
@@ -234,11 +236,13 @@ async fn unsupported_apis_fail_explicitly() {
         "caller missing: {}",
         child.body
     );
+    // Without a network configuration, fetch is denied by policy, as a
+    // Node-style network error (TypeError with the reason as its cause).
     let fetch = collect(&executor, request("errors.js", &[("x-mode", "fetch")])).await;
     assert!(
         fetch
             .body
-            .starts_with("ERR_NEXTRS_UNSUPPORTED|[NextRS] fetch is not supported"),
+            .starts_with("ERR_NEXTRS_NET_DENIED|TypeError|fetch failed|"),
         "{}",
         fetch.body
     );

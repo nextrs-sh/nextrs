@@ -18,7 +18,9 @@
 //! `js/` (NextRS-owned) and `js/node-polyfills.js` (vendored npm packages),
 //! and host capabilities only through the ops in `ops.rs`.
 
+mod cache;
 mod metrics;
+mod net;
 mod ops;
 mod pool;
 mod response;
@@ -33,10 +35,22 @@ use std::time::Duration;
 
 use bytes::Bytes;
 
-pub use crate::metrics::{ExecutorSnapshot, MetricsSnapshot};
+pub use crate::cache::CacheConfig;
+pub use crate::metrics::{CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MetricsSnapshot};
+pub use crate::net::{AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy};
 pub use crate::pool::{Executor, FailureReason};
 pub use crate::response::{ResponseEvent, ResponseStream};
 pub use crate::sandbox::{FsDenied, FsPolicy};
+
+/// Passes flags to V8 (e.g. `--max-semi-space-size=8`). Process-wide; call
+/// before the first [`Executor`] starts. Returns the flags V8 did not
+/// recognize. For tuning experiments: some V8 flags weaken the sandbox
+/// (`--allow-natives-syntax` exposes engine internals to JavaScript).
+pub fn set_v8_flags(flags: &[String]) -> Vec<String> {
+    let mut args = vec!["nextrs".to_owned()];
+    args.extend(flags.iter().cloned());
+    deno_core::v8_set_flags(args).into_iter().skip(1).collect()
+}
 
 /// The Node.js version the runtime reports in `process.version`: the
 /// version NextRS is compatibility-tested against, not a claim to be Node.
@@ -59,6 +73,14 @@ pub struct ExecutorConfig {
     /// research; off by default.
     pub trace_node_api: bool,
     pub limits: Limits,
+    /// Outbound `fetch`. `None`: JavaScript has no network access, and
+    /// `fetch` fails with `ERR_NEXTRS_NET_DENIED`.
+    pub network: Option<NetworkConfig>,
+    /// The data cache shared by every isolate (fetch cache, unstable_cache),
+    /// offered to Next.js as its cache handler. `None`: Next's default
+    /// handler, separate in each isolate and in memory only (the build
+    /// directory is read-only).
+    pub cache: Option<CacheConfig>,
 }
 
 impl ExecutorConfig {
@@ -74,6 +96,8 @@ impl ExecutorConfig {
             bootstrap: Some(bootstrap),
             trace_node_api: false,
             limits: Limits::default(),
+            network: None,
+            cache: Some(CacheConfig::default()),
         }
     }
 

@@ -1,6 +1,7 @@
 //! One isolate thread: a current-thread Tokio runtime driving a `JsRuntime`
 //! until the supervisor stops it or JavaScript fails.
 
+use std::ffi::c_void;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::mpsc::Sender;
@@ -10,7 +11,6 @@ use std::time::{Duration, Instant};
 use deno_core::{JsRuntime, PollEventLoopOptions, RuntimeOptions, v8};
 use tokio::sync::mpsc;
 
-use crate::metrics::Counters;
 use crate::pool::{FailureReason, Job, Termination, WorkerExit, WorkerShared};
 use crate::{ExecutorConfig, REPORTED_NODE_VERSION, ops};
 
@@ -42,7 +42,7 @@ const SCRIPTS: &[(&str, &str)] = &[
 pub(crate) fn spawn(
     config: ExecutorConfig,
     worker: Arc<WorkerShared>,
-    counters: Arc<Counters>,
+    services: ops::HostServices,
     jobs: mpsc::UnboundedReceiver<Box<Job>>,
     ready: Sender<Result<(), String>>,
     exit: Sender<WorkerExit>,
@@ -50,7 +50,7 @@ pub(crate) fn spawn(
     std::thread::Builder::new()
         .name(format!("nextrs-v8-{}", worker.slot))
         .spawn(move || {
-            let outcome = run(config, worker.clone(), counters, jobs, ready.clone());
+            let outcome = run(config, worker.clone(), services, jobs, ready.clone());
             worker.mark_exited();
             if let Err(error) = &outcome {
                 // Only reaches the supervisor if bootstrap had not reported.
@@ -63,7 +63,7 @@ pub(crate) fn spawn(
 fn run(
     config: ExecutorConfig,
     worker: Arc<WorkerShared>,
-    counters: Arc<Counters>,
+    services: ops::HostServices,
     jobs: mpsc::UnboundedReceiver<Box<Job>>,
     ready: Sender<Result<(), String>>,
 ) -> WorkerExit {
@@ -84,6 +84,8 @@ fn run(
             node_version: REPORTED_NODE_VERSION,
             nextrs_version: env!("CARGO_PKG_VERSION"),
             fault_injection: cfg!(feature = "fault-injection"),
+            network: services.net.is_some(),
+            cache: services.cache.is_some(),
         };
         let create_params = config
             .limits
@@ -104,7 +106,7 @@ fn run(
                     ops::Inbox(Rc::new(tokio::sync::Mutex::new(jobs))),
                     ops::ReadySignal(Some(ready)),
                     worker.clone(),
-                    counters,
+                    services,
                 ),
             ],
             create_params,
@@ -120,6 +122,15 @@ fn run(
                 current + HEAP_HEADROOM
             });
         }
+        // The callback's data pointer owns one reference to `worker`. It is
+        // released below only after the callback is removed; if this thread
+        // unwinds first, the reference leaks instead of dangling.
+        let gc_data = Arc::into_raw(worker.clone()) as *mut c_void;
+        runtime.v8_isolate().add_gc_epilogue_callback(
+            after_full_gc,
+            gc_data,
+            v8::GCType::kGCTypeMarkSweepCompact,
+        );
         worker.beat();
         let heartbeat = {
             let worker = worker.clone();
@@ -134,8 +145,33 @@ fn run(
         };
         let result = drive(&mut runtime, &worker).await;
         heartbeat.abort();
+        runtime
+            .v8_isolate()
+            .remove_gc_epilogue_callback(after_full_gc, gc_data);
+        // SAFETY: from `Arc::into_raw` above; V8 no longer holds the pointer.
+        drop(unsafe { Arc::from_raw(gc_data as *const WorkerShared) });
         result
     })
+}
+
+/// V8 GC epilogue for full collections: records the heap still in use.
+unsafe extern "C" fn after_full_gc(
+    isolate: v8::UnsafeRawIsolatePtr,
+    _type: v8::GCType,
+    _flags: v8::GCCallbackFlags,
+    data: *mut c_void,
+) {
+    // SAFETY: `data` is the `Arc<WorkerShared>` reference registered in
+    // `run`, alive until the callback is removed. V8 calls this on the
+    // isolate's own thread with a valid isolate pointer; reading heap
+    // statistics from a GC callback is permitted.
+    let (worker, mut isolate) = unsafe {
+        (
+            &*(data as *const WorkerShared),
+            v8::Isolate::from_raw_isolate_ptr(isolate),
+        )
+    };
+    worker.record_full_gc(isolate.get_heap_statistics().used_heap_size());
 }
 
 /// `run_event_loop`, sampling V8 heap statistics at most once per

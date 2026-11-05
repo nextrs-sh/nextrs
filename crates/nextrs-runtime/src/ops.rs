@@ -7,13 +7,16 @@ use std::rc::Rc;
 use std::sync::Arc;
 use std::time::{Instant, UNIX_EPOCH};
 
+use bytes::Bytes;
 use deno_core::{OpState, ToJsBuffer, op2, v8};
 use deno_error::JsErrorBox;
 use futures_util::StreamExt;
-use serde::Serialize;
-use tokio::sync::mpsc;
+use serde::{Deserialize, Serialize};
+use tokio::sync::{mpsc, oneshot};
 
+use crate::cache::{CacheStore, Hit, Lookup};
 use crate::metrics::{self, Counters};
+use crate::net::{BodyItem, FetchError, FetchHead, FetchRequest, NetClient, OutBody, RedirectMode};
 use crate::pool::{Job, Slot, WorkerShared};
 use crate::response::{FlowHandle, ResponseEvent, ResponseSender, WriteStatus};
 use crate::sandbox::{FsDenied, FsPolicy};
@@ -31,6 +34,10 @@ pub(crate) struct BootConfig {
     pub node_version: &'static str,
     pub nextrs_version: &'static str,
     pub fault_injection: bool,
+    /// Outbound fetch is configured (the policy itself stays in Rust).
+    pub network: bool,
+    /// The shared data cache is offered to Next.js as its cache handler.
+    pub cache: bool,
 }
 
 pub(crate) struct Inbox(pub Rc<tokio::sync::Mutex<mpsc::UnboundedReceiver<Box<Job>>>>);
@@ -54,6 +61,50 @@ pub(crate) struct Requests {
 }
 
 pub(crate) struct ReadySignal(pub Option<std::sync::mpsc::Sender<Result<(), String>>>);
+
+/// Host services shared by every isolate of a pool.
+#[derive(Clone)]
+pub(crate) struct HostServices {
+    pub counters: Arc<Counters>,
+    pub net: Option<Arc<NetClient>>,
+    pub cache: Option<Arc<CacheStore>>,
+}
+
+/// The shared outbound HTTP client, if the network is configured.
+pub(crate) struct NetCapability(pub Option<Arc<NetClient>>);
+
+/// The data cache shared by all isolates, if enabled.
+pub(crate) struct CacheCapability(pub Option<Arc<CacheStore>>);
+
+/// Outbound fetches an isolate holds open. Dropping one (`op_nextrs_fetch_close`,
+/// or the whole op state when the isolate goes away) aborts its network task.
+#[derive(Default)]
+pub(crate) struct Fetches {
+    next_id: u32,
+    open: HashMap<u32, OpenFetch>,
+}
+
+struct OpenFetch {
+    head: Option<oneshot::Receiver<Result<FetchHead, FetchError>>>,
+    body: Option<mpsc::Receiver<BodyItem>>,
+    upload: Option<mpsc::Sender<Bytes>>,
+    abort: tokio::task::AbortHandle,
+    /// The response ended (body read to the end, or failed).
+    settled: bool,
+    counters: Arc<Counters>,
+}
+
+impl Drop for OpenFetch {
+    fn drop(&mut self) {
+        self.abort.abort();
+        if !self.settled {
+            self.counters.fetch_failed(metrics::FETCH_ABORTED);
+        }
+        self.counters
+            .fetch_in_flight
+            .fetch_sub(1, std::sync::atomic::Ordering::Relaxed);
+    }
+}
 
 deno_core::extension!(
     nextrs_runtime,
@@ -80,6 +131,15 @@ deno_core::extension!(
         op_nextrs_hash,
         op_nextrs_random_fill,
         op_nextrs_vm_run_in_new_context,
+        op_nextrs_fetch_start,
+        op_nextrs_fetch_head,
+        op_nextrs_fetch_read,
+        op_nextrs_fetch_write,
+        op_nextrs_fetch_write_end,
+        op_nextrs_fetch_close,
+        op_nextrs_cache_get,
+        op_nextrs_cache_set,
+        op_nextrs_cache_revalidate,
     ],
     options = {
         boot: BootConfig,
@@ -87,7 +147,7 @@ deno_core::extension!(
         inbox: Inbox,
         ready: ReadySignal,
         worker: Arc<WorkerShared>,
-        counters: Arc<Counters>,
+        services: HostServices,
     },
     state = |state, options| {
         state.put(options.boot);
@@ -95,8 +155,11 @@ deno_core::extension!(
         state.put(options.inbox);
         state.put(options.ready);
         state.put(options.worker);
-        state.put(options.counters);
+        state.put(options.services.counters);
         state.put(Requests::default());
+        state.put(NetCapability(options.services.net));
+        state.put(Fetches::default());
+        state.put(CacheCapability(options.services.cache));
     }
 );
 
@@ -158,7 +221,8 @@ async fn op_nextrs_next_request(state: Rc<RefCell<OpState>>) -> Option<JsRequest
     let request = job.request;
     let (body, body_stream) = match request.body {
         RequestBody::Empty => (None, None),
-        RequestBody::Full(bytes) => (Some(bytes.to_vec().into()), None),
+        // Vec::from(Bytes) reuses the allocation when it is not shared.
+        RequestBody::Full(bytes) => (Some(Vec::from(bytes).into()), None),
         RequestBody::Stream(stream) => (None, Some(stream)),
     };
     let has_stream = body_stream.is_some();
@@ -220,7 +284,7 @@ async fn op_nextrs_request_read(
             {
                 open.body = Some(stream);
             }
-            Ok(Some(chunk.to_vec().into()))
+            Ok(Some(Vec::from(chunk).into()))
         }
         Some(Err(error)) => {
             state
@@ -556,4 +620,280 @@ fn copy_own_properties(
             to.set(scope, key, value);
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// Outbound fetch. JavaScript errors carry `CODE: message`; 01_fetch.js turns
+// them into Node-style `TypeError("fetch failed", { cause })`.
+// ---------------------------------------------------------------------------
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct FetchArgs {
+    method: String,
+    url: String,
+    headers: Vec<(String, String)>,
+    /// "none", "bytes" (the buffer argument) or "stream" (written with
+    /// `op_nextrs_fetch_write`).
+    body_kind: String,
+    redirect: String,
+}
+
+fn aborted() -> JsErrorBox {
+    JsErrorBox::generic("ABORT_ERR: the fetch was aborted")
+}
+
+/// Starts a fetch; returns its id. Refused at once (no network task) when
+/// the network is not configured, the URL is not allowed, or the isolate
+/// already holds its limit of open fetches.
+#[op2]
+#[smi]
+fn op_nextrs_fetch_start(
+    state: &mut OpState,
+    #[serde] args: FetchArgs,
+    #[buffer(copy)] body: Vec<u8>,
+) -> Result<u32, JsErrorBox> {
+    let Some(net) = state.borrow::<NetCapability>().0.clone() else {
+        return Err(JsErrorBox::generic(
+            "ERR_NEXTRS_NET_DENIED: outbound network access is not enabled (see --net-allow)",
+        ));
+    };
+    let limit = net.limits().max_in_flight_per_isolate;
+    if state.borrow::<Fetches>().open.len() >= limit {
+        return Err(JsErrorBox::generic(format!(
+            "ERR_NEXTRS_NET_LIMIT: this isolate already has {limit} outbound fetches open"
+        )));
+    }
+    let invalid = |what: &str| JsErrorBox::generic(format!("ERR_INVALID_ARG_VALUE: {what}"));
+    let method =
+        reqwest::Method::from_bytes(args.method.as_bytes()).map_err(|_| invalid("method"))?;
+    let url = url::Url::parse(&args.url).map_err(|_| invalid("URL"))?;
+    let (body, upload) = match args.body_kind.as_str() {
+        "none" => (OutBody::None, None),
+        "bytes" => (OutBody::Bytes(Bytes::from(body)), None),
+        "stream" => {
+            let (tx, rx) = mpsc::channel(1);
+            (OutBody::Stream(rx), Some(tx))
+        }
+        _ => return Err(invalid("body kind")),
+    };
+    let redirect = match args.redirect.as_str() {
+        "manual" => RedirectMode::Manual,
+        "error" => RedirectMode::Error,
+        _ => RedirectMode::Follow,
+    };
+    let task = net
+        .start(FetchRequest {
+            method,
+            url,
+            headers: args.headers,
+            body,
+            redirect,
+        })
+        .map_err(|error| JsErrorBox::generic(error.to_js()))?;
+    let counters = state.borrow::<Arc<Counters>>().clone();
+    metrics::add(&counters.fetch_in_flight, 1);
+    let fetches = state.borrow_mut::<Fetches>();
+    fetches.next_id = fetches.next_id.wrapping_add(1);
+    let id = fetches.next_id;
+    fetches.open.insert(
+        id,
+        OpenFetch {
+            head: Some(task.head),
+            body: Some(task.body),
+            upload,
+            abort: task.abort,
+            settled: false,
+            counters,
+        },
+    );
+    Ok(id)
+}
+
+/// The response head, once it arrives (after any redirects).
+#[op2]
+#[serde]
+async fn op_nextrs_fetch_head(
+    state: Rc<RefCell<OpState>>,
+    #[smi] id: u32,
+) -> Result<FetchHead, JsErrorBox> {
+    let head = state
+        .borrow_mut()
+        .borrow_mut::<Fetches>()
+        .open
+        .get_mut(&id)
+        .and_then(|fetch| fetch.head.take());
+    let Some(head) = head else {
+        return Err(aborted());
+    };
+    match head.await {
+        Ok(Ok(head)) => Ok(head),
+        Ok(Err(error)) => {
+            if let Some(fetch) = state.borrow_mut().borrow_mut::<Fetches>().open.get_mut(&id) {
+                fetch.settled = true;
+            }
+            Err(JsErrorBox::generic(error.to_js()))
+        }
+        Err(_) => Err(aborted()),
+    }
+}
+
+/// The next chunk of the response body, or `null` at its end. The network
+/// task reads from the socket only as JavaScript pulls.
+#[op2]
+#[serde]
+async fn op_nextrs_fetch_read(
+    state: Rc<RefCell<OpState>>,
+    #[smi] id: u32,
+) -> Result<Option<ToJsBuffer>, JsErrorBox> {
+    let body = state
+        .borrow_mut()
+        .borrow_mut::<Fetches>()
+        .open
+        .get_mut(&id)
+        .and_then(|fetch| fetch.body.take());
+    let Some(mut body) = body else {
+        return Err(aborted());
+    };
+    let item = body.recv().await;
+    let mut state = state.borrow_mut();
+    let fetch = state.borrow_mut::<Fetches>().open.get_mut(&id);
+    match item {
+        Some(BodyItem::Chunk(chunk)) => {
+            if let Some(fetch) = fetch {
+                fetch.body = Some(body);
+            }
+            Ok(Some(Vec::from(chunk).into()))
+        }
+        Some(BodyItem::End) => {
+            if let Some(fetch) = fetch {
+                fetch.settled = true;
+            }
+            Ok(None)
+        }
+        Some(BodyItem::Error(error)) => {
+            if let Some(fetch) = fetch {
+                fetch.settled = true;
+            }
+            Err(JsErrorBox::generic(error.to_js()))
+        }
+        // The task ended without End: it was aborted.
+        None => Err(aborted()),
+    }
+}
+
+/// Writes one chunk of a streamed request body. Resolves when the network
+/// task has taken it (at most one chunk is buffered); false if the request
+/// no longer reads its body.
+#[op2]
+async fn op_nextrs_fetch_write(
+    state: Rc<RefCell<OpState>>,
+    #[smi] id: u32,
+    #[buffer(copy)] chunk: Vec<u8>,
+) -> bool {
+    let upload = state
+        .borrow()
+        .borrow::<Fetches>()
+        .open
+        .get(&id)
+        .and_then(|fetch| fetch.upload.clone());
+    match upload {
+        Some(upload) => upload.send(Bytes::from(chunk)).await.is_ok(),
+        None => false,
+    }
+}
+
+/// Ends a streamed request body.
+#[op2(fast)]
+fn op_nextrs_fetch_write_end(state: &mut OpState, #[smi] id: u32) {
+    if let Some(fetch) = state.borrow_mut::<Fetches>().open.get_mut(&id) {
+        fetch.upload = None;
+    }
+}
+
+/// Releases a fetch; aborts it if it is still running. Idempotent.
+#[op2(fast)]
+fn op_nextrs_fetch_close(state: &mut OpState, #[smi] id: u32) {
+    state.borrow_mut::<Fetches>().open.remove(&id);
+}
+
+// ---------------------------------------------------------------------------
+// Shared data cache (cache.rs). Keys, tags and values only: JavaScript never
+// names a file. Disk access runs on Tokio's blocking threads.
+// ---------------------------------------------------------------------------
+
+fn cache_store(state: &Rc<RefCell<OpState>>) -> Result<Arc<CacheStore>, JsErrorBox> {
+    state
+        .borrow()
+        .borrow::<CacheCapability>()
+        .0
+        .clone()
+        .ok_or_else(|| JsErrorBox::generic("ERR_NEXTRS_UNSUPPORTED: the shared cache is disabled"))
+}
+
+fn blocking_failed(error: tokio::task::JoinError) -> JsErrorBox {
+    JsErrorBox::generic(format!("cache operation failed: {error}"))
+}
+
+/// An entry for `key`, judged with the stored tags plus `tags` (Next's
+/// `tags` and `softTags`); `null` on a miss.
+#[op2]
+#[serde]
+async fn op_nextrs_cache_get(
+    state: Rc<RefCell<OpState>>,
+    #[string] key: String,
+    #[serde] tags: Vec<String>,
+) -> Result<Option<Hit>, JsErrorBox> {
+    let store = cache_store(&state)?;
+    match store.lookup(&key, &tags) {
+        Lookup::Hit(hit) => Ok(Some(hit)),
+        Lookup::Miss => Ok(None),
+        Lookup::OnDisk { path, generation } => {
+            tokio::task::spawn_blocking(move || store.load(&key, &tags, &path, generation))
+                .await
+                .map_err(blocking_failed)
+        }
+    }
+}
+
+/// Stores a value (`null` removes the entry). Resolves once it is
+/// persisted; every isolate sees it at once.
+#[op2]
+async fn op_nextrs_cache_set(
+    state: Rc<RefCell<OpState>>,
+    #[string] key: String,
+    #[string] value: Option<String>,
+    #[serde] tags: Vec<String>,
+) -> Result<(), JsErrorBox> {
+    let store = cache_store(&state)?;
+    tokio::task::spawn_blocking(move || match value {
+        None => store.delete(&key),
+        Some(value) => {
+            if let Some(write) = store.set(&key, Bytes::from(value), tags) {
+                store.persist(write);
+            }
+        }
+    })
+    .await
+    .map_err(blocking_failed)
+}
+
+/// Next's `revalidateTag(tags, durations)`: `expire` is `durations.expire`
+/// in seconds (negative: not given), `with_durations` whether durations
+/// were given at all.
+#[op2]
+async fn op_nextrs_cache_revalidate(
+    state: Rc<RefCell<OpState>>,
+    #[serde] tags: Vec<String>,
+    expire: f64,
+    with_durations: bool,
+) -> Result<(), JsErrorBox> {
+    let store = cache_store(&state)?;
+    let expire = (expire >= 0.0).then_some(expire);
+    if let Some(contents) = store.revalidate(&tags, expire, with_durations) {
+        tokio::task::spawn_blocking(move || store.persist_tags(contents))
+            .await
+            .map_err(blocking_failed)?;
+    }
+    Ok(())
 }

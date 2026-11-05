@@ -1,14 +1,18 @@
 // NextRS bootstrap, part 2: Headers, Request and Response (WHATWG Fetch),
-// built on deno_web's streams. Next.js needs these classes (NextRequest
-// extends Request; route handlers return Response). Outbound `fetch` and
-// FormData are not supported and fail explicitly.
+// built on deno_web's streams, and outbound `fetch`. Next.js needs these
+// classes (NextRequest extends Request; route handlers return Response).
+// FormData is not supported and fails explicitly.
 //
-// deno_fetch is not used: it brings an HTTP client stack the executor has
-// no permission to use.
+// `fetch` goes through the host's network capability (src/net.rs): the
+// destination policy, DNS checks, redirects, timeouts and size limits are
+// all enforced in Rust. Without a network configuration every fetch fails.
+// deno_fetch is not used: it brings its own HTTP client stack and
+// permission model.
 "use strict";
 
 ((globalThis) => {
-  const { unsupported, NextRSUnsupportedError } = globalThis.__nextrsInternal;
+  const internal = globalThis.__nextrsInternal;
+  const { unsupported, ops } = internal;
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
@@ -132,10 +136,12 @@
   // ---------------------------------------------------------------------
   const kBody = Symbol("body");
 
-  // Returns { stream, contentType }.
+  // Returns { stream, contentType, source }. `source` is the body's bytes
+  // (or Blob) when it has a known content, so fetch can send it with a
+  // length and resend it on a 307/308 redirect; null for streams.
   function extractBody(init) {
-    if (init === null || init === undefined) return { stream: null, contentType: null };
-    if (init instanceof ReadableStream) return { stream: init, contentType: null };
+    if (init === null || init === undefined) return { stream: null, contentType: null, source: null };
+    if (init instanceof ReadableStream) return { stream: init, contentType: null, source: null };
     let bytes;
     let contentType = null;
     if (typeof init === "string") {
@@ -149,11 +155,11 @@
     } else if (ArrayBuffer.isView(init)) {
       bytes = new Uint8Array(init.buffer.slice(init.byteOffset, init.byteOffset + init.byteLength));
     } else if (init instanceof Blob) {
-      return { stream: init.stream(), contentType: init.type || null };
+      return { stream: init.stream(), contentType: init.type || null, source: init };
     } else if (typeof FormData !== "undefined" && init instanceof FormData) {
       unsupported("Fetch body", "FormData");
     } else if (typeof init[Symbol.asyncIterator] === "function") {
-      return { stream: ReadableStream.from(init), contentType: null };
+      return { stream: ReadableStream.from(init), contentType: null, source: null };
     } else {
       bytes = encoder.encode(String(init));
       contentType = "text/plain;charset=UTF-8";
@@ -161,11 +167,11 @@
     const stream = new ReadableStream({
       type: "bytes",
       start(controller) {
-        if (bytes.byteLength) controller.enqueue(bytes);
+        if (bytes.byteLength) controller.enqueue(bytes.slice());
         controller.close();
       },
     });
-    return { stream, contentType };
+    return { stream, contentType, source: bytes };
   }
 
   async function consumeBytes(owner) {
@@ -247,6 +253,7 @@
   const METHODS = new Set(["DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH"]);
   const FORBIDDEN_METHODS = new Set(["CONNECT", "TRACE", "TRACK"]);
   const kState = Symbol("request state");
+  const kSource = Symbol("body source");
 
   class Request {
     constructor(input, init = {}) {
@@ -255,6 +262,7 @@
       if (input instanceof Request) {
         state = { ...input[kState], headers: new Headers(input.headers) };
         this[kBody] = input[kBody];
+        this[kSource] = input[kSource];
       } else {
         // No document base URL exists in this runtime.
         const parsed = new URL(String(input));
@@ -275,6 +283,7 @@
           duplex: "half",
         };
         this[kBody] = null;
+        this[kSource] = null;
       }
       if (init.method !== undefined) {
         let method = String(init.method);
@@ -298,8 +307,9 @@
         if (state.method === "GET" || state.method === "HEAD") {
           throw new TypeError("Request with GET/HEAD method cannot have body.");
         }
-        const { stream, contentType } = extractBody(init.body);
+        const { stream, contentType, source } = extractBody(init.body);
         this[kBody] = stream;
+        this[kSource] = source;
         if (contentType && !state.headers.has("content-type")) state.headers.append("content-type", contentType);
       }
       this[kState] = state;
@@ -326,6 +336,7 @@
       const clone = Object.create(Object.getPrototypeOf(this));
       clone[kState] = { ...this[kState], headers: new Headers(this.headers) };
       clone[kBody] = cloneBody(this);
+      clone[kSource] = this[kSource];
       return clone;
     }
 
@@ -416,9 +427,228 @@
     }
   }
 
-  function fetch(input) {
-    const target = input instanceof Request ? input.url : String(input);
-    return Promise.reject(new NextRSUnsupportedError("fetch", undefined, `outbound request to ${target}`));
+  // ---------------------------------------------------------------------
+  // fetch
+  // ---------------------------------------------------------------------
+
+  // The fetches each request started (set by 03_server.js). Those still
+  // open when the request ends, its waitUntil/after() work included, or
+  // when it is cancelled, are aborted: nothing outlives its request.
+  const requestScope = new internal.AsyncLocalStorage();
+  internal.requestScope = requestScope;
+
+  // A response body nobody reads to the end still holds its connection;
+  // release it once the body stream is garbage.
+  const closeOnCollect = new FinalizationRegistry((id) => ops.op_nextrs_fetch_close(id));
+
+  // Host errors are "CODE: message". Node reports network failures as
+  // TypeError("fetch failed") with the underlying error as `cause`.
+  function fetchFailed(message, error) {
+    const text = String(error?.message ?? error);
+    const match = /^([A-Z][A-Z0-9_]+): ([\s\S]*)$/.exec(text);
+    const cause = new Error(match ? match[2] : text);
+    if (match) cause.code = match[1];
+    return new TypeError(message, { cause });
+  }
+
+  // Set by Node's fetch when absent.
+  const DEFAULT_HEADERS = [
+    ["accept", "*/*"],
+    ["accept-language", "*"],
+    ["sec-fetch-mode", "cors"],
+    ["user-agent", "node"],
+  ];
+  // Framing and connection headers belong to the client.
+  const FORBIDDEN_HEADERS = new Set(["connection", "keep-alive", "transfer-encoding", "upgrade", "te", "trailer", "host"]);
+
+  function outgoingHeaders(headers) {
+    const list = [];
+    for (const [name, value] of headers[kList]) {
+      if (FORBIDDEN_HEADERS.has(name) || name.startsWith("proxy-")) {
+        throw new TypeError(`fetch: the '${name}' request header cannot be set`);
+      }
+      // Computed from the body.
+      if (name === "content-length") continue;
+      if (/[^\x00-\xff]/.test(value)) throw new TypeError(`fetch: the '${name}' header value is not a byte string`);
+      list.push([name, value]);
+    }
+    for (const [name, value] of DEFAULT_HEADERS) {
+      if (!headers.has(name)) list.push([name, value]);
+    }
+    return list;
+  }
+
+  function toBytes(value) {
+    if (value instanceof Uint8Array) return value;
+    if (ArrayBuffer.isView(value)) return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+    if (value instanceof ArrayBuffer) return new Uint8Array(value);
+    if (typeof value === "string") return encoder.encode(value);
+    throw new TypeError("fetch: request body chunks must be bytes");
+  }
+
+  // Writes a streamed request body; each write waits until the network
+  // task takes the chunk.
+  async function upload(id, stream, abort) {
+    const reader = stream.getReader();
+    disturbed.add(stream);
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (!(await ops.op_nextrs_fetch_write(id, toBytes(value)))) {
+          reader.cancel().catch(() => {});
+          return;
+        }
+      }
+      ops.op_nextrs_fetch_write_end(id);
+    } catch (error) {
+      abort(fetchFailed("fetch failed", error));
+      reader.cancel(error).catch(() => {});
+    }
+  }
+
+  function makeResponse(head, body) {
+    const headers = new Headers();
+    for (const [name, value] of head.headers) headers[kList].push([name, value]);
+    headers[kGuard] = "immutable";
+    const response = Object.create(Response.prototype);
+    response[kState] = {
+      status: head.status,
+      statusText: head.statusText,
+      headers,
+      type: "basic",
+      url: head.url,
+      redirected: head.redirected,
+    };
+    response[kBody] = body;
+    return response;
+  }
+
+  const EMPTY = new Uint8Array(0);
+
+  async function fetch(input, init = undefined) {
+    const request = new Request(input, init);
+    const signal = request.signal;
+    if (signal.aborted) throw signal.reason;
+    const headers = outgoingHeaders(request.headers);
+    let bodyKind = "none";
+    let bytes = EMPTY;
+    let stream = null;
+    if (request[kBody] !== null) {
+      if (request.bodyUsed) throw new TypeError("fetch: the request body has already been read");
+      const source = request[kSource];
+      if (source instanceof Uint8Array) {
+        bodyKind = "bytes";
+        bytes = source;
+      } else if (source instanceof Blob) {
+        bodyKind = "bytes";
+        bytes = new Uint8Array(await source.arrayBuffer());
+      } else {
+        bodyKind = "stream";
+        stream = request[kBody];
+      }
+    }
+    if (signal.aborted) throw signal.reason;
+    let id;
+    try {
+      id = ops.op_nextrs_fetch_start(
+        { method: request.method, url: request.url, headers, bodyKind, redirect: request.redirect },
+        bytes,
+      );
+    } catch (error) {
+      throw fetchFailed("fetch failed", error);
+    }
+    return started(id, request, stream);
+  }
+
+  function started(id, request, stream) {
+    const signal = request.signal;
+    const scope = requestScope.getStore();
+    return new Promise((resolve, reject) => {
+      // "head": waiting for the response; "body": the body is streaming.
+      let phase = "head";
+      let controller = null;
+      let body = null;
+      let closed = false;
+      const close = () => {
+        if (closed) return;
+        closed = true;
+        ops.op_nextrs_fetch_close(id);
+        signal.removeEventListener("abort", onAbort);
+        scope?.fetches?.delete(abort);
+        if (body) closeOnCollect.unregister(body);
+      };
+      const abort = (reason) => {
+        if (closed) return;
+        close();
+        if (phase === "head") reject(reason);
+        else if (phase === "body") {
+          try {
+            controller.error(reason);
+          } catch {
+            // Already closed or errored.
+          }
+        }
+        phase = "done";
+      };
+      const onAbort = () => abort(signal.reason);
+      signal.addEventListener("abort", onAbort, { once: true });
+      if (scope) (scope.fetches ??= new Set()).add(abort);
+      if (stream) upload(id, stream, abort);
+
+      ops.op_nextrs_fetch_head(id).then(
+        (head) => {
+          if (closed) return;
+          if (NULL_BODY_STATUS.has(head.status) || request.method === "HEAD") {
+            phase = "done";
+            close();
+            resolve(makeResponse(head, null));
+            return;
+          }
+          phase = "body";
+          body = new ReadableStream(
+            {
+              start(c) {
+                controller = c;
+              },
+              async pull(c) {
+                let chunk;
+                try {
+                  chunk = await ops.op_nextrs_fetch_read(id);
+                } catch (error) {
+                  if (closed) return;
+                  phase = "done";
+                  close();
+                  c.error(fetchFailed("terminated", error));
+                  return;
+                }
+                if (closed) return;
+                if (chunk === null) {
+                  phase = "done";
+                  close();
+                  c.close();
+                } else {
+                  c.enqueue(chunk);
+                }
+              },
+              cancel() {
+                phase = "done";
+                close();
+              },
+            },
+            { highWaterMark: 0 },
+          );
+          closeOnCollect.register(body, id, body);
+          resolve(makeResponse(head, body));
+        },
+        (error) => {
+          if (closed) return;
+          phase = "done";
+          close();
+          reject(fetchFailed("fetch failed", error));
+        },
+      );
+    });
   }
 
   for (const [name, value] of Object.entries({ Headers, Request, Response, FormData, fetch })) {

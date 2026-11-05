@@ -25,7 +25,10 @@ use std::time::{Duration, Instant};
 use deno_core::v8;
 use tokio::sync::{Notify, mpsc, oneshot};
 
+use crate::cache::CacheStore;
+use crate::metrics::CacheSnapshot;
 use crate::metrics::{self, Counters, ExecutorSnapshot, MetricsSnapshot};
+use crate::net::NetClient;
 use crate::response::{self, ResponseSender};
 use crate::{ExecutorConfig, ExecutorError, RenderError, RenderRequest, ResponseStream, worker};
 
@@ -120,6 +123,10 @@ pub(crate) struct WorkerShared {
     heap_used: AtomicUsize,
     heap_total: AtomicUsize,
     heap_external: AtomicUsize,
+    /// Heap in use right after the latest full (mark-sweep) collection:
+    /// the live-data floor. 0 until the first full GC (`record_full_gc`).
+    heap_after_gc: AtomicUsize,
+    full_gcs: AtomicU64,
     pub isolate: OnceLock<v8::IsolateHandle>,
     termination: Mutex<Option<Termination>>,
     stop: Notify,
@@ -141,6 +148,8 @@ impl WorkerShared {
             heap_used: AtomicUsize::new(0),
             heap_total: AtomicUsize::new(0),
             heap_external: AtomicUsize::new(0),
+            heap_after_gc: AtomicUsize::new(0),
+            full_gcs: AtomicU64::new(0),
             isolate: OnceLock::new(),
             termination: Mutex::new(None),
             stop: Notify::new(),
@@ -170,6 +179,12 @@ impl WorkerShared {
             .store(stats.total_heap_size(), Ordering::Relaxed);
         self.heap_external
             .store(stats.external_memory(), Ordering::Relaxed);
+    }
+
+    /// Called from V8's GC epilogue after every full collection.
+    pub fn record_full_gc(&self, used_heap: usize) {
+        self.heap_after_gc.store(used_heap, Ordering::Relaxed);
+        self.full_gcs.fetch_add(1, Ordering::Relaxed);
     }
 
     /// Time since the isolate's event loop last got control back.
@@ -292,6 +307,11 @@ pub(crate) struct PoolInner {
     me: Weak<PoolInner>,
     pub config: ExecutorConfig,
     pub counters: Arc<Counters>,
+    /// Shared by every isolate (one connection pool); `None` without a
+    /// network configuration.
+    pub net: Option<Arc<NetClient>>,
+    /// Shared by every isolate; `None` when disabled.
+    pub cache: Option<Arc<CacheStore>>,
     state: Mutex<PoolState>,
     shutting_down: AtomicBool,
     /// Wakes supervisors sleeping in a restart backoff.
@@ -456,6 +476,13 @@ impl PoolInner {
 
     fn snapshot(&self) -> MetricsSnapshot {
         let mut snapshot = MetricsSnapshot::from_counters(&self.counters);
+        snapshot.cache = self.cache.as_ref().map(|cache| {
+            CacheSnapshot::new(
+                &self.counters,
+                self.config.cache.as_ref().is_some_and(|c| c.dir.is_some()),
+                cache.entries(),
+            )
+        });
         let limits = &self.config.limits;
         snapshot.isolates = limits.isolates;
         snapshot.max_active_per_isolate = limits.max_active_per_isolate;
@@ -476,6 +503,9 @@ impl PoolInner {
                     heap_used_bytes: worker.map_or(0, |w| w.heap_used.load(Ordering::Relaxed)),
                     heap_total_bytes: worker.map_or(0, |w| w.heap_total.load(Ordering::Relaxed)),
                     external_bytes: worker.map_or(0, |w| w.heap_external.load(Ordering::Relaxed)),
+                    heap_used_after_gc_bytes: worker
+                        .map_or(0, |w| w.heap_after_gc.load(Ordering::Relaxed)),
+                    full_gcs: worker.map_or(0, |w| w.full_gcs.load(Ordering::Relaxed)),
                     restarts: history.restarts,
                     failures: FailureReason::ALL
                         .iter()
@@ -517,10 +547,35 @@ impl Executor {
     /// error (a broken build fails at startup, not on the first request).
     pub fn start(config: ExecutorConfig) -> Result<Arc<Self>, ExecutorError> {
         let isolates = config.limits.isolates.max(1);
+        let counters = Arc::new(Counters::default());
+        let net = match &config.network {
+            Some(network) => Some(Arc::new(
+                NetClient::new(network, counters.clone()).map_err(|e| {
+                    ExecutorError::Io(std::io::Error::other(format!(
+                        "outbound network client: {e}"
+                    )))
+                })?,
+            )),
+            None => None,
+        };
+        let cache = match &config.cache {
+            Some(cache) => {
+                let build_id =
+                    std::fs::read_to_string(config.dist_dir.join("BUILD_ID")).unwrap_or_default();
+                let namespace = crate::cache::namespace(build_id.trim(), &config.env);
+                Some(Arc::new(
+                    CacheStore::open(cache.clone(), &namespace, counters.clone())
+                        .map_err(|e| ExecutorError::Io(std::io::Error::other(e)))?,
+                ))
+            }
+            None => None,
+        };
         let inner = Arc::new_cyclic(|me| PoolInner {
             me: me.clone(),
             config,
-            counters: Arc::new(Counters::default()),
+            counters,
+            net,
+            cache,
             state: Mutex::new(PoolState {
                 workers: vec![None; isolates],
                 history: (0..isolates).map(|_| SlotHistory::default()).collect(),
@@ -686,7 +741,11 @@ fn supervise(
         let thread = match worker::spawn(
             inner.config.clone(),
             worker.clone(),
-            inner.counters.clone(),
+            crate::ops::HostServices {
+                counters: inner.counters.clone(),
+                net: inner.net.clone(),
+                cache: inner.cache.clone(),
+            },
             jobs,
             ready_tx,
             exit_tx,

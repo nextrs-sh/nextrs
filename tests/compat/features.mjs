@@ -137,15 +137,20 @@ async function worker() {
 await Promise.all(Array.from({ length: concurrency }, worker));
 
 // after() runs once the response is sent; collect what each observed. With
-// several isolates each report only knows its own isolate's callbacks, so
-// ask repeatedly and merge.
+// several isolates each report only knows its own isolate's callbacks.
+// Sequential reports would all go to the same (lowest, idle) isolate, so
+// each batch is sent as concurrent copies, which dispatch spreads over the
+// pool; the answers are merged.
 await new Promise((resolve) => setTimeout(resolve, 300));
 const observed = new Map();
-for (let attempt = 0; attempt < 40 && observed.size < afterIds.length; attempt++) {
+for (let attempt = 0; attempt < 20 && observed.size < afterIds.length; attempt++) {
   const pending = afterIds.filter((id) => !observed.has(id));
   for (let i = 0; i < pending.length; i += 50) {
-    const res = await send(`/api/after?report=${pending.slice(i, i + 50).join(",")}`);
-    for (const [id, seen] of Object.entries(JSON.parse(res.body))) if (seen !== null) observed.set(id, seen);
+    const batch = pending.slice(i, i + 50).join(",");
+    const answers = await Promise.all(Array.from({ length: 16 }, () => send(`/api/after?report=${batch}`)));
+    for (const res of answers) {
+      for (const [id, seen] of Object.entries(JSON.parse(res.body))) if (seen !== null) observed.set(id, seen);
+    }
   }
 }
 for (const id of afterIds) {
