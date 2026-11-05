@@ -3,6 +3,7 @@
 # HTTP-level comparison against `next start`:
 #
 #   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
+#                           [--cache-components]
 #
 # Without --next the fixture's pinned lockfile is used (npm ci, in place).
 # With --next the fixture is copied to a temporary directory and that
@@ -11,6 +12,8 @@
 # Needs target/release/nextrs (cargo build --release -p nextrs-cli), Node.js
 # and npm. --browser also runs the browser-driven Server Action suite
 # (tests/browser: npm ci there, and a Chromium for playwright-core).
+# --cache-components also builds fixtures/next-cache-components (Cache
+# Components on) and runs tests/compat/cache-components.mjs against it.
 # Exits non-zero if any suite fails.
 set -euo pipefail
 
@@ -19,12 +22,14 @@ next_version=""
 isolates=1
 out=""
 browser=0
+cache_components=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
     --isolates) isolates="$2"; shift 2 ;;
     --out) out="$2"; shift 2 ;;
     --browser) browser=1; shift ;;
+    --cache-components) cache_components=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -154,6 +159,33 @@ sleep 1
 stop_servers
 start_servers
 run restart   tests/compat/restart.mjs   --phase verify --ns "$restart_ns" --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --prepared "$out/restart-prepare.json" --json "$out/restart.json"
+
+if [[ $cache_components == 1 ]]; then
+  stop_servers
+  if [[ -z "$next_version" ]]; then
+    project="$root/fixtures/next-cache-components"
+    (cd "$project" && npm ci --no-audit --no-fund --loglevel=error)
+  else
+    project="$work/next-cache-components"
+    mkdir -p "$project"
+    (cd "$root/fixtures/next-cache-components" && cp -r app next.config.ts tsconfig.json package.json package-lock.json "$project/")
+    (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
+  fi
+  (cd "$project" && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-cache-components.log" 2>&1) || {
+    tail -40 "$out/build-cache-components.log"; exit 1;
+  }
+  start_servers
+  run cache-components tests/compat/cache-components.mjs --baseline "$baseline" --candidate "$candidate" \
+    --upstream "$NEXTRS_UPSTREAM" --project "$project" --isolates "$isolates" --json "$out/cache-components.json"
+  cc_ns="cc-$RANDOM"
+  node tests/compat/cache-components.mjs --phase prepare --ns "$cc_ns" --baseline "$baseline" --candidate "$candidate" \
+    --upstream "$NEXTRS_UPSTREAM" --project "$project" --json "$out/cc-restart-prepare.json" > "$out/cc-restart.txt" 2>&1
+  stop_servers
+  start_servers
+  node tests/compat/cache-components.mjs --phase verify --ns "$cc_ns" --baseline "$baseline" --candidate "$candidate" \
+    --upstream "$NEXTRS_UPSTREAM" --project "$project" --prepared "$out/cc-restart-prepare.json" --json "$out/cc-restart.json" >> "$out/cc-restart.txt" 2>&1
+  tail -1 "$out/cc-restart.txt"
+fi
 
 summary="$(node -e "const r=require('$out/compare.json');const c={};for(const x of r.results??r)c[x.verdict]=(c[x.verdict]??0)+1;console.log(JSON.stringify(c))" 2>/dev/null || echo '{}')"
 echo "compare: $summary"

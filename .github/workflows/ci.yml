@@ -92,9 +92,9 @@ jobs:
       - name: HTTP comparison against next start
         run: |
           if [ "${{ matrix.next }}" = pinned ]; then
-            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser
+            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser --cache-components
           else
-            scripts/compat-suite.sh --next ${{ matrix.next }} --isolates ${{ matrix.isolates }} --out compat-out
+            scripts/compat-suite.sh --next ${{ matrix.next }} --isolates ${{ matrix.isolates }} --out compat-out --cache-components
           fi
       - if: always()
         uses: actions/upload-artifact@v4
