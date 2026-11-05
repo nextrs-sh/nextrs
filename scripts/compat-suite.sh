@@ -3,7 +3,7 @@
 # HTTP-level comparison against `next start`:
 #
 #   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
-#                           [--cache-components]
+#                           [--cache-components] [--proxy]
 #
 # Without --next the fixture's pinned lockfile is used (npm ci, in place).
 # With --next the fixture is copied to a temporary directory and that
@@ -14,6 +14,12 @@
 # (tests/browser: npm ci there, and a Chromium for playwright-core).
 # --cache-components also builds fixtures/next-cache-components (Cache
 # Components on) and runs tests/compat/cache-components.mjs against it.
+# --proxy also builds fixtures/next-proxy (proxy.ts and next.config
+# headers/redirects/rewrites) three times (default, basePath, trailingSlash)
+# and runs tests/compat/proxy.mjs and tests/compat/routing-config.mjs on
+# each (with --browser, tests/browser/proxy.mjs too). next start serves it
+# on 0.0.0.0: bound to 127.0.0.1 it proxies its own proxy rewrites over
+# HTTP (see tests/compat/proxy.mjs).
 # Exits non-zero if any suite fails.
 set -euo pipefail
 
@@ -23,6 +29,7 @@ isolates=1
 out=""
 browser=0
 cache_components=0
+proxy=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
@@ -30,6 +37,7 @@ while [[ $# -gt 0 ]]; do
     --out) out="$2"; shift 2 ;;
     --browser) browser=1; shift ;;
     --cache-components) cache_components=1; shift ;;
+    --proxy) proxy=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -206,6 +214,56 @@ if [[ $cache_components == 1 ]]; then
   node tests/compat/cache-components.mjs --phase verify --ns "$cc_ns" --baseline "$baseline" --candidate "$candidate" \
     --upstream "$NEXTRS_UPSTREAM" --project "$project" --prepared "$out/cc-restart-prepare.json" --json "$out/cc-restart.json" >> "$out/cc-restart.txt" 2>&1
   tail -1 "$out/cc-restart.txt"
+fi
+
+if [[ $proxy == 1 ]]; then
+  stop_servers
+  if [[ -z "$next_version" ]]; then
+    project="$root/fixtures/next-proxy"
+    (cd "$project" && npm ci --no-audit --no-fund --loglevel=error)
+  else
+    project="$work/next-proxy"
+    mkdir -p "$project"
+    (cd "$root/fixtures/next-proxy" && cp -r app public proxy.ts next.config.ts tsconfig.json package.json package-lock.json "$project/")
+    (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
+  fi
+  export NEXTRS_CLOSED_PORT="$closed_port"
+  for variant in default base-path trailing-slash; do
+    dist=".next"; [[ $variant != default ]] && dist=".next-$variant"
+    prefix=""; [[ $variant == base-path ]] && prefix="/base"
+    (cd "$project" && rm -rf "$dist" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-proxy-$variant.log" 2>&1) || {
+      tail -40 "$out/build-proxy-$variant.log"; exit 1;
+    }
+    for port in "$next_port" "$nextrs_port"; do
+      if curl -s -o /dev/null "http://127.0.0.1:$port/"; then echo "port $port is still in use" >&2; exit 1; fi
+    done
+    (cd "$project" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 0.0.0.0 -p "$next_port") >> "$out/next-start-proxy.log" 2>&1 &
+    next_pid=$!
+    pids+=($next_pid)
+    "$nextrs" start "$project/$dist" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
+      --js-stall-timeout 3 --request-timeout 15 \
+      --js-env NEXTRS_UPSTREAM --js-env NEXTRS_CLOSED_PORT --net-allow "http://127.0.0.1:$upstream_port" \
+      --net-allow-addr 127.0.0.1 >> "$out/nextrs-proxy.log" 2>&1 &
+    nextrs_pid=$!
+    pids+=($nextrs_pid)
+    for port in "$next_port" "$nextrs_port"; do
+      for _ in $(seq 1 120); do
+        curl -s -o /dev/null "http://127.0.0.1:$port$prefix/api/health" && break
+        sleep 0.25
+      done
+    done
+    extra=()
+    [[ $variant == default ]] && extra=(--request-timeout-ms 15000 --stall-ms 3000)
+    run "proxy-$variant" tests/compat/proxy.mjs --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
+      --dist "$project/$dist" --variant "$variant" "${extra[@]}" --json "$out/proxy-$variant.json"
+    run "routing-config-$variant" tests/compat/routing-config.mjs --baseline "$baseline" --candidate "$candidate" \
+      --variant "$variant" --json "$out/routing-config-$variant.json"
+    if [[ $browser == 1 && $variant != trailing-slash ]]; then
+      run "browser-proxy-$variant" tests/browser/proxy.mjs --baseline "$baseline" --candidate "$candidate" \
+        --base-path "$prefix" --json "$out/browser-proxy-$variant.json"
+    fi
+    stop_servers
+  done
 fi
 
 summary="$(node -e "const r=require('$out/compare.json');const c={};for(const x of r.results??r)c[x.verdict]=(c[x.verdict]??0)+1;console.log(JSON.stringify(c))" 2>/dev/null || echo '{}')"
