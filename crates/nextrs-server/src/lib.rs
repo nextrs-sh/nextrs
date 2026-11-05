@@ -292,6 +292,11 @@ impl AppState {
             if prerender.revalidate.is_some() {
                 continue;
             }
+            // Partial Prerendering shells are completed per request by
+            // Next's handler (it resumes the postponed state).
+            if prerender.postponed {
+                continue;
+            }
             let html = load_cached(prerender.html.as_ref(), true).await?;
             if prerender.pathname == "/_not-found" {
                 not_found = html;

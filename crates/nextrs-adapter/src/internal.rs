@@ -254,6 +254,7 @@ pub(crate) fn resolve_app_prerender(
         html: stored(".html"),
         rsc: stored(".rsc"),
         segments,
+        postponed: meta.postponed.is_some_and(|p| !p.is_null()),
     }))
 }
 

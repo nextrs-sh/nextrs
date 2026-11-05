@@ -782,13 +782,103 @@
     resetRequestCache() {}
   }
 
+  // The "use cache" handler (Cache Components), offered as DefaultCache on
+  // the same symbol: Next's built-in default is an LRU in module state, so
+  // each isolate would cache, and see revalidations, on its own. This one
+  // follows createDefaultCacheHandler (next/dist/server/lib/cache-handlers/
+  // default.js) step by step, with entries in the shared store and tags
+  // judged by Next's functions on the synced manifest. Next's compiled
+  // "use cache" wrapper is unchanged: it serializes, keys and decides; this
+  // only stores bytes. Revalidations reach the store through the
+  // FetchCache handler (Next calls both); updateTags only re-syncs.
+  const USE_CACHE_PREFIX = "use-cache:";
+  async function streamToBytes(stream) {
+    const chunks = [];
+    let size = 0;
+    const reader = stream.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = typeof value === "string" ? new TextEncoder().encode(value) : value;
+      chunks.push(chunk);
+      size += chunk.byteLength;
+    }
+    const out = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) {
+      out.set(chunk, offset);
+      offset += chunk.byteLength;
+    }
+    return out;
+  }
+  function bytesToStream(bytes) {
+    return new ReadableStream({
+      start(controller) {
+        controller.enqueue(bytes);
+        controller.close();
+      },
+    });
+  }
+  const pendingUseCacheSets = new Map();
+  const nextrsUseCache = {
+    async get(cacheKey) {
+      const pending = pendingUseCacheSets.get(cacheKey);
+      if (pending) await pending;
+      const hit = await ops.op_nextrs_cache_get(USE_CACHE_PREFIX + cacheKey);
+      const tags = syncTags();
+      if (hit === null || hit.value === null) return undefined;
+      let stored;
+      try {
+        stored = JSON.parse(hit.value);
+      } catch {
+        return undefined;
+      }
+      const entry = stored?.entry;
+      if (stored?.v !== ENVELOPE || !entry) return undefined;
+      if (entry.expire < 0) return undefined;
+      if (performance.timeOrigin + performance.now() > entry.timestamp + entry.revalidate * 1000) return undefined;
+      let revalidate = entry.revalidate;
+      if (tags.areTagsExpired(entry.tags, entry.timestamp)) return undefined;
+      if (tags.areTagsStale(entry.tags, entry.timestamp)) revalidate = -1;
+      return { ...entry, revalidate, value: bytesToStream(new Uint8Array(Buffer.from(stored.value, "base64"))) };
+    },
+    async set(cacheKey, pendingEntry) {
+      let resolvePending = () => {};
+      pendingUseCacheSets.set(cacheKey, new Promise((resolve) => (resolvePending = resolve)));
+      try {
+        const entry = await pendingEntry;
+        // As Next's handler: an expire: 0 entry is dynamic and never served.
+        if (entry.expire === 0) return;
+        const bytes = await streamToBytes(entry.value);
+        const { value: _value, ...metadata } = entry;
+        const envelope = JSON.stringify({ v: ENVELOPE, entry: metadata, value: Buffer.from(bytes).toString("base64") });
+        await ops.op_nextrs_cache_set(USE_CACHE_PREFIX + cacheKey, envelope, (metadata.tags ?? []).map(String), true, -1, false);
+      } catch {
+        // As Next's handler: a failed entry is not stored.
+      } finally {
+        resolvePending();
+        pendingUseCacheSets.delete(cacheKey);
+      }
+    },
+    async refreshTags() {
+      syncTags();
+    },
+    async getExpiration(tags) {
+      const manifest = syncTags().tagsManifest;
+      return Math.max(...tags.map((tag) => manifest.get(tag)?.expired || 0), 0);
+    },
+    async updateTags() {
+      syncTags();
+    },
+  };
+
   globalThis.__nextrsStart = function start() {
     delete globalThis.__nextrsStart;
     delete globalThis.__nextrsInternal;
     delete globalThis.Deno;
     if (boot.cache) {
       Object.defineProperty(globalThis, Symbol.for("@next/cache-handlers"), {
-        value: { FetchCache: NextRSCacheHandler },
+        value: { FetchCache: NextRSCacheHandler, DefaultCache: nextrsUseCache },
         writable: true,
         enumerable: false,
         configurable: true,

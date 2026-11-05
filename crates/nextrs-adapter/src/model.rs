@@ -218,6 +218,10 @@ pub struct Prerender {
     pub rsc: Option<StoredResponse>,
     /// Segment prefetch responses keyed by segment path, e.g. `/_tree`.
     pub segments: Vec<(String, StoredResponse)>,
+    /// A Partial Prerendering shell: the stored HTML is incomplete, and
+    /// Next's handler resumes its dynamic parts on every request.
+    #[serde(default)]
+    pub postponed: bool,
 }
 
 impl Prerender {
