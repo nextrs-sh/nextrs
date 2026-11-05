@@ -14,6 +14,7 @@ mod error;
 mod internal;
 mod manifests;
 mod model;
+mod routing;
 
 use std::path::{Path, PathBuf};
 
@@ -99,6 +100,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
                 i18n: output.config.i18n.as_ref().is_some_and(|v| !v.is_null()),
                 powered_by_header: output.config.powered_by_header,
                 generate_etags: output.config.generate_etags,
+                skip_proxy_url_normalize: config_flag(required.as_ref(), "skipProxyUrlNormalize"),
             };
             let tables = adapter_output::tables(&project_dir, output, &mut diagnostics);
             (
@@ -151,6 +153,16 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
     routes.sort_by(|a, b| a.page.cmp(&b.page));
     prerenders.sort_by(|a, b| a.pathname.cmp(&b.pathname));
     let public_dir = Some(project_dir.join("public")).filter(|dir| dir.is_dir());
+    let mut invalid_rules = Vec::new();
+    let routing = routing::routing_rules(&dist_dir, &mut invalid_rules)?;
+    let proxy = routing::proxy_info(&dist_dir, required.as_ref().map(|r| &r.config))?;
+    for rule in invalid_rules {
+        diagnostics.push(Diagnostic {
+            severity: Severity::Unsupported,
+            code: "routing-rule",
+            message: format!("routes-manifest rule without source or regex: {rule}"),
+        });
+    }
     let mut info = BuildInfo {
         static_dir: dist_dir.join("static"),
         project_dir,
@@ -165,6 +177,8 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         prerenders,
         public_dir,
         server_actions: ServerActionsInfo::default(),
+        routing,
+        proxy,
         diagnostics,
     };
     detect_features(&mut info, &routes_manifest)?;
@@ -205,7 +219,16 @@ fn routing_config(required: Option<&RequiredServerFiles>, base_path: &str) -> Ro
             .is_some_and(|v| !v.is_null()),
         powered_by_header: flag("poweredByHeader", true),
         generate_etags: flag("generateEtags", true),
+        skip_proxy_url_normalize: flag("skipProxyUrlNormalize", false)
+            || flag("skipMiddlewareUrlNormalize", false),
     }
+}
+
+fn config_flag(required: Option<&RequiredServerFiles>, key: &str) -> bool {
+    required
+        .and_then(|r| r.config.get(key))
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false)
 }
 
 fn server_actions_info(
@@ -327,62 +350,68 @@ fn detect_features(
         })
     };
 
-    if !middleware.middleware.is_empty() || functions.functions.contains_key("/_middleware") {
+    if !middleware.middleware.is_empty() {
         push(
             Severity::Unsupported,
             "middleware",
-            "middleware/proxy is present; serving routes without running it could bypass its logic"
+            "edge-runtime middleware is present; NextRS runs only the Node.js proxy, and serving routes without it could bypass its logic"
                 .into(),
         );
+    }
+    if functions.functions.contains_key("/_middleware") {
+        push(
+            Severity::Unsupported,
+            "proxy",
+            "proxy (middleware) requires JavaScript execution; serving routes without running it could bypass its logic"
+                .into(),
+        );
+        if info.config.skip_proxy_url_normalize {
+            push(
+                Severity::Unsupported,
+                "skip-proxy-url-normalize",
+                "skipProxyUrlNormalize is not supported with the proxy".into(),
+            );
+        }
     }
     let custom_redirects = routes_manifest
         .redirects
         .iter()
         .filter(|r| !r.internal)
         .count();
-    if custom_redirects > 0 {
+    let custom_rules = info.routing.custom_count();
+    if custom_rules > 0 {
         push(
-            Severity::Unsupported,
-            "custom-redirects",
-            format!("{custom_redirects} next.config redirects are not applied"),
-        );
-    }
-    if !routes_manifest.headers.is_empty() {
-        push(
-            Severity::Unsupported,
-            "custom-headers",
+            Severity::Info,
+            "routing-rules",
             format!(
-                "{} next.config header rules (often security headers) are not applied",
-                routes_manifest.headers.len()
-            ),
-        );
-    }
-    if routes_manifest.rewrite_count() > 0 {
-        push(
-            Severity::Unsupported,
-            "rewrites",
-            format!(
-                "{} next.config rewrites are not applied",
+                "{} header rules, {custom_redirects} redirects and {} rewrites from next.config are applied",
+                info.routing.headers.len(),
                 routes_manifest.rewrite_count()
             ),
         );
     }
-    if !info.config.base_path.is_empty() {
+    let external: Vec<&str> = info
+        .routing
+        .before_files
+        .iter()
+        .chain(&info.routing.after_files)
+        .chain(&info.routing.fallback)
+        .filter_map(|r| r.destination.as_deref())
+        .filter(|d| !d.starts_with('/'))
+        .collect();
+    if !external.is_empty() {
         push(
-            Severity::Unsupported,
-            "base-path",
-            format!("basePath {:?}", info.config.base_path),
+            Severity::Warning,
+            "external-rewrites",
+            format!(
+                "{} rewrites to other origins answer 501 (external rewrites are not proxied): {}",
+                external.len(),
+                external.join(", ")
+            ),
         );
     }
     if info.config.i18n || routes_manifest.i18n.is_some() {
         push(Severity::Unsupported, "i18n", "i18n routing".into());
-    }
-    if info.config.trailing_slash {
-        push(
-            Severity::Unsupported,
-            "trailing-slash",
-            "trailingSlash: true".into(),
-        );
     }
     if info.routers.pages {
         push(

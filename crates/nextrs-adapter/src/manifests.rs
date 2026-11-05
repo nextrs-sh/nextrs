@@ -43,8 +43,6 @@ pub(crate) struct RoutesManifest {
     pub base_path: String,
     #[serde(default)]
     pub redirects: Vec<RedirectEntry>,
-    #[serde(default)]
-    pub headers: Vec<Value>,
     /// Either an array (legacy) or `{ beforeFiles, afterFiles, fallback }`.
     #[serde(default)]
     pub rewrites: Value,

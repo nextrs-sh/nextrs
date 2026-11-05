@@ -193,30 +193,39 @@ pub(crate) fn tables(
         }
     }
 
-    let custom_rules = output
+    // Routing rules and the proxy are read from routes-manifest.json and
+    // functions-config-manifest.json whatever the metadata source (the
+    // manifests next start applies); the adapter's routing view is only
+    // compared with them.
+    let before_middleware = output
         .routing
         .before_middleware
         .iter()
         // The trailing-slash redirect Next.js always adds.
         .filter(|rule| !(rule.source.as_deref() == Some("/:path+/") && rule.status == Some(308)))
-        .count()
+        .count();
+    let adapter_rules = before_middleware
         + output.routing.before_files.len()
         + output.routing.after_files.len()
         + output.routing.fallback.len();
-    if custom_rules > 0 {
+    if adapter_rules > 0 {
         diagnostics.push(Diagnostic {
-            severity: Severity::Unsupported,
+            severity: Severity::Info,
             code: "adapter-routing-rules",
             message: format!(
-                "{custom_rules} custom routing rules (headers/redirects/rewrites) are not applied"
+                "adapter reports {adapter_rules} routing rules; NextRS applies the routes-manifest.json copies"
             ),
         });
     }
-    if output.outputs.middleware.is_some() {
+    if let Some(proxy) = &output.outputs.middleware {
         diagnostics.push(Diagnostic {
-            severity: Severity::Unsupported,
-            code: "middleware",
-            message: "adapter reports a middleware/proxy output".into(),
+            severity: Severity::Info,
+            code: "adapter-proxy-output",
+            message: format!(
+                "adapter reports the proxy at {} ({}); NextRS runs server/middleware.js as next start does",
+                proxy.file_path.display(),
+                proxy.runtime
+            ),
         });
     }
 
