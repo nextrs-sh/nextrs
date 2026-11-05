@@ -60,7 +60,9 @@ out="$(cd "$out" && pwd)"
 installed="$(node -p "require('$project/node_modules/next/package.json').version")"
 echo "Next.js $installed built ($(cat "$project/.next/BUILD_ID"))"
 
-base_port=$((4100 + RANDOM % 400))
+# 5100-5499 holds none of the Fetch standard's "bad ports", which Node's
+# fetch refuses (a random 4190, ManageSieve, failed every next start fetch).
+base_port=$((5100 + RANDOM % 400))
 next_port=$base_port
 nextrs_port=$((base_port + 1))
 # The data-fetching fixtures' upstream API (tests/compat/upstream.mjs), and
