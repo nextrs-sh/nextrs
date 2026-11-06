@@ -27,6 +27,11 @@ Paths:
                   /af/hello              next.config afterFiles rewrite
                   /old-blog/x            next.config redirect (before the proxy)
 
+With --nextrs-1e (a binary built at the Phase 1E merge), the routing
+change itself is measured on fixtures/next-app, a build without a proxy or
+config rules: a prerendered page, an SSR page and a static asset, served
+by the 1E binary and by this tree.
+
 Each path's status is checked against next start before it is measured.
 NextRS's /metrics.json gives executor requests per HTTP request (1 for a
 proxied page served from Rust, 2 for a proxied SSR), queue time and
@@ -74,6 +79,8 @@ def main():
     parser.add_argument("--requests", type=int, default=4000)
     parser.add_argument("--repeats", type=int, default=2)
     parser.add_argument("--only", nargs="*", default=None)
+    parser.add_argument("--nextrs-1e", default=None)
+    parser.add_argument("--regression-project", default="fixtures/next-app")
     args = parser.parse_args()
 
     project = (ROOT / args.project).resolve()
@@ -109,12 +116,23 @@ def main():
         "2a": ([nextrs, "start", str(project), "--port", "9421", "--js-runtime", "embedded-v8", *net, "--metrics-addr", "127.0.0.1:9431"], 9421, 9431),
         "2a-i4": ([nextrs, "start", str(project), "--port", "9422", "--js-runtime", "embedded-v8", "--isolates", "4", *net, "--metrics-addr", "127.0.0.1:9432"], 9422, 9432),
     }
+    runs_by_project = [(project, paths, servers)]
+    if args.nextrs_1e:
+        regression = (ROOT / args.regression_project).resolve()
+        rchunk = next((regression / ".next/static/chunks").glob("*.js")).name
+        rpaths = [("1e-fixture prerendered", "/"), ("1e-fixture SSR", "/books/42"), ("1e-fixture static", f"/_next/static/chunks/{rchunk}")]
+        rservers = {
+            "1e": ([str(Path(args.nextrs_1e).resolve()), "start", str(regression), "--port", "9423", "--js-runtime", "embedded-v8", *net, "--metrics-addr", "127.0.0.1:9433"], 9423, 9433),
+            "2a": ([nextrs, "start", str(regression), "--port", "9424", "--js-runtime", "embedded-v8", *net, "--metrics-addr", "127.0.0.1:9434"], 9424, 9434),
+        }
+        runs_by_project.append((regression, rpaths, rservers))
     if args.only:
-        servers = {k: v for k, v in servers.items() if k in args.only}
+        runs_by_project = [(p, ps, {k: v for k, v in sv.items() if k in args.only}) for p, ps, sv in runs_by_project]
 
     results = {"environment": environment(), "config": vars(args), "load": []}
-    expected = {}
     try:
+      for project, paths, servers in runs_by_project:
+        expected = {}
         for name, (cmd, port, metrics_port) in servers.items():
             server = Server(name, cmd, str(project), env, port)
             server.start()
