@@ -16,6 +16,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { randomBytes } from "node:crypto";
+import net from "node:net";
 import { observe, parseArgs, runScenarios, sleep } from "./routing-lib.mjs";
 
 const args = parseArgs();
@@ -262,6 +263,40 @@ scenarios["concurrent-request-isolation"] = {
     await Promise.all(Array.from({ length: concurrency }, worker));
     return { total, wrong, failed };
   },
+};
+
+// --- HTTP/1.0 framing of a proxy's direct response ------------------------------------
+// HTTP/1.0 has no chunked encoding: a body without Content-Length must end
+// with the connection (NextRS once kept it open, breaking keep-alive clients).
+scenarios["http10-direct-response-framing"] = {
+  kind: "compare",
+  run: (base) =>
+    new Promise((resolve) => {
+      const url = new URL(base);
+      const socket = net.connect(Number(url.port), url.hostname, () => {
+        socket.write(`GET ${p("/proxy/json")} HTTP/1.0\r\nHost: ${url.host}\r\nConnection: keep-alive\r\n\r\n`);
+      });
+      const chunks = [];
+      let timedOut = false;
+      const timer = setTimeout(() => {
+        timedOut = true;
+        socket.destroy();
+      }, 3000);
+      socket.on("data", (c) => chunks.push(c));
+      socket.on("close", () => {
+        clearTimeout(timer);
+        const text = Buffer.concat(chunks).toString("latin1");
+        const [head, ...rest] = text.split("\r\n\r\n");
+        const body = rest.join("\r\n\r\n");
+        const lengthHeader = /\r\ncontent-length: *(\d+)/i.exec(head)?.[1];
+        let parsed = null;
+        try {
+          parsed = JSON.parse(body.slice(0, lengthHeader ? Number(lengthHeader) : undefined)).proxied;
+        } catch {}
+        resolve({ status: head.split(" ")[1], bodyIsCompleteJson: parsed === true, closedOrLength: !timedOut || Boolean(lengthHeader) });
+      });
+      socket.on("error", () => {});
+    }),
 };
 
 // --- NextRS-only reliability checks ------------------------------------------------------

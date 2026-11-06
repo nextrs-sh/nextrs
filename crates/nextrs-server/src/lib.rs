@@ -296,6 +296,9 @@ struct AppState {
     has_interception_routes: bool,
     rules: CompiledRules,
     proxy: Option<ProxyRuntime>,
+    /// Files in `public/` (relative, decoded), listed at startup as next
+    /// start's `publicFolderItems`.
+    public_files: std::collections::HashSet<String>,
     listen: Listen,
     build_id: String,
 }
@@ -540,18 +543,24 @@ impl AppState {
             }),
             None => None,
         };
+        let public_root = match &info.public_dir {
+            Some(dir) => canonical_dir(dir).await,
+            None => None,
+        };
+        let public_files = match &public_root {
+            Some(root) => list_files(root),
+            None => Default::default(),
+        };
         Ok(Self {
             rules: compile_rules(info)?,
+            public_files,
             build_id: info.build_id.clone(),
             proxy,
             listen: Listen::from(SocketAddr::from(([127, 0, 0, 1], 3000))),
             config: info.config.clone(),
             rsc: info.rsc.clone(),
             static_root: canonical_dir(&info.static_dir).await,
-            public_root: match &info.public_dir {
-                Some(dir) => canonical_dir(dir).await,
-                None => None,
-            },
+            public_root,
             pages,
             not_found,
             has_interception_routes: info.routes.iter().any(|route| route.page.contains("/(.")),
@@ -561,6 +570,34 @@ impl AppState {
             forwarded: ForwardedHeaders::Pass,
         })
     }
+}
+
+/// Every regular file below `root`, as `/`-separated relative paths
+/// (`recursiveReadDir` in next start; symlinks are followed by the
+/// per-request resolution, which also re-checks containment).
+fn list_files(root: &Path) -> std::collections::HashSet<String> {
+    let mut out = std::collections::HashSet::new();
+    let mut stack = vec![root.to_path_buf()];
+    while let Some(dir) = stack.pop() {
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let Ok(meta) = std::fs::metadata(&path) else {
+                continue;
+            };
+            if meta.is_dir() {
+                stack.push(path);
+            } else if meta.is_file()
+                && let Ok(rel) = path.strip_prefix(root)
+                && let Some(rel) = rel.to_str()
+            {
+                out.insert(rel.replace(std::path::MAIN_SEPARATOR, "/"));
+            }
+        }
+    }
+    out
 }
 
 async fn canonical_dir(dir: &Path) -> Option<PathBuf> {
@@ -641,7 +678,9 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
         &state, outcome, &resolved, body, &method, &uri, &headers, version, client,
     )
     .await;
-    with_routing_headers(response, &res_headers)
+    // HTTP/1.0 framing for every response, the proxy's direct responses
+    // included (a body without a length then closes the connection).
+    dynamic::frame_for(version, with_routing_headers(response, &res_headers))
 }
 
 /// Marks a response that must not get routing's response headers (config
@@ -838,14 +877,11 @@ async fn serve_resolved(
         .await;
     };
     match output {
-        Output::Static(rest) => {
+        Output::Static(file) => {
             if !readonly {
                 return method_not_allowed(state);
             }
-            match &state.static_root {
-                Some(root) => serve_file(root, &rest, IMMUTABLE, method, headers).await,
-                None => not_found_plain(),
-            }
+            file_response(&file, IMMUTABLE, method, headers).await
         }
         Output::EncodedApp => {
             let Some(page) = &state.not_found else {
@@ -1343,19 +1379,6 @@ fn prerendered(
         *response.body_mut() = Body::from(cached.body.clone());
     }
     response
-}
-
-async fn serve_file(
-    root: &Path,
-    rest: &str,
-    cache_control: &'static str,
-    method: &Method,
-    request: &HeaderMap,
-) -> Response {
-    match static_files::resolve(root, rest).await {
-        Some(file) => file_response(&file, cache_control, method, request).await,
-        None => not_found_plain(),
-    }
 }
 
 /// Mirrors the `send` package used by `next start`: weak ETag

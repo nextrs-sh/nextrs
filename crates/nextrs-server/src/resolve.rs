@@ -63,8 +63,8 @@ const REWRITTEN_QUERY: &str = "x-nextjs-rewritten-query";
 /// What the filesystem check found (`fsChecker.getItem`).
 #[derive(Debug)]
 pub(crate) enum Output {
-    /// A file under `.next/static` (the path after `/_next/static/`).
-    Static(String),
+    /// A file under `.next/static`, resolved.
+    Static(PathBuf),
     /// `/_next/image`.
     Image,
     /// A file in `public/`.
@@ -592,22 +592,21 @@ pub(crate) async fn get_item(state: &AppState, pathname: &str) -> Option<Output>
     if item == "/_next/image" {
         return Some(Output::Image);
     }
-    for candidate in [item, decoded.as_str()] {
-        if let Some(rest) = candidate.strip_prefix("/_next/static/")
-            && let Some(root) = &state.static_root
-            && crate::static_files::resolve(root, rest).await.is_some()
-        {
-            return Some(Output::Static(rest.to_owned()));
-        }
+    // `/_next/static` and `public/`: `static_files::resolve` decodes the
+    // path itself (so the raw and the decoded spelling resolve alike), and
+    // `public/` is listed once at startup, as next start does, so a page
+    // request costs no filesystem lookup.
+    if let Some(rest) = item.strip_prefix("/_next/static/")
+        && let Some(root) = &state.static_root
+        && let Some(file) = crate::static_files::resolve(root, rest).await
+    {
+        return Some(Output::Static(file));
     }
-    if let Some(root) = &state.public_root {
-        for candidate in [item, decoded.as_str()] {
-            if let Some(file) =
-                crate::static_files::resolve(root, candidate.trim_start_matches('/')).await
-            {
-                return Some(Output::Public(file));
-            }
-        }
+    if let Some(root) = &state.public_root
+        && state.public_files.contains(decoded.trim_start_matches('/'))
+        && let Some(file) = crate::static_files::resolve(root, item.trim_start_matches('/')).await
+    {
+        return Some(Output::Public(file));
     }
     // App routes match the path as routed, not its decoded form: the
     // proxy saw the encoded path (`/%70rotected` is not `/protected` to its
