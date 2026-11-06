@@ -296,6 +296,8 @@ struct AppState {
     has_interception_routes: bool,
     rules: CompiledRules,
     proxy: Option<ProxyRuntime>,
+    /// A proxy or a `has`/`missing` rule reads the request's headers.
+    needs_node_headers: bool,
     /// Files in `public/` (relative, decoded), listed at startup as next
     /// start's `publicFolderItems`.
     public_files: std::collections::HashSet<String>,
@@ -543,6 +545,7 @@ impl AppState {
             }),
             None => None,
         };
+        let rules = compile_rules(info)?;
         let public_root = match &info.public_dir {
             Some(dir) => canonical_dir(dir).await,
             None => None,
@@ -552,7 +555,17 @@ impl AppState {
             None => Default::default(),
         };
         Ok(Self {
-            rules: compile_rules(info)?,
+            needs_node_headers: proxy.is_some()
+                || [
+                    &rules.headers,
+                    &rules.redirects,
+                    &rules.before_files,
+                    &rules.after_files,
+                    &rules.fallback,
+                ]
+                .iter()
+                .any(|list| list.iter().any(routing::Rule::has_conditions)),
+            rules,
             public_files,
             build_id: info.build_id.clone(),
             proxy,

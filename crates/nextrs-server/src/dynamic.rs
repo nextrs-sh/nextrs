@@ -324,7 +324,10 @@ pub(crate) fn too_large(limit: u64) -> Response {
 /// hyper decides keep-alive from the *response* version, which defaults to
 /// HTTP/1.1, so it must be set to 1.0 for hyper to close.
 pub(crate) fn frame_for(version: Version, mut response: Response) -> Response {
-    if version <= Version::HTTP_10 && !response.headers().contains_key(header::CONTENT_LENGTH) {
+    // hyper writes Content-Length itself for a body of known size.
+    let delimited = response.headers().contains_key(header::CONTENT_LENGTH)
+        || response.body().size_hint().exact().is_some();
+    if version <= Version::HTTP_10 && !delimited {
         *response.version_mut() = Version::HTTP_10;
         response
             .headers_mut()

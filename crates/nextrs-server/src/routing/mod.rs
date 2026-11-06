@@ -98,8 +98,18 @@ impl Rule {
         })
     }
 
+    /// Whether matching reads the request (`has` / `missing`).
+    pub fn has_conditions(&self) -> bool {
+        !self.has.is_empty() || !self.missing.is_empty()
+    }
+
     /// `route.match(pathname)` then `matchHas`: the params, or `None`.
     pub fn matches(&self, pathname: &str, request: &RequestView<'_>) -> Option<JsMap> {
+        // A plain match first: it runs on a DFA, captures need a slower
+        // engine, and most requests match no rule.
+        if !self.regex.is_match(pathname).unwrap_or(false) {
+            return None;
+        }
         let captures = self.regex.captures(pathname).ok()??;
         let mut params = path_to_regexp::params_from_captures(&captures, &self.keys, true);
         if !self.has.is_empty() || !self.missing.is_empty() {

@@ -209,6 +209,8 @@ pub(crate) fn pairs(headers: &JsMap) -> Vec<(String, String)> {
 struct Router<'s> {
     state: &'s AppState,
     headers: JsMap,
+    /// The client's request had `rsc: 1` (before any proxy change).
+    rsc_request: bool,
     headers_modified: bool,
     res_headers: JsMap,
     parsed: ParsedUrl,
@@ -226,6 +228,9 @@ impl Router<'_> {
     }
 
     fn is_rsc(&self) -> bool {
+        if !self.headers_modified {
+            return self.rsc_request;
+        }
         self.headers
             .get(&self.state.rsc.header)
             .and_then(Value::as_str)
@@ -321,7 +326,16 @@ pub(crate) async fn resolve(
         .path_and_query()
         .map_or_else(|| uri.path().to_owned(), |pq| pq.as_str().to_owned());
     let url_no_query = raw_url.split('?').next().unwrap_or_default().to_owned();
-    let node = node_headers(headers);
+    // Node's header object is only built when something reads it: `has` /
+    // `missing` conditions or the proxy (decided once, at startup).
+    let node = if state.needs_node_headers {
+        node_headers(headers)
+    } else {
+        JsMap::new()
+    };
+    let rsc_request = headers
+        .get(state.rsc.header.as_str())
+        .is_some_and(|v| v.as_bytes() == b"1");
 
     let done =
         |outcome: Outcome, router: Option<Router<'_>>, body: Body| -> (Outcome, Resolved, Body) {
@@ -336,7 +350,7 @@ pub(crate) async fn resolve(
                     middleware_cookies: router.middleware_cookies,
                 },
                 None => Resolved {
-                    headers: node_headers(headers),
+                    headers: JsMap::new(),
                     headers_modified: false,
                     res_headers: JsMap::new(),
                     pathname: url_no_query.clone(),
@@ -384,6 +398,7 @@ pub(crate) async fn resolve(
         state,
         init_query: parsed.query.clone(),
         headers: node,
+        rsc_request,
         headers_modified: false,
         res_headers: JsMap::new(),
         parsed,
