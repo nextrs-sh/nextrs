@@ -83,8 +83,13 @@ async fn an_endless_microtask_chain_is_terminated_and_replaced() {
 
 #[tokio::test(flavor = "multi_thread")]
 async fn reaching_the_heap_limit_replaces_the_isolate_instead_of_aborting() {
+    // Allocating up to the limit is one long CPU-bound turn (with GC
+    // churn); under load it outlasted the 500 ms stall limit, and the
+    // isolate was then (correctly) failed as a stall, not at its heap
+    // limit. Only the heap limit is under test here.
     let limits = Limits {
         heap_limit_bytes: Some(64 * 1024 * 1024),
+        stall_timeout: None,
         ..small_limits()
     };
     fails_and_recovers("oom", FailureReason::HeapLimit, limits).await;
