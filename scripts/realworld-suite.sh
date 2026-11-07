@@ -5,6 +5,7 @@
 #
 #   scripts/realworld-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
 #                              [--only auth,intl,platform,...] [--negative-controls]
+#                              [--controls identity:both,pass,...]
 #
 #   auth      fixtures/next-auth-proxy      jose session cookies (tests/compat/auth-proxy.mjs)
 #   intl      fixtures/next-intl-proxy      next-intl locale routing (tests/compat/intl-proxy.mjs), and
@@ -25,7 +26,9 @@
 # scenarios' own expectations can catch them) and HTTP-level ones
 # (tests/compat/negative-proxy.mjs in front of NextRS). A control the suite
 # does not catch is reported as MISSED in controls.txt (not a failure of
-# the run).
+# the run). The proxy's `pass` mode (no defect) runs first: a suite that
+# fails through it is reported as PROXY-BREAKS, and its HTTP-level
+# results are not evidence. --controls limits the run to the listed ones.
 #
 # Without --next each fixture's lockfile is used (npm ci, in place). With
 # --next the fixture is copied to a temporary directory and that version is
@@ -41,6 +44,7 @@ isolates=1
 out=""
 browser=0
 negative=0
+selected=""
 only="auth,intl,platform,jwks,authjs,otel"
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -50,6 +54,7 @@ while [[ $# -gt 0 ]]; do
     --browser) browser=1; shift ;;
     --only) only="$2"; shift 2 ;;
     --negative-controls) negative=1; shift ;;
+    --controls) negative=1; selected="$2"; shift 2 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -208,19 +213,25 @@ control_port=$((base_port + 7))
 controls() {
   local name="$1" suite="$2"
   [[ $negative == 1 ]] || return 0
+  chosen() { [[ -z "$selected" || ",$selected," == *",$1,"* ]]; }
   for control in identity:both allow:both set-cookie:both location:both ledger-twice:both ledger-lost:both; do
+    chosen "$control" || continue
     if NEXTRS_NEGATIVE_CONTROL="$control" "$suite" "$candidate" > "$out/control-$name-${control%%:*}.txt" 2>&1; then
       echo "MISSED control $control ($name)" | tee -a "$out/controls.txt"
     else
       echo "CAUGHT control $control ($name): $(tail -1 "$out/control-$name-${control%%:*}.txt")" | tee -a "$out/controls.txt"
     fi
   done
-  for mode in replay-post drop-action strip-credentials swap-identity strip-set-cookie wrong-location; do
+  for mode in pass replay-post drop-action strip-credentials swap-identity strip-set-cookie wrong-location; do
+    chosen "$mode" || continue
     node "$root/tests/compat/negative-proxy.mjs" --listen "$control_port" --target "$candidate" --mode "$mode" > "$out/negative-proxy-$name-$mode.log" 2>&1 &
     local proxy=$!
     for _ in $(seq 1 40); do port_in_use "$control_port" && break; sleep 0.1; done
     if "$suite" "http://127.0.0.1:$control_port" > "$out/control-$name-$mode.txt" 2>&1; then
-      echo "MISSED control $mode ($name)" | tee -a "$out/controls.txt"
+      if [[ $mode == pass ]]; then echo "PROXY-OK ($name)" | tee -a "$out/controls.txt"
+      else echo "MISSED control $mode ($name)" | tee -a "$out/controls.txt"; fi
+    elif [[ $mode == pass ]]; then
+      echo "PROXY-BREAKS ($name): $(tail -1 "$out/control-$name-$mode.txt")" | tee -a "$out/controls.txt"
     else
       echo "CAUGHT control $mode ($name): $(tail -1 "$out/control-$name-$mode.txt")" | tee -a "$out/controls.txt"
     fi

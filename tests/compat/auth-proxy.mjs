@@ -282,15 +282,21 @@ const dashboardOf = (userId) => (o) =>
   o.status === 200 && o.body?.info === JSON.stringify({ userId, proxyUser: userId }) ? null : `status ${o.status} info ${o.body?.info}`;
 const page = (title) => (o) => (o.status === 200 && o.body?.title === title ? null : `status ${o.status} page ${o.body?.title}`);
 const apiUser = (userId) => (o) => (o.status === 200 && JSON.parse(o.body).userId === userId ? null : `status ${o.status} body ${o.body}`);
+// The login's own answer must set the session: HttpOnly, SameSite, the
+// whole site (the dashboard request uses a cookie read separately).
+const SESSION_SET = /^session=<JWT>; Path=\/; Expires=<DATE>; HttpOnly; SameSite=lax$/i;
 const signedIn = (userId, location) => (o) =>
   o.response.status !== 303 && o.response.status !== 200
     ? `login status ${o.response.status}`
+    : !(o.response.setCookie ?? []).some((c) => SESSION_SET.test(c))
+      ? `the login answer set no session cookie: ${JSON.stringify(o.response.setCookie)}`
     : !o.dashboard
       ? "no session cookie was set"
       : location && ![loc(o.response).replace("http://SELF", ""), o.response.headers["x-action-redirect"]?.split(";")[0]].includes(location.replace("http://SELF", ""))
         ? `redirected to ${loc(o.response) || o.response.headers["x-action-redirect"]}, expected ${location}`
         : dashboardOf(userId)(o.dashboard);
-const notSignedIn = (o) => (o.dashboard ? `a session was set (${o.dashboard.status})` : null);
+const notSignedIn = (o) =>
+  o.dashboard || (o.response.setCookie ?? []).some((c) => c.startsWith("session=<JWT>")) ? `a session was set (${o.dashboard?.status})` : null;
 const EXPECT = {
   "public-home": page("Home"),
   "public-login": page("Log in"),
@@ -328,6 +334,7 @@ const EXPECT = {
   "spoofed-identity-header-anon": toLogin("/dashboard"),
   "spoofed-identity-header-session": dashboardOf("u-bob"),
   "config-rewrite-alias-session": dashboardOf("u-alice"),
+  "logout-action": (o) => ((o.setCookie ?? []).some((c) => /^session=; Path=\/; Expires=<DATE>$/.test(c)) ? null : `status ${o.status}: session not cleared ${JSON.stringify(o.setCookie)}`),
   "login-action-success": signedIn("u-alice", "http://SELF/reports"),
   "login-action-wrong-password": notSignedIn,
   "login-action-open-redirect": signedIn("u-bob", "http://SELF/dashboard"),

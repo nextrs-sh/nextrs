@@ -455,13 +455,20 @@ const jsonIs = (code, fields) => (o) => {
   for (const [k, v] of Object.entries(fields)) if (body?.[k] !== v) return `${k} ${JSON.stringify(body?.[k])}, expected ${JSON.stringify(v)}`;
   return null;
 };
+// Every Set-Cookie of the upstream's answer reaches the client (2B found
+// the proxy's own cookies dropped on external rewrites), attributes intact.
+const UPSTREAM_COOKIES = ["upstream-a=1; Path=/", "upstream-b=2; Path=/; HttpOnly"];
+const cookiesReach = (expected) => (o) => {
+  const missing = expected.filter((c) => !(o.setCookie ?? []).includes(c));
+  return missing.length ? `Set-Cookie ${JSON.stringify(o.setCookie)} lacks ${JSON.stringify(missing)}` : null;
+};
 const forwarded = (method, url, extra = {}) => (o) => {
   if (o.status !== 200) return `status ${o.status}`;
   if (o.body?.method !== method) return `upstream saw ${o.body?.method}, expected ${method}`;
   if (url !== undefined && o.body?.url !== url) return `upstream saw ${o.body?.url}, expected ${url}`;
   if (extra.body !== undefined && o.body?.body !== extra.body) return `upstream body ${JSON.stringify(o.body?.body)}`;
   for (const [h, v] of Object.entries(extra.headers ?? {})) if (o.body?.headers?.[h] !== v) return `upstream ${h} ${o.body?.headers?.[h]}, expected ${v}`;
-  return null;
+  return cookiesReach(extra.setCookie ?? UPSTREAM_COOKIES)(o);
 };
 const EXPECT = {
   "fetch-redirect": (o) => (o.status === 307 && /\/denied\?from=closed&status=403$/.test(loc(o)) ? null : `status ${o.status} ${loc(o)}`),
@@ -476,6 +483,8 @@ const EXPECT = {
   // next start rebuilds the destination query from a parsed object, so a
   // repeated key is grouped: x=1&y=%20z&x=2 reaches the upstream as x=1&x=2&y=%20z.
   "ext-get": forwarded("GET", "/echo/a/b?x=1&x=2&y=%20z"),
+  "proxy-ext-rewrite": (o) => (o.status === 200 ? cookiesReach(["proxy-external=1; Path=/", ...UPSTREAM_COOKIES])(o) : `status ${o.status}`),
+  "proxy-ext-rewrite-post": (o) => (o.status === 200 ? cookiesReach(["proxy-external=1; Path=/", ...UPSTREAM_COOKIES])(o) : `status ${o.status}`),
   "ext-post-json": forwarded("POST", "/echo/post", { body: JSON.stringify({ a: 1, b: "two" }) }),
   "ext-put-text": forwarded("PUT", "/echo/put", { body: "plain text body" }),
   "ext-delete": forwarded("DELETE", "/echo/delete"),

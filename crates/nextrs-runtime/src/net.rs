@@ -394,6 +394,12 @@ pub struct NetworkLimits {
     pub max_response_bytes: u64,
     /// Fetches in flight per isolate; more fail at once.
     pub max_in_flight_per_isolate: usize,
+    /// How long an idle pooled connection may be reused. It must be shorter
+    /// than the upstream's own keep-alive: a connection the upstream closes
+    /// just as a request is sent on it fails that request (a reset, not a
+    /// retry). Node closes idle connections after 5 s, so 4 s, as Node's
+    /// fetch (undici) uses.
+    pub pool_idle_timeout: Duration,
 }
 
 impl Default for NetworkLimits {
@@ -404,6 +410,7 @@ impl Default for NetworkLimits {
             body_idle_timeout: Duration::from_secs(30),
             max_response_bytes: 32 * 1024 * 1024,
             max_in_flight_per_isolate: 256,
+            pool_idle_timeout: Duration::from_secs(4),
         }
     }
 }
@@ -714,7 +721,7 @@ impl NetClient {
                 .referer(false)
                 .connect_timeout(config.limits.connect_timeout)
                 .pool_max_idle_per_host(32)
-                .pool_idle_timeout(Duration::from_secs(60))
+                .pool_idle_timeout(config.limits.pool_idle_timeout)
                 .dns_resolver(resolver.clone())
         };
         let client = builder(tls.clone()).build().map_err(|e| e.to_string())?;
