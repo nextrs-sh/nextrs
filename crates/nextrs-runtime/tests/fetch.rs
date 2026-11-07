@@ -283,6 +283,7 @@ fn network(allow: &[String], addrs: &[&str]) -> NetworkConfig {
             body_idle_timeout: Duration::from_millis(1500),
             max_response_bytes: 4 * 1024 * 1024,
             max_in_flight_per_isolate: 256,
+            pool_idle_timeout: Duration::from_secs(4),
         },
     }
 }
@@ -1161,4 +1162,102 @@ async fn public_https_smoke() {
     )
     .await;
     assert_eq!(r["error"]["message"], "fetch failed", "{r}");
+}
+
+// ---------------------------------------------------------------------------
+// Keep-alive
+// ---------------------------------------------------------------------------
+
+/// An upstream that makes the keep-alive race deterministic: a connection
+/// reused after `keep_alive` of idleness is reset instead of answered, as
+/// when the upstream's idle close crosses a request already sent. (A real
+/// upstream closes at `keep_alive`; the request fails only when it was sent
+/// in that instant, which a soak hit once in 2.7 million external
+/// rewrites.) Returns the base URL and the connections accepted.
+async fn racing_upstream(keep_alive: Duration) -> (String, u16, Arc<AtomicU64>) {
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let port = listener.local_addr().unwrap().port();
+    let connections = Arc::new(AtomicU64::new(0));
+    let accepted = connections.clone();
+    tokio::spawn(async move {
+        while let Ok((mut socket, _)) = listener.accept().await {
+            accepted.fetch_add(1, Ordering::SeqCst);
+            tokio::spawn(async move {
+                let mut idle_since: Option<Instant> = None;
+                let mut buffer = Vec::new();
+                loop {
+                    let mut chunk = [0u8; 1024];
+                    let Ok(n) = socket.read(&mut chunk).await else {
+                        return;
+                    };
+                    if n == 0 {
+                        return;
+                    }
+                    buffer.extend_from_slice(&chunk[..n]);
+                    let Some(end) = buffer.windows(4).position(|w| w == b"\r\n\r\n") else {
+                        continue;
+                    };
+                    buffer.drain(..end + 4);
+                    if idle_since.is_some_and(|since| since.elapsed() >= keep_alive) {
+                        let _ = socket.set_zero_linger();
+                        return;
+                    }
+                    let answer = format!(
+                        "HTTP/1.1 200 OK\r\ncontent-type: text/plain\r\ncontent-length: 2\r\nkeep-alive: timeout={}\r\n\r\nok",
+                        keep_alive.as_secs().max(1)
+                    );
+                    if socket.write_all(answer.as_bytes()).await.is_err() {
+                        return;
+                    }
+                    idle_since = Some(Instant::now());
+                }
+            });
+        }
+    });
+    (format!("http://127.0.0.1:{port}"), port, connections)
+}
+
+fn pooled(port: u16, pool_idle_timeout: Duration) -> Arc<Executor> {
+    let mut network = network(&[format!("http://127.0.0.1:{port}")], &["127.0.0.1"]);
+    network.limits.pool_idle_timeout = pool_idle_timeout;
+    start(Some(network), small_limits())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn an_idle_connection_is_not_reused_after_the_pool_idle_timeout() {
+    let keep_alive = Duration::from_millis(800);
+    let (base, port, connections) = racing_upstream(keep_alive).await;
+    let target = format!("{base}/ok");
+
+    // Shorter than the upstream's keep-alive: the second fetch opens a new
+    // connection instead of reusing the one the upstream is closing.
+    let executor = pooled(port, Duration::from_millis(300));
+    let first = run(&executor, "get", &[("target", &target)]).await;
+    assert_eq!(first["body"], "ok", "{first}");
+    tokio::time::sleep(keep_alive + Duration::from_millis(400)).await;
+    let second = run(&executor, "get", &[("target", &target)]).await;
+    assert_eq!(second["body"], "ok", "{second}");
+    assert_eq!(connections.load(Ordering::SeqCst), 2);
+
+    // The defect it prevents: a pool that outlives the upstream's keep-alive
+    // reuses the connection and the request fails.
+    let (base, port, connections) = racing_upstream(keep_alive).await;
+    let target = format!("{base}/ok");
+    let executor = pooled(port, Duration::from_secs(60));
+    let first = run(&executor, "get", &[("target", &target)]).await;
+    assert_eq!(first["body"], "ok", "{first}");
+    tokio::time::sleep(keep_alive + Duration::from_millis(400)).await;
+    let second = run(&executor, "get", &[("target", &target)]).await;
+    assert!(
+        second["error"].is_object() || second["error"].is_string(),
+        "the reused connection was reset: {second}"
+    );
+    assert_eq!(connections.load(Ordering::SeqCst), 1);
+}
+
+#[test]
+fn the_default_pool_idle_timeout_is_below_nodes_keep_alive() {
+    // Node's http server closes idle connections after 5 s.
+    assert!(NetworkLimits::default().pool_idle_timeout < Duration::from_secs(5));
 }
