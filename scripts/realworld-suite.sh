@@ -57,8 +57,13 @@ next_port=$base_port
 nextrs_port=$((base_port + 1))
 upstream_port=$((base_port + 2))
 closed_port=$((base_port + 3))
+# A second upstream that NextRS's network policy does not list (the
+# platform fixture's "unlisted" destinations): next start reaches it,
+# NextRS must refuse it.
+unlisted_port=$((base_port + 4))
 export NEXTRS_UPSTREAM="http://127.0.0.1:$upstream_port"
 export NEXTRS_CLOSED_PORT="$closed_port"
+export NEXTRS_UNLISTED_PORT="$unlisted_port"
 # Test-only secrets, fresh per run and never printed: the auth fixture's
 # session key, the platform fixture's draft-mode secret, and the Server
 # Action key both servers share.
@@ -67,6 +72,8 @@ DRAFT_SECRET="$(head -c 18 /dev/urandom | base64 | tr -d '/+=')"
 export SESSION_SECRET DRAFT_SECRET
 
 node "$root/tests/compat/upstream.mjs" --port "$upstream_port" > "$out/upstream.log" 2>&1 &
+pids+=($!)
+node "$root/tests/compat/upstream.mjs" --port "$unlisted_port" > "$out/upstream-unlisted.log" 2>&1 &
 pids+=($!)
 
 # prepare FIXTURE -> sets $project (the directory both servers serve).
@@ -100,8 +107,9 @@ start() {
   pids+=($next_pid)
   "$nextrs" start "$project" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
     --js-stall-timeout 3 --request-timeout 15 \
-    --js-env NEXTRS_UPSTREAM --js-env NEXTRS_CLOSED_PORT --js-env SESSION_SECRET --js-env DRAFT_SECRET \
-    --net-allow "http://127.0.0.1:$upstream_port" --net-allow-addr 127.0.0.1 "$@" >> "$out/nextrs-$fixture.log" 2>&1 &
+    --js-env NEXTRS_UPSTREAM --js-env NEXTRS_CLOSED_PORT --js-env NEXTRS_UNLISTED_PORT \
+    --js-env SESSION_SECRET --js-env DRAFT_SECRET \
+    --net-allow "http://127.0.0.1:$upstream_port" --net-allow "http://127.0.0.1:$closed_port" --net-allow-addr 127.0.0.1 "$@" >> "$out/nextrs-$fixture.log" 2>&1 &
   nextrs_pid=$!
   pids+=($nextrs_pid)
   for port in "$next_port" "$nextrs_port"; do
@@ -172,11 +180,12 @@ fi
 
 if wants platform && [[ -d "$root/fixtures/next-platform-proxy" ]]; then
   prepare next-platform-proxy
-  # External rewrites reach the upstream only: it is the one allowed
-  # destination (and 127.0.0.1 the one allowed non-public address).
+  # External rewrites and the proxy's fetches reach the upstream and the
+  # closed port only: they are the allowed destinations (127.0.0.1 the one
+  # allowed non-public address); the unlisted upstream is refused.
   start next-platform-proxy
   run platform-proxy tests/compat/platform-proxy.mjs --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
-    --closed-port "$closed_port" --dist "$project/.next" --out "$out" --json "$out/platform-proxy.json"
+    --dist "$project/.next" --isolates "$isolates" --json "$out/platform-proxy.json"
   stop
 fi
 
