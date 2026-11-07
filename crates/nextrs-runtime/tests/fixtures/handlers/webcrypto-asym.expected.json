@@ -1,0 +1,984 @@
+{
+  "p256Private": {
+    "type": "private",
+    "extractable": true,
+    "usages": [
+      "sign"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-256"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p256Public": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-256"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p256Spki": "3059301306072a8648ce3d020106082a8648ce3d030107034200041929bf35c08d3711fd34194bd75939ae12a4fc949e71409244b3110bf777ec6f3a980758056e71e9fb8cbb128c89c0e9211b723cbd4778c88f2a12f9264a9128",
+  "p256Pkcs8": "308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b0201010420ffdaa5748aab35b36c6b4ae564403de70e27c0fa5dfd2b9a35a90f92b1f271e7a144034200041929bf35c08d3711fd34194bd75939ae12a4fc949e71409244b3110bf777ec6f3a980758056e71e9fb8cbb128c89c0e9211b723cbd4778c88f2a12f9264a9128",
+  "p256Raw": "041929bf35c08d3711fd34194bd75939ae12a4fc949e71409244b3110bf777ec6f3a980758056e71e9fb8cbb128c89c0e9211b723cbd4778c88f2a12f9264a9128",
+  "p256JwkPrivate": {
+    "crv": "P-256",
+    "d": "_9qldIqrNbNsa0rlZEA95w4nwPpd_SuaNakPkrHycec",
+    "ext": true,
+    "key_ops": [
+      "sign"
+    ],
+    "kty": "EC",
+    "x": "GSm_NcCNNxH9NBlL11k5rhKk_JSecUCSRLMRC_d37G8",
+    "y": "OpgHWAVucen7jLsSjInA6SEbcjy9R3jIjyoS-SZKkSg"
+  },
+  "p256JwkPublic": {
+    "crv": "P-256",
+    "ext": true,
+    "key_ops": [
+      "verify"
+    ],
+    "kty": "EC",
+    "x": "GSm_NcCNNxH9NBlL11k5rhKk_JSecUCSRLMRC_d37G8",
+    "y": "OpgHWAVucen7jLsSjInA6SEbcjy9R3jIjyoS-SZKkSg"
+  },
+  "p256Import_spki": {
+    "type": "public",
+    "extractable": false,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-256"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p256Import_spki_verifiesNode": true,
+  "p256Import_raw": {
+    "type": "public",
+    "extractable": false,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-256"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p256Import_raw_verifiesNode": true,
+  "p256Import_pkcs8": {
+    "type": "private",
+    "extractable": false,
+    "usages": [
+      "sign"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-256"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p256Pkcs8SignVerifies": true,
+  "p256VerifyNode": true,
+  "p256VerifyTamperedData": false,
+  "p256VerifyTamperedSig": false,
+  "p256VerifyShortSig": false,
+  "p256VerifyEmptySig": false,
+  "p256SignLength": 64,
+  "p256SignVerifies": true,
+  "p256SignWithPublic": {
+    "error": "InvalidAccessError"
+  },
+  "p256VerifyWithPrivate": {
+    "error": "InvalidAccessError"
+  },
+  "p256WrongAlgorithm": {
+    "error": "InvalidAccessError"
+  },
+  "p256NoHash": {
+    "error": "TypeError"
+  },
+  "p256PublicWithSign": {
+    "error": "SyntaxError"
+  },
+  "p256PrivateNoUsages": {
+    "error": "SyntaxError"
+  },
+  "p256PublicNoUsages": {
+    "type": "public",
+    "extractable": true,
+    "usages": [],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-256"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p256BadUsage": {
+    "error": "TypeError"
+  },
+  "p256WrongCurveSpki": {
+    "error": "DataError"
+  },
+  "p256WrongCurvePkcs8": {
+    "error": "DataError"
+  },
+  "p256WrongCurveJwk": {
+    "error": "DataError"
+  },
+  "p256JwkWrongKty": {
+    "error": "DataError"
+  },
+  "p256JwkShortX": {
+    "error": "DataError"
+  },
+  "p256JwkNoY": {
+    "error": "DataError"
+  },
+  "p256JwkWrongAlg": {
+    "error": "DataError"
+  },
+  "p256JwkRightAlg": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-256"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p256JwkUseEnc": {
+    "error": "DataError"
+  },
+  "p256JwkKeyOps": {
+    "error": "DataError"
+  },
+  "p256JwkExtFalse": {
+    "error": "DataError"
+  },
+  "p256JwkMismatchedD": {
+    "error": "DataError"
+  },
+  "p256NotExtractable": {
+    "error": "InvalidAccessException"
+  },
+  "p256PrivateAsSpki": {
+    "error": "NotSupportedError"
+  },
+  "p256PublicAsPkcs8": {
+    "error": "NotSupportedError"
+  },
+  "p256TruncatedSpki": {
+    "error": "DataError"
+  },
+  "p256TrailingSpki": {
+    "ok": {}
+  },
+  "p256RawWrongLength": {
+    "error": "DataError"
+  },
+  "p256RsaSpkiAsEc": {
+    "error": "DataError"
+  },
+  "p384Private": {
+    "type": "private",
+    "extractable": true,
+    "usages": [
+      "sign"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-384"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p384Public": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-384"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p384Spki": "3076301006072a8648ce3d020106052b810400220362000447d58a4035baedbab70d731be33efae50ada73f058bfbf3247dce061949222aaa098200bc194b34c3b42980e24a9da658a0781fdef0b94ae2cd3ec76fe6755f1718db65531191efc6cf6dd14c7e5dea7493735a26996210a73b181ba48724b48",
+  "p384Pkcs8": "3081b6020100301006072a8648ce3d020106052b8104002204819e30819b0201010430753a28cd3b3506c9f9218a286a57436c8dde10dff754c6da230e77dafc6f5d631b5555f8a68a50108b2572beacb562caa1640362000447d58a4035baedbab70d731be33efae50ada73f058bfbf3247dce061949222aaa098200bc194b34c3b42980e24a9da658a0781fdef0b94ae2cd3ec76fe6755f1718db65531191efc6cf6dd14c7e5dea7493735a26996210a73b181ba48724b48",
+  "p384Raw": "0447d58a4035baedbab70d731be33efae50ada73f058bfbf3247dce061949222aaa098200bc194b34c3b42980e24a9da658a0781fdef0b94ae2cd3ec76fe6755f1718db65531191efc6cf6dd14c7e5dea7493735a26996210a73b181ba48724b48",
+  "p384JwkPrivate": {
+    "crv": "P-384",
+    "d": "dToozTs1Bsn5IYooaldDbI3eEN_3VMbaIw532vxvXWMbVVX4popQEIslcr6stWLK",
+    "ext": true,
+    "key_ops": [
+      "sign"
+    ],
+    "kty": "EC",
+    "x": "R9WKQDW67bq3DXMb4z765Qrac_BYv78yR9zgYZSSIqqgmCALwZSzTDtCmA4kqdpl",
+    "y": "igeB_e8LlK4s0-x2_mdV8XGNtlUxGR78bPbdFMfl3qdJNzWiaZYhCnOxgbpIcktI"
+  },
+  "p384JwkPublic": {
+    "crv": "P-384",
+    "ext": true,
+    "key_ops": [
+      "verify"
+    ],
+    "kty": "EC",
+    "x": "R9WKQDW67bq3DXMb4z765Qrac_BYv78yR9zgYZSSIqqgmCALwZSzTDtCmA4kqdpl",
+    "y": "igeB_e8LlK4s0-x2_mdV8XGNtlUxGR78bPbdFMfl3qdJNzWiaZYhCnOxgbpIcktI"
+  },
+  "p384Import_spki": {
+    "type": "public",
+    "extractable": false,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-384"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p384Import_spki_verifiesNode": true,
+  "p384Import_raw": {
+    "type": "public",
+    "extractable": false,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-384"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p384Import_raw_verifiesNode": true,
+  "p384Import_pkcs8": {
+    "type": "private",
+    "extractable": false,
+    "usages": [
+      "sign"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-384"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p384Pkcs8SignVerifies": true,
+  "p384VerifyNode": true,
+  "p384VerifyTamperedData": false,
+  "p384VerifyTamperedSig": false,
+  "p384VerifyShortSig": false,
+  "p384VerifyEmptySig": false,
+  "p384SignLength": 96,
+  "p384SignVerifies": true,
+  "p384SignWithPublic": {
+    "error": "InvalidAccessError"
+  },
+  "p384VerifyWithPrivate": {
+    "error": "InvalidAccessError"
+  },
+  "p384WrongAlgorithm": {
+    "error": "InvalidAccessError"
+  },
+  "p384NoHash": {
+    "error": "TypeError"
+  },
+  "p384PublicWithSign": {
+    "error": "SyntaxError"
+  },
+  "p384PrivateNoUsages": {
+    "error": "SyntaxError"
+  },
+  "p384PublicNoUsages": {
+    "type": "public",
+    "extractable": true,
+    "usages": [],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-384"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p384BadUsage": {
+    "error": "TypeError"
+  },
+  "p384WrongCurveSpki": {
+    "error": "DataError"
+  },
+  "p384WrongCurvePkcs8": {
+    "error": "DataError"
+  },
+  "p384WrongCurveJwk": {
+    "error": "DataError"
+  },
+  "p384JwkWrongKty": {
+    "error": "DataError"
+  },
+  "p384JwkShortX": {
+    "error": "DataError"
+  },
+  "p384JwkNoY": {
+    "error": "DataError"
+  },
+  "p384JwkWrongAlg": {
+    "error": "DataError"
+  },
+  "p384JwkRightAlg": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-384"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "p384JwkUseEnc": {
+    "error": "DataError"
+  },
+  "p384JwkKeyOps": {
+    "error": "DataError"
+  },
+  "p384JwkExtFalse": {
+    "error": "DataError"
+  },
+  "p384JwkMismatchedD": {
+    "error": "DataError"
+  },
+  "p384NotExtractable": {
+    "error": "InvalidAccessException"
+  },
+  "p384PrivateAsSpki": {
+    "error": "NotSupportedError"
+  },
+  "p384PublicAsPkcs8": {
+    "error": "NotSupportedError"
+  },
+  "p384TruncatedSpki": {
+    "error": "DataError"
+  },
+  "p384TrailingSpki": {
+    "ok": {}
+  },
+  "p384RawWrongLength": {
+    "error": "DataError"
+  },
+  "p384RsaSpkiAsEc": {
+    "error": "DataError"
+  },
+  "rsaPrivate": {
+    "type": "private",
+    "extractable": true,
+    "usages": [
+      "sign"
+    ],
+    "algorithm": {
+      "name": "RSASSA-PKCS1-v1_5",
+      "modulusLength": 2048,
+      "publicExponent": "010001",
+      "hash": {
+        "name": "SHA-256"
+      }
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "rsaPublic": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "RSASSA-PKCS1-v1_5",
+      "modulusLength": 2048,
+      "publicExponent": "010001",
+      "hash": {
+        "name": "SHA-256"
+      }
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "rsaSpki": "30820122300d06092a864886f70d01010105000382010f003082010a0282010100a2752968f2c298a84c346d14ca0a17dc3f06d91dbf1d0af9267aed805c55f30f0e5b4d703ec8a9a3e8ccab47503931bace8a6caf2afbc140cbc8c6dcd6d9ef2677e89d9b32836d5b474668d80f05e7b718167349fbddc96de67b6e7afe25bb86da39a9aebd0cd8743a0f91d380c75a3ee0e8c4947fe570f7a0ed75b5078e15c655e4632f9e4feab03b21cc59d86b61b48d00da01f2664abdb62a68f00c99c3f600369e3f34a48d9556ec959a67fe150f76c5cd55851f84ad32611e4340ebac1b75038eae7ff55c658dfc101a061f8b5f35c8a5054500657a0269404d9f5fee5162bb798a3966f8d1d47714117d7f0a9ed1d5fb8ac46a8f71c3b359e75fa4d1290203010001",
+  "rsaPkcs8": "308204bc020100300d06092a864886f70d0101010500048204a6308204a20201000282010100a2752968f2c298a84c346d14ca0a17dc3f06d91dbf1d0af9267aed805c55f30f0e5b4d703ec8a9a3e8ccab47503931bace8a6caf2afbc140cbc8c6dcd6d9ef2677e89d9b32836d5b474668d80f05e7b718167349fbddc96de67b6e7afe25bb86da39a9aebd0cd8743a0f91d380c75a3ee0e8c4947fe570f7a0ed75b5078e15c655e4632f9e4feab03b21cc59d86b61b48d00da01f2664abdb62a68f00c99c3f600369e3f34a48d9556ec959a67fe150f76c5cd55851f84ad32611e4340ebac1b75038eae7ff55c658dfc101a061f8b5f35c8a5054500657a0269404d9f5fee5162bb798a3966f8d1d47714117d7f0a9ed1d5fb8ac46a8f71c3b359e75fa4d1290203010001028201000171989b5d3d98fa8a937f07abaefb72228b969e32ceae2f08d0ed5a3cc27fc7e463afd4684918bc2deb5f0ca1c6cc581711f85acb29e9c30011f4a0784bff59d5c021b71973bd0da35c6f134278eb3654ec0d7cbcbf5bbfa8081f487a5de3fa29677b484eacf5f7271ff076bdcd7d12137b70bf2019837a3e8f75ad14ed85e8806f2b3a5033e236d3cd43acb9793fd54665db0f4512fd374691b3b48a5b24d2ee8ab7302100f4f6bdea1c2c4e6f52a6cf3c3656b5de6cfb1a42ae9d29244d8364845cb5bd9f3c635d07a2caac27f60f6b8821e06db63e302ee6b94927f5ed5103007945f0d97bf64cc86816674ec74d71642b5e926b60a1e8ec2422da8b63ed02818100dad949fb4abad5602087655760189c76eef68642b621acf91af8339b5af1497d1fdf2f31acccd9b3838a73307666e3eab4a670fb6dd382a7a773d695673896547c18b39c0cc0efb3a5a11b49e1f3d851a729fcd1b778e850301a277b6bf52c118f106e4329a2ad58c5755f998f58cc5462e279ed38cb311c0d07f2eb4e8be91502818100be093b7f3a09e49d0ded02d592288326bb8ae07e614266a2869ed6d4d4f5f15f8d2a63954442d1f0c0251bd21b1230d43969de45b51245fe1c5d87a11079d6cca2f272b51eb645178d7144bf9ba1e11c7617894bdf48752c90e4d3caa827597b1000a28e65c498ed9d4191d3e0e2073ffb727e8ad8f7f3821ed1e9051245a4c50281802e9713a8ebbfdaad1c3fb6d36321da2d77b203e32fe2fb700ccdca2ec8ad95778dd175ba9d8efec9b8b740ce9066571f20564eb7382a4f2661ffc72f074a84b677b4ca87ee2f24d899ea32650835615800be6f9435fb077a0ac386a43fd7720a4aeab48e97ce8a18dbf0a0e9901ad7651fa8174ce94a58aa201c111b071dc2010281801bb120b8636eb99fa13dde61dcd0867c086c2e567c39bed70422f54f42512c812e02f54bf50c7fa74378a4db3312ad86df6eebf2e075ef391e4d0acc8fa81182f463bc0f64904ef525a951c952167ec534f82d0b9f57e1ab42d9f57adc920f59fd74fa3b21dd4a23a5fcbe114ffddfec94e994430b66e65719c2a0e01a4f87b90281802e2fe3284c899cf2775586e1f13b729fa51a1adfe8313c2a8762a89923aee34eb7994ce76a40e9aba49516c2510dc27aa8b36f97289a6357c0f494325b9b6a7c949005830a88c0bde1480f9753aaa2e9a588cde2e1fb5b429ff90a8b2ac200bb48a93d5a8c1f3a53fa6d4326ef78dc29913d29d184ccb81f7c396bb13818b7c4",
+  "rsaJwkPrivate": {
+    "alg": "RS256",
+    "d": "AXGYm109mPqKk38Hq677ciKLlp4yzq4vCNDtWjzCf8fkY6_UaEkYvC3rXwyhxsxYFxH4Wssp6cMAEfSgeEv_WdXAIbcZc70No1xvE0J46zZU7A18vL9bv6gIH0h6XeP6KWd7SE6s9fcnH_B2vc19EhN7cL8gGYN6Po91rRTtheiAbys6UDPiNtPNQ6y5eT_VRmXbD0US_TdGkbO0ilsk0u6KtzAhAPT2veocLE5vUqbPPDZWtd5s-xpCrp0pJE2DZIRctb2fPGNdB6LKrCf2D2uIIeBttj4wLua5SSf17VEDAHlF8Nl79kzIaBZnTsdNcWQrXpJrYKHo7CQi2otj7Q",
+    "dp": "LpcTqOu_2q0cP7bTYyHaLXeyA-Mv4vtwDM3KLsitlXeN0XW6nY7-ybi3QM6QZlcfIFZOtzgqTyZh_8cvB0qEtne0yofuLyTYmeoyZQg1YVgAvm-UNfsHegrDhqQ_13IKSuq0jpfOihjb8KDpkBrXZR-oF0zpSliqIBwRGwcdwgE",
+    "dq": "G7EguGNuuZ-hPd5h3NCGfAhsLlZ8Ob7XBCL1T0JRLIEuAvVL9Qx_p0N4pNszEq2G327r8uB17zkeTQrMj6gRgvRjvA9kkE71JalRyVIWfsU0-C0Ln1fhq0LZ9Xrckg9Z_XT6OyHdSiOl_L4RT_3f7JTplEMLZuZXGcKg4BpPh7k",
+    "e": "AQAB",
+    "ext": true,
+    "key_ops": [
+      "sign"
+    ],
+    "kty": "RSA",
+    "n": "onUpaPLCmKhMNG0UygoX3D8G2R2_HQr5JnrtgFxV8w8OW01wPsipo-jMq0dQOTG6zopsryr7wUDLyMbc1tnvJnfonZsyg21bR0Zo2A8F57cYFnNJ-93JbeZ7bnr-JbuG2jmprr0M2HQ6D5HTgMdaPuDoxJR_5XD3oO11tQeOFcZV5GMvnk_qsDshzFnYa2G0jQDaAfJmSr22KmjwDJnD9gA2nj80pI2VVuyVmmf-FQ92xc1VhR-ErTJhHkNA66wbdQOOrn_1XGWN_BAaBh-LXzXIpQVFAGV6AmlATZ9f7lFiu3mKOWb40dR3FBF9fwqe0dX7isRqj3HDs1nnX6TRKQ",
+    "p": "2tlJ-0q61WAgh2VXYBicdu72hkK2Iaz5Gvgzm1rxSX0f3y8xrMzZs4OKczB2ZuPqtKZw-23Tgqenc9aVZziWVHwYs5wMwO-zpaEbSeHz2FGnKfzRt3joUDAaJ3tr9SwRjxBuQymirVjFdV-Zj1jMVGLiee04yzEcDQfy606L6RU",
+    "q": "vgk7fzoJ5J0N7QLVkiiDJruK4H5hQmaihp7W1NT18V-NKmOVRELR8MAlG9IbEjDUOWneRbUSRf4cXYehEHnWzKLycrUetkUXjXFEv5uh4Rx2F4lL30h1LJDk08qoJ1l7EACijmXEmO2dQZHT4OIHP_tyforY9_OCHtHpBRJFpMU",
+    "qi": "Li_jKEyJnPJ3VYbh8Ttyn6UaGt_oMTwqh2KomSOu4063mUznakDpq6SVFsJRDcJ6qLNvlyiaY1fA9JQyW5tqfJSQBYMKiMC94UgPl1OqoumliM3i4ftbQp_5CosqwgC7SKk9WowfOlP6bUMm73jcKZE9KdGEzLgffDlrsTgYt8Q"
+  },
+  "rsaJwkPublic": {
+    "alg": "RS256",
+    "e": "AQAB",
+    "ext": true,
+    "key_ops": [
+      "verify"
+    ],
+    "kty": "RSA",
+    "n": "onUpaPLCmKhMNG0UygoX3D8G2R2_HQr5JnrtgFxV8w8OW01wPsipo-jMq0dQOTG6zopsryr7wUDLyMbc1tnvJnfonZsyg21bR0Zo2A8F57cYFnNJ-93JbeZ7bnr-JbuG2jmprr0M2HQ6D5HTgMdaPuDoxJR_5XD3oO11tQeOFcZV5GMvnk_qsDshzFnYa2G0jQDaAfJmSr22KmjwDJnD9gA2nj80pI2VVuyVmmf-FQ92xc1VhR-ErTJhHkNA66wbdQOOrn_1XGWN_BAaBh-LXzXIpQVFAGV6AmlATZ9f7lFiu3mKOWb40dR3FBF9fwqe0dX7isRqj3HDs1nnX6TRKQ"
+  },
+  "rs256": "67dc3edc4da5a5f5f9bf18e06461f066419ccc6894d55e8c20fba021710b45efb0e056a786389e243273f5108fac082660d38cc34d9be121dccd5f652207412adc22d3be54d8594ff91b3f75c76e37174a3e59e8d36cd66c35499139a46eeca96edc54f0f295089f85eb3e9ca8fa83300f34cce4007a18d3b5adbdb4e587c47527630fddf640808b21cdd26f50bbd290c93cf91e850b191f5c3f4fcfafdaddc9bb813f1e2e28d7730d6fc4a2750cdc3884b54cbaec132d103e0443780931fc7fac7d0885532d46f5d08405bffe0bb77919561d7efaddb6627574c883401944eb7620cefbc2031189f9352453512a6ab789801872a2265c6e80b6dca057a9fc3b",
+  "rs256Verify": true,
+  "rs256TamperedSig": false,
+  "rs256TamperedData": false,
+  "rs256ShortSig": false,
+  "rs384": "1fcb1fb86e28d2d0b34ce3474ad1b87f608f14771b36a4f562276a0d744b3e506c9538680e2149a927743919766759ff6bd25026a31470542b4e9e85fe505541a6f9102b778213533fd16302b69922ec10facab168c8f43b2388006ec9a5115d6d967ad0a79b05dd94e015d0dda21c73daa8e168c323c75dc71f24727004d85a1d03e68cb9847d9b003fa685809514e5f6cb85ceb1bbd557fe5c1122e819e855595b34445bd979cc27c3e272acfd77d59f707011acdfec6cbfebf3fdd27cbcc1a2e3ea8ec72244682424bdf985c39ddbded73a17007602462b1a71830ed7dca4cd638821cf28ecf5792e5b54137b3b4c199b9223a1a1b7f5d58ea79a6069391c",
+  "rs384Verify": true,
+  "rs384WrongHashKey": false,
+  "rs512": "55da307205b215f4885f9f0130d0f6e6a7956c1908638f1b39b2b34f4a9d10047572245bf76e4195ba937af621b3c89b24076f40ed62919e1581d38c27ad0d087ac7bdc9762a4696ebd323f6e31a882e46b9d5dd564dc60bc6856f89415b3785dc9896b699242ea55615371cb9568e7ff8c737fc931822c90078ca83a3eed515f4d4db6eb364e3d4201117f0dfc037d236c5831cd9307eade782d9c5e99a93f4e90d3236026e9cd1436ab6d6adbe51bf99e261e190993c9d7c772ff311066b5f346008a9b50e5b8c0ac1e4f28e8ce6f8495639011816cb5879164164fa27881260ac7cf8dbffe5e692581d0149fa1ac469726c26b7725ed631ae2672bdddf092",
+  "rs512Verify": true,
+  "rs512WrongHashKey": false,
+  "ps256Public": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "RSA-PSS",
+      "modulusLength": 2048,
+      "publicExponent": "010001",
+      "hash": {
+        "name": "SHA-256"
+      }
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "ps256JwkPublic": {
+    "alg": "PS256",
+    "e": "AQAB",
+    "ext": true,
+    "key_ops": [
+      "verify"
+    ],
+    "kty": "RSA",
+    "n": "onUpaPLCmKhMNG0UygoX3D8G2R2_HQr5JnrtgFxV8w8OW01wPsipo-jMq0dQOTG6zopsryr7wUDLyMbc1tnvJnfonZsyg21bR0Zo2A8F57cYFnNJ-93JbeZ7bnr-JbuG2jmprr0M2HQ6D5HTgMdaPuDoxJR_5XD3oO11tQeOFcZV5GMvnk_qsDshzFnYa2G0jQDaAfJmSr22KmjwDJnD9gA2nj80pI2VVuyVmmf-FQ92xc1VhR-ErTJhHkNA66wbdQOOrn_1XGWN_BAaBh-LXzXIpQVFAGV6AmlATZ9f7lFiu3mKOWb40dR3FBF9fwqe0dX7isRqj3HDs1nnX6TRKQ"
+  },
+  "ps256VerifyNode": true,
+  "ps256VerifyTampered": false,
+  "ps256SignLength": 256,
+  "ps256SignVerifies": true,
+  "ps256AsPkcs1": {
+    "error": "InvalidAccessError"
+  },
+  "ps512Public": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "RSA-PSS",
+      "modulusLength": 2048,
+      "publicExponent": "010001",
+      "hash": {
+        "name": "SHA-512"
+      }
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "ps512JwkPublic": {
+    "alg": "PS512",
+    "e": "AQAB",
+    "ext": true,
+    "key_ops": [
+      "verify"
+    ],
+    "kty": "RSA",
+    "n": "onUpaPLCmKhMNG0UygoX3D8G2R2_HQr5JnrtgFxV8w8OW01wPsipo-jMq0dQOTG6zopsryr7wUDLyMbc1tnvJnfonZsyg21bR0Zo2A8F57cYFnNJ-93JbeZ7bnr-JbuG2jmprr0M2HQ6D5HTgMdaPuDoxJR_5XD3oO11tQeOFcZV5GMvnk_qsDshzFnYa2G0jQDaAfJmSr22KmjwDJnD9gA2nj80pI2VVuyVmmf-FQ92xc1VhR-ErTJhHkNA66wbdQOOrn_1XGWN_BAaBh-LXzXIpQVFAGV6AmlATZ9f7lFiu3mKOWb40dR3FBF9fwqe0dX7isRqj3HDs1nnX6TRKQ"
+  },
+  "ps512VerifyNode": true,
+  "ps512VerifyTampered": false,
+  "ps512SignLength": 256,
+  "ps512SignVerifies": true,
+  "ps512AsPkcs1": {
+    "error": "InvalidAccessError"
+  },
+  "psNoSalt": {
+    "error": "TypeError"
+  },
+  "rsaJwkAlgRS256": {
+    "type": "public",
+    "extractable": false,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "RSASSA-PKCS1-v1_5",
+      "modulusLength": 2048,
+      "publicExponent": "010001",
+      "hash": {
+        "name": "SHA-256"
+      }
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "rsaJwkAlgRS384": {
+    "error": "DataError"
+  },
+  "rsaJwkAlgPS256": {
+    "error": "DataError"
+  },
+  "rsaNoHash": {
+    "error": "TypeError"
+  },
+  "rsaRaw": {
+    "error": "NotSupportedError"
+  },
+  "rsaJwkMissingN": {
+    "error": "DataError"
+  },
+  "rsaJwkPartialCrt": {
+    "error": "DataError"
+  },
+  "rsaJwkWrongCrt": {
+    "ok": "67dc3edc4da5a5f5f9bf18e06461f066419ccc6894d55e8c20fba021710b45efb0e056a786389e243273f5108fac082660d38cc34d9be121dccd5f652207412adc22d3be54d8594ff91b3f75c76e37174a3e59e8d36cd66c35499139a46eeca96edc54f0f295089f85eb3e9ca8fa83300f34cce4007a18d3b5adbdb4e587c47527630fddf640808b21cdd26f50bbd290c93cf91e850b191f5c3f4fcfafdaddc9bb813f1e2e28d7730d6fc4a2750cdc3884b54cbaec132d103e0443780931fc7fac7d0885532d46f5d08405bffe0bb77919561d7efaddb6627574c883401944eb7620cefbc2031189f9352453512a6ab789801872a2265c6e80b6dca057a9fc3b"
+  },
+  "rsaPkcs8AsSpki": {
+    "error": "DataError"
+  },
+  "ecSpkiAsRsa": {
+    "error": "DataError"
+  },
+  "edPrivate": {
+    "type": "private",
+    "extractable": true,
+    "usages": [
+      "sign"
+    ],
+    "algorithm": {
+      "name": "Ed25519"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "edPublic": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "Ed25519"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "edSpki": "302a300506032b6570032100b050a459201850e7fc28eda848627f846bc51a92fd31369a8fea5599dc2e687f",
+  "edPkcs8": "302e020100300506032b65700422042034ccb6b8dd05bc10396718f1361712e0b8edb7cd51423e6b25bd7a138f101ae0",
+  "edRaw": "b050a459201850e7fc28eda848627f846bc51a92fd31369a8fea5599dc2e687f",
+  "edJwkPrivate": {
+    "alg": "Ed25519",
+    "crv": "Ed25519",
+    "d": "NMy2uN0FvBA5ZxjxNhcS4Ljtt81RQj5rJb16E48QGuA",
+    "ext": true,
+    "key_ops": [
+      "sign"
+    ],
+    "kty": "OKP",
+    "x": "sFCkWSAYUOf8KO2oSGJ_hGvFGpL9MTaaj-pVmdwuaH8"
+  },
+  "edJwkPublic": {
+    "alg": "Ed25519",
+    "crv": "Ed25519",
+    "ext": true,
+    "key_ops": [
+      "verify"
+    ],
+    "kty": "OKP",
+    "x": "sFCkWSAYUOf8KO2oSGJ_hGvFGpL9MTaaj-pVmdwuaH8"
+  },
+  "edSignature": "f5170515e2ebe82e3430c34451b02c6d2132d73bbd8362457a58ff091c385a74241f796a9e484c5d3e8a58c4db8a1b4ed35250bb3a53e3a26445881f7413e901",
+  "edVerify": true,
+  "edVerifyTampered": false,
+  "edVerifyTamperedData": false,
+  "edVerifyShort": false,
+  "edImport_spki": {
+    "type": "public",
+    "extractable": false,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "Ed25519"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "edImport_spki_works": true,
+  "edImport_raw": {
+    "type": "public",
+    "extractable": false,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "Ed25519"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "edImport_raw_works": true,
+  "edImport_pkcs8": {
+    "type": "private",
+    "extractable": false,
+    "usages": [
+      "sign"
+    ],
+    "algorithm": {
+      "name": "Ed25519"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "edImport_pkcs8_works": "f5170515e2ebe82e3430c34451b02c6d2132d73bbd8362457a58ff091c385a74241f796a9e484c5d3e8a58c4db8a1b4ed35250bb3a53e3a26445881f7413e901",
+  "edJwkAlgEdDSA": {
+    "type": "public",
+    "extractable": false,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "Ed25519"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "edJwkWrongCrv": {
+    "error": "DataError"
+  },
+  "edJwkMismatched": {
+    "error": "DataError"
+  },
+  "edRawShort": {
+    "error": "DataError"
+  },
+  "edSignWithPublic": {
+    "error": "InvalidAccessError"
+  },
+  "genP256Public": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-256"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "genP256Private": {
+    "type": "private",
+    "extractable": false,
+    "usages": [
+      "sign"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-256"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "genP256Verifies": true,
+  "genP256JwkMembers": [
+    "crv",
+    "ext",
+    "key_ops",
+    "kty",
+    "x",
+    "y"
+  ],
+  "genP256PrivateExport": {
+    "error": "InvalidAccessException"
+  },
+  "genP256PublicOnlyUsages": {
+    "error": "SyntaxError"
+  },
+  "genP256BadUsage": {
+    "error": "SyntaxError"
+  },
+  "genP384Public": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-384"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "genP384Private": {
+    "type": "private",
+    "extractable": false,
+    "usages": [
+      "sign"
+    ],
+    "algorithm": {
+      "name": "ECDSA",
+      "namedCurve": "P-384"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "genP384Verifies": true,
+  "genP384JwkMembers": [
+    "crv",
+    "ext",
+    "key_ops",
+    "kty",
+    "x",
+    "y"
+  ],
+  "genP384PrivateExport": {
+    "error": "InvalidAccessException"
+  },
+  "genP384PublicOnlyUsages": {
+    "error": "SyntaxError"
+  },
+  "genP384BadUsage": {
+    "error": "SyntaxError"
+  },
+  "genEd25519Public": {
+    "type": "public",
+    "extractable": true,
+    "usages": [
+      "verify"
+    ],
+    "algorithm": {
+      "name": "Ed25519"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "genEd25519Private": {
+    "type": "private",
+    "extractable": false,
+    "usages": [
+      "sign"
+    ],
+    "algorithm": {
+      "name": "Ed25519"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "genEd25519Verifies": true,
+  "genEd25519JwkMembers": [
+    "alg",
+    "crv",
+    "ext",
+    "key_ops",
+    "kty",
+    "x"
+  ],
+  "genEd25519PrivateExport": {
+    "error": "InvalidAccessException"
+  },
+  "genEd25519PublicOnlyUsages": {
+    "error": "SyntaxError"
+  },
+  "genEd25519BadUsage": {
+    "error": "SyntaxError"
+  },
+  "genDistinct": true,
+  "hkdfKey": {
+    "type": "secret",
+    "extractable": false,
+    "usages": [
+      "deriveBits"
+    ],
+    "algorithm": {
+      "name": "HKDF"
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "hkdfTc1": "3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865",
+  "hkdfAuthjs": "850aaba7c0088096b1de9ff8ab37055b1489cccfd21d76b0dbf10479df3a14e3408901d9bf383249239980e10edc1eac824026dbbf2fbecdd61fff178f7a3753",
+  "hkdfSha512": "832390086cda71fb47625bb5ceb168e4c8e26a1a16ed34d9fc7fe92c14815793",
+  "hkdfExtractable": {
+    "error": "SyntaxError"
+  },
+  "hkdfExport": {
+    "error": "NotSupportedError"
+  },
+  "hkdfBadUsage": {
+    "error": "SyntaxError"
+  },
+  "hkdfNullLength": {
+    "error": "OperationError"
+  },
+  "hkdfOddLength": {
+    "error": "OperationError"
+  },
+  "hkdfTooLong": {
+    "error": "OperationError"
+  },
+  "hkdfNoInfo": {
+    "error": "TypeError"
+  },
+  "hkdfWrongKey": {
+    "error": "InvalidAccessError"
+  },
+  "cbcKey": {
+    "type": "secret",
+    "extractable": true,
+    "usages": [
+      "encrypt",
+      "decrypt"
+    ],
+    "algorithm": {
+      "name": "AES-CBC",
+      "length": 256
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "cbcCiphertext": "f58c4c04d6e5f1ba779eabfb5f7bfbd69cfc4e967edb808d679f777bc6702c7d3a3aa5e0213db1a9901f9036cf5102d2",
+  "cbcDecrypt": "6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e51",
+  "cbcEmpty": "7e9248e5d829ca7593f0c549db2f5b8c",
+  "cbcBadPadding": {
+    "error": "OperationError"
+  },
+  "cbcPartialBlock": {
+    "error": "OperationError"
+  },
+  "cbcShortIv": {
+    "error": "OperationError"
+  },
+  "cbcJwk": {
+    "alg": "A256CBC",
+    "ext": true,
+    "k": "YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3_Q",
+    "key_ops": [
+      "encrypt",
+      "decrypt"
+    ],
+    "kty": "oct"
+  },
+  "cbcJwkImport": {
+    "type": "secret",
+    "extractable": false,
+    "usages": [
+      "decrypt"
+    ],
+    "algorithm": {
+      "name": "AES-CBC",
+      "length": 256
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "cbcJwkWrongAlg": {
+    "error": "DataError"
+  },
+  "cbcAsGcm": {
+    "error": "InvalidAccessError"
+  },
+  "cbcGenerated": {
+    "type": "secret",
+    "extractable": true,
+    "usages": [
+      "encrypt"
+    ],
+    "algorithm": {
+      "name": "AES-CBC",
+      "length": 128
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "hmacJwk": {
+    "type": "secret",
+    "extractable": true,
+    "usages": [
+      "sign",
+      "verify"
+    ],
+    "algorithm": {
+      "name": "HMAC",
+      "hash": {
+        "name": "SHA-256"
+      },
+      "length": 120
+    },
+    "tag": "[object CryptoKey]",
+    "instance": true
+  },
+  "hmacJwkSign": "f03a5b49ac2c819b4dd78f36160a4483e736b12de10b76cea89aeb8629a227f6",
+  "hmacJwkExport": {
+    "alg": "HS256",
+    "ext": true,
+    "k": "c2VjcmV0LWhtYWMta2V5",
+    "key_ops": [
+      "sign",
+      "verify"
+    ],
+    "kty": "oct"
+  },
+  "hmacJwkWrongAlg": {
+    "error": "DataError"
+  },
+  "gcmJwkExport": {
+    "alg": "A128GCM",
+    "ext": true,
+    "k": "AwMDAwMDAwMDAwMDAwMDAw",
+    "key_ops": [
+      "encrypt"
+    ],
+    "kty": "oct"
+  },
+  "concurrent": {
+    "total": 360,
+    "right": 360
+  }
+}

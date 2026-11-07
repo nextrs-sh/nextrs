@@ -37,6 +37,22 @@ tokio = { workspace = true, features = ["sync", "rt", "rt-multi-thread", "time",
 tracing.workspace = true
 aes-gcm = { version = "0.10", features = ["zeroize"] }
 hmac = "0.12"
+# Web Crypto's asymmetric signatures (ECDSA P-256/P-384, RSASSA-PKCS1-v1_5,
+# RSA-PSS, Ed25519): ring, which rustls already links. Key formats (SPKI,
+# PKCS#8, PKCS#1, SEC1, JWK base64url) are parsed and written by
+# RustCrypto's format crates, which do no cryptography themselves.
+ring = "0.17.14"
+der = { version = "0.7", features = ["alloc", "oid"] }
+spki = { version = "0.7", features = ["alloc"] }
+pkcs8 = { version = "0.10", features = ["alloc"] }
+pkcs1 = { version = "0.7", features = ["alloc"] }
+sec1 = { version = "0.7", features = ["der", "alloc"] }
+base64ct = { version = "1", features = ["alloc"] }
+# AES-CBC and HKDF (JWE's A*CBC-HS* content encryption; Auth.js derives its
+# session key with HKDF).
+aes = "0.8"
+cbc = { version = "0.1", features = ["alloc", "block-padding"] }
+hkdf = "0.12"
 multer = "3"
 zeroize = "1"
 
