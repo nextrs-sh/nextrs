@@ -1,4 +1,4 @@
-// Web Crypto (AES-GCM) and FormData checks. The same file runs under Node
+// Web Crypto (AES-GCM, HMAC) and FormData checks. The same file runs under Node
 // (`node webapis.js`), which prints the reference results the Rust test
 // compares against (webapis.expected.json); keys under `nextrsOnly` are
 // NextRS's documented refusals, which Node does not share.
@@ -72,10 +72,38 @@ async function crypto_() {
     await subtle.decrypt({ name: "AES-GCM", iv }, generated, await subtle.encrypt({ name: "AES-GCM", iv }, generated, payload)),
   );
   r.illegalConstructor = await outcome(() => new CryptoKey());
+
+  // HMAC (jose's HS256/384/512): RFC 4231 case 2, key shape, usages, and
+  // verification failures.
+  const hmacKey = await subtle.importKey("raw", new TextEncoder().encode("Jefe"), { name: "HMAC", hash: "SHA-256" }, true, ["sign", "verify"]);
+  const hmacData = new TextEncoder().encode("what do ya want for nothing?");
+  r.hmacAlgorithm = [hmacKey.algorithm.name, hmacKey.algorithm.hash.name, hmacKey.algorithm.length, hmacKey.type, [...hmacKey.usages]];
+  const mac = await subtle.sign("HMAC", hmacKey, hmacData);
+  r.hmacSign = hex(mac);
+  r.hmacVerify = await subtle.verify({ name: "HMAC" }, hmacKey, mac, hmacData);
+  const badMac = new Uint8Array(mac);
+  badMac[0] ^= 1;
+  r.hmacVerifyTampered = await subtle.verify("HMAC", hmacKey, badMac, hmacData);
+  r.hmacVerifyTruncated = await subtle.verify("HMAC", hmacKey, new Uint8Array(mac).slice(0, 31), hmacData);
+  r.hmacVerifyOtherData = await subtle.verify("HMAC", hmacKey, mac, new TextEncoder().encode("other"));
+  const hmac512 = await subtle.importKey("raw", new TextEncoder().encode("Jefe"), { name: "hmac", hash: { name: "sha-512" } }, false, ["verify"]);
+  r.hmac512Algorithm = [hmac512.algorithm.name, hmac512.algorithm.hash.name];
+  r.hmac512SignWithoutUsage = await outcome(() => subtle.sign("HMAC", hmac512, hmacData));
+  r.hmacExported = hex(await subtle.exportKey("raw", hmacKey));
+  r.hmacNoHash = await outcome(() => subtle.importKey("raw", new Uint8Array(32), { name: "HMAC" }, false, ["sign"]));
+  r.hmacBadHash = await outcome(() => subtle.importKey("raw", new Uint8Array(32), { name: "HMAC", hash: "MD5" }, false, ["sign"]));
+  r.hmacBadUsage = await outcome(() => subtle.importKey("raw", new Uint8Array(32), { name: "HMAC", hash: "SHA-256" }, false, ["encrypt"]));
+  r.hmacEmptyKey = await outcome(() => subtle.importKey("raw", new Uint8Array(0), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]));
+  r.hmacWithAesKey = await outcome(() => subtle.sign("HMAC", key, hmacData));
+  r.aesWithHmacKey = await outcome(() => subtle.encrypt({ name: "AES-GCM", iv }, hmacKey, payload));
+  const generatedHmac = await subtle.generateKey({ name: "HMAC", hash: "SHA-384" }, true, ["sign", "verify"]);
+  r.generatedHmac = [generatedHmac.algorithm.length, (await subtle.exportKey("raw", generatedHmac)).byteLength];
+  r.generatedHmacRoundTrip = await subtle.verify("HMAC", generatedHmac, await subtle.sign("HMAC", generatedHmac, hmacData), hmacData);
   const nextrsOnly = {
     iv8: await outcome(() => subtle.encrypt({ name: "AES-GCM", iv: new Uint8Array(8) }, key, payload)),
     tag96: await outcome(() => subtle.encrypt({ name: "AES-GCM", iv, tagLength: 96 }, key, payload)),
-    hmac: await outcome(() => subtle.importKey("raw", new Uint8Array(32), { name: "HMAC", hash: "SHA-256" }, false, ["sign"])),
+    ecdsa: await outcome(() => subtle.importKey("raw", new Uint8Array(65), { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"])),
+    hmacJwk: await outcome(() => subtle.importKey("jwk", { kty: "oct", k: "AAAA" }, { name: "HMAC", hash: "SHA-256" }, false, ["sign"])),
     jwk: await outcome(() => subtle.exportKey("jwk", key)),
   };
   return { r, nextrsOnly };
