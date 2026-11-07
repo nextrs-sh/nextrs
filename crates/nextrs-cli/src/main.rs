@@ -290,6 +290,11 @@ struct LimitArgs {
     /// without yielding. Affects every request in that isolate.
     #[arg(long, value_name = "SECONDS", default_value_t = 10.0)]
     js_stall_timeout: f64,
+    /// Longest an isolate may take to start (loading Next's bundles); 0
+    /// disables it. Expiry fails startup, or restarts the isolate with
+    /// backoff after a failure.
+    #[arg(long, value_name = "SECONDS", default_value_t = 60.0)]
+    js_bootstrap_timeout: f64,
     /// V8 heap limit per isolate; reaching it replaces the isolate.
     /// Default: V8's own limit.
     #[arg(long, value_name = "MIB")]
@@ -333,6 +338,7 @@ impl LimitArgs {
             queue_timeout: seconds(self.queue_timeout).unwrap_or(Duration::ZERO),
             request_timeout: seconds(self.request_timeout),
             stall_timeout: seconds(self.js_stall_timeout),
+            bootstrap_timeout: seconds(self.js_bootstrap_timeout),
             heap_limit_bytes: self.js_heap_limit.map(|mib| mib * 1024 * 1024),
             response_buffer_bytes: self.response_buffer.max(1) * 1024,
             shutdown_grace: seconds(self.shutdown_grace).unwrap_or(Duration::ZERO),

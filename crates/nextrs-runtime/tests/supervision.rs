@@ -175,6 +175,48 @@ async fn bootstrap_failure_fails_startup() {
     }
 }
 
+/// A bootstrap that runs longer than the stall limit is not a stall: it
+/// has its own deadline (the Phase 1E finding: healthy bootstraps under
+/// contention were killed by the 2-3 s stall limit).
+#[tokio::test(flavor = "multi_thread")]
+async fn a_slow_bootstrap_is_not_judged_by_the_stall_limit() {
+    let mut config = config(Limits {
+        stall_timeout: Some(Duration::from_millis(300)),
+        bootstrap_timeout: Some(Duration::from_secs(20)),
+        ..small_limits()
+    });
+    config.bootstrap = Some(fixture().join("dist/slow-bootstrap.js"));
+    config
+        .env
+        .insert("NEXTRS_TEST_BOOT_MS".into(), "1200".into());
+    let executor = Executor::start(config).expect("a slow bootstrap starts");
+    assert_eq!(
+        collect(&executor, request("faults.js", &[])).await.text(),
+        "ok"
+    );
+    assert_eq!(executor.metrics().executors[0].restarts, 0);
+}
+
+/// A bootstrap that never finishes fails startup at its deadline instead
+/// of leaving the executor unavailable.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_bootstrap_that_never_finishes_fails_at_its_deadline() {
+    let mut config = config(Limits {
+        bootstrap_timeout: Some(Duration::from_millis(800)),
+        ..small_limits()
+    });
+    config.bootstrap = Some(fixture().join("dist/slow-bootstrap.js"));
+    config.env.insert("NEXTRS_TEST_BOOT_MS".into(), "-1".into());
+    let started = Instant::now();
+    match Executor::start(config) {
+        Err(ExecutorError::Bootstrap(error)) => {
+            assert!(error.contains("did not finish its bootstrap"), "{error}")
+        }
+        other => panic!("expected a bootstrap deadline error, got {other:?}"),
+    }
+    assert!(started.elapsed() < Duration::from_secs(10));
+}
+
 /// Repeated failures back off exponentially (20, 40, 80, 160, 200 ms
 /// here) instead of restarting in a tight loop.
 #[tokio::test(flavor = "multi_thread")]

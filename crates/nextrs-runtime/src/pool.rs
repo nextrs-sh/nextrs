@@ -799,7 +799,7 @@ fn supervise(
         let mut exit: Option<WorkerExit> = None;
         let mut failure: Option<(FailureReason, String)> = None;
         if thread.is_some() {
-            match wait_ready(&inner, &worker, &ready_rx) {
+            match wait_ready(&inner, &worker, &ready_rx, started) {
                 Ok(()) => {
                     // Dispatchable before start() returns.
                     inner.install(&worker);
@@ -896,15 +896,30 @@ fn supervise(
     }
 }
 
-/// Waits for the isolate's bootstrap, applying the stall watchdog.
+/// Waits for the isolate's bootstrap under its own deadline
+/// (`bootstrap_timeout`, wall clock). The per-turn stall limit does not
+/// apply: loading Next's bundles is one long turn, and under CPU contention
+/// it outlasted a 2-3 s stall limit, which killed healthy bootstraps.
 fn wait_ready(
     inner: &PoolInner,
     worker: &WorkerShared,
     ready: &Receiver<Result<(), String>>,
+    started: Instant,
 ) -> Result<(), String> {
+    let limit = inner.config.limits.bootstrap_timeout;
+    let mut expired = false;
+    let deadline = || {
+        format!(
+            "the isolate did not finish its bootstrap within {:.1} s (--js-bootstrap-timeout)",
+            limit.unwrap_or_default().as_secs_f64()
+        )
+    };
     loop {
+        // Once the deadline terminated the isolate, whatever it reports
+        // (even a late success) is that failure.
         match ready.recv_timeout(WATCH_INTERVAL) {
-            Ok(result) => return result,
+            Ok(result) => return if expired { Err(deadline()) } else { result },
+            Err(RecvTimeoutError::Disconnected) if expired => return Err(deadline()),
             Err(RecvTimeoutError::Disconnected) => {
                 return Err("the isolate thread exited during bootstrap".into());
             }
@@ -913,10 +928,18 @@ fn wait_ready(
         if inner.is_shutting_down() {
             worker.terminate(Termination::Shutdown);
         }
-        if let Some(limit) = inner.config.limits.stall_timeout
-            && worker.busy_for() > limit
+        if let Some(limit) = limit
+            && !expired
+            && started.elapsed() > limit
         {
-            worker.terminate(Termination::Failed(FailureReason::CpuStall));
+            expired = true;
+            tracing::error!(
+                target: "nextrs::executor",
+                slot = worker.slot,
+                limit_ms = limit.as_millis() as u64,
+                "isolate bootstrap exceeded its deadline; terminating it"
+            );
+            worker.terminate(Termination::Failed(FailureReason::Bootstrap));
         }
     }
 }
