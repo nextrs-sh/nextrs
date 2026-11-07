@@ -17,6 +17,7 @@ import { createCipheriv, randomBytes } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import http from "node:http";
 import { join } from "node:path";
+import { corrupt } from "./routing-lib.mjs";
 
 const args = Object.fromEntries(
   process.argv.slice(2).reduce((pairs, arg, i, all) => {
@@ -517,6 +518,27 @@ candidateCase("closures-across-isolates", async () => {
 });
 
 // ---------------------------------------------------------------------------
+// What each critical case must observe, on both servers (Phase 2C audit):
+// equal ledgers are not enough (a malformed request body once made both
+// servers record nothing). next start contradicting one is ORACLE-FAIL (the
+// test is wrong), NextRS contradicting one is FAIL.
+const nothingRecorded = (o) => (o.recorded === 0 ? null : `recorded ${o.recorded}, expected 0`);
+const ledgerIs = (...ids) => (o) => (JSON.stringify(o.ledger ?? o.recorded) === JSON.stringify(ids) ? null : `ledger ${JSON.stringify(o.ledger ?? o.recorded)}, expected ${JSON.stringify(ids)}`);
+const EXPECT = {
+  "invalid-origin-fetch": nothingRecorded,
+  "origin-null": nothingRecorded,
+  "get-does-not-run-actions": nothingRecorded,
+  "put-and-delete-refused": nothingRecorded,
+  "forwarded-host-matching-origin": (o) => (o.recorded === 1 ? null : `recorded ${o.recorded}, expected 1`),
+  "forwarded-to-another-worker": ledgerIs("fwd"),
+  "mutation-once": (o) => (o.status === 200 && o.body ? ledgerIs("only")(o) : `status ${o.status}, body ${o.body}`),
+  "concurrent-mutations": (o) => (o.answered === 64 && o.recorded === 64 && o.distinct === 64 ? null : JSON.stringify(o)),
+  "concurrent-identity": (o) => (o.n === 48 && o.leaks === 0 ? null : JSON.stringify(o)),
+  "disconnect-after-commit": ledgerIs("a"),
+  "disconnect-before-commit": ledgerIs("b"),
+};
+for (const name of Object.keys(EXPECT)) if (!cases[name]) throw new Error(`no case ${name}`);
+
 const results = [];
 let failures = 0;
 for (const [name, { kind, fn }] of Object.entries(cases)) {
@@ -532,6 +554,20 @@ for (const [name, { kind, fn }] of Object.entries(cases)) {
       const same = JSON.stringify(b) === JSON.stringify(c);
       verdict = same ? "MATCH" : kind === "known" ? "KNOWN-DIFF" : "DIFF";
       detail = { baseline: b, candidate: c, ...(kind === "known" ? { note: cases[name].note } : {}) };
+      if (EXPECT[name]) {
+        const control = process.env.NEXTRS_NEGATIVE_CONTROL ?? "";
+        const [defect, sides] = control.split(":");
+        if (defect) {
+          corrupt(defect, c);
+          if (sides === "both") corrupt(defect, b);
+        }
+        const oracleWrong = EXPECT[name](b);
+        const candidateWrong = EXPECT[name](c);
+        if (oracleWrong) verdict = "ORACLE-FAIL";
+        else if (candidateWrong) verdict = "FAIL";
+        else if (defect && JSON.stringify(b) !== JSON.stringify(c)) verdict = "DIFF";
+        Object.assign(detail, { asserted: true, oracleWrong, candidateWrong });
+      }
     } else {
       detail = { candidate: await fn() };
       verdict = "OBSERVED";
@@ -541,7 +577,7 @@ for (const [name, { kind, fn }] of Object.entries(cases)) {
     verdict = "ERROR";
     detail = { error: String(error?.stack ?? error).split("\n").slice(0, 3).join(" | ") };
   }
-  if (verdict === "DIFF" || verdict === "ERROR") failures++;
+  if (["DIFF", "ERROR", "FAIL", "ORACLE-FAIL"].includes(verdict)) failures++;
   results.push({ name, kind, verdict, ...detail });
   const show = verdict === "MATCH" ? JSON.stringify(detail.baseline).slice(0, 140) : JSON.stringify(detail).slice(0, 900);
   console.log(`${verdict.padEnd(9)} ${name.padEnd(32)} ${show}`);
@@ -552,5 +588,5 @@ if (!(await healthy())) {
 }
 if (args.json) writeFileSync(args.json, JSON.stringify({ run, ids, results }, null, 2));
 const count = (v) => results.filter((r) => r.verdict === v).length;
-console.log(`${count("MATCH")} match, ${count("KNOWN-DIFF")} known divergences, ${count("OBSERVED")} observed, ${failures} failing`);
+console.log(`${count("MATCH")} match (${results.filter((r) => r.verdict === "MATCH" && r.asserted).length} asserted), ${count("KNOWN-DIFF")} known divergences, ${count("OBSERVED")} observed, ${failures} failing`);
 process.exit(failures ? 1 : 0);

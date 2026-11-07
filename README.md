@@ -47,12 +47,15 @@ Actions, run by Next's own compiled handlers), **Phase 1E** (ISR,
 regenerated pages stored in that shared cache, revalidation from Server
 Actions, and Cache Components) and, experimentally, **Phase 2A** (`proxy.ts`,
 run as Next's compiled proxy in the same isolates, and `next.config`
-headers, redirects, rewrites, `basePath` and `trailingSlash`) and **Phase 2B**
+headers, redirects, rewrites, `basePath` and `trailingSlash`), **Phase 2B**
 (real-world proxies: `jose` session cookies, `next-intl` locale routing, a
 proxy that fetches; external rewrites under the network policy; Draft Mode,
-`dynamicParams = false`, `instrumentation.ts`). It is tested against six
-small App Router fixtures built with Next.js 16.4.3, and also passes the
-same comparison suites on 16.4.4 and 16.4.5.
+`dynamicParams = false`, `instrumentation.ts`) and **Phase 2C**
+(authentication libraries: asymmetric Web Crypto, `jose` with a remote
+JWKS, Auth.js v5, `next-intl`'s other routing modes, OpenTelemetry with
+`@vercel/otel`). It is tested against nine small App Router fixtures built
+with Next.js 16.4.3, and also passes the same comparison suites on 16.4.4
+and 16.4.5.
 
 - **Works:** `nextrs start` serves static assets, prerendered pages, React
   Server Components (RSC) payloads and the not-found page from Rust.
@@ -184,8 +187,12 @@ might be wrong.
   closures, file uploads, redirects, cookies and errors behave as they do
   under `next start`. Next's compiled handler does the work: NextRS routes
   the requests and provides the Web APIs it needs (`FormData`, multipart
-  parsing, AES-GCM and HMAC in `crypto.subtle`). Mutations are never
-  retried automatically.
+  parsing, `crypto.subtle`). Mutations are never retried automatically.
+- **Web Crypto for authentication libraries:** ECDSA (P-256, P-384),
+  RSASSA-PKCS1-v1_5, RSA-PSS and Ed25519 signatures; `raw`, `spki`, `pkcs8`
+  and `jwk` keys; HMAC, HKDF, AES-GCM and AES-CBC. Results match Node's on a
+  shared test file. Signatures use `ring`, key formats the RustCrypto
+  format crates, and key material stays in Rust.
 - **Proxy and routing rules:** an unchanged `proxy.ts` runs as Next compiled
   it, at the point in the pipeline where `next start` runs it (after
   `next.config` headers and redirects, before rewrites, files, prerendered
@@ -193,9 +200,14 @@ might be wrong.
   and rewrites, `basePath` and `trailingSlash` are applied from Next's own
   compiled rules; the routing functions are checked against Next's own on
   thousands of generated cases. Tested with real proxies: `jose` session
-  verification (the Next.js authentication guide's pattern), `next-intl`'s
-  locale middleware, and a proxy that fetches, rewrites to other origins
-  and schedules `waitUntil` work.
+  verification (the Next.js authentication guide's pattern), `jose`
+  verifying RS256, PS256, ES256, ES384 and EdDSA tokens against an OpenID
+  provider's JWKS (key rotation, provider failures), Auth.js v5
+  (credentials and OpenID Connect sign-in, encrypted JWT sessions, its
+  `authorized` callback as the proxy), `next-intl`'s locale middleware in
+  its `always`, `as-needed`, localized-pathnames and domain modes, a proxy
+  that fetches, rewrites to other origins and schedules `waitUntil` work,
+  and OpenTelemetry through `@vercel/otel`.
 - **Unsupported-feature detection:** `nextrs start` refuses builds it would
   serve incorrectly, instead of silently skipping middleware, redirects or
   security headers.
@@ -221,12 +233,17 @@ might be wrong.
   `next start` forgets its tags and `"use cache"` entries. Module state is
   per isolate.
 - **Outbound fetch gaps:** no `data:` URLs, custom CAs, client certificates,
-  proxies or HTTP/2. A fetch does not outlive the request that started it.
+  proxies or HTTP/2. A fetch still open when its request ends is detached
+  (a shared or background fetch completes) and aborted after a grace as
+  long as the request's deadline; a response body nobody started to read
+  is released when its request's handler finishes.
 - **Node.js API coverage:** NextRS provides a narrow Node.js layer. Node's
   network modules (`http`, `https`, `net`, `dns`; use `fetch`), `zlib`,
-  `child_process`, `worker_threads`, `crypto.subtle` beyond AES-GCM, HMAC
-  and `digest` (no ECDSA, RSA or Ed25519, so asymmetric JWTs fail), `vm`
-  and native addons are unavailable.
+  `child_process`, `worker_threads`, `vm` and native addons are
+  unavailable, so are database drivers that need TCP sockets (Auth.js
+  database adapters, email providers). Web Crypto has no ECDH, RSA-OAEP,
+  AES-KW, PBKDF2, `deriveKey` or key wrapping, no P-521 (ES512), no RSA key
+  generation, and refuses RSA keys under 2048 bits.
 - **Proxy limits:** edge-runtime middleware, `skipProxyUrlNormalize` and
   Next's `i18n` config are refused. A request body that reaches the proxy
   is buffered for the proxy and the route; above `proxyClientMaxBodySize`
@@ -499,9 +516,21 @@ only when it matches what the official server returns for the same build.
 | [`tests/compat/platform-proxy.mjs`](tests/compat/platform-proxy.mjs) | A proxy without a matcher that fetches before deciding, external rewrites (config and proxy), `waitUntil`, `instrumentation.ts`, Draft Mode, `dynamicParams = false` and ISR fallback ([`fixtures/next-platform-proxy`](fixtures/next-platform-proxy)) |
 | [`tests/compat/proxy-shutdown.mjs`](tests/compat/proxy-shutdown.mjs) | NextRS only: graceful shutdown with proxy work in flight (fetches, external rewrites, `waitUntil`, a stalled proxy, Server Actions never run twice) |
 | [`tests/browser/proxy.mjs`](tests/browser/proxy.mjs) | Client-side navigation through the proxy and config rules in Chromium, against `next start` |
+| [`tests/compat/jwks-proxy.mjs`](tests/compat/jwks-proxy.mjs) | `jose` with a remote JWKS ([`fixtures/next-jwks-proxy`](fixtures/next-jwks-proxy)) against a local OpenID provider ([`oidc-stub.mjs`](tests/compat/oidc-stub.mjs)): five signature algorithms, claim failures, tampering, algorithm confusion, key rotation, caching, provider failures, the network policy, tokens NextRS signs checked with `node:crypto`, protected pages and a Server Action, concurrent identities |
+| [`tests/compat/authjs.mjs`](tests/compat/authjs.mjs) | Auth.js v5 ([`fixtures/next-authjs`](fixtures/next-authjs)): credentials sign-in with CSRF, the OpenID Connect code flow with PKCE, state and nonce, forged callbacks and ID tokens, sessions minted and read with Node's own Auth.js, sign-out, a protected Server Action, concurrent users, an executor restart |
+| [`tests/compat/intl-variants.mjs`](tests/compat/intl-variants.mjs) | `next-intl`'s `as-needed`, localized-pathnames and domain routing modes, on builds of the `next-intl` fixture |
+| [`tests/compat/otel.mjs`](tests/compat/otel.mjs) | OpenTelemetry through `@vercel/otel` ([`fixtures/next-otel`](fixtures/next-otel)), exporting to a local collector: trace continuation and propagation, span nesting across awaits, concurrent traces, export failures, registration per isolate |
 | [`tests/browser/realworld.mjs`](tests/browser/realworld.mjs) | The `jose` and `next-intl` applications in Chromium: login and logout, redirects back, a protected mutation, browser-language detection, locale switching |
 | [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixtures (optionally against another Next.js version, in a temporary copy) and runs the suites above against `next start` (the browser suites with `--browser`, the proxy suites with `--proxy`, the extra `next.config` builds with `--proxy-combinations`) |
 | [`scripts/realworld-suite.sh`](scripts/realworld-suite.sh) | Builds the real-world proxy fixtures and runs their suites (with `--browser`, the browser ones) |
+
+Every critical scenario also states its expected outcome, checked on both
+servers: when the two servers agree on a wrong answer (a fixture or test
+defect), the suite reports `ORACLE-FAIL` instead of a match. Negative
+controls (`realworld-suite.sh --negative-controls`) rerun the suites with
+deliberate defects (a repeated mutation, an action that never runs,
+credentials dropped, another user's data, lost cookies, wrong redirects)
+and must fail.
 
 Recorded runs are kept next to the scripts as JSON (`tests/compat/*.json`).
 
@@ -603,7 +632,8 @@ claims.
 | **Phase 1E: regeneration** | ISR through Next's handler with regenerated pages in the shared cache, single-flight regeneration across isolates, tag revalidation semantics, Server Actions on ISR pages, Cache Components (`"use cache"`), a trusted reverse proxy mode | 🧪 Implemented (see What's Not Ready Yet) |
 | **Phase 2A: proxy and routing** | Next's compiled `proxy.ts` in the isolate pool, `next start`'s routing order, `next.config` headers, redirects and rewrites, `basePath`, `trailingSlash`, proxy security regression tests | 🧪 Experimental (see What's Not Ready Yet) |
 | **Phase 2B: real-world proxies** | `jose` and `next-intl` proxies unchanged, a proxy that fetches, external rewrites under the network policy, `waitUntil`, `instrumentation.ts`, Draft Mode, `dynamicParams = false`, configuration combinations, graceful shutdown and soaks with proxy traffic | 🧪 Experimental (see What's Not Ready Yet) |
-| **Later: advanced Next.js features** | Image optimization, Next's `i18n` config, the Pages Router, asymmetric Web Crypto | 🗓️ Planned |
+| **Phase 2C: authentication libraries** | Asymmetric Web Crypto, `jose` with a remote JWKS, Auth.js v5, `next-intl` routing modes, OpenTelemetry, `experimental.proxyTimeout`, a fetch outliving its request, independent outcome checks and negative controls in the suites, a six-hour proxy soak | 🧪 Experimental (see What's Not Ready Yet) |
+| **Later: advanced Next.js features** | Image optimization, Next's `i18n` config, the Pages Router | 🗓️ Planned |
 | **Later: performance and production readiness** | Performance work, measured only once correctness is established; operational hardening | 🗓️ Planned |
 
 No release dates are planned. Scope changes as the experiments produce
