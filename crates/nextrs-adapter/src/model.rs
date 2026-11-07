@@ -20,8 +20,91 @@ pub struct BuildInfo {
     /// `<project>/public`, when present.
     pub public_dir: Option<PathBuf>,
     pub server_actions: ServerActionsInfo,
+    /// `next.config` headers, redirects and rewrites, as Next compiled them
+    /// into `routes-manifest.json` (including its internal trailing-slash
+    /// redirects).
+    pub routing: RoutingRules,
+    /// The compiled Node.js `proxy.ts` (or `middleware.ts`), when the build
+    /// has one.
+    pub proxy: Option<ProxyInfo>,
     pub diagnostics: Vec<Diagnostic>,
 }
+
+/// The rule lists `next start`'s router applies, in its order.
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct RoutingRules {
+    /// `routes-manifest.json#caseSensitive` (`experimental.caseSensitiveRoutes`).
+    pub case_sensitive: bool,
+    pub headers: Vec<RuleSpec>,
+    pub redirects: Vec<RuleSpec>,
+    pub before_files: Vec<RuleSpec>,
+    pub after_files: Vec<RuleSpec>,
+    pub fallback: Vec<RuleSpec>,
+    /// Headers applied only when a route or file matched.
+    pub on_match_headers: Vec<RuleSpec>,
+}
+
+impl RoutingRules {
+    /// Rules a developer wrote (not Next's internal trailing-slash ones).
+    pub fn custom_count(&self) -> usize {
+        self.headers.len()
+            + self.redirects.iter().filter(|r| !r.internal).count()
+            + self.before_files.len()
+            + self.after_files.len()
+            + self.fallback.len()
+            + self.on_match_headers.len()
+    }
+}
+
+/// One header, redirect or rewrite rule from `routes-manifest.json`.
+#[derive(Debug, Clone, Serialize)]
+pub struct RuleSpec {
+    pub source: String,
+    /// The regex Next generated for `source`.
+    pub regex: String,
+    pub destination: Option<String>,
+    /// Redirects: the status (`permanent` already resolved by Next).
+    pub status: Option<u16>,
+    /// Header rules: the headers to set.
+    pub headers: Vec<(String, String)>,
+    pub has: Vec<HasSpec>,
+    pub missing: Vec<HasSpec>,
+    /// Added by Next itself (trailing-slash redirects).
+    pub internal: bool,
+}
+
+/// A `has` / `missing` condition.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+pub struct HasSpec {
+    /// `header`, `cookie`, `query` or `host`.
+    pub kind: String,
+    pub key: Option<String>,
+    pub value: Option<String>,
+}
+
+/// Next's compiled Node.js proxy.
+#[derive(Debug, Clone, Serialize)]
+pub struct ProxyInfo {
+    /// `.next/server/middleware.js`.
+    pub entry: PathBuf,
+    /// From `functions-config-manifest.json#functions["/_middleware"]`.
+    pub matchers: Vec<ProxyMatcher>,
+    /// `experimental.proxyClientMaxBodySize` in bytes (Next's default 10 MB):
+    /// how much of a request body the proxy and the route both receive.
+    pub client_max_body_size: u64,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ProxyMatcher {
+    /// Matched case-sensitively against the pathname.
+    pub regexp: String,
+    pub original_source: Option<String>,
+    pub has: Vec<HasSpec>,
+    pub missing: Vec<HasSpec>,
+}
+
+/// Next's default `proxyClientMaxBodySize` (10 MB).
+pub const DEFAULT_PROXY_BODY_LIMIT: u64 = 10 * 1024 * 1024;
 
 /// Server Actions in the build, and the `experimental.serverActions`
 /// options Next's action handler enforces at runtime.
@@ -122,6 +205,8 @@ pub struct RoutingConfig {
     pub i18n: bool,
     pub powered_by_header: bool,
     pub generate_etags: bool,
+    /// `skipProxyUrlNormalize` (formerly `skipMiddlewareUrlNormalize`).
+    pub skip_proxy_url_normalize: bool,
 }
 
 /// RSC request/response conventions from `routes-manifest.json#rsc`.

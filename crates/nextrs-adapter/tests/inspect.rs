@@ -249,19 +249,28 @@ fn features_that_change_responses_are_flagged() {
         .filter(|d| d.severity == Severity::Unsupported)
         .map(|d| d.code)
         .collect();
-    for code in [
-        "middleware",
-        "custom-headers",
-        "custom-redirects",
-        "rewrites",
-        "server-actions",
-        "isr",
-    ] {
+    for code in ["middleware", "server-actions", "isr"] {
         assert!(
             unsupported.contains(&code),
             "missing {code} in {unsupported:?}"
         );
     }
+    // next.config routing rules are applied (Phase 2A), so they are no
+    // longer refusals; they are reported and parsed.
+    for code in ["custom-headers", "custom-redirects", "rewrites"] {
+        assert!(!unsupported.contains(&code), "{code} is still refused");
+    }
+    assert!(info.diagnostics.iter().any(|d| d.code == "routing-rules"));
+    assert_eq!(info.routing.headers.len(), 1);
+    assert_eq!(info.routing.before_files.len(), 1);
+    assert_eq!(
+        info.routing
+            .redirects
+            .iter()
+            .filter(|r| !r.internal)
+            .count(),
+        1
+    );
     assert_eq!(
         info.route("/").unwrap().rendering,
         Rendering::Revalidated { seconds: 60 }

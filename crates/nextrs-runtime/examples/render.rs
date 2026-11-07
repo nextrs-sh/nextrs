@@ -37,6 +37,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         remote_address: Some("127.0.0.1".into()),
         initial_headers: Vec::new(),
         initial_status: None,
+        invocation: nextrs_runtime::Invocation::Handler,
     };
     let rendered = Instant::now();
     let tokio = tokio::runtime::Builder::new_current_thread()

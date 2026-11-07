@@ -32,6 +32,8 @@ hyper = { version = "1", features = ["http1", "server"] }
 hyper-util = { version = "0.1", features = ["tokio", "service"] }
 percent-encoding = "2"
 regex = "1"
+# JavaScript regexes from Next manifests (lookarounds) for routing rules.
+fancy-regex = "0.16"
 # Outbound fetch: HTTP/1.1 only (as Node's fetch), no system proxy, TLS
 # through rustls with ring and the Mozilla root store (as Node's bundled CAs).
 reqwest = { version = "0.13.5", default-features = false, features = ["rustls-no-provider", "stream", "gzip", "brotli", "deflate"] }

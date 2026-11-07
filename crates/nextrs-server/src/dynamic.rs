@@ -34,10 +34,14 @@ const BACKSTOP_GRACE: Duration = Duration::from_secs(5);
 
 /// What next start's base server does around every App Router render.
 pub(crate) struct AppPathPolicy<'a> {
-    /// Appended as `Vary` before the handler runs.
-    pub vary: &'a str,
+    /// Response headers routing set before the handler runs (next.config
+    /// headers, the proxy's response headers); the handler may override.
+    pub headers: &'a [(String, String)],
+    /// Appended as `Vary` before the handler runs (App Router renders).
+    pub vary: Option<&'a str>,
     /// The status before the handler runs (404 for the not-found page).
     pub status: Option<u16>,
+    pub invocation: nextrs_runtime::Invocation,
 }
 
 pub(crate) struct Incoming<'a> {
@@ -76,9 +80,14 @@ pub(crate) async fn render(
             .map_or_else(|| uri.path().to_owned(), |pq| pq.as_str().to_owned()),
         // Fixture builds have no interception routes, so next start drops
         // Next-URL before rendering; responses then cannot depend on it.
+        // The proxy sees it (it passes it on to the route's request, where
+        // the RSC cache-busting check reads it).
         headers: headers
             .iter()
-            .filter(|(name, _)| *name != "next-url")
+            .filter(|(name, _)| {
+                *name != "next-url"
+                    || matches!(policy.invocation, nextrs_runtime::Invocation::Proxy { .. })
+            })
             .map(|(name, value)| {
                 (
                     name.as_str().to_owned(),
@@ -89,8 +98,14 @@ pub(crate) async fn render(
         body,
         entry: entry.to_path_buf(),
         remote_address: client.map(|addr| addr.ip().to_string()),
-        initial_headers: vec![("vary".to_owned(), policy.vary.to_owned())],
+        initial_headers: policy
+            .headers
+            .iter()
+            .cloned()
+            .chain(policy.vary.map(|vary| ("vary".to_owned(), vary.to_owned())))
+            .collect(),
         initial_status: policy.status,
+        invocation: policy.invocation.clone(),
     };
     let mut events = match executor.render(request).await {
         Ok(events) => events,
@@ -291,7 +306,7 @@ fn retry_later(code: &'static str, message: &str) -> Response {
     response
 }
 
-fn too_large(limit: u64) -> Response {
+pub(crate) fn too_large(limit: u64) -> Response {
     let mut response = error_response(
         StatusCode::PAYLOAD_TOO_LARGE,
         "request-body-too-large",
@@ -309,7 +324,10 @@ fn too_large(limit: u64) -> Response {
 /// hyper decides keep-alive from the *response* version, which defaults to
 /// HTTP/1.1, so it must be set to 1.0 for hyper to close.
 pub(crate) fn frame_for(version: Version, mut response: Response) -> Response {
-    if version <= Version::HTTP_10 && !response.headers().contains_key(header::CONTENT_LENGTH) {
+    // hyper writes Content-Length itself for a body of known size.
+    let delimited = response.headers().contains_key(header::CONTENT_LENGTH)
+        || response.body().size_hint().exact().is_some();
+    if version <= Version::HTTP_10 && !delimited {
         *response.version_mut() = Version::HTTP_10;
         response
             .headers_mut()
@@ -318,7 +336,7 @@ pub(crate) fn frame_for(version: Version, mut response: Response) -> Response {
     response
 }
 
-fn error_response(status: StatusCode, code: &'static str, message: &str) -> Response {
+pub(crate) fn error_response(status: StatusCode, code: &'static str, message: &str) -> Response {
     (
         status,
         [

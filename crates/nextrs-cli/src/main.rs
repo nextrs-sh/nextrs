@@ -581,6 +581,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     executor: executor.clone(),
                     max_request_body,
                     forwarded: forwarded.clone(),
+                    listen: SocketAddr::new(host, port),
                 };
                 let app = nextrs_server::app(&info, &options).await?;
                 if let Some(metrics_addr) = limits.metrics_addr {
