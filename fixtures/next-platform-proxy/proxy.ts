@@ -150,6 +150,14 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   if (name === "external-unlisted") {
     return NextResponse.rewrite(new URL(`http://127.0.0.1:${unlisted}/echo/unlisted`));
   }
+  if (name === "spin") {
+    // Busy CPU in the proxy (the soak's stall injection), not an await.
+    const end = Date.now() + Math.min(Number(searchParams.get("ms") ?? 100), 30_000);
+    while (Date.now() < end) {
+      // spin
+    }
+    return NextResponse.json({ spun: true });
+  }
   if (name === "instrumentation") {
     const state = (globalThis as { __platform?: { registrations: number } }).__platform;
     return NextResponse.json({ registrationsSeenByProxy: state?.registrations ?? 0 });

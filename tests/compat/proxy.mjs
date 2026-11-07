@@ -51,7 +51,7 @@ const ledger = async (key) => (await (await fetch(`${upstream}/mutations?key=${e
 // A Server Action call as React sends one for a FormData argument.
 function actionRequest(base, path, id, fields, headers = {}) {
   const form = new FormData();
-  for (const [name, value] of Object.entries(fields)) form.append(`1_${name}`, value);
+  for (const [name, value] of Object.entries(fields)) form.append(`_1_${name}`, value);
   form.append("0", '["$K1"]');
   return {
     method: "POST",
@@ -231,8 +231,34 @@ scenarios["action-revalidates-isr"] = {
   },
 };
 
+// Equal ledgers are not enough (a malformed action body once made both
+// servers record nothing, and the scenarios compared 0 with 0): the
+// candidate must also have executed what the scenario says.
+for (const [name, executions] of [
+  ["action-executes-once", 1],
+  ["action-protected-anonymous", 0],
+  ["action-protected-session", 1],
+]) {
+  const scenario = scenarios[name];
+  scenarios[`${name}-expected`] = {
+    kind: "candidate",
+    run: async (base) => {
+      const r = await scenario.run(base, "expected");
+      return { ok: r.executions === executions, detail: { expected: executions, executions: r.executions, status: r.response?.status } };
+    },
+  };
+}
+
 // --- Isolation under concurrency -------------------------------------------------------
 scenarios["concurrent-request-isolation"] = {
+  // Each request carries its own value and must get only its own back.
+  // Even requests go through a proxy rewrite (the value as the rewritten
+  // param and in the query the proxy appends); odd ones through
+  // NextResponse.next() with a cookie the proxy sets from the query (the
+  // route reads it back, and the client gets it as Set-Cookie). Until
+  // Phase 2B this scenario checked the proxy cookie on the rewrite path,
+  // where the proxy never sets one: every request counted as wrong on both
+  // servers, and the equal counts compared as a MATCH.
   kind: "compare",
   run: async (base) => {
     const total = 240;
@@ -245,16 +271,21 @@ scenarios["concurrent-request-isolation"] = {
         const i = next++;
         const value = `c${i}`;
         try {
-          const r = await fetch(`${base}${p(`/proxy/rewrite-dynamic/${value}?setcookie=${value}`)}`, {
-            headers: { cookie: `theme=${value}` },
-          });
+          const path = i % 2 ? `/dynamic?setcookie=${value}` : `/proxy/rewrite-dynamic/${value}?setcookie=${value}`;
+          const r = await fetch(`${base}${p(path)}`, { headers: { cookie: `theme=${value}` } });
           const html = await r.text();
-          const info = JSON.parse(
-            (/id="info">([^<]*)</.exec(html)?.[1] ?? "{}").replace(/&quot;/g, '"'),
-          );
-          const slug = /id="slug">([^<]*)</.exec(html)?.[1];
-          const cookie = r.headers.getSetCookie().some((c) => c.startsWith(`proxy-custom=${value};`));
-          if (r.status !== 200 || slug !== value || info.proxyCustom !== value || !cookie) wrong++;
+          const decode = (s) => s.replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+          const info = JSON.parse(decode(/id="info">([^<]*)</.exec(html)?.[1] ?? "{}"));
+          let ok = r.status === 200;
+          if (i % 2) {
+            const cookie = r.headers.getSetCookie().some((c) => c.startsWith(`proxy-custom=${value};`));
+            ok &&= info.proxyCustom === value && cookie;
+          } else {
+            const slug = /id="slug">([^<]*)</.exec(html)?.[1];
+            const query = JSON.parse(decode(/id="query">([^<]*)</.exec(html)?.[1] ?? "[]"));
+            ok &&= slug === value && JSON.stringify(query) === JSON.stringify([["setcookie", value]]);
+          }
+          if (!ok) wrong++;
         } catch {
           failed++;
         }
@@ -262,6 +293,15 @@ scenarios["concurrent-request-isolation"] = {
     }
     await Promise.all(Array.from({ length: concurrency }, worker));
     return { total, wrong, failed };
+  },
+};
+// Equal counts are not enough: neither server may cross values.
+const isolation = scenarios["concurrent-request-isolation"];
+scenarios["concurrent-request-isolation-none-wrong"] = {
+  kind: "candidate",
+  run: async (base) => {
+    const r = await isolation.run(base);
+    return { ok: r.wrong === 0 && r.failed === 0, detail: r };
   },
 };
 

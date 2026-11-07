@@ -293,7 +293,7 @@ scenarios["ext-action-post-forwarded"] = {
   kind: "compare",
   run: async (base, side) => {
     const form = new FormData();
-    form.append("1_key", `ext-action-${run}`);
+    form.append("_1_key", `ext-action-${run}`);
     form.append("0", '["$K1"]');
     const r = await look(base, { path: "/ext/action", method: "POST", body: form, headers: { "next-action": "0".repeat(42), origin: base } });
     if (r.body?.headers) r.body.headers["content-type"] = r.body.headers["content-type"]?.replace(/boundary=.*/, "boundary=…");

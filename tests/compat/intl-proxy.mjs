@@ -78,7 +78,7 @@ scenarios["prerendered-twice"] = {
 // --- A locale-aware Server Action ------------------------------------------------------
 function action(base, path, headers = {}) {
   const form = new FormData();
-  form.append("1_name", "Ada");
+  form.append("_1_name", "Ada");
   form.append("0", '["$K1"]');
   return { method: "POST", path, body: form, headers: { origin: base, "next-action": greet, accept: "text/x-component", ...headers } };
 }
@@ -86,6 +86,16 @@ for (const locale of ["en", "de", "fr"]) {
   scenarios[`action-${locale}`] = { kind: "compare", run: (base) => observe(base, action(base, `/${locale}/actions`)) };
 }
 scenarios["action-unprefixed"] = { kind: "compare", run: (base) => observe(base, action(base, "/actions", { "accept-language": "de" })) };
+// The action ran in the request's locale with its argument (compared
+// servers can agree on an empty argument).
+scenarios["action-de-expected"] = {
+  kind: "candidate",
+  run: async (base) => {
+    const r = await observe(base, action(base, "/de/actions"));
+    const ok = r.status === 200 && r.body?.value === '{"recorded":"Ada auf Deutsch begrüßt"' + ',"locale":"de"}';
+    return { ok, detail: { status: r.status, value: r.body?.value } };
+  },
+};
 
 // --- Concurrent requests in different locales --------------------------------------------
 scenarios["concurrent-locales"] = {

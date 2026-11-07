@@ -71,7 +71,7 @@ const ledger = async (key) => (await (await fetch(`${upstream}/mutations?key=${e
 // A Server Action call as React sends one for a FormData argument.
 function actionRequest(base, path, id, fields, headers = {}) {
   const form = new FormData();
-  for (const [name, value] of Object.entries(fields)) form.append(`1_${name}`, value);
+  for (const [name, value] of Object.entries(fields)) form.append(`_1_${name}`, value);
   form.append("0", '["$K1"]');
   return { method: "POST", path, body: form, headers: { origin: base, "next-action": id, accept: "text/x-component", ...headers } };
 }
@@ -210,25 +210,32 @@ scenarios["logout-action"] = {
 };
 
 // --- A protected mutation: the proxy guards its page; the action guards itself --
-function mutation(name, path, headers) {
-  scenarios[name] = {
-    kind: "compare",
-    run: async (base, side) => {
-      const key = `auth-${name}-${run}-${side}`;
-      const response = await look(base, actionRequest(base, path, ids.record, { key, id: "1" }, headers()));
-      await sleep(100);
-      return { response, ledger: await ledger(key) };
+// `expected`: the ledger the candidate must show (compared servers can
+// agree on a wrong answer; a malformed body once made both record nothing).
+function mutation(name, path, headers, expected) {
+  const runOnce = async (base, side) => {
+    const key = `auth-${name}-${run}-${side}`;
+    const response = await look(base, actionRequest(base, path, ids.record, { key, id: "1" }, headers()));
+    await sleep(100);
+    return { response, ledger: await ledger(key) };
+  };
+  scenarios[name] = { kind: "compare", run: runOnce };
+  scenarios[`${name}-expected`] = {
+    kind: "candidate",
+    run: async (base) => {
+      const r = await runOnce(base, "expected");
+      return { ok: JSON.stringify(r.ledger) === JSON.stringify(expected), detail: { expected, ledger: r.ledger, status: r.response.status } };
     },
   };
 }
-mutation("action-anon-on-protected-page", "/actions/protected", () => ({}));
-mutation("action-anon-on-public-page", "/", () => ({}));
-mutation("action-expired-on-public-page", "/", () => cookie(jwt({ ...claims("u-alice", "Alice"), exp: now() - 5 })));
-mutation("action-tampered-on-public-page", "/", () => cookie(tampered()));
-mutation("action-alice-on-protected-page", "/actions/protected", () => cookie(alice()));
-mutation("action-bob-on-public-page", "/", () => cookie(bob()));
-mutation("action-anon-encoded-path", "/actions/%70rotected", () => ({}));
-mutation("action-cross-origin-session", "/actions/protected", () => ({ ...cookie(alice()), origin: "https://evil.example" }));
+mutation("action-anon-on-protected-page", "/actions/protected", () => ({}), []);
+mutation("action-anon-on-public-page", "/", () => ({}), []);
+mutation("action-expired-on-public-page", "/", () => cookie(jwt({ ...claims("u-alice", "Alice"), exp: now() - 5 })), []);
+mutation("action-tampered-on-public-page", "/", () => cookie(tampered()), []);
+mutation("action-alice-on-protected-page", "/actions/protected", () => cookie(alice()), ["u-alice:1"]);
+mutation("action-bob-on-public-page", "/", () => cookie(bob()), ["u-bob:1"]);
+mutation("action-anon-encoded-path", "/actions/%70rotected", () => ({}), []);
+mutation("action-cross-origin-session", "/actions/protected", () => ({ ...cookie(alice()), origin: "https://evil.example" }), []);
 
 // --- Concurrency: distinct identities never cross ---------------------------------
 scenarios["concurrent-identities"] = {
