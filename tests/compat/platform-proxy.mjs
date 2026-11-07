@@ -473,7 +473,9 @@ const EXPECT = {
   "fetch-refused": jsonIs(503, { reached: false }),
   "fetch-concurrent-identities": (o) => (o.wrong === 0 && o.failed === 0 ? null : JSON.stringify(o)),
   "wait-until-runs-after-response": (o) => (o.answeredBeforeWork && o.after.length === 1 ? null : `answered before the work: ${o.answeredBeforeWork}; ledger ${JSON.stringify(o.after)}`),
-  "ext-get": forwarded("GET", "/echo/a/b?x=1&y=%20z&x=2"),
+  // next start rebuilds the destination query from a parsed object, so a
+  // repeated key is grouped: x=1&y=%20z&x=2 reaches the upstream as x=1&x=2&y=%20z.
+  "ext-get": forwarded("GET", "/echo/a/b?x=1&x=2&y=%20z"),
   "ext-post-json": forwarded("POST", "/echo/post", { body: JSON.stringify({ a: 1, b: "two" }) }),
   "ext-put-text": forwarded("PUT", "/echo/put", { body: "plain text body" }),
   "ext-delete": forwarded("DELETE", "/echo/delete"),
