@@ -49,7 +49,15 @@ function trackRsc(page) {
   page.on("response", async (response) => {
     const headers = response.request().headers();
     if (headers.rsc !== "1") return;
-    const h = await response.allHeaders();
+    // A prefetch can be answered after the scenario has closed its page;
+    // its headers are then unreadable and it is not part of the result.
+    let h;
+    try {
+      h = await response.allHeaders();
+    } catch (error) {
+      if (page.isClosed() || /has been closed/.test(String(error?.message))) return;
+      throw error;
+    }
     seen.push({
       path: new URL(response.url()).pathname,
       status: response.status(),
