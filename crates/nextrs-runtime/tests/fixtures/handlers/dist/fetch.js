@@ -32,6 +32,7 @@ async function body(stream, limit = Infinity) {
   return { length, chunks };
 }
 
+const sharedFetches = new Map();
 const cases = {
   async get(p) {
     const r = await fetch(p.get("target"));
@@ -141,8 +142,23 @@ const cases = {
     const r = await fetch(p.get("target"));
     return { status: r.status };
   },
+  async shared(p) {
+    // One fetch shared by requests (a module-level cache, as jose's JWKS
+    // reload): the request that starts it ends first; the next one awaits
+    // the same promise and must get the body.
+    const key = p.get("key");
+    if (p.get("role") === "first") {
+      sharedFetches.set(key, fetch(p.get("target")).then((r) => r.text()));
+      return { started: true };
+    }
+    try {
+      return { text: await sharedFetches.get(key) };
+    } catch (error) {
+      return { error: { name: error?.name, message: String(error?.message) } };
+    }
+  },
   async orphan(p) {
-    // Not awaited: aborted when the request ends.
+    // Not awaited: detached when the request ends, aborted after a grace.
     fetch(p.get("target")).then(
       (r) => r.arrayBuffer(),
       () => {},

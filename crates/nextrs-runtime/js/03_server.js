@@ -367,9 +367,16 @@
     res.destroy();
   }
 
+  // How long a fetch may outlive its request when the request had no
+  // deadline.
+  const DETACHED_FETCH_GRACE_MS = 30_000;
+
   async function serve(request, scope) {
     const id = request.id;
     let timer;
+    // Set when the request was cancelled: its handler may still be running
+    // (it is no longer awaited), so its fetches are detached.
+    let cancelledBy = null;
     try {
       const req = new IncomingMessage(request);
       const res = new ServerResponse(req, id);
@@ -381,7 +388,12 @@
       // Neither the handler nor waitUntil work is awaited past that, so a
       // promise that never settles cannot hold the request's slot.
       let cancel;
-      const cancelled = new Promise((resolve) => (cancel = resolve));
+      const cancelled = new Promise((resolve) => {
+        cancel = (reason) => {
+          cancelledBy ??= reason;
+          resolve(reason);
+        };
+      });
       ops.op_nextrs_response_closed(id).then(() => {
         if (res.writableFinished) return;
         if (!res.destroyed) {
@@ -467,10 +479,25 @@
     } finally {
       clearTimeout(timer);
       releaseAllLeases(scope);
-      // Outbound fetches the request left open end with it.
+      // Outbound fetches still open (see 01_fetch.js): after a handler that
+      // finished, unread response bodies are released now; everything else
+      // (and everything of a cancelled request, whose handler may still be
+      // about to read) is detached and ends on its own, or after a grace as
+      // long as the request's deadline.
       if (scope.fetches?.size) {
-        const ended = new DOMException("The request that started this fetch has ended", "AbortError");
-        for (const abort of [...scope.fetches]) abort(ended);
+        const open = [...scope.fetches];
+        scope.fetches = null;
+        const ended = (message) => new DOMException(message, "AbortError");
+        const detached = [];
+        for (const entry of open) {
+          if (cancelledBy === null && entry.unread()) entry.abort(ended("The request that fetched this response ended without reading its body"));
+          else detached.push(entry);
+        }
+        if (detached.length) {
+          setTimeout(() => {
+            for (const entry of detached) entry.abort(ended("The request that started this fetch ended too long ago"));
+          }, request.timeoutMs ?? DETACHED_FETCH_GRACE_MS);
+        }
       }
       ops.op_nextrs_request_done(id);
     }

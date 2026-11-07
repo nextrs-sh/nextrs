@@ -858,17 +858,56 @@ async fn a_slow_reader_stalls_the_upstream_instead_of_buffering() {
     );
 }
 
+/// A fetch shared by requests outlives the one that started it (as in
+/// Node): ending that request must not fail the requests awaiting it.
 #[tokio::test(flavor = "multi_thread")]
-async fn fetches_left_open_end_with_their_request() {
-    let (base, port, state) = upstream().await;
+async fn a_shared_fetch_survives_the_request_that_started_it() {
+    let (base, port, _) = upstream().await;
     let executor = allowed(&[port]);
-    // A fetch that is never awaited.
+    let target = format!("{base}/slow-head?ms=400");
+    let first = run(
+        &executor,
+        "shared",
+        &[("key", "a"), ("role", "first"), ("target", &target)],
+    )
+    .await;
+    assert_eq!(first["started"], true);
+    let second = run(&executor, "shared", &[("key", "a"), ("role", "second")]).await;
+    assert!(
+        second["text"].is_string(),
+        "the shared fetch failed: {second}"
+    );
+}
+
+/// A fetch still open when its request ends is detached, not aborted, and
+/// ends at the latest after a grace as long as the request's deadline (or by
+/// its own limits).
+#[tokio::test(flavor = "multi_thread")]
+async fn fetches_left_open_end_after_their_request() {
+    let (base, port, state) = upstream().await;
+    let executor = start(
+        Some(network(
+            &[format!("http://127.0.0.1:{port}")],
+            &["127.0.0.1"],
+        )),
+        Limits {
+            request_timeout: Some(Duration::from_secs(1)),
+            ..small_limits()
+        },
+    );
+    // A fetch that is never awaited: still open just after its request.
     run(
         &executor,
         "orphan",
         &[("target", &format!("{base}/hold")), ("ms", "100")],
     )
     .await;
+    tokio::time::sleep(Duration::from_millis(200)).await;
+    assert_eq!(
+        state.disconnects.load(Ordering::SeqCst),
+        0,
+        "detached, not aborted"
+    );
     assert!(
         eventually(Duration::from_secs(3), async || state
             .disconnects
