@@ -12,6 +12,12 @@
 //   GET /stream?chunks=N&gap=ms             -> N lines, one every gap ms
 //   POST /mutations?key=K&id=I              -> records one side effect ({"key","count"})
 //   GET /mutations?key=K                    -> {"key","ids"} in arrival order
+//   ANY /echo[/...]?...                     -> {"method","url","headers","body"}:
+//       what arrived (an external rewrite's forwarded request); sets two
+//       cookies; ?status=N answers with that status
+//   GET /redirect?to=URL[&status=302]       -> a redirect (never followed by
+//       an external rewrite)
+//   GET /large?bytes=N                       -> N bytes of "x", streamed in 64 KiB chunks
 //   GET /flag?name=N, POST /flag?name=N&on=1 -> {"name","on"}: switches the
 //       fixtures read (an ISR page fails its regeneration while one is on)
 //       The Server Action suites count side effects here, outside every
@@ -75,6 +81,37 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST") flags.set(p.get("name") ?? "", p.get("on") === "1");
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ name: p.get("name"), on: flags.get(p.get("name") ?? "") ?? false }));
+  } else if (url.pathname === "/echo" || url.pathname.startsWith("/echo/")) {
+    const chunks = [];
+    for await (const chunk of req) chunks.push(chunk);
+    const body = Buffer.concat(chunks).toString("utf8");
+    res.writeHead(Number(p.get("status") ?? 200), [
+      ["content-type", "application/json"],
+      ["x-upstream", "echo"],
+      ["set-cookie", "upstream-a=1; Path=/"],
+      ["set-cookie", "upstream-b=2; Path=/; HttpOnly"],
+    ]);
+    res.end(JSON.stringify({ method: req.method, url: req.url, headers: req.headers, body }));
+  } else if (url.pathname === "/redirect") {
+    res.writeHead(Number(p.get("status") ?? 302), { location: p.get("to") ?? "/echo" });
+    res.end();
+  } else if (url.pathname === "/large") {
+    const total = Math.min(Number(p.get("bytes") ?? 1024), 256 * 1024 * 1024);
+    res.writeHead(200, { "content-type": "application/octet-stream", "content-length": String(total) });
+    const block = Buffer.alloc(64 * 1024, "x");
+    let sent = 0;
+    const write = () => {
+      while (sent < total) {
+        const n = Math.min(block.length, total - sent);
+        sent += n;
+        if (!res.write(n === block.length ? block : block.subarray(0, n))) return res.once("drain", write);
+      }
+      res.end();
+    };
+    res.on("close", () => {
+      if (!res.writableFinished) bump(aborted, `large-${total}`);
+    });
+    write();
   } else if (url.pathname === "/stream") {
     const chunks = Number(p.get("chunks") ?? 5);
     const gap = Number(p.get("gap") ?? 50);

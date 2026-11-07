@@ -227,36 +227,59 @@ async fn a_failing_isolate_does_not_take_the_pool_down() {
     let metrics = executor.metrics();
     let restarts: u64 = metrics.executors.iter().map(|e| e.restarts).sum();
     assert!(restarts >= 1, "{metrics:?}");
-    assert!(whoami(&executor).await.contains(':'));
+    // The pool serves again. Not "the next request succeeds": an
+    // `uncaught` request throws from a timer after it answered, and under
+    // load a ready isolate can accept a request before that timer runs and
+    // then fail with it (the per-isolate blast radius).
+    assert!(
+        eventually(Duration::from_secs(5), async || whoami(&executor)
+            .await
+            .contains(':'))
+        .await
+    );
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn a_stalled_isolate_only_fails_its_own_requests() {
     let executor = pool(2);
-    // Occupy each isolate with one slow request so the loop lands on a
-    // known isolate alongside it.
+    // One slow request per isolate, usually: dispatch prefers isolates
+    // whose event loop answered recently, so under CPU contention (an idle
+    // isolate's heartbeat lagging) two, or all three requests here, can
+    // share one isolate. That is correct dispatch; this test used to assume
+    // the placement and failed ([false, false]) when it differed. Each
+    // response now names its isolate, and the invariant is checked as
+    // stated: a request fails exactly when it shared the stalled isolate.
     let slow: Vec<_> = futures_util::future::join_all((0..2).map(|_| {
         executor.render(request(
             "faults.js",
-            &[("x-mode", "slow"), ("x-delay", "1500")],
+            &[("x-mode", "slow-tagged"), ("x-delay", "1500")],
         ))
     }))
     .await
     .into_iter()
     .map(Result::unwrap)
     .collect();
-    collect(&executor, request("faults.js", &[("x-mode", "loop")])).await;
-    let outcomes: Vec<bool> = futures_util::future::join_all(slow.into_iter().map(drain))
+    let looped = collect(
+        &executor,
+        request("faults.js", &[("x-mode", "loop-tagged")]),
+    )
+    .await;
+    assert!(!looped.ended, "the loop cannot end: {looped:?}");
+    let stalled = looped.text();
+    let stalled = stalled.split(';').next().unwrap().to_owned();
+    assert!(!stalled.is_empty(), "the loop named its isolate");
+    let outcomes: Vec<(String, bool)> = futures_util::future::join_all(slow.into_iter().map(drain))
         .await
         .into_iter()
-        .map(|r| r.ended)
+        .map(|r| (r.text().split(';').next().unwrap_or("").to_owned(), r.ended))
         .collect();
-    // Exactly one slow request shared the stalled isolate.
-    assert_eq!(
-        outcomes.iter().filter(|ended| **ended).count(),
-        1,
-        "{outcomes:?}"
-    );
+    for (isolate, ended) in &outcomes {
+        assert_eq!(
+            *ended,
+            *isolate != stalled,
+            "stalled isolate {stalled}: {outcomes:?}"
+        );
+    }
     assert!(
         eventually(Duration::from_secs(5), async || executor
             .metrics()
@@ -264,6 +287,13 @@ async fn a_stalled_isolate_only_fails_its_own_requests() {
             == 2)
         .await
     );
+    let restarts: u64 = executor
+        .metrics()
+        .executors
+        .iter()
+        .map(|e| e.restarts)
+        .sum();
+    assert_eq!(restarts, 1);
 }
 
 #[tokio::test(flavor = "multi_thread")]

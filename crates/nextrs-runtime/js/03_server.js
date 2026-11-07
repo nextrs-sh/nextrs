@@ -321,6 +321,11 @@
   const entries = new Map();
   const rootRequire = Module.createRequire(path.join(boot.projectDir, "nextrs-host.js"));
 
+  // Next's NoFallbackError (next/dist/shared/lib/no-fallback-error.external),
+  // thrown by a page handler for params it has no prerender or fallback for.
+  const isNoFallbackError = (error) =>
+    error instanceof Error && error.constructor?.name === "NoFallbackError" && error.message === "Internal: NoFallbackError";
+
   function loadEntry(file) {
     if (!entries.has(file)) entries.set(file, rootRequire(file));
     return entries.get(file);
@@ -419,21 +424,30 @@
           ]);
         }
       } catch (error) {
-        ops.op_nextrs_count(COUNT_HANDLER_ERROR);
-        ops.op_nextrs_diagnostic("handler-error", `${describe(request)}: ${errorText(error)}`);
-        if (!res.headersSent) {
-          // next start answers an exception that escapes the handler
-          // (an MPA Server Action error, a CSRF rejection) this way; a
-          // proxy exception too (Rust turns the marker into next start's
-          // response and never continues to the route).
-          res.statusCode = 500;
-          res.setHeader("content-type", "text/plain");
-          res.setHeader("x-nextrs-error", invocation.kind === "proxy" ? "proxy-exception" : "handler-exception");
-          res.end("Internal Server Error");
-        } else if (!res.writableEnded) {
-          // The response already started: abort it, as Node drops the socket.
-          ops.op_nextrs_response_error(id, String(error?.message ?? error));
-          res.destroy();
+        if (isNoFallbackError(error) && invocation.kind !== "proxy" && !res.headersSent) {
+          // The page has no entry for these params (dynamicParams = false,
+          // or a fallback-less route): router-server routes the request on
+          // without this output, which Rust does when it sees the marker.
+          res.statusCode = 404;
+          res.setHeader("x-nextrs-error", "no-fallback");
+          res.end();
+        } else {
+          ops.op_nextrs_count(COUNT_HANDLER_ERROR);
+          ops.op_nextrs_diagnostic("handler-error", `${describe(request)}: ${errorText(error)}`);
+          if (!res.headersSent) {
+            // next start answers an exception that escapes the handler
+            // (an MPA Server Action error, a CSRF rejection) this way; a
+            // proxy exception too (Rust turns the marker into next start's
+            // response and never continues to the route).
+            res.statusCode = 500;
+            res.setHeader("content-type", "text/plain");
+            res.setHeader("x-nextrs-error", invocation.kind === "proxy" ? "proxy-exception" : "handler-exception");
+            res.end("Internal Server Error");
+          } else if (!res.writableEnded) {
+            // The response already started: abort it, as Node drops the socket.
+            ops.op_nextrs_response_error(id, String(error?.message ?? error));
+            res.destroy();
+          }
         }
       }
       if (pending.length > 0) {

@@ -32,6 +32,21 @@
 //   * /isr/timed (regenerated every 2 s under load), /isr/<n> over a bounded
 //     space (on-demand ISR entries stored, replaced, evicted), and every
 //     ~200th request an action that calls revalidatePath on /isr/tagged.
+// --app next-proxy (fixtures/next-proxy; --project for its Server Action
+// ids) replaces the rotation with proxy traffic: matched requests whose
+// rewrite param, query, request cookie and proxy-set cookie must all be the
+// request's own; excluded paths; proxy redirects, rewrites and direct
+// responses; protected pages without and with a session (prerendered and
+// ISR); ISR behind the proxy; a Server Action through the proxy; request
+// bodies read by the proxy; proxies aborted by their client; proxy
+// exceptions. Stalls are injected in the proxy (/proxy/spin).
+// --app platform (fixtures/next-platform-proxy, --upstream required) sends
+// a proxy that fetches before deciding (identities checked across awaits),
+// timeouts, waitUntil work, external rewrites (echoed with the request's
+// token, 1 MiB bodies, streamed bodies read slowly or abandoned, POST
+// bodies, a refused destination, an abandoned slow upstream), ISR
+// fallback pages, Draft Mode cookies and dynamicParams 404s. Stalls are
+// injected in the proxy (/gate/spin).
 // With --inject-every, GET /api/spin?ms=<inject-ms> is sent on that period;
 // run the server with --js-stall-timeout below inject-ms so the stall
 // terminates and replaces an isolate.
@@ -61,7 +76,7 @@ const agent = new http.Agent({ keepAlive: true, maxSockets: concurrency + 8 });
 const upstream = args.upstream ?? null;
 const project = args.project ?? null;
 const actionIds = (() => {
-  if (!project) return null;
+  if (!project || (args.app ?? "next-app") !== "next-app") return null;
   const manifest = JSON.parse(readFileSync(`${project}/.next/server/server-reference-manifest.json`, "utf8"));
   const find = (name, file) => Object.entries(manifest.node).find(([, v]) => v.exportedName === name && v.filename === file)?.[0];
   return { who: find("whoAmI", "app/actions/server.ts"), echo: find("echoForm", "app/actions/server.ts"), isr: find("isrInvalidate", "app/isr/actions.ts") };
@@ -118,6 +133,8 @@ function request(path, { method = "GET", headers = {}, body, abortAfter, slow, t
 // request that was still waiting in the failed isolate's inbox (never
 // delivered to JavaScript).
 function lostToRestart(r) {
+  // A refused external rewrite is the intended answer, not a casualty.
+  if (r.status === 502 && r.nextrsError === "external-rewrite-denied") return false;
   if (r.status === 503 && r.nextrsError === "executor-unavailable") {
     bump("undelivered-503");
     return true;
@@ -352,6 +369,166 @@ async function isrCase() {
   bump(`isr-${r.cache ?? "ok"}`);
 }
 
+// --- --app next-proxy -----------------------------------------------------
+const appName = args.app ?? "next-app";
+const proxyIds = (() => {
+  if (appName !== "next-proxy" || !project) return null;
+  const manifest = JSON.parse(readFileSync(`${project}/.next/server/server-reference-manifest.json`, "utf8"));
+  const find = (name) => Object.entries(manifest.node).find(([, v]) => v.exportedName === name && v.filename === "app/actions/actions.ts")?.[0];
+  return { inspect: find("inspect") };
+})();
+const token = () => `nxp-${seq++}-${randomBytes(4).toString("hex")}`;
+const expectStatus = (kind, r, ...statuses) => {
+  if (lostToRestart(r)) return bump("lost-to-restart"), false;
+  if (!statuses.includes(r.status)) return fail(kind, { status: r.status ?? r.error, error: r.nextrsError }), false;
+  bump(`${kind}-ok`);
+  return true;
+};
+const decode = (s) => s.replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&#x27;/g, "'");
+
+// A proxy rewrite (the token as the rewritten param and in the query the
+// proxy appends) or NextResponse.next() with a proxy-set cookie (read back
+// by the route, and sent to the client): only the request's own token may
+// appear.
+async function proxyIdentityCase() {
+  const t = token();
+  const rewrite = seq % 2 === 0;
+  const path = rewrite ? `/proxy/rewrite-dynamic/${t}?setcookie=${t}` : `/dynamic?setcookie=${t}`;
+  const r = await request(path, { headers: { cookie: `theme=${t}` } });
+  if (lostToRestart(r)) return bump("lost-to-restart");
+  const html = r.body?.toString() ?? "";
+  let info = {};
+  try {
+    info = JSON.parse(decode(/id="info">([^<]*)</.exec(html)?.[1] ?? "{}"));
+  } catch {}
+  const foreign = (html.match(TOKEN) ?? []).filter((x) => x !== t);
+  const own = rewrite ? /id="slug">([^<]*)</.exec(html)?.[1] === t : info.proxyCustom === t;
+  if (r.status !== 200 || !own || foreign.length) {
+    fail("proxy-identity", { status: r.status, rewrite, proxyCustom: info.proxyCustom, foreign: foreign.slice(0, 2) });
+  } else bump("proxy-identity-ok");
+}
+async function proxyJsonCase() {
+  const t = token();
+  const r = await request(`/proxy/json?k=${t}`);
+  if (!expectStatus("proxy-json", r, 201)) return;
+  const body = JSON.parse(r.body.toString());
+  if (body.query?.k !== t) fail("proxy-json-leak", { got: body.query?.k });
+}
+async function proxyBodyCase() {
+  const t = token();
+  const text = `${t}:${"b".repeat(4096)}`;
+  const r = await request("/proxy/body", { method: "POST", headers: { "content-type": "text/plain", "content-length": String(text.length) }, body: text });
+  if (!expectStatus("proxy-body", r, 200)) return;
+  const body = JSON.parse(r.body.toString());
+  if (body.text !== text) fail("proxy-body-corrupt", { length: body.length });
+}
+async function proxyActionCase() {
+  if (!proxyIds?.inspect) return;
+  const t = token();
+  const boundary = `----soak${randomBytes(6).toString("hex")}`;
+  const body = multipart(boundary, [
+    ["_1_value", t],
+    ["0", '["$K1"]'],
+  ]);
+  const r = await request("/actions", {
+    method: "POST",
+    headers: { "next-action": proxyIds.inspect, origin: target.origin, accept: "text/x-component", "content-type": `multipart/form-data; boundary=${boundary}`, "content-length": String(body.length) },
+    body,
+  });
+  if (!expectStatus("proxy-action", r, 200)) return;
+  const text = r.body.toString();
+  // The action's return value in the RSC payload: it ran, behind the
+  // proxy (the header the proxy set on the way).
+  if (!/\{"proxyRequest":"set-by-proxy","proxyPathname":"\/actions"/.test(text)) fail("proxy-action-wrong", { sample: text.slice(0, 300) });
+}
+async function proxyAbortCase() {
+  await request("/proxy/slow?ms=300", { timeoutMs: 60 });
+  bump("proxy-aborted");
+}
+const proxyRotation = [
+  proxyIdentityCase, proxyIdentityCase, proxyIdentityCase,
+  async () => expectStatus("proxy-excluded", await request("/excluded"), 200),
+  async () => expectStatus("proxy-not-matched", await request("/api/health"), 200),
+  async () => expectStatus("proxy-redirect", await request("/proxy/redirect"), 307),
+  async () => expectStatus("proxy-rewrite", await request("/proxy/rewrite"), 200),
+  async () => expectStatus("proxy-protected-anon", await request("/protected"), 307),
+  async () => expectStatus("proxy-protected-session", await request("/protected", { headers: { cookie: "session=synthetic-valid-session" } }), 200),
+  async () => expectStatus("proxy-protected-isr", await request("/protected/isr", { headers: { cookie: "session=synthetic-valid-session" } }), 200),
+  async () => expectStatus("proxy-isr", await request("/isr"), 200),
+  async () => expectStatus("proxy-dynamic", await request("/dynamic?a=1"), 200),
+  async () => expectStatus("proxy-exception", await request("/proxy/throw"), 500),
+  proxyJsonCase, proxyBodyCase, proxyActionCase, proxyAbortCase, proxyIdentityCase,
+];
+
+// --- --app platform ---------------------------------------------------------
+async function platformIdentityCase() {
+  const t = token();
+  const r = await request(`/gate/identity?id=${t}&ms=${seq % 7}`);
+  if (lostToRestart(r)) return bump("lost-to-restart");
+  const html = r.body?.toString() ?? "";
+  let info = {};
+  try {
+    info = JSON.parse(decode(/id="info">([^<]*)</.exec(html)?.[1] ?? "{}"));
+  } catch {}
+  if (r.status !== 200 || info.identity !== t || info.seen !== t || info.identityCookie !== t) {
+    fail("platform-identity", { status: r.status, info });
+  } else bump("platform-identity-ok");
+}
+async function externalEchoCase() {
+  const t = token();
+  const r = await request(`/ext/${t}?t=${t}`);
+  if (!expectStatus("ext-echo", r, 200)) return;
+  const echo = JSON.parse(r.body.toString());
+  if (echo.url !== `/echo/${t}?t=${t}`) fail("ext-echo-leak", { url: echo.url });
+}
+async function externalPostCase() {
+  const t = token();
+  const text = `${t}|${"p".repeat(32 * 1024)}`;
+  const r = await request(`/ext/post-${t}`, { method: "POST", headers: { "content-type": "text/plain", "content-length": String(text.length) }, body: text });
+  if (!expectStatus("ext-post", r, 200)) return;
+  if (JSON.parse(r.body.toString()).body !== text) fail("ext-post-corrupt", {});
+}
+async function externalLargeCase() {
+  const r = await request("/ext-large/1048576");
+  if (!expectStatus("ext-large", r, 200)) return;
+  if (r.body.length !== 1048576) fail("ext-large-truncated", { length: r.body.length });
+}
+async function externalStreamCase(abort) {
+  const r = await request("/ext-stream", abort ? { abortAfter: 7 } : { slow: 20 });
+  if (abort) return bump("ext-stream-aborted");
+  if (!expectStatus("ext-stream", r, 200)) return;
+  if (!r.body.toString().endsWith("line 4\n")) fail("ext-stream-corrupt", { tail: r.body.toString().slice(-20) });
+}
+async function proxyExternalCase() {
+  const t = token();
+  const r = await request(`/gate/external?client=${t}`);
+  if (!expectStatus("proxy-ext", r, 200)) return;
+  const echo = JSON.parse(r.body.toString());
+  if (!echo.url.includes(`client=${t}`)) fail("proxy-ext-leak", { url: echo.url });
+}
+const platformRotation = [
+  platformIdentityCase, platformIdentityCase, platformIdentityCase,
+  async () => expectStatus("gate-open", await request("/gate/open"), 200),
+  async () => expectStatus("gate-closed", await request("/gate/closed"), 307),
+  async () => expectStatus("gate-direct", await request("/gate/direct"), 202),
+  async () => expectStatus("gate-status-404", await request("/gate/status/404"), 200),
+  async () => expectStatus("gate-timeout", await request("/gate/timeout"), 504),
+  async () => expectStatus("gate-wait-until-fail", await request("/gate/wait-until-fail"), 200),
+  async () => expectStatus("no-matcher-home", await request("/"), 200),
+  externalEchoCase, externalPostCase, externalLargeCase,
+  () => externalStreamCase(false), () => externalStreamCase(true),
+  proxyExternalCase, platformIdentityCase,
+  async () => expectStatus("ext-denied", await request("/ext-unlisted/x"), 502),
+  async () => {
+    await request("/ext-slow", { timeoutMs: 80 });
+    bump("ext-slow-abandoned");
+  },
+  async () => expectStatus("isr-fallback", await request(`/isr-posts/s${seq % 64}`), 200),
+  async () => expectStatus("posts-unlisted", await request("/posts/zz"), 404),
+  async () => expectStatus("draft-forged", await request("/posts/a", { headers: { cookie: "__prerender_bypass=forged" } }), 200),
+  async () => expectStatus("instrumentation", await request("/api/instrumentation"), 200),
+];
+
 const rotation = [
   identityCase, identityCase, identityCase, identityCase,
   () => dynamicCase(false), () => dynamicCase(true),
@@ -359,10 +536,12 @@ const rotation = [
   uploadCase, healthCase, identityCase, healthCase,
   reactCacheCase, afterCase,
 ];
-if (upstream && actionIds) {
+if (appName === "next-proxy") rotation.splice(0, rotation.length, ...proxyRotation);
+else if (appName === "platform") rotation.splice(0, rotation.length, ...platformRotation);
+if (appName === "next-app" && upstream && actionIds) {
   rotation.push(actionWhoCase, actionUploadCase, isrCase, actionWhoCase, isrCase, isrCase);
 }
-if (upstream) {
+if (appName === "next-app" && upstream) {
   rotation.push(
     dataFetchCase, () => dataCacheCase("warm"), () => dataCacheCase("cold"),
     () => dataCacheCase("warm"), () => dataCacheCase("cold"), () => dataCacheCase("tagged"),
@@ -417,6 +596,11 @@ async function sample() {
     queued: m?.queued ?? null,
     fetchInFlight: m?.fetch?.in_flight ?? null,
     fetchRequests: m?.fetch?.requests ?? null,
+    upstreamRequests: m?.upstream?.requests ?? null,
+    upstreamInFlight: m?.upstream?.in_flight ?? null,
+    activeRequests: m ? m.executors.reduce((n, e) => n + (e.active ?? 0), 0) : null,
+    queueWaitSeconds: m?.queue_wait_seconds_total ?? null,
+    queueWaits: m?.queue_waits ?? null,
     cacheEntries: m?.cache?.entries ?? null,
     cacheMemoryMiB: m?.cache ? +(m.cache.memory_bytes / 1048576).toFixed(1) : null,
     cacheStorageMiB: m?.cache ? +(m.cache.storage_bytes / 1048576).toFixed(1) : null,
@@ -438,13 +622,14 @@ async function sample() {
 
 const sampler = setInterval(sample, sampleEvery * 1000);
 const injections = [];
-const revalidator = upstream
+const spinPath = { "next-app": "/api/spin", "next-proxy": "/proxy/spin", platform: "/gate/spin" }[appName];
+const revalidator = upstream && appName === "next-app"
   ? setInterval(() => request("/api/revalidate?tag=soak-tag").then((r) => bump(r.status === 200 ? "revalidate-ok" : "revalidate-failed")), 60_000)
   : null;
 const injector = injectEvery
   ? setInterval(async () => {
       const at = Math.round((Date.now() - started) / 1000);
-      const r = await request(`/api/spin?ms=${injectMs}`);
+      const r = await request(`${spinPath}?ms=${injectMs}`);
       injections.push({ at, status: r.status ?? r.error });
     }, injectEvery * 1000)
   : null;

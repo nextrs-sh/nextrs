@@ -40,6 +40,10 @@ pub(crate) struct Counters {
     pub fetch_duration_buckets: [AtomicU64; FETCH_BUCKETS.len()],
     pub fetch_duration_micros: AtomicU64,
     pub fetch_duration_count: AtomicU64,
+    /// Requests forwarded for external rewrites (including refused ones).
+    pub upstream_requests: AtomicU64,
+    pub upstream_in_flight: AtomicU64,
+    pub upstream_failures: [AtomicU64; FETCH_REASONS.len()],
     /// Lookups that found an entry in the store (Next may still judge it
     /// expired by its tags) and lookups that found none.
     pub cache_hits: AtomicU64,
@@ -112,6 +116,12 @@ impl Counters {
 
     pub fn fetch_failed(&self, reason: usize) {
         if let Some(counter) = self.fetch_failures.get(reason) {
+            add(counter, 1);
+        }
+    }
+
+    pub fn upstream_failed(&self, reason: usize) {
+        if let Some(counter) = self.upstream_failures.get(reason) {
             add(counter, 1);
         }
     }
@@ -270,6 +280,14 @@ pub struct FetchSnapshot {
     pub duration_count: u64,
 }
 
+/// External-rewrite forwarding counters.
+#[derive(Debug, Clone, Serialize)]
+pub struct UpstreamSnapshot {
+    pub requests: u64,
+    pub in_flight: u64,
+    pub failures: Vec<(&'static str, u64)>,
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct MetricsSnapshot {
     pub isolates: usize,
@@ -293,6 +311,7 @@ pub struct MetricsSnapshot {
     pub queue_waits: u64,
     pub execution_seconds_total: f64,
     pub fetch: FetchSnapshot,
+    pub upstream: UpstreamSnapshot,
     /// `None` when the shared cache is disabled.
     pub cache: Option<CacheSnapshot>,
     pub executors: Vec<ExecutorSnapshot>,
@@ -363,6 +382,15 @@ impl MetricsSnapshot {
                     .collect(),
                 duration_seconds_sum: get(&counters.fetch_duration_micros) as f64 / 1e6,
                 duration_count: get(&counters.fetch_duration_count),
+            },
+            upstream: UpstreamSnapshot {
+                requests: get(&counters.upstream_requests),
+                in_flight: get(&counters.upstream_in_flight),
+                failures: FETCH_REASONS
+                    .iter()
+                    .zip(&counters.upstream_failures)
+                    .map(|(reason, counter)| (*reason, get(counter)))
+                    .collect(),
             },
             cache: None,
             executors: Vec::new(),
@@ -549,10 +577,36 @@ impl MetricsSnapshot {
             }
         }
         self.fetch.write_prometheus(&mut out);
+        self.upstream.write_prometheus(&mut out);
         if let Some(cache) = &self.cache {
             cache.write_prometheus(&mut out);
         }
         out
+    }
+}
+
+impl UpstreamSnapshot {
+    fn write_prometheus(&self, out: &mut String) {
+        let _ = writeln!(
+            out,
+            "# HELP nextrs_external_rewrite_requests_total Requests forwarded for external rewrites, including refused ones.\n# TYPE nextrs_external_rewrite_requests_total counter\nnextrs_external_rewrite_requests_total {}",
+            self.requests
+        );
+        let _ = writeln!(
+            out,
+            "# HELP nextrs_external_rewrite_in_flight External-rewrite requests open.\n# TYPE nextrs_external_rewrite_in_flight gauge\nnextrs_external_rewrite_in_flight {}",
+            self.in_flight
+        );
+        let _ = writeln!(
+            out,
+            "# HELP nextrs_external_rewrite_failures_total External-rewrite failures by reason.\n# TYPE nextrs_external_rewrite_failures_total counter"
+        );
+        for (reason, value) in &self.failures {
+            let _ = writeln!(
+                out,
+                "nextrs_external_rewrite_failures_total{{reason=\"{reason}\"}} {value}"
+            );
+        }
     }
 }
 

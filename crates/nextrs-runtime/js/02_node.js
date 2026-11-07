@@ -471,16 +471,19 @@
 
   const SUBTLE_DIGESTS = { "SHA-1": "sha1", "SHA-256": "sha256", "SHA-384": "sha384", "SHA-512": "sha512" };
 
-  // AES-GCM secret keys (src/webcrypto.rs), the Web Crypto that Server
-  // Actions need: Next encrypts bound closure arguments with the build's
-  // key. Key bytes stay in Rust; a CryptoKey holds a handle, released when
-  // the key is garbage collected. Other algorithms and formats fail with
-  // NextRSUnsupportedError instead of an approximation.
+  // Secret keys (src/webcrypto.rs): AES-GCM, which Server Actions need
+  // (Next encrypts bound closure arguments with the build's key), and HMAC,
+  // which session libraries use (jose's HS256/384/512 JWTs). Key bytes stay
+  // in Rust; a CryptoKey holds a handle, released when the key is garbage
+  // collected. Other algorithms and formats fail with NextRSUnsupportedError
+  // instead of an approximation.
   const kHandle = Symbol("key handle");
   const kKeyData = Symbol("key data");
-  const releaseKey = new FinalizationRegistry((id) => ops.op_nextrs_aes_release(id));
+  const releaseKey = new FinalizationRegistry((id) => ops.op_nextrs_key_release(id));
   const AES_USAGES = ["encrypt", "decrypt", "wrapKey", "unwrapKey"];
+  const HMAC_USAGES = ["sign", "verify"];
   const ALL_USAGES = [...AES_USAGES, "sign", "verify", "deriveKey", "deriveBits"];
+  const HMAC_HASHES = ["SHA-1", "SHA-256", "SHA-384", "SHA-512"];
 
   const domError = (name, message) => new DOMException(message, name);
   // Host errors are "Name: message" with a DOMException name.
@@ -500,14 +503,14 @@
     get [Symbol.toStringTag]() { return "CryptoKey"; }
   }
 
-  function secretKey(handle, bits, extractable, usages) {
+  function secretKey(handle, algorithm, allowed, extractable, usages) {
     const key = Object.create(CryptoKey.prototype);
     key[kHandle] = handle;
     key[kKeyData] = {
       type: "secret",
       extractable: Boolean(extractable),
-      algorithm: Object.freeze({ name: "AES-GCM", length: bits }),
-      usages: Object.freeze(AES_USAGES.filter((usage) => usages.includes(usage))),
+      algorithm: Object.freeze(algorithm),
+      usages: Object.freeze(allowed.filter((usage) => usages.includes(usage))),
     };
     releaseKey.register(key, handle);
     return key;
@@ -519,16 +522,30 @@
     return name;
   }
 
-  function requireAesGcm(algorithm, operation) {
-    const name = algorithmName(algorithm, operation);
-    if (name.toUpperCase() !== "AES-GCM") throw new NextRSUnsupportedError("crypto.subtle", operation, `algorithm ${name} (NextRS implements AES-GCM)`);
+  // The algorithm's registered name (Web Crypto matches names ignoring
+  // ASCII case), or a NextRSUnsupportedError for the ones NextRS lacks.
+  function secretAlgorithm(algorithm, operation, supported) {
+    const name = algorithmName(algorithm, operation).toUpperCase();
+    if (!supported.includes(name)) {
+      throw new NextRSUnsupportedError("crypto.subtle", operation, `algorithm ${algorithmName(algorithm, operation)} (NextRS implements ${supported.join(" and ")} here)`);
+    }
+    return name;
   }
 
-  function checkUsages(usages, operation) {
+  // `algorithm.hash` of an HMAC algorithm, normalized to its name.
+  function hmacHash(algorithm, operation) {
+    const hash = algorithm?.hash;
+    if (hash === undefined) throw new TypeError(`crypto.subtle.${operation}: HMAC needs a hash`);
+    const name = String(typeof hash === "string" ? hash : hash?.name).toUpperCase();
+    if (!HMAC_HASHES.includes(name)) throw domError("NotSupportedError", `unrecognized HMAC hash '${typeof hash === "string" ? hash : hash?.name}'`);
+    return name;
+  }
+
+  function checkUsages(usages, operation, allowed, algorithm) {
     usages = [...(usages ?? [])].map(String);
     for (const usage of usages) {
       if (!ALL_USAGES.includes(usage)) throw new TypeError(`crypto.subtle.${operation}: invalid key usage '${usage}'`);
-      if (!AES_USAGES.includes(usage)) throw domError("SyntaxError", `'${usage}' is not a valid usage for an AES-GCM key`);
+      if (!allowed.includes(usage)) throw domError("SyntaxError", `'${usage}' is not a valid usage for an ${algorithm} key`);
     }
     if (usages.length === 0) throw domError("SyntaxError", "a secret key needs at least one usage");
     return usages;
@@ -540,16 +557,18 @@
     throw new TypeError(`${what} must be an ArrayBuffer or ArrayBufferView`);
   }
 
-  function useKey(key, usage, operation) {
+  function useKey(key, name, usage, operation) {
     if (!(key instanceof CryptoKey) || key[kHandle] === undefined) throw new TypeError(`crypto.subtle.${operation}: key is not a CryptoKey`);
-    if (key.algorithm.name !== "AES-GCM") throw domError("InvalidAccessError", "the key's algorithm does not match");
+    if (key.algorithm.name !== name) throw domError("InvalidAccessError", "the key's algorithm does not match");
     if (!key.usages.includes(usage)) throw domError("InvalidAccessError", `the key does not allow '${usage}'`);
     return key[kHandle];
   }
 
+  const arrayBuffer = (out) => out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
+
   function aesGcm(encrypt, algorithm, key, data) {
     const operation = encrypt ? "encrypt" : "decrypt";
-    requireAesGcm(algorithm, operation);
+    secretAlgorithm(algorithm, operation, ["AES-GCM"]);
     if (algorithm.iv === undefined) throw new TypeError(`crypto.subtle.${operation}: AES-GCM needs an iv`);
     const iv = bufferSource(algorithm.iv, "iv");
     const aad = algorithm.additionalData === undefined ? new Uint8Array(0) : bufferSource(algorithm.additionalData, "additionalData");
@@ -559,15 +578,13 @@
       }
       throw domError("OperationError", "invalid AES-GCM tagLength");
     }
-    const handle = useKey(key, operation, operation);
+    const handle = useKey(key, "AES-GCM", operation, operation);
     const input = bufferSource(data, "data");
-    let out;
     try {
-      out = ops.op_nextrs_aes_gcm(handle, encrypt, iv, aad, input);
+      return arrayBuffer(ops.op_nextrs_aes_gcm(handle, encrypt, iv, aad, input));
     } catch (error) {
       throw hostError(error);
     }
-    return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
   }
 
   class SubtleCrypto {
@@ -580,13 +597,28 @@
       const hash = SUBTLE_DIGESTS[String(name).toUpperCase()];
       if (!hash) throw new NextRSUnsupportedError("crypto.subtle", "digest", `algorithm ${name}`);
       const out = digestBytes(hash, toBytes(data));
-      return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
+      return arrayBuffer(out);
     }
 
     async importKey(format, keyData, algorithm, extractable, keyUsages) {
-      requireAesGcm(algorithm, "importKey");
-      if (format !== "raw") throw new NextRSUnsupportedError("crypto.subtle", "importKey", `format '${format}' (NextRS supports 'raw' for AES-GCM)`);
-      const usages = checkUsages(keyUsages, "importKey");
+      const name = secretAlgorithm(algorithm, "importKey", ["AES-GCM", "HMAC"]);
+      if (format !== "raw") throw new NextRSUnsupportedError("crypto.subtle", "importKey", `format '${format}' (NextRS supports 'raw' for ${name})`);
+      if (name === "HMAC") {
+        const hash = hmacHash(algorithm, "importKey");
+        const usages = checkUsages(keyUsages, "importKey", HMAC_USAGES, "HMAC");
+        const bytes = bufferSource(keyData, "keyData");
+        if (algorithm.length !== undefined && algorithm.length !== bytes.byteLength * 8) {
+          throw new NextRSUnsupportedError("crypto.subtle", "importKey", "an HMAC length other than the key data's length");
+        }
+        let handle;
+        try {
+          handle = ops.op_nextrs_hmac_import(hash, bytes);
+        } catch (error) {
+          throw hostError(error);
+        }
+        return secretKey(handle, { name: "HMAC", length: bytes.byteLength * 8, hash: Object.freeze({ name: hash }) }, HMAC_USAGES, extractable, usages);
+      }
+      const usages = checkUsages(keyUsages, "importKey", AES_USAGES, "AES-GCM");
       const bytes = bufferSource(keyData, "keyData");
       let handle;
       try {
@@ -594,34 +626,47 @@
       } catch (error) {
         throw hostError(error);
       }
-      return secretKey(handle, bytes.byteLength * 8, extractable, usages);
+      return secretKey(handle, { name: "AES-GCM", length: bytes.byteLength * 8 }, AES_USAGES, extractable, usages);
     }
 
     async generateKey(algorithm, extractable, keyUsages) {
-      requireAesGcm(algorithm, "generateKey");
+      const name = secretAlgorithm(algorithm, "generateKey", ["AES-GCM", "HMAC"]);
+      if (name === "HMAC") {
+        const hash = hmacHash(algorithm, "generateKey");
+        const usages = checkUsages(keyUsages, "generateKey", HMAC_USAGES, "HMAC");
+        const requested = algorithm.length ?? 0;
+        if (!Number.isInteger(requested) || requested < 0) throw new TypeError("crypto.subtle.generateKey: invalid HMAC length");
+        if (algorithm.length === 0) throw domError("OperationError", "HMAC key length must not be 0");
+        let handle;
+        let bits;
+        try {
+          [handle, bits] = ops.op_nextrs_hmac_generate(hash, requested);
+        } catch (error) {
+          throw hostError(error);
+        }
+        return secretKey(handle, { name: "HMAC", length: bits, hash: Object.freeze({ name: hash }) }, HMAC_USAGES, extractable, usages);
+      }
       const bits = algorithm?.length;
       if (![128, 192, 256].includes(bits)) throw domError("OperationError", "AES key length must be 128, 192 or 256 bits");
-      const usages = checkUsages(keyUsages, "generateKey");
+      const usages = checkUsages(keyUsages, "generateKey", AES_USAGES, "AES-GCM");
       let handle;
       try {
         handle = ops.op_nextrs_aes_generate(bits);
       } catch (error) {
         throw hostError(error);
       }
-      return secretKey(handle, bits, extractable, usages);
+      return secretKey(handle, { name: "AES-GCM", length: bits }, AES_USAGES, extractable, usages);
     }
 
     async exportKey(format, key) {
       if (!(key instanceof CryptoKey) || key[kHandle] === undefined) throw new TypeError("crypto.subtle.exportKey: key is not a CryptoKey");
-      if (format !== "raw") throw new NextRSUnsupportedError("crypto.subtle", "exportKey", `format '${format}' (NextRS supports 'raw' for AES-GCM)`);
+      if (format !== "raw") throw new NextRSUnsupportedError("crypto.subtle", "exportKey", `format '${format}' (NextRS supports 'raw' for secret keys)`);
       if (!key.extractable) throw domError("InvalidAccessError", "the key is not extractable");
-      let out;
       try {
-        out = ops.op_nextrs_aes_export(key[kHandle]);
+        return arrayBuffer(ops.op_nextrs_key_export(key[kHandle]));
       } catch (error) {
         throw hostError(error);
       }
-      return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
     }
 
     async encrypt(algorithm, key, data) {
@@ -632,11 +677,35 @@
       return aesGcm(false, algorithm, key, data);
     }
 
+    async sign(algorithm, key, data) {
+      secretAlgorithm(algorithm, "sign", ["HMAC"]);
+      const handle = useKey(key, "HMAC", "sign", "sign");
+      const input = bufferSource(data, "data");
+      try {
+        return arrayBuffer(ops.op_nextrs_hmac_sign(handle, input));
+      } catch (error) {
+        throw hostError(error);
+      }
+    }
+
+    async verify(algorithm, key, signature, data) {
+      secretAlgorithm(algorithm, "verify", ["HMAC"]);
+      const handle = useKey(key, "HMAC", "verify", "verify");
+      // Web Crypto copies both before the operation.
+      const mac = bufferSource(signature, "signature").slice();
+      const input = bufferSource(data, "data").slice();
+      try {
+        return ops.op_nextrs_hmac_verify(handle, mac, input);
+      } catch (error) {
+        throw hostError(error);
+      }
+    }
+
     get [Symbol.toStringTag]() {
       return "SubtleCrypto";
     }
   }
-  for (const name of ["sign", "verify", "deriveKey", "deriveBits", "wrapKey", "unwrapKey"]) {
+  for (const name of ["deriveKey", "deriveBits", "wrapKey", "unwrapKey"]) {
     Object.defineProperty(SubtleCrypto.prototype, name, {
       value: async function () {
         throw new NextRSUnsupportedError("crypto.subtle", name);

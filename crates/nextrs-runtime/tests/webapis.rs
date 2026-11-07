@@ -1,4 +1,5 @@
-//! Web Crypto (AES-GCM) and FormData, the Web APIs Server Actions need,
+//! Web Crypto (AES-GCM, HMAC) and FormData, the Web APIs Server Actions and
+//! session libraries need,
 //! checked against Node: tests/fixtures/handlers/webapis.expected.json is
 //! the output of `node dist/webapis.js` (Node 22), and the same checks run
 //! in the embedded runtime must produce it, apart from the differences
@@ -38,7 +39,8 @@ async fn web_crypto_and_form_data_match_node() {
         json!({
             "iv8": { "error": "NotSupportedError" },
             "tag96": { "error": "ERR_NEXTRS_UNSUPPORTED" },
-            "hmac": { "error": "ERR_NEXTRS_UNSUPPORTED" },
+            "ecdsa": { "error": "ERR_NEXTRS_UNSUPPORTED" },
+            "hmacJwk": { "error": "ERR_NEXTRS_UNSUPPORTED" },
             "jwk": { "error": "ERR_NEXTRS_UNSUPPORTED" },
         })
     );

@@ -63,7 +63,53 @@
     "generatedRoundTrip": "402c5c9cb77c704c278b15a8793d4cef4cfbb64da0[\"$@1\",[\"closure\",3]]",
     "illegalConstructor": {
       "error": "TypeError"
-    }
+    },
+    "hmacAlgorithm": [
+      "HMAC",
+      "SHA-256",
+      32,
+      "secret",
+      [
+        "sign",
+        "verify"
+      ]
+    ],
+    "hmacSign": "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843",
+    "hmacVerify": true,
+    "hmacVerifyTampered": false,
+    "hmacVerifyTruncated": false,
+    "hmacVerifyOtherData": false,
+    "hmac512Algorithm": [
+      "HMAC",
+      "SHA-512"
+    ],
+    "hmac512SignWithoutUsage": {
+      "error": "InvalidAccessError"
+    },
+    "hmacExported": "4a656665",
+    "hmacNoHash": {
+      "error": "TypeError"
+    },
+    "hmacBadHash": {
+      "error": "NotSupportedError"
+    },
+    "hmacBadUsage": {
+      "error": "SyntaxError"
+    },
+    "hmacEmptyKey": {
+      "error": "DataError"
+    },
+    "hmacWithAesKey": {
+      "error": "InvalidAccessError"
+    },
+    "aesWithHmacKey": {
+      "error": "InvalidAccessError"
+    },
+    "generatedHmac": [
+      1024,
+      128
+    ],
+    "generatedHmacRoundTrip": true
   },
   "formData": {
     "getA": "1",

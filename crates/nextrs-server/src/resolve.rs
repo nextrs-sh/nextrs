@@ -89,7 +89,8 @@ pub(crate) enum Outcome {
     Respond(Response),
     /// The proxy threw: next start's 500.
     ProxyFailed,
-    /// A rewrite to another origin (gated: next start would proxy it).
+    /// A rewrite to another origin: forwarded there under the network
+    /// policy (`external.rs`).
     External(String),
     Output(Output),
     NotFound,
@@ -110,6 +111,8 @@ pub(crate) struct Resolved {
     pub did_rewrite: bool,
     /// The cookies the proxy set (`middlewareCookie`).
     pub middleware_cookies: Vec<String>,
+    /// The outcome came from the proxy's response (not a config rule).
+    pub from_proxy: bool,
 }
 
 /// The request as routing sees it.
@@ -217,6 +220,8 @@ struct Router<'s> {
     init_query: JsMap,
     did_rewrite: bool,
     middleware_cookies: Vec<String>,
+    /// The proxy's response ended routing.
+    from_proxy: bool,
 }
 
 impl Router<'_> {
@@ -295,11 +300,11 @@ impl Router<'_> {
             }
         }
         if dest.protocol.is_some() {
+            // proxyRequest: `parsedUrl.search = stringifyQuery(req, query)`
+            // (values from the request's own query encoded, the rest as the
+            // rule wrote them).
             let mut external = dest;
-            let search = crate::routing::query::querystring_stringify(&external.query, |v| {
-                crate::routing::query::encode_uri_component(v)
-            });
-            external.search = search;
+            external.search = stringify_redirect_query(&external.query, &self.init_query);
             return Ok(Some(format_url(&external)));
         }
         self.did_rewrite = true;
@@ -348,6 +353,7 @@ pub(crate) async fn resolve(
                     query: router.parsed.query,
                     did_rewrite: router.did_rewrite,
                     middleware_cookies: router.middleware_cookies,
+                    from_proxy: router.from_proxy,
                 },
                 None => Resolved {
                     headers: JsMap::new(),
@@ -357,6 +363,7 @@ pub(crate) async fn resolve(
                     query: JsMap::new(),
                     did_rewrite: false,
                     middleware_cookies: Vec::new(),
+                    from_proxy: false,
                 },
             };
             (outcome, resolved, body)
@@ -404,6 +411,7 @@ pub(crate) async fn resolve(
         parsed,
         did_rewrite: false,
         middleware_cookies: Vec::new(),
+        from_proxy: false,
     };
     let mut body = body;
 
@@ -465,7 +473,10 @@ pub(crate) async fn resolve(
     {
         match run_proxy(state, &mut router, method, &raw_url, version, client, body).await {
             ProxyStep::Continue(rest) => body = rest,
-            ProxyStep::Finish(outcome, rest) => return done(outcome, Some(router), rest),
+            ProxyStep::Finish(outcome, rest) => {
+                router.from_proxy = true;
+                return done(outcome, Some(router), rest);
+            }
         }
     }
 
@@ -910,8 +921,11 @@ async fn run_proxy(
             .res_headers
             .insert("x-middleware-rewrite", Value::Str(destination.clone()));
         match parse_url(&destination) {
-            Ok(parsed) if parsed.protocol.is_some() => {
-                return ProxyStep::Finish(Outcome::External(destination), rest());
+            Ok(mut parsed) if parsed.protocol.is_some() => {
+                // As for config rewrites: proxyRequest re-stringifies the
+                // destination's query (stringifyQuery).
+                parsed.search = stringify_redirect_query(&parsed.query, &router.init_query);
+                return ProxyStep::Finish(Outcome::External(format_url(&parsed)), rest());
             }
             Ok(parsed) => {
                 // resolve-routes replaces parsedUrl (query included); the

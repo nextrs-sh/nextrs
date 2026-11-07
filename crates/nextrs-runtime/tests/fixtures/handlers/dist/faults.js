@@ -44,6 +44,19 @@ exports.handler = async (req, res) => {
       res.writeHead(200, { "content-type": "text/plain" });
       res.write("started");
       return new Promise(() => {});
+    // The isolate's id first (the write reaches Rust at once, even while
+    // JavaScript then spins or waits), so a test can tell which requests
+    // shared an isolate whatever dispatch decided.
+    case "slow-tagged": {
+      res.writeHead(200, { "content-type": "text/plain" });
+      res.write(`${globalThis.__isolateId};`);
+      await new Promise((resolve) => setTimeout(resolve, Number(req.headers["x-delay"] ?? 200)));
+      return res.end("slow done");
+    }
+    case "loop-tagged":
+      res.writeHead(200, { "content-type": "text/plain" });
+      res.write(`${globalThis.__isolateId};`);
+      for (;;) {}
     case "slow": {
       await new Promise((resolve) => setTimeout(resolve, Number(req.headers["x-delay"] ?? 200)));
       return res.end("slow done");

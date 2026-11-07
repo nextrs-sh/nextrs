@@ -7,6 +7,7 @@
 
 mod dynamic;
 mod etag;
+mod external;
 mod resolve;
 #[doc(hidden)]
 pub mod routing;
@@ -195,11 +196,63 @@ pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, St
         listen: Listen::from(options.listen),
         ..state
     });
+    warn_external_rewrites(info, options);
     if let Some(executor) = &options.executor {
         // Weak: the executor must not keep the app (and itself) alive.
         executor.set_internal_dispatch(Arc::new(SelfDispatch(Arc::downgrade(&state))));
     }
     Ok(Router::new().fallback(handle).with_state(state))
+}
+
+/// Config rewrites to a fixed other origin that the network policy refuses
+/// would answer 502 on every request: say so at startup. (Destinations
+/// with parameters in the host are checked per request only.)
+fn warn_external_rewrites(info: &BuildInfo, options: &ServerOptions) {
+    let upstream = options.executor.as_ref().and_then(|e| e.upstream());
+    for rule in info
+        .routing
+        .before_files
+        .iter()
+        .chain(&info.routing.after_files)
+        .chain(&info.routing.fallback)
+    {
+        let Some(destination) = rule.destination.as_deref() else {
+            continue;
+        };
+        if destination.starts_with('/') {
+            continue;
+        }
+        let origin = destination
+            .split_once("://")
+            .map(|(scheme, rest)| (scheme, rest.split('/').next().unwrap_or(rest)));
+        let Some((scheme, authority)) = origin else {
+            continue;
+        };
+        if authority.contains(':')
+            && authority
+                .rsplit(':')
+                .next()
+                .is_some_and(|p| p.parse::<u16>().is_err())
+        {
+            continue;
+        }
+        let verdict = match (
+            &upstream,
+            url::Url::parse(&format!("{scheme}://{authority}/")),
+        ) {
+            (None, _) => Some("no network policy (--net-allow) is configured".to_owned()),
+            (Some(upstream), Ok(url)) => upstream.check(&url).err().map(|d| d.to_string()),
+            (Some(_), Err(_)) => None,
+        };
+        if let Some(reason) = verdict {
+            tracing::warn!(
+                source = %rule.source,
+                destination,
+                %reason,
+                "external rewrite will answer 502: its destination is not allowed"
+            );
+        }
+    }
 }
 
 /// Serves Next.js's requests to its own server (Server Action redirects
@@ -800,7 +853,7 @@ fn serde_json_string(value: &str) -> String {
 }
 
 /// next start's 500 for an exception in the proxy (or in routing).
-fn proxy_failed() -> Response {
+pub(crate) fn proxy_failed() -> Response {
     let mut response = (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error").into_response();
     let headers = response.headers_mut();
     headers.insert(header::CONTENT_TYPE, HeaderValue::from_static("text/plain"));
@@ -855,11 +908,47 @@ async fn serve_resolved(
         }
         Outcome::ProxyFailed => return proxy_failed(),
         Outcome::External(url) => {
-            let mut response = unsupported(
-                "external-rewrite",
-                &format!("rewrites to other origins ({url}) are not proxied by NextRS"),
-            );
-            response.extensions_mut().insert(NoRoutingHeaders);
+            // Config rewrites to another origin carry no routing headers
+            // (resolve-routes returns `resHeaders: null`); a proxy rewrite
+            // keeps the proxy's (router-server sets them before proxying,
+            // and the upstream's own headers replace them).
+            let upstream = state.executor.as_ref().and_then(|e| e.upstream());
+            let mut response = external::forward(
+                upstream,
+                external::Forward {
+                    url: &url,
+                    method,
+                    headers,
+                    client_host: original_headers.get(header::HOST),
+                    body,
+                    max_body: state.max_request_body,
+                },
+            )
+            .await;
+            if resolved.from_proxy {
+                // router-server sets the proxy's cookies before proxying and
+                // the upstream's are added to them, not put in their place.
+                if let Some(cookies) = resolved.res_headers.get("set-cookie") {
+                    let upstream: Vec<HeaderValue> = response
+                        .headers()
+                        .get_all(header::SET_COOKIE)
+                        .iter()
+                        .cloned()
+                        .collect();
+                    let out = response.headers_mut();
+                    out.remove(header::SET_COOKIE);
+                    for cookie in cookies.values() {
+                        if let Ok(value) = HeaderValue::from_bytes(&resolve::latin1_bytes(cookie)) {
+                            out.append(header::SET_COOKIE, value);
+                        }
+                    }
+                    for value in upstream {
+                        out.append(header::SET_COOKIE, value);
+                    }
+                }
+            } else {
+                response.extensions_mut().insert(NoRoutingHeaders);
+            }
             return response;
         }
         Outcome::Respond(response) => return response,
@@ -897,6 +986,28 @@ async fn serve_resolved(
             file_response(&file, IMMUTABLE, method, headers).await
         }
         Output::EncodedApp => {
+            // next start's page handler does not match the encoded path and
+            // the not-found route answers instead: for a possible Server
+            // Action or an RSC request that is the not-found handler's own
+            // answer (as for any unmatched path), not the 404 document.
+            // router-server's no-store header is not set: routing matched
+            // the (decoded) file, so only the handler's own headers apply.
+            if is_possible_server_action(method, headers)
+                || headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+            {
+                return not_found_render(
+                    state,
+                    method,
+                    headers,
+                    &request_path,
+                    &initial,
+                    incoming(body),
+                    version,
+                    resolved_ref,
+                    false,
+                )
+                .await;
+            }
             let Some(page) = &state.not_found else {
                 return not_found_plain();
             };
@@ -948,9 +1059,32 @@ async fn serve_resolved(
                     invocation,
                 };
                 let entry = entry.to_path_buf();
+                let request_path = &request_path;
+                let initial = &initial;
                 async move {
                     let executor = state.executor.as_deref().expect("checked by caller");
                     let response = dynamic::render(executor, &entry, &policy, incoming(body)).await;
+                    // NoFallbackError (params the page has no entry for):
+                    // router-server routes on without this output, which
+                    // ends at the not-found route.
+                    if response
+                        .headers()
+                        .get("x-nextrs-error")
+                        .is_some_and(|v| v == "no-fallback")
+                    {
+                        return not_found_render(
+                            state,
+                            method,
+                            headers,
+                            request_path,
+                            initial,
+                            incoming(Body::empty()),
+                            version,
+                            resolved_ref,
+                            true,
+                        )
+                        .await;
+                    }
                     dynamic::frame_for(version, response)
                 }
             };
@@ -968,6 +1102,16 @@ async fn serve_resolved(
                     {
                         return redirect;
                     }
+                    return run(entry, body, None, invocation).await;
+                }
+                // Draft Mode (or a stale or forged preview cookie): Next's
+                // handler decides, rendering on demand for a valid cookie
+                // and clearing an invalid one; the prerender is not served.
+                if readonly
+                    && has_preview_cookie(headers)
+                    && state.executor.is_some()
+                    && let Some(entry) = state.action_entry(path)
+                {
                     return run(entry, body, None, invocation).await;
                 }
                 if !readonly {
@@ -1046,6 +1190,18 @@ async fn serve_resolved(
     }
 }
 
+/// The request carries Draft Mode's (or the legacy Preview Mode's) cookie,
+/// valid or not (`__prerender_bypass`, `__next_preview_data`).
+fn has_preview_cookie(headers: &HeaderMap) -> bool {
+    headers
+        .get_all(header::COOKIE)
+        .iter()
+        .filter_map(|v| v.to_str().ok())
+        .flat_map(|v| v.split(';'))
+        .filter_map(|pair| pair.split_once('=').map(|(name, _)| name.trim()))
+        .any(|name| name == "__prerender_bypass" || name == "__next_preview_data")
+}
+
 /// Next's `isNonHtmlSecFetchDest`: subresource requests get a plain 404.
 const NON_HTML_SEC_FETCH_DESTS: &[&str] = &[
     "audio",
@@ -1077,6 +1233,34 @@ async fn not_found(
     incoming: dynamic::Incoming<'_>,
     version: axum::http::Version,
     resolved: &resolve::Resolved,
+) -> Response {
+    not_found_render(
+        state,
+        method,
+        headers,
+        request_path,
+        initial,
+        incoming,
+        version,
+        resolved,
+        true,
+    )
+    .await
+}
+
+/// `unmatched`: routing found nothing (router-server then sets its no-store
+/// Cache-Control before rendering the not-found route).
+#[allow(clippy::too_many_arguments)]
+async fn not_found_render(
+    state: &AppState,
+    method: &Method,
+    headers: &HeaderMap,
+    request_path: &str,
+    initial: &[(String, String)],
+    incoming: dynamic::Incoming<'_>,
+    version: axum::http::Version,
+    resolved: &resolve::Resolved,
+    unmatched: bool,
 ) -> Response {
     let readonly = method == Method::GET || method == Method::HEAD;
     let routed = resolved.pathname.as_str();
@@ -1114,7 +1298,9 @@ async fn not_found(
         // router-server sets the no-store Cache-Control before it renders
         // the not-found route (after routing's own headers).
         let mut headers_404 = initial.to_vec();
-        headers_404.push(("cache-control".to_owned(), NO_STORE.to_owned()));
+        if unmatched {
+            headers_404.push(("cache-control".to_owned(), NO_STORE.to_owned()));
+        }
         let policy = dynamic::AppPathPolicy {
             headers: &headers_404,
             vary: Some(&state.rsc.vary_header),

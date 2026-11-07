@@ -42,8 +42,13 @@ pub use crate::cache::CacheConfig;
 pub use crate::internal::{
     InternalBody, InternalDispatch, InternalRequest, InternalResponse, MAX_INTERNAL_REQUESTS,
 };
-pub use crate::metrics::{CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MetricsSnapshot};
-pub use crate::net::{AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy};
+pub use crate::metrics::{
+    CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MetricsSnapshot, UpstreamSnapshot,
+};
+pub use crate::net::{
+    AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy, Upstream,
+    UpstreamBody, UpstreamBodyStream, UpstreamError, UpstreamRequest, UpstreamResponse,
+};
 pub use crate::pool::{Executor, FailureReason};
 pub use crate::response::{ResponseEvent, ResponseStream};
 pub use crate::sandbox::{FsDenied, FsPolicy};
@@ -140,6 +145,12 @@ pub struct Limits {
     /// terminated (`TerminateExecution`) and replaced: every request in
     /// it fails, not only the one that looped. `None` disables it.
     pub stall_timeout: Option<Duration>,
+    /// Longest an isolate may take to start (create the runtime and run
+    /// the bootstrap), wall clock. Bootstrap loads Next's server bundles,
+    /// which can take seconds of CPU under contention, so it is not judged
+    /// by `stall_timeout`. Expiry fails startup (first boot) or counts as
+    /// a bootstrap failure (restarts back off). `None` disables it.
+    pub bootstrap_timeout: Option<Duration>,
     /// V8 heap limit per isolate. Reaching it terminates and replaces the
     /// isolate instead of aborting the process. `None` keeps V8's default
     /// limit (the near-limit handler is installed either way).
@@ -165,6 +176,7 @@ impl Default for Limits {
             queue_timeout: Duration::from_secs(10),
             request_timeout: Some(Duration::from_secs(60)),
             stall_timeout: Some(Duration::from_secs(10)),
+            bootstrap_timeout: Some(Duration::from_secs(60)),
             heap_limit_bytes: None,
             response_buffer_bytes: 64 * 1024,
             restart_backoff_initial: Duration::from_millis(100),

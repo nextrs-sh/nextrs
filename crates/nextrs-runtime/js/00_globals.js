@@ -108,6 +108,33 @@
   })) {
     define(name, value);
   }
+
+  // Node's default abort reason (`controller.abort()`, `AbortSignal.abort()`)
+  // is DOMException("This operation was aborted", "AbortError"); Deno's
+  // message differs, and applications report or match on it.
+  {
+    const nodeAbortReason = () => new domException.DOMException("This operation was aborted", "AbortError");
+    const abort = abortSignal.AbortController.prototype.abort;
+    Object.defineProperty(abortSignal.AbortController.prototype, "abort", {
+      value: {
+        abort(reason) {
+          return abort.call(this, reason === undefined ? nodeAbortReason() : reason);
+        },
+      }.abort,
+      writable: true,
+      configurable: true,
+    });
+    const staticAbort = abortSignal.AbortSignal.abort;
+    Object.defineProperty(abortSignal.AbortSignal, "abort", {
+      value: {
+        abort(reason) {
+          return staticAbort.call(this, reason === undefined ? nodeAbortReason() : reason);
+        },
+      }.abort,
+      writable: true,
+      configurable: true,
+    });
+  }
   define("global", globalThis);
 
   const console = new consoleModule.Console((message, level) => core.print(message, level > 1));

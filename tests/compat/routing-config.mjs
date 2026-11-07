@@ -16,7 +16,7 @@ if (!baseline || !candidate) {
 }
 const variant = args.variant ?? "default";
 const only = args.only ? new Set(args.only.split(",")) : null;
-const base = variant === "base-path" ? "/base" : "";
+const base = variant.startsWith("base-path") ? "/base" : "";
 // With basePath, every rule source is under it.
 const b = (path) => (path === "/" && base ? base : `${base}${path}`);
 
@@ -85,7 +85,7 @@ get("fallback-not-before-dynamic", b("/blog/zz-fb"));
 get("no-rule-404", b("/nothing/here"));
 knownDiff(
   "external-rewrite",
-  "external rewrites are gated: NextRS answers 501 external-rewrite, next start proxies (here to a closed port: 500)",
+  "the destination (a closed port) is outside this run's --net-allow: NextRS answers 502 external-rewrite-denied and sends nothing, next start proxies (connection refused: 500). Allowed destinations are compared in tests/compat/platform-proxy.mjs",
   { path: b("/external-rewrite/x") },
 );
 
