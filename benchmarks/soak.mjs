@@ -47,6 +47,18 @@
 // bodies, a refused destination, an abandoned slow upstream), ISR
 // fallback pages, Draft Mode cookies and dynamicParams 404s. Stalls are
 // injected in the proxy (/gate/spin).
+// --app jwks (fixtures/next-jwks-proxy; --oidc for tests/compat/oidc-stub.mjs,
+// --upstream, --project, APP_KEYS in the environment) sends the Phase 2C
+// authentication mix: bearer tokens of five algorithms verified against
+// the provider's JWKS (each answer must name the token's own subject; the
+// fixture refetches the key set every 1.5 s per isolate), invalid tokens
+// (expired, wrong audience, tampered: 401 with the right code), a key
+// rotation every 5 minutes, ES256 session pages, protected ISR, a protected
+// Server Action and after() work (each recorded once, by its own subject,
+// in the upstream's ledger: checked later), ES256/PS256/RS256/EdDSA
+// tokens NextRS signs (verified with node:crypto), streamed bodies naming
+// their subject (some abandoned), external rewrites behind the proxy and
+// clients that leave at once. Stalls are injected in the proxy (/proxy/spin).
 // With --inject-every, GET /api/spin?ms=<inject-ms> is sent on that period;
 // run the server with --js-stall-timeout below inject-ms so the stall
 // terminates and replaces an isolate.
@@ -55,7 +67,7 @@
 // body) are counted as "lost to restart", not as errors; only leaks,
 // corrupted bodies and unexpected statuses fail the run.
 import http from "node:http";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, createPrivateKey, createPublicKey, randomBytes, randomUUID, sign as nodeSign, verify as nodeVerify } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 
 const args = Object.fromEntries(
@@ -380,7 +392,7 @@ const proxyIds = (() => {
 const token = () => `nxp-${seq++}-${randomBytes(4).toString("hex")}`;
 const expectStatus = (kind, r, ...statuses) => {
   if (lostToRestart(r)) return bump("lost-to-restart"), false;
-  if (!statuses.includes(r.status)) return fail(kind, { status: r.status ?? r.error, error: r.nextrsError }), false;
+  if (!statuses.includes(r.status)) return fail(kind, { status: r.status ?? r.error, error: r.nextrsError, body: r.body?.toString().slice(0, 160) }), false;
   bump(`${kind}-ok`);
   return true;
 };
@@ -529,6 +541,158 @@ const platformRotation = [
   async () => expectStatus("instrumentation", await request("/api/instrumentation"), 200),
 ];
 
+// --- --app jwks ---------------------------------------------------------------
+const jwks = await (async () => {
+  if (appName !== "jwks") return null;
+  const oidc = args.oidc;
+  const keys = JSON.parse(process.env.APP_KEYS ?? "null");
+  if (!oidc || !keys || !upstream || !project) throw new Error("--app jwks needs --oidc, --upstream, --project and APP_KEYS");
+  const manifest = JSON.parse(readFileSync(`${project}/.next/server/server-reference-manifest.json`, "utf8"));
+  const record = Object.entries(manifest.node).find(([, v]) => v.exportedName === "recordProtected")?.[0];
+  const now = () => Math.floor(Date.now() / 1000);
+  const mint = async (spec) => (await (await fetch(`${oidc}/mint`, { method: "POST", body: JSON.stringify(spec) })).json()).token;
+  const life = Math.ceil(minutes * 60) + 3600;
+  const pool = [];
+  for (let u = 0; u < 12; u++) {
+    for (const kid of ["rs-1", "ps-1", "es-1", "es384-1", "ed-1"]) {
+      const sub = `u-soak-${u}`;
+      pool.push({ sub, kid, token: await mint({ kid, claims: { sub, aud: "nextrs-api", exp: now() + life } }) });
+    }
+  }
+  const invalid = [
+    { code: "ERR_JWT_EXPIRED", token: await mint({ kid: "es-1", claims: { sub: "u-x", aud: "nextrs-api", exp: now() - 600 } }) },
+    { code: "ERR_JWT_CLAIM_VALIDATION_FAILED", token: await mint({ kid: "rs-1", claims: { sub: "u-x", aud: "other", exp: now() + life } }) },
+  ];
+  const good = await mint({ kid: "ed-1", claims: { sub: "u-x", aud: "nextrs-api", exp: now() + life } });
+  invalid.push({ code: "ERR_JWS_SIGNATURE_VERIFICATION_FAILED", token: good.slice(0, -4) + (good.endsWith("AAAA") ? "BBBB" : "AAAA") });
+  const b64u = (v) => Buffer.from(v).toString("base64url");
+  const privateKey = createPrivateKey(keys.ES256.private);
+  const session = (userId) => {
+    const input = `${b64u(JSON.stringify({ alg: "ES256" }))}.${b64u(JSON.stringify({ userId, name: userId, iss: "nextrs-jwks-app", aud: "nextrs-jwks-app", iat: now(), exp: now() + life }))}`;
+    return `session=${input}.${b64u(nodeSign("sha256", Buffer.from(input), { key: privateKey, dsaEncoding: "ieee-p1363" }))}`;
+  };
+  const sessions = Array.from({ length: 12 }, (_, u) => ({ userId: `u-soak-${u}`, cookie: session(`u-soak-${u}`) }));
+  const VERIFY = {
+    ES256: (key, data, sig) => nodeVerify("sha256", data, { key, dsaEncoding: "ieee-p1363" }, sig),
+    PS256: (key, data, sig) => nodeVerify("sha256", data, { key, padding: 6, saltLength: 32 }, sig),
+    RS256: (key, data, sig) => nodeVerify("sha256", data, key, sig),
+    EdDSA: (key, data, sig) => nodeVerify(null, data, key, sig),
+  };
+  const publicKeys = Object.fromEntries(Object.keys(VERIFY).map((alg) => [alg, createPublicKey(keys[alg].public)]));
+  return { oidc, record, pool, invalid, sessions, VERIFY, publicKeys, mint, now, life, pending: [] };
+})();
+const pick = (list) => list[Math.floor(Math.random() * list.length)];
+const bearer = (token) => ({ authorization: `Bearer ${token}` });
+async function jwksIdentityCase() {
+  const t = pick(jwks.pool);
+  const r = await request("/api/me", { headers: bearer(t.token) });
+  if (!expectStatus("jwks-verify", r, 200)) return;
+  const body = JSON.parse(r.body.toString());
+  if (body.sub !== t.sub || body.proxySub !== t.sub) fail("LEAK", { case: "jwks-verify", expected: t.sub, seen: `${body.sub}/${body.proxySub}` });
+}
+async function jwksInvalidCase() {
+  const t = pick(jwks.invalid);
+  const r = await request("/api/me", { headers: bearer(t.token) });
+  if (!expectStatus("jwks-invalid", r, 401)) return;
+  const body = JSON.parse(r.body.toString());
+  if (body.code !== t.code || body.sub !== undefined) fail("jwks-invalid-wrong", { expected: t.code, body });
+}
+async function jwksStreamCase() {
+  const t = pick(jwks.pool);
+  const abandon = seq++ % 4 === 0;
+  const r = await request("/api/stream?chunks=8&gap=3", { headers: bearer(t.token), abortAfter: abandon ? 1 : undefined });
+  if (abandon) return bump("jwks-stream-abandoned");
+  if (!expectStatus("jwks-stream", r, 200)) return;
+  const lines = r.body.toString().trim().split("\n");
+  if (lines.length !== 8 || lines.some((line, i) => line !== `${t.sub} ${i}`)) fail(lines.some((l) => !l.startsWith(`${t.sub} `)) ? "LEAK" : "jwks-stream-wrong", { expected: t.sub, sample: lines.slice(0, 3) });
+}
+async function jwksAfterCase() {
+  const t = pick(jwks.pool);
+  const key = `soak-after-${randomUUID()}`;
+  const r = await request(`/api/after?key=${key}`, { headers: bearer(t.token) });
+  if (!expectStatus("jwks-after", r, 200)) return;
+  jwks.pending.push({ key, expected: t.sub, at: Date.now(), kind: "after" });
+}
+async function jwksActionCase() {
+  const s = pick(jwks.sessions);
+  const key = `soak-action-${randomUUID()}`;
+  const boundary = `----soak${randomBytes(6).toString("hex")}`;
+  const body = multipart(boundary, [["_1_key", key], ["_1_id", "1"], ["0", '["$K1"]']]);
+  const r = await request("/actions/protected", {
+    method: "POST",
+    headers: { cookie: s.cookie, "next-action": jwks.record, origin: target.origin, accept: "text/x-component", "content-type": `multipart/form-data; boundary=${boundary}`, "content-length": String(body.length) },
+    body,
+  });
+  if (lostToRestart(r)) {
+    jwks.pending.push({ key, expected: `${s.userId}:1`, at: Date.now(), kind: "action-lost" });
+    return bump("lost-to-restart");
+  }
+  if (!expectStatus("jwks-action", r, 200)) return;
+  jwks.pending.push({ key, expected: `${s.userId}:1`, at: Date.now(), kind: "action" });
+}
+async function jwksSessionCase() {
+  const s = pick(jwks.sessions);
+  const r = await request("/dashboard", { headers: { cookie: s.cookie } });
+  if (!expectStatus("jwks-session-page", r, 200)) return;
+  const info = JSON.parse(decode(/id="info">([^<]*)</.exec(r.body.toString())?.[1] ?? "{}"));
+  if (info.userId !== s.userId || info.proxyUser !== s.userId) fail("LEAK", { case: "session-page", expected: s.userId, seen: info });
+}
+const APP_ALGS = ["ES256", "PS256", "RS256", "EdDSA"];
+async function jwksAppTokenCase() {
+  const s = pick(jwks.sessions);
+  const alg = APP_ALGS[seq++ % APP_ALGS.length];
+  const r = await request(`/api/app-token?alg=${alg}`, { headers: { cookie: s.cookie } });
+  if (!expectStatus("jwks-app-token", r, 200)) return;
+  const [h, p, sig] = JSON.parse(r.body.toString()).token.split(".");
+  const claims = JSON.parse(Buffer.from(p, "base64url"));
+  if (!jwks.VERIFY[alg](jwks.publicKeys[alg], Buffer.from(`${h}.${p}`), Buffer.from(sig, "base64url"))) fail("jwks-app-token-bad-signature", { alg });
+  else if (claims.sub !== s.userId) fail("LEAK", { case: "app-token", expected: s.userId, seen: claims.sub });
+}
+async function jwksExternalCase() {
+  const t = token();
+  const r = await request(`/ext/${t}`);
+  if (!expectStatus("jwks-external", r, 200)) return;
+  const url = JSON.parse(r.body.toString()).url;
+  if (url !== `/echo/${t}`) fail(new RegExp(TOKEN.source).test(url) ? "LEAK" : "jwks-external-wrong", { expected: t, url });
+}
+// Ledger entries a little after they were made: one per call, by its own
+// subject. A Server Action that answered must have run; after() work and
+// an action lost to a restart may be missing, never doubled or foreign.
+async function settleLedger() {
+  if (!jwks) return;
+  const due = jwks.pending.filter((p) => Date.now() - p.at > 3000);
+  jwks.pending = jwks.pending.filter((p) => Date.now() - p.at <= 3000);
+  for (const p of due) {
+    const ids = (await (await fetch(`${upstream}/mutations?key=${p.key}`)).json()).ids;
+    if (ids.length > 1) fail("DUPLICATE-MUTATION", { key: p.key, ids });
+    else if (ids.length === 1 && ids[0] !== p.expected) fail("LEAK", { case: `ledger-${p.kind}`, expected: p.expected, seen: ids[0] });
+    else if (ids.length === 0 && p.kind === "action") fail("MUTATION-LOST", { key: p.key });
+    else bump(ids.length ? `ledger-${p.kind}-ok` : `ledger-${p.kind}-missing`);
+  }
+}
+let rotations = 0;
+async function rotateKeys() {
+  const kid = `rot-${++rotations}`;
+  await fetch(`${jwks.oidc}/admin/reset`, { method: "POST" });
+  await fetch(`${jwks.oidc}/admin/add?kid=${kid}&like=${rotations % 2 ? "es-1" : "rs-1"}`, { method: "POST" });
+  await new Promise((r) => setTimeout(r, 250));
+  const t = await jwks.mint({ kid, claims: { sub: "u-rotated", aud: "nextrs-api", exp: jwks.now() + 600 } });
+  const r = await request("/api/me", { headers: bearer(t) });
+  if (expectStatus("jwks-rotated-key", r, 200) && JSON.parse(r.body.toString()).sub !== "u-rotated") fail("LEAK", { case: "rotated" });
+}
+const jwksRotation = [
+  jwksIdentityCase, jwksIdentityCase, jwksIdentityCase, jwksInvalidCase, jwksIdentityCase,
+  jwksSessionCase, jwksStreamCase, jwksIdentityCase, jwksAfterCase, jwksActionCase,
+  async () => expectStatus("jwks-anon-page", await request("/dashboard"), 307),
+  async () => expectStatus("jwks-protected-isr", await request("/reports", { headers: { cookie: pick(jwks.sessions).cookie } }), 200),
+  async () => expectStatus("jwks-no-token", await request("/api/me"), 401),
+  jwksAppTokenCase, jwksExternalCase, jwksIdentityCase,
+  async () => {
+    await request("/api/me", { headers: bearer(pick(jwks.pool).token), timeoutMs: 1 });
+    bump("jwks-client-left");
+  },
+];
+
 const rotation = [
   identityCase, identityCase, identityCase, identityCase,
   () => dynamicCase(false), () => dynamicCase(true),
@@ -537,6 +701,7 @@ const rotation = [
   reactCacheCase, afterCase,
 ];
 if (appName === "next-proxy") rotation.splice(0, rotation.length, ...proxyRotation);
+else if (appName === "jwks") rotation.splice(0, rotation.length, ...jwksRotation);
 else if (appName === "platform") rotation.splice(0, rotation.length, ...platformRotation);
 if (appName === "next-app" && upstream && actionIds) {
   rotation.push(actionWhoCase, actionUploadCase, isrCase, actionWhoCase, isrCase, isrCase);
@@ -547,6 +712,21 @@ if (appName === "next-app" && upstream) {
     () => dataCacheCase("warm"), () => dataCacheCase("cold"), () => dataCacheCase("tagged"),
     dataFetchCase, dataAbortCase,
   );
+}
+
+// /proc/<pid>/smaps_rollup: anonymous versus file-backed memory, in MiB.
+function smapsRollup() {
+  if (!pid) return null;
+  try {
+    const text = readFileSync(`/proc/${pid}/smaps_rollup`, "utf8");
+    const field = (name) => {
+      const m = new RegExp(`^${name}:\\s+(\\d+) kB`, "m").exec(text);
+      return m ? +(Number(m[1]) / 1024).toFixed(1) : null;
+    };
+    return { rss: field("Rss"), anonymous: field("Anonymous"), pssAnon: field("Pss_Anon"), pssFile: field("Pss_File"), swap: field("Swap") };
+  } catch {
+    return null;
+  }
 }
 
 function procStatus(field) {
@@ -580,6 +760,14 @@ async function sample() {
     // Pages of the server in swap are missing from RSS: a host under memory
     // pressure can hide growth there.
     swapMiB: procStatus("VmSwap"),
+    rssFileMiB: procStatus("RssFile"),
+    smaps: smapsRollup(),
+    // The C heap (glibc mallinfo2) and live Web Crypto keys, from NextRS.
+    mallocInUseMiB: m?.memory?.malloc ? +(m.memory.malloc.in_use_bytes / 1048576).toFixed(1) : null,
+    mallocFreeMiB: m?.memory?.malloc ? +(m.memory.malloc.free_bytes / 1048576).toFixed(1) : null,
+    mallocArenaMiB: m?.memory?.malloc ? +(m.memory.malloc.arena_bytes / 1048576).toFixed(1) : null,
+    mallocMmapMiB: m?.memory?.malloc ? +(m.memory.malloc.mmap_bytes / 1048576).toFixed(1) : null,
+    cryptoKeys: m?.memory?.crypto_keys ?? null,
     completed,
     restarts: m ? m.executors.reduce((n, e) => n + e.restarts, 0) : null,
     heapUsedMiB: m ? +(m.executors.reduce((n, e) => n + (e.heap_used_bytes ?? 0), 0) / 1048576).toFixed(1) : null,
@@ -622,7 +810,9 @@ async function sample() {
 
 const sampler = setInterval(sample, sampleEvery * 1000);
 const injections = [];
-const spinPath = { "next-app": "/api/spin", "next-proxy": "/proxy/spin", platform: "/gate/spin" }[appName];
+const spinPath = { "next-app": "/api/spin", "next-proxy": "/proxy/spin", platform: "/gate/spin", jwks: "/proxy/spin" }[appName];
+const settler = jwks ? setInterval(settleLedger, 10_000) : null;
+const rotator = jwks ? setInterval(rotateKeys, 300_000) : null;
 const revalidator = upstream && appName === "next-app"
   ? setInterval(() => request("/api/revalidate?tag=soak-tag").then((r) => bump(r.status === 200 ? "revalidate-ok" : "revalidate-failed")), 60_000)
   : null;
@@ -645,9 +835,16 @@ await Promise.all(
   }),
 );
 clearInterval(sampler);
+if (settler) clearInterval(settler);
+if (rotator) clearInterval(rotator);
 if (injector) clearInterval(injector);
 if (revalidator) clearInterval(revalidator);
 await new Promise((r) => setTimeout(r, 3000));
+if (jwks) {
+  await new Promise((r) => setTimeout(r, 1000));
+  for (const p of jwks.pending) p.at = 0;
+  await settleLedger();
+}
 await sample();
 
 const result = {

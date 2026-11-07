@@ -46,7 +46,9 @@ export async function verifyAccessToken(authorization: string | null, tenant = "
     });
     return { ok: true, claims: payload, header: protectedHeader, tenant };
   } catch (error) {
-    const code = (error as { code?: string })?.code ?? "";
+    // DOMException codes are numbers (an AbortError's is 20).
+    const raw = (error as { code?: unknown })?.code;
+    const code = typeof raw === "string" ? raw : "";
     if (TOKEN_ERRORS.has(code)) {
       const claim = (error as { claim?: string }).claim;
       return { ok: false, status: 401, error: "invalid_token", code, ...(claim ? { claim } : {}) };

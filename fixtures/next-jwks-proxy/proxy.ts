@@ -14,6 +14,15 @@ const sessionApi = ["/api/app-token"];
 
 export default async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
+  // Fault injection for the soak: busy CPU past the stall limit (the
+  // executor is terminated and replaced).
+  if (path === "/proxy/spin") {
+    const end = Date.now() + Math.min(Number(req.nextUrl.searchParams.get("ms") ?? 100), 30_000);
+    while (Date.now() < end) {
+      // spin
+    }
+    return NextResponse.json({ spun: true });
+  }
   // A client's own identity headers never pass.
   const headers = new Headers(req.headers);
   headers.delete("x-auth-sub");
