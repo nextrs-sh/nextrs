@@ -23,8 +23,9 @@
 //   POST /admin/rotate?kid=K&to=K2      replaces key K with a fresh key K2 (same type)
 //   POST /admin/add?kid=K&like=K0       publishes a fresh key K of K0's type next to the others
 //   POST /admin/mode?jwks=M             M: normal | malformed | unavailable | slow | redirect | huge | empty
-//   POST /admin/idtoken?mode=M          the next id_token: normal | wrong-iss | wrong-aud | wrong-nonce |
-//                                       expired | bad-signature | unknown-kid
+//   POST /admin/idtoken?mode=M[&kid=K]  the next id_token: normal | wrong-iss | wrong-aud | wrong-nonce |
+//                                       expired | bad-signature | unknown-kid; kid: the key id_tokens are
+//                                       signed with from now on (default rs-1)
 //   POST /admin/reset                   keys back to the initial set, modes normal, counters kept
 //   GET  /admin/stats                   {jwksHits, attackerHits, tokenRequests, ...}
 //   GET  /attacker/jwks                 a key set nobody should fetch (a token's jku points here)
@@ -131,6 +132,7 @@ function mint({ claims = {}, kid = "rs-1", alg, header = {}, confuse, like } = {
 // --- Modes and counters ---------------------------------------------------------
 let jwksMode = "normal";
 let idTokenMode = "normal";
+let idTokenKid = "rs-1";
 const stats = { jwksHits: 0, jwksAborted: 0, attackerHits: 0, authorizeRequests: 0, tokenRequests: 0, tokenFailures: 0, userinfoRequests: 0 };
 const codes = new Map(); // code -> {user, redirectUri, challenge, nonce, clientId, used}
 const accessTokens = new Map(); // token -> user
@@ -200,7 +202,7 @@ function idToken(user, { nonce, aud }) {
     makeKey("never-published", "RS256");
     return mint({ claims, kid: "never-published" });
   }
-  const token = mint({ claims, kid: "rs-1" });
+  const token = mint({ claims, kid: idTokenKid });
   if (mode === "bad-signature") return token.slice(0, -4) + (token.endsWith("AAAA") ? "BBBB" : "AAAA");
   return token;
 }
@@ -300,12 +302,14 @@ const server = http.createServer(async (req, res) => {
     }
     if (url.pathname === "/admin/idtoken" && req.method === "POST") {
       idTokenMode = p.get("mode") ?? "normal";
-      return send(res, 200, { idToken: idTokenMode });
+      if (p.has("kid")) idTokenKid = p.get("kid");
+      return send(res, 200, { idToken: idTokenMode, kid: idTokenKid });
     }
     if (url.pathname === "/admin/reset" && req.method === "POST") {
       reset();
       jwksMode = "normal";
       idTokenMode = "normal";
+      idTokenKid = "rs-1";
       return send(res, 200, { published });
     }
     if (url.pathname === "/admin/stats") return send(res, 200, { ...stats, published, jwksMode });
