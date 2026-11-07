@@ -663,7 +663,7 @@ async function settleLedger() {
   const due = jwks.pending.filter((p) => Date.now() - p.at > 3000);
   jwks.pending = jwks.pending.filter((p) => Date.now() - p.at <= 3000);
   for (const p of due) {
-    const ids = (await (await fetch(`${upstream}/mutations?key=${p.key}`)).json()).ids;
+    const ids = (await (await fetch(`${upstream}/mutations?key=${p.key}&forget=1`)).json()).ids;
     if (ids.length > 1) fail("DUPLICATE-MUTATION", { key: p.key, ids });
     else if (ids.length === 1 && ids[0] !== p.expected) fail("LEAK", { case: `ledger-${p.kind}`, expected: p.expected, seen: ids[0] });
     else if (ids.length === 0 && p.kind === "action") fail("MUTATION-LOST", { key: p.key });
