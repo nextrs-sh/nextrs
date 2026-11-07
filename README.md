@@ -47,9 +47,12 @@ Actions, run by Next's own compiled handlers), **Phase 1E** (ISR,
 regenerated pages stored in that shared cache, revalidation from Server
 Actions, and Cache Components) and, experimentally, **Phase 2A** (`proxy.ts`,
 run as Next's compiled proxy in the same isolates, and `next.config`
-headers, redirects, rewrites, `basePath` and `trailingSlash`). It is tested
-against three small App Router fixtures built with Next.js 16.4.3, and also
-passes the same comparison suites on 16.4.4 and 16.4.5.
+headers, redirects, rewrites, `basePath` and `trailingSlash`) and **Phase 2B**
+(real-world proxies: `jose` session cookies, `next-intl` locale routing, a
+proxy that fetches; external rewrites under the network policy; Draft Mode,
+`dynamicParams = false`, `instrumentation.ts`). It is tested against six
+small App Router fixtures built with Next.js 16.4.3, and also passes the
+same comparison suites on 16.4.4 and 16.4.5.
 
 - **Works:** `nextrs start` serves static assets, prerendered pages, React
   Server Components (RSC) payloads and the not-found page from Rust.
@@ -59,7 +62,7 @@ passes the same comparison suites on 16.4.4 and 16.4.5.
 - **Off by default:** without that flag, every dynamic route answers an
   explicit `501 Not Implemented`.
 - **Unsupported:** edge-runtime middleware, `next/image` optimization, the
-  Pages Router, i18n and external rewrites. NextRS **refuses to start** when
+  Pages Router and Next's own `i18n` config. NextRS **refuses to start** when
   a build uses one it cannot answer explicitly, unless you pass
   `--allow-unsupported`.
 
@@ -121,7 +124,9 @@ real applications.
 | Multi-core isolate pool | 🧪 Experimental | `--isolates N`; bounded admission, supervision and restart per isolate |
 | Outbound `fetch` from server code | 🧪 Experimental | Denied unless `--net-allow` names the destination; hosts must resolve to public addresses (or `--net-allow-addr` ranges); redirects re-checked |
 | Next.js data cache (`fetch` cache, `unstable_cache`, `revalidateTag`) | 🧪 Experimental | One cache for all isolates; persisted across restarts with `--cache-dir` |
-| `generateStaticParams` | 🧪 Experimental | Listed params are served prerendered; with the executor, other params are rendered on their first request and cached (Next's `dynamicParams`) |
+| `generateStaticParams` | 🧪 Experimental | Listed params are served prerendered; with the executor, other params are rendered on their first request and cached, or answer `404` with `dynamicParams = false` |
+| Draft Mode (`draftMode()`) | 🧪 Experimental | Requires `--js-runtime embedded-v8`. Requests with the draft cookie go to Next's handler (on-demand rendering; invalid cookies cleared) instead of the prerender |
+| `instrumentation.ts` (`register`, `onRequestError`) | 🧪 Experimental | Registered by Next's compiled handlers and proxy before they run: once per isolate (N registrations with `--isolates N`) |
 | Edge runtime routes | ⛔ Unsupported | Answers `501` |
 | Server Actions (forms, client calls, bound and closure actions, uploads, redirects, cookies) | 🧪 Experimental | Requires `--js-runtime embedded-v8` (otherwise a startup refusal); Node.js runtime only; also on ISR pages; not with interception routes |
 | `proxy.ts` / `middleware.ts` (Node.js runtime) | 🧪 Experimental | Requires `--js-runtime embedded-v8` (otherwise a startup refusal). Next's compiled proxy runs in the isolate pool before every matched request, prerendered and cached pages included: redirects, rewrites, request and response headers, cookies, direct responses. A proxy error, timeout or isolate failure never falls through to the route |
@@ -129,9 +134,9 @@ real applications.
 | ISR (`revalidate`, on-demand `revalidatePath`/`revalidateTag`/`updateTag`) | 🧪 Experimental | Requires `--js-runtime embedded-v8`. Next's handler regenerates; pages are stored in the shared cache (persisted with `--cache-dir`) and seen by every isolate |
 | Cache Components (`"use cache"`, `cacheLife`, `cacheTag`) | 🧪 Partial | `"use cache"` functions share one cache across isolates; Partial Prerendering shells are completed by Next's handler. `"use cache: private"` and custom `cacheHandlers` are untested |
 | `next.config` headers, redirects, rewrites (beforeFiles, afterFiles, fallback; `has`/`missing`) | 🧪 Experimental | Applied in Rust in `next start`'s order from `routes-manifest.json`; no executor needed |
-| Rewrites to another origin (config or proxy) | ⛔ Unsupported | Answers `501` (`external-rewrite`); not proxied |
-| `basePath`, `trailingSlash` | 🧪 Experimental | Tested in separate fixture builds |
-| i18n | ⛔ Unsupported | Startup refusal |
+| Rewrites to another origin (config or proxy) | 🧪 Experimental | Forwarded as `next start` forwards them, only to destinations `--net-allow` permits (the same policy as `fetch`, checked for every connection); otherwise `502` (`external-rewrite-denied`) and nothing is sent. WebSocket upgrades answer `501` |
+| `basePath`, `trailingSlash`, `assetPrefix`, `experimental.caseSensitiveRoutes` | 🧪 Experimental | Tested in separate fixture builds, including `basePath` with `trailingSlash` |
+| Next's `i18n` config | ⛔ Unsupported | Startup refusal. Locale routing with `next-intl`'s middleware (no `i18n` config) works |
 | Pages Router | ⛔ Unsupported | Startup refusal |
 | Image optimization (`/_next/image`) | ⛔ Unsupported | Answers `501` |
 | Interception routes (with the executor) | ⛔ Unsupported | Answers `501` |
@@ -179,15 +184,18 @@ might be wrong.
   closures, file uploads, redirects, cookies and errors behave as they do
   under `next start`. Next's compiled handler does the work: NextRS routes
   the requests and provides the Web APIs it needs (`FormData`, multipart
-  parsing, AES-GCM in `crypto.subtle`). Mutations are never retried
-  automatically.
+  parsing, AES-GCM and HMAC in `crypto.subtle`). Mutations are never
+  retried automatically.
 - **Proxy and routing rules:** an unchanged `proxy.ts` runs as Next compiled
   it, at the point in the pipeline where `next start` runs it (after
   `next.config` headers and redirects, before rewrites, files, prerendered
   pages, ISR, routes and Server Actions). `next.config` headers, redirects
   and rewrites, `basePath` and `trailingSlash` are applied from Next's own
   compiled rules; the routing functions are checked against Next's own on
-  thousands of generated cases.
+  thousands of generated cases. Tested with real proxies: `jose` session
+  verification (the Next.js authentication guide's pattern), `next-intl`'s
+  locale middleware, and a proxy that fetches, rewrites to other origins
+  and schedules `waitUntil` work.
 - **Unsupported-feature detection:** `nextrs start` refuses builds it would
   serve incorrectly, instead of silently skipping middleware, redirects or
   security headers.
@@ -216,15 +224,17 @@ might be wrong.
   proxies or HTTP/2. A fetch does not outlive the request that started it.
 - **Node.js API coverage:** NextRS provides a narrow Node.js layer. Node's
   network modules (`http`, `https`, `net`, `dns`; use `fetch`), `zlib`,
-  `child_process`, `worker_threads`, `crypto.subtle` beyond AES-GCM and
-  `digest`, `vm` and native addons are unavailable.
-- **Proxy limits:** edge-runtime middleware, external rewrites,
-  `skipProxyUrlNormalize` and i18n are refused. A request body that reaches
-  the proxy is buffered for the proxy and the route; above
-  `proxyClientMaxBodySize` (10 MB by default) NextRS answers `413`, where
-  `next start` truncates it. Each proxied request takes one more trip
-  through an isolate. Only the fixture's proxy and rules have been
-  verified; other combinations of `next.config` options are untested.
+  `child_process`, `worker_threads`, `crypto.subtle` beyond AES-GCM, HMAC
+  and `digest` (no ECDSA, RSA or Ed25519, so asymmetric JWTs fail), `vm`
+  and native addons are unavailable.
+- **Proxy limits:** edge-runtime middleware, `skipProxyUrlNormalize` and
+  Next's `i18n` config are refused. A request body that reaches the proxy
+  is buffered for the proxy and the route; above `proxyClientMaxBodySize`
+  (10 MB by default) NextRS answers `413`, where `next start` truncates it.
+  Each proxied request takes one more trip through an isolate. External
+  rewrites do not forward hop-by-hop headers or Next's internal headers,
+  and do not proxy WebSockets. `waitUntil` work ends with its request's
+  deadline. Only the fixtures' proxies and rules have been verified.
 - **Image optimization:** not implemented. Server Actions on the edge
   runtime are refused.
 - **Other framework features:** the Pages Router, edge runtime routes,
@@ -395,6 +405,7 @@ disables a timeout):
 | `--max-queued`, `--queue-timeout` | `512`, `10` | Requests waiting for an isolate, and for how long; beyond either, `503` with `Retry-After` |
 | `--request-timeout` | `60` | Deadline per dynamic request, including `after()` work: `504`, or an aborted response if it already started |
 | `--js-stall-timeout` | `10` | Terminate and replace an isolate whose JavaScript runs this long without yielding (affects every request in it) |
+| `--js-bootstrap-timeout` | `60` | Longest an isolate may take to start (loading Next's bundles); not judged by the stall limit. On the first start, expiry fails startup; later, the isolate is restarted with backoff |
 | `--js-heap-limit` | V8 default | Heap limit per isolate, in MiB; reaching it replaces the isolate. Lower values trade throughput for memory |
 | `--response-buffer` | `64` | Response KiB buffered per request before the renderer waits for the client |
 | `--max-request-body` | `10` | Request body limit in MiB (`413`), whether a length is declared or the body is chunked |
@@ -407,7 +418,7 @@ Outbound network (denied unless `--net-allow` is given):
 
 | Option | Default | Purpose |
 |---|---|---|
-| `--net-allow ORIGIN` | none | A destination JavaScript may fetch (repeatable): `api.example.com` (https, port 443 only), `api.example.com:8443`, `http://host:port`, or `*.example.com` (subdomains). Redirects must stay within these |
+| `--net-allow ORIGIN` | none | A destination JavaScript may fetch, and an external rewrite may forward to (repeatable): `api.example.com` (https, port 443 only), `api.example.com:8443`, `http://host:port`, or `*.example.com` (subdomains). Fetch redirects must stay within these |
 | `--net-allow-addr CIDR` | none | A non-public address or range allowed hosts may resolve to (repeatable), e.g. `127.0.0.1` for a local API. Loopback, private, link-local (cloud metadata) and other special ranges are refused otherwise |
 | `--net-timeout`, `--net-body-timeout` | `30`, `30` | Time to the response head (including redirects and the request body); longest wait for the next body chunk |
 | `--net-max-response` | `32` | Response body limit per fetch in MiB, after decompression |
@@ -480,10 +491,17 @@ only when it matches what the official server returns for the same build.
 | [`tests/compat/cache-components.mjs`](tests/compat/cache-components.mjs) | `"use cache"`, `cacheLife` and `cacheTag` on the Cache Components fixture ([`fixtures/next-cache-components`](fixtures/next-cache-components)) against `next start`, sharing across isolates, and an entry across a restart |
 | [`tests/compat/actions.mjs`](tests/compat/actions.mjs) | Server Action requests against `next start`: origin (CSRF) and method checks, invalid and foreign action IDs, encrypted closures (valid and tampered), body limits, malformed and hostile payloads, concurrent mutations and request identity, disconnects, cache invalidation; plus NextRS's own limits, isolate failure (no replay) and deadlines |
 | [`tests/browser/actions.mjs`](tests/browser/actions.mjs) | The Server Action fixtures driven in Chromium (playwright-core), with and without JavaScript: what a user sees, cookies, and every action request's status and headers, against `next start` |
-| [`tests/compat/proxy.mjs`](tests/compat/proxy.mjs) | `proxy.ts` on [`fixtures/next-proxy`](fixtures/next-proxy) against `next start`: continue, redirects, rewrites, header and cookie changes, matchers with `has`/`missing`, direct responses, errors, bodies, prerendered and ISR pages behind a synthetic login, Server Actions through the proxy (executed once, or never when redirected), concurrent isolation, internal-header and path-normalization bypass attempts; plus NextRS's timeout, stall and abort handling |
-| [`tests/compat/routing-config.mjs`](tests/compat/routing-config.mjs) | `next.config` headers, redirects and rewrites on the same fixture, in its default, `basePath` and `trailingSlash` builds |
+| [`tests/compat/proxy.mjs`](tests/compat/proxy.mjs) | `proxy.ts` on [`fixtures/next-proxy`](fixtures/next-proxy) against `next start`: continue, redirects, rewrites, header and cookie changes, matchers with `has`/`missing`, direct responses, errors, bodies, prerendered and ISR pages behind a synthetic login, Server Actions through the proxy (executed once, or never when redirected, checked against an upstream ledger), concurrent isolation, internal-header and path-normalization bypass attempts; plus NextRS's timeout, stall and abort handling |
+| [`tests/compat/routing-config.mjs`](tests/compat/routing-config.mjs) | `next.config` headers, redirects and rewrites on the same fixture, in its default, `basePath`, `trailingSlash` and combined builds |
+| [`tests/compat/config-flags.mjs`](tests/compat/config-flags.mjs) | `assetPrefix` and `experimental.caseSensitiveRoutes` builds of the same fixture |
+| [`tests/compat/auth-proxy.mjs`](tests/compat/auth-proxy.mjs) | A `jose` session proxy ([`fixtures/next-auth-proxy`](fixtures/next-auth-proxy)): valid, expired, re-signed, tampered and malformed sessions, protected static, ISR, dynamic, route-handler and Server Action routes, bypass attempts, login and logout, concurrent identities |
+| [`tests/compat/intl-proxy.mjs`](tests/compat/intl-proxy.mjs) | `next-intl`'s middleware ([`fixtures/next-intl-proxy`](fixtures/next-intl-proxy)): locale detection, redirects, prefixed static and dynamic routes, RSC, locale-aware Server Actions |
+| [`tests/compat/platform-proxy.mjs`](tests/compat/platform-proxy.mjs) | A proxy without a matcher that fetches before deciding, external rewrites (config and proxy), `waitUntil`, `instrumentation.ts`, Draft Mode, `dynamicParams = false` and ISR fallback ([`fixtures/next-platform-proxy`](fixtures/next-platform-proxy)) |
+| [`tests/compat/proxy-shutdown.mjs`](tests/compat/proxy-shutdown.mjs) | NextRS only: graceful shutdown with proxy work in flight (fetches, external rewrites, `waitUntil`, a stalled proxy, Server Actions never run twice) |
 | [`tests/browser/proxy.mjs`](tests/browser/proxy.mjs) | Client-side navigation through the proxy and config rules in Chromium, against `next start` |
-| [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixtures (optionally against another Next.js version, in a temporary copy) and runs all of the above against `next start` (the browser suites with `--browser`, the proxy suites with `--proxy`) |
+| [`tests/browser/realworld.mjs`](tests/browser/realworld.mjs) | The `jose` and `next-intl` applications in Chromium: login and logout, redirects back, a protected mutation, browser-language detection, locale switching |
+| [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixtures (optionally against another Next.js version, in a temporary copy) and runs the suites above against `next start` (the browser suites with `--browser`, the proxy suites with `--proxy`, the extra `next.config` builds with `--proxy-combinations`) |
+| [`scripts/realworld-suite.sh`](scripts/realworld-suite.sh) | Builds the real-world proxy fixtures and runs their suites (with `--browser`, the browser ones) |
 
 Recorded runs are kept next to the scripts as JSON (`tests/compat/*.json`).
 
@@ -584,7 +602,8 @@ claims.
 | **Phase 1D: Server Actions** | Server Actions and Server Functions through Next's compiled handlers: routing, `FormData` and multipart, AES-GCM for encrypted closures, Next's requests to its own server, mutation failure semantics, browser tests | 🧪 Implemented (conditional: see What's Not Ready Yet) |
 | **Phase 1E: regeneration** | ISR through Next's handler with regenerated pages in the shared cache, single-flight regeneration across isolates, tag revalidation semantics, Server Actions on ISR pages, Cache Components (`"use cache"`), a trusted reverse proxy mode | 🧪 Implemented (see What's Not Ready Yet) |
 | **Phase 2A: proxy and routing** | Next's compiled `proxy.ts` in the isolate pool, `next start`'s routing order, `next.config` headers, redirects and rewrites, `basePath`, `trailingSlash`, proxy security regression tests | 🧪 Experimental (see What's Not Ready Yet) |
-| **Later: advanced Next.js features** | Image optimization, draft mode, ISR fallback shells, the Pages Router | 🗓️ Planned |
+| **Phase 2B: real-world proxies** | `jose` and `next-intl` proxies unchanged, a proxy that fetches, external rewrites under the network policy, `waitUntil`, `instrumentation.ts`, Draft Mode, `dynamicParams = false`, configuration combinations, graceful shutdown and soaks with proxy traffic | 🧪 Experimental (see What's Not Ready Yet) |
+| **Later: advanced Next.js features** | Image optimization, Next's `i18n` config, the Pages Router, asymmetric Web Crypto | 🗓️ Planned |
 | **Later: performance and production readiness** | Performance work, measured only once correctness is established; operational hardening | 🗓️ Planned |
 
 No release dates are planned. Scope changes as the experiments produce
