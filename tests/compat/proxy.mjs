@@ -132,7 +132,7 @@ get("rewrite-dynamic-rsc", p("/proxy/rewrite-dynamic/abc"), { rsc: "1" });
 get("rewrite-invalid-url", p("/proxy/rewrite-invalid"));
 knownDiff(
   "rewrite-external",
-  "external rewrites are gated: NextRS answers 501 external-rewrite, next start proxies (here to a closed port: 500)",
+  "the destination (a closed port) is outside this run's --net-allow: NextRS answers 502 external-rewrite-denied and sends nothing, next start proxies (connection refused: 500). Allowed destinations are compared in tests/compat/platform-proxy.mjs",
   { path: p("/proxy/rewrite-external") },
 );
 

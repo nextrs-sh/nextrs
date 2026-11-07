@@ -404,7 +404,7 @@ fn detect_features(
             Severity::Warning,
             "external-rewrites",
             format!(
-                "{} rewrites to other origins answer 501 (external rewrites are not proxied): {}",
+                "{} rewrites to other origins are forwarded only to destinations the network policy allows (--net-allow; otherwise 502): {}",
                 external.len(),
                 external.join(", ")
             ),

@@ -691,6 +691,12 @@ impl Executor {
 
     /// Whether the data cache is shared by the isolates (and revalidations
     /// are visible to the server).
+    /// Forwarding for external rewrites under the network policy; `None`
+    /// without one (`--net-allow` not given).
+    pub fn upstream(&self) -> Option<crate::net::Upstream> {
+        self.inner.net.clone().map(crate::net::Upstream::new)
+    }
+
     pub fn has_shared_cache(&self) -> bool {
         self.inner.cache.is_some()
     }

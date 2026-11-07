@@ -7,6 +7,7 @@
 
 mod dynamic;
 mod etag;
+mod external;
 mod resolve;
 #[doc(hidden)]
 pub mod routing;
@@ -195,11 +196,63 @@ pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, St
         listen: Listen::from(options.listen),
         ..state
     });
+    warn_external_rewrites(info, options);
     if let Some(executor) = &options.executor {
         // Weak: the executor must not keep the app (and itself) alive.
         executor.set_internal_dispatch(Arc::new(SelfDispatch(Arc::downgrade(&state))));
     }
     Ok(Router::new().fallback(handle).with_state(state))
+}
+
+/// Config rewrites to a fixed other origin that the network policy refuses
+/// would answer 502 on every request: say so at startup. (Destinations
+/// with parameters in the host are checked per request only.)
+fn warn_external_rewrites(info: &BuildInfo, options: &ServerOptions) {
+    let upstream = options.executor.as_ref().and_then(|e| e.upstream());
+    for rule in info
+        .routing
+        .before_files
+        .iter()
+        .chain(&info.routing.after_files)
+        .chain(&info.routing.fallback)
+    {
+        let Some(destination) = rule.destination.as_deref() else {
+            continue;
+        };
+        if destination.starts_with('/') {
+            continue;
+        }
+        let origin = destination
+            .split_once("://")
+            .map(|(scheme, rest)| (scheme, rest.split('/').next().unwrap_or(rest)));
+        let Some((scheme, authority)) = origin else {
+            continue;
+        };
+        if authority.contains(':')
+            && authority
+                .rsplit(':')
+                .next()
+                .is_some_and(|p| p.parse::<u16>().is_err())
+        {
+            continue;
+        }
+        let verdict = match (
+            &upstream,
+            url::Url::parse(&format!("{scheme}://{authority}/")),
+        ) {
+            (None, _) => Some("no network policy (--net-allow) is configured".to_owned()),
+            (Some(upstream), Ok(url)) => upstream.check(&url).err().map(|d| d.to_string()),
+            (Some(_), Err(_)) => None,
+        };
+        if let Some(reason) = verdict {
+            tracing::warn!(
+                source = %rule.source,
+                destination,
+                %reason,
+                "external rewrite will answer 502: its destination is not allowed"
+            );
+        }
+    }
 }
 
 /// Serves Next.js's requests to its own server (Server Action redirects
@@ -800,7 +853,7 @@ fn serde_json_string(value: &str) -> String {
 }
 
 /// next start's 500 for an exception in the proxy (or in routing).
-fn proxy_failed() -> Response {
+pub(crate) fn proxy_failed() -> Response {
     let mut response = (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error").into_response();
     let headers = response.headers_mut();
     headers.insert(header::CONTENT_TYPE, HeaderValue::from_static("text/plain"));
@@ -855,11 +908,47 @@ async fn serve_resolved(
         }
         Outcome::ProxyFailed => return proxy_failed(),
         Outcome::External(url) => {
-            let mut response = unsupported(
-                "external-rewrite",
-                &format!("rewrites to other origins ({url}) are not proxied by NextRS"),
-            );
-            response.extensions_mut().insert(NoRoutingHeaders);
+            // Config rewrites to another origin carry no routing headers
+            // (resolve-routes returns `resHeaders: null`); a proxy rewrite
+            // keeps the proxy's (router-server sets them before proxying,
+            // and the upstream's own headers replace them).
+            let upstream = state.executor.as_ref().and_then(|e| e.upstream());
+            let mut response = external::forward(
+                upstream,
+                external::Forward {
+                    url: &url,
+                    method,
+                    headers,
+                    client_host: original_headers.get(header::HOST),
+                    body,
+                    max_body: state.max_request_body,
+                },
+            )
+            .await;
+            if resolved.from_proxy {
+                // router-server sets the proxy's cookies before proxying and
+                // the upstream's are added to them, not put in their place.
+                if let Some(cookies) = resolved.res_headers.get("set-cookie") {
+                    let upstream: Vec<HeaderValue> = response
+                        .headers()
+                        .get_all(header::SET_COOKIE)
+                        .iter()
+                        .cloned()
+                        .collect();
+                    let out = response.headers_mut();
+                    out.remove(header::SET_COOKIE);
+                    for cookie in cookies.values() {
+                        if let Ok(value) = HeaderValue::from_bytes(&resolve::latin1_bytes(cookie)) {
+                            out.append(header::SET_COOKIE, value);
+                        }
+                    }
+                    for value in upstream {
+                        out.append(header::SET_COOKIE, value);
+                    }
+                }
+            } else {
+                response.extensions_mut().insert(NoRoutingHeaders);
+            }
             return response;
         }
         Outcome::Respond(response) => return response,

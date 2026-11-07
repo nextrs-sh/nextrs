@@ -42,8 +42,13 @@ pub use crate::cache::CacheConfig;
 pub use crate::internal::{
     InternalBody, InternalDispatch, InternalRequest, InternalResponse, MAX_INTERNAL_REQUESTS,
 };
-pub use crate::metrics::{CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MetricsSnapshot};
-pub use crate::net::{AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy};
+pub use crate::metrics::{
+    CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MetricsSnapshot, UpstreamSnapshot,
+};
+pub use crate::net::{
+    AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy, Upstream,
+    UpstreamBody, UpstreamBodyStream, UpstreamError, UpstreamRequest, UpstreamResponse,
+};
 pub use crate::pool::{Executor, FailureReason};
 pub use crate::response::{ResponseEvent, ResponseStream};
 pub use crate::sandbox::{FsDenied, FsPolicy};

@@ -649,6 +649,10 @@ pub(crate) struct FetchTask {
 
 struct Shared {
     client: reqwest::Client,
+    /// The same policy and resolver without response decoding or an
+    /// `Accept-Encoding` of its own: external rewrites pass the upstream's
+    /// bytes through as next start's proxy does.
+    raw_client: reqwest::Client,
     policy: Arc<NetworkPolicy>,
     limits: NetworkLimits,
     counters: Arc<Counters>,
@@ -696,26 +700,35 @@ impl NetClient {
             .with_no_client_auth();
         tls.alpn_protocols = vec![b"http/1.1".to_vec()];
         let policy = Arc::new(config.policy.clone());
-        let client = reqwest::Client::builder()
-            .tls_backend_preconfigured(tls)
-            .no_proxy()
-            .redirect(reqwest::redirect::Policy::none())
-            .retry(reqwest::retry::never())
-            .http1_only()
-            .referer(false)
-            .connect_timeout(config.limits.connect_timeout)
-            .pool_max_idle_per_host(32)
-            .pool_idle_timeout(Duration::from_secs(60))
-            .dns_resolver(Arc::new(PolicyResolver {
-                policy: policy.clone(),
-                lookup,
-            }))
+        let resolver = Arc::new(PolicyResolver {
+            policy: policy.clone(),
+            lookup,
+        });
+        let builder = |tls: rustls::ClientConfig| {
+            reqwest::Client::builder()
+                .tls_backend_preconfigured(tls)
+                .no_proxy()
+                .redirect(reqwest::redirect::Policy::none())
+                .retry(reqwest::retry::never())
+                .http1_only()
+                .referer(false)
+                .connect_timeout(config.limits.connect_timeout)
+                .pool_max_idle_per_host(32)
+                .pool_idle_timeout(Duration::from_secs(60))
+                .dns_resolver(resolver.clone())
+        };
+        let client = builder(tls.clone()).build().map_err(|e| e.to_string())?;
+        let raw_client = builder(tls)
+            .no_gzip()
+            .no_brotli()
+            .no_deflate()
             .build()
             .map_err(|e| e.to_string())?;
         Ok(Self {
             runtime: Some(runtime),
             shared: Arc::new(Shared {
                 client,
+                raw_client,
                 policy,
                 limits: config.limits.clone(),
                 counters,
@@ -953,6 +966,223 @@ impl Shared {
     }
 }
 
+// ---------------------------------------------------------------------------
+// External rewrites
+// ---------------------------------------------------------------------------
+
+/// A request NextRS forwards to another origin for an external rewrite
+/// (`next.config` rewrites or `NextResponse.rewrite()` to an absolute URL).
+pub struct UpstreamRequest {
+    pub method: reqwest::Method,
+    pub url: Url,
+    /// Sent as given; the caller has removed hop-by-hop and internal
+    /// headers. `Host` comes from the URL.
+    pub headers: HeaderMap,
+    pub body: UpstreamBody,
+}
+
+pub enum UpstreamBody {
+    Empty,
+    Bytes(Bytes),
+    /// The client's body, chunk by chunk (sent with the client's
+    /// `Content-Length` when the headers carry one, else chunked). An error
+    /// item aborts the upstream request instead of ending its body.
+    Stream(mpsc::Receiver<Result<Bytes, std::io::Error>>),
+}
+
+/// The upstream's response head and a body that ends the upstream request
+/// when dropped (a client that disconnects aborts it).
+pub struct UpstreamResponse {
+    pub status: u16,
+    pub headers: HeaderMap,
+    pub body: UpstreamBodyStream,
+}
+
+/// Why an external rewrite could not be forwarded.
+#[derive(Debug, Clone)]
+pub struct UpstreamError(FetchError);
+
+impl UpstreamError {
+    /// The network policy refused the destination (scheme, host, port, or
+    /// the address it resolved to).
+    pub fn is_denied(&self) -> bool {
+        matches!(self.0, FetchError::Denied(_))
+    }
+
+    /// Node/undici-style code, as for `fetch`.
+    pub fn code(&self) -> &'static str {
+        self.0.code()
+    }
+}
+
+impl fmt::Display for UpstreamError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl std::error::Error for UpstreamError {}
+
+/// Response body chunks of a forwarded request.
+pub struct UpstreamBodyStream {
+    rx: mpsc::Receiver<Result<Bytes, UpstreamError>>,
+    task: tokio::task::AbortHandle,
+}
+
+impl Drop for UpstreamBodyStream {
+    fn drop(&mut self) {
+        self.task.abort();
+    }
+}
+
+impl futures_util::Stream for UpstreamBodyStream {
+    type Item = Result<Bytes, UpstreamError>;
+
+    fn poll_next(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Option<Self::Item>> {
+        self.rx.poll_recv(cx)
+    }
+}
+
+/// Aborts the upstream task unless disarmed (the head was delivered and the
+/// body stream owns the task from then on).
+struct AbortOnDrop(Option<tokio::task::AbortHandle>);
+
+impl Drop for AbortOnDrop {
+    fn drop(&mut self) {
+        if let Some(task) = self.0.take() {
+            task.abort();
+        }
+    }
+}
+
+/// Forwards external rewrites under the process's network policy: the same
+/// allowlist, address classes and resolver as `fetch` (the resolver checks
+/// every address a connection uses), on the same network runtime. Redirects
+/// are never followed: the upstream's 3xx goes back to the client, as next
+/// start's proxy returns it.
+#[derive(Clone)]
+pub struct Upstream {
+    net: Arc<NetClient>,
+}
+
+impl Upstream {
+    pub(crate) fn new(net: Arc<NetClient>) -> Self {
+        Self { net }
+    }
+
+    /// The policy's verdict on a destination before any connection
+    /// (scheme, credentials, allowlist, IP literals).
+    pub fn check(&self, url: &Url) -> Result<(), Denied> {
+        self.net.shared.policy.check_url(url)
+    }
+
+    /// Sends the request and waits for the response head (bounded by
+    /// `--net-timeout`); body chunks then wait at most `--net-body-timeout`
+    /// each. Dropping the future or the body aborts the upstream request.
+    pub async fn send(&self, request: UpstreamRequest) -> Result<UpstreamResponse, UpstreamError> {
+        let shared = self.net.shared.clone();
+        metrics::add(&shared.counters.upstream_requests, 1);
+        if let Err(denied) = shared.policy.check_url(&request.url) {
+            let error = FetchError::Denied(denied);
+            shared.counters.upstream_failed(error.reason());
+            return Err(UpstreamError(error));
+        }
+        let (head_tx, head_rx) = oneshot::channel();
+        let (body_tx, body_rx) = mpsc::channel(1);
+        let runtime = self.net.runtime.as_ref().expect("runtime lives until drop");
+        let task = runtime.spawn(async move { shared.forward(request, head_tx, body_tx).await });
+        let mut guard = AbortOnDrop(Some(task.abort_handle()));
+        match head_rx.await {
+            Ok(Ok((status, headers))) => {
+                let task = guard.0.take().expect("armed");
+                Ok(UpstreamResponse {
+                    status,
+                    headers,
+                    body: UpstreamBodyStream { rx: body_rx, task },
+                })
+            }
+            Ok(Err(error)) => Err(UpstreamError(error)),
+            Err(_) => Err(UpstreamError(FetchError::Network(
+                "the network runtime stopped".to_owned(),
+            ))),
+        }
+    }
+}
+
+impl Shared {
+    async fn forward(
+        self: Arc<Self>,
+        request: UpstreamRequest,
+        head_tx: oneshot::Sender<Result<(u16, HeaderMap), FetchError>>,
+        body_tx: mpsc::Sender<Result<Bytes, UpstreamError>>,
+    ) {
+        struct InFlight<'a>(&'a Counters);
+        impl Drop for InFlight<'_> {
+            fn drop(&mut self) {
+                self.0
+                    .upstream_in_flight
+                    .fetch_sub(1, std::sync::atomic::Ordering::Relaxed);
+            }
+        }
+        metrics::add(&self.counters.upstream_in_flight, 1);
+        let _in_flight = InFlight(&self.counters);
+        let UpstreamRequest {
+            method,
+            url,
+            headers,
+            body,
+        } = request;
+        let mut builder = self.raw_client.request(method, url).headers(headers);
+        match body {
+            UpstreamBody::Empty => {}
+            UpstreamBody::Bytes(bytes) => builder = builder.body(bytes),
+            UpstreamBody::Stream(chunks) => {
+                let stream = futures_util::stream::unfold(chunks, |mut chunks| async move {
+                    chunks.recv().await.map(|item| (item, chunks))
+                });
+                builder = builder.body(reqwest::Body::wrap_stream(stream));
+            }
+        }
+        let sent = match tokio::time::timeout(self.limits.headers_timeout, builder.send()).await {
+            Err(_) => Err(FetchError::HeadersTimeout),
+            Ok(result) => result.map_err(FetchError::from_reqwest),
+        };
+        let mut response = match sent {
+            Ok(response) => response,
+            Err(error) => {
+                self.counters.upstream_failed(error.reason());
+                let _ = head_tx.send(Err(error));
+                return;
+            }
+        };
+        let head = (response.status().as_u16(), response.headers().clone());
+        if head_tx.send(Ok(head)).is_err() {
+            return;
+        }
+        loop {
+            let item =
+                match tokio::time::timeout(self.limits.body_idle_timeout, response.chunk()).await {
+                    Err(_) => Err(FetchError::BodyTimeout),
+                    Ok(Err(error)) => Err(FetchError::from_reqwest(error)),
+                    Ok(Ok(None)) => return,
+                    Ok(Ok(Some(chunk))) => Ok(chunk),
+                };
+            let failed = item.is_err();
+            if let Err(error) = &item {
+                self.counters.upstream_failed(error.reason());
+            }
+            // Waits while the client is not reading: backpressure reaches
+            // the upstream socket, and nothing is buffered beyond one chunk.
+            if body_tx.send(item.map_err(UpstreamError)).await.is_err() || failed {
+                return;
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1176,6 +1406,117 @@ mod tests {
             limits: NetworkLimits::default(),
         };
         NetClient::with_lookup(&config, Arc::new(Counters::default()), lookup).unwrap()
+    }
+
+    async fn forward_once(upstream: &Upstream, url: &str) -> Result<u16, UpstreamError> {
+        let response = upstream
+            .send(UpstreamRequest {
+                method: reqwest::Method::GET,
+                url: url.parse().unwrap(),
+                headers: HeaderMap::new(),
+                body: UpstreamBody::Empty,
+            })
+            .await?;
+        let status = response.status;
+        use futures_util::StreamExt;
+        let mut body = response.body;
+        while body.next().await.is_some() {}
+        Ok(status)
+    }
+
+    /// External rewrites go through the same resolver as fetch: a second
+    /// answer that points at the metadata address is refused, and never
+    /// becomes a connection.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn external_rewrites_use_the_policy_resolver() {
+        let (port, accepted) = closing_server().await;
+        let upstream = Upstream::new(Arc::new(client(
+            port,
+            scripted(vec![vec!["127.0.0.1"], vec!["169.254.169.254"]]),
+        )));
+        let url = format!("http://rebind.test:{port}/x");
+        assert_eq!(forward_once(&upstream, &url).await.unwrap(), 200);
+        let error = forward_once(&upstream, &url).await.unwrap_err();
+        assert!(error.is_denied(), "{error:?}");
+        assert_eq!(accepted.load(std::sync::atomic::Ordering::SeqCst), 1);
+    }
+
+    /// The URL check runs before any lookup: other origins, credentials,
+    /// other schemes and disguised literals are refused without a
+    /// connection.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn external_rewrites_refuse_unlisted_destinations_before_connecting() {
+        let (port, accepted) = closing_server().await;
+        let upstream = Upstream::new(Arc::new(client(port, scripted(vec![vec!["127.0.0.1"]]))));
+        for url in [
+            format!("http://other.test:{port}/"),
+            format!("http://rebind.test:{}/", port + 1),
+            format!("https://rebind.test:{port}/"),
+            format!("http://user:pw@rebind.test:{port}/"),
+            "http://169.254.169.254/latest/meta-data/".to_owned(),
+            "http://2130706433/".to_owned(),
+            "http://[::ffff:127.0.0.1]/".to_owned(),
+            "file:///etc/passwd".to_owned(),
+        ] {
+            let error = forward_once(&upstream, &url).await.unwrap_err();
+            assert!(error.is_denied(), "{url}: {error:?}");
+        }
+        assert_eq!(accepted.load(std::sync::atomic::Ordering::SeqCst), 0);
+    }
+
+    /// A response the client stops reading is not read ahead: dropping the
+    /// body aborts the upstream request.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn dropping_a_forwarded_body_aborts_the_upstream() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let port = listener.local_addr().unwrap().port();
+        let (closed_tx, closed_rx) = oneshot::channel();
+        tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut buf = [0u8; 4096];
+            let _ = socket.read(&mut buf).await;
+            let _ = socket
+                .write_all(b"HTTP/1.1 200 OK\r\ntransfer-encoding: chunked\r\n\r\n")
+                .await;
+            let chunk = [b'x'; 16 * 1024];
+            let mut written = 0usize;
+            loop {
+                let head = format!("{:x}\r\n", chunk.len());
+                let wrote = socket.write_all(head.as_bytes()).await.is_ok()
+                    && socket.write_all(&chunk).await.is_ok()
+                    && socket.write_all(b"\r\n").await.is_ok();
+                if !wrote {
+                    break;
+                }
+                written += chunk.len();
+                if written > 512 * 1024 * 1024 {
+                    break;
+                }
+            }
+            let _ = closed_tx.send(written);
+        });
+        let upstream = Upstream::new(Arc::new(client(port, scripted(vec![vec!["127.0.0.1"]]))));
+        let response = upstream
+            .send(UpstreamRequest {
+                method: reqwest::Method::GET,
+                url: format!("http://rebind.test:{port}/").parse().unwrap(),
+                headers: HeaderMap::new(),
+                body: UpstreamBody::Empty,
+            })
+            .await
+            .unwrap();
+        use futures_util::StreamExt;
+        let mut body = response.body;
+        let _ = body.next().await;
+        tokio::time::sleep(Duration::from_millis(200)).await;
+        drop(body);
+        let written = tokio::time::timeout(Duration::from_secs(10), closed_rx)
+            .await
+            .expect("the upstream connection was closed")
+            .unwrap();
+        // Socket buffers only: nowhere near the 512 MiB the server offers.
+        assert!(written < 64 * 1024 * 1024, "{written} bytes written");
     }
 
     #[tokio::test(flavor = "multi_thread")]
