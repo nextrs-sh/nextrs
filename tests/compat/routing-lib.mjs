@@ -224,9 +224,15 @@ export function corrupt(defect, observation, seen = new Set()) {
   if (defect === "allow" && [401, 403, 307].includes(observation.status)) observation.status = 200;
   if (defect === "set-cookie" && Array.isArray(observation.setCookie)) observation.setCookie = [];
   if (defect === "location" && observation.headers?.location) observation.headers.location = "/elsewhere";
-  if (Array.isArray(observation.ledger)) {
-    if (defect === "ledger-twice") observation.ledger = observation.ledger.length ? [...observation.ledger, ...observation.ledger] : ["unexpected"];
-    if (defect === "ledger-lost") observation.ledger = [];
+  for (const field of ["ledger", "recorded", "after"]) {
+    const value = observation[field];
+    if (Array.isArray(value)) {
+      if (defect === "ledger-twice") observation[field] = value.length ? [...value, ...value] : ["unexpected"];
+      if (defect === "ledger-lost") observation[field] = [];
+    } else if (field === "recorded" && typeof value === "number") {
+      if (defect === "ledger-twice") observation[field] = value ? value * 2 : 1;
+      if (defect === "ledger-lost") observation[field] = 0;
+    }
   }
   for (const [key, value] of Object.entries(observation)) {
     if (defect === "identity" && typeof value === "string" && /u-(alice|bob)/.test(value)) {

@@ -4,7 +4,7 @@
 # Next.js version and compares each with `next start`:
 #
 #   scripts/realworld-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
-#                              [--only auth,intl,platform]
+#                              [--only auth,intl,platform,...] [--negative-controls]
 #
 #   auth      fixtures/next-auth-proxy      jose session cookies (tests/compat/auth-proxy.mjs)
 #   intl      fixtures/next-intl-proxy      next-intl locale routing (tests/compat/intl-proxy.mjs), and
@@ -19,6 +19,14 @@
 #   otel      fixtures/next-otel            OpenTelemetry with @vercel/otel, exporting to a local collector
 #                                           (tests/compat/otel.mjs)
 #
+# --negative-controls reruns the auth, platform, jwks and authjs suites with
+# deliberate defects and expects each run to fail: observation-level ones
+# (NEXTRS_NEGATIVE_CONTROL, applied to both servers' observations: only the
+# scenarios' own expectations can catch them) and HTTP-level ones
+# (tests/compat/negative-proxy.mjs in front of NextRS). A control the suite
+# does not catch is reported as MISSED in controls.txt (not a failure of
+# the run).
+#
 # Without --next each fixture's lockfile is used (npm ci, in place). With
 # --next the fixture is copied to a temporary directory and that version is
 # installed there. Needs target/release/nextrs, Node.js and npm; --browser
@@ -32,6 +40,7 @@ next_version=""
 isolates=1
 out=""
 browser=0
+negative=0
 only="auth,intl,platform,jwks,authjs,otel"
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -40,6 +49,7 @@ while [[ $# -gt 0 ]]; do
     --out) out="$2"; shift 2 ;;
     --browser) browser=1; shift ;;
     --only) only="$2"; shift 2 ;;
+    --negative-controls) negative=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -193,11 +203,39 @@ run() {
 cd "$root"
 wants() { [[ ",$only," == *",$1,"* ]]; }
 
+# controls NAME SUITE-FUNCTION: SUITE-FUNCTION CANDIDATE-URL runs the suite.
+control_port=$((base_port + 7))
+controls() {
+  local name="$1" suite="$2"
+  [[ $negative == 1 ]] || return 0
+  for control in identity:both allow:both set-cookie:both location:both ledger-twice:both ledger-lost:both; do
+    if NEXTRS_NEGATIVE_CONTROL="$control" "$suite" "$candidate" > "$out/control-$name-${control%%:*}.txt" 2>&1; then
+      echo "MISSED control $control ($name)" | tee -a "$out/controls.txt"
+    else
+      echo "CAUGHT control $control ($name): $(tail -1 "$out/control-$name-${control%%:*}.txt")" | tee -a "$out/controls.txt"
+    fi
+  done
+  for mode in replay-post drop-action strip-credentials swap-identity strip-set-cookie wrong-location; do
+    node "$root/tests/compat/negative-proxy.mjs" --listen "$control_port" --target "$candidate" --mode "$mode" > "$out/negative-proxy-$name-$mode.log" 2>&1 &
+    local proxy=$!
+    for _ in $(seq 1 40); do port_in_use "$control_port" && break; sleep 0.1; done
+    if "$suite" "http://127.0.0.1:$control_port" > "$out/control-$name-$mode.txt" 2>&1; then
+      echo "MISSED control $mode ($name)" | tee -a "$out/controls.txt"
+    else
+      echo "CAUGHT control $mode ($name): $(tail -1 "$out/control-$name-$mode.txt")" | tee -a "$out/controls.txt"
+    fi
+    kill -TERM "$proxy" 2>/dev/null || true
+    wait "$proxy" 2>/dev/null || true
+  done
+}
+
 if wants auth; then
   prepare next-auth-proxy
   start next-auth-proxy
   run auth-proxy tests/compat/auth-proxy.mjs --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
     --dist "$project/.next" --json "$out/auth-proxy.json"
+  suite_auth() { node tests/compat/auth-proxy.mjs --baseline "$baseline" --candidate "$1" --upstream "$NEXTRS_UPSTREAM" --dist "$project/.next"; }
+  controls auth suite_auth
   if [[ $browser == 1 ]]; then
     run browser-auth tests/browser/realworld.mjs --app auth --baseline "$baseline" --candidate "$candidate" \
       --upstream "$NEXTRS_UPSTREAM" --json "$out/browser-auth.json"
@@ -236,6 +274,8 @@ if wants platform && [[ -d "$root/fixtures/next-platform-proxy" ]]; then
   start next-platform-proxy
   run platform-proxy tests/compat/platform-proxy.mjs --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
     --dist "$project/.next" --isolates "$isolates" --json "$out/platform-proxy.json"
+  suite_platform() { node tests/compat/platform-proxy.mjs --baseline "$baseline" --candidate "$1" --upstream "$NEXTRS_UPSTREAM" --dist "$project/.next" --isolates "$isolates"; }
+  controls platform suite_platform
   stop
 fi
 
@@ -244,6 +284,8 @@ if wants jwks && [[ -d "$root/fixtures/next-jwks-proxy" ]]; then
   start next-jwks-proxy
   run jwks-proxy tests/compat/jwks-proxy.mjs --baseline "$baseline" --candidate "$candidate" --oidc "$OIDC_ISSUER" \
     --upstream "$NEXTRS_UPSTREAM" --dist "$project/.next" --isolates "$isolates" --json "$out/jwks-proxy.json"
+  suite_jwks() { node tests/compat/jwks-proxy.mjs --baseline "$baseline" --candidate "$1" --oidc "$OIDC_ISSUER" --upstream "$NEXTRS_UPSTREAM" --dist "$project/.next" --isolates "$isolates"; }
+  controls jwks suite_jwks
   stop
 fi
 
@@ -252,6 +294,8 @@ if wants authjs && [[ -d "$root/fixtures/next-authjs" ]]; then
   start next-authjs
   run authjs tests/compat/authjs.mjs --baseline "$baseline" --candidate "$candidate" --oidc "$OIDC_ISSUER" \
     --upstream "$NEXTRS_UPSTREAM" --project "$project" --isolates "$isolates" --json "$out/authjs.json"
+  suite_authjs() { node tests/compat/authjs.mjs --baseline "$baseline" --candidate "$1" --oidc "$OIDC_ISSUER" --upstream "$NEXTRS_UPSTREAM" --project "$project" --isolates "$isolates"; }
+  controls authjs suite_authjs
   stop
 fi
 

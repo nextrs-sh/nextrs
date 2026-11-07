@@ -446,6 +446,51 @@ scenarios["isr-fallback-generated-then-cached"] = {
   },
 };
 
+// --- What each critical scenario must observe, on both servers (Phase 2C audit) ---
+const loc = (o) => o.headers?.location ?? "";
+const status = (code) => (o) => (o.status === code ? null : `status ${o.status}, expected ${code}`);
+const jsonIs = (code, fields) => (o) => {
+  if (o.status !== code) return `status ${o.status}, expected ${code}`;
+  const body = typeof o.body === "string" ? JSON.parse(o.body) : o.body;
+  for (const [k, v] of Object.entries(fields)) if (body?.[k] !== v) return `${k} ${JSON.stringify(body?.[k])}, expected ${JSON.stringify(v)}`;
+  return null;
+};
+const forwarded = (method, url, extra = {}) => (o) => {
+  if (o.status !== 200) return `status ${o.status}`;
+  if (o.body?.method !== method) return `upstream saw ${o.body?.method}, expected ${method}`;
+  if (url !== undefined && o.body?.url !== url) return `upstream saw ${o.body?.url}, expected ${url}`;
+  if (extra.body !== undefined && o.body?.body !== extra.body) return `upstream body ${JSON.stringify(o.body?.body)}`;
+  for (const [h, v] of Object.entries(extra.headers ?? {})) if (o.body?.headers?.[h] !== v) return `upstream ${h} ${o.body?.headers?.[h]}, expected ${v}`;
+  return null;
+};
+const EXPECT = {
+  "fetch-redirect": (o) => (o.status === 307 && /\/denied\?from=closed&status=403$/.test(loc(o)) ? null : `status ${o.status} ${loc(o)}`),
+  "fetch-direct-response": (o) => jsonIs(202, {})(o) ?? (o.headers["x-direct"] === "1" ? null : "no x-direct"),
+  "fetch-status-401-redirect": (o) => (o.status === 307 && /\/denied\?from=401$/.test(loc(o)) ? null : `status ${o.status} ${loc(o)}`),
+  "fetch-status-500-direct": jsonIs(502, { upstreamStatus: 500 }),
+  "fetch-timeout": jsonIs(504, { timedOut: true }),
+  "fetch-abort": jsonIs(503, { aborted: true }),
+  "fetch-refused": jsonIs(503, { reached: false }),
+  "fetch-concurrent-identities": (o) => (o.wrong === 0 && o.failed === 0 ? null : JSON.stringify(o)),
+  "wait-until-runs-after-response": (o) => (o.answeredBeforeWork && o.after.length === 1 ? null : `answered before the work: ${o.answeredBeforeWork}; ledger ${JSON.stringify(o.after)}`),
+  "ext-get": forwarded("GET", "/echo/a/b?x=1&y=%20z&x=2"),
+  "ext-post-json": forwarded("POST", "/echo/post", { body: JSON.stringify({ a: 1, b: "two" }) }),
+  "ext-put-text": forwarded("PUT", "/echo/put", { body: "plain text body" }),
+  "ext-delete": forwarded("DELETE", "/echo/delete"),
+  "ext-cookies-and-auth": forwarded("GET", "/echo/creds", { headers: { cookie: "session=abc; theme=dark", authorization: "Bearer test-token" } }),
+  "ext-redirect-not-followed": (o) => (o.status === 302 && loc(o) === "/echo/after-redirect" ? null : `status ${o.status} ${loc(o)}: the redirect must reach the client, not be followed`),
+  "ext-status-418": status(418),
+  "ext-internal-headers": (o) => {
+    const leaked = ["x-middleware-rewrite", "x-middleware-next", "x-matched-path", "x-nextjs-data", "next-resume"].filter((h) => o.body?.headers?.[h] !== undefined);
+    return o.status === 200 && leaked.length === 0 ? null : `status ${o.status}; forwarded ${leaked}`;
+  },
+  "ext-concurrent": (o) => (o.wrong === 0 ? null : JSON.stringify(o)),
+};
+for (const [name, expect] of Object.entries(EXPECT)) {
+  if (!scenarios[name]) throw new Error(`no scenario ${name}`);
+  scenarios[name].expect ??= expect;
+}
+
 const failures = await runScenarios(`platform-proxy (${isolates} isolate${isolates === 1 ? "" : "s"})`, scenarios, {
   baseline,
   candidate,
