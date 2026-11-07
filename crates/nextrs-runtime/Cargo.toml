@@ -53,6 +53,8 @@ base64ct = { version = "1", features = ["alloc"] }
 aes = "0.8"
 cbc = { version = "0.1", features = ["alloc", "block-padding"] }
 hkdf = "0.12"
+# glibc's mallinfo2 for the memory gauge (metrics.rs).
+libc = "0.2"
 multer = "3"
 zeroize = "1"
 

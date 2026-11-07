@@ -28,6 +28,7 @@
 //! Messages never include key material, plaintext or signatures.
 
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use deno_core::{OpState, op2};
 use deno_error::JsErrorBox;
@@ -228,6 +229,21 @@ pub(crate) struct StoredKey {
     pub material: Material,
 }
 
+/// Keys alive in every isolate of the process (a soak gauge).
+static LIVE_KEYS: AtomicU64 = AtomicU64::new(0);
+
+pub(crate) fn live_keys() -> u64 {
+    LIVE_KEYS.load(Ordering::Relaxed)
+}
+
+// Counted while a key is in an isolate's store: added by `insert`, removed
+// on release and when the isolate's store goes away.
+impl Drop for CryptoKeys {
+    fn drop(&mut self) {
+        LIVE_KEYS.fetch_sub(self.keys.len() as u64, Ordering::Relaxed);
+    }
+}
+
 /// Keys an isolate holds, by handle.
 #[derive(Default)]
 pub(crate) struct CryptoKeys {
@@ -298,6 +314,7 @@ fn insert(state: &mut OpState, key: StoredKey) -> Result<KeyInfo, JsErrorBox> {
     }
     let id = keys.next_id;
     let out = info(id, &key);
+    LIVE_KEYS.fetch_add(1, Ordering::Relaxed);
     keys.keys.insert(id, key);
     Ok(out)
 }
@@ -446,7 +463,9 @@ pub(crate) fn op_nextrs_key_export_jwk(
 /// Releases a key (its `CryptoKey` was garbage collected).
 #[op2(fast)]
 pub(crate) fn op_nextrs_key_release(state: &mut OpState, #[smi] id: u32) {
-    state.borrow_mut::<CryptoKeys>().keys.remove(&id);
+    if state.borrow_mut::<CryptoKeys>().keys.remove(&id).is_some() {
+        LIVE_KEYS.fetch_sub(1, Ordering::Relaxed);
+    }
 }
 
 /// The parameters of `sign`/`verify` besides the key.
