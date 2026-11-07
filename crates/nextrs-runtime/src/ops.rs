@@ -224,6 +224,7 @@ struct JsRequest {
     initial_status: Option<u16>,
     timeout_ms: Option<u64>,
     invocation: JsInvocation,
+    init_url: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -318,6 +319,7 @@ async fn op_nextrs_next_request(state: Rc<RefCell<OpState>>) -> Option<JsRequest
         initial_status: request.initial_status,
         timeout_ms: job.timeout_ms,
         invocation: request.invocation.into(),
+        init_url: request.init_url,
     })
 }
 
@@ -722,7 +724,9 @@ fn op_nextrs_fetch_start(
 ) -> Result<u32, JsErrorBox> {
     if args.internal
         && let Ok(url) = url::Url::parse(&args.url)
-        && crate::internal::InternalRoute::handles(&url)
+        && state
+            .borrow::<crate::internal::InternalRoute>()
+            .handles(&url)
     {
         return start_internal(state, args, url, body);
     }

@@ -687,9 +687,13 @@
 
   const EMPTY = new Uint8Array(0);
 
+  // http://localhost (the origin Next's handlers assume without an
+  // initURL), or the origin of the current request's initURL.
   function isInternalUrl(href) {
     const url = new URL(href);
-    return url.protocol === "http:" && url.hostname === "localhost" && url.port === "";
+    if (url.protocol === "http:" && url.hostname === "localhost" && url.port === "") return true;
+    const own = requestScope.getStore()?.selfOrigin;
+    return own != null && url.origin === own;
   }
 
   async function fetch(input, init = undefined) {
@@ -698,7 +702,8 @@
     if (signal.aborted) throw signal.reason;
     // Next marks requests to its own server with `next: { internal: 1 }`
     // (Server Action redirects and forwarding). The host serves those for
-    // http://localhost in-process; any other URL is an ordinary fetch.
+    // http://localhost or the request's own origin in-process; any other URL
+    // is an ordinary fetch.
     const internal = Boolean(init?.next?.internal) && isInternalUrl(request.url);
     const headers = outgoingHeaders(request.headers, internal);
     let bodyKind = "none";

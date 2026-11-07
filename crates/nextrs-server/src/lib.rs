@@ -261,6 +261,17 @@ fn warn_external_rewrites(info: &BuildInfo, options: &ServerOptions) {
 struct SelfDispatch(std::sync::Weak<AppState>);
 
 impl nextrs_runtime::InternalDispatch for SelfDispatch {
+    /// The origin of the `initURL` requests get (`dynamic::render`):
+    /// `http(s)://<listen host>:<port>`.
+    fn serves(&self, url: &url::Url) -> bool {
+        let Some(state) = self.0.upgrade() else {
+            return false;
+        };
+        matches!(url.scheme(), "http" | "https")
+            && url.host_str() == Some(state.listen.host.as_str())
+            && url.port_or_known_default() == Some(state.listen.port)
+    }
+
     fn dispatch(
         &self,
         request: nextrs_runtime::InternalRequest,
@@ -963,6 +974,7 @@ async fn serve_resolved(
         body,
         client,
         max_body: state.max_request_body,
+        listen: &state.listen,
     };
 
     let Some(output) = output else {

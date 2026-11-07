@@ -798,6 +798,7 @@ async fn run_proxy(
         body: rest(),
         client,
         max_body: limit,
+        listen: &state.listen,
     };
     let response = dynamic::render(executor, &proxy.entry, &policy, incoming).await;
     let response = dynamic::frame_for(version, response);

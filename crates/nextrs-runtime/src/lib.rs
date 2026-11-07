@@ -206,6 +206,11 @@ pub struct RenderRequest {
     pub initial_status: Option<u16>,
     /// What JavaScript calls for the request.
     pub invocation: Invocation,
+    /// The absolute URL next start records as the request's `initURL`
+    /// (`<protocol>://<hostname>:<port><url>`, next-server's
+    /// attachRequestMeta). Next builds the `NextRequest` URL of a route
+    /// handler from it; without it the URL has no host or port.
+    pub init_url: Option<String>,
 }
 
 /// How a request reaches Next's compiled code.

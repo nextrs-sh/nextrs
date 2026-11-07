@@ -414,6 +414,12 @@
             throw new TypeError(`${request.entry} does not export a handler(req, res, ctx) function`);
           }
           const requestMeta = { relativeProjectDir: ".", distDir };
+          // next-server's attachRequestMeta: Next builds a route handler's
+          // NextRequest URL (host and port) from initURL.
+          if (request.initUrl) {
+            requestMeta.initURL = request.initUrl;
+            requestMeta.initProtocol = request.initUrl.startsWith("https:") ? "https" : "http";
+          }
           if (invocation.kind === "routed") Object.assign(requestMeta, routedMeta(invocation));
           await Promise.race([
             mod.handler(req, res, {
@@ -475,7 +481,9 @@
       const request = await ops.op_nextrs_next_request();
       if (request === null) return;
       // Concurrent: each request runs in its own async context.
-      const scope = { fetches: null, leases: null };
+      // selfOrigin: the origin of the request's initURL, which Next fetches
+      // itself at (forwarded Server Actions, action redirects).
+      const scope = { fetches: null, leases: null, selfOrigin: request.initUrl ? new URL(request.initUrl).origin : null };
       requestScope
         .run(scope, () => serve(request, scope))
         .catch((error) => ops.op_nextrs_diagnostic("serve-error", errorText(error)));
