@@ -221,6 +221,8 @@ knownDiff(
   "NextRS does not forward hop-by-hop request headers (RFC 9110 7.6.1: Connection and the headers it names, TE, Keep-Alive, Proxy-*); next start's httpxy forwards them",
   "/ext/hop",
   { connection: "x-drop-me", "x-drop-me": "1", te: "trailers", "keep-alive": "timeout=5", "proxy-authorization": "Basic eA==" },
+  // Sent raw: fetch (undici) refuses to send hop-by-hop headers itself.
+  { raw: true },
 );
 scenarios["ext-large-response"] = {
   kind: "compare",
