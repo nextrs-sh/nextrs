@@ -970,9 +970,32 @@ async fn serve_resolved(
                     invocation,
                 };
                 let entry = entry.to_path_buf();
+                let request_path = &request_path;
+                let initial = &initial;
                 async move {
                     let executor = state.executor.as_deref().expect("checked by caller");
                     let response = dynamic::render(executor, &entry, &policy, incoming(body)).await;
+                    // NoFallbackError (params the page has no entry for):
+                    // router-server routes on without this output, which
+                    // ends at the not-found route.
+                    if response
+                        .headers()
+                        .get("x-nextrs-error")
+                        .is_some_and(|v| v == "no-fallback")
+                    {
+                        return not_found_render(
+                            state,
+                            method,
+                            headers,
+                            request_path,
+                            initial,
+                            incoming(Body::empty()),
+                            version,
+                            resolved_ref,
+                            true,
+                        )
+                        .await;
+                    }
                     dynamic::frame_for(version, response)
                 }
             };
@@ -990,6 +1013,16 @@ async fn serve_resolved(
                     {
                         return redirect;
                     }
+                    return run(entry, body, None, invocation).await;
+                }
+                // Draft Mode (or a stale or forged preview cookie): Next's
+                // handler decides, rendering on demand for a valid cookie
+                // and clearing an invalid one; the prerender is not served.
+                if readonly
+                    && has_preview_cookie(headers)
+                    && state.executor.is_some()
+                    && let Some(entry) = state.action_entry(path)
+                {
                     return run(entry, body, None, invocation).await;
                 }
                 if !readonly {
@@ -1066,6 +1099,18 @@ async fn serve_resolved(
             )
         }
     }
+}
+
+/// The request carries Draft Mode's (or the legacy Preview Mode's) cookie,
+/// valid or not (`__prerender_bypass`, `__next_preview_data`).
+fn has_preview_cookie(headers: &HeaderMap) -> bool {
+    headers
+        .get_all(header::COOKIE)
+        .iter()
+        .filter_map(|v| v.to_str().ok())
+        .flat_map(|v| v.split(';'))
+        .filter_map(|pair| pair.split_once('=').map(|(name, _)| name.trim()))
+        .any(|name| name == "__prerender_bypass" || name == "__next_preview_data")
 }
 
 /// Next's `isNonHtmlSecFetchDest`: subresource requests get a plain 404.
