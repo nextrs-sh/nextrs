@@ -129,7 +129,8 @@ get("providers", "/api/auth/providers", async () => ({}), (o) => {
 });
 scenarios["csrf-token"] = {
   kind: "compare",
-  expect: (o) => (o.status === 200 && o.tokenShape && o.cookieMatches ? null : JSON.stringify(o)),
+  expect: (o) =>
+    o.status === 200 && o.tokenShape && o.cookieMatches && (o.setCookie ?? []).includes("authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax") ? null : JSON.stringify(o),
   run: async (base) => {
     const r = await fetch(`${base}/api/auth/csrf`);
     const body = await r.json();
@@ -146,25 +147,30 @@ get("signin-page", "/api/auth/signin", async () => ({}), (o) => (o.status === 20
 async function credentialsSignIn(base, fields, { csrfToken, jar = new Jar() } = {}) {
   const token = csrfToken === undefined ? await csrf(jar, base) : csrfToken;
   const r = await send(jar, base, "/api/auth/callback/credentials", { method: "POST", form: { ...fields, ...(token === null ? {} : { csrfToken: token }) } });
-  return { status: r.status, location: shown(r.headers.get("location")), jar };
+  return { status: r.status, location: shown(r.headers.get("location")), setCookie: r.headers.getSetCookie().map(redact), jar };
 }
 async function afterSignIn(base, result) {
   const value = result.jar.get(SALT);
   return {
     status: result.status,
     location: result.location,
+    setCookie: result.setCookie,
     session: await readSession(value),
     api: value ? await look(base, { path: "/api/private", headers: { cookie: `${SALT}=${value}` } }) : null,
   };
 }
+// Auth.js's session cookie: HttpOnly, SameSite=Lax, the whole site.
+const SESSION_SET = /^authjs\.session-token=<VALUE>; Path=\/; Expires=<DATE>; HttpOnly; SameSite=Lax$/;
 const signedIn = (sub, location) => (o) =>
   o.status !== 302 || o.location !== location
     ? `status ${o.status} location ${o.location}, expected 302 ${location}`
+    : !(o.setCookie ?? []).some((c) => SESSION_SET.test(c))
+      ? `the callback set no session cookie: ${JSON.stringify(o.setCookie)}`
     : o.session?.sub !== sub
       ? `session ${JSON.stringify(o.session)} (decoded with Node's Auth.js), expected ${sub}`
       : identity(sub)(o.api);
 const notSignedIn = (pattern) => (o) =>
-  o.session !== null ? `a session was issued: ${JSON.stringify(o.session)}` : pattern.test(o.location) ? null : `location ${o.location}`;
+  o.session !== null || (o.setCookie ?? []).some((c) => SESSION_SET.test(c)) ? `a session was issued: ${JSON.stringify(o.session)}` : pattern.test(o.location) ? null : `location ${o.location}`;
 
 scenarios["credentials-sign-in"] = {
   kind: "compare",
@@ -266,7 +272,7 @@ get("session-signed-jwt-not-jwe", "/api/private", async () => {
 // value must still decode to the same user with Node's Auth.js.
 scenarios["session-rolled"] = {
   kind: "compare",
-  expect: (o) => (o.status === 200 && o.rolled?.sub === "u-alice" ? null : JSON.stringify(o)),
+  expect: (o) => (o.status === 200 && o.rolled?.sub === "u-alice" && (o.setCookie ?? []).some((c) => SESSION_SET.test(c)) ? null : JSON.stringify(o)),
   run: async (base) => {
     const r = await fetch(`${base}/api/auth/session`, { headers: await withSession("u-alice", "Alice") });
     await r.text();

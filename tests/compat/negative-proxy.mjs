@@ -18,6 +18,10 @@
 //   strip-set-cookie   Set-Cookie is removed from responses (a session never set)
 //   wrong-location     every Location header points to /elsewhere (a redirect
 //                      to the wrong place)
+//   pass               no defect: the control for the controls. A suite that
+//                      fails through it fails because of this proxy (it
+//                      buffers whole responses and sends each POST once,
+//                      without streaming), so its other modes prove nothing
 import http from "node:http";
 
 const args = Object.fromEntries(
@@ -28,7 +32,7 @@ const args = Object.fromEntries(
 );
 const target = new URL(args.target);
 const mode = args.mode;
-const MODES = ["replay-post", "drop-action", "strip-credentials", "swap-identity", "strip-set-cookie", "wrong-location"];
+const MODES = ["pass", "replay-post", "drop-action", "strip-credentials", "swap-identity", "strip-set-cookie", "wrong-location"];
 if (!MODES.includes(mode)) {
   console.error(`--mode must be one of ${MODES.join(", ")}`);
   process.exit(2);
