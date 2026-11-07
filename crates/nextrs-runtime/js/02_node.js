@@ -442,14 +442,8 @@
     }
   }
 
-  function getRandomValues(array) {
-    if (!ArrayBuffer.isView(array) || array instanceof Float32Array || array instanceof Float64Array || array instanceof DataView) {
-      throw new DOMException("The data argument must be an integer-type TypedArray", "TypeMismatchError");
-    }
-    if (array.byteLength > 65536) throw new DOMException("The ArrayBufferView's byte length exceeds 65536", "QuotaExceededError");
-    ops.op_nextrs_random_fill(new Uint8Array(array.buffer, array.byteOffset, array.byteLength));
-    return array;
-  }
+  // Web Crypto is 02_webcrypto.js; node:crypto re-exports it.
+  const { webcrypto, subtle, getRandomValues, randomUUID } = internal.webcrypto;
 
   function randomBytes(size, callback) {
     const bytes = Buffer.alloc(size);
@@ -459,276 +453,6 @@
       return undefined;
     }
     return bytes;
-  }
-
-  function randomUUID() {
-    const bytes = randomBytes(16);
-    bytes[6] = (bytes[6] & 0x0f) | 0x40;
-    bytes[8] = (bytes[8] & 0x3f) | 0x80;
-    const hex = bytes.toString("hex");
-    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-  }
-
-  const SUBTLE_DIGESTS = { "SHA-1": "sha1", "SHA-256": "sha256", "SHA-384": "sha384", "SHA-512": "sha512" };
-
-  // Secret keys (src/webcrypto.rs): AES-GCM, which Server Actions need
-  // (Next encrypts bound closure arguments with the build's key), and HMAC,
-  // which session libraries use (jose's HS256/384/512 JWTs). Key bytes stay
-  // in Rust; a CryptoKey holds a handle, released when the key is garbage
-  // collected. Other algorithms and formats fail with NextRSUnsupportedError
-  // instead of an approximation.
-  const kHandle = Symbol("key handle");
-  const kKeyData = Symbol("key data");
-  const releaseKey = new FinalizationRegistry((id) => ops.op_nextrs_key_release(id));
-  const AES_USAGES = ["encrypt", "decrypt", "wrapKey", "unwrapKey"];
-  const HMAC_USAGES = ["sign", "verify"];
-  const ALL_USAGES = [...AES_USAGES, "sign", "verify", "deriveKey", "deriveBits"];
-  const HMAC_HASHES = ["SHA-1", "SHA-256", "SHA-384", "SHA-512"];
-
-  const domError = (name, message) => new DOMException(message, name);
-  // Host errors are "Name: message" with a DOMException name.
-  function hostError(error) {
-    const match = /^(\w+Error): ([\s\S]*)$/.exec(String(error?.message ?? error));
-    return match ? domError(match[1], match[2]) : domError("OperationError", String(error?.message ?? error));
-  }
-
-  class CryptoKey {
-    constructor() {
-      throw new TypeError("Illegal constructor");
-    }
-    get type() { return this[kKeyData].type; }
-    get extractable() { return this[kKeyData].extractable; }
-    get algorithm() { return this[kKeyData].algorithm; }
-    get usages() { return this[kKeyData].usages; }
-    get [Symbol.toStringTag]() { return "CryptoKey"; }
-  }
-
-  function secretKey(handle, algorithm, allowed, extractable, usages) {
-    const key = Object.create(CryptoKey.prototype);
-    key[kHandle] = handle;
-    key[kKeyData] = {
-      type: "secret",
-      extractable: Boolean(extractable),
-      algorithm: Object.freeze(algorithm),
-      usages: Object.freeze(allowed.filter((usage) => usages.includes(usage))),
-    };
-    releaseKey.register(key, handle);
-    return key;
-  }
-
-  function algorithmName(algorithm, operation) {
-    const name = typeof algorithm === "string" ? algorithm : algorithm?.name;
-    if (typeof name !== "string") throw new TypeError(`crypto.subtle.${operation}: algorithm.name is required`);
-    return name;
-  }
-
-  // The algorithm's registered name (Web Crypto matches names ignoring
-  // ASCII case), or a NextRSUnsupportedError for the ones NextRS lacks.
-  function secretAlgorithm(algorithm, operation, supported) {
-    const name = algorithmName(algorithm, operation).toUpperCase();
-    if (!supported.includes(name)) {
-      throw new NextRSUnsupportedError("crypto.subtle", operation, `algorithm ${algorithmName(algorithm, operation)} (NextRS implements ${supported.join(" and ")} here)`);
-    }
-    return name;
-  }
-
-  // `algorithm.hash` of an HMAC algorithm, normalized to its name.
-  function hmacHash(algorithm, operation) {
-    const hash = algorithm?.hash;
-    if (hash === undefined) throw new TypeError(`crypto.subtle.${operation}: HMAC needs a hash`);
-    const name = String(typeof hash === "string" ? hash : hash?.name).toUpperCase();
-    if (!HMAC_HASHES.includes(name)) throw domError("NotSupportedError", `unrecognized HMAC hash '${typeof hash === "string" ? hash : hash?.name}'`);
-    return name;
-  }
-
-  function checkUsages(usages, operation, allowed, algorithm) {
-    usages = [...(usages ?? [])].map(String);
-    for (const usage of usages) {
-      if (!ALL_USAGES.includes(usage)) throw new TypeError(`crypto.subtle.${operation}: invalid key usage '${usage}'`);
-      if (!allowed.includes(usage)) throw domError("SyntaxError", `'${usage}' is not a valid usage for an ${algorithm} key`);
-    }
-    if (usages.length === 0) throw domError("SyntaxError", "a secret key needs at least one usage");
-    return usages;
-  }
-
-  function bufferSource(data, what) {
-    if (ArrayBuffer.isView(data)) return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-    if (data instanceof ArrayBuffer || (typeof SharedArrayBuffer !== "undefined" && data instanceof SharedArrayBuffer)) return new Uint8Array(data);
-    throw new TypeError(`${what} must be an ArrayBuffer or ArrayBufferView`);
-  }
-
-  function useKey(key, name, usage, operation) {
-    if (!(key instanceof CryptoKey) || key[kHandle] === undefined) throw new TypeError(`crypto.subtle.${operation}: key is not a CryptoKey`);
-    if (key.algorithm.name !== name) throw domError("InvalidAccessError", "the key's algorithm does not match");
-    if (!key.usages.includes(usage)) throw domError("InvalidAccessError", `the key does not allow '${usage}'`);
-    return key[kHandle];
-  }
-
-  const arrayBuffer = (out) => out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
-
-  function aesGcm(encrypt, algorithm, key, data) {
-    const operation = encrypt ? "encrypt" : "decrypt";
-    secretAlgorithm(algorithm, operation, ["AES-GCM"]);
-    if (algorithm.iv === undefined) throw new TypeError(`crypto.subtle.${operation}: AES-GCM needs an iv`);
-    const iv = bufferSource(algorithm.iv, "iv");
-    const aad = algorithm.additionalData === undefined ? new Uint8Array(0) : bufferSource(algorithm.additionalData, "additionalData");
-    if (algorithm.tagLength !== undefined && algorithm.tagLength !== 128) {
-      if ([32, 64, 96, 104, 112, 120].includes(algorithm.tagLength)) {
-        throw new NextRSUnsupportedError("crypto.subtle", operation, `AES-GCM tagLength ${algorithm.tagLength} (NextRS supports 128)`);
-      }
-      throw domError("OperationError", "invalid AES-GCM tagLength");
-    }
-    const handle = useKey(key, "AES-GCM", operation, operation);
-    const input = bufferSource(data, "data");
-    try {
-      return arrayBuffer(ops.op_nextrs_aes_gcm(handle, encrypt, iv, aad, input));
-    } catch (error) {
-      throw hostError(error);
-    }
-  }
-
-  class SubtleCrypto {
-    constructor() {
-      throw new TypeError("Illegal constructor");
-    }
-
-    async digest(algorithm, data) {
-      const name = typeof algorithm === "string" ? algorithm : algorithm?.name;
-      const hash = SUBTLE_DIGESTS[String(name).toUpperCase()];
-      if (!hash) throw new NextRSUnsupportedError("crypto.subtle", "digest", `algorithm ${name}`);
-      const out = digestBytes(hash, toBytes(data));
-      return arrayBuffer(out);
-    }
-
-    async importKey(format, keyData, algorithm, extractable, keyUsages) {
-      const name = secretAlgorithm(algorithm, "importKey", ["AES-GCM", "HMAC"]);
-      if (format !== "raw") throw new NextRSUnsupportedError("crypto.subtle", "importKey", `format '${format}' (NextRS supports 'raw' for ${name})`);
-      if (name === "HMAC") {
-        const hash = hmacHash(algorithm, "importKey");
-        const usages = checkUsages(keyUsages, "importKey", HMAC_USAGES, "HMAC");
-        const bytes = bufferSource(keyData, "keyData");
-        if (algorithm.length !== undefined && algorithm.length !== bytes.byteLength * 8) {
-          throw new NextRSUnsupportedError("crypto.subtle", "importKey", "an HMAC length other than the key data's length");
-        }
-        let handle;
-        try {
-          handle = ops.op_nextrs_hmac_import(hash, bytes);
-        } catch (error) {
-          throw hostError(error);
-        }
-        return secretKey(handle, { name: "HMAC", length: bytes.byteLength * 8, hash: Object.freeze({ name: hash }) }, HMAC_USAGES, extractable, usages);
-      }
-      const usages = checkUsages(keyUsages, "importKey", AES_USAGES, "AES-GCM");
-      const bytes = bufferSource(keyData, "keyData");
-      let handle;
-      try {
-        handle = ops.op_nextrs_aes_import(bytes);
-      } catch (error) {
-        throw hostError(error);
-      }
-      return secretKey(handle, { name: "AES-GCM", length: bytes.byteLength * 8 }, AES_USAGES, extractable, usages);
-    }
-
-    async generateKey(algorithm, extractable, keyUsages) {
-      const name = secretAlgorithm(algorithm, "generateKey", ["AES-GCM", "HMAC"]);
-      if (name === "HMAC") {
-        const hash = hmacHash(algorithm, "generateKey");
-        const usages = checkUsages(keyUsages, "generateKey", HMAC_USAGES, "HMAC");
-        const requested = algorithm.length ?? 0;
-        if (!Number.isInteger(requested) || requested < 0) throw new TypeError("crypto.subtle.generateKey: invalid HMAC length");
-        if (algorithm.length === 0) throw domError("OperationError", "HMAC key length must not be 0");
-        let handle;
-        let bits;
-        try {
-          [handle, bits] = ops.op_nextrs_hmac_generate(hash, requested);
-        } catch (error) {
-          throw hostError(error);
-        }
-        return secretKey(handle, { name: "HMAC", length: bits, hash: Object.freeze({ name: hash }) }, HMAC_USAGES, extractable, usages);
-      }
-      const bits = algorithm?.length;
-      if (![128, 192, 256].includes(bits)) throw domError("OperationError", "AES key length must be 128, 192 or 256 bits");
-      const usages = checkUsages(keyUsages, "generateKey", AES_USAGES, "AES-GCM");
-      let handle;
-      try {
-        handle = ops.op_nextrs_aes_generate(bits);
-      } catch (error) {
-        throw hostError(error);
-      }
-      return secretKey(handle, { name: "AES-GCM", length: bits }, AES_USAGES, extractable, usages);
-    }
-
-    async exportKey(format, key) {
-      if (!(key instanceof CryptoKey) || key[kHandle] === undefined) throw new TypeError("crypto.subtle.exportKey: key is not a CryptoKey");
-      if (format !== "raw") throw new NextRSUnsupportedError("crypto.subtle", "exportKey", `format '${format}' (NextRS supports 'raw' for secret keys)`);
-      if (!key.extractable) throw domError("InvalidAccessError", "the key is not extractable");
-      try {
-        return arrayBuffer(ops.op_nextrs_key_export(key[kHandle]));
-      } catch (error) {
-        throw hostError(error);
-      }
-    }
-
-    async encrypt(algorithm, key, data) {
-      return aesGcm(true, algorithm, key, data);
-    }
-
-    async decrypt(algorithm, key, data) {
-      return aesGcm(false, algorithm, key, data);
-    }
-
-    async sign(algorithm, key, data) {
-      secretAlgorithm(algorithm, "sign", ["HMAC"]);
-      const handle = useKey(key, "HMAC", "sign", "sign");
-      const input = bufferSource(data, "data");
-      try {
-        return arrayBuffer(ops.op_nextrs_hmac_sign(handle, input));
-      } catch (error) {
-        throw hostError(error);
-      }
-    }
-
-    async verify(algorithm, key, signature, data) {
-      secretAlgorithm(algorithm, "verify", ["HMAC"]);
-      const handle = useKey(key, "HMAC", "verify", "verify");
-      // Web Crypto copies both before the operation.
-      const mac = bufferSource(signature, "signature").slice();
-      const input = bufferSource(data, "data").slice();
-      try {
-        return ops.op_nextrs_hmac_verify(handle, mac, input);
-      } catch (error) {
-        throw hostError(error);
-      }
-    }
-
-    get [Symbol.toStringTag]() {
-      return "SubtleCrypto";
-    }
-  }
-  for (const name of ["deriveKey", "deriveBits", "wrapKey", "unwrapKey"]) {
-    Object.defineProperty(SubtleCrypto.prototype, name, {
-      value: async function () {
-        throw new NextRSUnsupportedError("crypto.subtle", name);
-      },
-      writable: true,
-      configurable: true,
-    });
-  }
-  const subtle = Object.create(SubtleCrypto.prototype);
-
-  class Crypto {
-    constructor() {
-      throw new TypeError("Illegal constructor");
-    }
-    get subtle() { return subtle; }
-    getRandomValues(array) { return getRandomValues(array); }
-    randomUUID() { return randomUUID(); }
-    get [Symbol.toStringTag]() { return "Crypto"; }
-  }
-  const webcrypto = Object.create(Crypto.prototype);
-  Object.defineProperty(globalThis, "crypto", { value: webcrypto, writable: true, configurable: true });
-  for (const [name, value] of Object.entries({ Crypto, CryptoKey, SubtleCrypto })) {
-    Object.defineProperty(globalThis, name, { value, writable: true, enumerable: false, configurable: true });
   }
 
   const crypto = {
@@ -772,7 +496,56 @@
     subtle,
     constants: {},
   };
-  for (const name of ["createCipheriv", "createDecipheriv", "createSign", "createVerify", "createECDH", "createDiffieHellman", "generateKeyPair", "generateKeyPairSync", "createPublicKey", "createPrivateKey", "createSecretKey", "pbkdf2", "pbkdf2Sync", "scrypt", "scryptSync", "hkdf", "hkdfSync", "publicEncrypt", "privateDecrypt", "sign", "verify"]) {
+  // HKDF (RFC 5869), as node:crypto's hkdf and hkdfSync: libraries pick
+  // it over Web Crypto when it exists (Auth.js's @panva/hkdf does).
+  const NODE_HKDF_HASHES = { sha1: "SHA-1", sha256: "SHA-256", sha384: "SHA-384", sha512: "SHA-512" };
+  const HKDF_LENGTHS = { sha1: 20, sha256: 32, sha384: 48, sha512: 64 };
+  function hkdfBytes(value, name) {
+    if (typeof value === "string") return Buffer.from(value, "utf8");
+    if (ArrayBuffer.isView(value)) return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+    if (value instanceof ArrayBuffer) return new Uint8Array(value);
+    if (value && typeof value === "object" && value.type === "secret") return unsupported("node:crypto", "hkdf", "a KeyObject as the key");
+    const error = new TypeError(`The "${name}" argument must be of type string or an instance of ArrayBuffer, Buffer, TypedArray or DataView.`);
+    error.code = "ERR_INVALID_ARG_TYPE";
+    throw error;
+  }
+  function hkdfSync(digest, ikm, salt, info, keylen) {
+    const hash = String(digest).toLowerCase();
+    if (!NODE_HKDF_HASHES[hash]) {
+      const error = new TypeError(`Invalid digest: ${digest}`);
+      error.code = "ERR_CRYPTO_INVALID_DIGEST";
+      throw error;
+    }
+    const key = hkdfBytes(ikm, "ikm");
+    const saltBytes = hkdfBytes(salt, "salt");
+    const infoBytes = hkdfBytes(info, "info");
+    if (infoBytes.byteLength > 1024) {
+      const error = new RangeError('The value of "info" is out of range. It must be <= 1024.');
+      error.code = "ERR_OUT_OF_RANGE";
+      throw error;
+    }
+    if (!Number.isInteger(keylen) || keylen < 0 || keylen > 255 * HKDF_LENGTHS[hash]) {
+      const error = new RangeError(`The value of "keylen" is out of range.`);
+      error.code = keylen > 255 * HKDF_LENGTHS[hash] ? "ERR_CRYPTO_INVALID_KEYLEN" : "ERR_OUT_OF_RANGE";
+      throw error;
+    }
+    // Node (OpenSSL) refuses to derive nothing.
+    if (keylen === 0) throw new Error("Deriving bits failed");
+    const out = ops.op_nextrs_hkdf_bytes(NODE_HKDF_HASHES[hash], key, saltBytes, infoBytes, keylen);
+    return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
+  }
+  crypto.hkdfSync = hkdfSync;
+  crypto.hkdf = function hkdf(digest, ikm, salt, info, keylen, callback) {
+    if (typeof callback !== "function") {
+      const error = new TypeError('The "callback" argument must be of type function');
+      error.code = "ERR_INVALID_ARG_TYPE";
+      throw error;
+    }
+    // Argument errors throw synchronously, as in Node; the result is async.
+    const out = hkdfSync(digest, ikm, salt, info, keylen);
+    process.nextTick(callback, null, out);
+  };
+  for (const name of ["createCipheriv", "createDecipheriv", "createSign", "createVerify", "createECDH", "createDiffieHellman", "generateKeyPair", "generateKeyPairSync", "createPublicKey", "createPrivateKey", "createSecretKey", "pbkdf2", "pbkdf2Sync", "scrypt", "scryptSync", "publicEncrypt", "privateDecrypt", "sign", "verify"]) {
     crypto[name] = () => unsupported("node:crypto", name);
   }
 
@@ -1430,12 +1203,55 @@
   for (const [name, factory] of Object.entries(implemented)) BUILTINS.set(name, factory);
   for (const name of [
     "assert", "assert/strict", "child_process", "cluster", "console", "constants", "dgram",
-    "diagnostics_channel", "dns", "dns/promises", "domain", "http", "http2", "https", "net", "os",
+    "diagnostics_channel", "dns", "dns/promises", "domain", "http", "http2", "https", "net",
     "punycode", "querystring", "readline", "repl", "sqlite", "sys", "test", "tls", "trace_events",
-    "tty", "v8", "wasi", "zlib",
+    "v8", "wasi", "zlib",
   ]) {
     BUILTINS.set(name, () => unsupportedModule(name));
   }
+  // node:os: only what describes the runtime as process already does (the
+  // values NextRS reports for process.platform and process.arch). Host
+  // details (hostname, user, CPUs, memory, network interfaces, temp and
+  // home directories) are not the application's to read: calling them
+  // throws NextRSUnsupportedError, except homedir, which libraries probe
+  // for (`os.homedir || fallback`, OpenTelemetry's instrumentation loader
+  // does): it reads as undefined, with a diagnostic, so they fall back.
+  const os = {
+    EOL: "\n",
+    platform: () => process.platform,
+    arch: () => process.arch,
+    type: () => (process.platform === "linux" ? "Linux" : process.platform === "darwin" ? "Darwin" : "Windows_NT"),
+    endianness: () => "LE",
+    constants: Object.freeze({ signals: Object.freeze({}), errno: Object.freeze({}) }),
+  };
+  // A module NextRS implements in part: `object`'s members, `absent` ones
+  // read as undefined (with a diagnostic) for libraries that probe for
+  // them, every other member throws NextRSUnsupportedError when called.
+  function partialModule(name, object, absent = new Set()) {
+    const missing = unsupportedModule(name);
+    return new Proxy(object, {
+      get(target, key, receiver) {
+        if (typeof key === "symbol" || key in target) return Reflect.get(target, key, receiver);
+        if (IGNORED_MEMBERS.has(key)) return undefined;
+        if (absent.has(key)) {
+          const member = `node:${name}.${key}`;
+          if (!reported.has(member)) {
+            reported.add(member);
+            ops.op_nextrs_diagnostic("missing-member", `${member} is not implemented (read as undefined)`);
+          }
+          return undefined;
+        }
+        return missing[key];
+      },
+      has(target, key) {
+        return key in target;
+      },
+    });
+  }
+  BUILTINS.set("os", () => partialModule("os", os, new Set(["homedir"])));
+  // node:tty: no stream of the runtime is a terminal (process.stdout and
+  // stderr say isTTY: false); logging libraries ask before using colors.
+  BUILTINS.set("tty", () => partialModule("tty", { isatty: () => false }));
   Module.builtinModules = [...BUILTINS.keys()];
 
   internal.Module = Module;

@@ -51,6 +51,9 @@ pub(crate) struct Incoming<'a> {
     pub body: Body,
     pub client: Option<SocketAddr>,
     pub max_body: u64,
+    /// next start's hostname and port (the request's `initURL` and the
+    /// forwarded-header defaults).
+    pub listen: &'a crate::Listen,
 }
 
 pub(crate) async fn render(
@@ -66,6 +69,7 @@ pub(crate) async fn render(
         body,
         client,
         max_body,
+        listen,
     } = incoming;
     // A declared length over the limit is refused before any JavaScript
     // runs. Chunked and unknown-length bodies are counted as they stream.
@@ -73,11 +77,45 @@ pub(crate) async fn render(
         return too_large(max_body);
     }
     let (body, overflow) = request_body(body, max_body);
+    let url = uri
+        .path_and_query()
+        .map_or_else(|| uri.path().to_owned(), |pq| pq.as_str().to_owned());
+    let is_proxy = matches!(policy.invocation, nextrs_runtime::Invocation::Proxy { .. });
+    // The protocol next-server's attachRequestMeta and base-server derive
+    // (the socket is never TLS here).
+    let https = headers
+        .get_all("x-forwarded-proto")
+        .iter()
+        .any(|v| v.as_bytes().windows(5).any(|w| w == b"https"));
+    let protocol = if https { "https" } else { "http" };
+    // base-server's handleRequestImpl sets these on every request it
+    // renders when they are absent (after the trusted-proxy policy removed
+    // a client's own); the proxy path set them already (resolve.rs).
+    let mut defaults: Vec<(String, String)> = Vec::new();
+    if !is_proxy {
+        let host = headers
+            .get("host")
+            .map(|h| String::from_utf8_lossy(h.as_bytes()).into_owned())
+            .unwrap_or_else(|| listen.host.clone());
+        let candidates = [
+            ("x-forwarded-host", Some(host)),
+            ("x-forwarded-port", Some(listen.port.to_string())),
+            ("x-forwarded-proto", Some(protocol.to_owned())),
+            ("x-forwarded-for", client.map(|c| c.ip().to_string())),
+        ];
+        for (name, value) in candidates {
+            if !headers.contains_key(name)
+                && let Some(value) = value
+            {
+                defaults.push((name.to_owned(), value));
+            }
+        }
+    }
+    let init_url =
+        (!is_proxy).then(|| format!("{protocol}://{}:{}{url}", listen.host, listen.port));
     let request = RenderRequest {
         method: method.as_str().to_owned(),
-        url: uri
-            .path_and_query()
-            .map_or_else(|| uri.path().to_owned(), |pq| pq.as_str().to_owned()),
+        url,
         // Fixture builds have no interception routes, so next start drops
         // Next-URL before rendering; responses then cannot depend on it.
         // The proxy sees it (it passes it on to the route's request, where
@@ -94,6 +132,7 @@ pub(crate) async fn render(
                     String::from_utf8_lossy(value.as_bytes()).into_owned(),
                 )
             })
+            .chain(defaults)
             .collect(),
         body,
         entry: entry.to_path_buf(),
@@ -106,6 +145,7 @@ pub(crate) async fn render(
             .collect(),
         initial_status: policy.status,
         invocation: policy.invocation.clone(),
+        init_url,
     };
     let mut events = match executor.render(request).await {
         Ok(events) => events,

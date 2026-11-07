@@ -56,6 +56,13 @@ pub trait InternalDispatch: Send + Sync + 'static {
         &self,
         request: InternalRequest,
     ) -> Pin<Box<dyn Future<Output = InternalResponse> + Send + 'static>>;
+
+    /// Whether `url` is the server's own origin (the origin of the
+    /// `initURL` it gives requests), besides `http://localhost`.
+    fn serves(&self, url: &url::Url) -> bool {
+        let _ = url;
+        false
+    }
 }
 
 struct Installed {
@@ -81,9 +88,14 @@ impl InternalRoute {
         *self.0.write().unwrap_or_else(|e| e.into_inner()) = Some(installed);
     }
 
-    /// Whether `url` is one Next.js addresses its own server with.
-    pub fn handles(url: &url::Url) -> bool {
-        url.scheme() == "http" && url.host_str() == Some("localhost") && url.port().is_none()
+    /// Whether `url` is one Next.js addresses its own server with:
+    /// `http://localhost`, or the server's own origin.
+    pub fn handles(&self, url: &url::Url) -> bool {
+        if url.scheme() == "http" && url.host_str() == Some("localhost") && url.port().is_none() {
+            return true;
+        }
+        let installed = self.0.read().unwrap_or_else(|e| e.into_inner()).clone();
+        installed.is_some_and(|installed| installed.dispatch.serves(url))
     }
 
     pub fn start(

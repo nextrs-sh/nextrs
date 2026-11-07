@@ -11,7 +11,8 @@
 //       aborted counts /data responses whose client left before the end.
 //   GET /stream?chunks=N&gap=ms             -> N lines, one every gap ms
 //   POST /mutations?key=K&id=I              -> records one side effect ({"key","count"})
-//   GET /mutations?key=K                    -> {"key","ids"} in arrival order
+//   GET /mutations?key=K[&forget=1]         -> {"key","ids"} in arrival order; forget=1
+//       drops the key after answering (soaks check each key once)
 //   ANY /echo[/...]?...                     -> {"method","url","headers","body"}:
 //       what arrived (an external rewrite's forwarded request); sets two
 //       cookies; ?status=N answers with that status
@@ -77,6 +78,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     res.end(JSON.stringify({ key, ids: mutations.get(key) ?? [] }));
+    if (p.get("forget") === "1") mutations.delete(key);
   } else if (url.pathname === "/flag") {
     if (req.method === "POST") flags.set(p.get("name") ?? "", p.get("on") === "1");
     res.writeHead(200, { "content-type": "application/json" });

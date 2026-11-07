@@ -484,6 +484,13 @@
     abort: () => unsupported("process", "abort"),
     kill: () => unsupported("process", "kill"),
     umask: () => 0o022,
+    // A virtual, unprivileged identity, like pid 1 above: never the host's
+    // own ids. Libraries probe these (an os.homedir fallback checks for
+    // root with getuid()).
+    getuid: () => 65534,
+    geteuid: () => 65534,
+    getgid: () => 65534,
+    getegid: () => 65534,
     nextTick,
     hrtime,
     uptime: () => perf.performance.now() / 1000,

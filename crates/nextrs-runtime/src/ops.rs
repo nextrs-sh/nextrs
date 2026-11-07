@@ -144,15 +144,18 @@ deno_core::extension!(
         op_nextrs_cache_tag_sync,
         op_nextrs_cache_lease,
         op_nextrs_cache_release,
-        crate::webcrypto::op_nextrs_aes_import,
-        crate::webcrypto::op_nextrs_aes_generate,
+        crate::webcrypto::op_nextrs_key_import,
+        crate::webcrypto::op_nextrs_key_import_jwk,
+        crate::webcrypto::op_nextrs_key_generate,
         crate::webcrypto::op_nextrs_key_export,
+        crate::webcrypto::op_nextrs_key_export_jwk,
         crate::webcrypto::op_nextrs_key_release,
+        crate::webcrypto::op_nextrs_sign,
+        crate::webcrypto::op_nextrs_verify,
         crate::webcrypto::op_nextrs_aes_gcm,
-        crate::webcrypto::op_nextrs_hmac_import,
-        crate::webcrypto::op_nextrs_hmac_generate,
-        crate::webcrypto::op_nextrs_hmac_sign,
-        crate::webcrypto::op_nextrs_hmac_verify,
+        crate::webcrypto::op_nextrs_aes_cbc,
+        crate::webcrypto::op_nextrs_hkdf,
+        crate::webcrypto::op_nextrs_hkdf_bytes,
         crate::multipart::op_nextrs_multipart_parse,
     ],
     options = {
@@ -222,6 +225,7 @@ struct JsRequest {
     initial_status: Option<u16>,
     timeout_ms: Option<u64>,
     invocation: JsInvocation,
+    init_url: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -316,6 +320,7 @@ async fn op_nextrs_next_request(state: Rc<RefCell<OpState>>) -> Option<JsRequest
         initial_status: request.initial_status,
         timeout_ms: job.timeout_ms,
         invocation: request.invocation.into(),
+        init_url: request.init_url,
     })
 }
 
@@ -720,7 +725,9 @@ fn op_nextrs_fetch_start(
 ) -> Result<u32, JsErrorBox> {
     if args.internal
         && let Ok(url) = url::Url::parse(&args.url)
-        && crate::internal::InternalRoute::handles(&url)
+        && state
+            .borrow::<crate::internal::InternalRoute>()
+            .handles(&url)
     {
         return start_internal(state, args, url, body);
     }

@@ -102,9 +102,6 @@ async function crypto_() {
   const nextrsOnly = {
     iv8: await outcome(() => subtle.encrypt({ name: "AES-GCM", iv: new Uint8Array(8) }, key, payload)),
     tag96: await outcome(() => subtle.encrypt({ name: "AES-GCM", iv, tagLength: 96 }, key, payload)),
-    ecdsa: await outcome(() => subtle.importKey("raw", new Uint8Array(65), { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"])),
-    hmacJwk: await outcome(() => subtle.importKey("jwk", { kty: "oct", k: "AAAA" }, { name: "HMAC", hash: "SHA-256" }, false, ["sign"])),
-    jwk: await outcome(() => subtle.exportKey("jwk", key)),
   };
   return { r, nextrsOnly };
 }

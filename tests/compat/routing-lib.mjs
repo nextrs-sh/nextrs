@@ -124,9 +124,20 @@ export function differences(a, b) {
 // kind "compare": both servers must observe the same. "known-diff": the
 // difference is documented (`reason`) and only reported. "candidate": a
 // NextRS-only check whose `run` returns { ok, detail }.
+//
+// Agreement alone can hide a wrong answer both servers give (a fixture or
+// a test request that is itself wrong). A scenario may therefore state the
+// outcome it must have, independently of the comparison:
+//   expect(observation) -> null when right, else what is wrong
+// applied to next start's observation (ORACLE-FAIL: the test or fixture is
+// wrong, not NextRS) and to NextRS's (FAIL). `expectCandidate` applies to
+// NextRS only (for known differences). Negative controls corrupt NextRS's
+// observations on purpose (NEXTRS_NEGATIVE_CONTROL, see corruptions below)
+// and must make the suite fail.
 export async function runScenarios(title, scenarios, { baseline, candidate, json, only }) {
   const results = [];
   let failures = 0;
+  const control = process.env.NEXTRS_NEGATIVE_CONTROL ?? "";
   for (const [name, scenario] of Object.entries(scenarios)) {
     if (only && !only.has(name)) continue;
     let verdict;
@@ -139,24 +150,37 @@ export async function runScenarios(title, scenarios, { baseline, candidate, json
       } else {
         const a = await scenario.run(baseline, "baseline");
         const b = await scenario.run(candidate, "candidate");
+        if (control) {
+          const [defect, sides] = control.split(":");
+          corrupt(defect, b);
+          if (sides === "both") corrupt(defect, a);
+        }
         const diffs = differences(a, b);
+        const oracleWrong = scenario.kind !== "known-diff" && scenario.expect ? scenario.expect(a) : null;
+        const check = scenario.expectCandidate ?? scenario.expect;
+        const candidateWrong = check ? check(b) : null;
         if (scenario.kind === "known-diff") {
-          verdict = diffs.length ? "KNOWN-DIFF" : "MATCH";
-          detail = { reason: scenario.reason, diffs, baseline: a, candidate: b };
+          verdict = candidateWrong ? "FAIL" : diffs.length ? "KNOWN-DIFF" : "MATCH";
+          detail = { reason: scenario.reason, diffs, candidateWrong, baseline: a, candidate: b };
         } else {
-          verdict = diffs.length ? "DIFF" : "MATCH";
-          detail = diffs.length ? { diffs, baseline: a, candidate: b } : { observed: a };
+          verdict = oracleWrong ? "ORACLE-FAIL" : candidateWrong ? "FAIL" : diffs.length ? "DIFF" : "MATCH";
+          detail =
+            diffs.length || oracleWrong || candidateWrong
+              ? { diffs, oracleWrong, candidateWrong, baseline: a, candidate: b }
+              : { observed: a, asserted: Boolean(check) };
         }
       }
     } catch (error) {
       verdict = "ERROR";
       detail = String(error?.stack ?? error);
     }
-    if (verdict === "DIFF" || verdict === "FAIL" || verdict === "ERROR") failures++;
+    if (["DIFF", "FAIL", "ERROR", "ORACLE-FAIL"].includes(verdict)) failures++;
     results.push({ name, verdict, detail });
     console.log(`${verdict.padEnd(10)} ${name}`);
     if (verdict === "DIFF") for (const d of detail.diffs) console.log(`    ${d}`);
-    if (verdict === "FAIL" || verdict === "ERROR") console.log(`    ${JSON.stringify(detail).slice(0, 1200)}`);
+    if (verdict === "ORACLE-FAIL") console.log(`    next start: ${detail.oracleWrong}`);
+    if (verdict === "FAIL" && detail?.candidateWrong) console.log(`    NextRS: ${detail.candidateWrong}`);
+    else if (verdict === "FAIL" || verdict === "ERROR") console.log(`    ${JSON.stringify(detail).slice(0, 1200)}`);
     if (verdict === "KNOWN-DIFF") console.log(`    (${scenario.reason})`);
   }
   const count = (v) => results.filter((r) => r.verdict === v).length;
@@ -168,13 +192,45 @@ export async function runScenarios(title, scenarios, { baseline, candidate, json
     knownDiff: count("KNOWN-DIFF"),
     diff: count("DIFF"),
     fail: count("FAIL"),
+    oracleFail: count("ORACLE-FAIL"),
     error: count("ERROR"),
+    // Compared scenarios whose outcome is also asserted on its own.
+    asserted: results.filter((r) => r.verdict === "MATCH" && r.detail?.asserted).length,
+    negativeControl: control || null,
   };
   console.log(
-    `${title}: ${summary.match} MATCH, ${summary.pass} PASS, ${summary.knownDiff} KNOWN-DIFF, ${summary.diff} DIFF, ${summary.fail} FAIL, ${summary.error} ERROR`,
+    `${title}: ${summary.match} MATCH (${summary.asserted} asserted), ${summary.pass} PASS, ${summary.knownDiff} KNOWN-DIFF, ${summary.diff} DIFF, ${summary.fail} FAIL, ${summary.oracleFail} ORACLE-FAIL, ${summary.error} ERROR${control ? ` [negative control ${control}]` : ""}`,
   );
   if (json) writeFileSync(json, JSON.stringify({ summary, results }, null, 2));
   return failures;
 }
 
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Negative controls (test-only; nothing here reaches a server): each
+// corrupts an observation the way a real defect would show, in place.
+//   identity      another user's identity (u-alice <-> u-bob)
+//   allow         a refusal answered as a success (401/403/307 -> 200)
+//   set-cookie    Set-Cookie headers lost
+//   location      a redirect to the wrong place
+//   ledger-twice  every recorded mutation recorded twice (and one where none was)
+//   ledger-lost   recorded mutations lost
+// With ":both" (NEXTRS_NEGATIVE_CONTROL=identity:both) next start's
+// observation is corrupted the same way: a defect the comparison cannot see,
+// which only the scenarios' own expectations catch.
+export function corrupt(defect, observation, seen = new Set()) {
+  if (!observation || typeof observation !== "object" || seen.has(observation)) return;
+  seen.add(observation);
+  if (defect === "allow" && [401, 403, 307].includes(observation.status)) observation.status = 200;
+  if (defect === "set-cookie" && Array.isArray(observation.setCookie)) observation.setCookie = [];
+  if (defect === "location" && observation.headers?.location) observation.headers.location = "/elsewhere";
+  if (Array.isArray(observation.ledger)) {
+    if (defect === "ledger-twice") observation.ledger = observation.ledger.length ? [...observation.ledger, ...observation.ledger] : ["unexpected"];
+    if (defect === "ledger-lost") observation.ledger = [];
+  }
+  for (const [key, value] of Object.entries(observation)) {
+    if (defect === "identity" && typeof value === "string" && /u-(alice|bob)/.test(value)) {
+      observation[key] = value.replace(/u-(alice|bob)/g, (_, who) => (who === "alice" ? "u-bob" : "u-alice"));
+    } else if (value && typeof value === "object") corrupt(defect, value, seen);
+  }
+}

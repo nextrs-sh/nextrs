@@ -585,9 +585,21 @@
   // fetch
   // ---------------------------------------------------------------------
 
-  // The fetches each request started (set by 03_server.js). Those still
-  // open when the request ends, its waitUntil/after() work included, or
-  // when it is cancelled, are aborted: nothing outlives its request.
+  // Per-request state (set by 03_server.js), including the fetches each
+  // request started. When the request ends:
+  // * after a handler that finished (not one that was cancelled and may
+  //   still be running), a response whose body nobody has started to read
+  //   is released (its
+  //   connection and its place in the per-isolate cap; `await fetch()`
+  //   without reading the body is common, and Node holds such a body until
+  //   garbage collection);
+  // * a fetch still waiting for its response, or whose body is being read,
+  //   is detached, not aborted: libraries share one fetch among requests
+  //   (jose's JWKS reload) or refresh a cache in the background, and the
+  //   client that triggered it leaving must not fail the others. It is
+  //   aborted only after a grace as long as the request's deadline, and
+  //   stays bounded by its own limits (--net-timeout, --net-body-timeout,
+  //   --net-max-response, the per-isolate cap) and its AbortSignal.
   const requestScope = new internal.AsyncLocalStorage();
   internal.requestScope = requestScope;
 
@@ -687,9 +699,13 @@
 
   const EMPTY = new Uint8Array(0);
 
+  // http://localhost (the origin Next's handlers assume without an
+  // initURL), or the origin of the current request's initURL.
   function isInternalUrl(href) {
     const url = new URL(href);
-    return url.protocol === "http:" && url.hostname === "localhost" && url.port === "";
+    if (url.protocol === "http:" && url.hostname === "localhost" && url.port === "") return true;
+    const own = requestScope.getStore()?.selfOrigin;
+    return own != null && url.origin === own;
   }
 
   async function fetch(input, init = undefined) {
@@ -698,7 +714,8 @@
     if (signal.aborted) throw signal.reason;
     // Next marks requests to its own server with `next: { internal: 1 }`
     // (Server Action redirects and forwarding). The host serves those for
-    // http://localhost in-process; any other URL is an ordinary fetch.
+    // http://localhost or the request's own origin in-process; any other URL
+    // is an ordinary fetch.
     const internal = Boolean(init?.next?.internal) && isInternalUrl(request.url);
     const headers = outgoingHeaders(request.headers, internal);
     let bodyKind = "none";
@@ -745,7 +762,7 @@
         closed = true;
         ops.op_nextrs_fetch_close(id);
         signal.removeEventListener("abort", onAbort);
-        scope?.fetches?.delete(abort);
+        scope?.fetches?.delete(entry);
         if (body) closeOnCollect.unregister(body);
       };
       const abort = (reason) => {
@@ -763,7 +780,9 @@
       };
       const onAbort = () => abort(signal.reason);
       signal.addEventListener("abort", onAbort, { once: true });
-      if (scope) (scope.fetches ??= new Set()).add(abort);
+      let pulled = false;
+      const entry = { abort, unread: () => phase === "body" && !pulled };
+      if (scope) (scope.fetches ??= new Set()).add(entry);
       if (stream) upload(id, stream, abort);
 
       ops.op_nextrs_fetch_head(id).then(
@@ -782,6 +801,7 @@
                 controller = c;
               },
               async pull(c) {
+                pulled = true;
                 let chunk;
                 try {
                   chunk = await ops.op_nextrs_fetch_read(id);

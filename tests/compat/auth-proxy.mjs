@@ -210,21 +210,17 @@ scenarios["logout-action"] = {
 };
 
 // --- A protected mutation: the proxy guards its page; the action guards itself --
-// `expected`: the ledger the candidate must show (compared servers can
-// agree on a wrong answer; a malformed body once made both record nothing).
+// `expected`: the ledger both servers must show (compared servers can agree
+// on a wrong answer; a malformed body once made both record nothing).
 function mutation(name, path, headers, expected) {
-  const runOnce = async (base, side) => {
-    const key = `auth-${name}-${run}-${side}`;
-    const response = await look(base, actionRequest(base, path, ids.record, { key, id: "1" }, headers()));
-    await sleep(100);
-    return { response, ledger: await ledger(key) };
-  };
-  scenarios[name] = { kind: "compare", run: runOnce };
-  scenarios[`${name}-expected`] = {
-    kind: "candidate",
-    run: async (base) => {
-      const r = await runOnce(base, "expected");
-      return { ok: JSON.stringify(r.ledger) === JSON.stringify(expected), detail: { expected, ledger: r.ledger, status: r.response.status } };
+  scenarios[name] = {
+    kind: "compare",
+    expect: (o) => (JSON.stringify(o.ledger) === JSON.stringify(expected) ? null : `ledger ${JSON.stringify(o.ledger)}, expected ${JSON.stringify(expected)}`),
+    run: async (base, side) => {
+      const key = `auth-${name}-${run}-${side}`;
+      const response = await look(base, actionRequest(base, path, ids.record, { key, id: "1" }, headers()));
+      await sleep(100);
+      return { response, ledger: await ledger(key) };
     },
   };
 }
@@ -269,6 +265,83 @@ scenarios["concurrent-identities"] = {
     return { total, wrong: wrong.length, sample: wrong.slice(0, 3), failed };
   },
 };
+
+// --- What each critical scenario must observe, on both servers (Phase 2C audit) ---
+const loc = (o) => o.headers?.location ?? "";
+const PROTECTED = /dashboard of|account settings|quarterly reports|project /;
+const leaks = (o) => PROTECTED.test(o.body?.secret ?? "") || (typeof o.body === "string" && /"userId"/.test(o.body));
+const toLogin = (next) => (o) =>
+  leaks(o)
+    ? "protected content served"
+    : o.status === 307 && loc(o).startsWith("/login?next=") && (next === undefined || loc(o) === `/login?${new URLSearchParams({ next })}`)
+      ? null
+      : `status ${o.status} location ${loc(o)}, expected the login redirect${next ? ` with next=${next}` : ""}`;
+const unauthorized = (o) => (o.status === 401 && !leaks(o) ? null : `status ${o.status} body ${JSON.stringify(o.body)}`);
+const refusedOrLogin = (o) => (leaks(o) ? `protected content served (${o.status})` : null);
+const dashboardOf = (userId) => (o) =>
+  o.status === 200 && o.body?.info === JSON.stringify({ userId, proxyUser: userId }) ? null : `status ${o.status} info ${o.body?.info}`;
+const page = (title) => (o) => (o.status === 200 && o.body?.title === title ? null : `status ${o.status} page ${o.body?.title}`);
+const apiUser = (userId) => (o) => (o.status === 200 && JSON.parse(o.body).userId === userId ? null : `status ${o.status} body ${o.body}`);
+const signedIn = (userId, location) => (o) =>
+  o.response.status !== 303 && o.response.status !== 200
+    ? `login status ${o.response.status}`
+    : !o.dashboard
+      ? "no session cookie was set"
+      : location && ![loc(o.response).replace("http://SELF", ""), o.response.headers["x-action-redirect"]?.split(";")[0]].includes(location.replace("http://SELF", ""))
+        ? `redirected to ${loc(o.response) || o.response.headers["x-action-redirect"]}, expected ${location}`
+        : dashboardOf(userId)(o.dashboard);
+const notSignedIn = (o) => (o.dashboard ? `a session was set (${o.dashboard.status})` : null);
+const EXPECT = {
+  "public-home": page("Home"),
+  "public-login": page("Log in"),
+  "anon-dashboard": toLogin("/dashboard"),
+  "anon-dashboard-query": toLogin("/dashboard?tab=billing&x=1+2"),
+  "anon-static-page": toLogin("/account"),
+  "anon-isr-page": toLogin("/reports"),
+  "anon-dynamic-param": toLogin("/dashboard/projects/p-1"),
+  "anon-route-handler": unauthorized,
+  "anon-action-page": toLogin("/actions/protected"),
+  "anon-head": (o) => (o.status === 307 ? null : `status ${o.status}`),
+  "anon-rsc": refusedOrLogin,
+  "anon-rsc-prefetch": refusedOrLogin,
+  "anon-rsc-segment-prefetch": refusedOrLogin,
+  "anon-rsc-query": refusedOrLogin,
+  "valid-alice-dashboard": dashboardOf("u-alice"),
+  "valid-bob-dashboard": dashboardOf("u-bob"),
+  "valid-static-page": page("Account"),
+  "valid-isr-page": page("Reports"),
+  "valid-dynamic-param": (o) => (o.status === 200 && o.body?.secret === "project p-7 of Bob" ? null : `status ${o.status} ${o.body?.secret}`),
+  "valid-route-handler": apiUser("u-alice"),
+  "valid-login-redirects-to-dashboard": (o) => (o.status === 307 && loc(o) === "/dashboard" ? null : `status ${o.status} ${loc(o)}`),
+  "expired-session": toLogin("/dashboard"),
+  "expired-session-route-handler": unauthorized,
+  "not-yet-valid-session": toLogin("/dashboard"),
+  "wrong-secret": toLogin("/dashboard"),
+  "tampered-payload": toLogin("/dashboard"),
+  "tampered-signature": toLogin("/account"),
+  "alg-none": toLogin("/dashboard"),
+  "alg-not-allowed-hs512": toLogin("/dashboard"),
+  "missing-claims": toLogin("/dashboard"),
+  "malformed-cookie": toLogin("/dashboard"),
+  "empty-cookie": toLogin("/dashboard"),
+  "other-cookie-only": toLogin("/dashboard"),
+  "spoofed-identity-header-anon": toLogin("/dashboard"),
+  "spoofed-identity-header-session": dashboardOf("u-bob"),
+  "config-rewrite-alias-session": dashboardOf("u-alice"),
+  "login-action-success": signedIn("u-alice", "http://SELF/reports"),
+  "login-action-wrong-password": notSignedIn,
+  "login-action-open-redirect": signedIn("u-bob", "http://SELF/dashboard"),
+  "login-form-without-js": signedIn("u-bob", "http://SELF/dashboard/projects/p-2"),
+  "login-action-cross-origin": notSignedIn,
+  "concurrent-identities": (o) => (o.total === 240 && o.wrong === 0 && o.failed === 0 ? null : JSON.stringify(o)),
+};
+for (const name of Object.keys(scenarios)) {
+  if (name.startsWith("bypass-")) EXPECT[name] ??= refusedOrLogin;
+}
+for (const [name, expect] of Object.entries(EXPECT)) {
+  if (!scenarios[name]) throw new Error(`no scenario ${name}`);
+  scenarios[name].expect = expect;
+}
 
 const failures = await runScenarios("auth-proxy (jose)", scenarios, { baseline, candidate, json: args.json, only });
 process.exit(failures ? 1 : 0);

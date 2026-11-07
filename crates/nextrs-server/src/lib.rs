@@ -261,6 +261,17 @@ fn warn_external_rewrites(info: &BuildInfo, options: &ServerOptions) {
 struct SelfDispatch(std::sync::Weak<AppState>);
 
 impl nextrs_runtime::InternalDispatch for SelfDispatch {
+    /// The origin of the `initURL` requests get (`dynamic::render`):
+    /// `http(s)://<listen host>:<port>`.
+    fn serves(&self, url: &url::Url) -> bool {
+        let Some(state) = self.0.upgrade() else {
+            return false;
+        };
+        matches!(url.scheme(), "http" | "https")
+            && url.host_str() == Some(state.listen.host.as_str())
+            && url.port_or_known_default() == Some(state.listen.port)
+    }
+
     fn dispatch(
         &self,
         request: nextrs_runtime::InternalRequest,
@@ -343,6 +354,8 @@ struct AppState {
     routes: Vec<CompiledRoute>,
     executor: Option<Arc<Executor>>,
     max_request_body: u64,
+    /// `experimental.proxyTimeout` for external rewrites.
+    proxy_timeout: Option<std::time::Duration>,
     forwarded: ForwardedHeaders,
     /// `(.)`-style segments: responses then vary on `Next-URL`, which the
     /// executor path does not implement.
@@ -633,6 +646,10 @@ impl AppState {
             routes,
             executor: None,
             max_request_body: DEFAULT_MAX_REQUEST_BODY,
+            proxy_timeout: info
+                .routing
+                .proxy_timeout_ms
+                .map(std::time::Duration::from_millis),
             forwarded: ForwardedHeaders::Pass,
         })
     }
@@ -922,6 +939,7 @@ async fn serve_resolved(
                     client_host: original_headers.get(header::HOST),
                     body,
                     max_body: state.max_request_body,
+                    timeout: state.proxy_timeout,
                 },
             )
             .await;
@@ -963,6 +981,7 @@ async fn serve_resolved(
         body,
         client,
         max_body: state.max_request_body,
+        listen: &state.listen,
     };
 
     let Some(output) = output else {

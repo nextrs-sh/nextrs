@@ -314,7 +314,53 @@ pub struct MetricsSnapshot {
     pub upstream: UpstreamSnapshot,
     /// `None` when the shared cache is disabled.
     pub cache: Option<CacheSnapshot>,
+    /// Memory outside the V8 heaps (for soaks; not in the Prometheus text).
+    pub memory: MemorySnapshot,
     pub executors: Vec<ExecutorSnapshot>,
+}
+
+/// What the process holds outside the V8 heaps.
+#[derive(Debug, Clone, Serialize)]
+pub struct MemorySnapshot {
+    /// Web Crypto keys alive in all isolates (their material is in Rust).
+    pub crypto_keys: u64,
+    /// glibc's mallinfo2: the C heap Rust, V8's off-heap allocations and
+    /// native libraries use. `None` where it is not available.
+    pub malloc: Option<MallocSnapshot>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct MallocSnapshot {
+    /// Bytes obtained with sbrk (the main arena), and with mmap for large
+    /// blocks.
+    pub arena_bytes: u64,
+    pub mmap_bytes: u64,
+    /// Bytes in allocated blocks, and free bytes the allocator keeps.
+    pub in_use_bytes: u64,
+    pub free_bytes: u64,
+    /// Free bytes at the top of the heap that malloc_trim could release.
+    pub releasable_bytes: u64,
+}
+
+impl MallocSnapshot {
+    #[cfg(all(target_os = "linux", target_env = "gnu"))]
+    fn current() -> Option<Self> {
+        // SAFETY: mallinfo2 has no preconditions; it only reads the
+        // allocator's statistics (glibc >= 2.33).
+        let info = unsafe { libc::mallinfo2() };
+        Some(Self {
+            arena_bytes: info.arena as u64,
+            mmap_bytes: info.hblkhd as u64,
+            in_use_bytes: info.uordblks as u64,
+            free_bytes: info.fordblks as u64,
+            releasable_bytes: info.keepcost as u64,
+        })
+    }
+
+    #[cfg(not(all(target_os = "linux", target_env = "gnu")))]
+    fn current() -> Option<Self> {
+        None
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -393,6 +439,10 @@ impl MetricsSnapshot {
                     .collect(),
             },
             cache: None,
+            memory: MemorySnapshot {
+                crypto_keys: crate::webcrypto::live_keys(),
+                malloc: MallocSnapshot::current(),
+            },
             executors: Vec::new(),
         }
     }

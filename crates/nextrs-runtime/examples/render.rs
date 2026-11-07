@@ -38,6 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         initial_headers: Vec::new(),
         initial_status: None,
         invocation: nextrs_runtime::Invocation::Handler,
+        init_url: None,
     };
     let rendered = Instant::now();
     let tokio = tokio::runtime::Builder::new_current_thread()

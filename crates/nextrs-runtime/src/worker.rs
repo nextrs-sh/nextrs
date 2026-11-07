@@ -32,6 +32,10 @@ const SCRIPTS: &[(&str, &str)] = &[
         "ext:nextrs/node-polyfills.js",
         include_str!("../js/node-polyfills.js"),
     ),
+    (
+        "ext:nextrs/02_webcrypto.js",
+        include_str!("../js/02_webcrypto.js"),
+    ),
     ("ext:nextrs/02_node.js", include_str!("../js/02_node.js")),
     (
         "ext:nextrs/03_server.js",

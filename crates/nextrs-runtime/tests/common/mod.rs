@@ -50,6 +50,7 @@ pub fn request(entry: &str, headers: &[(&str, &str)]) -> RenderRequest {
         remote_address: None,
         initial_headers: Vec::new(),
         initial_status: None,
+        init_url: None,
         invocation: nextrs_runtime::Invocation::Handler,
     }
 }

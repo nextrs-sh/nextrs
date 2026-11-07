@@ -79,7 +79,17 @@ out="$(cd "$out" && pwd)"
 
 # 5100-5499 holds none of the Fetch standard's "bad ports", which Node's
 # fetch refuses (a random 4190, ManageSieve, failed every next start fetch).
-base_port=$((5100 + RANDOM % 400))
+# A base whose ports are all free (and none of them a system listener such
+# as systemd-resolved's LLMNR on 5355, which accepts but never answers).
+port_in_use() { (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null; }
+for _ in $(seq 1 50); do
+  base_port=$((5100 + RANDOM % 600))
+  free=1
+  for offset in $(seq 0 9); do
+    if port_in_use $((base_port + offset)); then free=0; break; fi
+  done
+  [[ $free == 1 ]] && break
+done
 next_port=$base_port
 nextrs_port=$((base_port + 1))
 # The data-fetching fixtures' upstream API (tests/compat/upstream.mjs), and
@@ -107,7 +117,7 @@ start_servers() {
   # A server left over from a previous start would answer instead of the
   # one started now (and the new one would fail to bind): refuse.
   for port in "$next_port" "$nextrs_port"; do
-    if curl -s -o /dev/null "http://127.0.0.1:$port/"; then
+    if curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port/"; then
       echo "port $port is still in use before starting the servers" >&2; exit 1
     fi
   done
@@ -127,10 +137,10 @@ start_servers() {
   pids+=($nextrs_pid)
   for port in "$next_port" "$nextrs_port"; do
     for _ in $(seq 1 120); do
-      curl -sf -o /dev/null "http://127.0.0.1:$port/api/health" && break
+      curl -sf --max-time 2 -o /dev/null "http://127.0.0.1:$port/api/health" && break
       sleep 0.25
     done
-    curl -sf -o /dev/null "http://127.0.0.1:$port/api/health" || { echo "server on $port did not start" >&2; tail -20 "$out"/*.log; exit 1; }
+    curl -sf --max-time 2 -o /dev/null "http://127.0.0.1:$port/api/health" || { echo "server on $port did not start" >&2; tail -20 "$out"/*.log; exit 1; }
   done
 }
 stop_servers() {
@@ -140,17 +150,17 @@ stop_servers() {
   # later start talk to a server that is still running.
   for port in "$next_port" "$nextrs_port"; do
     for _ in $(seq 1 80); do
-      curl -s -o /dev/null "http://127.0.0.1:$port/" || break
+      curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port/" || break
       sleep 0.25
     done
   done
-  if curl -s -o /dev/null "http://127.0.0.1:$next_port/" || curl -s -o /dev/null "http://127.0.0.1:$nextrs_port/"; then
+  if curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$next_port/" || curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$nextrs_port/"; then
     kill -KILL -- "-$next_pid" 2>/dev/null || true
     kill -KILL "$nextrs_pid" 2>/dev/null || true
     sleep 1
   fi
   for port in "$next_port" "$nextrs_port"; do
-    if curl -s -o /dev/null "http://127.0.0.1:$port/"; then
+    if curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port/"; then
       echo "a server on port $port did not stop" >&2; exit 1
     fi
   done
@@ -243,7 +253,7 @@ if [[ $proxy == 1 ]]; then
       tail -40 "$out/build-proxy-$variant.log"; exit 1;
     }
     for port in "$next_port" "$nextrs_port"; do
-      if curl -s -o /dev/null "http://127.0.0.1:$port/"; then echo "port $port is still in use" >&2; exit 1; fi
+      if curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port/"; then echo "port $port is still in use" >&2; exit 1; fi
     done
     (cd "$project" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 0.0.0.0 -p "$next_port") >> "$out/next-start-proxy.log" 2>&1 &
     next_pid=$!
@@ -256,7 +266,7 @@ if [[ $proxy == 1 ]]; then
     pids+=($nextrs_pid)
     for port in "$next_port" "$nextrs_port"; do
       for _ in $(seq 1 120); do
-        curl -s -o /dev/null "http://127.0.0.1:$port$prefix/api/health" && break
+        curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port$prefix/api/health" && break
         sleep 0.25
       done
     done

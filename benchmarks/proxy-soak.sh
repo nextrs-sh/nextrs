@@ -3,7 +3,7 @@
 # fixture, drives benchmarks/soak.mjs --app against it (proxy traffic,
 # aborted clients, periodic CPU stalls injected in the proxy) and stops it.
 #
-#   benchmarks/proxy-soak.sh --app next-proxy|platform --out DIR \
+#   benchmarks/proxy-soak.sh --app next-proxy|platform|jwks --out DIR \
 #        [--nextrs target/release/nextrs] [--isolates 4] [--minutes 60] \
 #        [--concurrency 24] [--inject-every 300] [--inject-ms 4000] [--stall-timeout 2]
 #
@@ -11,6 +11,9 @@
 #   platform    fixtures/next-platform-proxy, built by this script against
 #               the upstreams it starts (its external rewrite destinations
 #               are fixed at build time)
+#   jwks        fixtures/next-jwks-proxy (Phase 2C), built against the
+#               upstream; this script also starts the OpenID provider stub
+#               and generates the application's signing keys
 #
 # Writes DIR/soak-<app>-i<N>.json (samples + counts), the soak log and the
 # server log. Suspend is blocked with systemd-inhibit when available (a
@@ -42,7 +45,7 @@ while [[ $# -gt 0 ]]; do
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
-[[ "$app" == next-proxy || "$app" == platform ]] && [[ -n "$out" ]] || { echo "--app next-proxy|platform and --out are required" >&2; exit 2; }
+[[ "$app" == next-proxy || "$app" == platform || "$app" == jwks ]] && [[ -n "$out" ]] || { echo "--app next-proxy|platform|jwks and --out are required" >&2; exit 2; }
 mkdir -p "$out"
 out="$(cd "$out" && pwd)"
 
@@ -60,10 +63,25 @@ pids+=($!)
 node "$root/tests/compat/upstream.mjs" --port "$unlisted_port" > "$out/upstream-unlisted-$app-i$isolates.log" 2>&1 &
 pids+=($!)
 
+extra_env=()
+extra_net=()
 if [[ $app == next-proxy ]]; then
   project="$root/fixtures/next-proxy"
   serve="$project/.next"
   soak_flags=(--project "$project")
+elif [[ $app == jwks ]]; then
+  project="$root/fixtures/next-jwks-proxy"
+  oidc_port=$((base + 5))
+  export OIDC_ISSUER="http://127.0.0.1:$oidc_port"
+  APP_KEYS="$(node "$root/tests/compat/app-keys.mjs")"
+  export APP_KEYS
+  node "$root/tests/compat/oidc-stub.mjs" --port "$oidc_port" > "$out/oidc-$app-i$isolates.log" 2>&1 &
+  pids+=($!)
+  (cd "$project" && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-$app.log" 2>&1)
+  serve="$project"
+  soak_flags=(--upstream "$NEXTRS_UPSTREAM" --project "$project" --oidc "$OIDC_ISSUER")
+  extra_env=(--js-env OIDC_ISSUER --js-env APP_KEYS)
+  extra_net=(--net-allow "$OIDC_ISSUER")
 else
   project="$root/fixtures/next-platform-proxy"
   (cd "$project" && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-$app.log" 2>&1)
@@ -76,8 +94,8 @@ inhibit=()
 command -v systemd-inhibit > /dev/null && inhibit=(systemd-inhibit --what=sleep:idle --who=nextrs-proxy-soak --why="proxy soak")
 "$nextrs" start "$serve" --port "$port" --js-runtime embedded-v8 --isolates "$isolates" \
   --js-stall-timeout "$stall_timeout" --request-timeout 15 --metrics-addr "127.0.0.1:$metrics" \
-  --js-env NEXTRS_UPSTREAM --js-env NEXTRS_CLOSED_PORT --js-env NEXTRS_UNLISTED_PORT \
-  --net-allow "$NEXTRS_UPSTREAM" --net-allow "http://127.0.0.1:$closed_port" --net-allow-addr 127.0.0.1 \
+  --js-env NEXTRS_UPSTREAM --js-env NEXTRS_CLOSED_PORT --js-env NEXTRS_UNLISTED_PORT "${extra_env[@]}" \
+  --net-allow "$NEXTRS_UPSTREAM" --net-allow "http://127.0.0.1:$closed_port" "${extra_net[@]}" --net-allow-addr 127.0.0.1 \
   > "$out/server-$app-i$isolates.log" 2>&1 &
 server=$!
 pids+=($server)
