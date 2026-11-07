@@ -10,6 +10,8 @@
 #   intl      fixtures/next-intl-proxy      next-intl locale routing (tests/compat/intl-proxy.mjs)
 #   platform  fixtures/next-platform-proxy  a proxy that fetches, external rewrites, instrumentation,
 #                                           waitUntil, draft mode, dynamicParams (tests/compat/platform-proxy.mjs)
+#   jwks      fixtures/next-jwks-proxy      jose createRemoteJWKSet against a local OpenID provider, ES256/PS256/
+#                                           RS256/EdDSA application tokens (tests/compat/jwks-proxy.mjs)
 #
 # Without --next each fixture's lockfile is used (npm ci, in place). With
 # --next the fixture is copied to a temporary directory and that version is
@@ -24,7 +26,7 @@ next_version=""
 isolates=1
 out=""
 browser=0
-only="auth,intl,platform"
+only="auth,intl,platform,jwks"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
@@ -61,6 +63,10 @@ closed_port=$((base_port + 3))
 # platform fixture's "unlisted" destinations): next start reaches it,
 # NextRS must refuse it.
 unlisted_port=$((base_port + 4))
+# The local OpenID provider (tests/compat/oidc-stub.mjs): its issuer is an
+# allowed destination.
+oidc_port=$((base_port + 5))
+export OIDC_ISSUER="http://127.0.0.1:$oidc_port"
 export NEXTRS_UPSTREAM="http://127.0.0.1:$upstream_port"
 export NEXTRS_CLOSED_PORT="$closed_port"
 export NEXTRS_UNLISTED_PORT="$unlisted_port"
@@ -70,10 +76,15 @@ export NEXTRS_UNLISTED_PORT="$unlisted_port"
 SESSION_SECRET="$(head -c 32 /dev/urandom | base64 | tr -d '/+=')"
 DRAFT_SECRET="$(head -c 18 /dev/urandom | base64 | tr -d '/+=')"
 export SESSION_SECRET DRAFT_SECRET
+# The JWKS fixture's own signing keys (test keys, fresh per run).
+APP_KEYS="$(node "$root/tests/compat/app-keys.mjs")"
+export APP_KEYS
 
 node "$root/tests/compat/upstream.mjs" --port "$upstream_port" > "$out/upstream.log" 2>&1 &
 pids+=($!)
 node "$root/tests/compat/upstream.mjs" --port "$unlisted_port" > "$out/upstream-unlisted.log" 2>&1 &
+pids+=($!)
+node "$root/tests/compat/oidc-stub.mjs" --port "$oidc_port" > "$out/oidc.log" 2>&1 &
 pids+=($!)
 
 # prepare FIXTURE -> sets $project (the directory both servers serve).
@@ -108,8 +119,9 @@ start() {
   "$nextrs" start "$project" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
     --js-stall-timeout 3 --request-timeout 15 \
     --js-env NEXTRS_UPSTREAM --js-env NEXTRS_CLOSED_PORT --js-env NEXTRS_UNLISTED_PORT \
-    --js-env SESSION_SECRET --js-env DRAFT_SECRET \
-    --net-allow "http://127.0.0.1:$upstream_port" --net-allow "http://127.0.0.1:$closed_port" --net-allow-addr 127.0.0.1 "$@" >> "$out/nextrs-$fixture.log" 2>&1 &
+    --js-env SESSION_SECRET --js-env DRAFT_SECRET --js-env OIDC_ISSUER --js-env APP_KEYS \
+    --net-allow "http://127.0.0.1:$upstream_port" --net-allow "http://127.0.0.1:$closed_port" \
+    --net-allow "$OIDC_ISSUER" --net-allow-addr 127.0.0.1 "$@" >> "$out/nextrs-$fixture.log" 2>&1 &
   nextrs_pid=$!
   pids+=($nextrs_pid)
   for port in "$next_port" "$nextrs_port"; do
@@ -186,6 +198,14 @@ if wants platform && [[ -d "$root/fixtures/next-platform-proxy" ]]; then
   start next-platform-proxy
   run platform-proxy tests/compat/platform-proxy.mjs --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
     --dist "$project/.next" --isolates "$isolates" --json "$out/platform-proxy.json"
+  stop
+fi
+
+if wants jwks && [[ -d "$root/fixtures/next-jwks-proxy" ]]; then
+  prepare next-jwks-proxy
+  start next-jwks-proxy
+  run jwks-proxy tests/compat/jwks-proxy.mjs --baseline "$baseline" --candidate "$candidate" --oidc "$OIDC_ISSUER" \
+    --upstream "$NEXTRS_UPSTREAM" --dist "$project/.next" --isolates "$isolates" --json "$out/jwks-proxy.json"
   stop
 fi
 
