@@ -232,6 +232,45 @@ scenarios["ext-large-response"] = {
     return { status: r.status, length: r.headers.get("content-length"), bytes };
   },
 };
+// experimental.proxyTimeout (5 s in the fixture): an upstream that does
+// not answer in time gets next start's proxy error (500), and one that goes
+// quiet mid-body is cut off.
+scenarios["ext-proxy-timeout"] = {
+  kind: "compare",
+  expect: (o) => (o.status === 500 && o.body === "Internal Server Error" && o.seconds >= 4 && o.seconds < 7 ? null : JSON.stringify(o)),
+  run: async (base) => {
+    const started = Date.now();
+    const r = await fetch(`${base}/ext-too-slow`);
+    const body = await r.text();
+    return { status: r.status, body, seconds: Math.round((Date.now() - started) / 1000) };
+  },
+};
+scenarios["ext-proxy-timeout-mid-body"] = {
+  kind: "compare",
+  // Whether the first line reached the client before the cut is not
+  // compared: next start's compression holds it back, NextRS streams it
+  // (ext-streamed-response-incremental).
+  expect: (o) => (o.status === 200 && o.cut && o.seconds >= 4 && o.seconds < 6 ? null : JSON.stringify(o)),
+  run: async (base) => {
+    const started = Date.now();
+    const r = await fetch(`${base}/ext-stall`);
+    const reader = r.body.getReader();
+    const decoder = new TextDecoder();
+    let text = "";
+    let cut = false;
+    for (;;) {
+      try {
+        const { done, value } = await reader.read();
+        if (done) break;
+        text += decoder.decode(value, { stream: true });
+      } catch {
+        cut = true;
+        break;
+      }
+    }
+    return { status: r.status, cut: cut || !text.includes("line 2"), seconds: Math.round((Date.now() - started) / 1000) };
+  },
+};
 scenarios["ext-streamed-response"] = {
   kind: "compare",
   run: async (base) => {

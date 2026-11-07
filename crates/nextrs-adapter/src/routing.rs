@@ -12,8 +12,8 @@ use serde_json::Value;
 
 use crate::manifests::read_json_optional;
 use crate::{
-    DEFAULT_PROXY_BODY_LIMIT, HasSpec, InspectError, ProxyInfo, ProxyMatcher, RoutingRules,
-    RuleSpec, parse_byte_size,
+    DEFAULT_PROXY_BODY_LIMIT, DEFAULT_PROXY_TIMEOUT_MS, HasSpec, InspectError, ProxyInfo,
+    ProxyMatcher, RoutingRules, RuleSpec, parse_byte_size,
 };
 
 fn has_list(value: Option<&Value>) -> Vec<HasSpec> {
@@ -123,6 +123,7 @@ pub(crate) fn routing_rules(
         before_files,
         after_files,
         fallback,
+        proxy_timeout_ms: Some(DEFAULT_PROXY_TIMEOUT_MS),
         on_match_headers: rules(manifest.get("onMatchHeaders"), invalid, "onMatchHeaders"),
     })
 }
@@ -182,4 +183,44 @@ pub(crate) fn proxy_info(
         matchers,
         client_max_body_size: limit,
     }))
+}
+
+/// `experimental.proxyTimeout` from the resolved next.config
+/// (router-server passes `proxyTimeout === null ? undefined : proxyTimeout || 30000`).
+pub(crate) fn proxy_timeout_ms(config: Option<&Value>) -> Option<u64> {
+    match config
+        .and_then(|c| c.get("experimental"))
+        .and_then(|e| e.get("proxyTimeout"))
+    {
+        Some(Value::Null) => None,
+        Some(Value::Number(n)) => match n.as_f64() {
+            Some(ms) if ms > 0.0 => Some(ms.ceil() as u64),
+            _ => Some(DEFAULT_PROXY_TIMEOUT_MS),
+        },
+        _ => Some(DEFAULT_PROXY_TIMEOUT_MS),
+    }
+}
+
+#[cfg(test)]
+mod proxy_timeout_tests {
+    use super::{DEFAULT_PROXY_TIMEOUT_MS, proxy_timeout_ms};
+    use serde_json::json;
+
+    /// router-server's `proxyTimeout === null ? undefined : proxyTimeout || 30000`.
+    #[test]
+    fn proxy_timeout_follows_router_server() {
+        let with = |v| json!({ "experimental": { "proxyTimeout": v } });
+        assert_eq!(proxy_timeout_ms(None), Some(DEFAULT_PROXY_TIMEOUT_MS));
+        assert_eq!(
+            proxy_timeout_ms(Some(&json!({}))),
+            Some(DEFAULT_PROXY_TIMEOUT_MS)
+        );
+        assert_eq!(proxy_timeout_ms(Some(&with(json!(5000)))), Some(5000));
+        assert_eq!(
+            proxy_timeout_ms(Some(&with(json!(0)))),
+            Some(DEFAULT_PROXY_TIMEOUT_MS)
+        );
+        assert_eq!(proxy_timeout_ms(Some(&with(json!(null)))), None);
+        assert_eq!(proxy_timeout_ms(Some(&with(json!(1.5)))), Some(2));
+    }
 }

@@ -154,7 +154,8 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
     prerenders.sort_by(|a, b| a.pathname.cmp(&b.pathname));
     let public_dir = Some(project_dir.join("public")).filter(|dir| dir.is_dir());
     let mut invalid_rules = Vec::new();
-    let routing = routing::routing_rules(&dist_dir, &mut invalid_rules)?;
+    let mut routing = routing::routing_rules(&dist_dir, &mut invalid_rules)?;
+    routing.proxy_timeout_ms = routing::proxy_timeout_ms(required.as_ref().map(|r| &r.config));
     let proxy = routing::proxy_info(&dist_dir, required.as_ref().map(|r| &r.config))?;
     for rule in invalid_rules {
         diagnostics.push(Diagnostic {

@@ -60,6 +60,10 @@ pub(crate) struct Forward<'a> {
     pub client_host: Option<&'a HeaderValue>,
     pub body: Body,
     pub max_body: u64,
+    /// `experimental.proxyTimeout`: how long the upstream may take to
+    /// answer, and to send each further part of its body (httpxy sets it as
+    /// the upstream socket's idle timeout). `None`: no limit.
+    pub timeout: Option<std::time::Duration>,
 }
 
 pub(crate) fn denied(message: &str) -> Response {
@@ -228,7 +232,22 @@ pub(crate) async fn forward(upstream: Option<Upstream>, forward: Forward<'_>) ->
         headers,
         body,
     };
-    let response = match upstream.send(request).await {
+    let timeout = forward.timeout;
+    let sent = match timeout {
+        Some(limit) => match tokio::time::timeout(limit, upstream.send(request)).await {
+            Ok(sent) => sent,
+            Err(_) => {
+                // next start's proxy error handler: 500 Internal Server Error.
+                tracing::warn!(
+                    timeout_ms = limit.as_millis() as u64,
+                    "external rewrite timed out (experimental.proxyTimeout)"
+                );
+                return proxy_error();
+            }
+        },
+        None => upstream.send(request).await,
+    };
+    let response = match sent {
         Ok(response) => response,
         Err(error) if error.is_denied() => {
             tracing::warn!(%error, "external rewrite refused by the network policy");
@@ -246,11 +265,39 @@ pub(crate) async fn forward(upstream: Option<Upstream>, forward: Forward<'_>) ->
     };
     let mut headers = response.headers;
     strip_hop_by_hop(&mut headers);
-    let body = Body::from_stream(
-        response
-            .body
-            .map(|chunk| chunk.map_err(|error| std::io::Error::other(error.to_string()))),
-    );
+    let chunks = response
+        .body
+        .map(|chunk| chunk.map_err(|error| std::io::Error::other(error.to_string())));
+    // After the head, the same limit applies between parts of the body: an
+    // upstream that goes quiet for longer ends the response (next start
+    // destroys the proxied response then).
+    let body = match timeout {
+        Some(limit) => Body::from_stream(futures_util::stream::unfold(
+            (Box::pin(chunks), false),
+            move |(mut chunks, done)| async move {
+                if done {
+                    return None;
+                }
+                match tokio::time::timeout(limit, chunks.next()).await {
+                    Ok(Some(item)) => Some((item, (chunks, false))),
+                    Ok(None) => None,
+                    Err(_) => {
+                        tracing::warn!(
+                            timeout_ms = limit.as_millis() as u64,
+                            "external rewrite body timed out (experimental.proxyTimeout)"
+                        );
+                        Some((
+                            Err(std::io::Error::other(
+                                "the upstream went quiet past proxyTimeout",
+                            )),
+                            (chunks, true),
+                        ))
+                    }
+                }
+            },
+        )),
+        None => Body::from_stream(chunks),
+    };
     let mut out = Response::new(body);
     *out.status_mut() = StatusCode::from_u16(response.status).unwrap_or(StatusCode::BAD_GATEWAY);
     *out.headers_mut() = headers;
@@ -311,6 +358,7 @@ mod tests {
             client_host: Some(&host),
             body: Body::empty(),
             max_body: 10,
+            timeout: None,
         };
         let out = request_headers(&forward, false);
         let mut names: Vec<&str> = out.keys().map(HeaderName::as_str).collect();

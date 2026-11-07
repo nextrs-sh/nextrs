@@ -354,6 +354,8 @@ struct AppState {
     routes: Vec<CompiledRoute>,
     executor: Option<Arc<Executor>>,
     max_request_body: u64,
+    /// `experimental.proxyTimeout` for external rewrites.
+    proxy_timeout: Option<std::time::Duration>,
     forwarded: ForwardedHeaders,
     /// `(.)`-style segments: responses then vary on `Next-URL`, which the
     /// executor path does not implement.
@@ -644,6 +646,10 @@ impl AppState {
             routes,
             executor: None,
             max_request_body: DEFAULT_MAX_REQUEST_BODY,
+            proxy_timeout: info
+                .routing
+                .proxy_timeout_ms
+                .map(std::time::Duration::from_millis),
             forwarded: ForwardedHeaders::Pass,
         })
     }
@@ -933,6 +939,7 @@ async fn serve_resolved(
                     client_host: original_headers.get(header::HOST),
                     body,
                     max_body: state.max_request_body,
+                    timeout: state.proxy_timeout,
                 },
             )
             .await;

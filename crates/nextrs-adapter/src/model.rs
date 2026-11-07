@@ -42,7 +42,15 @@ pub struct RoutingRules {
     pub fallback: Vec<RuleSpec>,
     /// Headers applied only when a route or file matched.
     pub on_match_headers: Vec<RuleSpec>,
+    /// `experimental.proxyTimeout` for external rewrites, in milliseconds:
+    /// how long next start's proxy waits for the upstream (httpxy's
+    /// `proxyTimeout`, default 30 s; `0` also means 30 s). `None` when the
+    /// config sets it to `null` (no limit).
+    pub proxy_timeout_ms: Option<u64>,
 }
+
+/// next start's `proxyTimeout || 30000`.
+pub const DEFAULT_PROXY_TIMEOUT_MS: u64 = 30_000;
 
 impl RoutingRules {
     /// Rules a developer wrote (not Next's internal trailing-slash ones).
