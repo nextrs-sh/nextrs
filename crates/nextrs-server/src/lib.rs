@@ -897,6 +897,28 @@ async fn serve_resolved(
             file_response(&file, IMMUTABLE, method, headers).await
         }
         Output::EncodedApp => {
+            // next start's page handler does not match the encoded path and
+            // the not-found route answers instead: for a possible Server
+            // Action or an RSC request that is the not-found handler's own
+            // answer (as for any unmatched path), not the 404 document.
+            // router-server's no-store header is not set: routing matched
+            // the (decoded) file, so only the handler's own headers apply.
+            if is_possible_server_action(method, headers)
+                || headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+            {
+                return not_found_render(
+                    state,
+                    method,
+                    headers,
+                    &request_path,
+                    &initial,
+                    incoming(body),
+                    version,
+                    resolved_ref,
+                    false,
+                )
+                .await;
+            }
             let Some(page) = &state.not_found else {
                 return not_found_plain();
             };
@@ -1078,6 +1100,34 @@ async fn not_found(
     version: axum::http::Version,
     resolved: &resolve::Resolved,
 ) -> Response {
+    not_found_render(
+        state,
+        method,
+        headers,
+        request_path,
+        initial,
+        incoming,
+        version,
+        resolved,
+        true,
+    )
+    .await
+}
+
+/// `unmatched`: routing found nothing (router-server then sets its no-store
+/// Cache-Control before rendering the not-found route).
+#[allow(clippy::too_many_arguments)]
+async fn not_found_render(
+    state: &AppState,
+    method: &Method,
+    headers: &HeaderMap,
+    request_path: &str,
+    initial: &[(String, String)],
+    incoming: dynamic::Incoming<'_>,
+    version: axum::http::Version,
+    resolved: &resolve::Resolved,
+    unmatched: bool,
+) -> Response {
     let readonly = method == Method::GET || method == Method::HEAD;
     let routed = resolved.pathname.as_str();
     let real = if state.config.base_path.is_empty() {
@@ -1114,7 +1164,9 @@ async fn not_found(
         // router-server sets the no-store Cache-Control before it renders
         // the not-found route (after routing's own headers).
         let mut headers_404 = initial.to_vec();
-        headers_404.push(("cache-control".to_owned(), NO_STORE.to_owned()));
+        if unmatched {
+            headers_404.push(("cache-control".to_owned(), NO_STORE.to_owned()));
+        }
         let policy = dynamic::AppPathPolicy {
             headers: &headers_404,
             vary: Some(&state.rsc.vary_header),
