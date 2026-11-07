@@ -3,7 +3,7 @@
 # HTTP-level comparison against `next start`:
 #
 #   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
-#                           [--cache-components] [--proxy]
+#                           [--cache-components] [--proxy] [--proxy-combinations]
 #
 # Without --next the fixture's pinned lockfile is used (npm ci, in place).
 # With --next the fixture is copied to a temporary directory and that
@@ -20,6 +20,10 @@
 # each (with --browser, tests/browser/proxy.mjs too). next start serves it
 # on 0.0.0.0: bound to 127.0.0.1 it proxies its own proxy rewrites over
 # HTTP (see tests/compat/proxy.mjs).
+# --proxy-combinations (with --proxy) adds three builds of the same fixture:
+# basePath with trailingSlash, a path assetPrefix and
+# experimental.caseSensitiveRoutes (proxy, routing-config, and for the last
+# two tests/compat/config-flags.mjs).
 # Exits non-zero if any suite fails.
 set -euo pipefail
 
@@ -30,6 +34,7 @@ out=""
 browser=0
 cache_components=0
 proxy=0
+combinations=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
@@ -38,6 +43,7 @@ while [[ $# -gt 0 ]]; do
     --browser) browser=1; shift ;;
     --cache-components) cache_components=1; shift ;;
     --proxy) proxy=1; shift ;;
+    --proxy-combinations) combinations=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -228,9 +234,11 @@ if [[ $proxy == 1 ]]; then
     (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
   fi
   export NEXTRS_CLOSED_PORT="$closed_port"
-  for variant in default base-path trailing-slash; do
+  variants=(default base-path trailing-slash)
+  [[ $combinations == 1 ]] && variants+=(base-path-trailing-slash asset-prefix case-sensitive)
+  for variant in "${variants[@]}"; do
     dist=".next"; [[ $variant != default ]] && dist=".next-$variant"
-    prefix=""; [[ $variant == base-path ]] && prefix="/base"
+    prefix=""; [[ $variant == base-path* ]] && prefix="/base"
     (cd "$project" && rm -rf "$dist" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-proxy-$variant.log" 2>&1) || {
       tail -40 "$out/build-proxy-$variant.log"; exit 1;
     }
@@ -258,7 +266,11 @@ if [[ $proxy == 1 ]]; then
       --dist "$project/$dist" --variant "$variant" "${extra[@]}" --json "$out/proxy-$variant.json"
     run "routing-config-$variant" tests/compat/routing-config.mjs --baseline "$baseline" --candidate "$candidate" \
       --variant "$variant" --json "$out/routing-config-$variant.json"
-    if [[ $browser == 1 && $variant != trailing-slash ]]; then
+    if [[ $variant == asset-prefix || $variant == case-sensitive ]]; then
+      run "config-flags-$variant" tests/compat/config-flags.mjs --baseline "$baseline" --candidate "$candidate" \
+        --variant "$variant" --json "$out/config-flags-$variant.json"
+    fi
+    if [[ $browser == 1 && ( $variant == default || $variant == base-path ) ]]; then
       run "browser-proxy-$variant" tests/browser/proxy.mjs --baseline "$baseline" --candidate "$candidate" \
         --base-path "$prefix" --json "$out/browser-proxy-$variant.json"
     fi

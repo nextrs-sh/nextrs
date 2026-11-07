@@ -2,7 +2,7 @@
 // with next start, on fixtures/next-proxy.
 //
 //   node tests/compat/proxy.mjs --baseline URL --candidate URL --upstream URL \
-//        --dist DIR [--variant default|base-path|trailing-slash] \
+//        --dist DIR [--variant default|base-path|trailing-slash|base-path-trailing-slash] \
 //        [--request-timeout-ms N] [--stall-ms N] [--only a,b] [--json out.json]
 //
 // --dist is the build both servers serve (for Server Action ids). next
@@ -34,8 +34,10 @@ const SESSION = "session=synthetic-valid-session";
 // where next start would redirect to one (not for files or queries' keys).
 function p(path) {
   const [pathname, query] = path.split("?");
-  let out = variant === "base-path" ? (pathname === "/" ? "/base" : `/base${pathname}`) : pathname;
-  if (variant === "trailing-slash" && !out.endsWith("/") && !/\.[a-z0-9]+$/i.test(out)) out += "/";
+  const withBase = variant === "base-path" || variant === "base-path-trailing-slash";
+  const withSlash = variant === "trailing-slash" || variant === "base-path-trailing-slash";
+  let out = withBase ? (pathname === "/" ? "/base" : `/base${pathname}`) : pathname;
+  if (withSlash && !out.endsWith("/") && !/\.[a-z0-9]+$/i.test(out)) out += "/";
   return query === undefined ? out : `${out}?${query}`;
 }
 
@@ -169,7 +171,7 @@ get("double-slash", "//protected", {}, { raw: true });
 get("backslash", "/\\protected", {}, { raw: true });
 get("upper-case", p("/PROTECTED"));
 get("rsc-suffix", p("/protected.rsc"));
-get("data-request-unknown-build", `${variant === "base-path" ? "/base" : ""}/_next/data/unknown/protected.json`);
+get("data-request-unknown-build", `${variant.startsWith("base-path") ? "/base" : ""}/_next/data/unknown/protected.json`);
 get("location-header-reflected", p("/proxy/reflect"), { location: "http://127.0.0.1:9/evil" });
 get("query-data-req", p("/protected?__nextDataReq=1"));
 get("forwarded-host-redirect", p("/protected"), { "x-forwarded-host": "evil.example", "x-forwarded-proto": "https" });

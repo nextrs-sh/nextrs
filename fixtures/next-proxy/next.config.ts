@@ -8,12 +8,20 @@ const variant = process.env.NEXTRS_VARIANT ?? "default";
 // A port nothing listens on: the external rewrite and redirect targets.
 const closed = process.env.NEXTRS_CLOSED_PORT ?? "9";
 
+// Phase 2B adds combinations: base-path-trailing-slash (both),
+// asset-prefix (a path assetPrefix) and case-sensitive
+// (experimental.caseSensitiveRoutes).
+const withBase = variant === "base-path" || variant === "base-path-trailing-slash";
+const withSlash = variant === "trailing-slash" || variant === "base-path-trailing-slash";
+
 const nextConfig: NextConfig = {
-  // Each variant builds into its own directory, so all three can be served
-  // side by side from one checkout.
+  // Each variant builds into its own directory, so all of them can be
+  // served side by side from one checkout.
   distDir: variant === "default" ? ".next" : `.next-${variant}`,
-  basePath: variant === "base-path" ? "/base" : undefined,
-  trailingSlash: variant === "trailing-slash",
+  basePath: withBase ? "/base" : undefined,
+  trailingSlash: withSlash,
+  assetPrefix: variant === "asset-prefix" ? "/static-cdn" : undefined,
+  experimental: variant === "case-sensitive" ? { caseSensitiveRoutes: true } : undefined,
   async headers() {
     return [
       { source: "/:path*", headers: [{ key: "x-config-all", value: "1" }] },
