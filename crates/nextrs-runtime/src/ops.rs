@@ -155,6 +155,7 @@ deno_core::extension!(
         crate::webcrypto::op_nextrs_aes_gcm,
         crate::webcrypto::op_nextrs_aes_cbc,
         crate::webcrypto::op_nextrs_hkdf,
+        crate::webcrypto::op_nextrs_hkdf_bytes,
         crate::multipart::op_nextrs_multipart_parse,
     ],
     options = {

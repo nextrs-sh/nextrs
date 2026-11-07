@@ -496,7 +496,56 @@
     subtle,
     constants: {},
   };
-  for (const name of ["createCipheriv", "createDecipheriv", "createSign", "createVerify", "createECDH", "createDiffieHellman", "generateKeyPair", "generateKeyPairSync", "createPublicKey", "createPrivateKey", "createSecretKey", "pbkdf2", "pbkdf2Sync", "scrypt", "scryptSync", "hkdf", "hkdfSync", "publicEncrypt", "privateDecrypt", "sign", "verify"]) {
+  // HKDF (RFC 5869), as node:crypto's hkdf and hkdfSync: libraries pick
+  // it over Web Crypto when it exists (Auth.js's @panva/hkdf does).
+  const NODE_HKDF_HASHES = { sha1: "SHA-1", sha256: "SHA-256", sha384: "SHA-384", sha512: "SHA-512" };
+  const HKDF_LENGTHS = { sha1: 20, sha256: 32, sha384: 48, sha512: 64 };
+  function hkdfBytes(value, name) {
+    if (typeof value === "string") return Buffer.from(value, "utf8");
+    if (ArrayBuffer.isView(value)) return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+    if (value instanceof ArrayBuffer) return new Uint8Array(value);
+    if (value && typeof value === "object" && value.type === "secret") return unsupported("node:crypto", "hkdf", "a KeyObject as the key");
+    const error = new TypeError(`The "${name}" argument must be of type string or an instance of ArrayBuffer, Buffer, TypedArray or DataView.`);
+    error.code = "ERR_INVALID_ARG_TYPE";
+    throw error;
+  }
+  function hkdfSync(digest, ikm, salt, info, keylen) {
+    const hash = String(digest).toLowerCase();
+    if (!NODE_HKDF_HASHES[hash]) {
+      const error = new TypeError(`Invalid digest: ${digest}`);
+      error.code = "ERR_CRYPTO_INVALID_DIGEST";
+      throw error;
+    }
+    const key = hkdfBytes(ikm, "ikm");
+    const saltBytes = hkdfBytes(salt, "salt");
+    const infoBytes = hkdfBytes(info, "info");
+    if (infoBytes.byteLength > 1024) {
+      const error = new RangeError('The value of "info" is out of range. It must be <= 1024.');
+      error.code = "ERR_OUT_OF_RANGE";
+      throw error;
+    }
+    if (!Number.isInteger(keylen) || keylen < 0 || keylen > 255 * HKDF_LENGTHS[hash]) {
+      const error = new RangeError(`The value of "keylen" is out of range.`);
+      error.code = keylen > 255 * HKDF_LENGTHS[hash] ? "ERR_CRYPTO_INVALID_KEYLEN" : "ERR_OUT_OF_RANGE";
+      throw error;
+    }
+    // Node (OpenSSL) refuses to derive nothing.
+    if (keylen === 0) throw new Error("Deriving bits failed");
+    const out = ops.op_nextrs_hkdf_bytes(NODE_HKDF_HASHES[hash], key, saltBytes, infoBytes, keylen);
+    return out.buffer.slice(out.byteOffset, out.byteOffset + out.byteLength);
+  }
+  crypto.hkdfSync = hkdfSync;
+  crypto.hkdf = function hkdf(digest, ikm, salt, info, keylen, callback) {
+    if (typeof callback !== "function") {
+      const error = new TypeError('The "callback" argument must be of type function');
+      error.code = "ERR_INVALID_ARG_TYPE";
+      throw error;
+    }
+    // Argument errors throw synchronously, as in Node; the result is async.
+    const out = hkdfSync(digest, ikm, salt, info, keylen);
+    process.nextTick(callback, null, out);
+  };
+  for (const name of ["createCipheriv", "createDecipheriv", "createSign", "createVerify", "createECDH", "createDiffieHellman", "generateKeyPair", "generateKeyPairSync", "createPublicKey", "createPrivateKey", "createSecretKey", "pbkdf2", "pbkdf2Sync", "scrypt", "scryptSync", "publicEncrypt", "privateDecrypt", "sign", "verify"]) {
     crypto[name] = () => unsupported("node:crypto", name);
   }
 
@@ -1154,12 +1203,55 @@
   for (const [name, factory] of Object.entries(implemented)) BUILTINS.set(name, factory);
   for (const name of [
     "assert", "assert/strict", "child_process", "cluster", "console", "constants", "dgram",
-    "diagnostics_channel", "dns", "dns/promises", "domain", "http", "http2", "https", "net", "os",
+    "diagnostics_channel", "dns", "dns/promises", "domain", "http", "http2", "https", "net",
     "punycode", "querystring", "readline", "repl", "sqlite", "sys", "test", "tls", "trace_events",
-    "tty", "v8", "wasi", "zlib",
+    "v8", "wasi", "zlib",
   ]) {
     BUILTINS.set(name, () => unsupportedModule(name));
   }
+  // node:os: only what describes the runtime as process already does (the
+  // values NextRS reports for process.platform and process.arch). Host
+  // details (hostname, user, CPUs, memory, network interfaces, temp and
+  // home directories) are not the application's to read: calling them
+  // throws NextRSUnsupportedError, except homedir, which libraries probe
+  // for (`os.homedir || fallback`, OpenTelemetry's instrumentation loader
+  // does): it reads as undefined, with a diagnostic, so they fall back.
+  const os = {
+    EOL: "\n",
+    platform: () => process.platform,
+    arch: () => process.arch,
+    type: () => (process.platform === "linux" ? "Linux" : process.platform === "darwin" ? "Darwin" : "Windows_NT"),
+    endianness: () => "LE",
+    constants: Object.freeze({ signals: Object.freeze({}), errno: Object.freeze({}) }),
+  };
+  // A module NextRS implements in part: `object`'s members, `absent` ones
+  // read as undefined (with a diagnostic) for libraries that probe for
+  // them, every other member throws NextRSUnsupportedError when called.
+  function partialModule(name, object, absent = new Set()) {
+    const missing = unsupportedModule(name);
+    return new Proxy(object, {
+      get(target, key, receiver) {
+        if (typeof key === "symbol" || key in target) return Reflect.get(target, key, receiver);
+        if (IGNORED_MEMBERS.has(key)) return undefined;
+        if (absent.has(key)) {
+          const member = `node:${name}.${key}`;
+          if (!reported.has(member)) {
+            reported.add(member);
+            ops.op_nextrs_diagnostic("missing-member", `${member} is not implemented (read as undefined)`);
+          }
+          return undefined;
+        }
+        return missing[key];
+      },
+      has(target, key) {
+        return key in target;
+      },
+    });
+  }
+  BUILTINS.set("os", () => partialModule("os", os, new Set(["homedir"])));
+  // node:tty: no stream of the runtime is a terminal (process.stdout and
+  // stderr say isTTY: false); logging libraries ask before using colors.
+  BUILTINS.set("tty", () => partialModule("tty", { isatty: () => false }));
   Module.builtinModules = [...BUILTINS.keys()];
 
   internal.Module = Module;

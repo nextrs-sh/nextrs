@@ -341,6 +341,29 @@ async function aesCbc(r) {
   r.gcmJwkExport = sortKeys(await subtle.exportKey("jwk", gcm));
 }
 
+// node:crypto's hkdf and hkdfSync (Auth.js's @panva/hkdf uses them).
+async function nodeHkdf(r) {
+  const nodeCrypto = require("crypto");
+  const code = (fn) => {
+    try {
+      fn();
+      return null;
+    } catch (error) {
+      return error.code ?? error.name;
+    }
+  };
+  r.nodeHkdfSyncTc1 = hex(nodeCrypto.hkdfSync("sha256", Buffer.alloc(22, 0x0b), unhex("000102030405060708090a0b0c"), unhex("f0f1f2f3f4f5f6f7f8f9"), 42));
+  r.nodeHkdfSyncStrings = hex(nodeCrypto.hkdfSync("sha512", "secret", "salt", "info", 64));
+  r.nodeHkdfSyncIsArrayBuffer = nodeCrypto.hkdfSync("sha1", "k", "", "", 8) instanceof ArrayBuffer;
+  r.nodeHkdfCallback = await new Promise((resolve) => nodeCrypto.hkdf("sha384", "k", "s", "i", 48, (err, out) => resolve(err ? String(err.code) : hex(out))));
+  r.nodeHkdfZeroLength = code(() => nodeCrypto.hkdfSync("sha256", "k", "s", "i", 0));
+  r.nodeHkdfBadDigest = code(() => nodeCrypto.hkdfSync("md4x", "k", "s", "i", 8));
+  r.nodeHkdfTooLong = code(() => nodeCrypto.hkdfSync("sha256", "k", "s", "i", 255 * 32 + 1));
+  r.nodeHkdfInfoTooLong = code(() => nodeCrypto.hkdfSync("sha256", "k", "s", Buffer.alloc(1025), 8));
+  r.nodeHkdfBadKey = code(() => nodeCrypto.hkdfSync("sha256", 42, "s", "i", 8));
+  r.nodeHkdfNoCallback = code(() => nodeCrypto.hkdf("sha256", "k", "s", "i", 8));
+}
+
 async function concurrency(r) {
   // Many interleaved operations on shared keys: every result is right.
   const p256 = await subtle.importKey("jwk", KEYS.p256.private, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
@@ -367,6 +390,7 @@ async function run() {
   await generated(r);
   await hkdf(r);
   await aesCbc(r);
+  await nodeHkdf(r);
   await concurrency(r);
   const spki = (jwk, alg) => subtle.importKey("jwk", publicJwk(jwk), alg, true, ["verify"]).then((k) => subtle.exportKey("spki", k));
   const nextrsOnly = {

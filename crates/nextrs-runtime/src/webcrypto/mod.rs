@@ -565,3 +565,20 @@ pub(crate) fn op_nextrs_hkdf(
     };
     secret::hkdf(hash, ikm, salt, info, bits)
 }
+
+/// node:crypto's `hkdf`/`hkdfSync`: HKDF over key bytes JavaScript passes
+/// (Node takes the input keying material directly, not a CryptoKey).
+/// `len` is in bytes.
+#[op2]
+#[buffer]
+pub(crate) fn op_nextrs_hkdf_bytes(
+    #[string] hash: &str,
+    #[buffer] ikm: &[u8],
+    #[buffer] salt: &[u8],
+    #[buffer] info: &[u8],
+    #[smi] len: u32,
+) -> Result<Vec<u8>, JsErrorBox> {
+    check_data_len(ikm.len() + salt.len() + info.len(), "HKDF")?;
+    let hash = Hash::parse(hash)?;
+    secret::hkdf(hash, ikm, salt, info, len.saturating_mul(8))
+}
