@@ -233,24 +233,6 @@ scenarios["action-revalidates-isr"] = {
   },
 };
 
-// Equal ledgers are not enough (a malformed action body once made both
-// servers record nothing, and the scenarios compared 0 with 0): the
-// candidate must also have executed what the scenario says.
-for (const [name, executions] of [
-  ["action-executes-once", 1],
-  ["action-protected-anonymous", 0],
-  ["action-protected-session", 1],
-]) {
-  const scenario = scenarios[name];
-  scenarios[`${name}-expected`] = {
-    kind: "candidate",
-    run: async (base) => {
-      const r = await scenario.run(base, "expected");
-      return { ok: r.executions === executions, detail: { expected: executions, executions: r.executions, status: r.response?.status } };
-    },
-  };
-}
-
 // --- Isolation under concurrency -------------------------------------------------------
 scenarios["concurrent-request-isolation"] = {
   // Each request carries its own value and must get only its own back.
@@ -297,16 +279,6 @@ scenarios["concurrent-request-isolation"] = {
     return { total, wrong, failed };
   },
 };
-// Equal counts are not enough: neither server may cross values.
-const isolation = scenarios["concurrent-request-isolation"];
-scenarios["concurrent-request-isolation-none-wrong"] = {
-  kind: "candidate",
-  run: async (base) => {
-    const r = await isolation.run(base);
-    return { ok: r.wrong === 0 && r.failed === 0, detail: r };
-  },
-};
-
 // --- HTTP/1.0 framing of a proxy's direct response ------------------------------------
 // HTTP/1.0 has no chunked encoding: a body without Content-Length must end
 // with the connection (NextRS once kept it open, breaking keep-alive clients).
@@ -381,6 +353,83 @@ if (args["stall-ms"]) {
       return { ok, detail: { stalled: r.status, error: r.headers?.["x-nextrs-error"], after: after.status } };
     },
   };
+}
+
+// --- What each critical scenario must observe, on both servers --------------------------
+// (Phase 2C audit.) Agreement with next start is not enough: a fixture or
+// request defect can make both servers give the same wrong answer, which
+// is how two Phase 2A scenarios compared nothing. These are absolute.
+const loc = (o) => o.headers?.location ?? "";
+const ends = (path) => new RegExp(`${p(path).replace(/[.?/]/g, "\\$&")}$`);
+const page = (title, extra = {}) => (o) =>
+  o.status !== 200
+    ? `status ${o.status}, expected 200 (${title})`
+    : o.body?.title !== title
+      ? `page ${o.body?.title}, expected ${title}`
+      : extra.slug !== undefined && o.body?.slug !== extra.slug
+        ? `slug ${o.body?.slug}, expected ${extra.slug}`
+        : null;
+const redirect = (status, match) => (o) =>
+  o.status === status && match.test(loc(o)) ? null : `status ${o.status} location ${loc(o)}, expected ${status} matching ${match}`;
+const toLogin = (o) =>
+  o.body?.secret
+    ? "protected content served"
+    : o.status === 307 && /\/login\/?\?next=%2Fprotected/.test(loc(o))
+      ? null
+      : `status ${o.status} location ${loc(o)}, expected the login redirect`;
+const noSecret = (o) => (o.body?.secret || (o.status === 200 && /^protected/.test(o.body?.title ?? "")) ? `protected content served (${o.status} ${o.body?.title})` : null);
+const executions = (n) => (o) => (o.executions === n ? null : `executed ${o.executions} times, expected ${n}`);
+const EXPECT = {
+  "next-static": page("target"),
+  "next-home": page("home"),
+  "next-dynamic": page("dynamic"),
+  "redirect-307": redirect(307, ends("/target")),
+  "redirect-308-query": redirect(308, /\/target\/?\?x=1$/),
+  "redirect-external": redirect(307, /^https:\/\/example\.com\/landing$/),
+  "redirect-response-303": redirect(303, ends("/target")),
+  "redirect-auth-static": toLogin,
+  "redirect-auth-isr": toLogin,
+  "redirect-auth-rsc": toLogin,
+  "auth-session-static": page("protected"),
+  "auth-session-isr": page("protected isr"),
+  "auth-session-wrong": toLogin,
+  "auth-spoofed-user-header": toLogin,
+  "rewrite-static": page("target"),
+  "rewrite-query": page("rewritten", { slug: "from-proxy" }),
+  "rewrite-dynamic": page("rewritten", { slug: "abc" }),
+  "rewrite-isr": page("isr"),
+  "rewrite-prerendered": page("static"),
+  "rewrite-missing": (o) => (o.status === 404 ? null : `status ${o.status}, expected 404`),
+  "direct-json": (o) => (o.status === 201 && JSON.parse(o.body).proxied === true ? null : `status ${o.status}`),
+  "direct-text-418": (o) => (o.status === 418 && o.body === "teapot from proxy" ? null : `status ${o.status}`),
+  // next start refuses a proxy Response that carries Location without a
+  // redirect status (500), rather than redirecting or passing it on.
+  "direct-location-not-redirect": (o) => (o.status === 500 && !loc(o) ? null : `status ${o.status} location ${loc(o)}, expected 500`),
+  "proxy-exception": (o) => (o.status === 500 ? null : `status ${o.status}, expected 500`),
+  "internal-rewrite-header-on-protected": toLogin,
+  "subrequest-header": toLogin,
+  "matched-path-header": toLogin,
+  "encoded-pathname": noSecret,
+  "encoded-isr-pathname": noSecret,
+  "dot-segments": noSecret,
+  "double-slash": noSecret,
+  "backslash": noSecret,
+  "upper-case": noSecret,
+  "rsc-suffix": noSecret,
+  "data-request-unknown-build": noSecret,
+  "query-data-req": noSecret,
+  "forwarded-host-redirect": (o) => noSecret(o) ?? (o.status === 307 ? null : `status ${o.status}`),
+  "location-header-reflected": (o) => (o.status === 200 ? null : `status ${o.status}: a client's Location header redirected`),
+  "action-executes-once": executions(1),
+  "action-protected-anonymous": executions(0),
+  "action-protected-session": executions(1),
+  "action-revalidates-isr": (o) => (o.regenerated && o.stable ? null : `regenerated ${o.regenerated}, stable ${o.stable}`),
+  "concurrent-request-isolation": (o) => (o.total === 240 && o.wrong === 0 && o.failed === 0 ? null : JSON.stringify(o)),
+  "isr-cached-through-proxy": (o) => page("isr")(o.first) ?? page("isr")(o.second),
+};
+for (const [name, expect] of Object.entries(EXPECT)) {
+  if (!scenarios[name]) throw new Error(`no scenario ${name}`);
+  scenarios[name].expect = expect;
 }
 
 const failures = await runScenarios(`proxy (${variant})`, scenarios, { baseline, candidate, json: args.json, only });
