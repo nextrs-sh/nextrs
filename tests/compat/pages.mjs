@@ -445,10 +445,16 @@ scenarios["isr-stale-then-regenerated"] = {
 scenarios["isr-failed-regeneration-keeps-page"] = {
   kind: "compare",
   run: async (base) => {
-    const before = await look(base, { path: page("/isr") });
+    // Settle first: a regeneration the previous scenario started may still
+    // be running (slowly, on a busy machine) and would make the page fresh.
+    let before = await look(base, { path: page("/isr") });
+    for (let i = 0; i < 40 && before.headers["x-nextjs-cache"] !== "HIT"; i++) {
+      await sleep(100);
+      before = await look(base, { path: page("/isr") });
+    }
     await fetch(`${upstream}/flag?name=pages-isr-fail&on=1`, { method: "POST" });
     try {
-      await sleep(2300);
+      await sleep(2600);
       const during = await look(base, { path: page("/isr") });
       await sleep(400);
       const again = await look(base, { path: page("/isr") });

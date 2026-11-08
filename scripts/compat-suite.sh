@@ -37,7 +37,8 @@
 # --pages builds fixtures/next-pages (a Pages Router application with a
 # proxy) three times (default, basePath, trailingSlash) and runs
 # tests/compat/pages.mjs on each, tests/compat/pages-isolation.mjs against
-# both servers on the default build and, with --browser,
+# both servers and tests/compat/pages-reliability.mjs (NextRS) on the
+# default build and, with --browser,
 # tests/browser/pages.mjs on the default and basePath builds (--only-pages
 # runs this part alone); then
 # fixtures/next-hybrid (app/ and pages/ with a proxy) with
@@ -370,6 +371,10 @@ if [[ $pages == 1 ]]; then
         --dist "$project/$dist" --requests 1200 --concurrency 64 --aborts 20 --json "$out/pages-isolation.json"
       run pages-isolation-next-start tests/compat/pages-isolation.mjs --target "$baseline" --upstream "$NEXTRS_UPSTREAM" \
         --dist "$project/$dist" --requests 1200 --concurrency 64 --aborts 20 --json "$out/pages-isolation-next-start.json"
+      # NextRS only, on its own port: stalls, the heap limit, no replay,
+      # graceful shutdown.
+      run pages-reliability tests/compat/pages-reliability.mjs --nextrs "$nextrs" --project "$project" \
+        --upstream "$NEXTRS_UPSTREAM" --port "$((base_port + 8))" --json "$out/pages-reliability.json"
     fi
     if [[ $browser == 1 && ( $variant == default || $variant == base-path ) ]]; then
       run "browser-pages-$variant" tests/browser/pages.mjs --baseline "$baseline" --candidate "$candidate" \
