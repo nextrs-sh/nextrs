@@ -266,6 +266,8 @@ fn group_prerenders(
                 rsc: None,
                 segments: Vec::new(),
                 postponed: false,
+                pages: false,
+                data: None,
             });
         let stored = StoredResponse {
             file: project_dir.join(file),

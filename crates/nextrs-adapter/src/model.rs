@@ -29,7 +29,33 @@ pub struct BuildInfo {
     pub proxy: Option<ProxyInfo>,
     /// `images-manifest.json` (absent from very old or exported builds).
     pub images: Option<crate::ImagesConfig>,
+    /// What the Pages Router needs beyond its routes and prerenders.
+    pub pages_router: PagesRouterInfo,
     pub diagnostics: Vec<Diagnostic>,
+}
+
+/// Pages Router build output besides routes and prerenders.
+#[derive(Debug, Clone, Default, Serialize)]
+pub struct PagesRouterInfo {
+    /// `pages/_error.js`: renders an error status that has no page of its
+    /// own (next start's last resort in renderErrorToResponse).
+    pub error_entry: Option<PathBuf>,
+    /// routes-manifest `dataRoutes`, in manifest order: the
+    /// `/_next/data/<build id>/<page>.json` endpoints of pages with
+    /// `getStaticProps` or `getServerSideProps`.
+    pub data_routes: Vec<DataRoute>,
+    /// Pages with `getStaticProps` (static generation): next start answers
+    /// methods other than GET and HEAD with 405 before rendering them.
+    pub ssg_pages: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct DataRoute {
+    /// The page, e.g. `/books/[id]`.
+    pub page: String,
+    /// `dataRouteRegex`, matched against the pathname without basePath.
+    pub regex: String,
+    pub dynamic: bool,
 }
 
 /// The rule lists `next start`'s router applies, in its order.
@@ -317,6 +343,13 @@ pub struct Prerender {
     /// Next's handler resumes its dynamic parts on every request.
     #[serde(default)]
     pub postponed: bool,
+    /// Pages Router output: a page without data functions (`pages/x.html`,
+    /// `data` None) or a `getStaticProps` page (`data` is its JSON).
+    #[serde(default)]
+    pub pages: bool,
+    /// Pages Router page data (`.json`), served for `/_next/data` requests.
+    #[serde(default)]
+    pub data: Option<StoredResponse>,
 }
 
 impl Prerender {

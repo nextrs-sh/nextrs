@@ -71,7 +71,12 @@ pub(crate) enum Output {
     Public(PathBuf),
     /// An App Router route; `item_path` is the pathname without basePath
     /// and trailing slash (the key of its prerender, when there is one).
-    App { route: usize, item_path: String },
+    App {
+        route: usize,
+        item_path: String,
+        /// A Pages Router `/_next/data` request for this route's page.
+        data: Option<crate::pages::DataMatch>,
+    },
     /// A path that names an app route only once decoded (`/%70rotected`):
     /// next start matches the file but its handler answers not found.
     EncodedApp,
@@ -524,6 +529,37 @@ pub(crate) async fn resolve(
     done(Outcome::NotFound, Some(router), body)
 }
 
+/// A request routed by its pathname alone (filesystem, then dynamic
+/// routes), without next.config rules or the proxy: next-server's own
+/// route matching, which its `revalidate()` requests take.
+pub(crate) async fn direct(
+    state: &AppState,
+    request: RouteRequest<'_>,
+) -> (Outcome, Resolved, Body) {
+    let pathname = request.uri.path().to_owned();
+    let query = request
+        .uri
+        .query()
+        .and_then(|q| parse_relative_url(&format!("/?{q}")).ok())
+        .map(|parsed| parsed.query)
+        .unwrap_or_default();
+    let outcome = match check_true(state, &pathname).await {
+        Some(output) => Outcome::Output(output),
+        None => Outcome::NotFound,
+    };
+    let resolved = Resolved {
+        headers: JsMap::new(),
+        headers_modified: false,
+        res_headers: JsMap::new(),
+        pathname,
+        query,
+        did_rewrite: false,
+        middleware_cookies: Vec::new(),
+        from_proxy: false,
+    };
+    (outcome, resolved, request.body)
+}
+
 fn has_prefix(path: &str, prefix: &str) -> bool {
     path == prefix || path.starts_with(&format!("{prefix}/"))
 }
@@ -641,6 +677,17 @@ pub(crate) async fn get_item(state: &AppState, pathname: &str) -> Option<Output>
         return Some(Output::App {
             route,
             item_path: item.to_owned(),
+            data: None,
+        });
+    }
+    // A Pages Router data request for a page without parameters.
+    if let Some(page) = crate::pages::static_data_page(state, item)
+        && let Some(route) = state.exact_route(&page)
+    {
+        return Some(Output::App {
+            route,
+            item_path: page,
+            data: Some(crate::pages::DataMatch::Static),
         });
     }
     (decoded != item && state.exact_route(&decoded).is_some()).then_some(Output::EncodedApp)
@@ -658,9 +705,21 @@ pub(crate) async fn check_true(state: &AppState, pathname: &str) -> Option<Outpu
     } else {
         strip_base_path(pathname, base)?
     };
+    // Data routes come first among next start's dynamic routes (a page
+    // catch-all would match their paths too).
+    if let Some((page, pathname)) = crate::pages::dynamic_data_page(state, path)
+        && let Some(route) = state.routes.iter().position(|r| r.page == page)
+    {
+        return Some(Output::App {
+            route,
+            item_path: pathname,
+            data: Some(crate::pages::DataMatch::Dynamic),
+        });
+    }
     state.dynamic_route(path).map(|route| Output::App {
         route,
         item_path: path.to_owned(),
+        data: None,
     })
 }
 

@@ -9,6 +9,7 @@ mod dynamic;
 mod etag;
 mod external;
 mod image;
+mod pages;
 mod resolve;
 #[doc(hidden)]
 pub mod routing;
@@ -371,7 +372,10 @@ impl nextrs_runtime::InternalDispatch for SelfDispatch {
                     }))
                 }
             };
-            let builder = builder.extension(SelfDispatched);
+            let mut builder = builder.extension(SelfDispatched);
+            if request.revalidation {
+                builder = builder.extension(Revalidation);
+            }
             let Ok(request) = builder.body(body) else {
                 return internal_failure(StatusCode::BAD_REQUEST);
             };
@@ -435,6 +439,7 @@ struct AppState {
     listen: Listen,
     build_id: String,
     images: Option<Arc<image::Optimizer>>,
+    pages_router: pages::PagesState,
 }
 
 /// next.config rules, compiled once at startup.
@@ -572,6 +577,12 @@ impl AppState {
         let mut pages = HashMap::new();
         let mut not_found = None;
         for prerender in &info.prerenders {
+            // Pages Router output: static pages are kept by PagesState;
+            // getStaticProps pages are served by Next's handler from the
+            // shared cache, which it seeds from these files.
+            if prerender.pages {
+                continue;
+            }
             // ISR pages are served by Next's handler (from the shared cache,
             // seeded from these files), which decides when to regenerate.
             if prerender.revalidate.is_some() {
@@ -718,6 +729,7 @@ impl AppState {
                 .map(std::time::Duration::from_millis),
             forwarded: ForwardedHeaders::Pass,
             images: None,
+            pages_router: pages::PagesState::load(info).await?,
         })
     }
 }
@@ -788,10 +800,18 @@ async fn load_cached(
     }))
 }
 
+/// next-server's `revalidate()` request (`res.revalidate`): routed to its
+/// page directly, as next start hands it to the page handler without
+/// router-server (no next.config rules, no proxy). Set only by the
+/// runtime's revalidation op, never from a client request.
+#[derive(Clone, Copy)]
+struct Revalidation;
+
 async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Response {
     let (parts, body) = request.into_parts();
     let client = parts.extensions.get::<ClientAddr>().map(|c| c.0);
     let internal = parts.extensions.get::<SelfDispatched>().is_some();
+    let revalidation = internal && parts.extensions.get::<Revalidation>().is_some();
     let image_source = parts.extensions.get::<ImageSubrequest>().is_some();
     let axum::http::request::Parts {
         method,
@@ -812,18 +832,19 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
         headers.remove(*name);
     }
 
-    let (outcome, resolved, body) = resolve::resolve(
-        &state,
-        resolve::RouteRequest {
-            method: &method,
-            uri: &uri,
-            version,
-            headers: &headers,
-            body,
-            client,
-        },
-    )
-    .await;
+    let request = resolve::RouteRequest {
+        method: &method,
+        uri: &uri,
+        version,
+        headers: &headers,
+        body,
+        client,
+    };
+    let (outcome, resolved, body) = if revalidation {
+        resolve::direct(&state, request).await
+    } else {
+        resolve::resolve(&state, request).await
+    };
     let res_headers = resolved.res_headers.clone();
     let response = serve_resolved(
         &state,
@@ -1160,10 +1181,43 @@ async fn serve_resolved(
             }
             file_response(&file, PUBLIC_FILE, method, headers).await
         }
-        Output::App { route, item_path } => {
+        Output::App {
+            route,
+            item_path,
+            data,
+        } => {
             let route = &state.routes[route];
             let path = item_path.as_str();
             let invocation = invocation_for(state, resolved_ref, &route.page, path);
+            if matches!(route.kind, RouteKind::PagesPage | RouteKind::PagesApi) {
+                let ctx = pages::Ctx {
+                    method,
+                    uri,
+                    headers,
+                    client,
+                    version,
+                    initial: &initial,
+                    max_body: state.max_request_body,
+                    listen: &state.listen,
+                };
+                return match pages::serve(state, route, path, data, ctx, body, invocation).await {
+                    pages::Next::Done(response) => response,
+                    pages::Next::NotFound => {
+                        not_found_render(
+                            state,
+                            method,
+                            headers,
+                            &request_path,
+                            &initial,
+                            incoming(Body::empty()),
+                            version,
+                            resolved_ref,
+                            true,
+                        )
+                        .await
+                    }
+                };
+            }
             let run = |entry: &Path,
                        body: Body,
                        status: Option<u16>,
@@ -1426,6 +1480,38 @@ async fn not_found_render(
         let response = dynamic::render(executor, entry, &policy, incoming).await;
         return dynamic::frame_for(version, response);
     }
+    // router-server answers a data request routing did not match with an
+    // empty JSON object when the build has a proxy.
+    if unmatched && state.proxy.is_some() && headers.contains_key("x-nextjs-data") {
+        return pages::data_not_found(routed);
+    }
+    // A Pages Router build without an App Router not-found page.
+    if state.not_found.is_none() && state.pages_router_404() {
+        let ctx = pages::Ctx {
+            method,
+            uri: incoming.uri,
+            headers,
+            client: incoming.client,
+            version,
+            initial,
+            max_body: state.max_request_body,
+            listen: &state.listen,
+        };
+        let keep = initial
+            .iter()
+            .filter_map(|(n, v)| {
+                Some((
+                    HeaderName::from_bytes(n.as_bytes()).ok()?,
+                    HeaderValue::from_str(v).ok()?,
+                ))
+            })
+            .collect();
+        if let Some(response) =
+            pages::not_found(state, ctx, keep, unmatched.then_some(NO_STORE)).await
+        {
+            return response;
+        }
+    }
     // next start marks the not-found shell cacheable only when it is
     // requested by its own path.
     let cache_control = if request_path == "/_not-found" {
@@ -1446,6 +1532,44 @@ async fn not_found_render(
         ),
         None => not_found_plain(),
     }
+}
+
+impl AppState {
+    /// The build renders its 404 through the Pages Router.
+    fn pages_router_404(&self) -> bool {
+        self.pages_router.not_found.is_some() || self.pages_router.error_entry.is_some()
+    }
+}
+
+/// The not-found page a Pages Router handler asked for
+/// (`routerServerContext.render404`), keeping the headers it set: the App
+/// Router's not-found page when the build has one (next start prefers it),
+/// else the Pages Router's.
+pub(crate) async fn render_not_found_for_handler(
+    state: &AppState,
+    ctx: pages::Ctx<'_>,
+    keep: Vec<(HeaderName, HeaderValue)>,
+) -> Option<Response> {
+    if let Some(page) = &state.not_found {
+        let mut response = pages::html_response(
+            state,
+            page,
+            StatusCode::NOT_FOUND,
+            None,
+            ctx.headers,
+            ctx.method,
+        );
+        let headers = response.headers_mut();
+        for (name, value) in keep {
+            if name == header::CACHE_CONTROL {
+                headers.insert(name, value);
+            } else {
+                headers.append(name, value);
+            }
+        }
+        return Some(response);
+    }
+    pages::not_found(state, ctx, keep, None).await
 }
 
 /// Executor metrics for a separate (loopback) listener: `GET /metrics` in
@@ -1589,10 +1713,16 @@ impl AppState {
 /// generateStaticParams routes for params that were not prerendered; and
 /// prerendered routes whose output Rust does not hold (route handlers).
 fn executable_entry(route: &CompiledRoute) -> Option<&Path> {
-    let kind_ok = matches!(route.kind, RouteKind::AppPage | RouteKind::AppRoute);
+    let kind_ok = matches!(
+        route.kind,
+        RouteKind::AppPage | RouteKind::AppRoute | RouteKind::PagesPage | RouteKind::PagesApi
+    );
+    // A Pages Router page without data functions is compiled to plain HTML
+    // (`pages/about.html`), which has no handler.
     (kind_ok && route.runtime == Runtime::Nodejs)
         .then_some(route.entry.as_deref())
         .flatten()
+        .filter(|entry| entry.extension().is_some_and(|ext| ext == "js"))
 }
 
 /// next start validates the `_rsc` cache-busting parameter before any App

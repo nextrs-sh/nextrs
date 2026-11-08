@@ -53,6 +53,16 @@ pub(crate) struct RoutesManifest {
     #[serde(default)]
     pub i18n: Option<Value>,
     pub rsc: Option<RscManifest>,
+    /// Pages Router `/_next/data` endpoints.
+    #[serde(default)]
+    pub data_routes: Vec<DataRouteEntry>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct DataRouteEntry {
+    pub page: String,
+    pub data_route_regex: String,
 }
 
 impl RoutesManifest {
@@ -129,6 +139,9 @@ pub(crate) struct PrerenderManifest {
     pub routes: BTreeMap<String, PrerenderRoute>,
     #[serde(default)]
     pub dynamic_routes: BTreeMap<String, Value>,
+    /// Pages whose getStaticProps returned `notFound` at build time.
+    #[serde(default)]
+    pub not_found_routes: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
