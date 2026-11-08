@@ -60,7 +60,7 @@ fn has_conditions(specs: &[HasSpec]) -> Result<Vec<HasCondition>, String> {
 }
 
 /// A JavaScript regex source compiled as `new RegExp(source, flags)`.
-fn js_regex(source: &str, case_insensitive: bool) -> Result<Regex, String> {
+pub(crate) fn js_regex(source: &str, case_insensitive: bool) -> Result<Regex, String> {
     RegexBuilder::new(source)
         .case_insensitive(case_insensitive)
         .build()
