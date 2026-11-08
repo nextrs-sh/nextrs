@@ -131,10 +131,6 @@ pub(crate) fn static_data_page(state: &crate::AppState, item: &str) -> Option<St
         .find(|candidate| state.pages_router.data_static.contains(candidate))
 }
 
-/// `/_next/data/<this build>/...` without the `.json` suffix, in a build
-/// with a `server/pages` directory (next-server's `handleNextDataRequest`
-/// renders the 404 page for it).
-
 /// The page path a data response names (`x-nextjs-matched-path`): without
 /// basePath or a trailing slash, as next start's page pathnames are.
 pub(crate) fn matched_path(state: &crate::AppState, pathname: &str) -> String {
@@ -150,6 +146,10 @@ pub(crate) fn matched_path(state: &crate::AppState, pathname: &str) -> String {
         path.to_owned()
     }
 }
+
+/// `/_next/data/<this build>/...` without the `.json` suffix, in a build
+/// with a `server/pages` directory (next-server's `handleNextDataRequest`
+/// renders the 404 page for it).
 pub(crate) fn is_unservable_data_path(state: &crate::AppState, pathname: &str) -> bool {
     if !state.pages_router.pages_dir {
         return false;
@@ -569,7 +569,9 @@ pub(crate) async fn serve(
             body,
         )
     };
-    let response = dynamic::render(executor, &entry, &policy, ctx.incoming(body)).await;
+    #[cfg(feature = "negative-controls")]
+    let entry: &std::path::Path = &entry;
+    let response = dynamic::render(executor, entry, &policy, ctx.incoming(body)).await;
     #[cfg(feature = "negative-controls")]
     let response = match crate::pages_controls::shared_ssr() {
         Some(shared)

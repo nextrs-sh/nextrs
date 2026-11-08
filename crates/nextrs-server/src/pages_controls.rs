@@ -59,13 +59,14 @@ pub(crate) fn params(uri: &axum::http::Uri, dynamic: bool) -> Option<axum::http:
     pq.parse().ok()
 }
 
+/// A stored response: status, headers, body.
+type SharedResponse = (u16, Vec<(String, String)>, Bytes);
+type SharedResponses = Mutex<HashMap<String, SharedResponse>>;
+
 /// `cross-user`: getServerSideProps output is shared between requests of
 /// the same path, whoever sent them (a cache that ignores the cookie).
-pub(crate) fn shared_ssr()
--> Option<&'static Mutex<HashMap<String, (u16, Vec<(String, String)>, Bytes)>>> {
-    static SHARED: std::sync::OnceLock<
-        Mutex<HashMap<String, (u16, Vec<(String, String)>, Bytes)>>,
-    > = std::sync::OnceLock::new();
+pub(crate) fn shared_ssr() -> Option<&'static SharedResponses> {
+    static SHARED: std::sync::OnceLock<SharedResponses> = std::sync::OnceLock::new();
     active("cross-user").then(|| SHARED.get_or_init(Default::default))
 }
 
