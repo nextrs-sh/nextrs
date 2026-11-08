@@ -49,12 +49,13 @@ temporary copy) and runs the suites against both servers:
 
 ```bash
 scripts/compat-suite.sh --isolates 1 --out compat-out \
-  --browser --cache-components --proxy --proxy-combinations --images
+  --browser --cache-components --proxy --proxy-combinations --images --pages
 scripts/realworld-suite.sh --isolates 1 --out realworld-out --browser
 ```
 
 `--next 16.4.5` runs the same suites against another Next.js release;
-`--only-images` runs the image suites alone.
+`--only-images` and `--only-pages` run the image or the Pages Router suites
+alone.
 
 | Suite | What it checks |
 |---|---|
@@ -81,10 +82,15 @@ scripts/realworld-suite.sh --isolates 1 --out realworld-out --browser
 | [`image.mjs`](../tests/compat/image.mjs) | `/_next/image`: parameter validation, traversal attempts, formats, sizes, orientation, colour profiles, alpha, animated and corrupt sources, decompression bombs, conditional requests, cache behaviour, remote sources through a local upstream ([`image-upstream.mjs`](../tests/compat/image-upstream.mjs)). Images are compared decoded: format, size and alpha exactly, pixels by fidelity to an unencoded reference |
 | [`image-https.mjs`](../tests/compat/image-https.mjs) | HTTPS image sources, with a test CA made for each run ([`image-certs.sh`](../tests/compat/image-certs.sh)): trusted, untrusted and mismatched certificates, redirects, body limits, timeouts, slow bodies, clients that leave, concurrent downloads |
 | [`image-asset-prefix.mjs`](../tests/compat/image-asset-prefix.mjs) | `next/image` on `assetPrefix` builds (a path, and an absolute origin served by a local CDN stand-in): rendered image URLs, every optimized URL, prefixed static media |
+| [`pages.mjs`](../tests/compat/pages.mjs) | The Pages Router ([`next-pages`](../fixtures/next-pages/), default, `basePath` and `trailingSlash` builds): static pages, the custom App and Document, 404/500 and blocked pages, `getServerSideProps` (params, query, headers, cookies, fetch, redirects, `notFound`, errors), `getStaticProps` with every `fallback` mode, ISR (stale, regenerated, failed regeneration, on-demand `res.revalidate`), `/_next/data` routes, API routes (JSON, forms, raw bodies, limits, streams, cookies, errors, a mutation ledger), Preview Mode (including a cookie minted by the other server), the proxy in front of pages and their data routes, RSC and conditional requests |
+| [`pages-isolation.mjs`](../tests/compat/pages-isolation.mjs) | Overlapping `getServerSideProps`, data-route and API requests, each with its own identity, plus clients that leave and mutations that must run once |
+| [`hybrid.mjs`](../tests/compat/hybrid.mjs) | App Router and Pages Router in one build ([`next-hybrid`](../fixtures/next-hybrid/)): both routers' pages, route handlers and API routes, data and RSC requests, the App Router not-found page answering for both, a rewrite between them, `next/image`, one proxy in front of both |
 | [`browser/actions.mjs`](../tests/browser/actions.mjs) | Server Actions in Chromium (playwright-core), with and without JavaScript: what a user sees, cookies, every action request's status and headers |
 | [`browser/proxy.mjs`](../tests/browser/proxy.mjs) | Client-side navigation through the proxy and config rules |
 | [`browser/realworld.mjs`](../tests/browser/realworld.mjs) | The `jose` and `next-intl` applications: login and logout, redirects back, a protected mutation, language detection, locale switching |
 | [`browser/image.mjs`](../tests/browser/image.mjs) | `next/image`: selected sources and colours, lazy loading, preload, blur placeholders, responsive selection, broken sources, revalidation |
+| [`browser/pages.mjs`](../tests/browser/pages.mjs) | The Pages Router in Chromium: hydration with the custom App, Document and global CSS, client navigation through `/_next/data`, back/forward and reload, redirects and `notFound` during client navigation, fallback pages, Preview Mode, a protected page reached by the client router |
+| [`browser/hybrid.mjs`](../tests/browser/hybrid.mjs) | Navigation between the App Router and the Pages Router: links both ways, back/forward, reload, cookie continuity, authenticated pages in each router, an optimized image |
 
 Each script documents its usage in its header comment. Recorded runs are kept
 next to the scripts as JSON (`tests/compat/*.json`).
@@ -116,10 +122,14 @@ servers: when the two servers agree on a wrong answer (a fixture or test
 defect), the suite reports `ORACLE-FAIL` instead of a match.
 
 Negative controls (`realworld-suite.sh --negative-controls`, and the
-`negative-controls` cargo feature for the image engine) rerun the suites with
-deliberate defects (a repeated mutation, an action that never runs,
-credentials dropped, another user's data, lost cookies, wrong redirects,
-broken image limits) and must fail.
+`negative-controls` cargo feature for the image engine and the Pages Router,
+run by [`pages-negative-controls.sh`](../scripts/pages-negative-controls.sh))
+rerun the suites with deliberate defects (a repeated mutation, an action that
+never runs, credentials dropped, another user's data, lost cookies, wrong
+redirects, broken image limits, the wrong page or data route selected, a
+skipped `getServerSideProps` or API handler, wrong route parameters, the
+proxy skipped for data requests) and must fail. Release builds never enable
+the feature.
 
 ## Continuous integration
 
