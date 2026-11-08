@@ -1126,7 +1126,25 @@ async fn serve_resolved(
                 )
                 .await;
             }
+            // base server: a data request no page handler matched, in a build
+            // with a proxy, gets an empty JSON object naming the path.
+            if state.proxy.is_some() && headers.contains_key("x-nextjs-data") {
+                return pages::data_unmatched(&resolved_ref.pathname);
+            }
             let Some(page) = &state.not_found else {
+                // A Pages Router build: next start's page handler renders
+                // the 404 page (no router-server Cache-Control: routing
+                // matched the decoded file).
+                if let Some(page) = &state.pages_router.not_found {
+                    return pages::html_response(
+                        state,
+                        page,
+                        StatusCode::NOT_FOUND,
+                        None,
+                        headers,
+                        method,
+                    );
+                }
                 return not_found_plain();
             };
             prerendered(
@@ -1237,10 +1255,12 @@ async fn serve_resolved(
                     // NoFallbackError (params the page has no entry for):
                     // router-server routes on without this output, which
                     // ends at the not-found route.
+                    // NoFallbackError, or the handler asked for the 404
+                    // page (routerServerContext.render404).
                     if response
                         .headers()
                         .get("x-nextrs-error")
-                        .is_some_and(|v| v == "no-fallback")
+                        .is_some_and(|v| v == "no-fallback" || v == "render-404")
                     {
                         return not_found_render(
                             state,
@@ -1821,14 +1841,10 @@ fn prerendered(
     let etag = cached.etag.as_ref().filter(|_| state.config.generate_etags);
     if let Some(etag) = etag {
         headers.insert(header::ETAG, etag.clone());
-        let fresh = request
-            .get(header::IF_NONE_MATCH)
-            .and_then(|v| v.to_str().ok())
-            .is_some_and(|tags| tags.split(',').any(|t| t.trim() == etag || t.trim() == "*"));
-        if fresh {
-            *response.status_mut() = StatusCode::NOT_MODIFIED;
-            return response;
-        }
+    }
+    if etag::fresh(request, etag.and_then(|e| e.to_str().ok()), None) {
+        *response.status_mut() = StatusCode::NOT_MODIFIED;
+        return response;
     }
     if let Ok(value) = HeaderValue::from_str(content_type) {
         headers.insert(header::CONTENT_TYPE, value);
@@ -1876,7 +1892,11 @@ async fn file_response(
     if let Some(last_modified) = &last_modified {
         headers.insert(header::LAST_MODIFIED, last_modified.clone());
     }
-    if is_fresh(request, etag.as_ref(), modified) {
+    if etag::fresh(
+        request,
+        etag.as_ref().and_then(|e| e.to_str().ok()),
+        last_modified.as_ref().and_then(|l| l.to_str().ok()),
+    ) {
         *response.status_mut() = StatusCode::NOT_MODIFIED;
         return response;
     }
@@ -1893,33 +1913,6 @@ async fn file_response(
         *response.body_mut() = Body::from(bytes);
     }
     response
-}
-
-fn is_fresh(
-    request: &HeaderMap,
-    etag: Option<&HeaderValue>,
-    modified: Option<std::time::SystemTime>,
-) -> bool {
-    if let Some(tags) = request
-        .get(header::IF_NONE_MATCH)
-        .and_then(|v| v.to_str().ok())
-    {
-        return etag
-            .is_some_and(|etag| tags.split(',').any(|t| t.trim() == "*" || t.trim() == etag));
-    }
-    let since = request
-        .get(header::IF_MODIFIED_SINCE)
-        .and_then(|v| v.to_str().ok())
-        .and_then(|v| httpdate::parse_http_date(v).ok());
-    match (since, modified) {
-        // HTTP dates have second precision.
-        (Some(since), Some(modified)) => modified
-            .duration_since(UNIX_EPOCH)
-            .ok()
-            .zip(since.duration_since(UNIX_EPOCH).ok())
-            .is_some_and(|(m, s)| m.as_secs() <= s.as_secs()),
-        _ => false,
-    }
 }
 
 /// Routing redirects (router-server) carry the target as body, with a
