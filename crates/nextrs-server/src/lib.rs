@@ -8,6 +8,7 @@
 mod dynamic;
 mod etag;
 mod external;
+mod image;
 mod resolve;
 #[doc(hidden)]
 pub mod routing;
@@ -16,6 +17,7 @@ mod serve;
 mod static_files;
 
 pub use crate::dynamic::DEFAULT_MAX_REQUEST_BODY;
+pub use crate::image::{ImageCacheOptions, ImageOptions};
 pub use crate::serve::{ClientAddr, ServeOptions, serve};
 
 use std::borrow::Cow;
@@ -101,6 +103,11 @@ impl ForwardedHeaders {
 #[derive(Clone, Copy)]
 struct SelfDispatched;
 
+/// Marks the request for an image's source (`fetchInternalImage`): the
+/// image endpoint does not answer it, so a rewrite cannot loop it back.
+#[derive(Clone, Copy)]
+struct ImageSubrequest;
+
 #[derive(Debug, Clone)]
 pub struct ServerOptions {
     /// Start even when the build uses features NextRS cannot serve.
@@ -116,6 +123,8 @@ pub struct ServerOptions {
     /// `localhost:<port>` and its redirects are made relative against
     /// `<host>:<port>`, as next start does with its hostname and port.
     pub listen: SocketAddr,
+    /// `/_next/image` (transformations, remote sources, cache).
+    pub images: ImageOptions,
 }
 
 impl Default for ServerOptions {
@@ -126,6 +135,7 @@ impl Default for ServerOptions {
             max_request_body: DEFAULT_MAX_REQUEST_BODY,
             forwarded: ForwardedHeaders::Pass,
             listen: SocketAddr::from(([127, 0, 0, 1], 3000)),
+            images: ImageOptions::default(),
         }
     }
 }
@@ -148,6 +158,9 @@ pub enum StartError {
         rule: String,
         error: String,
     },
+    /// The image optimizer could not start (a pattern, the cache directory
+    /// or the network client).
+    Images(String),
 }
 
 impl fmt::Display for StartError {
@@ -166,6 +179,7 @@ impl fmt::Display for StartError {
             Self::Io { path, source } => write!(f, "cannot read {}: {source}", path.display()),
             Self::RouteRegex { page, error } => write!(f, "route {page}: {error}"),
             Self::Routing { rule, error } => write!(f, "routing rule {rule}: {error}"),
+            Self::Images(error) => write!(f, "image optimizer: {error}"),
         }
     }
 }
@@ -174,6 +188,27 @@ impl std::error::Error for StartError {}
 
 /// Builds the axum application for one Next.js build.
 pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, StartError> {
+    app_with_stats(info, options)
+        .await
+        .map(|(router, _)| router)
+}
+
+/// Image optimizer counters and cache sizes, for `metrics_app`.
+#[derive(Clone)]
+pub struct ImageStats(Arc<image::Optimizer>);
+
+impl ImageStats {
+    pub fn snapshot(&self) -> Vec<(&'static str, u64)> {
+        self.0.snapshot()
+    }
+}
+
+/// [`app`], plus the image optimizer's statistics (when the build has an
+/// image config).
+pub async fn app_with_stats(
+    info: &BuildInfo,
+    options: &ServerOptions,
+) -> Result<(Router, Option<ImageStats>), StartError> {
     let unsupported: Vec<Diagnostic> = info
         .diagnostics
         .iter()
@@ -189,19 +224,36 @@ pub async fn app(info: &BuildInfo, options: &ServerOptions) -> Result<Router, St
         return Err(StartError::Unsupported(unsupported));
     }
     let state = AppState::load(info).await?;
+    let images = match &info.images {
+        Some(images) => Some(Arc::new(
+            image::Optimizer::new(
+                images,
+                &info.config.base_path,
+                &info.build_id,
+                &options.images,
+            )
+            .map_err(StartError::Images)?,
+        )),
+        None => None,
+    };
     let state = Arc::new(AppState {
         executor: options.executor.clone(),
         max_request_body: options.max_request_body,
         forwarded: options.forwarded.clone(),
         listen: Listen::from(options.listen),
+        images,
         ..state
     });
+    if let Some(images) = &state.images {
+        images.attach(Arc::downgrade(&state));
+    }
+    let stats = state.images.clone().map(ImageStats);
     warn_external_rewrites(info, options);
     if let Some(executor) = &options.executor {
         // Weak: the executor must not keep the app (and itself) alive.
         executor.set_internal_dispatch(Arc::new(SelfDispatch(Arc::downgrade(&state))));
     }
-    Ok(Router::new().fallback(handle).with_state(state))
+    Ok((Router::new().fallback(handle).with_state(state), stats))
 }
 
 /// Config rewrites to a fixed other origin that the network policy refuses
@@ -253,6 +305,19 @@ fn warn_external_rewrites(info: &BuildInfo, options: &ServerOptions) {
             );
         }
     }
+}
+
+/// The source of a local image (`fetchInternalImage`): a GET without
+/// headers through the server's own routing, as next start sends it to its
+/// router (public files and `/_next/static` without JavaScript; routes and
+/// the proxy as for any request).
+pub(crate) fn image_subrequest(
+    state: Arc<AppState>,
+    mut request: Request,
+) -> std::pin::Pin<Box<dyn std::future::Future<Output = Response> + Send>> {
+    request.extensions_mut().insert(SelfDispatched);
+    request.extensions_mut().insert(ImageSubrequest);
+    Box::pin(async move { handle(State(state), request).await })
 }
 
 /// Serves Next.js's requests to its own server (Server Action redirects
@@ -369,6 +434,7 @@ struct AppState {
     public_files: std::collections::HashSet<String>,
     listen: Listen,
     build_id: String,
+    images: Option<Arc<image::Optimizer>>,
 }
 
 /// next.config rules, compiled once at startup.
@@ -651,6 +717,7 @@ impl AppState {
                 .proxy_timeout_ms
                 .map(std::time::Duration::from_millis),
             forwarded: ForwardedHeaders::Pass,
+            images: None,
         })
     }
 }
@@ -725,6 +792,7 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
     let (parts, body) = request.into_parts();
     let client = parts.extensions.get::<ClientAddr>().map(|c| c.0);
     let internal = parts.extensions.get::<SelfDispatched>().is_some();
+    let image_source = parts.extensions.get::<ImageSubrequest>().is_some();
     let axum::http::request::Parts {
         method,
         uri,
@@ -758,7 +826,16 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
     .await;
     let res_headers = resolved.res_headers.clone();
     let response = serve_resolved(
-        &state, outcome, &resolved, body, &method, &uri, &headers, version, client,
+        &state,
+        outcome,
+        &resolved,
+        body,
+        &method,
+        &uri,
+        &headers,
+        version,
+        client,
+        image_source,
     )
     .await;
     // HTTP/1.0 framing for every response, the proxy's direct responses
@@ -890,6 +967,7 @@ async fn serve_resolved(
     original_headers: &HeaderMap,
     version: axum::http::Version,
     client: Option<SocketAddr>,
+    image_source: bool,
 ) -> Response {
     use resolve::{Outcome, Output};
     let readonly = method == Method::GET || method == Method::HEAD;
@@ -1041,10 +1119,29 @@ async fn serve_resolved(
                 method,
             )
         }
-        Output::Image => unsupported(
-            "image-optimizer",
-            "/_next/image (image optimization) is not implemented in NextRS Phase 0",
-        ),
+        Output::Image => {
+            let optimizer = state.images.as_ref().filter(|o| !o.images().disabled());
+            match optimizer {
+                // A source request that routed back to the endpoint.
+                Some(_) if image_source => image::loop_detected(),
+                Some(optimizer) => optimizer.serve(method, headers, &resolved.query).await,
+                // `images.unoptimized`, a custom loader, or no manifest:
+                // next start renders its 404.
+                None => {
+                    not_found(
+                        state,
+                        method,
+                        headers,
+                        &request_path,
+                        &initial,
+                        incoming(body),
+                        version,
+                        resolved_ref,
+                    )
+                    .await
+                }
+            }
+        }
         Output::Public(file) => {
             if !readonly {
                 // next start answers 405 for other methods on public files;
@@ -1354,23 +1451,38 @@ async fn not_found_render(
 /// Executor metrics for a separate (loopback) listener: `GET /metrics` in
 /// the Prometheus text format, `GET /metrics.json`, and `GET /healthz`
 /// (200 while at least one isolate is ready, 503 otherwise).
-pub fn metrics_app(executor: Arc<Executor>) -> Router {
+pub fn metrics_app(executor: Arc<Executor>, images: Option<ImageStats>) -> Router {
     use axum::routing::get;
     let text = executor.clone();
     let json = executor.clone();
+    let text_images = images.clone();
     Router::new()
         .route(
             "/metrics",
             get(move || async move {
-                (
-                    [(header::CONTENT_TYPE, "text/plain; version=0.0.4")],
-                    text.metrics().to_prometheus(),
-                )
+                let mut out = text.metrics().to_prometheus();
+                if let Some(images) = &text_images {
+                    for (name, value) in images.snapshot() {
+                        out.push_str(&format!("nextrs_image_{name} {value}\n"));
+                    }
+                }
+                ([(header::CONTENT_TYPE, "text/plain; version=0.0.4")], out)
             }),
         )
         .route(
             "/metrics.json",
-            get(move || async move { axum::Json(json.metrics()) }),
+            get(move || async move {
+                let mut value = serde_json::to_value(json.metrics()).unwrap_or_default();
+                if let (Some(images), Some(object)) = (&images, value.as_object_mut()) {
+                    let map: serde_json::Map<String, serde_json::Value> = images
+                        .snapshot()
+                        .into_iter()
+                        .map(|(k, v)| (k.to_owned(), v.into()))
+                        .collect();
+                    object.insert("images".into(), map.into());
+                }
+                axum::Json(value)
+            }),
         )
         .route(
             "/healthz",

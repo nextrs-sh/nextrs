@@ -53,7 +53,9 @@ proxy that fetches; external rewrites under the network policy; Draft Mode,
 `dynamicParams = false`, `instrumentation.ts`) and **Phase 2C**
 (authentication libraries: asymmetric Web Crypto, `jose` with a remote
 JWKS, Auth.js v5, `next-intl`'s other routing modes, OpenTelemetry with
-`@vercel/otel`). It is tested against nine small App Router fixtures built
+`@vercel/otel`) and **Phase 2D** (`next/image`: the `/_next/image` endpoint
+answered from Rust, with local and remote sources, a bounded transformation
+pool and an image cache). It is tested against ten small App Router fixtures built
 with Next.js 16.4.3, and also passes the same comparison suites on 16.4.4
 and 16.4.5.
 
@@ -64,8 +66,7 @@ and 16.4.5.
   `next build` produced. No Node.js or Deno process runs.
 - **Off by default:** without that flag, every dynamic route answers an
   explicit `501 Not Implemented`.
-- **Unsupported:** edge-runtime middleware, `next/image` optimization, the
-  Pages Router and Next's own `i18n` config. NextRS **refuses to start** when
+- **Unsupported:** edge-runtime middleware, the Pages Router and Next's own `i18n` config. NextRS **refuses to start** when
   a build uses one it cannot answer explicitly, unless you pass
   `--allow-unsupported`.
 
@@ -141,7 +142,7 @@ real applications.
 | `basePath`, `trailingSlash`, `assetPrefix`, `experimental.caseSensitiveRoutes` | 🧪 Experimental | Tested in separate fixture builds, including `basePath` with `trailingSlash` |
 | Next's `i18n` config | ⛔ Unsupported | Startup refusal. Locale routing with `next-intl`'s middleware (no `i18n` config) works |
 | Pages Router | ⛔ Unsupported | Startup refusal |
-| Image optimization (`/_next/image`) | ⛔ Unsupported | Answers `501` |
+| Image optimization (`/_next/image`, `next/image`) | 🧪 Experimental | Answered in Rust, no executor needed for public files and static imports: Next's validation, cache keys, headers and 304s; JPEG, PNG, WebP, GIF and TIFF sources; WebP, AVIF, JPEG and PNG output; EXIF orientation and colour profiles; remote sources only where both `images.remotePatterns` and `--net-allow` allow them. AVIF/HEIF and JPEG-compressed TIFF sources are served unchanged (see below) |
 | Interception routes (with the executor) | ⛔ Unsupported | Answers `501` |
 
 Every refusal is a `501` response with an `x-nextrs-unsupported` header that
@@ -252,8 +253,16 @@ might be wrong.
   rewrites do not forward hop-by-hop headers or Next's internal headers,
   and do not proxy WebSockets. `waitUntil` work ends with its request's
   deadline. Only the fixtures' proxies and rules have been verified.
-- **Image optimization:** not implemented. Server Actions on the edge
-  runtime are refused.
+- **Image optimization gaps:** AVIF/HEIF and JPEG-compressed TIFF sources
+  are served unchanged (no decoder), where `next start` converts them.
+  JPEG output is about a third larger than sharp's (mozjpeg) and PNG output
+  is full colour (sharp quantizes); WebP, the default output, is equivalent.
+  AVIF encoding is about 2.5× slower than sharp's. JPEGs are decoded at full
+  size, so large sources need more memory than in `next start`. The image
+  cache is in memory unless `--image-cache-dir` is given;
+  `images.customCacheHandler` is ignored. Remote images need `--net-allow`
+  (and, for loopback or private addresses, both `dangerouslyAllowLocalIP`
+  and `--net-allow-addr`). Server Actions on the edge runtime are refused.
 - **Other framework features:** the Pages Router, edge runtime routes,
   interception routes and response compression are not implemented.
 - **Browser verification:** the Server Action pages are tested in Chromium
@@ -456,6 +465,23 @@ Cache (the fetch cache, `unstable_cache`, ISR pages and route output, and
 | `--cache-max-response` | `16` | Larger ISR pages, route output and `"use cache"` values are not cached (MiB) |
 | `--no-shared-cache` | off | Use Next's default handlers instead: separate per isolate, memory only. Refused with more than one isolate when the build has ISR or Server Actions |
 
+Image optimization (`/_next/image`, no executor needed for public files and
+static imports):
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--image-concurrency N` | half the CPUs | Transformations at once, each on its own thread (never on the request threads or an isolate) |
+| `--image-max-queued N` | 64 | Transformations that may wait; more answer `503` with `Retry-After` |
+| `--image-max-input-pixels N` | 64,000,000 | Larger sources (width × height, read before decoding) are served unchanged, as `next start` does when sharp refuses them |
+| `--image-timeout SECONDS` | the build's `imgOptTimeoutInSeconds` (7) | Then the source is served unchanged |
+| `--image-cache-dir DIR` | none (memory only) | Persist optimized images (mode 0700, outside the project); entries are per build, checksummed, written atomically |
+| `--image-cache-max-memory MIB` / `--image-cache-max-disk MIB` | 64 / 1024 | Cache sizes (the build's `images.maximumDiskCacheSize` applies when lower) |
+
+Remote images are fetched only when `images.remotePatterns` (the
+application) **and** `--net-allow` (the operator) both allow the URL, and
+every redirect is checked again; a host resolving to a private or loopback
+address also needs `dangerouslyAllowLocalIP` and `--net-allow-addr`.
+
 Reverse proxies. Next.js trusts `X-Forwarded-Host` and `X-Forwarded-Proto`
 (for the Server Action origin check, redirects and absolute URLs):
 
@@ -521,7 +547,9 @@ only when it matches what the official server returns for the same build.
 | [`tests/compat/intl-variants.mjs`](tests/compat/intl-variants.mjs) | `next-intl`'s `as-needed`, localized-pathnames and domain routing modes, on builds of the `next-intl` fixture |
 | [`tests/compat/otel.mjs`](tests/compat/otel.mjs) | OpenTelemetry through `@vercel/otel` ([`fixtures/next-otel`](fixtures/next-otel)), exporting to a local collector: trace continuation and propagation, span nesting across awaits, concurrent traces, export failures, registration per isolate |
 | [`tests/browser/realworld.mjs`](tests/browser/realworld.mjs) | The `jose` and `next-intl` applications in Chromium: login and logout, redirects back, a protected mutation, browser-language detection, locale switching |
-| [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixtures (optionally against another Next.js version, in a temporary copy) and runs the suites above against `next start` (the browser suites with `--browser`, the proxy suites with `--proxy`, the extra `next.config` builds with `--proxy-combinations`) |
+| [`tests/compat/image.mjs`](tests/compat/image.mjs) | `/_next/image` on [`fixtures/next-image`](fixtures/next-image) against `next start`: parameter validation, traversal and file access, formats, sizes, orientation, colour profiles, alpha, animated and corrupt sources, decompression bombs, conditional requests, cache hits and stale revalidation, remote sources through a local upstream ([`image-upstream.mjs`](tests/compat/image-upstream.mjs)): redirects, timeouts, limits, compressed bodies, forbidden destinations never fetched, concurrent requests. Images are compared decoded: format, size and alpha exactly, pixels by fidelity to an unencoded reference |
+| [`tests/browser/image.mjs`](tests/browser/image.mjs) | `next/image` in Chromium against `next start`: every image loads with the same selected source and colours, lazy loading, preload, blur placeholders, responsive selection, navigation, broken sources, browser revalidation |
+| [`scripts/compat-suite.sh`](scripts/compat-suite.sh) | Builds the fixtures (optionally against another Next.js version, in a temporary copy) and runs the suites above against `next start` (the browser suites with `--browser`, the proxy suites with `--proxy`, the extra `next.config` builds with `--proxy-combinations`, the image suites with `--images`) |
 | [`scripts/realworld-suite.sh`](scripts/realworld-suite.sh) | Builds the real-world proxy fixtures and runs their suites (with `--browser`, the browser ones) |
 
 Every critical scenario also states its expected outcome, checked on both
@@ -609,6 +637,7 @@ claims.
 | [`crates/nextrs-adapter`](crates/nextrs-adapter/) | Reads `.next` (Deployment Adapter output or internal manifests) into one build model with diagnostics |
 | [`crates/nextrs-server`](crates/nextrs-server/) | axum HTTP server: static and prerendered output, dispatch of dynamic routes to the executor |
 | [`crates/nextrs-runtime`](crates/nextrs-runtime/) | Experimental embedded V8 executor (`deno_core`, `deno_web`, NextRS Node.js layer, filesystem sandbox) |
+| [`crates/nextrs-image`](crates/nextrs-image/) | Image decoding (Rust decoders only), resizing with sharp's geometry, and encoding for `/_next/image` |
 | [`crates/nextrs-cli`](crates/nextrs-cli/) | The `nextrs` binary: `inspect` and `start` |
 | [`packages/next-adapter`](packages/next-adapter/) | Next.js Deployment Adapter that writes `.next/nextrs/build-output.json` |
 | [`fixtures/next-app`](fixtures/next-app/) | Next.js 16.4.3 App Router compatibility fixture |
@@ -633,7 +662,8 @@ claims.
 | **Phase 2A: proxy and routing** | Next's compiled `proxy.ts` in the isolate pool, `next start`'s routing order, `next.config` headers, redirects and rewrites, `basePath`, `trailingSlash`, proxy security regression tests | 🧪 Experimental (see What's Not Ready Yet) |
 | **Phase 2B: real-world proxies** | `jose` and `next-intl` proxies unchanged, a proxy that fetches, external rewrites under the network policy, `waitUntil`, `instrumentation.ts`, Draft Mode, `dynamicParams = false`, configuration combinations, graceful shutdown and soaks with proxy traffic | 🧪 Experimental (see What's Not Ready Yet) |
 | **Phase 2C: authentication libraries** | Asymmetric Web Crypto, `jose` with a remote JWKS, Auth.js v5, `next-intl` routing modes, OpenTelemetry, `experimental.proxyTimeout`, a fetch outliving its request, independent outcome checks and negative controls in the suites, a six-hour proxy soak | 🧪 Experimental (see What's Not Ready Yet) |
-| **Later: advanced Next.js features** | Image optimization, Next's `i18n` config, the Pages Router | 🗓️ Planned |
+| **Phase 2D: images** | `/_next/image` in Rust for unchanged `next/image` applications: Next's request semantics, memory-safe decoding with resource limits, local sources through routing, remote sources under the network policy, an image cache, browser tests | 🧪 Experimental (see What's Not Ready Yet) |
+| **Later: advanced Next.js features** | Next's `i18n` config, the Pages Router | 🗓️ Planned |
 | **Later: performance and production readiness** | Performance work, measured only once correctness is established; operational hardening | 🗓️ Planned |
 
 No release dates are planned. Scope changes as the experiments produce

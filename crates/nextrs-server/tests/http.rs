@@ -304,15 +304,15 @@ async fn non_get_methods() {
     assert_eq!(response.status(), StatusCode::NOT_IMPLEMENTED);
 }
 
+/// The snapshot has no images-manifest.json (it predates it being kept):
+/// without an image config the endpoint renders the 404 page. The
+/// optimizer itself is tested in tests/image.rs.
 #[tokio::test]
-async fn image_optimizer_is_refused() {
+async fn image_endpoint_without_config_is_not_found() {
     let app = app_for("next-16.4.3-default").await;
     let (response, _) = get(&app, "/_next/image?url=%2Fa.png&w=64&q=75").await;
-    assert_eq!(response.status(), StatusCode::NOT_IMPLEMENTED);
-    assert_eq!(
-        header(&response, "x-nextrs-unsupported"),
-        Some("image-optimizer")
-    );
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+    assert_eq!(header(&response, "x-nextrs-unsupported"), None);
 }
 
 #[tokio::test]
