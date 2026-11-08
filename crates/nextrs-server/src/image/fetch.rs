@@ -2,6 +2,7 @@
 //! server's own routing, as next start sends it to its router) and
 //! `fetchExternalImage` (under the NextRS network policy).
 
+use std::sync::Arc;
 use std::time::Duration;
 
 use axum::body::Body;
@@ -9,15 +10,19 @@ use axum::http::{HeaderMap, StatusCode, header};
 use bytes::{Bytes, BytesMut};
 use futures_util::StreamExt;
 
+use super::budget::{SourceBudget, SourceLease};
+
 /// Next's agent timeout for one upstream request (`agentOptions.timeout`).
 const EXTERNAL_TIMEOUT: Duration = Duration::from_secs(7);
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(crate) struct Source {
     pub buffer: Bytes,
     pub cache_control: Option<String>,
     /// `extractEtag`: the upstream's ETag base64url-encoded, else a hash.
     pub etag: String,
+    /// The buffer's share of the source budget, held while the source is.
+    pub _lease: SourceLease,
 }
 
 /// Why no source image was obtained.
@@ -28,7 +33,8 @@ pub(crate) enum Failure {
     Image(u16, &'static str),
     /// next start throws a plain error: 500 from its router.
     Internal,
-    /// NextRS's own limit on waiting transformations.
+    /// NextRS's own limits on waiting transformations and on source bytes
+    /// held in memory.
     Overloaded,
 }
 
@@ -53,6 +59,7 @@ fn header_string(headers: &HeaderMap, name: header::HeaderName) -> Option<String
 pub(crate) async fn internal(
     response: axum::response::Response,
     max_body: u64,
+    sources: &Arc<SourceBudget>,
 ) -> Result<Source, Failure> {
     let status = response.status();
     if !status.is_success() {
@@ -61,13 +68,18 @@ pub(crate) async fn internal(
     }
     let headers = response.headers().clone();
     let mut body = response.into_body().into_data_stream();
-    let mut buffer = BytesMut::new();
+    let mut buffer = BytesMut::with_capacity(initial_capacity(&headers, max_body));
+    let mut lease = SourceLease::new(sources);
     while let Some(chunk) = body.next().await {
         let Ok(chunk) = chunk else {
             return Err(Failure::image(500, UPSTREAM_INVALID));
         };
         if (buffer.len() + chunk.len()) as u64 > max_body {
             return Err(Failure::image(413, INTERNAL_INVALID));
+        }
+        if !lease.grow(chunk.len() as u64) {
+            tracing::warn!("image source refused: the source memory budget is full");
+            return Err(Failure::Overloaded);
         }
         buffer.extend_from_slice(&chunk);
     }
@@ -79,7 +91,20 @@ pub(crate) async fn internal(
         etag: extract_etag(header_string(&headers, header::ETAG).as_deref(), &buffer),
         cache_control: header_string(&headers, header::CACHE_CONTROL),
         buffer,
+        _lease: lease,
     })
+}
+
+/// The buffer's first allocation: the declared length when it is within
+/// the limit (one allocation instead of doublings that leave a body twice
+/// its size in memory), else a small one.
+fn initial_capacity(headers: &HeaderMap, max_body: u64) -> usize {
+    headers
+        .get(header::CONTENT_LENGTH)
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.parse::<u64>().ok())
+        .filter(|&n| n <= max_body)
+        .map_or(64 * 1024, |n| n as usize)
 }
 
 fn is_redirect(status: u16) -> bool {
@@ -94,6 +119,7 @@ pub(crate) async fn external(
     href: &str,
     max_body: u64,
     max_redirects: u32,
+    sources: &Arc<SourceBudget>,
 ) -> Result<Source, Failure> {
     let Some(upstream) = upstream else {
         tracing::warn!(
@@ -105,7 +131,7 @@ pub(crate) async fn external(
     let mut url: url::Url = href.parse().map_err(|_| Failure::Internal)?;
     let mut remaining = max_redirects;
     loop {
-        match tokio::time::timeout(EXTERNAL_TIMEOUT, hop(upstream, &url, max_body)).await {
+        match tokio::time::timeout(EXTERNAL_TIMEOUT, hop(upstream, &url, max_body, sources)).await {
             Err(_) => {
                 tracing::error!(origin = %origin(url.as_str()), "upstream image response timed out");
                 return Err(Failure::Image(504, TIMED_OUT));
@@ -134,7 +160,12 @@ fn origin(href: &str) -> String {
         .unwrap_or_default()
 }
 
-async fn hop(upstream: &nextrs_runtime::Upstream, url: &url::Url, max_body: u64) -> Hop {
+async fn hop(
+    upstream: &nextrs_runtime::Upstream,
+    url: &url::Url,
+    max_body: u64,
+    sources: &Arc<SourceBudget>,
+) -> Hop {
     let mut headers = reqwest_headers();
     headers.remove("host");
     let request = nextrs_runtime::UpstreamRequest {
@@ -172,7 +203,9 @@ async fn hop(upstream: &nextrs_runtime::Upstream, url: &url::Url, max_body: u64)
         return Hop::Done(Err(Failure::image(status, UPSTREAM_INVALID)));
     }
     let mut body = response.body;
-    let mut buffer = BytesMut::new();
+    // Bodies are decoded (decompress), so a declared length is only a hint.
+    let mut buffer = BytesMut::with_capacity(initial_capacity(&response.headers, max_body));
+    let mut lease = SourceLease::new(sources);
     while let Some(chunk) = body.next().await {
         let Ok(chunk) = chunk else {
             return Hop::Done(Err(Failure::Internal));
@@ -180,6 +213,10 @@ async fn hop(upstream: &nextrs_runtime::Upstream, url: &url::Url, max_body: u64)
         if (buffer.len() + chunk.len()) as u64 > max_body {
             tracing::error!(origin = %url.origin().ascii_serialization(), "upstream image response exceeded maximum size");
             return Hop::Done(Err(Failure::Image(413, UPSTREAM_INVALID)));
+        }
+        if !lease.grow(chunk.len() as u64) {
+            tracing::warn!(origin = %url.origin().ascii_serialization(), "remote image refused: the source memory budget is full");
+            return Hop::Done(Err(Failure::Overloaded));
         }
         buffer.extend_from_slice(&chunk);
     }
@@ -197,6 +234,7 @@ async fn hop(upstream: &nextrs_runtime::Upstream, url: &url::Url, max_body: u64)
         etag: extract_etag(header("etag").as_deref(), &buffer),
         cache_control: header("cache-control"),
         buffer,
+        _lease: lease,
     }))
 }
 
