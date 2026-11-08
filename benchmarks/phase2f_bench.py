@@ -107,7 +107,7 @@ def main():
         app_servers = {}
         ns_port = free()
         app_servers["next-start"] = (["npx", "next", "start", "-H", "127.0.0.1", "-p", str(ns_port)], ns_port, None)
-        for name, binary in (("2e", args.nextrs_2e), ("2f", nextrs)):
+        for name, binary in (("2e", str(Path(args.nextrs_2e).resolve())), ("2f", nextrs)):
             port, metrics_port = free(), free()
             app_servers[name] = ([binary, "start", str(app), "--port", str(port), "--js-runtime", "embedded-v8", "--isolates", "1",
                                   "--metrics-addr", f"127.0.0.1:{metrics_port}"], port, metrics_port)
