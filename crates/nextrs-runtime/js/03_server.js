@@ -433,6 +433,10 @@
             requestMeta.initProtocol = request.initUrl.startsWith("https:") ? "https" : "http";
           }
           if (invocation.kind === "routed") Object.assign(requestMeta, routedMeta(invocation));
+          // What next start's router server gives every route module
+          // (getRouterServerContext merges these request meta values).
+          requestMeta.render404 = render404;
+          requestMeta.revalidate = revalidateRequest;
           await Promise.race([
             mod.handler(req, res, {
               waitUntil: (promise) => pending.push(promise),
@@ -628,6 +632,36 @@
     if (!res.destroyed) res.end();
   }
 
+  // routerServerContext.render404: next start renders its 404 page into
+  // the response (renderErrorToResponse). Here the response is marked and
+  // Rust renders the not-found page, keeping the status and the headers
+  // the handler set (src/pages.rs).
+  async function render404(_req, res) {
+    if (res.headersSent) {
+      if (!res.writableEnded) res.end();
+      return;
+    }
+    res.statusCode = 404;
+    res.setHeader("x-nextrs-error", "render-404");
+    res.end();
+  }
+
+  // routerServerContext.revalidate (res.revalidate in a Pages Router API
+  // route): next-server renders the page once with Next's revalidation
+  // headers and judges the result. The request goes to the page in-process
+  // without routing (see src/internal.rs).
+  async function revalidateRequest({ urlPath, headers, opts }) {
+    const pairs = [];
+    for (const [name, value] of Object.entries(headers ?? {})) {
+      if (value === undefined) continue;
+      pairs.push([name, Array.isArray(value) ? value.join(", ") : String(value)]);
+    }
+    const result = await ops.op_nextrs_revalidate(String(urlPath), pairs);
+    if (result.cache !== "REVALIDATED" && result.status !== 200 && !(result.status === 404 && opts?.unstable_onlyGenerated)) {
+      throw new Error(`Invalid response ${result.status}`);
+    }
+  }
+
   // Request meta next start's base server gives a handler after routing:
   // the cookies the proxy set (patchSetHeaderWithCookieSupport merges
   // them with the route's own), and for a rewritten request the params
@@ -705,7 +739,9 @@
   //   memory cache), then kept in the store with its original time, as
   //   next start promotes such "seeds".
   const NEXT_CACHE_TAGS_HEADER = "x-next-cache-tags";
-  const RESPONSE_KINDS = new Set(["APP_PAGE", "APP_ROUTE"]);
+  // PAGES: Pages Router SSG/ISR output (getStaticProps), stored as
+  // FileSystemCache stores it: the HTML as a string and the page data.
+  const RESPONSE_KINDS = new Set(["APP_PAGE", "APP_ROUTE", "PAGES"]);
   const ENVELOPE = 1;
   const notStored = new Set();
   const nextModule = (name) => {
@@ -786,6 +822,12 @@
         segmentData: value.segmentData ? [...value.segmentData].map(([path, data]) => [path, b64(data)]) : undefined,
       };
     }
+    if (value.kind === "PAGES") {
+      // A seed read from the build holds the HTML as a Buffer; Next's
+      // response cache hands set() a string.
+      const html = typeof value.html === "string" ? value.html : Buffer.isBuffer(value.html) ? value.html.toString("utf8") : String(value.html ?? "");
+      return { kind: value.kind, html, pageData: value.pageData ?? {}, headers: value.headers, status: value.status };
+    }
     return { kind: value.kind, body: b64(value.body), headers: value.headers, status: value.status };
   }
 
@@ -801,6 +843,9 @@
         status: stored.status,
         segmentData: stored.segmentData ? new Map(stored.segmentData.map(([path, data]) => [path, unb64(data)])) : undefined,
       };
+    }
+    if (stored.kind === "PAGES") {
+      return { kind: stored.kind, html: stored.html, pageData: stored.pageData ?? {}, headers: stored.headers, status: stored.status };
     }
     return { kind: stored.kind, body: unb64(stored.body) ?? Buffer.alloc(0), headers: stored.headers, status: stored.status };
   }

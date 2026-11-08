@@ -144,6 +144,7 @@ deno_core::extension!(
         op_nextrs_cache_tag_sync,
         op_nextrs_cache_lease,
         op_nextrs_cache_release,
+        op_nextrs_revalidate,
         crate::webcrypto::op_nextrs_key_import,
         crate::webcrypto::op_nextrs_key_import_jwk,
         crate::webcrypto::op_nextrs_key_generate,
@@ -156,6 +157,8 @@ deno_core::extension!(
         crate::webcrypto::op_nextrs_aes_cbc,
         crate::webcrypto::op_nextrs_hkdf,
         crate::webcrypto::op_nextrs_hkdf_bytes,
+        crate::webcrypto::op_nextrs_pbkdf2,
+        crate::webcrypto::op_nextrs_node_aes_gcm,
         crate::multipart::op_nextrs_multipart_parse,
     ],
     options = {
@@ -1034,6 +1037,38 @@ struct LeaseResult {
     acquired: bool,
     id: f64,
     timed_out: bool,
+}
+
+#[derive(Serialize)]
+struct RevalidateResult {
+    status: u16,
+    cache: Option<String>,
+}
+
+/// next-server's `revalidate()` for `res.revalidate(path)`: the page is
+/// rendered once with Next's revalidation headers, in-process and without
+/// routing (see internal.rs).
+#[op2]
+#[serde]
+async fn op_nextrs_revalidate(
+    state: Rc<RefCell<OpState>>,
+    #[string] path: String,
+    #[serde] headers: Vec<(String, String)>,
+) -> Result<RevalidateResult, JsErrorBox> {
+    if !path.starts_with('/') || path.starts_with("//") {
+        return Err(JsErrorBox::type_error(
+            "revalidate needs a path such as /blog/post-1",
+        ));
+    }
+    let route = state
+        .borrow()
+        .borrow::<crate::internal::InternalRoute>()
+        .clone();
+    let (status, cache) = route
+        .revalidate(path, headers)
+        .await
+        .map_err(JsErrorBox::generic)?;
+    Ok(RevalidateResult { status, cache })
 }
 
 /// Single flight for a blocking regeneration across isolates: takes the

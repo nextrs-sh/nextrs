@@ -601,3 +601,50 @@ pub(crate) fn op_nextrs_hkdf_bytes(
     let hash = Hash::parse(hash)?;
     secret::hkdf(hash, ikm, salt, info, len.saturating_mul(8))
 }
+
+/// node:crypto's `pbkdf2Sync(password, salt, iterations, keylen, digest)`
+/// (`digest` already normalized to `sha1`, `sha256`, `sha384`, `sha512`).
+/// Next.js derives its preview-data key with it.
+#[op2]
+#[buffer]
+pub(crate) fn op_nextrs_pbkdf2(
+    #[string] digest: &str,
+    #[buffer] password: &[u8],
+    #[buffer] salt: &[u8],
+    iterations: u32,
+    #[smi] keylen: u32,
+) -> Result<Vec<u8>, JsErrorBox> {
+    check_data_len(password.len() + salt.len(), "PBKDF2")?;
+    let algorithm = match digest {
+        "sha1" => ring::pbkdf2::PBKDF2_HMAC_SHA1,
+        "sha256" => ring::pbkdf2::PBKDF2_HMAC_SHA256,
+        "sha384" => ring::pbkdf2::PBKDF2_HMAC_SHA384,
+        "sha512" => ring::pbkdf2::PBKDF2_HMAC_SHA512,
+        _ => return Err(error("NotSupportedError", "unsupported PBKDF2 digest")),
+    };
+    let iterations = std::num::NonZeroU32::new(iterations)
+        .ok_or_else(|| error("OperationError", "PBKDF2 needs at least one iteration"))?;
+    // node:crypto caps keylen at 2^31 - 1; NextRS at the data limit.
+    if keylen as usize > MAX_DATA_BYTES {
+        return Err(error("OperationError", "PBKDF2 key length is too large"));
+    }
+    let mut out = vec![0u8; keylen as usize];
+    ring::pbkdf2::derive(algorithm, iterations, salt, password, &mut out);
+    Ok(out)
+}
+
+/// node:crypto's AES-GCM cipher and decipher (`createCipheriv`), with a raw
+/// key: `data` in, `ciphertext || tag` out when encrypting; `ciphertext ||
+/// tag` in, plaintext out when decrypting (a wrong tag is an error).
+#[op2]
+#[buffer]
+pub(crate) fn op_nextrs_node_aes_gcm(
+    #[buffer] key: &[u8],
+    encrypt: bool,
+    #[buffer] iv: &[u8],
+    #[buffer] aad: &[u8],
+    #[buffer] data: &[u8],
+) -> Result<Vec<u8>, JsErrorBox> {
+    check_data_len(data.len() + aad.len(), "AES-GCM")?;
+    secret::aes_gcm(key, encrypt, iv, aad, data)
+}
