@@ -1129,7 +1129,7 @@ async fn serve_resolved(
             // base server: a data request no page handler matched, in a build
             // with a proxy, gets an empty JSON object naming the path.
             if state.proxy.is_some() && headers.contains_key("x-nextjs-data") {
-                return pages::data_unmatched(&resolved_ref.pathname);
+                return pages::data_unmatched(&pages::matched_path(state, &resolved_ref.pathname));
             }
             let Some(page) = &state.not_found else {
                 // A Pages Router build: next start's page handler renders
@@ -1221,6 +1221,18 @@ async fn serve_resolved(
                 return match pages::serve(state, route, path, data, ctx, body, invocation).await {
                     pages::Next::Done(response) => response,
                     pages::Next::NotFound => {
+                        // router-server routes on after the NoFallbackError;
+                        // its second pass names the path without basePath.
+                        if state.proxy.is_some() && headers.contains_key("x-nextjs-data") {
+                            let base = state.config.base_path.as_str();
+                            let routed = resolved_ref.pathname.as_str();
+                            let path = if base.is_empty() {
+                                routed
+                            } else {
+                                resolve::strip_base_path(routed, base).unwrap_or(routed)
+                            };
+                            return pages::data_not_found(path);
+                        }
                         not_found_render(
                             state,
                             method,
@@ -1503,6 +1515,8 @@ async fn not_found_render(
     // router-server answers a data request routing did not match with an
     // empty JSON object when the build has a proxy.
     if unmatched && state.proxy.is_some() && headers.contains_key("x-nextjs-data") {
+        // The routed path as middleware_next_data left it (basePath and
+        // trailing slash included).
         return pages::data_not_found(routed);
     }
     // A Pages Router build without an App Router not-found page.

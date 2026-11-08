@@ -546,13 +546,23 @@ pub(crate) async fn direct(
     request: RouteRequest<'_>,
 ) -> (Outcome, Resolved, Body) {
     let pathname = request.uri.path().to_owned();
+    // next-server takes res.revalidate's path without the basePath; the
+    // route lookup here expects it.
+    let base = state.config.base_path.as_str();
+    let lookup = if base.is_empty() || strip_base_path(&pathname, base).is_some() {
+        pathname.clone()
+    } else if pathname == "/" {
+        base.to_owned()
+    } else {
+        format!("{base}{pathname}")
+    };
     let query = request
         .uri
         .query()
         .and_then(|q| parse_relative_url(&format!("/?{q}")).ok())
         .map(|parsed| parsed.query)
         .unwrap_or_default();
-    let outcome = match check_true(state, &pathname).await {
+    let outcome = match check_true(state, &lookup).await {
         Some(output) => Outcome::Output(output),
         None => Outcome::NotFound,
     };

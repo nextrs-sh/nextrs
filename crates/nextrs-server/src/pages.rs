@@ -134,21 +134,31 @@ pub(crate) fn static_data_page(state: &crate::AppState, item: &str) -> Option<St
 /// `/_next/data/<this build>/...` without the `.json` suffix, in a build
 /// with a `server/pages` directory (next-server's `handleNextDataRequest`
 /// renders the 404 page for it).
-pub(crate) fn is_unservable_data_path(state: &crate::AppState, pathname: &str) -> bool {
-    if !state.pages_router.pages_dir {
-        return false;
-    }
+
+/// The page path a data response names (`x-nextjs-matched-path`): without
+/// basePath or a trailing slash, as next start's page pathnames are.
+pub(crate) fn matched_path(state: &crate::AppState, pathname: &str) -> String {
     let base = state.config.base_path.as_str();
     let path = if base.is_empty() {
         pathname
     } else {
-        match crate::resolve::strip_base_path(pathname, base) {
-            Some(path) => path,
-            None => return false,
-        }
+        crate::resolve::strip_base_path(pathname, base).unwrap_or(pathname)
     };
+    if path.len() > 1 && path.ends_with('/') {
+        path[..path.len() - 1].to_owned()
+    } else {
+        path.to_owned()
+    }
+}
+pub(crate) fn is_unservable_data_path(state: &crate::AppState, pathname: &str) -> bool {
+    if !state.pages_router.pages_dir {
+        return false;
+    }
+    // Matched on the path as requested: with a basePath it starts with the
+    // basePath, which next-server's matchNextDataPathname does not expect,
+    // and the proxy runs.
     let prefix = format!("/_next/data/{}", state.build_id);
-    let Some(rest) = path.strip_prefix(&prefix) else {
+    let Some(rest) = pathname.strip_prefix(&prefix) else {
         return false;
     };
     // matchNextDataPathname: the build id must be a whole segment.
