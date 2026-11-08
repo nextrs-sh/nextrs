@@ -1,0 +1,29 @@
+[package]
+name = "nextrs-image"
+description = "Image decoding, resizing and encoding for the Next.js image optimizer endpoint"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+# Decoders for untrusted input are memory-safe Rust only: zune-jpeg, png,
+# gif, image-webp and tiff through `image`. AVIF/HEIF and JPEG 2000 are not
+# decoded (Next's own fallback then serves the source unchanged).
+image = { version = "0.25.10", default-features = false, features = ["jpeg", "png", "gif", "webp", "tiff"] }
+fast_image_resize = "6.1"
+# ICC profiles to sRGB (image already links it).
+moxcms = "0.8"
+jpeg-encoder = { version = "0.7.1", features = ["simd"] }
+# Lossy WebP encoding (libwebp 1.6.0, vendored and built with cc). Only
+# pixels NextRS decoded itself reach it; its decoder is never called.
+libwebp-sys = { version = "0.14.4", default-features = false, features = ["std"] }
+# AVIF encoding (rav1e, pure Rust; single-threaded, without assembly).
+ravif = { version = "0.13", default-features = false }
+rgb = "0.8"
+# Single-frame GIF output (image already links it).
+gif = "0.14"
+regex.workspace = true
+
+[dev-dependencies]
