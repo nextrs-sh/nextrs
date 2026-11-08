@@ -23,7 +23,7 @@ export default function Book({ id, query, user, header, stamp }: Props) {
       <p id="slug">{id}</p>
       <p id="query">{JSON.stringify(query)}</p>
       <p id="secret">{`user=${user ?? "-"} header=${header ?? "-"}`}</p>
-      <p id="info">stamp-{stamp}</p>
+      <p>stamp-{stamp}</p>
     </>
   );
 }
