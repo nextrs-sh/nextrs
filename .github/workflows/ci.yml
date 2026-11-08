@@ -79,6 +79,7 @@ jobs:
             fixtures/next-auth-proxy/package-lock.json
             fixtures/next-intl-proxy/package-lock.json
             fixtures/next-platform-proxy/package-lock.json
+            fixtures/next-image/package-lock.json
       - run: cargo build --release -p nextrs-cli
       - name: Browser for the Server Action suite
         if: matrix.next == 'pinned'
@@ -92,13 +93,15 @@ jobs:
         if: matrix.next == 'pinned' && matrix.isolates == 1
         run: cargo test -p nextrs-server --test dynamic --test reliability --test memory --test proxy -- --ignored
       # Also runs a local upstream API for the data-fetching suites and
-      # restarts both servers once to check data cache persistence.
+      # restarts both servers once to check data cache persistence. --images
+      # runs the /_next/image suites against a local image upstream (no
+      # public hosts; the image engine needs no system libraries).
       - name: HTTP comparison against next start
         run: |
           if [ "${{ matrix.next }}" = pinned ]; then
-            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser --cache-components --proxy --proxy-combinations
+            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser --cache-components --proxy --proxy-combinations --images
           else
-            scripts/compat-suite.sh --next ${{ matrix.next }} --isolates ${{ matrix.isolates }} --out compat-out --cache-components --proxy
+            scripts/compat-suite.sh --next ${{ matrix.next }} --isolates ${{ matrix.isolates }} --out compat-out --cache-components --proxy --images
           fi
       # Applications using maintained libraries in proxy.ts (jose sessions,
       # next-intl locale routing) and a data-driven proxy with external

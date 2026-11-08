@@ -4,6 +4,7 @@
 #
 #   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
 #                           [--cache-components] [--proxy] [--proxy-combinations]
+#                           [--images]
 #
 # Without --next the fixture's pinned lockfile is used (npm ci, in place).
 # With --next the fixture is copied to a temporary directory and that
@@ -24,6 +25,11 @@
 # basePath with trailingSlash, a path assetPrefix and
 # experimental.caseSensitiveRoutes (proxy, routing-config, and for the last
 # two tests/compat/config-flags.mjs).
+# --images builds fixtures/next-image twice (default; alt: basePath, SVG
+# allowed, no localPatterns), generating its images first, and runs
+# tests/compat/image.mjs against both (with --browser, tests/browser/image.mjs
+# too). The suites start their own deterministic image upstream on a port
+# fixed at build time (remotePatterns are compiled in).
 # Exits non-zero if any suite fails.
 set -euo pipefail
 
@@ -35,6 +41,7 @@ browser=0
 cache_components=0
 proxy=0
 combinations=0
+images=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
@@ -44,6 +51,7 @@ while [[ $# -gt 0 ]]; do
     --cache-components) cache_components=1; shift ;;
     --proxy) proxy=1; shift ;;
     --proxy-combinations) combinations=1; shift ;;
+    --images) images=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -283,6 +291,52 @@ if [[ $proxy == 1 ]]; then
     if [[ $browser == 1 && ( $variant == default || $variant == base-path ) ]]; then
       run "browser-proxy-$variant" tests/browser/proxy.mjs --baseline "$baseline" --candidate "$candidate" \
         --base-path "$prefix" --json "$out/browser-proxy-$variant.json"
+    fi
+    stop_servers
+  done
+fi
+
+if [[ $images == 1 ]]; then
+  stop_servers
+  if [[ -z "$next_version" ]]; then
+    project="$root/fixtures/next-image"
+    (cd "$project" && npm ci --no-audit --no-fund --loglevel=error)
+  else
+    project="$work/next-image"
+    mkdir -p "$project"
+    (cd "$root/fixtures/next-image" && cp -r app scripts next.config.ts tsconfig.json package.json package-lock.json "$project/")
+    (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
+  fi
+  image_port=$((base_port + 4))
+  export NEXTRS_IMAGE_UPSTREAM_PORT="$image_port"
+  (cd "$project" && node scripts/make-images.mjs > "$out/make-images.log" 2>&1) || { tail -20 "$out/make-images.log"; exit 1; }
+  for variant in default alt; do
+    dist=".next"; [[ $variant != default ]] && dist=".next-$variant"
+    prefix=""; [[ $variant == alt ]] && prefix="/base"
+    (cd "$project" && rm -rf "$dist" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-image-$variant.log" 2>&1) || {
+      tail -40 "$out/build-image-$variant.log"; exit 1;
+    }
+    for port in "$next_port" "$nextrs_port"; do
+      if curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port/"; then echo "port $port is still in use" >&2; exit 1; fi
+    done
+    (cd "$project" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 127.0.0.1 -p "$next_port") >> "$out/next-start-image.log" 2>&1 &
+    next_pid=$!
+    pids+=($next_pid)
+    "$nextrs" start "$project/$dist" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
+      --net-allow "http://127.0.0.1:$image_port" --net-allow-addr 127.0.0.1 >> "$out/nextrs-image.log" 2>&1 &
+    nextrs_pid=$!
+    pids+=($nextrs_pid)
+    for port in "$next_port" "$nextrs_port"; do
+      for _ in $(seq 1 120); do
+        curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port$prefix/second" && break
+        sleep 0.25
+      done
+    done
+    run "image-$variant" tests/compat/image.mjs --baseline "$baseline" --candidate "$candidate" --project "$project" \
+      --variant "$variant" --upstream-port "$image_port" --json "$out/image-$variant.json"
+    if [[ $browser == 1 ]]; then
+      run "browser-image-$variant" tests/browser/image.mjs --baseline "$baseline" --candidate "$candidate" \
+        --photos "$project/public/photos" --base-path "$prefix" --upstream-port "$image_port" --json "$out/browser-image-$variant.json"
     fi
     stop_servers
   done
