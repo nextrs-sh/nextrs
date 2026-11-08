@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="arch-title arch-desc">
+<title id="arch-title">How NextRS serves a Next.js build</title>
+<desc id="arch-desc">On the left, a Next.js app is compiled by next build into the .next output: manifests, static assets, prerendered HTML and RSC payloads, and compiled server handlers. Node.js is needed for the build, not for serving. The NextRS runtime, a single Rust process, reads that output. Its Rust HTTP server applies routing and next.config rules, then sends each request one of two ways. Static files, prerendered HTML and RSC, and image optimization are served directly from Rust. Dynamic rendering, React Server Components, Route Handlers, Server Actions and proxy.ts run Next.js's own compiled JavaScript handlers in embedded V8 isolates, enabled with --js-runtime embedded-v8. Those handlers use a shared cache held in Rust for the data cache, ISR pages and "use cache" entries.</desc>
+<style>
+  .sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
+  .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+  .eyebrow { font-size: 15px; letter-spacing: 2.4px; font-weight: 600; }
+  .h1 { font-size: 30px; font-weight: 700; fill: #F0F6FC; }
+  .h2 { font-size: 24px; font-weight: 600; fill: #F0F6FC; }
+  .h3 { font-size: 21px; font-weight: 600; fill: #F0F6FC; }
+  .body { font-size: 19px; fill: #C9D1D9; }
+  .muted { font-size: 18px; fill: #8B949E; }
+  .code { font-size: 15px; fill: #8B949E; }
+
+  .dot { opacity: 0; }
+  @keyframes build-down {
+    0%   { opacity: 0; transform: translate(0, 0); }
+    3%   { opacity: .9; }
+    12%  { opacity: .9; transform: translate(0, 90px); }
+    15%, 100% { opacity: 0; transform: translate(0, 90px); }
+  }
+  @keyframes build-out {
+    0%   { opacity: 0; transform: translate(0, 0); }
+    3%   { opacity: .9; }
+    9%   { opacity: .9; transform: translate(34px, 0); }
+    12%, 100% { opacity: 0; transform: translate(34px, 0); }
+  }
+  @keyframes req-in {
+    0%   { opacity: 0; transform: translate(0, 0); }
+    4%   { opacity: 1; }
+    15%  { opacity: 1; transform: translate(0, 80px); }
+    18%, 100% { opacity: 0; transform: translate(0, 80px); }
+  }
+  @keyframes lane-hop {
+    0%   { opacity: 0; transform: translate(0, 0); }
+    3%   { opacity: 1; }
+    11%  { opacity: 1; transform: translate(0, 38px); }
+    14%, 100% { opacity: 0; transform: translate(0, 38px); }
+  }
+  @keyframes glow {
+    0%, 100% { opacity: 0; }
+    5% { opacity: 1; }
+    20% { opacity: 0; }
+  }
+  .build-a { animation: build-down 8s linear infinite; }
+  .build-b { animation: build-out 8s linear infinite; animation-delay: 1.2s; }
+  .req-a  { animation: req-in 8s linear infinite; animation-delay: 1s; }
+  .req-b  { animation: req-in 8s linear infinite; animation-delay: 4.6s; }
+  .hop-rust { animation: lane-hop 8s linear infinite; animation-delay: 2.5s; }
+  .hop-v8   { animation: lane-hop 8s linear infinite; animation-delay: 6.1s; }
+  .hop-cache { animation: lane-hop 8s linear infinite; animation-delay: 7.1s; }
+  .glow { opacity: 0; }
+  .glow-router-a { animation: glow 8s ease-out infinite; animation-delay: 2.1s; }
+  .glow-router-b { animation: glow 8s ease-out infinite; animation-delay: 5.7s; }
+  .glow-rust  { animation: glow 8s ease-out infinite; animation-delay: 3.3s; }
+  .glow-v8    { animation: glow 8s ease-out infinite; animation-delay: 6.9s; }
+  .glow-cache { animation: glow 8s ease-out infinite; animation-delay: 7.9s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot, .glow { animation: none !important; opacity: 0 !important; }
+  }
+</style>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#8B949E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#E8762D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- Canvas: the same surface as the banner -->
+<rect x="1" y="1" width="1278" height="758" rx="24" fill="#0D1117" stroke="#21262D" stroke-width="2"/>
+
+<!-- ============ Build: Next.js (unchanged) ============ -->
+<text x="48" y="76" class="mono eyebrow" fill="#8B949E">BUILD WITH NEXT.JS</text>
+
+<rect x="48" y="100" width="340" height="104" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5"/>
+<text x="72" y="144" class="sans h2">Your Next.js app</text>
+<text x="72" y="178" class="sans muted">App Router · unchanged</text>
+
+<line x1="218" y1="204" x2="218" y2="232" stroke="#30363D" stroke-width="2"/>
+<rect x="148" y="232" width="140" height="40" rx="20" fill="#0D1117" stroke="#30363D" stroke-width="1.5"/>
+<text x="218" y="258" class="mono" font-size="18" fill="#F0F6FC" text-anchor="middle">next build</text>
+<line x1="218" y1="272" x2="218" y2="298" stroke="#30363D" stroke-width="2" marker-end="url(#arrow)"/>
+
+<rect x="48" y="304" width="340" height="196" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5"/>
+<text x="72" y="348" class="sans h2">.next output</text>
+<text x="72" y="386" class="sans muted">manifests</text>
+<text x="72" y="416" class="sans muted">static assets</text>
+<text x="72" y="446" class="sans muted">prerendered HTML · RSC</text>
+<text x="72" y="476" class="sans muted">compiled server handlers</text>
+
+<!-- Build output is read by the runtime -->
+<line x1="388" y1="404" x2="432" y2="404" stroke="#8B949E" stroke-width="2" marker-end="url(#arrow)"/>
+
+<text x="48" y="580" class="sans muted">Node.js runs <tspan class="mono" font-size="17" fill="#C9D1D9">next build</tspan>.</text>
+<text x="48" y="610" class="sans muted">Serving needs no Node.js</text>
+<text x="48" y="640" class="sans muted">server process.</text>
+
+<!-- ============ Serve: NextRS runtime (Rust) ============ -->
+<rect x="440" y="40" width="792" height="680" rx="20" fill="#11161D" stroke="#E8762D" stroke-opacity=".55" stroke-width="2"/>
+<text x="472" y="84" class="mono eyebrow" fill="#E8762D">RUN WITH RUST</text>
+<text x="472" y="126" class="sans h1">NextRS runtime</text>
+<text x="472" y="158" class="sans muted">One Rust process · axum + Tokio</text>
+
+<!-- Incoming requests -->
+<text x="1024" y="92" class="mono eyebrow" fill="#8B949E" text-anchor="middle">HTTP REQUESTS</text>
+<line x1="1024" y1="108" x2="1024" y2="184" stroke="#8B949E" stroke-width="2" marker-end="url(#arrow)"/>
+
+<!-- HTTP server and routing -->
+<rect x="472" y="190" width="728" height="70" rx="14" fill="#0D1117" stroke="#30363D" stroke-width="1.5"/>
+<rect class="glow glow-router-a" x="472" y="190" width="728" height="70" rx="14" fill="none" stroke="#E8762D" stroke-width="2"/>
+<rect class="glow glow-router-b" x="472" y="190" width="728" height="70" rx="14" fill="none" stroke="#E8762D" stroke-width="2"/>
+<circle cx="500" cy="225" r="6" fill="#E8762D"/>
+<text x="518" y="232" class="sans h3">HTTP server · routing · <tspan class="mono" font-size="19">next.config</tspan> rules</text>
+
+<line x1="652" y1="260" x2="652" y2="296" stroke="#E8762D" stroke-width="2" marker-end="url(#arrow-orange)"/>
+<line x1="1024" y1="260" x2="1024" y2="296" stroke="#8B949E" stroke-width="2" marker-end="url(#arrow)"/>
+
+<!-- Lane: Rust-native serving -->
+<rect x="472" y="302" width="360" height="284" rx="16" fill="#0D1117" stroke="#E8762D" stroke-width="1.5"/>
+<rect class="glow glow-rust" x="472" y="302" width="360" height="284" rx="16" fill="#E8762D" fill-opacity=".06" stroke="#E8762D" stroke-width="3"/>
+<text x="496" y="344" class="sans h3">Served from Rust</text>
+<text x="496" y="372" class="sans muted">no JavaScript needed</text>
+<rect x="492" y="392" width="320" height="40" rx="10" fill="#161B22"/>
+<rect x="492" y="442" width="320" height="40" rx="10" fill="#161B22"/>
+<rect x="492" y="492" width="320" height="40" rx="10" fill="#161B22"/>
+<rect x="508" y="408" width="8" height="8" rx="2" fill="#E8762D"/>
+<rect x="508" y="458" width="8" height="8" rx="2" fill="#E8762D"/>
+<rect x="508" y="508" width="8" height="8" rx="2" fill="#E8762D"/>
+<text x="530" y="419" class="sans body">Static and public files</text>
+<text x="530" y="469" class="sans body">Prerendered HTML and RSC</text>
+<text x="530" y="519" class="sans body">Image optimization</text>
+<text x="496" y="566" class="mono code">always on</text>
+
+<!-- Lane: embedded V8 running Next.js's compiled handlers -->
+<rect x="852" y="302" width="348" height="284" rx="16" fill="#0D1117" stroke="#C9D1D9" stroke-opacity=".55" stroke-width="1.5"/>
+<rect class="glow glow-v8" x="852" y="302" width="348" height="284" rx="16" fill="#F0F6FC" fill-opacity=".04" stroke="#F0F6FC" stroke-width="3"/>
+<text x="876" y="344" class="sans h3">Embedded V8</text>
+<text x="876" y="372" class="sans muted">Next.js's compiled handlers</text>
+<rect x="872" y="392" width="308" height="40" rx="10" fill="#161B22"/>
+<rect x="872" y="442" width="308" height="40" rx="10" fill="#161B22"/>
+<rect x="872" y="492" width="308" height="40" rx="10" fill="#161B22"/>
+<rect x="888" y="408" width="8" height="8" rx="2" fill="#C9D1D9"/>
+<rect x="888" y="458" width="8" height="8" rx="2" fill="#C9D1D9"/>
+<rect x="888" y="508" width="8" height="8" rx="2" fill="#C9D1D9"/>
+<text x="910" y="419" class="sans body">Dynamic SSR and RSC</text>
+<text x="910" y="469" class="sans body">Route Handlers</text>
+<text x="910" y="519" class="sans body">Server Actions · <tspan class="mono" font-size="18">proxy.ts</tspan></text>
+<text x="876" y="566" class="mono code">--js-runtime embedded-v8</text>
+
+<!-- Shared cache, used by the handlers in V8 -->
+<line x1="1024" y1="586" x2="1024" y2="614" stroke="#8B949E" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+<rect x="472" y="620" width="728" height="68" rx="14" fill="#0D1117" stroke="#30363D" stroke-width="1.5"/>
+<rect class="glow glow-cache" x="472" y="620" width="728" height="68" rx="14" fill="none" stroke="#E8762D" stroke-width="2"/>
+<circle cx="500" cy="654" r="6" fill="#E8762D"/>
+<text x="518" y="661" class="sans h3">Shared cache</text>
+<text x="664" y="661" class="sans muted">data cache · ISR pages · <tspan class="mono" font-size="17">"use cache"</tspan> · every isolate</text>
+
+<!-- ============ Motion (hidden when motion is reduced or unsupported) ============ -->
+<circle class="dot build-a" cx="218" cy="206" r="5" fill="#C9D1D9"/>
+<circle class="dot build-b" cx="392" cy="404" r="5" fill="#C9D1D9"/>
+<circle class="dot req-a" cx="1024" cy="108" r="6" fill="#E8762D"/>
+<circle class="dot req-b" cx="1024" cy="108" r="6" fill="#E8762D"/>
+<circle class="dot hop-rust" cx="652" cy="260" r="6" fill="#E8762D"/>
+<circle class="dot hop-v8" cx="1024" cy="260" r="6" fill="#F0F6FC"/>
+<circle class="dot hop-cache" cx="1024" cy="582" r="5" fill="#E8762D"/>
+</svg>
