@@ -317,6 +317,7 @@ if [[ $images == 1 ]]; then
     (cd "$root/fixtures/next-image" && cp -r app scripts next.config.ts tsconfig.json package.json package-lock.json "$project/")
     (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
   fi
+  [[ $only_images == 1 ]] && installed="$(node -p "require('$project/node_modules/next/package.json').version")"
   image_port=$((base_port + 4))
   # HTTPS upstreams on +5 (test CA) and +6 (untrusted CA); a CDN stand-in
   # for the absolute assetPrefix build on +7. Certificates are made for this

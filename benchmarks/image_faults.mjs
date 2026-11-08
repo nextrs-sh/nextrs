@@ -24,8 +24,12 @@ const get = (base, path, { abortMs } = {}) =>
       res.resume();
       res.on("end", () => resolve(res.statusCode));
     });
-    req.on("error", () => resolve("aborted"));
+    req.on("error", () => resolve(timedOut ? "timeout" : "aborted"));
     if (abortMs) setTimeout(() => req.destroy(), abortMs);
+    // A request that never ends (work waiting for memory that is never
+    // returned) is a failure, not a hang.
+    let timedOut = false;
+    req.setTimeout(60_000, () => { timedOut = true; req.destroy(); });
   });
 const metrics = async () => JSON.parse(await new Promise((r) => http.get(`${args.metrics}/metrics.json`, (res) => { let b = ""; res.on("data", (c) => (b += c)); res.on("end", () => r(b)); })));
 const img = (w, q, extra = "large.jpg") => `/_next/image?url=%2Fphotos%2F${extra}&w=${w}&q=${q}`;
@@ -96,6 +100,7 @@ out.isolates = { publicStatuses, executorRequestsForPublicImages: execAfterPubli
     await new Promise((r) => setTimeout(r, 100));
   }
   const failures = [];
+  if (out.burstNextrs.statuses.some((x) => x !== 200)) failures.push(`burst answers: ${JSON.stringify(out.burstNextrs.statuses)}`);
   if (m.memory_reserved_bytes) failures.push(`memory still reserved: ${m.memory_reserved_bytes}`);
   if (m.source_held_bytes) failures.push(`source bytes still held: ${m.source_held_bytes}`);
   if (!(reservedPeak > 1024 * 1024)) failures.push(`the burst's transformations reserved ${reservedPeak} bytes`);

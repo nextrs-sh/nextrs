@@ -314,8 +314,11 @@ pub fn estimate(input: &[u8], output: ImageType, width: u32) -> Result<u64, Erro
             };
             let pixels = dw * dh;
             let work = if shrink > 1 {
-                // jpeg-decoder: component planes at the decode scale.
-                pixels * components
+                // jpeg-decoder: component planes at the decode scale, held
+                // by its per-component worker threads and again while they
+                // are collected (above 128x128 it decodes each component on
+                // a thread of its own).
+                2 * pixels * components
             } else {
                 // zune-jpeg (through image, which copies the input first):
                 // MCU rows only; CMYK/YCCK through a 4-byte copy.
@@ -371,8 +374,10 @@ pub fn estimate(input: &[u8], output: ImageType, width: u32) -> Result<u64, Erro
     Ok(peak + peak / 10 + PER_JOB_BYTES)
 }
 
-/// Bookkeeping per transformation beyond its pixel buffers.
-const PER_JOB_BYTES: u64 = 1024 * 1024;
+/// Fixed cost per transformation beyond its pixel buffers (decoder
+/// tables and row state, encoder setup, bookkeeping): up to 1.8 MiB
+/// measured for a thumbnail of a 4:4:4 JPEG to mozjpeg.
+const PER_JOB_BYTES: u64 = 2 * 1024 * 1024;
 
 /// Decodes any supported image to RGBA8 (tests and measurements).
 pub fn decode_rgba(input: &[u8]) -> Result<(u32, u32, Vec<u8>), Error> {
@@ -647,6 +652,10 @@ fn decode_jpeg_scaled(
     shrink: u32,
     max_alloc: u64,
 ) -> Option<Result<DynamicImage, Error>> {
+    // Above 128x128 output pixels jpeg-decoder runs the IDCT of each
+    // component on a short-lived thread of its own (joined before decode
+    // returns; no setting turns it off): a scaled decode briefly uses up to
+    // four threads, beside the image pool's own count.
     let mut decoder = jpeg_decoder::Decoder::new(Cursor::new(input));
     decoder.set_max_decoding_buffer_size(usize::try_from(max_alloc).unwrap_or(usize::MAX));
     let want = (width.div_ceil(shrink), height.div_ceil(shrink));
