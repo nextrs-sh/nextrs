@@ -125,9 +125,9 @@ jobs:
       - name: HTTP comparison against next start
         run: |
           if [ "${{ matrix.next }}" = pinned ]; then
-            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser --cache-components --proxy --proxy-combinations --images
+            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser --cache-components --proxy --proxy-combinations --images --pages
           else
-            scripts/compat-suite.sh --next ${{ matrix.next }} --isolates ${{ matrix.isolates }} --out compat-out --cache-components --proxy --images
+            scripts/compat-suite.sh --next ${{ matrix.next }} --isolates ${{ matrix.isolates }} --out compat-out --cache-components --proxy --images --pages
           fi
       # Applications using maintained libraries in proxy.ts (jose sessions,
       # next-intl locale routing) and a data-driven proxy with external

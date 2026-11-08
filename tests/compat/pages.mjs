@@ -191,6 +191,15 @@ scenarios["conditional-static-asset"] = {
   expect: (o) => is(o.first === 200 && o.second === 304, `statuses ${o.first}, ${o.second}`),
 };
 
+// An RSC request (rsc: 1) to a Pages Router page without its _rsc
+// parameter: base server's cache-busting redirect, the 404 page and API
+// routes aside.
+add("rsc-header-static-page", { path: page("/about"), headers: { rsc: "1" } }.path, (o) => status(o, 307), { headers: { rsc: "1" } });
+add("rsc-header-ssr-page", page("/books/1"), (o) => status(o, 307), { headers: { rsc: "1" } });
+add("rsc-header-ssg-post", page("/ssg/static"), (o) => status(o, 307), { method: "POST", headers: { rsc: "1" } });
+add("rsc-header-api", page("/api/health"), (o) => status(o, 200), { headers: { rsc: "1" } });
+add("rsc-header-404", page("/missing-page"), (o) => status(o, 404), { headers: { rsc: "1" } });
+
 // --- not found and error pages -------------------------------------------
 add("missing-page", page("/missing-page"), (o) => all(notFoundPage(o), pageIs(o, "/404")));
 add("status-page-404", page("/404"), (o) => all(notFoundPage(o), is(!o.headers["cache-control"], "next start sends /404 without Cache-Control")));

@@ -4,7 +4,7 @@
 #
 #   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
 #                           [--cache-components] [--proxy] [--proxy-combinations]
-#                           [--images] [--only-images]
+#                           [--images] [--only-images] [--pages]
 #
 # Without --next the fixture's pinned lockfile is used (npm ci, in place).
 # With --next the fixture is copied to a temporary directory and that
@@ -34,6 +34,13 @@
 # tests/compat/image-asset-prefix.mjs against the assetPrefix builds. The suites start their own deterministic image upstream on a port
 # fixed at build time (remotePatterns are compiled in).
 # --only-images runs the --images part alone (no base fixture build or suites).
+# --pages builds fixtures/next-pages (a Pages Router application with a
+# proxy) three times (default, basePath, trailingSlash) and runs
+# tests/compat/pages.mjs on each, tests/compat/pages-isolation.mjs against
+# both servers on the default build and, with --browser,
+# tests/browser/pages.mjs on the default and basePath builds; then
+# fixtures/next-hybrid (app/ and pages/ with a proxy) with
+# tests/compat/hybrid.mjs and, with --browser, tests/browser/hybrid.mjs.
 # Exits non-zero if any suite fails.
 set -euo pipefail
 
@@ -47,6 +54,7 @@ proxy=0
 combinations=0
 images=0
 only_images=0
+pages=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
@@ -58,6 +66,7 @@ while [[ $# -gt 0 ]]; do
     --proxy-combinations) combinations=1; shift ;;
     --images) images=1; shift ;;
     --only-images) images=1; only_images=1; shift ;;
+    --pages) pages=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -304,6 +313,89 @@ if [[ $proxy == 1 ]]; then
     fi
     stop_servers
   done
+fi
+
+if [[ $pages == 1 ]]; then
+  stop_servers
+  if [[ -z "$next_version" ]]; then
+    project="$root/fixtures/next-pages"
+    (cd "$project" && npm ci --no-audit --no-fund --loglevel=error)
+  else
+    project="$work/next-pages"
+    mkdir -p "$project"
+    (cd "$root/fixtures/next-pages" && cp -r pages styles lib proxy.ts next.config.ts tsconfig.json package.json package-lock.json "$project/")
+    (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
+  fi
+  for variant in default base-path trailing-slash; do
+    dist=".next"; [[ $variant != default ]] && dist=".next-$variant"
+    prefix=""; [[ $variant == base-path ]] && prefix="/base"
+    # The ISR page fetches the upstream when it is prerendered.
+    (cd "$project" && rm -rf "$dist" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-pages-$variant.log" 2>&1) || {
+      tail -40 "$out/build-pages-$variant.log"; exit 1;
+    }
+    for port in "$next_port" "$nextrs_port"; do
+      if curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port/"; then echo "port $port is still in use" >&2; exit 1; fi
+    done
+    # 0.0.0.0, as for the proxy fixture: the build has a proxy.
+    (cd "$project" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 0.0.0.0 -p "$next_port") >> "$out/next-start-pages.log" 2>&1 &
+    next_pid=$!
+    pids+=($next_pid)
+    "$nextrs" start "$project/$dist" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
+      --js-stall-timeout 3 --request-timeout 15 \
+      --js-env NEXTRS_UPSTREAM --net-allow "http://127.0.0.1:$upstream_port" \
+      --net-allow-addr 127.0.0.1 >> "$out/nextrs-pages.log" 2>&1 &
+    nextrs_pid=$!
+    pids+=($nextrs_pid)
+    for port in "$next_port" "$nextrs_port"; do
+      for _ in $(seq 1 120); do
+        curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port$prefix/api/health" && break
+        sleep 0.25
+      done
+    done
+    run "pages-$variant" tests/compat/pages.mjs --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
+      --dist "$project/$dist" --variant "$variant" --json "$out/pages-$variant.json"
+    if [[ $variant == default ]]; then
+      run pages-isolation tests/compat/pages-isolation.mjs --target "$candidate" --upstream "$NEXTRS_UPSTREAM" \
+        --dist "$project/$dist" --requests 1200 --concurrency 64 --aborts 20 --json "$out/pages-isolation.json"
+      run pages-isolation-next-start tests/compat/pages-isolation.mjs --target "$baseline" --upstream "$NEXTRS_UPSTREAM" \
+        --dist "$project/$dist" --requests 1200 --concurrency 64 --aborts 20 --json "$out/pages-isolation-next-start.json"
+    fi
+    if [[ $browser == 1 && ( $variant == default || $variant == base-path ) ]]; then
+      run "browser-pages-$variant" tests/browser/pages.mjs --baseline "$baseline" --candidate "$candidate" \
+        --base-path "$prefix" --json "$out/browser-pages-$variant.json"
+    fi
+    stop_servers
+  done
+  if [[ -z "$next_version" ]]; then
+    project="$root/fixtures/next-hybrid"
+    (cd "$project" && npm ci --no-audit --no-fund --loglevel=error)
+  else
+    project="$work/next-hybrid"
+    mkdir -p "$project"
+    (cd "$root/fixtures/next-hybrid" && cp -r app pages public proxy.ts next.config.ts tsconfig.json package.json package-lock.json "$project/")
+    (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
+  fi
+  (cd "$project" && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-hybrid.log" 2>&1) || {
+    tail -40 "$out/build-hybrid.log"; exit 1;
+  }
+  (cd "$project" && NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 0.0.0.0 -p "$next_port") >> "$out/next-start-hybrid.log" 2>&1 &
+  next_pid=$!
+  pids+=($next_pid)
+  "$nextrs" start "$project" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
+    --js-stall-timeout 3 --request-timeout 15 >> "$out/nextrs-hybrid.log" 2>&1 &
+  nextrs_pid=$!
+  pids+=($nextrs_pid)
+  for port in "$next_port" "$nextrs_port"; do
+    for _ in $(seq 1 120); do
+      curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port/api/health" && break
+      sleep 0.25
+    done
+  done
+  run hybrid tests/compat/hybrid.mjs --baseline "$baseline" --candidate "$candidate" --dist "$project/.next" --json "$out/hybrid.json"
+  if [[ $browser == 1 ]]; then
+    run browser-hybrid tests/browser/hybrid.mjs --baseline "$baseline" --candidate "$candidate" --json "$out/browser-hybrid.json"
+  fi
+  stop_servers
 fi
 
 if [[ $images == 1 ]]; then
