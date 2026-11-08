@@ -44,6 +44,7 @@ pub use crate::internal::{
 };
 pub use crate::metrics::{
     CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MetricsSnapshot, UpstreamSnapshot,
+    set_malloc_mmap_threshold,
 };
 pub use crate::net::{
     AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy, Upstream,

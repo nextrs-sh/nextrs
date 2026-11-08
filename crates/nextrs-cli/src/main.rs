@@ -93,6 +93,21 @@ struct ImageArgs {
     /// Default: the build's experimental.imgOptTimeoutInSeconds (7).
     #[arg(long, value_name = "SECONDS")]
     image_timeout: Option<f64>,
+    /// Memory image transformations may hold at once. Each reserves what
+    /// its source's header says it will allocate before it starts; work
+    /// larger than the whole budget is served unchanged.
+    #[arg(long, value_name = "MIB", default_value_t = 1024)]
+    image_memory_budget: u64,
+    /// Source image bytes held in memory at once (downloading, waiting,
+    /// being transformed); beyond it, new image work answers 503.
+    #[arg(long, value_name = "MIB", default_value_t = 512)]
+    image_source_budget: u64,
+    /// glibc's mmap threshold: allocations of at least this many KiB are
+    /// returned to the system when freed (image buffers otherwise stay
+    /// resident in malloc's arenas). 0 leaves glibc's adaptive default;
+    /// MALLOC_MMAP_THRESHOLD_ or GLIBC_TUNABLES take precedence.
+    #[arg(long, value_name = "KIB", default_value_t = 1024)]
+    malloc_mmap_threshold: usize,
     /// Persist optimized images in this directory (created with mode
     /// 0700; outside the project). Without it they are cached in memory.
     #[arg(long, value_name = "DIR")]
@@ -134,6 +149,8 @@ impl ImageArgs {
                 Some(value) => Some(seconds(value).ok_or("--image-timeout must be positive")?),
                 None => None,
             },
+            memory_budget: mib(self.image_memory_budget),
+            source_budget: mib(self.image_source_budget),
             cache: nextrs_server::ImageCacheOptions {
                 dir,
                 max_memory_bytes: mib(self.image_cache_max_memory),
@@ -546,6 +563,17 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             proxy,
             images,
         } => {
+            // Before any thread allocates (glibc's arenas are per thread).
+            if images.malloc_mmap_threshold > 0 {
+                let applied = nextrs_runtime::set_malloc_mmap_threshold(
+                    images.malloc_mmap_threshold.saturating_mul(1024),
+                );
+                tracing::debug!(
+                    applied,
+                    kib = images.malloc_mmap_threshold,
+                    "malloc mmap threshold"
+                );
+            }
             let forwarded = proxy.policy()?;
             match &forwarded {
                 ForwardedHeaders::Pass => tracing::info!(
