@@ -4,7 +4,7 @@
 #
 #   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
 #                           [--cache-components] [--proxy] [--proxy-combinations]
-#                           [--images] [--only-images] [--pages]
+#                           [--images] [--only-images] [--pages] [--only-pages]
 #
 # Without --next the fixture's pinned lockfile is used (npm ci, in place).
 # With --next the fixture is copied to a temporary directory and that
@@ -38,7 +38,8 @@
 # proxy) three times (default, basePath, trailingSlash) and runs
 # tests/compat/pages.mjs on each, tests/compat/pages-isolation.mjs against
 # both servers on the default build and, with --browser,
-# tests/browser/pages.mjs on the default and basePath builds; then
+# tests/browser/pages.mjs on the default and basePath builds (--only-pages
+# runs this part alone); then
 # fixtures/next-hybrid (app/ and pages/ with a proxy) with
 # tests/compat/hybrid.mjs and, with --browser, tests/browser/hybrid.mjs.
 # Exits non-zero if any suite fails.
@@ -55,6 +56,7 @@ combinations=0
 images=0
 only_images=0
 pages=0
+only_pages=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
@@ -67,6 +69,7 @@ while [[ $# -gt 0 ]]; do
     --images) images=1; shift ;;
     --only-images) images=1; only_images=1; shift ;;
     --pages) pages=1; shift ;;
+    --only-pages) pages=1; only_pages=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -122,9 +125,16 @@ upstream_port=$((base_port + 2))
 closed_port=$((base_port + 3))
 export NEXTRS_UPSTREAM="http://127.0.0.1:$upstream_port"
 
+# The base fixture and its suites are skipped by --only-images and
+# --only-pages; the Pages Router fixtures need the upstream too.
+skip_base=0
+[[ $only_images == 1 || $only_pages == 1 ]] && skip_base=1
 if [[ $only_images != 1 ]]; then
 node "$root/tests/compat/upstream.mjs" --port "$upstream_port" > "$out/upstream.log" 2>&1 &
 pids+=($!)
+fi
+
+if [[ $skip_base != 1 ]]; then
 
 # The upstream runs during the build too: the ISR fixtures fetch from it
 # when they are prerendered, as applications fetch their data at build time.
@@ -191,7 +201,7 @@ stop_servers() {
   done
   wait "$next_pid" "$nextrs_pid" 2>/dev/null || true
 }
-[[ $only_images != 1 ]] && start_servers
+[[ $skip_base != 1 ]] && start_servers
 
 baseline="http://127.0.0.1:$next_port"
 candidate="http://127.0.0.1:$nextrs_port"
@@ -205,7 +215,7 @@ run() {
   fi
 }
 cd "$root"
-if [[ $only_images != 1 ]]; then
+if [[ $skip_base != 1 ]]; then
 run compare   tests/compat/compare.mjs   --baseline "$baseline" --candidate "$candidate" --project "$project" --json "$out/compare.json"
 run semantic  tests/compat/semantic.mjs  --baseline "$baseline" --candidate "$candidate" --json "$out/semantic.json"
 run streaming tests/compat/streaming.mjs --target "$candidate" --runs 20
@@ -326,6 +336,7 @@ if [[ $pages == 1 ]]; then
     (cd "$root/fixtures/next-pages" && cp -r pages styles lib proxy.ts next.config.ts tsconfig.json package.json package-lock.json "$project/")
     (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
   fi
+  [[ $only_pages == 1 ]] && installed="$(node -p "require('$project/node_modules/next/package.json').version")"
   for variant in default base-path trailing-slash; do
     dist=".next"; [[ $variant != default ]] && dist=".next-$variant"
     prefix=""; [[ $variant == base-path ]] && prefix="/base"
