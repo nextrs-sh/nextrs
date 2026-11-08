@@ -12,6 +12,10 @@ publish.workspace = true
 # gif, image-webp and tiff through `image`. AVIF/HEIF and JPEG 2000 are not
 # decoded (Next's own fallback then serves the source unchanged).
 image = { version = "0.25.10", default-features = false, features = ["jpeg", "png", "gif", "webp", "tiff"] }
+# Scaled-IDCT JPEG decoding (shrink-on-load) for outputs at most half the
+# source width; safe Rust only (`platform_independent` forbids unsafe), no
+# threads of its own (no rayon). Full-size decodes stay with zune-jpeg.
+jpeg-decoder = { version = "0.3.2", default-features = false, features = ["platform_independent"] }
 fast_image_resize = "6.1"
 # ICC profiles to sRGB (image already links it).
 moxcms = "0.8"

@@ -326,6 +326,88 @@ fn svg_root() -> &'static regex::Regex {
 
 /// `is-animated` (GIF, PNG and WebP only, as Next calls it). `Err` where the
 /// package throws: a PNG chunk header past the end of the buffer.
+/// A JPEG's frame header (SOF): enough to size its decoder's buffers.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct JpegFrame {
+    pub progressive: bool,
+    pub components: u8,
+    /// Sampling factors per component (h, v) and their maxima.
+    sampling: [(u8, u8); 4],
+    max: (u8, u8),
+}
+
+impl JpegFrame {
+    /// Samples over all components at full resolution (subsampled
+    /// components counted at their own, rounded-up, size).
+    pub fn coefficient_samples(&self, width: u32, height: u32) -> u64 {
+        let (hmax, vmax) = (u64::from(self.max.0.max(1)), u64::from(self.max.1.max(1)));
+        self.sampling[..usize::from(self.components.min(4))]
+            .iter()
+            .map(|&(h, v)| {
+                // Whole 8x8 blocks.
+                let cw = (u64::from(width) * u64::from(h)).div_ceil(hmax).div_ceil(8) * 8;
+                let ch = (u64::from(height) * u64::from(v))
+                    .div_ceil(vmax)
+                    .div_ceil(8)
+                    * 8;
+                cw * ch
+            })
+            .sum()
+    }
+}
+
+/// Walks the markers up to the first SOF. `None`: not a JPEG, or no frame
+/// header within the bytes.
+pub(crate) fn jpeg_frame(buf: &[u8]) -> Option<JpegFrame> {
+    if !buf.starts_with(&[0xFF, 0xD8]) {
+        return None;
+    }
+    let mut at = 2;
+    while at + 4 <= buf.len() {
+        if buf[at] != 0xFF {
+            return None;
+        }
+        let marker = buf[at + 1];
+        if marker == 0xFF {
+            at += 1;
+            continue;
+        }
+        let len = usize::from(u16::from_be_bytes([buf[at + 2], buf[at + 3]]));
+        let progressive = match marker {
+            0xC0 | 0xC1 | 0xC3 | 0xC5 | 0xC7 | 0xC9 | 0xCB | 0xCD | 0xCF => Some(false),
+            0xC2 | 0xC6 | 0xCA | 0xCE => Some(true),
+            _ => None,
+        };
+        if let Some(progressive) = progressive {
+            let body = buf.get(at + 4..at + 2 + len)?;
+            let components = *body.get(5)?;
+            let mut sampling = [(1, 1); 4];
+            let mut max = (1, 1);
+            for (i, slot) in sampling
+                .iter_mut()
+                .enumerate()
+                .take(usize::from(components.min(4)))
+            {
+                let factors = *body.get(6 + i * 3 + 1)?;
+                *slot = (factors >> 4, factors & 0x0F);
+                max = (max.0.max(slot.0), max.1.max(slot.1));
+            }
+            return Some(JpegFrame {
+                progressive,
+                components,
+                sampling,
+                max,
+            });
+        }
+        if matches!(marker, 0xD8 | 0x01 | 0xD0..=0xD7) {
+            at += 2;
+        } else {
+            at += 2 + len;
+        }
+    }
+    None
+}
+
 pub fn is_animated(buf: &[u8]) -> Result<bool, SniffError> {
     if buf.get(..3) == Some(b"GIF") {
         return Ok(gif_is_animated(buf));
