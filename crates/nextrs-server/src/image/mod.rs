@@ -563,6 +563,12 @@ impl Optimizer {
         // A free slot and free memory are taken at once; only work that
         // must wait counts against the queue. Memory first, then a slot:
         // a slot is never held idle waiting for memory.
+        #[allow(unused_mut)]
+        let mut estimate = estimate;
+        #[cfg(feature = "negative-controls")]
+        if controls::skip_memory_budget() {
+            estimate = 1;
+        }
         let memory = self.memory.try_reserve(estimate);
         let immediate = match &memory {
             Some(_) => self.permits.clone().try_acquire_owned().ok(),
@@ -621,7 +627,12 @@ impl Optimizer {
             // Held until the work ends, even if nobody waits any more (a
             // timed-out encoder still runs and still holds its memory).
             let _permit = permit;
-            let _reservation = reservation;
+            #[allow(unused_mut)]
+            let mut _reservation = Some(reservation);
+            #[cfg(feature = "negative-controls")]
+            if controls::leak_reservation() {
+                std::mem::forget(_reservation.take());
+            }
             if let Some(fault) = faults {
                 match fault(&href) {
                     ImageFault::None => {}

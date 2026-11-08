@@ -138,6 +138,10 @@ impl SourceLease {
 
 impl Drop for SourceLease {
     fn drop(&mut self) {
+        #[cfg(feature = "negative-controls")]
+        if super::controls::leak_source() {
+            return;
+        }
         self.budget.held.fetch_sub(self.bytes, Ordering::AcqRel);
     }
 }

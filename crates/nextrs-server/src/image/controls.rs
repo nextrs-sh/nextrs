@@ -53,3 +53,19 @@ pub(crate) fn corrupt(bytes: &mut [u8]) {
         }
     }
 }
+
+/// `leak-reservation`: a finished transformation never returns its memory
+/// reservation (the budget drains until work waits forever).
+pub(crate) fn leak_reservation() -> bool {
+    active("leak-reservation")
+}
+
+/// `skip-memory-budget`: transformations start without reserving memory.
+pub(crate) fn skip_memory_budget() -> bool {
+    active("skip-memory-budget")
+}
+
+/// `leak-source`: a source's bytes are never returned to the source budget.
+pub(crate) fn leak_source() -> bool {
+    active("leak-source")
+}
