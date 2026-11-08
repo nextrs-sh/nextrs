@@ -96,6 +96,15 @@ impl Flight {
     }
 }
 
+/// One place in the transformation queue, released on drop.
+struct Queued<'a>(&'a AtomicUsize);
+
+impl Drop for Queued<'_> {
+    fn drop(&mut self) {
+        self.0.fetch_sub(1, Ordering::AcqRel);
+    }
+}
+
 struct Waiting(Arc<Flight>);
 
 impl Drop for Waiting {
@@ -480,9 +489,14 @@ impl Optimizer {
                     self.counters.overloaded.fetch_add(1, Ordering::Relaxed);
                     return Err(Failure::Overloaded);
                 }
-                let permit = self.permits.clone().acquire_owned().await;
-                self.queued.fetch_sub(1, Ordering::AcqRel);
-                permit.map_err(|_| Failure::Internal)?
+                // Leaves the queue however the wait ends: a cancelled
+                // flight drops this future while it waits.
+                let _waiting = Queued(&self.queued);
+                self.permits
+                    .clone()
+                    .acquire_owned()
+                    .await
+                    .map_err(|_| Failure::Internal)?
             }
         };
         self.counters.transforms.fetch_add(1, Ordering::Relaxed);

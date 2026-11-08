@@ -356,3 +356,86 @@ async fn alpha_survives_webp() {
     assert!(decoded.get_pixel(60, 16)[3] < 5);
     let _ = std::fs::remove_dir_all(dir);
 }
+
+/// Clients that leave while their transformation waits for a thread
+/// cancel it and give their queue place back (a leaked place would turn
+/// every later request into a 503).
+#[tokio::test]
+async fn cancelled_waits_leave_the_queue() {
+    let dir = project("cancel");
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            concurrency: 1,
+            max_queued: 4,
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    for round in 0..3 {
+        let requests: Vec<_> = [640, 750, 828, 1080, 1200, 1920]
+            .iter()
+            .map(|w| {
+                let app = app.clone();
+                let uri = format!("/_next/image?url=%2Fphotos%2Fphoto.png&w={w}&q=75");
+                tokio::spawn(async move { get(&app, &uri, "image/png").await })
+            })
+            .collect();
+        tokio::time::sleep(std::time::Duration::from_millis(2)).await;
+        for r in &requests {
+            r.abort();
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+        assert_eq!(
+            stat(&stats, "queued"),
+            0,
+            "round {round}: {:?}",
+            stats.snapshot()
+        );
+    }
+    // Still served: no place was leaked.
+    let answer = get(
+        &app,
+        "/_next/image?url=%2Fphotos%2Fphoto.png&w=256&q=75",
+        "image/webp",
+    )
+    .await;
+    assert_eq!(answer.status, StatusCode::OK);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+/// A cache directory that cannot be written (a full or read-only disk):
+/// images are still served, from memory, and the failures are counted.
+#[tokio::test]
+async fn unwritable_cache_directory_still_serves() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = project("readonly");
+    let cache_dir = dir.with_extension("cache");
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            cache: ImageCacheOptions {
+                dir: Some(cache_dir.clone()),
+                ..ImageCacheOptions::default()
+            },
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    std::fs::set_permissions(&cache_dir, std::fs::Permissions::from_mode(0o500)).unwrap();
+    let first = get(&app, PHOTO, "image/webp").await;
+    let second = get(&app, PHOTO, "image/webp").await;
+    std::fs::set_permissions(&cache_dir, std::fs::Permissions::from_mode(0o700)).unwrap();
+    assert_eq!(first.status, StatusCode::OK);
+    assert_eq!(header(&second, "x-nextjs-cache"), "HIT");
+    // Root ignores directory permissions; the check needs a normal user.
+    if unsafe_euid() != 0 {
+        assert_eq!(stat(&stats, "cache_write_errors"), 1);
+    }
+    let _ = std::fs::remove_dir_all(dir);
+    let _ = std::fs::remove_dir_all(cache_dir);
+}
+
+fn unsafe_euid() -> u32 {
+    std::fs::metadata("/proc/self").map_or(1, |m| std::os::unix::fs::MetadataExt::uid(&m))
+}
