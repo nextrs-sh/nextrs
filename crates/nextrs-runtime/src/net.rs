@@ -419,6 +419,38 @@ impl Default for NetworkLimits {
 pub struct NetworkConfig {
     pub policy: NetworkPolicy,
     pub limits: NetworkLimits,
+    /// Certificate authorities trusted beside the built-in (Mozilla) roots,
+    /// DER-encoded: a private CA, as Node's NODE_EXTRA_CA_CERTS adds one.
+    /// Certificates are always verified (chain, name, validity).
+    pub extra_roots: Vec<Vec<u8>>,
+}
+
+impl NetworkConfig {
+    /// Adds every certificate of a PEM bundle as a trust anchor; returns
+    /// how many. Refuses a bundle without certificates, or one a trust
+    /// anchor cannot be made from.
+    pub fn add_ca_pem(&mut self, pem: &[u8]) -> Result<usize, String> {
+        use rustls::pki_types::CertificateDer;
+        use rustls::pki_types::pem::PemObject;
+        let mut added = 0;
+        for cert in CertificateDer::pem_slice_iter(pem) {
+            let cert = cert.map_err(|e| format!("not a PEM certificate: {e}"))?;
+            webpki_anchor(&cert)?;
+            self.extra_roots.push(cert.to_vec());
+            added += 1;
+        }
+        if added == 0 {
+            return Err("no certificate in the file".into());
+        }
+        Ok(added)
+    }
+}
+
+fn webpki_anchor(cert: &rustls::pki_types::CertificateDer<'_>) -> Result<(), String> {
+    let mut store = rustls::RootCertStore::empty();
+    store
+        .add(cert.clone())
+        .map_err(|e| format!("not usable as a trust anchor: {e}"))
 }
 
 // ---------------------------------------------------------------------------
@@ -697,9 +729,14 @@ impl NetClient {
             .build()
             .map_err(|e| e.to_string())?;
         let provider = Arc::new(rustls::crypto::ring::default_provider());
-        let roots = rustls::RootCertStore {
+        let mut roots = rustls::RootCertStore {
             roots: webpki_roots::TLS_SERVER_ROOTS.to_vec(),
         };
+        for der in &config.extra_roots {
+            roots
+                .add(rustls::pki_types::CertificateDer::from(der.clone()))
+                .map_err(|e| format!("extra CA certificate: {e}"))?;
+        }
         let mut tls = rustls::ClientConfig::builder_with_provider(provider)
             .with_safe_default_protocol_versions()
             .map_err(|e| e.to_string())?
@@ -1431,6 +1468,7 @@ mod tests {
                 allow_addrs: vec!["127.0.0.1".parse().unwrap()],
             },
             limits: NetworkLimits::default(),
+            extra_roots: Vec::new(),
         };
         NetClient::with_lookup(&config, Arc::new(Counters::default()), lookup).unwrap()
     }
@@ -1582,5 +1620,14 @@ mod tests {
             .unwrap_err();
         assert!(matches!(error, FetchError::Denied(_)), "{error:?}");
         assert_eq!(accepted.load(std::sync::atomic::Ordering::SeqCst), 0);
+    }
+
+    #[test]
+    fn extra_ca_files_must_hold_usable_certificates() {
+        let mut config = NetworkConfig::default();
+        assert!(config.add_ca_pem(b"not a certificate").is_err());
+        let bad = b"-----BEGIN CERTIFICATE-----\nAAAA\n-----END CERTIFICATE-----\n";
+        assert!(config.add_ca_pem(bad).is_err());
+        assert!(config.extra_roots.is_empty());
     }
 }

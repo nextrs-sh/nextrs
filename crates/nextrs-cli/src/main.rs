@@ -349,6 +349,12 @@ struct NetArgs {
     /// Response body limit per fetch (after decompression).
     #[arg(long = "net-max-response", value_name = "MIB", default_value_t = 32)]
     max_response: u64,
+    /// PEM file of certificate authorities to trust beside the built-in
+    /// roots (repeatable), as NODE_EXTRA_CA_CERTS does for next start: a
+    /// private CA for internal image or API hosts. Verification is never
+    /// turned off.
+    #[arg(long = "net-ca-file", value_name = "PEM")]
+    ca_file: Vec<PathBuf>,
 }
 
 impl NetArgs {
@@ -356,6 +362,9 @@ impl NetArgs {
         if self.allow.is_empty() {
             if !self.allow_addr.is_empty() {
                 return Err("--net-allow-addr needs at least one --net-allow".into());
+            }
+            if !self.ca_file.is_empty() {
+                return Err("--net-ca-file needs at least one --net-allow".into());
             }
             return Ok(None);
         }
@@ -380,7 +389,7 @@ impl NetArgs {
         let positive = |value: f64, name: &str| {
             seconds(value).ok_or_else(|| format!("{name} must be positive"))
         };
-        Ok(Some(NetworkConfig {
+        let mut config = NetworkConfig {
             policy: NetworkPolicy { allow, allow_addrs },
             limits: NetworkLimits {
                 headers_timeout: positive(self.timeout, "--net-timeout")?,
@@ -388,7 +397,16 @@ impl NetArgs {
                 max_response_bytes: self.max_response.max(1) * 1024 * 1024,
                 ..defaults
             },
-        }))
+            extra_roots: Vec::new(),
+        };
+        for path in &self.ca_file {
+            let pem = std::fs::read(path)
+                .map_err(|e| format!("--net-ca-file {}: {e}", path.display()))?;
+            config
+                .add_ca_pem(&pem)
+                .map_err(|e| format!("--net-ca-file {}: {e}", path.display()))?;
+        }
+        Ok(Some(config))
     }
 }
 
