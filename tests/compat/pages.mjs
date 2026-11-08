@@ -298,7 +298,8 @@ add("data-index", data("/index.json"), (o) => status(o, 200));
 add("data-static-page", data("/about.json"), (o) => status(o, 200));
 add("data-error", data("/ssr/error.json"), (o) => status(o, 500));
 add("data-encoded-param", data("/books/a%20b.json"), (o) => all(status(o, 200), is(o.body?.pageProps?.id === "a b", `id ${o.body?.pageProps?.id}`)));
-add("data-no-json-suffix", data("/books/42"), (o) => status(o, 404));
+// trailingSlash: next start's trailing-slash redirect comes first.
+add("data-no-json-suffix", data("/books/42"), (o) => status(o, slash ? 308 : 404));
 add("data-through-proxy-rewrite", data("/mw/rewrite-book.json"), (o) => all(status(o, 200), is(o.body?.pageProps?.id === "99", "rewritten page's data")));
 
 // --- API routes ------------------------------------------------------------
