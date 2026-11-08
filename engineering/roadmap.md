@@ -18,6 +18,7 @@ and scope changes as the experiments produce evidence.
 | **2B: real-world proxies** | `jose` and `next-intl` proxies unchanged, a proxy that fetches, external rewrites under the network policy, `waitUntil`, `instrumentation.ts`, Draft Mode, `dynamicParams = false`, configuration combinations, graceful shutdown, soaks with proxy traffic | 🧪 Experimental |
 | **2C: authentication libraries** | Asymmetric Web Crypto, `jose` with a remote JWKS, Auth.js v5, `next-intl` routing modes, OpenTelemetry, `experimental.proxyTimeout`, a fetch outliving its request, independent outcome checks and negative controls, a six-hour proxy soak | 🧪 Experimental |
 | **2D: images** | `/_next/image` in Rust for unchanged `next/image` applications: Next's request semantics, memory-safe decoding with resource limits, local sources through routing, remote sources under the network policy, an image cache, browser tests | 🧪 Experimental |
+| **2E: image hardening** | Shrink-on-load JPEG decoding, memory-weighted admission and a source budget, allocator settings, mozjpeg JPEG and lossless palette PNG output, HTTPS sources with private CAs, `assetPrefix` builds, image soaks beside SSR | 🧪 Experimental |
 
 "Experimental" means the feature passes the comparison suites on the
 fixtures, with the gaps listed in
@@ -34,8 +35,8 @@ Drawn from the known gaps. These are directions, not commitments.
 - **Compatibility breadth:** more real-world applications and libraries,
   the build-time fetch cache, an ISR fast path that avoids JavaScript on
   cache hits.
-- **Image engine:** AVIF/HEIF sources, output size and memory closer to
-  sharp's.
+- **Image engine:** AVIF/HEIF sources, faster AVIF output (rav1e with
+  assembly), PNG output size closer to sharp's without visible loss.
 - **Advanced Next.js features:** Next's `i18n` config, the Pages Router.
 - **Performance and production readiness:** performance work, measured only
   once correctness is established; operational hardening.

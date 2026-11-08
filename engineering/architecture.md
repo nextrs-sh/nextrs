@@ -179,6 +179,17 @@ subrequests; remote sources go through the network policy. Work runs on a
 bounded blocking pool, never on the request threads or an isolate, with a
 memory LRU and an optional disk cache.
 
+Memory is bounded as well as concurrency. Before a transformation starts,
+its peak allocation is estimated from the source's header alone (decoder
+buffers, resize and encoder state) and reserved from a process-wide budget;
+work waits in the bounded queue until both memory and a thread are free,
+and keeps its reservation until it has actually finished, also after its
+request timed out. Source bodies held in memory have a budget of their own.
+JPEGs resized to half their width or less are decoded at 1/2, 1/4 or 1/8
+scale (a scaled IDCT, as libvips does), so a large photo resized to a small
+width never exists at full size. Decoders for untrusted bytes are Rust;
+C code (libwebp, mozjpeg) only encodes pixels NextRS produced.
+
 ## Repository structure
 
 | Path | Responsibility |

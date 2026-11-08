@@ -64,8 +64,9 @@ than `next start`.
   data cache and `"use cache"`, in one cache shared by every isolate and
   optionally persisted to disk.
 - **Image optimization and runtime controls** *(experimental):*
-  `/_next/image` answered in Rust, outbound network denied by default, and
-  supervised isolates that are replaced when they fail.
+  `/_next/image` answered in Rust within a memory budget, outbound network
+  denied by default, and supervised isolates that are replaced when they
+  fail.
 
 Not supported: the Pages Router, the edge runtime and Next's `i18n` config.
 NextRS refuses to start a build it would serve incorrectly. See the

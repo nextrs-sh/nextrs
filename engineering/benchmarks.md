@@ -232,7 +232,10 @@ equivalent before it is measured.
 | [`actions_bench.py`](../benchmarks/actions_bench.py) | Server Actions |
 | [`phase1e_bench.py`](../benchmarks/phase1e_bench.py) | Cache hits, ISR regeneration under load, revalidation, `"use cache"` |
 | [`phase2a_bench.py`](../benchmarks/phase2a_bench.py), [`phase2b_bench.py`](../benchmarks/phase2b_bench.py), [`phase2c_bench.py`](../benchmarks/phase2c_bench.py) | Proxy, routing rules and real-world proxy applications |
-| [`image_bench.mjs`](../benchmarks/image_bench.mjs), [`image_faults.mjs`](../benchmarks/image_faults.mjs) | `/_next/image` throughput, latency and fault handling |
+| [`image_bench.mjs`](../benchmarks/image_bench.mjs), [`image_faults.mjs`](../benchmarks/image_faults.mjs), [`image-bench.sh`](../benchmarks/image-bench.sh) | `/_next/image` throughput, latency, fault handling and memory-admission accounting, against `next start` or NextRS from an empty cache |
+| [`image_memory.mjs`](../benchmarks/image_memory.mjs), [`image-memory.sh`](../benchmarks/image-memory.sh) | Peak and retained memory (RSS, malloc statistics, reservations) during bursts of large and mixed image work |
+| [`image-corpus.mjs`](../benchmarks/image-corpus.mjs), [`estimate-calibration.sh`](../benchmarks/estimate-calibration.sh) | A codec corpus, and the memory estimate checked against measured peaks |
+| [`image_soak.mjs`](../benchmarks/image_soak.mjs), [`image-soak.sh`](../benchmarks/image-soak.sh), [`image_soak_summary.py`](../benchmarks/image_soak_summary.py) | Sustained image traffic beside SSR, Server Actions, ISR and `proxy.ts`, with injected restarts and a failing cache disk |
 | [`cold_bench.mjs`](../benchmarks/cold_bench.mjs) | The cold data-cache path: every request misses, fetches upstream and stores |
 | [`young_gen_bench.py`](../benchmarks/young_gen_bench.py) | V8 young-generation sizing under sustained SSR |
 | [`slow_clients.py`](../benchmarks/slow_clients.py) | Memory with paused clients |
