@@ -231,6 +231,7 @@ pub(crate) async fn forward(upstream: Option<Upstream>, forward: Forward<'_>) ->
         url,
         headers,
         body,
+        decompress: false,
     };
     let timeout = forward.timeout;
     let sent = match timeout {

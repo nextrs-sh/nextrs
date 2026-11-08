@@ -986,6 +986,10 @@ pub struct UpstreamRequest {
     /// headers. `Host` comes from the URL.
     pub headers: HeaderMap,
     pub body: UpstreamBody,
+    /// Decode `Content-Encoding` (gzip, br, deflate) as Next's image
+    /// optimizer does. External rewrites pass the upstream's bytes through
+    /// unchanged (`false`).
+    pub decompress: bool,
 }
 
 pub enum UpstreamBody {
@@ -1080,6 +1084,16 @@ impl Upstream {
         Self { net }
     }
 
+    /// A client of its own under `config` (same allowlist, address checks
+    /// and resolver as `fetch`), for requests NextRS makes without
+    /// JavaScript: remote images.
+    pub fn standalone(config: &NetworkConfig) -> Result<Self, String> {
+        Ok(Self::new(Arc::new(NetClient::new(
+            config,
+            Arc::new(Counters::default()),
+        )?)))
+    }
+
     /// The policy's verdict on a destination before any connection
     /// (scheme, credentials, allowlist, IP literals).
     pub fn check(&self, url: &Url) -> Result<(), Denied> {
@@ -1141,8 +1155,14 @@ impl Shared {
             url,
             headers,
             body,
+            decompress,
         } = request;
-        let mut builder = self.raw_client.request(method, url).headers(headers);
+        let client = if decompress {
+            &self.client
+        } else {
+            &self.raw_client
+        };
+        let mut builder = client.request(method, url).headers(headers);
         match body {
             UpstreamBody::Empty => {}
             UpstreamBody::Bytes(bytes) => builder = builder.body(bytes),
@@ -1422,6 +1442,7 @@ mod tests {
                 url: url.parse().unwrap(),
                 headers: HeaderMap::new(),
                 body: UpstreamBody::Empty,
+                decompress: false,
             })
             .await?;
         let status = response.status;
@@ -1510,6 +1531,7 @@ mod tests {
                 url: format!("http://rebind.test:{port}/").parse().unwrap(),
                 headers: HeaderMap::new(),
                 body: UpstreamBody::Empty,
+                decompress: false,
             })
             .await
             .unwrap();
