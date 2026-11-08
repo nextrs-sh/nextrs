@@ -471,7 +471,12 @@ pub(crate) async fn resolve(
     }
 
     // The proxy.
+    #[cfg(feature = "negative-controls")]
+    let skip_proxy = crate::pages_controls::skip_proxy_data(uri.path());
+    #[cfg(not(feature = "negative-controls"))]
+    let skip_proxy = false;
     if let Some(proxy) = &state.proxy
+        && !skip_proxy
         && proxy
             .matchers
             .matches(&router.parsed.pathname, &router.view())

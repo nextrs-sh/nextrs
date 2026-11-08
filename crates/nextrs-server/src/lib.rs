@@ -10,6 +10,8 @@ mod etag;
 mod external;
 mod image;
 mod pages;
+#[cfg(feature = "negative-controls")]
+mod pages_controls;
 mod resolve;
 #[doc(hidden)]
 pub mod routing;
@@ -1222,8 +1224,12 @@ async fn serve_resolved(
                     pages::Next::Done(response) => response,
                     pages::Next::NotFound => {
                         // router-server routes on after the NoFallbackError;
-                        // its second pass names the path without basePath.
-                        if state.proxy.is_some() && headers.contains_key("x-nextjs-data") {
+                        // its second pass names the path without basePath
+                        // (the Pages Router's /404 only, as above).
+                        if state.not_found.is_none()
+                            && state.proxy.is_some()
+                            && headers.contains_key("x-nextjs-data")
+                        {
                             let base = state.config.base_path.as_str();
                             let routed = resolved_ref.pathname.as_str();
                             let path = if base.is_empty() {
@@ -1514,7 +1520,13 @@ async fn not_found_render(
     }
     // router-server answers a data request routing did not match with an
     // empty JSON object when the build has a proxy.
-    if unmatched && state.proxy.is_some() && headers.contains_key("x-nextjs-data") {
+    // Only for the Pages Router's /404: with an App Router not-found page,
+    // router-server renders /_not-found instead.
+    if unmatched
+        && state.not_found.is_none()
+        && state.proxy.is_some()
+        && headers.contains_key("x-nextjs-data")
+    {
         // The routed path as middleware_next_data left it (basePath and
         // trailing slash included).
         return pages::data_not_found(routed);
@@ -1585,11 +1597,15 @@ pub(crate) async fn render_not_found_for_handler(
     keep: Vec<(HeaderName, HeaderValue)>,
 ) -> Option<Response> {
     if let Some(page) = &state.not_found {
-        let mut response = pages::html_response(
+        // The App Router not-found page, sent as its prerender is, with the
+        // Cache-Control and other headers the handler set.
+        let mut response = prerendered(
             state,
             page,
             StatusCode::NOT_FOUND,
-            None,
+            NO_STORE,
+            HTML,
+            true,
             ctx.headers,
             ctx.method,
         );

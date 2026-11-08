@@ -180,6 +180,12 @@ pub(crate) fn dynamic_data_page<'s>(
         .data_dynamic
         .iter()
         .find(|(regex, _)| regex.is_match(path))?;
+    #[cfg(feature = "negative-controls")]
+    let page = if crate::pages_controls::wrong_data_route() {
+        &state.pages_router.data_dynamic[0].1
+    } else {
+        page
+    };
     let prefix = format!("/_next/data/{}", state.build_id);
     let pathname = path
         .strip_prefix(&prefix)
@@ -229,6 +235,23 @@ pub(crate) fn html_response(
     response
 }
 
+/// base server's setVaryHeader for a Pages Router page: the RSC Vary list
+/// when the request is an RSC request (rsc: 1), whatever the page.
+pub(crate) fn rsc_vary<'s>(state: &'s crate::AppState, request: &HeaderMap) -> Option<&'s str> {
+    request
+        .get(&state.rsc.header)
+        .is_some_and(|v| v == "1")
+        .then_some(state.rsc.vary_header.as_str())
+}
+
+fn add_rsc_vary(state: &crate::AppState, request: &HeaderMap, response: &mut Response) {
+    if let Some(vary) = rsc_vary(state, request)
+        && let Ok(value) = HeaderValue::from_str(vary)
+    {
+        response.headers_mut().append(header::VARY, value);
+    }
+}
+
 /// next start's answer to a method other than GET or HEAD on a static or
 /// getStaticProps page (base server, before rendering).
 pub(crate) fn method_not_allowed() -> Response {
@@ -261,6 +284,7 @@ pub(crate) async fn not_found(
             ctx.method,
         );
         merge(&mut response, keep);
+        add_rsc_vary(state, ctx.headers, &mut response);
         return Some(response);
     }
     let entry = state.pages_router.error_entry.as_deref()?;
@@ -275,7 +299,7 @@ pub(crate) async fn not_found(
     );
     let policy = dynamic::AppPathPolicy {
         headers: &initial,
-        vary: None,
+        vary: rsc_vary(state, ctx.headers),
         status: Some(404),
         invocation: nextrs_runtime::Invocation::Handler,
     };
@@ -306,6 +330,7 @@ async fn server_error(
         response
             .headers_mut()
             .insert(header::CACHE_CONTROL, HeaderValue::from_static(NO_STORE));
+        add_rsc_vary(state, ctx.headers, &mut response);
         return Some(response);
     }
     let entry = state.pages_router.error_entry.as_deref()?;
@@ -314,7 +339,7 @@ async fn server_error(
     initial.push(("cache-control".to_owned(), NO_STORE.to_owned()));
     let policy = dynamic::AppPathPolicy {
         headers: &initial,
-        vary: None,
+        vary: rsc_vary(state, ctx.headers),
         status: Some(500),
         invocation: nextrs_runtime::Invocation::Handler,
     };
@@ -400,12 +425,23 @@ pub(crate) async fn serve(
 ) -> Next {
     let readonly = ctx.method == Method::GET || ctx.method == Method::HEAD;
     if route.kind == RouteKind::PagesPage {
+        // base server validates an RSC request's cache-busting parameter
+        // before it renders any page (the 404 page aside), a Pages Router
+        // page too, and before its method checks.
+        if path != "/404"
+            && ctx.headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+            && let Some(redirect) =
+                crate::rsc_redirect(state, ctx.uri.path(), ctx.uri.query(), ctx.headers)
+        {
+            return Next::Done(redirect);
+        }
         if let Some((status, html)) = state.pages_router.static_pages.get(path) {
             let status_page = path == "/404" || path == "/500";
             if !readonly && !status_page {
                 return Next::Done(method_not_allowed());
             }
             let mut response = html_response(state, html, *status, None, ctx.headers, ctx.method);
+            add_rsc_vary(state, ctx.headers, &mut response);
             // Next names the page a data request matched (a data request
             // reaches a page without data only through the proxy's
             // normalization).
@@ -452,11 +488,111 @@ pub(crate) async fn serve(
     let ctx = Ctx { headers, ..ctx };
     let policy = dynamic::AppPathPolicy {
         headers: ctx.initial,
-        vary: None,
+        // API routes are not rendered by base server: no Vary.
+        vary: if route.kind == RouteKind::PagesPage {
+            rsc_vary(state, ctx.headers)
+        } else {
+            None
+        },
         status: None,
         invocation,
     };
-    let response = dynamic::render(executor, entry, &policy, ctx.incoming(body)).await;
+    #[cfg(feature = "negative-controls")]
+    let wrong_uri;
+    #[cfg(feature = "negative-controls")]
+    let (entry, ctx, body) = {
+        use crate::pages_controls as controls;
+        let gssp =
+            route.kind == RouteKind::PagesPage && !state.pages_router.ssg.contains(&route.page);
+        if gssp && controls::skip_ssr() {
+            let mut response =
+                Response::new(Body::from("<!DOCTYPE html><html><body></body></html>"));
+            response
+                .headers_mut()
+                .insert(header::CONTENT_TYPE, HeaderValue::from_static(HTML));
+            return Next::Done(response);
+        }
+        if route.kind == RouteKind::PagesApi && controls::skip_api() {
+            let mut response = Response::new(Body::from("{}"));
+            response.headers_mut().insert(
+                header::CONTENT_TYPE,
+                HeaderValue::from_static("application/json"),
+            );
+            return Next::Done(response);
+        }
+        if route.kind == RouteKind::PagesApi
+            && ctx.method == Method::POST
+            && controls::replay_post()
+        {
+            let first =
+                dynamic::render(executor, entry, &policy, ctx.incoming(Body::empty())).await;
+            let _ = axum::body::to_bytes(first.into_body(), usize::MAX).await;
+        }
+        let dynamic_route = matches!(route.matcher, crate::CompiledMatcher::Pattern(_));
+        let ctx = match controls::params(ctx.uri, dynamic_route) {
+            Some(uri) => {
+                wrong_uri = uri;
+                Ctx {
+                    uri: &wrong_uri,
+                    ..ctx
+                }
+            }
+            None => ctx,
+        };
+        let swapped = if route.kind == RouteKind::PagesPage {
+            controls::wrong_page(state, &route.page)
+        } else {
+            None
+        };
+        if gssp
+            && let Some(shared) = controls::shared_ssr()
+            && let Some((status, headers, bytes)) =
+                shared.lock().unwrap().get(ctx.uri.path()).cloned()
+        {
+            let mut response = Response::new(Body::from(bytes));
+            *response.status_mut() = StatusCode::from_u16(status).unwrap_or(StatusCode::OK);
+            for (name, value) in headers {
+                if let (Ok(name), Ok(value)) = (
+                    HeaderName::from_bytes(name.as_bytes()),
+                    HeaderValue::from_str(&value),
+                ) {
+                    response.headers_mut().append(name, value);
+                }
+            }
+            return Next::Done(response);
+        }
+        (
+            swapped
+                .map(std::borrow::Cow::Owned)
+                .unwrap_or(std::borrow::Cow::Borrowed(entry)),
+            ctx,
+            body,
+        )
+    };
+    let response = dynamic::render(executor, &entry, &policy, ctx.incoming(body)).await;
+    #[cfg(feature = "negative-controls")]
+    let response = match crate::pages_controls::shared_ssr() {
+        Some(shared)
+            if route.kind == RouteKind::PagesPage
+                && !state.pages_router.ssg.contains(&route.page) =>
+        {
+            let (parts, body) = response.into_parts();
+            let bytes = axum::body::to_bytes(body, usize::MAX)
+                .await
+                .unwrap_or_default();
+            let headers = parts
+                .headers
+                .iter()
+                .filter_map(|(n, v)| Some((n.as_str().to_owned(), v.to_str().ok()?.to_owned())))
+                .collect();
+            shared.lock().unwrap().insert(
+                ctx.uri.path().to_owned(),
+                (parts.status.as_u16(), headers, bytes.clone()),
+            );
+            Response::from_parts(parts, Body::from(bytes))
+        }
+        _ => response,
+    };
     match marker(&response) {
         Some(NO_FALLBACK) => Next::NotFound,
         Some(RENDER_404) => {
