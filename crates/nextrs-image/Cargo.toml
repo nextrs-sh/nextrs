@@ -19,13 +19,19 @@ jpeg-decoder = { version = "0.3.2", default-features = false, features = ["platf
 fast_image_resize = "6.1"
 # ICC profiles to sRGB (image already links it).
 moxcms = "0.8"
-jpeg-encoder = { version = "0.7.1", features = ["simd"] }
+# JPEG output: mozjpeg (libjpeg-turbo 3 with trellis quantization), what
+# sharp uses; vendored C built with cc, without nasm (no SIMD). Only pixels
+# NextRS decoded itself reach it. libjpeg's errors unwind (-fexceptions).
+mozjpeg = { version = "0.10.13", default-features = false }
+mozjpeg-sys = { version = "2.2.3", default-features = false, features = ["unwinding"] }
 # Lossy WebP encoding (libwebp 1.6.0, vendored and built with cc). Only
 # pixels NextRS decoded itself reach it; its decoder is never called.
 libwebp-sys = { version = "0.14.4", default-features = false, features = ["std"] }
 # AVIF encoding (rav1e, pure Rust; single-threaded, without assembly).
 ravif = { version = "0.13", default-features = false }
 rgb = "0.8"
+# Indexed and greyscale PNG output (image already links it).
+png = "0.18"
 # Single-frame GIF output (image already links it).
 gif = "0.14"
 regex.workspace = true

@@ -5,6 +5,8 @@
 //! Policy (which types are optimized, bypassed or refused, which format is
 //! negotiated) lives in the server; this crate only transforms pixels.
 
+mod jpeg;
+mod png;
 mod sniff;
 mod webp;
 
@@ -721,17 +723,7 @@ fn encode(
             // JPEG has no alpha: flatten onto black, as libvips's jpegsave
             // does with its default background.
             let rgb = if alpha { flatten(&pixels) } else { pixels };
-            let (w, h) = (
-                u16::try_from(width).map_err(|_| Error::Unsupported("JPEG wider than 65535"))?,
-                u16::try_from(height).map_err(|_| Error::Unsupported("JPEG taller than 65535"))?,
-            );
-            let mut encoder = jpeg_encoder::Encoder::new(&mut out, quality.clamp(1, 100));
-            encoder.set_progressive(true);
-            encoder.set_optimized_huffman_tables(true);
-            encoder.set_sampling_factor(jpeg_encoder::SamplingFactor::R_4_2_0);
-            encoder
-                .encode(&rgb, w, h, jpeg_encoder::ColorType::Rgb)
-                .map_err(|e| encode_error(&e))?;
+            out = jpeg::encode(&rgb, width, height, quality).map_err(Error::Encode)?;
         }
         ImageType::Webp => {
             out = webp::encode(&pixels, width, height, alpha, quality)
@@ -756,7 +748,11 @@ fn encode(
             .map_err(|e| encode_error(&e))?;
             out = encoded.avif_file;
         }
-        ImageType::Png | ImageType::Gif | ImageType::Tiff => {
+        ImageType::Png => {
+            let channels = if alpha { 4 } else { 3 };
+            out = png::encode(&pixels, width, height, channels).map_err(Error::Encode)?;
+        }
+        ImageType::Gif | ImageType::Tiff => {
             let img = if alpha {
                 image::RgbaImage::from_raw(width, height, pixels).map(DynamicImage::ImageRgba8)
             } else {
@@ -765,13 +761,6 @@ fn encode(
             .ok_or_else(|| Error::Encode("pixel buffer size".into()))?;
             let mut cursor = Cursor::new(&mut out);
             match output {
-                ImageType::Png => {
-                    img.write_with_encoder(image::codecs::png::PngEncoder::new_with_quality(
-                        &mut cursor,
-                        image::codecs::png::CompressionType::Default,
-                        image::codecs::png::FilterType::Adaptive,
-                    ))
-                }
                 ImageType::Gif => {
                     // One frame; a transparent index only when the image has alpha.
                     let (w, h) = (
