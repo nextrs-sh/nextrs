@@ -162,7 +162,10 @@ async function main() {
         verdict = r.ok ? "PASS" : "FAIL";
         detail = { ...r.detail, reason: sc.reason };
       } else {
-        const [a, b] = await Promise.all([sc.run(args.baseline, "baseline"), sc.run(args.candidate, "candidate")]);
+        // One server after the other: the upstreams' request counters are
+        // shared, so a side's count must not include the other's requests.
+        const a = await sc.run(args.baseline, "baseline");
+        const b = await sc.run(args.candidate, "candidate");
         const diffs = differences(a, b);
         const oracleWrong = sc.expect ? sc.expect(a) : null;
         const candidateWrong = (sc.expectCandidate ?? sc.expect)?.(b) ?? null;
