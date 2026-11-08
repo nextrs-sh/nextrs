@@ -71,7 +71,12 @@ pub(crate) enum Output {
     Public(PathBuf),
     /// An App Router route; `item_path` is the pathname without basePath
     /// and trailing slash (the key of its prerender, when there is one).
-    App { route: usize, item_path: String },
+    App {
+        route: usize,
+        item_path: String,
+        /// A Pages Router `/_next/data` request for this route's page.
+        data: Option<crate::pages::DataMatch>,
+    },
     /// A path that names an app route only once decoded (`/%70rotected`):
     /// next start matches the file but its handler answers not found.
     EncodedApp,
@@ -466,11 +471,25 @@ pub(crate) async fn resolve(
     }
 
     // The proxy.
+    #[cfg(feature = "negative-controls")]
+    let skip_proxy = crate::pages_controls::skip_proxy_data(uri.path());
+    #[cfg(not(feature = "negative-controls"))]
+    let skip_proxy = false;
     if let Some(proxy) = &state.proxy
+        && !skip_proxy
         && proxy
             .matchers
             .matches(&router.parsed.pathname, &router.view())
     {
+        // next-server checks a data path before it runs the proxy (its
+        // handleNextDataRequest runs for the proxy's invocation too): one
+        // for this build that does not end in .json renders the 404 page
+        // at once, without the proxy and before routing applied its
+        // response headers.
+        if crate::pages::is_unservable_data_path(state, &router.parsed.pathname) {
+            router.res_headers = JsMap::new();
+            return done(Outcome::NotFound, Some(router), body);
+        }
         match run_proxy(state, &mut router, method, &raw_url, version, client, body).await {
             ProxyStep::Continue(rest) => body = rest,
             ProxyStep::Finish(outcome, rest) => {
@@ -522,6 +541,47 @@ pub(crate) async fn resolve(
         }
     }
     done(Outcome::NotFound, Some(router), body)
+}
+
+/// A request routed by its pathname alone (filesystem, then dynamic
+/// routes), without next.config rules or the proxy: next-server's own
+/// route matching, which its `revalidate()` requests take.
+pub(crate) async fn direct(
+    state: &AppState,
+    request: RouteRequest<'_>,
+) -> (Outcome, Resolved, Body) {
+    let pathname = request.uri.path().to_owned();
+    // next-server takes res.revalidate's path without the basePath; the
+    // route lookup here expects it.
+    let base = state.config.base_path.as_str();
+    let lookup = if base.is_empty() || strip_base_path(&pathname, base).is_some() {
+        pathname.clone()
+    } else if pathname == "/" {
+        base.to_owned()
+    } else {
+        format!("{base}{pathname}")
+    };
+    let query = request
+        .uri
+        .query()
+        .and_then(|q| parse_relative_url(&format!("/?{q}")).ok())
+        .map(|parsed| parsed.query)
+        .unwrap_or_default();
+    let outcome = match check_true(state, &lookup).await {
+        Some(output) => Outcome::Output(output),
+        None => Outcome::NotFound,
+    };
+    let resolved = Resolved {
+        headers: JsMap::new(),
+        headers_modified: false,
+        res_headers: JsMap::new(),
+        pathname,
+        query,
+        did_rewrite: false,
+        middleware_cookies: Vec::new(),
+        from_proxy: false,
+    };
+    (outcome, resolved, request.body)
 }
 
 fn has_prefix(path: &str, prefix: &str) -> bool {
@@ -641,6 +701,17 @@ pub(crate) async fn get_item(state: &AppState, pathname: &str) -> Option<Output>
         return Some(Output::App {
             route,
             item_path: item.to_owned(),
+            data: None,
+        });
+    }
+    // A Pages Router data request for a page without parameters.
+    if let Some(page) = crate::pages::static_data_page(state, item)
+        && let Some(route) = state.exact_route(&page)
+    {
+        return Some(Output::App {
+            route,
+            item_path: page,
+            data: Some(crate::pages::DataMatch::Static),
         });
     }
     (decoded != item && state.exact_route(&decoded).is_some()).then_some(Output::EncodedApp)
@@ -658,9 +729,21 @@ pub(crate) async fn check_true(state: &AppState, pathname: &str) -> Option<Outpu
     } else {
         strip_base_path(pathname, base)?
     };
+    // Data routes come first among next start's dynamic routes (a page
+    // catch-all would match their paths too).
+    if let Some((page, pathname)) = crate::pages::dynamic_data_page(state, path)
+        && let Some(route) = state.routes.iter().position(|r| r.page == page)
+    {
+        return Some(Output::App {
+            route,
+            item_path: pathname,
+            data: Some(crate::pages::DataMatch::Dynamic),
+        });
+    }
     state.dynamic_route(path).map(|route| Output::App {
         route,
         item_path: path.to_owned(),
+        data: None,
     })
 }
 

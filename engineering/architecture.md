@@ -49,7 +49,7 @@ to be faster, lighter or more scalable than `next start`.
 ```mermaid
 flowchart TB
     subgraph next["Next.js (unchanged)"]
-        app["Next.js app<br/>(App Router)"] --> build["next build"]
+        app["Next.js app<br/>(App Router, Pages Router)"] --> build["next build"]
         build --> out[".next build output<br/>manifests · static assets<br/>prerendered HTML/RSC<br/>compiled handlers"]
         build -.->|"optional: NEXT_ADAPTER_PATH"| da["packages/next-adapter<br/>Deployment Adapter"]
         da --> bo[".next/nextrs/<br/>build-output.json"]
@@ -101,9 +101,11 @@ The README shows a simplified version of this diagram
    pages, ISR, routes and Server Actions. The path-to-regexp, `has`/`missing`
    and destination logic in `routing/` is checked against vectors generated
    from Next's own functions.
-6. **Serving:** static files, prerendered HTML and RSC, the not-found page
-   and `/_next/image` are answered in Rust. Dynamic pages, Route Handlers,
-   Server Actions and ISR requests go to the isolate pool.
+6. **Serving:** static files, prerendered HTML and RSC, Pages Router pages
+   without data functions, the not-found and error pages and
+   `/_next/image` are answered in Rust. Dynamic pages, Route Handlers,
+   Server Actions, ISR requests and Pages Router pages with data functions,
+   API routes and `/_next/data` requests go to the isolate pool.
 7. **Execution:** Rust builds the request, calls Next's compiled
    `handler(req, res, ctx)` in an isolate, and streams the response back
    under a per-response byte budget. Without the runtime, dynamic routes

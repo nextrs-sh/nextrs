@@ -10,17 +10,22 @@ use crate::manifests::{
     normalize_page_path, read_json, read_json_optional, revalidate_seconds, with_suffix,
 };
 use crate::{
-    Diagnostic, InspectError, Matcher, Prerender, Rendering, Route, RouteKind, Routers, Runtime,
-    Severity, StoredResponse,
+    DataRoute, Diagnostic, InspectError, Matcher, PagesRouterInfo, Prerender, Rendering, Route,
+    RouteKind, Routers, Runtime, Severity, StoredResponse,
 };
 
-/// Pages Router entries that are framework plumbing, not routes.
-const PAGES_INTERNALS: &[&str] = &["/_app", "/_document", "/_error", "/404", "/500"];
+/// Pages Router entries that are framework plumbing, not routes
+/// (next start's BLOCKED_PAGES: requesting one renders the 404 page).
+const PAGES_INTERNALS: &[&str] = &["/_app", "/_document", "/_error"];
+/// Status pages: routes only in a build with Pages Router routes (an App
+/// Router build carries Next's default `404.html`/`500.html` too).
+const PAGES_STATUS: &[&str] = &["/404", "/500"];
 
 pub(crate) struct InternalTables {
     pub routes: Vec<Route>,
     pub prerenders: Vec<Prerender>,
     pub routers: Routers,
+    pub pages_router: PagesRouterInfo,
 }
 
 pub(crate) fn load(
@@ -62,31 +67,95 @@ pub(crate) fn load(
         });
     }
 
-    let mut has_pages_routes = false;
-    for (page, file) in &pages {
-        if PAGES_INTERNALS.contains(&page.as_str()) {
-            continue;
+    let has_pages_routes = pages.keys().any(|page| {
+        !PAGES_INTERNALS.contains(&page.as_str()) && !PAGES_STATUS.contains(&page.as_str())
+    });
+    let mut pages_router = PagesRouterInfo::default();
+    let mut pages_prerenders = Vec::new();
+    if has_pages_routes {
+        for (page, file) in &pages {
+            let entry = server_dir.join(file);
+            if page == "/_error" {
+                pages_router.error_entry = Some(entry);
+                continue;
+            }
+            if PAGES_INTERNALS.contains(&page.as_str()) {
+                continue;
+            }
+            let kind = if page == "/api" || page.starts_with("/api/") {
+                RouteKind::PagesApi
+            } else {
+                RouteKind::PagesPage
+            };
+            let is_html = file.ends_with(".html");
+            let rendering = if is_html {
+                Rendering::Static
+            } else {
+                classify_page(page, prerender_manifest)
+            };
+            if is_html {
+                // A page without data functions: Next wrote its HTML at
+                // build time and next start sends that file as it is.
+                pages_prerenders.push(Prerender {
+                    pathname: page.clone(),
+                    route: page.clone(),
+                    status: match page.as_str() {
+                        "/404" => 404,
+                        "/500" => 500,
+                        _ => 200,
+                    },
+                    revalidate: None,
+                    html: Some(StoredResponse {
+                        file: entry.clone(),
+                        headers: Vec::new(),
+                    }),
+                    rsc: None,
+                    segments: Vec::new(),
+                    postponed: false,
+                    pages: true,
+                    data: None,
+                });
+            }
+            routes.push(Route {
+                page: page.clone(),
+                kind,
+                rendering,
+                runtime: Runtime::Nodejs,
+                entry: Some(entry),
+                matcher: matcher_for(page, routes_manifest, diagnostics),
+                internal: false,
+            });
         }
-        has_pages_routes = true;
-        let kind = if page == "/api" || page.starts_with("/api/") {
-            RouteKind::PagesApi
-        } else {
-            RouteKind::PagesPage
-        };
-        let rendering = if file.ends_with(".html") {
-            Rendering::Static
-        } else {
-            classify(page, prerender_manifest)
-        };
-        routes.push(Route {
-            page: page.clone(),
-            kind,
-            rendering,
-            runtime: Runtime::Nodejs,
-            entry: Some(server_dir.join(file)),
-            matcher: matcher_for(page, routes_manifest, diagnostics),
-            internal: false,
-        });
+        for data in &routes_manifest.data_routes {
+            pages_router.data_routes.push(DataRoute {
+                page: data.page.clone(),
+                regex: data.data_route_regex.clone(),
+                dynamic: data.page.contains('['),
+            });
+        }
+        let mut ssg: std::collections::BTreeSet<String> = prerender_manifest
+            .routes
+            .iter()
+            .filter(|(_, entry)| {
+                entry
+                    .data_route
+                    .as_deref()
+                    .is_some_and(|d| d.ends_with(".json"))
+            })
+            .map(|(path, entry)| entry.src_route.clone().unwrap_or_else(|| path.clone()))
+            .collect();
+        for (page, entry) in &prerender_manifest.dynamic_routes {
+            if entry
+                .get("dataRoute")
+                .and_then(|v| v.as_str())
+                .is_some_and(|d| d.ends_with(".json"))
+            {
+                ssg.insert(page.clone());
+            }
+        }
+        // getStaticProps pages that returned notFound at build time.
+        ssg.extend(prerender_manifest.not_found_routes.iter().cloned());
+        pages_router.ssg_pages = ssg.into_iter().collect();
     }
 
     // Reverse map: route -> app path, needed to locate route-cache files.
@@ -102,11 +171,25 @@ pub(crate) fn load(
             .as_deref()
             .is_none_or(|data| data.ends_with(".rsc"));
         if !is_app {
-            diagnostics.push(Diagnostic {
-                severity: Severity::Unsupported,
-                code: "pages-prerender",
-                message: format!("Pages Router prerender {pathname} is not served in Phase 0"),
-            });
+            // getStaticProps returned notFound at build time: nothing stored.
+            if prerender_manifest.not_found_routes.contains(pathname) {
+                continue;
+            }
+            match resolve_pages_prerender(dist_dir, pathname)? {
+                Some(mut prerender) => {
+                    prerender.route = entry.src_route.clone().unwrap_or_else(|| pathname.clone());
+                    prerender.status = entry.initial_status.unwrap_or(prerender.status);
+                    prerender.revalidate = revalidate_seconds(&entry.initial_revalidate_seconds);
+                    pages_prerenders.push(prerender);
+                }
+                None => diagnostics.push(Diagnostic {
+                    severity: Severity::Warning,
+                    code: "prerender-missing",
+                    message: format!(
+                        "prerender-manifest lists {pathname} but no stored files were found"
+                    ),
+                }),
+            }
             continue;
         }
         let route = entry.src_route.clone().unwrap_or_else(|| pathname.clone());
@@ -128,6 +211,7 @@ pub(crate) fn load(
         }
     }
 
+    prerenders.extend(pages_prerenders);
     Ok(InternalTables {
         routes,
         prerenders,
@@ -135,7 +219,27 @@ pub(crate) fn load(
             app: !app_paths.is_empty(),
             pages: has_pages_routes,
         },
+        pages_router,
     })
+}
+
+/// A Pages Router page with a handler. getStaticPaths pages: Next's handler
+/// serves the listed paths from the cache and decides the others by their
+/// `fallback`.
+fn classify_page(page: &str, prerender_manifest: &PrerenderManifest) -> Rendering {
+    if let Some(entry) = prerender_manifest.dynamic_routes.get(page) {
+        let fallback = match entry.get("fallback") {
+            Some(serde_json::Value::Bool(false)) => "false",
+            Some(serde_json::Value::String(_)) => "true",
+            _ => "blocking",
+        };
+        return Rendering::Unknown {
+            reason: format!(
+                "getStaticPaths (fallback: {fallback}): listed paths prerendered, others decided by Next's handler"
+            ),
+        };
+    }
+    classify(page, prerender_manifest)
 }
 
 fn classify(route: &str, prerender_manifest: &PrerenderManifest) -> Rendering {
@@ -255,6 +359,43 @@ pub(crate) fn resolve_app_prerender(
         rsc: stored(".rsc"),
         segments,
         postponed: meta.postponed.is_some_and(|p| !p.is_null()),
+        pages: false,
+        data: None,
+    }))
+}
+
+/// The stored HTML and page data of a Pages Router `getStaticProps`
+/// prerender: `server/pages/<name>.html`, `.json` and `.meta`.
+fn resolve_pages_prerender(
+    dist_dir: &Path,
+    pathname: &str,
+) -> Result<Option<Prerender>, InspectError> {
+    let name = normalize_page_path(pathname);
+    let base = dist_dir.join("server/pages").join(&name[1..]);
+    let html = with_suffix(&base, ".html");
+    if !html.is_file() {
+        return Ok(None);
+    }
+    let meta: PrerenderMeta = read_json_optional(&with_suffix(&base, ".meta"))?.unwrap_or_default();
+    let headers = flatten_headers(&meta.headers);
+    let data = with_suffix(&base, ".json");
+    Ok(Some(Prerender {
+        pathname: pathname.to_owned(),
+        route: pathname.to_owned(),
+        status: meta.status.unwrap_or(200),
+        revalidate: None,
+        html: Some(StoredResponse {
+            file: html,
+            headers: headers.clone(),
+        }),
+        rsc: None,
+        segments: Vec::new(),
+        postponed: false,
+        pages: true,
+        data: data.is_file().then_some(StoredResponse {
+            file: data,
+            headers,
+        }),
     }))
 }
 

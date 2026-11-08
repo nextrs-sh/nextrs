@@ -65,10 +65,10 @@ The suites that compare these fixtures are described in
 | Rewrites to another origin (config or proxy) | 🧪 Experimental | Forwarded as `next start` forwards them, only to destinations `--net-allow` permits (the same policy as `fetch`, checked for every connection); otherwise `502` (`external-rewrite-denied`) and nothing is sent. WebSocket upgrades answer `501` |
 | `basePath`, `trailingSlash`, `assetPrefix`, `experimental.caseSensitiveRoutes` | 🧪 Experimental | Tested in separate fixture builds, including `basePath` with `trailingSlash` |
 | Image optimization (`/_next/image`, `next/image`) | 🧪 Experimental | Answered in Rust, no executor needed for public files and static imports: Next's validation, cache keys, headers and 304s; JPEG, PNG, WebP, GIF and TIFF sources; WebP, AVIF, JPEG and PNG output; EXIF orientation and colour profiles; remote sources only where both `images.remotePatterns` and `--net-allow` allow them. AVIF/HEIF and JPEG-compressed TIFF sources are served unchanged (see [Known gaps](#known-gaps)) |
+| Pages Router (`pages/`): pages, `getServerSideProps`, `getStaticProps`/`getStaticPaths`, API routes, `/_next/data` | 🧪 Experimental | Pages without data functions are served from Rust as `next start` serves them; everything else runs Next's compiled page and API handlers (requires `--js-runtime embedded-v8`, otherwise `501`): every `fallback` mode, ISR and on-demand `res.revalidate`, Preview Mode, `getInitialProps`, the custom App, Document, 404, 500 and `_error` pages. Hybrid `app/` + `pages/` builds are supported. Not with Next's `i18n` config or the edge runtime; builds made with a deployment adapter (`NEXT_ADAPTER_PATH`) are refused |
 | Edge runtime routes | ⛔ Unsupported | Answers `501` |
 | Edge-runtime middleware | ⛔ Unsupported | Startup refusal |
 | Next's `i18n` config | ⛔ Unsupported | Startup refusal. Locale routing with `next-intl`'s middleware (no `i18n` config) works |
-| Pages Router | ⛔ Unsupported | Startup refusal |
 | Interception routes (with the executor) | ⛔ Unsupported | Answers `501` |
 
 Every refusal is a `501` response with an `x-nextrs-unsupported` header that
@@ -112,6 +112,13 @@ with Server Actions, ISR or a proxy is refused at startup (unless
   serves the same generation and the cache survives restarts with
   `--cache-dir`. A page missing in one isolate while another regenerates it
   waits for that result. `"use cache"` functions share one cache too.
+- **Pages Router:** existing `pages/` applications run without changes.
+  Pages without data functions are served from Rust; `getServerSideProps`,
+  `getStaticProps` (from the shared cache, every `fallback` mode, ISR),
+  API routes, Preview Mode and `/_next/data` requests run Next's compiled
+  handlers, and the custom App, Document and error pages are Next's own.
+  The proxy runs in front of pages and their data routes exactly as in
+  `next start`. App Router and Pages Router routes can share one build.
 - **Server Actions:** form actions (with and without JavaScript), Server
   Functions called from client code, bound arguments and encrypted
   closures, file uploads, redirects, cookies and errors behave as they do
@@ -151,6 +158,13 @@ with Server Actions, ISR or a proxy is refused at startup (unless
 
 - **Dynamic SSR beyond the fixtures:** only the fixtures' routes have been
   verified.
+- **Pages Router gaps:** Next's `i18n` config (locale routing) and
+  edge-runtime pages and API routes are not supported; a custom App's
+  `getInitialProps` is untested. Each `getStaticProps` cache hit runs
+  Next's handler (only pages without data functions are answered without
+  JavaScript). Builds made with a deployment adapter are refused.
+  `node:crypto` ciphers other than AES-GCM, and asymmetric `KeyObject`s,
+  are not implemented.
 - **Execution limits are per isolate, not per request:** many requests share
   an isolate. A request that keeps the CPU busy past `--js-stall-timeout`
   is stopped by terminating its **whole isolate**, which fails the other
@@ -199,7 +213,8 @@ with Server Actions, ISR or a proxy is refused at startup (unless
   and `--net-allow-addr`).
 - **Other framework features:** response compression is not implemented.
 - **Browser verification:** Server Actions, proxies, real-world proxy
-  applications and `next/image` are tested in Chromium against
+  applications, `next/image`, the Pages Router and navigation between the
+  App Router and the Pages Router are tested in Chromium against
   `next start`. The other fixture pages are compared by their HTML and RSC
   bytes only.
 
@@ -207,8 +222,8 @@ with Server Actions, ISR or a proxy is refused at startup (unless
 
 | Feature | Behavior |
 |---|---|
-| Pages Router | Startup refusal |
 | Next's `i18n` config | Startup refusal (use `next-intl`'s middleware instead) |
+| Pages Router builds from a deployment adapter (`NEXT_ADAPTER_PATH`) | Startup refusal (build without the adapter) |
 | Edge-runtime middleware | Startup refusal |
 | Edge runtime routes | `501` |
 | Server Actions on the edge runtime | Startup refusal |

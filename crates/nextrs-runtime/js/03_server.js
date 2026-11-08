@@ -417,15 +417,17 @@
 
       const pending = [];
       const invocation = request.invocation ?? { kind: "handler" };
+      let mod = null;
+      let requestMeta = null;
       try {
         if (invocation.kind === "proxy") {
           await Promise.race([runProxy(request, invocation, req, res, pending), cancelled]);
         } else {
-          const mod = loadEntry(request.entry);
+          mod = loadEntry(request.entry);
           if (typeof mod.handler !== "function") {
             throw new TypeError(`${request.entry} does not export a handler(req, res, ctx) function`);
           }
-          const requestMeta = { relativeProjectDir: ".", distDir };
+          requestMeta = { relativeProjectDir: ".", distDir };
           // next-server's attachRequestMeta: Next builds a route handler's
           // NextRequest URL (host and port) from initURL.
           if (request.initUrl) {
@@ -433,6 +435,10 @@
             requestMeta.initProtocol = request.initUrl.startsWith("https:") ? "https" : "http";
           }
           if (invocation.kind === "routed") Object.assign(requestMeta, routedMeta(invocation));
+          // What next start's router server gives every route module
+          // (getRouterServerContext merges these request meta values).
+          requestMeta.render404 = render404;
+          requestMeta.revalidate = revalidateRequest;
           await Promise.race([
             mod.handler(req, res, {
               waitUntil: (promise) => pending.push(promise),
@@ -452,7 +458,10 @@
         } else {
           ops.op_nextrs_count(COUNT_HANDLER_ERROR);
           ops.op_nextrs_diagnostic("handler-error", `${describe(request)}: ${errorText(error)}`);
-          if (!res.headersSent) {
+          if (!res.headersSent && requestMeta && isPagesPage(mod) && (await renderPagesError(req, res, error, requestMeta, pending))) {
+            // The Pages Router's error page answered (or marked the
+            // response for Rust's 500 page).
+          } else if (!res.headersSent) {
             // next start answers an exception that escapes the handler
             // (an MPA Server Action error, a CSRF rejection) this way; a
             // proxy exception too (Rust turns the marker into next start's
@@ -628,6 +637,88 @@
     if (!res.destroyed) res.end();
   }
 
+  // A Pages Router page's module (not the error pages themselves).
+  function isPagesPage(mod) {
+    const definition = mod?.routeModule?.definition;
+    return definition?.kind === "PAGES" && !["/_error", "/500", "/404"].includes(definition.page);
+  }
+
+  let pagesManifest;
+  function pagesEntry(page) {
+    if (pagesManifest === undefined) {
+      try {
+        pagesManifest = rootRequire(path.join(distDir, "server", "pages-manifest.json"));
+      } catch {
+        pagesManifest = null;
+      }
+    }
+    const file = pagesManifest?.[page];
+    return file ? path.join(distDir, "server", file) : null;
+  }
+
+  // next start's renderErrorToResponse for an exception in a page: with a
+  // 500 page, _error's getInitialProps still runs first with the error
+  // (customErrorRender: rendered, not sent; error reporting hooks in
+  // there), then the 500 page is sent (Rust sends a static 500.html, see
+  // src/pages.rs); without one, _error renders with the error. Runs here
+  // because only this isolate holds the error object.
+  async function renderPagesError(req, res, error, requestMeta, pending) {
+    const errorEntry = pagesEntry("/_error");
+    if (!errorEntry) return false;
+    const page500 = pagesEntry("/500");
+    const ctx = (meta) => ({ waitUntil: (promise) => pending.push(promise), requestMeta: meta });
+    const meta = { ...requestMeta, invokeError: error };
+    res.statusCode = 500;
+    if (page500) {
+      try {
+        await loadEntry(errorEntry).handler(req, res, ctx({ ...meta, customErrorRender: true }));
+      } catch (reportError) {
+        ops.op_nextrs_diagnostic("handler-error", `_error getInitialProps: ${errorText(reportError)}`);
+      }
+      if (res.headersSent) return true;
+      res.statusCode = 500;
+      if (page500.endsWith(".html")) {
+        res.setHeader("x-nextrs-error", "handler-exception");
+        res.end();
+        return true;
+      }
+      await loadEntry(page500).handler(req, res, ctx(meta));
+      return true;
+    }
+    await loadEntry(errorEntry).handler(req, res, ctx(meta));
+    return true;
+  }
+
+  // routerServerContext.render404: next start renders its 404 page into
+  // the response (renderErrorToResponse). Here the response is marked and
+  // Rust renders the not-found page, keeping the status and the headers
+  // the handler set (src/pages.rs).
+  async function render404(_req, res) {
+    if (res.headersSent) {
+      if (!res.writableEnded) res.end();
+      return;
+    }
+    res.statusCode = 404;
+    res.setHeader("x-nextrs-error", "render-404");
+    res.end();
+  }
+
+  // routerServerContext.revalidate (res.revalidate in a Pages Router API
+  // route): next-server renders the page once with Next's revalidation
+  // headers and judges the result. The request goes to the page in-process
+  // without routing (see src/internal.rs).
+  async function revalidateRequest({ urlPath, headers, opts }) {
+    const pairs = [];
+    for (const [name, value] of Object.entries(headers ?? {})) {
+      if (value === undefined) continue;
+      pairs.push([name, Array.isArray(value) ? value.join(", ") : String(value)]);
+    }
+    const result = await ops.op_nextrs_revalidate(String(urlPath), pairs);
+    if (result.cache !== "REVALIDATED" && result.status !== 200 && !(result.status === 404 && opts?.unstable_onlyGenerated)) {
+      throw new Error(`Invalid response ${result.status}`);
+    }
+  }
+
   // Request meta next start's base server gives a handler after routing:
   // the cookies the proxy set (patchSetHeaderWithCookieSupport merges
   // them with the route's own), and for a rewritten request the params
@@ -705,7 +796,9 @@
   //   memory cache), then kept in the store with its original time, as
   //   next start promotes such "seeds".
   const NEXT_CACHE_TAGS_HEADER = "x-next-cache-tags";
-  const RESPONSE_KINDS = new Set(["APP_PAGE", "APP_ROUTE"]);
+  // PAGES: Pages Router SSG/ISR output (getStaticProps), stored as
+  // FileSystemCache stores it: the HTML as a string and the page data.
+  const RESPONSE_KINDS = new Set(["APP_PAGE", "APP_ROUTE", "PAGES"]);
   const ENVELOPE = 1;
   const notStored = new Set();
   const nextModule = (name) => {
@@ -786,6 +879,16 @@
         segmentData: value.segmentData ? [...value.segmentData].map(([path, data]) => [path, b64(data)]) : undefined,
       };
     }
+    if (value.kind === "REDIRECT") {
+      // getStaticProps returned a redirect: Next caches its props.
+      return { kind: value.kind, props: value.props };
+    }
+    if (value.kind === "PAGES") {
+      // A seed read from the build holds the HTML as a Buffer; Next's
+      // response cache hands set() a string.
+      const html = typeof value.html === "string" ? value.html : Buffer.isBuffer(value.html) ? value.html.toString("utf8") : String(value.html ?? "");
+      return { kind: value.kind, html, pageData: value.pageData ?? {}, headers: value.headers, status: value.status };
+    }
     return { kind: value.kind, body: b64(value.body), headers: value.headers, status: value.status };
   }
 
@@ -802,6 +905,10 @@
         segmentData: stored.segmentData ? new Map(stored.segmentData.map(([path, data]) => [path, unb64(data)])) : undefined,
       };
     }
+    if (stored.kind === "PAGES") {
+      return { kind: stored.kind, html: stored.html, pageData: stored.pageData ?? {}, headers: stored.headers, status: stored.status };
+    }
+    if (stored.kind === "REDIRECT") return { kind: stored.kind, props: stored.props };
     return { kind: stored.kind, body: unb64(stored.body) ?? Buffer.alloc(0), headers: stored.headers, status: stored.status };
   }
 
@@ -938,7 +1045,9 @@
       }
       if (stored?.v !== ENVELOPE) return null;
       const value = decodeResponse(stored.value);
-      if (value !== null && value.kind !== kind) return null;
+      // A Pages Router entry is a page or the redirect its getStaticProps
+      // returned.
+      if (value !== null && value.kind !== kind && !(value.kind === "REDIRECT" && kind === "PAGES")) return null;
       const cacheTags = responseTags(value);
       if (cacheTags.length > 0 && tags.areTagsExpired(cacheTags, hit.lastModified)) return null;
       return { value, lastModified: hit.lastModified, cacheControl: stored.cacheControl };
@@ -946,7 +1055,9 @@
 
     async set(key, data, context) {
       key = String(key);
-      const response = !context?.fetchCache && RESPONSE_KINDS.has(data?.kind ?? context?.kind);
+      // REDIRECT: a getStaticProps redirect, cached like the page it
+      // stands for (next start keeps it in its memory cache only).
+      const response = !context?.fetchCache && (RESPONSE_KINDS.has(data?.kind ?? context?.kind) || data?.kind === "REDIRECT");
       if (response) {
         try {
           await storeResponse(key, data ?? null, context?.cacheControl);

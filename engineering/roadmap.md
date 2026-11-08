@@ -37,6 +37,8 @@ Drawn from the known gaps. These are directions, not commitments.
   cache hits.
 - **Image engine:** AVIF/HEIF sources, faster AVIF output (rav1e with
   assembly), PNG output size closer to sharp's without visible loss.
-- **Advanced Next.js features:** Next's `i18n` config, the Pages Router.
+- **Advanced Next.js features:** Next's `i18n` config (with the Pages
+  Router and the App Router), a Pages Router `getStaticProps` cache-hit
+  path without JavaScript.
 - **Performance and production readiness:** performance work, measured only
   once correctness is established; operational hardening.

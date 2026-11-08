@@ -9,6 +9,9 @@ mod dynamic;
 mod etag;
 mod external;
 mod image;
+mod pages;
+#[cfg(feature = "negative-controls")]
+mod pages_controls;
 mod resolve;
 #[doc(hidden)]
 pub mod routing;
@@ -371,7 +374,10 @@ impl nextrs_runtime::InternalDispatch for SelfDispatch {
                     }))
                 }
             };
-            let builder = builder.extension(SelfDispatched);
+            let mut builder = builder.extension(SelfDispatched);
+            if request.revalidation {
+                builder = builder.extension(Revalidation);
+            }
             let Ok(request) = builder.body(body) else {
                 return internal_failure(StatusCode::BAD_REQUEST);
             };
@@ -435,6 +441,7 @@ struct AppState {
     listen: Listen,
     build_id: String,
     images: Option<Arc<image::Optimizer>>,
+    pages_router: pages::PagesState,
 }
 
 /// next.config rules, compiled once at startup.
@@ -572,6 +579,12 @@ impl AppState {
         let mut pages = HashMap::new();
         let mut not_found = None;
         for prerender in &info.prerenders {
+            // Pages Router output: static pages are kept by PagesState;
+            // getStaticProps pages are served by Next's handler from the
+            // shared cache, which it seeds from these files.
+            if prerender.pages {
+                continue;
+            }
             // ISR pages are served by Next's handler (from the shared cache,
             // seeded from these files), which decides when to regenerate.
             if prerender.revalidate.is_some() {
@@ -718,6 +731,7 @@ impl AppState {
                 .map(std::time::Duration::from_millis),
             forwarded: ForwardedHeaders::Pass,
             images: None,
+            pages_router: pages::PagesState::load(info).await?,
         })
     }
 }
@@ -788,10 +802,18 @@ async fn load_cached(
     }))
 }
 
+/// next-server's `revalidate()` request (`res.revalidate`): routed to its
+/// page directly, as next start hands it to the page handler without
+/// router-server (no next.config rules, no proxy). Set only by the
+/// runtime's revalidation op, never from a client request.
+#[derive(Clone, Copy)]
+struct Revalidation;
+
 async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Response {
     let (parts, body) = request.into_parts();
     let client = parts.extensions.get::<ClientAddr>().map(|c| c.0);
     let internal = parts.extensions.get::<SelfDispatched>().is_some();
+    let revalidation = internal && parts.extensions.get::<Revalidation>().is_some();
     let image_source = parts.extensions.get::<ImageSubrequest>().is_some();
     let axum::http::request::Parts {
         method,
@@ -812,18 +834,19 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
         headers.remove(*name);
     }
 
-    let (outcome, resolved, body) = resolve::resolve(
-        &state,
-        resolve::RouteRequest {
-            method: &method,
-            uri: &uri,
-            version,
-            headers: &headers,
-            body,
-            client,
-        },
-    )
-    .await;
+    let request = resolve::RouteRequest {
+        method: &method,
+        uri: &uri,
+        version,
+        headers: &headers,
+        body,
+        client,
+    };
+    let (outcome, resolved, body) = if revalidation {
+        resolve::direct(&state, request).await
+    } else {
+        resolve::resolve(&state, request).await
+    };
     let res_headers = resolved.res_headers.clone();
     let response = serve_resolved(
         &state,
@@ -1105,7 +1128,25 @@ async fn serve_resolved(
                 )
                 .await;
             }
+            // base server: a data request no page handler matched, in a build
+            // with a proxy, gets an empty JSON object naming the path.
+            if state.proxy.is_some() && headers.contains_key("x-nextjs-data") {
+                return pages::data_unmatched(&pages::matched_path(state, &resolved_ref.pathname));
+            }
             let Some(page) = &state.not_found else {
+                // A Pages Router build: next start's page handler renders
+                // the 404 page (no router-server Cache-Control: routing
+                // matched the decoded file).
+                if let Some(page) = &state.pages_router.not_found {
+                    return pages::html_response(
+                        state,
+                        page,
+                        StatusCode::NOT_FOUND,
+                        None,
+                        headers,
+                        method,
+                    );
+                }
                 return not_found_plain();
             };
             prerendered(
@@ -1160,10 +1201,59 @@ async fn serve_resolved(
             }
             file_response(&file, PUBLIC_FILE, method, headers).await
         }
-        Output::App { route, item_path } => {
+        Output::App {
+            route,
+            item_path,
+            data,
+        } => {
             let route = &state.routes[route];
             let path = item_path.as_str();
             let invocation = invocation_for(state, resolved_ref, &route.page, path);
+            if matches!(route.kind, RouteKind::PagesPage | RouteKind::PagesApi) {
+                let ctx = pages::Ctx {
+                    method,
+                    uri,
+                    headers,
+                    client,
+                    version,
+                    initial: &initial,
+                    max_body: state.max_request_body,
+                    listen: &state.listen,
+                };
+                return match pages::serve(state, route, path, data, ctx, body, invocation).await {
+                    pages::Next::Done(response) => response,
+                    pages::Next::NotFound => {
+                        // router-server routes on after the NoFallbackError;
+                        // its second pass names the path without basePath
+                        // (the Pages Router's /404 only, as above).
+                        if state.not_found.is_none()
+                            && state.proxy.is_some()
+                            && headers.contains_key("x-nextjs-data")
+                        {
+                            let base = state.config.base_path.as_str();
+                            let routed = resolved_ref.pathname.as_str();
+                            let path = if base.is_empty() {
+                                routed
+                            } else {
+                                resolve::strip_base_path(routed, base).unwrap_or(routed)
+                            };
+                            return pages::data_not_found(path);
+                        }
+                        not_found_render(
+                            state,
+                            method,
+                            headers,
+                            &request_path,
+                            &initial,
+                            incoming(Body::empty()),
+                            version,
+                            resolved_ref,
+                            true,
+                        )
+                        .await
+                    }
+                };
+            }
             let run = |entry: &Path,
                        body: Body,
                        status: Option<u16>,
@@ -1183,10 +1273,12 @@ async fn serve_resolved(
                     // NoFallbackError (params the page has no entry for):
                     // router-server routes on without this output, which
                     // ends at the not-found route.
+                    // NoFallbackError, or the handler asked for the 404
+                    // page (routerServerContext.render404).
                     if response
                         .headers()
                         .get("x-nextrs-error")
-                        .is_some_and(|v| v == "no-fallback")
+                        .is_some_and(|v| v == "no-fallback" || v == "render-404")
                     {
                         return not_found_render(
                             state,
@@ -1426,6 +1518,46 @@ async fn not_found_render(
         let response = dynamic::render(executor, entry, &policy, incoming).await;
         return dynamic::frame_for(version, response);
     }
+    // router-server answers a data request routing did not match with an
+    // empty JSON object when the build has a proxy.
+    // Only for the Pages Router's /404: with an App Router not-found page,
+    // router-server renders /_not-found instead.
+    if unmatched
+        && state.not_found.is_none()
+        && state.proxy.is_some()
+        && headers.contains_key("x-nextjs-data")
+    {
+        // The routed path as middleware_next_data left it (basePath and
+        // trailing slash included).
+        return pages::data_not_found(routed);
+    }
+    // A Pages Router build without an App Router not-found page.
+    if state.not_found.is_none() && state.pages_router_404() {
+        let ctx = pages::Ctx {
+            method,
+            uri: incoming.uri,
+            headers,
+            client: incoming.client,
+            version,
+            initial,
+            max_body: state.max_request_body,
+            listen: &state.listen,
+        };
+        let keep = initial
+            .iter()
+            .filter_map(|(n, v)| {
+                Some((
+                    HeaderName::from_bytes(n.as_bytes()).ok()?,
+                    HeaderValue::from_str(v).ok()?,
+                ))
+            })
+            .collect();
+        if let Some(response) =
+            pages::not_found(state, ctx, keep, unmatched.then_some(NO_STORE)).await
+        {
+            return response;
+        }
+    }
     // next start marks the not-found shell cacheable only when it is
     // requested by its own path.
     let cache_control = if request_path == "/_not-found" {
@@ -1446,6 +1578,48 @@ async fn not_found_render(
         ),
         None => not_found_plain(),
     }
+}
+
+impl AppState {
+    /// The build renders its 404 through the Pages Router.
+    fn pages_router_404(&self) -> bool {
+        self.pages_router.not_found.is_some() || self.pages_router.error_entry.is_some()
+    }
+}
+
+/// The not-found page a Pages Router handler asked for
+/// (`routerServerContext.render404`), keeping the headers it set: the App
+/// Router's not-found page when the build has one (next start prefers it),
+/// else the Pages Router's.
+pub(crate) async fn render_not_found_for_handler(
+    state: &AppState,
+    ctx: pages::Ctx<'_>,
+    keep: Vec<(HeaderName, HeaderValue)>,
+) -> Option<Response> {
+    if let Some(page) = &state.not_found {
+        // The App Router not-found page, sent as its prerender is, with the
+        // Cache-Control and other headers the handler set.
+        let mut response = prerendered(
+            state,
+            page,
+            StatusCode::NOT_FOUND,
+            NO_STORE,
+            HTML,
+            true,
+            ctx.headers,
+            ctx.method,
+        );
+        let headers = response.headers_mut();
+        for (name, value) in keep {
+            if name == header::CACHE_CONTROL {
+                headers.insert(name, value);
+            } else {
+                headers.append(name, value);
+            }
+        }
+        return Some(response);
+    }
+    pages::not_found(state, ctx, keep, None).await
 }
 
 /// Executor metrics for a separate (loopback) listener: `GET /metrics` in
@@ -1589,10 +1763,16 @@ impl AppState {
 /// generateStaticParams routes for params that were not prerendered; and
 /// prerendered routes whose output Rust does not hold (route handlers).
 fn executable_entry(route: &CompiledRoute) -> Option<&Path> {
-    let kind_ok = matches!(route.kind, RouteKind::AppPage | RouteKind::AppRoute);
+    let kind_ok = matches!(
+        route.kind,
+        RouteKind::AppPage | RouteKind::AppRoute | RouteKind::PagesPage | RouteKind::PagesApi
+    );
+    // A Pages Router page without data functions is compiled to plain HTML
+    // (`pages/about.html`), which has no handler.
     (kind_ok && route.runtime == Runtime::Nodejs)
         .then_some(route.entry.as_deref())
         .flatten()
+        .filter(|entry| entry.extension().is_some_and(|ext| ext == "js"))
 }
 
 /// next start validates the `_rsc` cache-busting parameter before any App
@@ -1691,14 +1871,10 @@ fn prerendered(
     let etag = cached.etag.as_ref().filter(|_| state.config.generate_etags);
     if let Some(etag) = etag {
         headers.insert(header::ETAG, etag.clone());
-        let fresh = request
-            .get(header::IF_NONE_MATCH)
-            .and_then(|v| v.to_str().ok())
-            .is_some_and(|tags| tags.split(',').any(|t| t.trim() == etag || t.trim() == "*"));
-        if fresh {
-            *response.status_mut() = StatusCode::NOT_MODIFIED;
-            return response;
-        }
+    }
+    if etag::fresh(request, etag.and_then(|e| e.to_str().ok()), None) {
+        *response.status_mut() = StatusCode::NOT_MODIFIED;
+        return response;
     }
     if let Ok(value) = HeaderValue::from_str(content_type) {
         headers.insert(header::CONTENT_TYPE, value);
@@ -1746,7 +1922,11 @@ async fn file_response(
     if let Some(last_modified) = &last_modified {
         headers.insert(header::LAST_MODIFIED, last_modified.clone());
     }
-    if is_fresh(request, etag.as_ref(), modified) {
+    if etag::fresh(
+        request,
+        etag.as_ref().and_then(|e| e.to_str().ok()),
+        last_modified.as_ref().and_then(|l| l.to_str().ok()),
+    ) {
         *response.status_mut() = StatusCode::NOT_MODIFIED;
         return response;
     }
@@ -1763,33 +1943,6 @@ async fn file_response(
         *response.body_mut() = Body::from(bytes);
     }
     response
-}
-
-fn is_fresh(
-    request: &HeaderMap,
-    etag: Option<&HeaderValue>,
-    modified: Option<std::time::SystemTime>,
-) -> bool {
-    if let Some(tags) = request
-        .get(header::IF_NONE_MATCH)
-        .and_then(|v| v.to_str().ok())
-    {
-        return etag
-            .is_some_and(|etag| tags.split(',').any(|t| t.trim() == "*" || t.trim() == etag));
-    }
-    let since = request
-        .get(header::IF_MODIFIED_SINCE)
-        .and_then(|v| v.to_str().ok())
-        .and_then(|v| httpdate::parse_http_date(v).ok());
-    match (since, modified) {
-        // HTTP dates have second precision.
-        (Some(since), Some(modified)) => modified
-            .duration_since(UNIX_EPOCH)
-            .ok()
-            .zip(since.duration_since(UNIX_EPOCH).ok())
-            .is_some_and(|(m, s)| m.as_secs() <= s.as_secs()),
-        _ => false,
-    }
 }
 
 /// Routing redirects (router-server) carry the target as body, with a

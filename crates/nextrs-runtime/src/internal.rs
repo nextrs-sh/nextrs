@@ -35,6 +35,11 @@ pub struct InternalRequest {
     pub path_and_query: String,
     pub headers: Vec<(String, String)>,
     pub body: InternalBody,
+    /// next-server's `revalidate()` (on-demand revalidation by a Pages
+    /// Router API route, `res.revalidate`): the request goes straight to
+    /// the page, without routing (no proxy, no rewrites), as next start
+    /// hands it to its page handler. Only the runtime sets it.
+    pub revalidation: bool,
 }
 
 pub enum InternalBody {
@@ -123,6 +128,7 @@ impl InternalRoute {
         let request = InternalRequest {
             method,
             path_and_query,
+            revalidation: false,
             headers,
             body: match body {
                 OutBody::None => InternalBody::Empty,
@@ -170,5 +176,52 @@ impl InternalRoute {
             body,
             abort: task.abort_handle(),
         })
+    }
+
+    /// next-server's `revalidate({ urlPath, headers })`: a GET of `path`
+    /// with `headers` (Next's `x-prerender-revalidate` among them) straight
+    /// to its page. Returns the status and the `x-nextjs-cache` header,
+    /// which the caller judges as next-server does.
+    pub async fn revalidate(
+        &self,
+        path_and_query: String,
+        headers: Vec<(String, String)>,
+    ) -> Result<(u16, Option<String>), String> {
+        let installed = self.0.read().unwrap_or_else(|e| e.into_inner()).clone();
+        let installed = installed
+            .ok_or_else(|| "internal requests are not available in this process".to_owned())?;
+        let permit = installed.permits.clone().try_acquire_owned().map_err(|_| {
+            format!("more than {MAX_INTERNAL_REQUESTS} internal requests in flight")
+        })?;
+        let request = InternalRequest {
+            method: "GET".to_owned(),
+            path_and_query,
+            headers,
+            body: InternalBody::Empty,
+            revalidation: true,
+        };
+        let dispatch = installed.dispatch.clone();
+        installed
+            .runtime
+            .spawn(async move {
+                let _permit = permit;
+                let response = dispatch.dispatch(request).await;
+                let cache = response
+                    .headers
+                    .iter()
+                    .find(|(name, _)| name.eq_ignore_ascii_case("x-nextjs-cache"))
+                    .map(|(_, value)| value.clone());
+                // The body is generated (and stored) as it is read.
+                let mut body = response.body;
+                use futures_util::StreamExt;
+                while let Some(item) = body.next().await {
+                    if item.is_err() {
+                        break;
+                    }
+                }
+                (response.status, cache)
+            })
+            .await
+            .map_err(|error| error.to_string())
     }
 }

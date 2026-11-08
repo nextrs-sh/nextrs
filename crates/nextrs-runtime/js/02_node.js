@@ -545,9 +545,185 @@
     const out = hkdfSync(digest, ikm, salt, info, keylen);
     process.nextTick(callback, null, out);
   };
-  for (const name of ["createCipheriv", "createDecipheriv", "createSign", "createVerify", "createECDH", "createDiffieHellman", "generateKeyPair", "generateKeyPairSync", "createPublicKey", "createPrivateKey", "createSecretKey", "pbkdf2", "pbkdf2Sync", "scrypt", "scryptSync", "publicEncrypt", "privateDecrypt", "sign", "verify"]) {
+  for (const name of ["createSign", "createVerify", "createECDH", "createDiffieHellman", "generateKeyPair", "generateKeyPairSync", "scrypt", "scryptSync", "publicEncrypt", "privateDecrypt", "sign", "verify"]) {
     crypto[name] = () => unsupported("node:crypto", name);
   }
+
+  // KeyObject for secret keys (createSecretKey). jsonwebtoken, which Next
+  // signs its Preview Mode cookie with, checks `instanceof KeyObject` and
+  // turns a plain secret into one. Asymmetric KeyObjects are not
+  // implemented: createPublicKey/createPrivateKey refuse key material
+  // (PEM, DER objects, JWK) as unsupported, and fail like Node's decoder
+  // for what is not a key at all (a plain secret string, which
+  // jsonwebtoken tries first).
+  const keyBytes = new WeakMap();
+  class KeyObject {
+    constructor(type, handle) {
+      if (type !== "secret" || handle !== keyBytes) {
+        const error = new TypeError('The "type" argument must be one of: \'secret\', \'public\', \'private\'.');
+        error.code = "ERR_INVALID_ARG_VALUE";
+        throw error;
+      }
+    }
+    get type() {
+      return "secret";
+    }
+    get symmetricKeySize() {
+      return keyBytes.get(this).byteLength;
+    }
+    get asymmetricKeyType() {
+      return undefined;
+    }
+    export(options) {
+      const bytes = Buffer.from(keyBytes.get(this));
+      if (options?.format === "jwk") return { kty: "oct", k: bytes.toString("base64url") };
+      return bytes;
+    }
+    equals(other) {
+      return other instanceof KeyObject && Buffer.compare(keyBytes.get(this), keyBytes.get(other)) === 0;
+    }
+  }
+  function createSecretKey(key, encoding) {
+    const bytes = typeof key === "string" ? Buffer.from(key, encoding || "utf8") : Buffer.from(hkdfBytes(key, "key"));
+    const object = new KeyObject("secret", keyBytes);
+    keyBytes.set(object, bytes);
+    return object;
+  }
+  function asymmetricKey(name) {
+    return function createAsymmetricKey(key) {
+      const material = key && typeof key === "object" && !ArrayBuffer.isView(key) && !(key instanceof ArrayBuffer) ? key.key : key;
+      const text = typeof material === "string" ? material : ArrayBuffer.isView(material) ? Buffer.from(material.buffer, material.byteOffset, material.byteLength).toString("latin1") : "";
+      const isKeyMaterial = text.includes("-----BEGIN") || (key && typeof key === "object" && !ArrayBuffer.isView(key) && (key.format === "der" || key.format === "jwk" || key.kty)) || material instanceof KeyObject;
+      if (isKeyMaterial) return unsupported("node:crypto", name, "asymmetric keys");
+      const error = new Error("error:1E08010C:DECODER routines::unsupported");
+      error.code = "ERR_OSSL_UNSUPPORTED";
+      error.library = "DECODER routines";
+      error.reason = "unsupported";
+      throw error;
+    };
+  }
+  crypto.KeyObject = KeyObject;
+  crypto.createSecretKey = createSecretKey;
+  crypto.createPublicKey = asymmetricKey("createPublicKey");
+  crypto.createPrivateKey = asymmetricKey("createPrivateKey");
+
+  // PBKDF2 (RFC 8018) in Rust: Next.js derives its Preview Mode key with
+  // pbkdf2Sync(secret, salt, 100000, 32, "sha512").
+  const PBKDF2_DIGESTS = new Set(["sha1", "sha256", "sha384", "sha512"]);
+  function pbkdf2Sync(password, salt, iterations, keylen, digest) {
+    const name = String(digest).toLowerCase().replace("-", "");
+    if (!PBKDF2_DIGESTS.has(name)) {
+      const error = new TypeError(`Invalid digest: ${digest}`);
+      error.code = "ERR_CRYPTO_INVALID_DIGEST";
+      throw error;
+    }
+    if (!Number.isInteger(iterations) || iterations < 1 || iterations > 2 ** 31 - 1) {
+      const error = new RangeError(`The value of "iterations" is out of range. It must be >= 1 && <= 2147483647. Received ${iterations}`);
+      error.code = "ERR_OUT_OF_RANGE";
+      throw error;
+    }
+    if (!Number.isInteger(keylen) || keylen < 0 || keylen > 2 ** 31 - 1) {
+      const error = new RangeError(`The value of "keylen" is out of range. It must be >= 0 && <= 2147483647. Received ${keylen}`);
+      error.code = "ERR_OUT_OF_RANGE";
+      throw error;
+    }
+    const out = ops.op_nextrs_pbkdf2(name, hkdfBytes(password, "password"), hkdfBytes(salt, "salt"), iterations, keylen);
+    return Buffer.from(out.buffer, out.byteOffset, out.byteLength);
+  }
+  crypto.pbkdf2Sync = pbkdf2Sync;
+  crypto.pbkdf2 = function pbkdf2(password, salt, iterations, keylen, digest, callback) {
+    if (typeof callback !== "function") {
+      const error = new TypeError('The "callback" argument must be of type function');
+      error.code = "ERR_INVALID_ARG_TYPE";
+      throw error;
+    }
+    const out = pbkdf2Sync(password, salt, iterations, keylen, digest);
+    process.nextTick(callback, null, out);
+  };
+
+  // createCipheriv/createDecipheriv for AES-GCM only (what Next.js's
+  // Preview Mode encryption uses). The whole message is processed by
+  // final(): update() returns an empty Buffer, so a caller that
+  // concatenates update() and final() gets Node's bytes, and a decipher
+  // never releases plaintext before its tag was checked. Other ciphers
+  // throw NextRSUnsupportedError.
+  const GCM_KEYS = { "aes-128-gcm": 16, "aes-192-gcm": 24, "aes-256-gcm": 32 };
+  function cipherOutput(bytes, encoding) {
+    return encoding && encoding !== "buffer" ? bytes.toString(encoding) : bytes;
+  }
+  class GcmCipher {
+    #encrypt;
+    #key;
+    #iv;
+    #chunks = [];
+    #aad = Buffer.alloc(0);
+    #tag = null;
+    #done = false;
+
+    constructor(encrypt, algorithm, key, iv, options) {
+      const name = String(algorithm).toLowerCase();
+      if (!(name in GCM_KEYS)) return unsupported("node:crypto", encrypt ? "createCipheriv" : "createDecipheriv", `cipher '${algorithm}' (NextRS implements AES-GCM only)`);
+      if (options?.authTagLength !== undefined && options.authTagLength !== 16) return unsupported("node:crypto", "createCipheriv", "an AES-GCM tag other than 16 bytes");
+      const keyBytes = Buffer.from(hkdfBytes(key?.type === "secret" ? key.export() : key, "key"));
+      if (keyBytes.byteLength !== GCM_KEYS[name]) {
+        const error = new RangeError("Invalid key length");
+        error.code = "ERR_CRYPTO_INVALID_KEYLEN";
+        throw error;
+      }
+      this.#encrypt = encrypt;
+      this.#key = keyBytes;
+      this.#iv = Buffer.from(hkdfBytes(iv, "iv"));
+    }
+
+    setAAD(buffer) {
+      this.#aad = Buffer.from(hkdfBytes(buffer, "buffer"));
+      return this;
+    }
+
+    setAutoPadding() {
+      return this;
+    }
+
+    update(data, inputEncoding, outputEncoding) {
+      if (this.#done) throw nodeError("Unsupported state", { code: "ERR_CRYPTO_INVALID_STATE" });
+      this.#chunks.push(toBytes(data, inputEncoding));
+      return cipherOutput(Buffer.alloc(0), outputEncoding);
+    }
+
+    final(outputEncoding) {
+      if (this.#done) throw nodeError("Unsupported state", { code: "ERR_CRYPTO_INVALID_STATE" });
+      this.#done = true;
+      const data = Buffer.concat(this.#chunks);
+      if (this.#encrypt) {
+        const sealed = Buffer.from(ops.op_nextrs_node_aes_gcm(this.#key, true, this.#iv, this.#aad, data));
+        this.#tag = sealed.subarray(sealed.length - 16);
+        return cipherOutput(sealed.subarray(0, sealed.length - 16), outputEncoding);
+      }
+      if (!this.#tag) throw new Error("Unsupported state or unable to authenticate data");
+      let plain;
+      try {
+        plain = ops.op_nextrs_node_aes_gcm(this.#key, false, this.#iv, this.#aad, Buffer.concat([data, this.#tag]));
+      } catch {
+        throw new Error("Unsupported state or unable to authenticate data");
+      }
+      return cipherOutput(Buffer.from(plain), outputEncoding);
+    }
+
+    getAuthTag() {
+      if (!this.#encrypt || !this.#tag) throw nodeError("Invalid state for operation getAuthTag", { code: "ERR_CRYPTO_INVALID_STATE" });
+      return Buffer.from(this.#tag);
+    }
+
+    setAuthTag(tag) {
+      if (this.#encrypt || this.#done) throw nodeError("Invalid state for operation setAuthTag", { code: "ERR_CRYPTO_INVALID_STATE" });
+      const bytes = Buffer.from(hkdfBytes(tag, "buffer"));
+      if (bytes.byteLength !== 16) return unsupported("node:crypto", "setAuthTag", "an AES-GCM tag other than 16 bytes");
+      this.#tag = bytes;
+      return this;
+    }
+  }
+  crypto.createCipheriv = (algorithm, key, iv, options) => new GcmCipher(true, algorithm, key, iv, options);
+  crypto.createDecipheriv = (algorithm, key, iv, options) => new GcmCipher(false, algorithm, key, iv, options);
 
   // --- util -------------------------------------------------------------
   const kCustomPromisify = Symbol.for("nodejs.util.promisify.custom");
@@ -1173,11 +1349,228 @@
     return require;
   }
 
+  // node:querystring, as Node's lib/querystring.js behaves (Next's API
+  // body parser decodes urlencoded forms with it). parse: `+` is a space,
+  // valid %XX escapes are decoded (an invalid one stays as written, and
+  // bytes that are not UTF-8 become U+FFFD, as Node's unescapeBuffer
+  // fallback does), repeated keys collect into arrays, at most maxKeys
+  // pairs (1000; 0 means no limit), on an object without a prototype.
+  const querystring = (() => {
+    const hex = (c) => (c >= 48 && c <= 57 ? c - 48 : c >= 65 && c <= 70 ? c - 55 : c >= 97 && c <= 102 ? c - 87 : -1);
+    const utf8 = new TextDecoder("utf-8");
+    // Node's unescapeBuffer: char codes truncated to bytes, valid %XX
+    // decoded, everything else kept as written.
+    function unescapeBuffer(s, decodeSpaces) {
+      s = String(s);
+      const out = Buffer.alloc(s.length);
+      let index = 0;
+      let outIndex = 0;
+      let hasHex = false;
+      const maxLength = s.length - 2;
+      while (index < s.length) {
+        let current = s.charCodeAt(index);
+        if (current === 43 && decodeSpaces) {
+          out[outIndex++] = 32;
+          index++;
+          continue;
+        }
+        if (current === 37 && index < maxLength) {
+          current = s.charCodeAt(++index);
+          const high = hex(current);
+          if (high < 0) {
+            out[outIndex++] = 37;
+            continue;
+          }
+          const low = hex(s.charCodeAt(++index));
+          if (low < 0) {
+            out[outIndex++] = 37;
+            index--;
+          } else {
+            hasHex = true;
+            current = high * 16 + low;
+          }
+        }
+        out[outIndex++] = current & 0xff;
+        index++;
+      }
+      return hasHex ? out.subarray(0, outIndex) : out;
+    }
+    function unescape(s, decodeSpaces) {
+      try {
+        return decodeURIComponent(s);
+      } catch {
+        return unescapeBuffer(s, decodeSpaces).toString();
+      }
+    }
+    function escape(value) {
+      if (typeof value !== "string") {
+        if (typeof value === "object") value = String(value);
+        else value += "";
+      }
+      return encodeURIComponent(value);
+    }
+    function primitive(v) {
+      if (typeof v === "string") return v;
+      if ((typeof v === "number" && isFinite(v)) || typeof v === "bigint") return "" + v;
+      if (typeof v === "boolean") return v ? "true" : "false";
+      return "";
+    }
+    function stringify(obj, sep = "&", eq = "=", options) {
+      const encode = options && typeof options.encodeURIComponent === "function" ? options.encodeURIComponent : escape;
+      if (obj === null || typeof obj !== "object") return "";
+      const fields = [];
+      for (const key of Object.keys(obj)) {
+        const value = obj[key];
+        const ks = encode(primitive(key)) + eq;
+        if (Array.isArray(value)) {
+          for (const item of value) fields.push(ks + encode(primitive(item)));
+        } else {
+          fields.push(ks + encode(primitive(value)));
+        }
+      }
+      return fields.join(sep);
+    }
+    // Node's parse, ported line for line (lib/querystring.js): a piece is
+    // decoded only when it holds a valid %XX escape, and the scan state
+    // (`encodeCheck`) carries over from key to value as it does there.
+    const isHex = (code) => hex(code) >= 0;
+    const charCodes = (str) => Array.from({ length: str.length }, (_, i) => str.charCodeAt(i));
+    function decodeStr(s, decoder) {
+      try {
+        return decoder(s);
+      } catch {
+        return unescape(s, true);
+      }
+    }
+    function addKeyVal(obj, key, value, keyEncoded, valEncoded, decode) {
+      if (key.length > 0 && keyEncoded) key = decodeStr(key, decode);
+      if (value.length > 0 && valEncoded) value = decodeStr(value, decode);
+      if (obj[key] === undefined) {
+        obj[key] = value;
+      } else {
+        const current = obj[key];
+        if (current.pop) current[current.length] = value;
+        else obj[key] = [current, value];
+      }
+    }
+    function parse(qs, sep, eq, options) {
+      const obj = { __proto__: null };
+      if (typeof qs !== "string" || qs.length === 0) return obj;
+      const sepCodes = !sep ? [38] : charCodes(String(sep));
+      const eqCodes = !eq ? [61] : charCodes(String(eq));
+      const sepLen = sepCodes.length;
+      const eqLen = eqCodes.length;
+      let pairs = 1000;
+      if (options && typeof options.maxKeys === "number") pairs = options.maxKeys > 0 ? options.maxKeys : -1;
+      let decode = querystringUnescape;
+      if (options && typeof options.decodeURIComponent === "function") decode = options.decodeURIComponent;
+      const customDecode = decode !== querystringUnescape;
+      let lastPos = 0;
+      let sepIdx = 0;
+      let eqIdx = 0;
+      let key = "";
+      let value = "";
+      let keyEncoded = customDecode;
+      let valEncoded = customDecode;
+      const plusChar = customDecode ? "%20" : " ";
+      let encodeCheck = 0;
+      for (let i = 0; i < qs.length; ++i) {
+        const code = qs.charCodeAt(i);
+        if (code === sepCodes[sepIdx]) {
+          if (++sepIdx === sepLen) {
+            const end = i - sepIdx + 1;
+            if (eqIdx < eqLen) {
+              if (lastPos < end) {
+                key += qs.slice(lastPos, end);
+              } else if (key.length === 0) {
+                if (--pairs === 0) return obj;
+                lastPos = i + 1;
+                sepIdx = eqIdx = 0;
+                continue;
+              }
+            } else if (lastPos < end) {
+              value += qs.slice(lastPos, end);
+            }
+            addKeyVal(obj, key, value, keyEncoded, valEncoded, decode);
+            if (--pairs === 0) return obj;
+            keyEncoded = valEncoded = customDecode;
+            key = value = "";
+            encodeCheck = 0;
+            lastPos = i + 1;
+            sepIdx = eqIdx = 0;
+          }
+        } else {
+          sepIdx = 0;
+          if (eqIdx < eqLen) {
+            if (code === eqCodes[eqIdx]) {
+              if (++eqIdx === eqLen) {
+                const end = i - eqIdx + 1;
+                if (lastPos < end) key += qs.slice(lastPos, end);
+                encodeCheck = 0;
+                lastPos = i + 1;
+              }
+              continue;
+            } else {
+              eqIdx = 0;
+              if (!keyEncoded) {
+                if (code === 37) {
+                  encodeCheck = 1;
+                  continue;
+                } else if (encodeCheck > 0) {
+                  if (isHex(code)) {
+                    if (++encodeCheck === 3) keyEncoded = true;
+                    continue;
+                  } else {
+                    encodeCheck = 0;
+                  }
+                }
+              }
+            }
+            if (code === 43) {
+              if (lastPos < i) key += qs.slice(lastPos, i);
+              key += plusChar;
+              lastPos = i + 1;
+              continue;
+            }
+          }
+          if (code === 43) {
+            if (lastPos < i) value += qs.slice(lastPos, i);
+            value += plusChar;
+            lastPos = i + 1;
+          } else if (!valEncoded) {
+            if (code === 37) {
+              encodeCheck = 1;
+            } else if (encodeCheck > 0) {
+              if (isHex(code)) {
+                if (++encodeCheck === 3) valEncoded = true;
+              } else {
+                encodeCheck = 0;
+              }
+            }
+          }
+        }
+      }
+      if (lastPos < qs.length) {
+        if (eqIdx < eqLen) key += qs.slice(lastPos);
+        else if (sepIdx < sepLen) value += qs.slice(lastPos);
+      } else if (eqIdx === 0 && key.length === 0) {
+        return obj;
+      }
+      addKeyVal(obj, key, value, keyEncoded, valEncoded, decode);
+      return obj;
+    }
+    // The default decoder, compared by identity as Node compares it.
+    const querystringUnescape = (s, decodeSpaces) => unescape(s, decodeSpaces);
+    return { parse, decode: parse, stringify, encode: stringify, escape, unescape: querystringUnescape, unescapeBuffer };
+  })();
+
   // --- registry -----------------------------------------------------------
   const implemented = {
     async_hooks: () => strict("async_hooks", asyncHooks),
     buffer: () =>
-      strict("buffer", Object.assign(Object.create(null), vendor.buffer, { Buffer, atob, btoa, Blob, File, isUtf8, isAscii })),
+      // An ordinary object, as Node's: libraries call buffer.hasOwnProperty
+      // (safer-buffer, inside the iconv-lite Next's body parser bundles).
+      strict("buffer", Object.assign({}, vendor.buffer, { Buffer, atob, btoa, Blob, File, isUtf8, isAscii })),
     crypto: () => strict("crypto", crypto),
     events: () => observed("events", events),
     fs: () => strict("fs", fs),
@@ -1186,6 +1579,7 @@
     module: () => observed("module", Module),
     path: () => observed("path", path),
     "path/posix": () => observed("path/posix", path),
+    querystring: () => strict("querystring", querystring),
     perf_hooks: () => strict("perf_hooks", { performance, PerformanceEntry, PerformanceMark, PerformanceMeasure }),
     process: () => process,
     stream: () => observed("stream", stream),
@@ -1204,7 +1598,7 @@
   for (const name of [
     "assert", "assert/strict", "child_process", "cluster", "console", "constants", "dgram",
     "diagnostics_channel", "dns", "dns/promises", "domain", "http", "http2", "https", "net",
-    "punycode", "querystring", "readline", "repl", "sqlite", "sys", "test", "tls", "trace_events",
+    "punycode", "readline", "repl", "sqlite", "sys", "test", "tls", "trace_events",
     "v8", "wasi", "zlib",
   ]) {
     BUILTINS.set(name, () => unsupportedModule(name));

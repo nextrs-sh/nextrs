@@ -175,6 +175,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         next_version,
         source,
         routers: internal.routers,
+        pages_router: internal.pages_router.clone(),
         config,
         rsc,
         routes,
@@ -419,11 +420,21 @@ fn detect_features(
         push(Severity::Unsupported, "i18n", "i18n routing".into());
     }
     if info.routers.pages {
-        push(
-            Severity::Unsupported,
-            "pages-router",
-            "Pages Router routes are classified but not served in Phase 0".into(),
-        );
+        if info.source == MetadataSource::AdapterApi {
+            // The adapter's prerender outputs carry the HTML but not the
+            // page data NextRS serves for /_next/data requests.
+            push(
+                Severity::Unsupported,
+                "pages-router-adapter-output",
+                "Pages Router routes from deployment-adapter output are not supported; build without NEXT_ADAPTER_PATH".into(),
+            );
+        } else {
+            push(
+                Severity::Info,
+                "pages-router",
+                "Pages Router: pages without data functions are served as built; getServerSideProps, getStaticProps, API routes and /_next/data run Next's compiled handlers".into(),
+            );
+        }
     }
     if !actions.node.is_empty() {
         push(

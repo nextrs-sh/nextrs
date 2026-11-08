@@ -905,7 +905,7 @@ fn render_report(info: &BuildInfo) -> String {
     );
     let _ = writeln!(
         out,
-        "  NextRS serves: /_next/static, public/, prerendered HTML/RSC/segments;\n  dynamic App Router routes with --js-runtime embedded-v8 (experimental)"
+        "  NextRS serves: /_next/static, public/, prerendered HTML/RSC/segments and Pages Router HTML;\n  dynamic App Router and Pages Router routes with --js-runtime embedded-v8 (experimental)"
     );
 
     let _ = writeln!(out, "\nDiagnostics:");
