@@ -132,35 +132,5 @@ broken image limits) and must fail.
 
 ## Benchmarks and soaks
 
-Drivers in [`benchmarks/`](../benchmarks/) run `next start`, NextRS and
-reference hosts against the same build. Each path's responses must be
-equivalent before it is measured.
-
-| Driver | Measures |
-|---|---|
-| [`bench.py`](../benchmarks/bench.py) | Static and prerendered serving |
-| [`dynamic_bench.py`](../benchmarks/dynamic_bench.py) | Dynamic rendering |
-| [`pool_bench.py`](../benchmarks/pool_bench.py) | Isolate pool sizes |
-| [`phase1c_bench.py`](../benchmarks/phase1c_bench.py) | Outbound fetch and the data cache, warm and cold |
-| [`actions_bench.py`](../benchmarks/actions_bench.py) | Server Actions: small and multipart calls, uploads, no-JavaScript forms, encrypted closures |
-| [`phase1e_bench.py`](../benchmarks/phase1e_bench.py) | Cache hits, ISR regeneration under load, revalidation, `"use cache"` |
-| [`phase2a_bench.py`](../benchmarks/phase2a_bench.py), [`phase2b_bench.py`](../benchmarks/phase2b_bench.py), [`phase2c_bench.py`](../benchmarks/phase2c_bench.py) | Proxy, routing rules and real-world proxy applications |
-| [`image_bench.mjs`](../benchmarks/image_bench.mjs), [`image_faults.mjs`](../benchmarks/image_faults.mjs) | `/_next/image` throughput, latency and fault handling |
-| [`cold_bench.mjs`](../benchmarks/cold_bench.mjs) | The cold data-cache path: every request misses, fetches upstream and stores |
-| [`young_gen_bench.py`](../benchmarks/young_gen_bench.py) | V8 young-generation sizing under sustained SSR |
-| [`slow_clients.py`](../benchmarks/slow_clients.py) | Memory with paused clients |
-| [`soak.mjs`](../benchmarks/soak.mjs), [`soak-matrix.sh`](../benchmarks/soak-matrix.sh), [`proxy-soak.sh`](../benchmarks/proxy-soak.sh), [`soak_summary.py`](../benchmarks/soak_summary.py) | Sustained mixed traffic with injected isolate stalls and restarts; RSS, swap and V8 heap after full GC |
-| [`recovery.mjs`](../benchmarks/recovery.mjs) | Recovery time after an isolate failure |
-
-Raw results are in [`benchmarks/results`](../benchmarks/results/).
-
-### Limitations of the measurements
-
-- Every run comes from **one developer machine**, often under other load, and
-  from **small fixtures**. None of it is representative of real
-  applications or production hardware.
-- The longest soaks ran 6 hours at 4 isolates; 1- and 2-isolate
-  configurations have had shorter soaks.
-- The numbers are used to find regressions between NextRS versions and
-  obvious problems (leaks, unbounded queues), **not** to claim NextRS is
-  faster or lighter than `next start`.
+Benchmark results, their method and limitations, and the benchmark and soak
+drivers are documented in [benchmarks.md](benchmarks.md).

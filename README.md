@@ -45,8 +45,9 @@ output** from a single Rust process.
 - **Resources are explicit.** Isolate pools, queues, timeouts, body sizes and
   outbound network access are bounded and set from the command line.
 
-These are design goals, not benchmark results. NextRS makes no claim to be
-faster or lighter than `next start`.
+These are design goals. The [early benchmarks](#performance-benchmarks) cover
+one small workload, so NextRS makes no general claim to be faster or lighter
+than `next start`.
 
 ## Features
 
@@ -82,6 +83,26 @@ Dynamic routes, Server Actions and `proxy.ts` run Next.js's own compiled
 handlers in a pool of embedded V8 isolates, and their cache entries live in a
 Rust store shared by every isolate.
 [More in the architecture reference.](engineering/architecture.md)
+
+## Performance Benchmarks
+
+Early measurements comparing NextRS with the official Next.js server
+(`next start`) on identical build output.
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset=".github/assets/nextrs-benchmarks-mobile.svg">
+    <img src=".github/assets/nextrs-benchmarks.svg" width="100%" alt="Preliminary benchmarks, historical Phase 1A measurement from 2026-11-03: dynamic SSR of /books/42 with Next.js 16.4.3 at 32 concurrent requests, median of 3 runs. Throughput: NextRS 648 req/s, next start 453 req/s. p95 latency: NextRS 58.5 ms, next start 79.9 ms. Process-tree RSS after load: NextRS 222.8 MiB, next start 268.8 MiB. Server CPU per request: NextRS 1.88 ms, next start 2.38 ms.">
+  </picture>
+</p>
+
+> [!NOTE]
+> **Benchmark notice.** These are historical results from 2026-11-03
+> (Phase 1A, commit `b43a255`), not measurements of the current commit. They
+> cover one dynamic page of a small fixture (Next.js 16.4.3, 32 concurrent
+> requests, one V8 isolate) on a single machine, with the load generator on
+> the same host. They do not represent production performance or other
+> workloads. See [benchmark methodology and raw data](engineering/benchmarks.md).
 
 ## Quick Start
 

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="bench-title bench-desc">
+<title id="bench-title">Preliminary benchmarks: NextRS and next start, dynamic SSR</title>
+<desc id="bench-desc">Preliminary benchmark, historical, Phase 1A (b43a255), measured 2026-11-03. Dynamic server-side rendering of /books/42 in a Next.js 16.4.3 App Router fixture at 32 concurrent requests, median of 3 runs on one machine. Throughput (requests per second · higher is better): NextRS 648 req/s, next start 453 req/s. Latency (p95 response time · lower is better): NextRS 58.5 ms, next start 79.9 ms. Memory (process-tree RSS after load · lower is better): NextRS 222.8 MiB, next start 268.8 MiB. CPU (server CPU time per request · lower is better): NextRS 1.88 ms, next start 2.38 ms.</desc>
+<style>
+  .sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
+  .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
+</style>
+<rect x="1" y="1" width="1278" height="758" rx="24" fill="#0D1117" stroke="#21262D" stroke-width="2"/>
+<text x="48" y="76" class="mono" font-size="15" font-weight="600" letter-spacing="2.4" fill="#E8762D">PRELIMINARY BENCHMARKS · EXPERIMENTAL</text>
+<text x="48" y="118" class="sans" font-size="30" font-weight="700" fill="#F0F6FC">Dynamic SSR · Next.js App Router · 32 concurrent requests</text>
+<text x="48" y="152" class="sans" font-size="18" fill="#8B949E"><tspan class="mono" font-size="17">/books/42</tspan> · Next.js 16.4.3 · same <tspan class="mono" font-size="17">.next</tspan> build · median of 3 runs · historical, Phase 1A (b43a255) · 2026-11-03</text>
+<rect x="932" y="62" width="16" height="16" rx="4" fill="#CE422B"/>
+<text x="958" y="76" class="sans" font-size="18" fill="#F0F6FC">NextRS</text>
+<rect x="1052" y="62" width="16" height="16" rx="4" fill="#8B949E"/>
+<text x="1078" y="76" class="mono" font-size="17" fill="#F0F6FC">next start</text>
+<rect x="48" y="196" width="576" height="228" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5"/>
+<text x="76" y="242" class="sans" font-size="25" font-weight="600" fill="#F0F6FC">Throughput</text>
+<text x="76" y="272" class="sans" font-size="17" fill="#8B949E">requests per second · higher is better</text>
+<text x="76" y="325" class="sans" font-size="20" fill="#C9D1D9">NextRS</text>
+<rect x="212" y="304" width="244.0" height="30" rx="7" fill="#CE422B"/>
+<text x="468.0" y="326" class="sans" font-size="21" font-weight="700" fill="#F0F6FC">648 req/s</text>
+<text x="76" y="381" class="mono" font-size="18" fill="#C9D1D9">next start</text>
+<rect x="212" y="360" width="170.7" height="30" rx="7" fill="#8B949E"/>
+<text x="394.7" y="382" class="sans" font-size="21" font-weight="700" fill="#F0F6FC">453 req/s</text>
+<rect x="656" y="196" width="576" height="228" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5"/>
+<text x="684" y="242" class="sans" font-size="25" font-weight="600" fill="#F0F6FC">Latency</text>
+<text x="684" y="272" class="sans" font-size="17" fill="#8B949E">p95 response time · lower is better</text>
+<text x="684" y="325" class="sans" font-size="20" fill="#C9D1D9">NextRS</text>
+<rect x="820" y="304" width="178.6" height="30" rx="7" fill="#CE422B"/>
+<text x="1010.6" y="326" class="sans" font-size="21" font-weight="700" fill="#F0F6FC">58.5 ms</text>
+<text x="684" y="381" class="mono" font-size="18" fill="#C9D1D9">next start</text>
+<rect x="820" y="360" width="244.0" height="30" rx="7" fill="#8B949E"/>
+<text x="1076.0" y="382" class="sans" font-size="21" font-weight="700" fill="#F0F6FC">79.9 ms</text>
+<rect x="48" y="448" width="576" height="228" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5"/>
+<text x="76" y="494" class="sans" font-size="25" font-weight="600" fill="#F0F6FC">Memory</text>
+<text x="76" y="524" class="sans" font-size="17" fill="#8B949E">process-tree RSS after load · lower is better</text>
+<text x="76" y="577" class="sans" font-size="20" fill="#C9D1D9">NextRS</text>
+<rect x="212" y="556" width="202.2" height="30" rx="7" fill="#CE422B"/>
+<text x="426.2" y="578" class="sans" font-size="21" font-weight="700" fill="#F0F6FC">222.8 MiB</text>
+<text x="76" y="633" class="mono" font-size="18" fill="#C9D1D9">next start</text>
+<rect x="212" y="612" width="244.0" height="30" rx="7" fill="#8B949E"/>
+<text x="468.0" y="634" class="sans" font-size="21" font-weight="700" fill="#F0F6FC">268.8 MiB</text>
+<rect x="656" y="448" width="576" height="228" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5"/>
+<text x="684" y="494" class="sans" font-size="25" font-weight="600" fill="#F0F6FC">CPU</text>
+<text x="684" y="524" class="sans" font-size="17" fill="#8B949E">server CPU time per request · lower is better</text>
+<text x="684" y="577" class="sans" font-size="20" fill="#C9D1D9">NextRS</text>
+<rect x="820" y="556" width="193.7" height="30" rx="7" fill="#CE422B"/>
+<text x="1025.7" y="578" class="sans" font-size="21" font-weight="700" fill="#F0F6FC">1.88 ms</text>
+<text x="684" y="633" class="mono" font-size="18" fill="#C9D1D9">next start</text>
+<rect x="820" y="612" width="244.0" height="30" rx="7" fill="#8B949E"/>
+<text x="1076.0" y="634" class="sans" font-size="21" font-weight="700" fill="#F0F6FC">2.38 ms</text>
+<text x="48" y="728" class="sans" font-size="17" fill="#8B949E">NextRS with one V8 isolate. One small fixture on one 6-CPU machine, load generator on the same host. Not production performance.</text>
+</svg>
