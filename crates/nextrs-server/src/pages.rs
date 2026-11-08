@@ -55,11 +55,17 @@ pub(crate) struct PagesState {
     pub data_dynamic: Vec<(Regex, String)>,
     /// Pages with getStaticProps.
     pub ssg: HashSet<String>,
+    /// The build has `server/pages` (next-server's `enabledDirectories.pages`,
+    /// true for App Router builds too: they carry the default 404 page).
+    pub pages_dir: bool,
 }
 
 impl PagesState {
     pub(crate) async fn load(info: &BuildInfo) -> Result<Self, StartError> {
-        let mut state = Self::default();
+        let mut state = Self {
+            pages_dir: info.dist_dir.join("server/pages").is_dir(),
+            ..Self::default()
+        };
         if !info.routers.pages {
             return Ok(state);
         }
@@ -125,6 +131,34 @@ pub(crate) fn static_data_page(state: &crate::AppState, item: &str) -> Option<St
         .find(|candidate| state.pages_router.data_static.contains(candidate))
 }
 
+/// `/_next/data/<this build>/...` without the `.json` suffix, in a build
+/// with a `server/pages` directory (next-server's `handleNextDataRequest`
+/// renders the 404 page for it).
+pub(crate) fn is_unservable_data_path(state: &crate::AppState, pathname: &str) -> bool {
+    if !state.pages_router.pages_dir {
+        return false;
+    }
+    let base = state.config.base_path.as_str();
+    let path = if base.is_empty() {
+        pathname
+    } else {
+        match crate::resolve::strip_base_path(pathname, base) {
+            Some(path) => path,
+            None => return false,
+        }
+    };
+    let prefix = format!("/_next/data/{}", state.build_id);
+    let Some(rest) = path.strip_prefix(&prefix) else {
+        return false;
+    };
+    // matchNextDataPathname: the build id must be a whole segment.
+    if !(rest.is_empty() || rest.starts_with('/')) {
+        return false;
+    }
+    let last = rest.trim_end_matches('/').rsplit('/').next().unwrap_or("");
+    !last.ends_with(".json")
+}
+
 /// A dynamic data route matching `path` (without basePath): its page and
 /// the page pathname the data is for.
 pub(crate) fn dynamic_data_page<'s>(
@@ -170,17 +204,11 @@ pub(crate) fn html_response(
     let etag = cached.etag.as_ref().filter(|_| state.config.generate_etags);
     if let Some(etag) = etag {
         headers.insert(header::ETAG, etag.clone());
-        let fresh = request
-            .get(header::IF_NONE_MATCH)
-            .and_then(|v| v.to_str().ok())
-            .is_some_and(|tags| tags.split(',').any(|t| t.trim() == etag || t.trim() == "*"));
-        // A fresh validator answers 304 for a 200 page only (sendRenderResult
-        // checks freshness for every status, but browsers only revalidate
-        // what they cached: 200s).
-        if fresh && status == StatusCode::OK {
-            *response.status_mut() = StatusCode::NOT_MODIFIED;
-            return response;
-        }
+    }
+    // sendRenderResult: whatever the status (a 404 page too).
+    if crate::etag::fresh(request, etag.and_then(|e| e.to_str().ok()), None) {
+        *response.status_mut() = StatusCode::NOT_MODIFIED;
+        return response;
     }
     headers.insert(header::CONTENT_TYPE, HeaderValue::from_static(HTML));
     headers.insert(header::CONTENT_LENGTH, HeaderValue::from(cached.body.len()));
@@ -460,6 +488,21 @@ pub(crate) fn data_not_found(pathname: &str) -> Response {
     headers.insert(
         header::CONTENT_TYPE,
         HeaderValue::from_static("application/json"),
+    );
+    response
+}
+
+/// base server's answer to a data request that routing matched but no page
+/// handler did, in a build with a proxy: 200 and an empty JSON object.
+pub(crate) fn data_unmatched(pathname: &str) -> Response {
+    let mut response = Response::new(Body::from("{}"));
+    let headers = response.headers_mut();
+    if let Ok(value) = HeaderValue::from_str(pathname) {
+        headers.insert("x-nextjs-matched-path", value);
+    }
+    headers.insert(
+        header::CONTENT_TYPE,
+        HeaderValue::from_static("application/json; charset=utf-8"),
     );
     response
 }

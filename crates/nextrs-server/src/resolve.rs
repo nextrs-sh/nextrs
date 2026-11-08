@@ -476,6 +476,15 @@ pub(crate) async fn resolve(
             .matchers
             .matches(&router.parsed.pathname, &router.view())
     {
+        // next-server checks a data path before it runs the proxy (its
+        // handleNextDataRequest runs for the proxy's invocation too): one
+        // for this build that does not end in .json renders the 404 page
+        // at once, without the proxy and before routing applied its
+        // response headers.
+        if crate::pages::is_unservable_data_path(state, &router.parsed.pathname) {
+            router.res_headers = JsMap::new();
+            return done(Outcome::NotFound, Some(router), body);
+        }
         match run_proxy(state, &mut router, method, &raw_url, version, client, body).await {
             ProxyStep::Continue(rest) => body = rest,
             ProxyStep::Finish(outcome, rest) => {
