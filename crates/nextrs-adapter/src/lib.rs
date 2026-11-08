@@ -11,6 +11,7 @@
 
 mod adapter_output;
 mod error;
+mod images;
 mod internal;
 mod manifests;
 mod model;
@@ -21,6 +22,7 @@ use std::path::{Path, PathBuf};
 use serde::Deserialize;
 
 pub use error::InspectError;
+pub use images::{ImagesConfig, LocalPattern, OptimizerSettings, RemotePattern};
 pub use model::*;
 
 use manifests::{
@@ -157,6 +159,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
     let mut routing = routing::routing_rules(&dist_dir, &mut invalid_rules)?;
     routing.proxy_timeout_ms = routing::proxy_timeout_ms(required.as_ref().map(|r| &r.config));
     let proxy = routing::proxy_info(&dist_dir, required.as_ref().map(|r| &r.config))?;
+    let images = images::images_config(&dist_dir, required.as_ref().map(|r| &r.config))?;
     for rule in invalid_rules {
         diagnostics.push(Diagnostic {
             severity: Severity::Unsupported,
@@ -180,6 +183,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         server_actions: ServerActionsInfo::default(),
         routing,
         proxy,
+        images,
         diagnostics,
     };
     detect_features(&mut info, &routes_manifest)?;
@@ -512,10 +516,35 @@ fn detect_features(
             "output: 'standalone' bundle present".into(),
         );
     }
-    push(
-        Severity::Info,
-        "image-optimizer",
-        "/_next/image is not implemented".into(),
-    );
+    match &info.images {
+        None => push(
+            Severity::Info,
+            "image-optimizer",
+            "no images-manifest.json: /_next/image answers 404".into(),
+        ),
+        Some(images) => {
+            if images.disabled() {
+                push(
+                    Severity::Info,
+                    "image-optimizer",
+                    "images.unoptimized or a custom loader: /_next/image answers 404, as in next start".into(),
+                );
+            }
+            if images.custom_cache_handler {
+                push(
+                    Severity::Warning,
+                    "image-cache-handler",
+                    "images.customCacheHandler is not supported: optimized images use NextRS's own cache".into(),
+                );
+            }
+            if !images.remote_patterns.is_empty() || !images.domains.is_empty() {
+                push(
+                    Severity::Info,
+                    "remote-images",
+                    "images.remotePatterns: remote images are fetched only from origins --net-allow also allows".into(),
+                );
+            }
+        }
+    }
     Ok(())
 }

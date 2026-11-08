@@ -27,6 +27,8 @@ pub struct BuildInfo {
     /// The compiled Node.js `proxy.ts` (or `middleware.ts`), when the build
     /// has one.
     pub proxy: Option<ProxyInfo>,
+    /// `images-manifest.json` (absent from very old or exported builds).
+    pub images: Option<crate::ImagesConfig>,
     pub diagnostics: Vec<Diagnostic>,
 }
 
