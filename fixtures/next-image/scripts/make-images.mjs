@@ -85,6 +85,9 @@ await make("animated.webp", async (p) => {
 // colour, above next start's imgOptMaxInputPixels (268,402,689), a few
 // hundred KB compressed.
 await make("large.jpg", (p) => picture(6000, 4000, { seed: 25 }).jpeg({ quality: 85 }).toFile(p));
+// The same size, progressive: its decoder keeps every DCT coefficient
+// (memory measurements, Phase 2E).
+await make("large-progressive.jpg", (p) => picture(6000, 4000, { seed: 26 }).jpeg({ quality: 85, progressive: true }).toFile(p));
 await make("bomb.png", (p) =>
   sharp({ create: { width: 16500, height: 16500, channels: 3, background: "#808080" }, limitInputPixels: false })
     .toColourspace("b-w").png({ compressionLevel: 9 }).toFile(p));

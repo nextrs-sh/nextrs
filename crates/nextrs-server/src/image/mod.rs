@@ -4,6 +4,7 @@
 //! threads, never on a Tokio worker or a V8 isolate.
 
 mod accept;
+mod budget;
 mod cache;
 #[cfg(feature = "negative-controls")]
 mod controls;
@@ -46,7 +47,49 @@ pub struct ImageOptions {
     pub max_decode_bytes: u64,
     /// Overrides `experimental.imgOptTimeoutInSeconds`.
     pub timeout: Option<Duration>,
+    /// Bytes transformations may hold at once, each reserving what its
+    /// source's header says it will allocate (`nextrs_image::estimate`)
+    /// before it starts. Work estimated above the whole budget is not
+    /// attempted: the source is served unchanged, as for too many pixels.
+    pub memory_budget: u64,
+    /// Source bytes held in memory at once (downloading, waiting for a
+    /// transformation, being transformed); beyond it, 503.
+    pub source_budget: u64,
     pub cache: ImageCacheOptions,
+    /// Test-only fault injection; never set by the CLI.
+    #[doc(hidden)]
+    pub faults: ImageFaults,
+}
+
+/// Faults injected into the transformation stage (tests only).
+#[doc(hidden)]
+#[derive(Clone, Default)]
+pub struct ImageFaults {
+    /// Called on the transformation's thread, with its reservations held,
+    /// before the transformation; with the source's href.
+    #[allow(clippy::type_complexity)]
+    pub before_transform: Option<Arc<dyn Fn(&str) -> ImageFault + Send + Sync>>,
+}
+
+impl std::fmt::Debug for ImageFaults {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(if self.before_transform.is_some() {
+            "ImageFaults(active)"
+        } else {
+            "ImageFaults(none)"
+        })
+    }
+}
+
+#[doc(hidden)]
+#[derive(Debug, Clone)]
+pub enum ImageFault {
+    None,
+    /// Blocks the thread this long, then transforms.
+    Sleep(Duration),
+    Panic,
+    DecodeError,
+    EncodeError,
 }
 
 impl Default for ImageOptions {
@@ -59,7 +102,10 @@ impl Default for ImageOptions {
             max_input_pixels: 64_000_000,
             max_decode_bytes: 512 * 1024 * 1024,
             timeout: None,
+            memory_budget: 1024 * 1024 * 1024,
+            source_budget: 512 * 1024 * 1024,
             cache: ImageCacheOptions::default(),
+            faults: ImageFaults::default(),
         }
     }
 }
@@ -122,6 +168,10 @@ pub(crate) struct Counters {
     pub overloaded: AtomicU64,
     pub cancelled: AtomicU64,
     pub coalesced: AtomicU64,
+    /// Work whose estimate exceeds the whole memory budget (source served
+    /// unchanged), and work that waited for memory.
+    pub memory_rejected: AtomicU64,
+    pub memory_waits: AtomicU64,
     pub decode_us: AtomicU64,
     pub resize_us: AtomicU64,
     pub encode_us: AtomicU64,
@@ -134,6 +184,9 @@ pub(crate) struct Optimizer {
     cache: Option<cache::ImageCache>,
     upstream: Option<nextrs_runtime::Upstream>,
     permits: Arc<Semaphore>,
+    memory: budget::MemoryBudget,
+    sources: Arc<budget::SourceBudget>,
+    faults: ImageFaults,
     queued: AtomicUsize,
     max_queued: usize,
     max_flights: usize,
@@ -193,6 +246,9 @@ impl Optimizer {
             cache,
             upstream,
             permits: Arc::new(Semaphore::new(concurrency)),
+            memory: budget::MemoryBudget::new(options.memory_budget),
+            sources: budget::SourceBudget::new(options.source_budget),
+            faults: options.faults.clone(),
             queued: AtomicUsize::new(0),
             max_queued: options.max_queued,
             max_flights: concurrency + options.max_queued,
@@ -352,6 +408,7 @@ impl Optimizer {
                 &params.href,
                 images.maximum_response_body,
                 images.maximum_redirects,
+                &self.sources,
             )
             .await?
         } else {
@@ -362,7 +419,7 @@ impl Optimizer {
                 .ok_or(Failure::Internal)?;
             let request = fetch::internal_request(&params.href).ok_or(Failure::Internal)?;
             let response = crate::image_subrequest(app, request).await;
-            fetch::internal(response, images.maximum_response_body).await?
+            fetch::internal(response, images.maximum_response_body, &self.sources).await?
         };
         let produced = self
             .transform(source, params, previous.as_deref(), flight)
@@ -470,7 +527,8 @@ impl Optimizer {
     }
 
     /// Runs the transformation on a blocking thread once one of
-    /// `concurrency` slots is free.
+    /// `concurrency` slots is free and the memory it is estimated to need
+    /// is reserved.
     async fn optimize(
         &self,
         input: &Bytes,
@@ -478,25 +536,76 @@ impl Optimizer {
         params: &params::Params,
         flight: &Flight,
     ) -> Result<Bytes, Failure> {
-        // A free slot is taken at once; only requests that must wait count
-        // against the queue.
-        let permit = match self.permits.clone().try_acquire_owned() {
-            Ok(permit) => permit,
-            Err(tokio::sync::TryAcquireError::Closed) => return Err(Failure::Internal),
-            Err(tokio::sync::TryAcquireError::NoPermits) => {
+        // From the header alone; a source whose header cannot be read
+        // would fail to decode as well (served unchanged).
+        let estimate = match nextrs_image::estimate(input, output, params.width) {
+            Ok(bytes) => bytes,
+            Err(error) => {
+                self.counters
+                    .transform_failures
+                    .fetch_add(1, Ordering::Relaxed);
+                tracing::warn!(href = %params.href, %error, "image not optimized; serving the source");
+                return Err(Failure::Internal);
+            }
+        };
+        if !self.memory.fits(estimate) {
+            self.counters
+                .memory_rejected
+                .fetch_add(1, Ordering::Relaxed);
+            tracing::warn!(
+                href = %params.href,
+                estimate_mib = estimate / (1024 * 1024),
+                budget_mib = self.memory.total_bytes() / (1024 * 1024),
+                "image not optimized: it would need more than the whole image memory budget; serving the source"
+            );
+            return Err(Failure::Internal);
+        }
+        // A free slot and free memory are taken at once; only work that
+        // must wait counts against the queue. Memory first, then a slot:
+        // a slot is never held idle waiting for memory.
+        #[allow(unused_mut)]
+        let mut estimate = estimate;
+        #[cfg(feature = "negative-controls")]
+        if controls::skip_memory_budget() {
+            estimate = 1;
+        }
+        let memory = self.memory.try_reserve(estimate);
+        let immediate = match &memory {
+            Some(_) => self.permits.clone().try_acquire_owned().ok(),
+            None => None,
+        };
+        let (reservation, permit) = match (memory, immediate) {
+            (Some(memory), Some(permit)) => (memory, permit),
+            (memory, _) => {
+                if self.permits.is_closed() {
+                    return Err(Failure::Internal);
+                }
                 if self.queued.fetch_add(1, Ordering::AcqRel) >= self.max_queued {
                     self.queued.fetch_sub(1, Ordering::AcqRel);
                     self.counters.overloaded.fetch_add(1, Ordering::Relaxed);
                     return Err(Failure::Overloaded);
                 }
                 // Leaves the queue however the wait ends: a cancelled
-                // flight drops this future while it waits.
+                // flight drops this future while it waits, and with it
+                // whatever it had reserved so far.
                 let _waiting = Queued(&self.queued);
-                self.permits
+                let memory = match memory {
+                    Some(memory) => memory,
+                    None => {
+                        self.counters.memory_waits.fetch_add(1, Ordering::Relaxed);
+                        self.memory
+                            .reserve(estimate)
+                            .await
+                            .ok_or(Failure::Internal)?
+                    }
+                };
+                let permit = self
+                    .permits
                     .clone()
                     .acquire_owned()
                     .await
-                    .map_err(|_| Failure::Internal)?
+                    .map_err(|_| Failure::Internal)?;
+                (memory, permit)
             }
         };
         self.counters.transforms.fetch_add(1, Ordering::Relaxed);
@@ -512,9 +621,31 @@ impl Optimizer {
         }
         let quality = params.quality;
         let started = Instant::now();
+        let faults = self.faults.before_transform.clone();
+        let href = params.href.clone();
         let task = tokio::task::spawn_blocking(move || {
-            // Held until the work ends, even if nobody waits any more.
+            // Held until the work ends, even if nobody waits any more (a
+            // timed-out encoder still runs and still holds its memory).
             let _permit = permit;
+            #[allow(unused_mut)]
+            let mut _reservation = Some(reservation);
+            #[cfg(feature = "negative-controls")]
+            if controls::leak_reservation() {
+                std::mem::forget(_reservation.take());
+            }
+            if let Some(fault) = faults {
+                match fault(&href) {
+                    ImageFault::None => {}
+                    ImageFault::Sleep(d) => std::thread::sleep(d),
+                    ImageFault::Panic => panic!("injected image fault"),
+                    ImageFault::DecodeError => {
+                        return Err(nextrs_image::Error::Decode("injected".into()));
+                    }
+                    ImageFault::EncodeError => {
+                        return Err(nextrs_image::Error::Encode("injected".into()));
+                    }
+                }
+            }
             nextrs_image::optimize(&nextrs_image::Job {
                 input: &input,
                 output,
@@ -578,6 +709,13 @@ impl Optimizer {
             ("decode_us", get(&c.decode_us)),
             ("resize_us", get(&c.resize_us)),
             ("encode_us", get(&c.encode_us)),
+            ("memory_rejected", get(&c.memory_rejected)),
+            ("memory_waits", get(&c.memory_waits)),
+            ("memory_budget_bytes", self.memory.total_bytes()),
+            ("memory_reserved_bytes", self.memory.reserved_bytes()),
+            ("source_budget_bytes", self.sources.max_bytes()),
+            ("source_held_bytes", self.sources.held_bytes()),
+            ("source_rejected", get(&self.sources.rejected)),
             ("queued", self.queued.load(Ordering::Relaxed) as u64),
             (
                 "in_flight",

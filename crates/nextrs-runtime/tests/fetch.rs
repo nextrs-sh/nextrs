@@ -285,6 +285,7 @@ fn network(allow: &[String], addrs: &[&str]) -> NetworkConfig {
             max_in_flight_per_isolate: 256,
             pool_idle_timeout: Duration::from_secs(4),
         },
+        extra_roots: Vec::new(),
     }
 }
 

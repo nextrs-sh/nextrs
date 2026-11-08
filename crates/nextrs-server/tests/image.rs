@@ -9,7 +9,9 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use axum::Router;
 use axum::body::{Body, to_bytes};
 use axum::http::{Request, StatusCode};
-use nextrs_server::{ImageCacheOptions, ImageOptions, ImageStats, ServerOptions};
+use nextrs_server::{
+    ImageCacheOptions, ImageFault, ImageFaults, ImageOptions, ImageStats, ServerOptions,
+};
 use tower::ServiceExt;
 
 static SEQ: AtomicU32 = AtomicU32::new(0);
@@ -438,4 +440,402 @@ async fn unwritable_cache_directory_still_serves() {
 
 fn unsafe_euid() -> u32 {
     std::fs::metadata("/proc/self").map_or(1, |m| std::os::unix::fs::MetadataExt::uid(&m))
+}
+
+// Memory-weighted admission (Phase 2E): reservations from the source's
+// header estimate, held until the work ends, released on every outcome.
+
+fn faults(f: impl Fn(&str) -> ImageFault + Send + Sync + 'static) -> ImageFaults {
+    ImageFaults {
+        before_transform: Some(std::sync::Arc::new(f)),
+    }
+}
+
+/// Polls a counter until it has `want` (the work runs on its own thread).
+async fn settle(stats: &ImageStats, name: &str, want: u64) {
+    for _ in 0..200 {
+        if stat(stats, name) == want {
+            return;
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(25)).await;
+    }
+    panic!(
+        "{name} stayed {} (want {want}): {:?}",
+        stat(stats, name),
+        stats.snapshot()
+    );
+}
+
+fn estimate(dir: &Path, file: &str, width: u32) -> u64 {
+    let bytes = std::fs::read(dir.join("public/photos").join(file)).unwrap();
+    nextrs_image::estimate(&bytes, nextrs_image::ImageType::Webp, width).unwrap()
+}
+
+fn photo(width: u32) -> String {
+    format!("/_next/image?url=%2Fphotos%2Fphoto.png&w={width}&q=75")
+}
+
+async fn all_released(stats: &ImageStats) {
+    settle(stats, "memory_reserved_bytes", 0).await;
+    settle(stats, "source_held_bytes", 0).await;
+    settle(stats, "queued", 0).await;
+    settle(stats, "in_flight", 0).await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn small_images_proceed_side_by_side_within_the_budget() {
+    let dir = project("admit-small");
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            concurrency: 4,
+            memory_budget: 64 * 1024 * 1024,
+            faults: faults(|_| ImageFault::Sleep(std::time::Duration::from_millis(200))),
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    let started = std::time::Instant::now();
+    let uris = [32, 48, 64, 96].map(photo);
+    let answers =
+        futures_util::future::join_all(uris.iter().map(|u| get(&app, u, "image/webp"))).await;
+    let elapsed = started.elapsed();
+    assert!(answers.iter().all(|a| a.status == StatusCode::OK));
+    assert!(
+        answers
+            .iter()
+            .all(|a| header(a, "content-type") == "image/webp")
+    );
+    // Four 200 ms transformations side by side, not one after another.
+    assert!(
+        elapsed < std::time::Duration::from_millis(700),
+        "{elapsed:?}"
+    );
+    assert_eq!(stat(&stats, "memory_waits"), 0);
+    all_released(&stats).await;
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn large_work_waits_for_memory_and_never_exceeds_the_budget() {
+    let dir = project("admit-large");
+    let widths = [640, 750, 828, 1080];
+    let largest = widths
+        .iter()
+        .map(|&w| estimate(&dir, "photo.png", w))
+        .max()
+        .unwrap();
+    // Room for one of them at a time, with four threads free.
+    let budget = largest + largest / 2;
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            concurrency: 4,
+            memory_budget: budget,
+            faults: faults(|_| ImageFault::Sleep(std::time::Duration::from_millis(150))),
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    let peak = std::sync::Arc::new(std::sync::atomic::AtomicU64::new(0));
+    let sampling = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(true));
+    let sampler = tokio::spawn({
+        let (stats, peak, sampling) = (stats.clone(), peak.clone(), sampling.clone());
+        async move {
+            while sampling.load(Ordering::Relaxed) {
+                peak.fetch_max(stat(&stats, "memory_reserved_bytes"), Ordering::Relaxed);
+                tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+            }
+        }
+    });
+    let uris = widths.map(photo);
+    let answers =
+        futures_util::future::join_all(uris.iter().map(|u| get(&app, u, "image/webp"))).await;
+    sampling.store(false, Ordering::Relaxed);
+    sampler.await.unwrap();
+    assert!(answers.iter().all(|a| a.status == StatusCode::OK));
+    assert!(
+        answers
+            .iter()
+            .all(|a| header(a, "content-type") == "image/webp")
+    );
+    assert!(stat(&stats, "memory_waits") >= 3, "{:?}", stats.snapshot());
+    let peak = peak.load(Ordering::Relaxed);
+    assert!(peak > 0 && peak <= budget, "peak {peak} budget {budget}");
+    all_released(&stats).await;
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn small_work_runs_beside_large_work_when_it_fits() {
+    let dir = project("admit-mixed");
+    let large = estimate(&dir, "photo.png", 1080);
+    let small = [32, 48, 64]
+        .iter()
+        .map(|&w| estimate(&dir, "alpha.png", w))
+        .max()
+        .unwrap();
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            concurrency: 4,
+            // Reservations round up to KiB.
+            memory_budget: large + 3 * small + 64 * 1024,
+            faults: faults(|_| ImageFault::Sleep(std::time::Duration::from_millis(150))),
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    let mut uris = vec![photo(1080)];
+    uris.extend([32, 48, 64].map(|w| format!("/_next/image?url=%2Fphotos%2Falpha.png&w={w}&q=75")));
+    let answers =
+        futures_util::future::join_all(uris.iter().map(|u| get(&app, u, "image/webp"))).await;
+    assert!(answers.iter().all(|a| a.status == StatusCode::OK));
+    // Nobody waited for memory: the small ones ran beside the large one.
+    assert_eq!(stat(&stats, "memory_waits"), 0);
+    all_released(&stats).await;
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn cancellation_releases_memory_while_waiting_and_after_running() {
+    let dir = project("admit-cancel");
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            concurrency: 1,
+            max_queued: 8,
+            memory_budget: estimate(&dir, "photo.png", 1200) * 2,
+            faults: faults(|_| ImageFault::Sleep(std::time::Duration::from_millis(300))),
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    // Distinct keys every round (a finished one is cached).
+    for widths in [
+        [640, 750, 828, 1080, 1200],
+        [1920, 2048, 3840, 32, 48],
+        [64, 96, 128, 256, 384],
+    ] {
+        let requests: Vec<_> = widths
+            .iter()
+            .map(|&w| {
+                let app = app.clone();
+                tokio::spawn(async move { get(&app, &photo(w), "image/webp").await })
+            })
+            .collect();
+        tokio::time::sleep(std::time::Duration::from_millis(60)).await;
+        // Some wait for memory, some for the thread, one runs.
+        assert!(stat(&stats, "memory_reserved_bytes") > 0);
+        for r in &requests {
+            r.abort();
+        }
+        // The waiters leave at once; the running one when its work ends.
+        all_released(&stats).await;
+    }
+    assert!(stat(&stats, "cancelled") >= 3);
+    let answer = get(
+        &app,
+        "/_next/image?url=%2Fphotos%2Falpha.png&w=64&q=75",
+        "image/webp",
+    )
+    .await;
+    assert_eq!(answer.status, StatusCode::OK);
+    all_released(&stats).await;
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn decoder_encoder_and_panic_failures_release_memory() {
+    let dir = project("admit-fail");
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            faults: faults(|href| match href {
+                h if h.ends_with("photo.png") => ImageFault::DecodeError,
+                h if h.ends_with("alpha.png") => ImageFault::EncodeError,
+                _ => ImageFault::None,
+            }),
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    let decode = get(&app, &photo(640), "image/webp").await;
+    let encode = get(
+        &app,
+        "/_next/image?url=%2Fphotos%2Falpha.png&w=64&q=75",
+        "image/webp",
+    )
+    .await;
+    for answer in [&decode, &encode] {
+        // next start serves the source unchanged when sharp fails.
+        assert_eq!(answer.status, StatusCode::OK);
+        assert_eq!(header(answer, "content-type"), "image/png");
+    }
+    assert_eq!(stat(&stats, "fallbacks"), 2);
+    all_released(&stats).await;
+    // A real decoder failure: a PNG cut in half.
+    let png = std::fs::read(dir.join("public/photos/photo.png")).unwrap();
+    std::fs::write(dir.join("public/photos/cut.png"), &png[..png.len() / 2]).unwrap();
+    let (app, stats) = app_panicking(&dir).await;
+    let cut = get(
+        &app,
+        "/_next/image?url=%2Fphotos%2Fcut.png&w=64&q=75",
+        "image/webp",
+    )
+    .await;
+    assert_eq!(cut.status, StatusCode::OK);
+    assert_eq!(header(&cut, "content-type"), "image/png");
+    let panicked = get(&app, &photo(64), "image/webp").await;
+    assert_eq!(panicked.status, StatusCode::OK);
+    assert_eq!(header(&panicked, "content-type"), "image/png");
+    all_released(&stats).await;
+    // Repeated requests after failures are still served.
+    let again = get(
+        &app,
+        "/_next/image?url=%2Fphotos%2Falpha.png&w=64&q=75",
+        "image/webp",
+    )
+    .await;
+    assert_eq!(header(&again, "content-type"), "image/webp");
+    all_released(&stats).await;
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+/// A fresh server whose photo.png transformations panic.
+async fn app_panicking(dir: &Path) -> (Router, ImageStats) {
+    app(
+        dir,
+        ImageOptions {
+            faults: faults(|href| {
+                if href.ends_with("photo.png") {
+                    ImageFault::Panic
+                } else {
+                    ImageFault::None
+                }
+            }),
+            ..ImageOptions::default()
+        },
+    )
+    .await
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_timed_out_transformation_holds_its_memory_until_it_ends() {
+    let dir = project("admit-timeout");
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            timeout: Some(std::time::Duration::from_millis(100)),
+            faults: faults(|href| {
+                if href.ends_with("photo.png") {
+                    ImageFault::Sleep(std::time::Duration::from_millis(800))
+                } else {
+                    ImageFault::None
+                }
+            }),
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    let started = std::time::Instant::now();
+    let answer = get(&app, &photo(640), "image/webp").await;
+    assert!(started.elapsed() < std::time::Duration::from_millis(600));
+    assert_eq!(header(&answer, "content-type"), "image/png");
+    // Answered, but the thread still works: its memory is still reserved.
+    assert!(stat(&stats, "memory_reserved_bytes") > 0);
+    all_released(&stats).await;
+    let next = get(
+        &app,
+        "/_next/image?url=%2Fphotos%2Falpha.png&w=64&q=75",
+        "image/webp",
+    )
+    .await;
+    assert_eq!(header(&next, "content-type"), "image/webp");
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[tokio::test]
+async fn work_larger_than_the_whole_budget_serves_the_source() {
+    let dir = project("admit-reject");
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            memory_budget: estimate(&dir, "photo.png", 640) - 64 * 1024,
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    let answer = get(&app, &photo(640), "image/webp").await;
+    assert_eq!(answer.status, StatusCode::OK);
+    assert_eq!(header(&answer, "content-type"), "image/png");
+    assert_eq!(stat(&stats, "memory_rejected"), 1);
+    assert_eq!(stat(&stats, "transforms"), 0);
+    // A smaller output of the same source fits.
+    let small = get(&app, &photo(64), "image/webp").await;
+    assert_eq!(header(&small, "content-type"), "image/webp");
+    all_released(&stats).await;
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_saturated_queue_answers_503_and_recovers() {
+    let dir = project("admit-saturate");
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            concurrency: 1,
+            max_queued: 1,
+            faults: faults(|_| ImageFault::Sleep(std::time::Duration::from_millis(200))),
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    let uris = [640, 750, 828, 1080, 1200, 1920].map(photo);
+    let answers =
+        futures_util::future::join_all(uris.iter().map(|u| get(&app, u, "image/webp"))).await;
+    let ok = answers
+        .iter()
+        .filter(|a| a.status == StatusCode::OK)
+        .count();
+    let busy = answers
+        .iter()
+        .filter(|a| a.status == StatusCode::SERVICE_UNAVAILABLE)
+        .count();
+    assert_eq!((ok, busy), (2, 4));
+    all_released(&stats).await;
+    let after = get(&app, &photo(256), "image/webp").await;
+    assert_eq!(after.status, StatusCode::OK);
+    all_released(&stats).await;
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+#[tokio::test]
+async fn the_source_budget_refuses_sources_it_cannot_hold() {
+    let dir = project("admit-sources");
+    let size = std::fs::metadata(dir.join("public/photos/photo.png"))
+        .unwrap()
+        .len();
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            source_budget: size - 1,
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    let answer = get(&app, &photo(640), "image/webp").await;
+    assert_eq!(answer.status, StatusCode::SERVICE_UNAVAILABLE);
+    assert_eq!(stat(&stats, "source_rejected"), 1);
+    all_released(&stats).await;
+    // A smaller source fits.
+    let small = get(
+        &app,
+        "/_next/image?url=%2Fphotos%2Falpha.png&w=64&q=75",
+        "image/webp",
+    )
+    .await;
+    assert_eq!(small.status, StatusCode::OK);
+    all_released(&stats).await;
+    let _ = std::fs::remove_dir_all(dir);
 }

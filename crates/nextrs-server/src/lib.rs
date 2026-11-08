@@ -17,7 +17,7 @@ mod serve;
 mod static_files;
 
 pub use crate::dynamic::DEFAULT_MAX_REQUEST_BODY;
-pub use crate::image::{ImageCacheOptions, ImageOptions};
+pub use crate::image::{ImageCacheOptions, ImageFault, ImageFaults, ImageOptions};
 pub use crate::serve::{ClientAddr, ServeOptions, serve};
 
 use std::borrow::Cow;

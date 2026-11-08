@@ -53,7 +53,8 @@ scripts/compat-suite.sh --isolates 1 --out compat-out \
 scripts/realworld-suite.sh --isolates 1 --out realworld-out --browser
 ```
 
-`--next 16.4.5` runs the same suites against another Next.js release.
+`--next 16.4.5` runs the same suites against another Next.js release;
+`--only-images` runs the image suites alone.
 
 | Suite | What it checks |
 |---|---|
@@ -78,6 +79,8 @@ scripts/realworld-suite.sh --isolates 1 --out realworld-out --browser
 | [`proxy-shutdown.mjs`](../tests/compat/proxy-shutdown.mjs) | NextRS only: graceful shutdown with proxy work in flight (Server Actions never run twice) |
 | [`otel.mjs`](../tests/compat/otel.mjs) | OpenTelemetry through `@vercel/otel` to a local collector: trace propagation, span nesting across awaits, concurrent traces, export failures |
 | [`image.mjs`](../tests/compat/image.mjs) | `/_next/image`: parameter validation, traversal attempts, formats, sizes, orientation, colour profiles, alpha, animated and corrupt sources, decompression bombs, conditional requests, cache behaviour, remote sources through a local upstream ([`image-upstream.mjs`](../tests/compat/image-upstream.mjs)). Images are compared decoded: format, size and alpha exactly, pixels by fidelity to an unencoded reference |
+| [`image-https.mjs`](../tests/compat/image-https.mjs) | HTTPS image sources, with a test CA made for each run ([`image-certs.sh`](../tests/compat/image-certs.sh)): trusted, untrusted and mismatched certificates, redirects, body limits, timeouts, slow bodies, clients that leave, concurrent downloads |
+| [`image-asset-prefix.mjs`](../tests/compat/image-asset-prefix.mjs) | `next/image` on `assetPrefix` builds (a path, and an absolute origin served by a local CDN stand-in): rendered image URLs, every optimized URL, prefixed static media |
 | [`browser/actions.mjs`](../tests/browser/actions.mjs) | Server Actions in Chromium (playwright-core), with and without JavaScript: what a user sees, cookies, every action request's status and headers |
 | [`browser/proxy.mjs`](../tests/browser/proxy.mjs) | Client-side navigation through the proxy and config rules |
 | [`browser/realworld.mjs`](../tests/browser/realworld.mjs) | The `jose` and `next-intl` applications: login and logout, redirects back, a protected mutation, language detection, locale switching |

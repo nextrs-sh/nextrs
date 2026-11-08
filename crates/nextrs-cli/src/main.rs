@@ -93,6 +93,21 @@ struct ImageArgs {
     /// Default: the build's experimental.imgOptTimeoutInSeconds (7).
     #[arg(long, value_name = "SECONDS")]
     image_timeout: Option<f64>,
+    /// Memory image transformations may hold at once. Each reserves what
+    /// its source's header says it will allocate before it starts; work
+    /// larger than the whole budget is served unchanged.
+    #[arg(long, value_name = "MIB", default_value_t = 1024)]
+    image_memory_budget: u64,
+    /// Source image bytes held in memory at once (downloading, waiting,
+    /// being transformed); beyond it, new image work answers 503.
+    #[arg(long, value_name = "MIB", default_value_t = 512)]
+    image_source_budget: u64,
+    /// glibc's mmap threshold: allocations of at least this many KiB are
+    /// returned to the system when freed (image buffers otherwise stay
+    /// resident in malloc's arenas). 0 leaves glibc's adaptive default;
+    /// MALLOC_MMAP_THRESHOLD_ or GLIBC_TUNABLES take precedence.
+    #[arg(long, value_name = "KIB", default_value_t = 1024)]
+    malloc_mmap_threshold: usize,
     /// Persist optimized images in this directory (created with mode
     /// 0700; outside the project). Without it they are cached in memory.
     #[arg(long, value_name = "DIR")]
@@ -134,6 +149,8 @@ impl ImageArgs {
                 Some(value) => Some(seconds(value).ok_or("--image-timeout must be positive")?),
                 None => None,
             },
+            memory_budget: mib(self.image_memory_budget),
+            source_budget: mib(self.image_source_budget),
             cache: nextrs_server::ImageCacheOptions {
                 dir,
                 max_memory_bytes: mib(self.image_cache_max_memory),
@@ -332,6 +349,12 @@ struct NetArgs {
     /// Response body limit per fetch (after decompression).
     #[arg(long = "net-max-response", value_name = "MIB", default_value_t = 32)]
     max_response: u64,
+    /// PEM file of certificate authorities to trust beside the built-in
+    /// roots (repeatable), as NODE_EXTRA_CA_CERTS does for next start: a
+    /// private CA for internal image or API hosts. Verification is never
+    /// turned off.
+    #[arg(long = "net-ca-file", value_name = "PEM")]
+    ca_file: Vec<PathBuf>,
 }
 
 impl NetArgs {
@@ -339,6 +362,9 @@ impl NetArgs {
         if self.allow.is_empty() {
             if !self.allow_addr.is_empty() {
                 return Err("--net-allow-addr needs at least one --net-allow".into());
+            }
+            if !self.ca_file.is_empty() {
+                return Err("--net-ca-file needs at least one --net-allow".into());
             }
             return Ok(None);
         }
@@ -363,7 +389,7 @@ impl NetArgs {
         let positive = |value: f64, name: &str| {
             seconds(value).ok_or_else(|| format!("{name} must be positive"))
         };
-        Ok(Some(NetworkConfig {
+        let mut config = NetworkConfig {
             policy: NetworkPolicy { allow, allow_addrs },
             limits: NetworkLimits {
                 headers_timeout: positive(self.timeout, "--net-timeout")?,
@@ -371,7 +397,16 @@ impl NetArgs {
                 max_response_bytes: self.max_response.max(1) * 1024 * 1024,
                 ..defaults
             },
-        }))
+            extra_roots: Vec::new(),
+        };
+        for path in &self.ca_file {
+            let pem = std::fs::read(path)
+                .map_err(|e| format!("--net-ca-file {}: {e}", path.display()))?;
+            config
+                .add_ca_pem(&pem)
+                .map_err(|e| format!("--net-ca-file {}: {e}", path.display()))?;
+        }
+        Ok(Some(config))
     }
 }
 
@@ -546,6 +581,17 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             proxy,
             images,
         } => {
+            // Before any thread allocates (glibc's arenas are per thread).
+            if images.malloc_mmap_threshold > 0 {
+                let applied = nextrs_runtime::set_malloc_mmap_threshold(
+                    images.malloc_mmap_threshold.saturating_mul(1024),
+                );
+                tracing::debug!(
+                    applied,
+                    kib = images.malloc_mmap_threshold,
+                    "malloc mmap threshold"
+                );
+            }
             let forwarded = proxy.policy()?;
             match &forwarded {
                 ForwardedHeaders::Pass => tracing::info!(

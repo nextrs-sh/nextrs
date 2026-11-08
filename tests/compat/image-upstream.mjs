@@ -6,15 +6,19 @@
 //
 //   node tests/compat/image-upstream.mjs <photos dir> <port>
 import { createServer } from "node:http";
+import { createServer as createTlsServer } from "node:https";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { gzipSync, brotliCompressSync } from "node:zlib";
 
-export function startUpstream(photos, port, host = "0.0.0.0") {
+// `tls` ({ key, cert }) serves HTTPS instead; redirects keep the scheme.
+export function startUpstream(photos, port, host = "0.0.0.0", tls = null) {
   const hits = new Map();
+  // Requests whose client left before the body ended (abort detection).
+  let aborted = 0;
   const file = (name) => readFileSync(join(photos, name));
   let version = 1;
-  const server = createServer((req, res) => {
+  const handler = (req, res) => {
     const url = new URL(req.url, "http://upstream");
     const path = url.pathname;
     hits.set(path, (hits.get(path) ?? 0) + 1);
@@ -58,10 +62,10 @@ export function startUpstream(photos, port, host = "0.0.0.0") {
       // To a loopback address NextRS's --net-allow-addr does not include
       // (next start, with dangerouslyAllowLocalIP, follows it).
       case "/img/redirect-other-addr.jpg":
-        return send(302, "", { location: `http://127.0.0.2:${port}/forbidden/secret.jpg` });
+        return send(302, "", { location: `${scheme}://127.0.0.2:${port}/forbidden/secret.jpg` });
       // To a host name the network policy does not allow.
       case "/img/redirect-other-host.jpg":
-        return send(302, "", { location: `http://localhost:${port}/forbidden/secret.jpg` });
+        return send(302, "", { location: `${scheme}://localhost:${port}/forbidden/secret.jpg` });
       case "/img/redirect-metadata.jpg":
         return send(302, "", { location: "http://169.254.169.254/latest/meta-data/" });
       case "/img/missing.jpg":
@@ -108,6 +112,38 @@ export function startUpstream(photos, port, host = "0.0.0.0") {
       }
       case "/img/reset.jpg":
         return req.socket.destroy();
+      case "/img/trickle.jpg": {
+        // The whole image in 16 parts over ~1.6 s: slow, within every limit.
+        const body = file("photo.jpg");
+        res.writeHead(200, { "content-type": "image/jpeg", "content-length": body.length });
+        const part = Math.ceil(body.length / 16);
+        let at = 0;
+        const timer = setInterval(() => {
+          res.write(body.subarray(at, at + part));
+          at += part;
+          if (at >= body.length) {
+            clearInterval(timer);
+            res.end();
+          }
+        }, 100);
+        res.on("close", () => clearInterval(timer));
+        return;
+      }
+      case "/img/stream-long.jpg": {
+        // 5 s for the body; a client that leaves early is counted.
+        const body = file("photo.jpg");
+        res.writeHead(200, { "content-type": "image/jpeg", "content-length": body.length });
+        res.write(body.subarray(0, 1000));
+        const timer = setTimeout(() => res.end(body.subarray(1000)), 5000);
+        res.on("close", () => {
+          if (!res.writableFinished) aborted += 1;
+          clearTimeout(timer);
+        });
+        return;
+      }
+      case "/img/redirect-downgrade.jpg":
+        // HTTPS to an allowed plain-HTTP origin.
+        return send(302, "", { location: `http://127.0.0.1:${Number(url.searchParams.get("http") ?? 0)}/img/photo.jpg` });
       case "/img/animated.gif":
         return image("animated.gif", { "content-type": "image/gif" });
       case "/img/icon.svg":
@@ -116,13 +152,16 @@ export function startUpstream(photos, port, host = "0.0.0.0") {
         if (path.startsWith("/other/") || path.startsWith("/forbidden/")) return image("photo.jpg");
         return send(404, "not found");
     }
-  });
+  };
+  const scheme = tls ? "https" : "http";
+  const server = tls ? createTlsServer(tls, handler) : createServer(handler);
   return new Promise((resolve) => {
     server.listen(port, host, () =>
       resolve({
         server,
         hits,
         count: (path) => hits.get(path) ?? 0,
+        aborted: () => aborted,
         reset: () => hits.clear(),
         close: () => new Promise((r) => { server.closeAllConnections?.(); server.close(r); }),
       }),

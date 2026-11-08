@@ -64,7 +64,14 @@ heap, terminates its whole isolate and fails every request in it. Run more
 than one isolate to contain this.
 
 Admission, queue, body, response-buffer, connection and image limits are
-listed in [configuration.md](configuration.md).
+listed in [configuration.md](configuration.md). Image work is bounded by
+memory as well as by count: each transformation reserves its estimated
+memory before it starts, and source bytes held in memory have their own
+budget.
+
+`--net-ca-file` adds trust anchors for outbound connections; it never turns
+certificate verification off, and it applies only to destinations
+`--net-allow` already allows.
 
 ## Server Actions
 

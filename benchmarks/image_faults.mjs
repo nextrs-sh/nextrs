@@ -6,6 +6,8 @@
 //    server still answers, RSS back near its level.
 // 3. Public-image transformations never use an isolate: executor request
 //    count unchanged; a route handler source does use one.
+// 4. Memory admission: reservations and source bytes all return to zero;
+//    the burst reserved memory, never above the budget (exit 1 otherwise).
 import http from "node:http";
 import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -40,7 +42,18 @@ async function burst(base, label) {
   return { label, requests: keys.length, seconds: (Date.now() - t0) / 1000, statuses: [...new Set(statuses)], rssBeforeMiB: Math.round(before), peakRssMiB: Math.round(peak) };
 }
 if (args.baseline) out.burstNextStart = await burst(args.baseline, "next start");
+// Reservations seen while the burst runs (memory admission, Phase 2E).
+let reservedPeak = 0, reservedSampling = true;
+const reservedSampler = (async () => {
+  while (reservedSampling) {
+    const m = (await metrics()).images;
+    reservedPeak = Math.max(reservedPeak, m.memory_reserved_bytes ?? 0);
+    await new Promise((r) => setTimeout(r, 20));
+  }
+})();
 out.burstNextrs = await burst(args.server, "nextrs");
+reservedSampling = false;
+await reservedSampler;
 {
   const m = (await metrics()).images;
   out.burstNextrs.transforms = m.transforms;
@@ -73,5 +86,22 @@ const execAfterPublic = (await metrics()).requests_admitted;
 await get(args.server, "/_next/image?url=%2Fapi%2Fimage%2Fdyn.png&w=128&q=50");
 const execAfterRoute = (await metrics()).requests_admitted;
 out.isolates = { publicStatuses, executorRequestsForPublicImages: execAfterPublic - execBefore, executorRequestsForRouteSource: execAfterRoute - execAfterPublic };
+// 4. Admission accounting: everything reserved comes back once the work
+// (aborted or finished) has ended; the burst reserved memory, within the budget.
+{
+  let m;
+  for (let i = 0; i < 100; i++) {
+    m = (await metrics()).images;
+    if (!m.memory_reserved_bytes && !m.source_held_bytes && !m.in_flight) break;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  const failures = [];
+  if (m.memory_reserved_bytes) failures.push(`memory still reserved: ${m.memory_reserved_bytes}`);
+  if (m.source_held_bytes) failures.push(`source bytes still held: ${m.source_held_bytes}`);
+  if (!(reservedPeak > 1024 * 1024)) failures.push(`the burst's transformations reserved ${reservedPeak} bytes`);
+  if (reservedPeak > m.memory_budget_bytes) failures.push(`reserved ${reservedPeak} above the budget ${m.memory_budget_bytes}`);
+  out.admission = { ok: failures.length === 0, failures, reservedPeakMiB: Math.round(reservedPeak / 1048576), budgetMiB: Math.round(m.memory_budget_bytes / 1048576), memoryWaits: m.memory_waits, memoryRejected: m.memory_rejected };
+}
 console.log(JSON.stringify(out, null, 1));
 if (args.out) writeFileSync(args.out, JSON.stringify(out, null, 2));
+if (!out.admission.ok) process.exit(1);

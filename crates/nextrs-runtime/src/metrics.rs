@@ -363,6 +363,38 @@ impl MallocSnapshot {
     }
 }
 
+/// Sets glibc's mmap threshold: allocations of at least `bytes` get pages
+/// of their own, returned to the system when freed. glibc otherwise raises
+/// the threshold (up to 32 MiB) after each large free, so the multi-MiB
+/// pixel and source buffers of image work land in per-thread arenas whose
+/// free memory stays resident (measured: RSS 655 MiB after a burst whose
+/// buffers were all freed, 76 MiB with a 1 MiB threshold). Not applied
+/// when the operator set the threshold already (`MALLOC_MMAP_THRESHOLD_`,
+/// `GLIBC_TUNABLES`). Returns whether it was applied.
+pub fn set_malloc_mmap_threshold(bytes: usize) -> bool {
+    if std::env::var_os("MALLOC_MMAP_THRESHOLD_").is_some()
+        || std::env::var("GLIBC_TUNABLES").is_ok_and(|t| t.contains("mmap_threshold"))
+    {
+        return false;
+    }
+    set_threshold(bytes)
+}
+
+#[cfg(all(target_os = "linux", target_env = "gnu"))]
+fn set_threshold(bytes: usize) -> bool {
+    let Ok(value) = libc::c_int::try_from(bytes) else {
+        return false;
+    };
+    // SAFETY: mallopt only changes allocator parameters; M_MMAP_THRESHOLD
+    // takes any value up to HEAP_MAX_SIZE / 2 and fails (returns 0) above.
+    unsafe { libc::mallopt(libc::M_MMAP_THRESHOLD, value) == 1 }
+}
+
+#[cfg(not(all(target_os = "linux", target_env = "gnu")))]
+fn set_threshold(_bytes: usize) -> bool {
+    false
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct ExecutorSnapshot {
     pub slot: usize,

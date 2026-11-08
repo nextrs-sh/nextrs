@@ -30,6 +30,19 @@ jobs:
           toolchain: "1.98.0"
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
+      # rusty_v8's build script downloads its static library into
+      # target/<profile>/gn_out, which rust-cache does not keep. When a
+      # partially matching cache restores v8's build-script output but v8
+      # itself must be recompiled, the link fails ("could not find native
+      # static library rusty_v8"); cleaning v8 makes its build script run.
+      - name: Re-fetch rusty_v8 when the cache lacks it
+        run: |
+          for profile in debug release; do
+            if [ -d "target/$profile/build" ] && ! ls target/$profile/gn_out/obj/librusty_v8.a >/dev/null 2>&1; then
+              flag=""; [ "$profile" = release ] && flag="--release"
+              cargo clean -p v8 $flag
+            fi
+          done
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       # Includes the executor's backpressure, supervision, deadline, pool,
@@ -80,6 +93,19 @@ jobs:
             fixtures/next-intl-proxy/package-lock.json
             fixtures/next-platform-proxy/package-lock.json
             fixtures/next-image/package-lock.json
+      # rusty_v8's build script downloads its static library into
+      # target/<profile>/gn_out, which rust-cache does not keep. When a
+      # partially matching cache restores v8's build-script output but v8
+      # itself must be recompiled, the link fails ("could not find native
+      # static library rusty_v8"); cleaning v8 makes its build script run.
+      - name: Re-fetch rusty_v8 when the cache lacks it
+        run: |
+          for profile in debug release; do
+            if [ -d "target/$profile/build" ] && ! ls target/$profile/gn_out/obj/librusty_v8.a >/dev/null 2>&1; then
+              flag=""; [ "$profile" = release ] && flag="--release"
+              cargo clean -p v8 $flag
+            fi
+          done
       - run: cargo build --release -p nextrs-cli
       - name: Browser for the Server Action suite
         if: matrix.next == 'pinned'

@@ -110,6 +110,7 @@ Denied unless `--net-allow` is given. The same policy covers server-side
 | `--net-allow-addr CIDR` | none | A non-public address or range allowed hosts may resolve to (repeatable), e.g. `127.0.0.1` for a local API. Loopback, private, link-local (cloud metadata) and other special ranges are refused otherwise |
 | `--net-timeout`, `--net-body-timeout` | `30`, `30` | Time to the response head (including redirects and the request body); longest wait for the next body chunk |
 | `--net-max-response` | `32` | Response body limit per fetch in MiB, after decompression |
+| `--net-ca-file PEM` | none | Certificate authorities trusted beside the built-in roots (repeatable), as `NODE_EXTRA_CA_CERTS` does for `next start`: a private CA for internal API or image hosts. Certificates are always verified; there is no option to turn verification off |
 
 ```bash
 ./target/release/nextrs start ./my-app --js-runtime embedded-v8 \
@@ -139,13 +140,19 @@ The fetch cache, `unstable_cache`, ISR pages and route output, and
 | `--image-max-queued N` | 64 | Transformations that may wait; more answer `503` with `Retry-After` |
 | `--image-max-input-pixels N` | 64,000,000 | Larger sources (width × height, read before decoding) are served unchanged, as `next start` does when sharp refuses them |
 | `--image-timeout SECONDS` | the build's `imgOptTimeoutInSeconds` (7) | Then the source is served unchanged |
+| `--image-memory-budget MIB` | 1024 | Memory transformations may hold at once. Each reserves what its source's header says it will allocate before it starts, and waits in the queue otherwise; work larger than the whole budget is served unchanged |
+| `--image-source-budget MIB` | 512 | Source image bytes held in memory at once (downloading, waiting, being transformed); beyond it, new image work answers `503` |
+| `--malloc-mmap-threshold KIB` | 1024 | glibc's mmap threshold, set at startup so that freed image buffers leave the process's memory; `0` keeps glibc's adaptive default; `MALLOC_MMAP_THRESHOLD_` or `GLIBC_TUNABLES` take precedence |
 | `--image-cache-dir DIR` | none (memory only) | Persist optimized images (mode 0700, outside the project); entries are per build, checksummed, written atomically |
 | `--image-cache-max-memory MIB` / `--image-cache-max-disk MIB` | 64 / 1024 | Cache sizes (the build's `images.maximumDiskCacheSize` applies when lower) |
 
 Remote images are fetched only when `images.remotePatterns` (the
 application) **and** `--net-allow` (the operator) both allow the URL, and
 every redirect is checked again. A host resolving to a private or loopback
-address also needs `dangerouslyAllowLocalIP` and `--net-allow-addr`.
+address also needs `dangerouslyAllowLocalIP` and `--net-allow-addr`; every
+address the host resolves to must be allowed (`localhost` resolves to both
+`127.0.0.1` and `::1`). With an absolute `assetPrefix`, static imports are
+fetched from that origin, which `--net-allow` must include.
 
 ## Reverse proxies
 

@@ -139,8 +139,10 @@ with Server Actions, ISR or a proxy is refused at startup (unless
   `@vercel/otel`.
 - **Image optimization:** `/_next/image` is answered in Rust with Next's
   request semantics, memory-safe Rust decoders with resource limits, local
-  sources resolved through routing, remote sources under the network
-  policy, and an image cache.
+  sources resolved through routing, remote sources (HTTP and HTTPS,
+  private CAs through `--net-ca-file`) under the network policy, `assetPrefix`
+  builds (a path or an absolute origin), memory-weighted admission and an
+  image cache.
 - **Unsupported-feature detection:** `nextrs start` refuses builds it would
   serve incorrectly, instead of silently skipping middleware, redirects or
   security headers.
@@ -184,11 +186,14 @@ with Server Actions, ISR or a proxy is refused at startup (unless
   deadline. Only the fixtures' proxies and rules have been verified.
 - **Image optimization gaps:** AVIF/HEIF and JPEG-compressed TIFF sources
   are served unchanged (no decoder), where `next start` converts them.
-  JPEG output is about a third larger than sharp's (mozjpeg) and PNG output
-  is full colour (sharp quantizes); WebP, the default output, is equivalent.
-  AVIF encoding is about 2.5× slower than sharp's. JPEGs are decoded at full
-  size, so large sources need more memory than in `next start`. The image
-  cache is in memory unless `--image-cache-dir` is given;
+  PNG output is lossless (indexed only when the image has at most 256
+  colours), so it is larger than sharp's quantized palette PNG; WebP and
+  JPEG output are equivalent to `next start`'s. AVIF encoding (rav1e
+  without assembly) is about 2.7× slower than sharp's, and its output is
+  smaller but less faithful at the same quality setting; large AVIF outputs
+  can exceed the transformation timeout and are then served unchanged.
+  Work whose estimated memory exceeds `--image-memory-budget` is served
+  unchanged. The image cache is in memory unless `--image-cache-dir` is given;
   `images.customCacheHandler` is ignored. Remote images need `--net-allow`
   (and, for loopback or private addresses, both `dangerouslyAllowLocalIP`
   and `--net-allow-addr`).
