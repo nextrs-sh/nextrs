@@ -91,7 +91,7 @@ pub(crate) fn load(
             let rendering = if is_html {
                 Rendering::Static
             } else {
-                classify(page, prerender_manifest)
+                classify_page(page, prerender_manifest)
             };
             if is_html {
                 // A page without data functions: Next wrote its HTML at
@@ -171,6 +171,10 @@ pub(crate) fn load(
             .as_deref()
             .is_none_or(|data| data.ends_with(".rsc"));
         if !is_app {
+            // getStaticProps returned notFound at build time: nothing stored.
+            if prerender_manifest.not_found_routes.contains(pathname) {
+                continue;
+            }
             match resolve_pages_prerender(dist_dir, pathname)? {
                 Some(mut prerender) => {
                     prerender.route = entry.src_route.clone().unwrap_or_else(|| pathname.clone());
@@ -217,6 +221,25 @@ pub(crate) fn load(
         },
         pages_router,
     })
+}
+
+/// A Pages Router page with a handler. getStaticPaths pages: Next's handler
+/// serves the listed paths from the cache and decides the others by their
+/// `fallback`.
+fn classify_page(page: &str, prerender_manifest: &PrerenderManifest) -> Rendering {
+    if let Some(entry) = prerender_manifest.dynamic_routes.get(page) {
+        let fallback = match entry.get("fallback") {
+            Some(serde_json::Value::Bool(false)) => "false",
+            Some(serde_json::Value::String(_)) => "true",
+            _ => "blocking",
+        };
+        return Rendering::Unknown {
+            reason: format!(
+                "getStaticPaths (fallback: {fallback}): listed paths prerendered, others decided by Next's handler"
+            ),
+        };
+    }
+    classify(page, prerender_manifest)
 }
 
 fn classify(route: &str, prerender_manifest: &PrerenderManifest) -> Rendering {
