@@ -8,10 +8,22 @@ const alt = variant === "alt";
 // The deterministic local image server the suites start (never a public
 // host). The port is fixed at build time: remotePatterns are compiled in.
 const upstreamPort = process.env.NEXTRS_IMAGE_UPSTREAM_PORT ?? "4317";
+// HTTPS upstreams (tests/compat/image-https.mjs): a certificate for
+// "localhost" from the suite's test CA on this port, one from an untrusted
+// CA on the next.
+const httpsPort = process.env.NEXTRS_IMAGE_HTTPS_PORT ?? String(Number(upstreamPort) + 1);
+const untrustedPort = String(Number(httpsPort) + 1);
+
+// assetPrefix builds (tests/compat/image-asset-prefix.mjs): a path, and an
+// absolute origin (a local stand-in for a CDN that serves .next/static).
+const cdnPort = process.env.NEXTRS_IMAGE_CDN_PORT ?? String(Number(upstreamPort) + 3);
+const assetPrefix =
+  variant === "asset-prefix" ? "/cdn" : variant === "asset-prefix-url" ? `http://127.0.0.1:${cdnPort}` : undefined;
 
 const nextConfig: NextConfig = {
   distDir: variant === "default" ? ".next" : `.next-${variant}`,
   basePath: alt ? "/base" : undefined,
+  assetPrefix,
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [50, 75, 90],
@@ -24,6 +36,10 @@ const nextConfig: NextConfig = {
     contentDispositionType: alt ? "inline" : "attachment",
     remotePatterns: [
       { protocol: "http", hostname: "127.0.0.1", port: upstreamPort, pathname: "/img/**" },
+      { protocol: "https", hostname: "localhost", port: httpsPort, pathname: "/img/**" },
+      // The certificate names localhost only: a name mismatch.
+      { protocol: "https", hostname: "127.0.0.1", port: httpsPort, pathname: "/img/**" },
+      { protocol: "https", hostname: "localhost", port: untrustedPort, pathname: "/img/**" },
     ],
     localPatterns: alt
       ? undefined
@@ -32,6 +48,9 @@ const nextConfig: NextConfig = {
           { pathname: "/_next/static/media/**", search: "" },
           { pathname: "/api/image/**" },
           { pathname: "/rewritten/**", search: "" },
+          // Static imports carry a path assetPrefix; localPatterns apply to
+          // the prefixed path.
+          ...(variant === "asset-prefix" ? [{ pathname: "/cdn/_next/static/media/**", search: "" }] : []),
         ],
   },
   async rewrites() {

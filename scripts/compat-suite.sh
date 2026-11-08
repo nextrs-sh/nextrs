@@ -4,7 +4,7 @@
 #
 #   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
 #                           [--cache-components] [--proxy] [--proxy-combinations]
-#                           [--images]
+#                           [--images] [--only-images]
 #
 # Without --next the fixture's pinned lockfile is used (npm ci, in place).
 # With --next the fixture is copied to a temporary directory and that
@@ -25,11 +25,15 @@
 # basePath with trailingSlash, a path assetPrefix and
 # experimental.caseSensitiveRoutes (proxy, routing-config, and for the last
 # two tests/compat/config-flags.mjs).
-# --images builds fixtures/next-image twice (default; alt: basePath, SVG
-# allowed, no localPatterns), generating its images first, and runs
-# tests/compat/image.mjs against both (with --browser, tests/browser/image.mjs
-# too). The suites start their own deterministic image upstream on a port
+# --images builds fixtures/next-image four times (default; alt: basePath, SVG
+# allowed, no localPatterns; asset-prefix: a path assetPrefix;
+# asset-prefix-url: an absolute one), generating its images first, and runs
+# tests/compat/image.mjs against the first two (with --browser,
+# tests/browser/image.mjs too), tests/compat/image-https.mjs against the
+# default build (HTTPS upstreams with a test CA made for the run) and
+# tests/compat/image-asset-prefix.mjs against the assetPrefix builds. The suites start their own deterministic image upstream on a port
 # fixed at build time (remotePatterns are compiled in).
+# --only-images runs the --images part alone (no base fixture build or suites).
 # Exits non-zero if any suite fails.
 set -euo pipefail
 
@@ -42,6 +46,7 @@ cache_components=0
 proxy=0
 combinations=0
 images=0
+only_images=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
@@ -52,6 +57,7 @@ while [[ $# -gt 0 ]]; do
     --proxy) proxy=1; shift ;;
     --proxy-combinations) combinations=1; shift ;;
     --images) images=1; shift ;;
+    --only-images) images=1; only_images=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -107,6 +113,7 @@ upstream_port=$((base_port + 2))
 closed_port=$((base_port + 3))
 export NEXTRS_UPSTREAM="http://127.0.0.1:$upstream_port"
 
+if [[ $only_images != 1 ]]; then
 node "$root/tests/compat/upstream.mjs" --port "$upstream_port" > "$out/upstream.log" 2>&1 &
 pids+=($!)
 
@@ -117,6 +124,7 @@ pids+=($!)
 }
 installed="$(node -p "require('$project/node_modules/next/package.json').version")"
 echo "Next.js $installed built ($(cat "$project/.next/BUILD_ID"))"
+fi
 
 
 next_pid=""
@@ -174,7 +182,7 @@ stop_servers() {
   done
   wait "$next_pid" "$nextrs_pid" 2>/dev/null || true
 }
-start_servers
+[[ $only_images != 1 ]] && start_servers
 
 baseline="http://127.0.0.1:$next_port"
 candidate="http://127.0.0.1:$nextrs_port"
@@ -188,6 +196,7 @@ run() {
   fi
 }
 cd "$root"
+if [[ $only_images != 1 ]]; then
 run compare   tests/compat/compare.mjs   --baseline "$baseline" --candidate "$candidate" --project "$project" --json "$out/compare.json"
 run semantic  tests/compat/semantic.mjs  --baseline "$baseline" --candidate "$candidate" --json "$out/semantic.json"
 run streaming tests/compat/streaming.mjs --target "$candidate" --runs 20
@@ -212,6 +221,7 @@ sleep 1
 stop_servers
 start_servers
 run restart   tests/compat/restart.mjs   --phase verify --ns "$restart_ns" --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --prepared "$out/restart-prepare.json" --json "$out/restart.json"
+fi
 
 if [[ $cache_components == 1 ]]; then
   stop_servers
@@ -308,9 +318,17 @@ if [[ $images == 1 ]]; then
     (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
   fi
   image_port=$((base_port + 4))
-  export NEXTRS_IMAGE_UPSTREAM_PORT="$image_port"
+  # HTTPS upstreams on +5 (test CA) and +6 (untrusted CA); a CDN stand-in
+  # for the absolute assetPrefix build on +7. Certificates are made for this
+  # run; next start trusts the test CA through NODE_EXTRA_CA_CERTS, NextRS
+  # through --net-ca-file.
+  https_port=$((base_port + 5))
+  cdn_port=$((base_port + 7))
+  export NEXTRS_IMAGE_UPSTREAM_PORT="$image_port" NEXTRS_IMAGE_HTTPS_PORT="$https_port" NEXTRS_IMAGE_CDN_PORT="$cdn_port"
+  certs="$out/certs"
+  "$root/tests/compat/image-certs.sh" "$certs" > /dev/null
   (cd "$project" && node scripts/make-images.mjs > "$out/make-images.log" 2>&1) || { tail -20 "$out/make-images.log"; exit 1; }
-  for variant in default alt; do
+  for variant in default alt asset-prefix asset-prefix-url; do
     dist=".next"; [[ $variant != default ]] && dist=".next-$variant"
     prefix=""; [[ $variant == alt ]] && prefix="/base"
     (cd "$project" && rm -rf "$dist" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-image-$variant.log" 2>&1) || {
@@ -319,11 +337,15 @@ if [[ $images == 1 ]]; then
     for port in "$next_port" "$nextrs_port"; do
       if curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port/"; then echo "port $port is still in use" >&2; exit 1; fi
     done
-    (cd "$project" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 127.0.0.1 -p "$next_port") >> "$out/next-start-image.log" 2>&1 &
+    (cd "$project" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 NODE_EXTRA_CA_CERTS="$certs/test-ca.pem" \
+      exec setsid npx next start -H 127.0.0.1 -p "$next_port") >> "$out/next-start-image.log" 2>&1 &
     next_pid=$!
     pids+=($next_pid)
     "$nextrs" start "$project/$dist" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
-      --net-allow "http://127.0.0.1:$image_port" --net-allow-addr 127.0.0.1 >> "$out/nextrs-image.log" 2>&1 &
+      --net-allow "http://127.0.0.1:$image_port" --net-allow "https://localhost:$https_port" \
+      --net-allow "https://127.0.0.1:$https_port" --net-allow "https://localhost:$((https_port + 1))" \
+      --net-allow "http://127.0.0.1:$cdn_port" --net-allow-addr 127.0.0.1 --net-allow-addr ::1 --net-ca-file "$certs/test-ca.pem" \
+      >> "$out/nextrs-image.log" 2>&1 &
     nextrs_pid=$!
     pids+=($nextrs_pid)
     for port in "$next_port" "$nextrs_port"; do
@@ -332,8 +354,18 @@ if [[ $images == 1 ]]; then
         sleep 0.25
       done
     done
+    if [[ $variant == asset-prefix* ]]; then
+      run "image-$variant" tests/compat/image-asset-prefix.mjs --baseline "$baseline" --candidate "$candidate" --project "$project" \
+        --variant "$variant" --upstream-port "$image_port" --cdn-port "$cdn_port" --json "$out/image-$variant.json"
+      stop_servers
+      continue
+    fi
     run "image-$variant" tests/compat/image.mjs --baseline "$baseline" --candidate "$candidate" --project "$project" \
       --variant "$variant" --upstream-port "$image_port" --json "$out/image-$variant.json"
+    if [[ $variant == default ]]; then
+      run "image-https" tests/compat/image-https.mjs --baseline "$baseline" --candidate "$candidate" --project "$project" \
+        --certs "$certs" --upstream-port "$image_port" --https-port "$https_port" --json "$out/image-https.json"
+    fi
     if [[ $browser == 1 ]]; then
       run "browser-image-$variant" tests/browser/image.mjs --baseline "$baseline" --candidate "$candidate" \
         --photos "$project/public/photos" --base-path "$prefix" --upstream-port "$image_port" --json "$out/browser-image-$variant.json"
