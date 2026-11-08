@@ -68,7 +68,117 @@ enum Command {
         cache: CacheArgs,
         #[command(flatten)]
         proxy: ProxyArgs,
+        #[command(flatten)]
+        images: ImageArgs,
     },
+}
+
+/// `/_next/image`: transformations in Rust, a bounded pool, a cache.
+#[derive(clap::Args)]
+#[command(next_help_heading = "Image optimization")]
+struct ImageArgs {
+    /// Image transformations running at once, each on its own thread.
+    /// Default: half the CPUs.
+    #[arg(long, value_name = "N")]
+    image_concurrency: Option<usize>,
+    /// Transformations that may wait for a thread; beyond this, 503.
+    #[arg(long, value_name = "N", default_value_t = 64)]
+    image_max_queued: usize,
+    /// Larger source images (width x height) are served unchanged, as next
+    /// start does when sharp refuses them. The build's
+    /// experimental.imgOptMaxInputPixels applies when lower.
+    #[arg(long, value_name = "PIXELS", default_value_t = 64_000_000)]
+    image_max_input_pixels: u64,
+    /// Longest transformation; then the source is served unchanged.
+    /// Default: the build's experimental.imgOptTimeoutInSeconds (7).
+    #[arg(long, value_name = "SECONDS")]
+    image_timeout: Option<f64>,
+    /// Persist optimized images in this directory (created with mode
+    /// 0700; outside the project). Without it they are cached in memory.
+    #[arg(long, value_name = "DIR")]
+    image_cache_dir: Option<PathBuf>,
+    /// Optimized image bytes kept in memory.
+    #[arg(long, value_name = "MIB", default_value_t = 64)]
+    image_cache_max_memory: u64,
+    /// Optimized image bytes kept on disk (with --image-cache-dir); the
+    /// build's images.maximumDiskCacheSize applies when lower.
+    #[arg(long, value_name = "MIB", default_value_t = 1024)]
+    image_cache_max_disk: u64,
+}
+
+impl ImageArgs {
+    fn options(
+        &self,
+        network: Option<NetworkConfig>,
+        project_dir: &std::path::Path,
+    ) -> Result<nextrs_server::ImageOptions, Box<dyn std::error::Error>> {
+        let defaults = nextrs_server::ImageOptions::default();
+        let dir = match &self.image_cache_dir {
+            Some(dir) => Some(checked_dir(
+                dir,
+                &[project_dir.to_path_buf()],
+                "--image-cache-dir",
+            )?),
+            None => None,
+        };
+        let mib = |value: u64| value.max(1) * 1024 * 1024;
+        Ok(nextrs_server::ImageOptions {
+            network,
+            concurrency: self
+                .image_concurrency
+                .unwrap_or(defaults.concurrency)
+                .max(1),
+            max_queued: self.image_max_queued,
+            max_input_pixels: self.image_max_input_pixels.max(1),
+            timeout: match self.image_timeout {
+                Some(value) => Some(seconds(value).ok_or("--image-timeout must be positive")?),
+                None => None,
+            },
+            cache: nextrs_server::ImageCacheOptions {
+                dir,
+                max_memory_bytes: mib(self.image_cache_max_memory),
+                max_disk_bytes: mib(self.image_cache_max_disk),
+                ..defaults.cache
+            },
+            ..defaults
+        })
+    }
+}
+
+/// Resolves `dir` (symlinks in existing ancestors included) and refuses it
+/// inside one of `forbidden`; does not create it.
+fn checked_dir(
+    dir: &std::path::Path,
+    forbidden: &[PathBuf],
+    flag: &str,
+) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    let absolute = std::path::absolute(dir)?;
+    let mut existing = absolute.as_path();
+    let mut missing = Vec::new();
+    while !existing.exists() {
+        missing.push(
+            existing
+                .file_name()
+                .ok_or(format!("{flag} has no parent"))?,
+        );
+        existing = existing.parent().ok_or(format!("{flag} has no parent"))?;
+    }
+    let mut resolved = std::fs::canonicalize(existing)?;
+    for part in missing.iter().rev() {
+        if *part == ".." || *part == "." {
+            return Err(format!("{flag} must not contain '.' or '..' components").into());
+        }
+        resolved.push(part);
+    }
+    if let Some(root) = forbidden.iter().find(|root| resolved.starts_with(root)) {
+        return Err(format!(
+            "{flag} {} is inside {}; choose a directory outside the build and node_modules",
+            dir.display(),
+            root.display()
+        )
+        .into());
+    }
+    Ok(resolved)
 }
 
 /// Reverse proxies and the X-Forwarded-* headers Next.js trusts.
@@ -434,6 +544,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             net,
             cache,
             proxy,
+            images,
         } => {
             let forwarded = proxy.policy()?;
             match &forwarded {
@@ -450,9 +561,6 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             let network = net.config()?;
-            if network.is_some() && js_runtime == JsRuntime::None {
-                return Err("--net-allow needs --js-runtime embedded-v8".into());
-            }
             let started = std::time::Instant::now();
             let info = nextrs_adapter::inspect_with(
                 &path,
@@ -460,6 +568,15 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     ignore_adapter_output,
                 },
             )?;
+            let image_options = images.options(network.clone(), &info.project_dir)?;
+            if let Some(config) = &info.images
+                && (!config.remote_patterns.is_empty() || !config.domains.is_empty())
+                && network.is_none()
+            {
+                tracing::warn!(
+                    "images.remotePatterns is configured but no --net-allow: remote images answer 400"
+                );
+            }
             let executor = match js_runtime {
                 JsRuntime::None => None,
                 JsRuntime::EmbeddedV8 => {
@@ -588,8 +705,9 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     max_request_body,
                     forwarded: forwarded.clone(),
                     listen: SocketAddr::new(host, port),
+                    images: image_options,
                 };
-                let app = nextrs_server::app(&info, &options).await?;
+                let (app, image_stats) = nextrs_server::app_with_stats(&info, &options).await?;
                 if let Some(metrics_addr) = limits.metrics_addr {
                     let Some(executor) = executor.clone() else {
                         return Err("--metrics-addr needs --js-runtime embedded-v8".into());
@@ -600,7 +718,11 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     let listener = tokio::net::TcpListener::bind(metrics_addr).await?;
                     tracing::info!(%metrics_addr, "metrics listening");
                     tokio::spawn(async move {
-                        let _ = axum::serve(listener, nextrs_server::metrics_app(executor)).await;
+                        let _ = axum::serve(
+                            listener,
+                            nextrs_server::metrics_app(executor, image_stats),
+                        )
+                        .await;
                     });
                 }
                 let addr = SocketAddr::new(host, port);
