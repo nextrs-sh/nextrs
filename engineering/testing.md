@@ -55,7 +55,9 @@ scripts/realworld-suite.sh --isolates 1 --out realworld-out --browser
 
 `--next 16.4.5` runs the same suites against another Next.js release;
 `--only-images` and `--only-pages` run the image or the Pages Router suites
-alone.
+alone, `--only-i18n` the native i18n suites. `--adapter` also builds the
+Pages Router, hybrid and i18n fixtures with the deployment adapter and runs
+the same suites on those builds (next start serving the same build).
 
 | Suite | What it checks |
 |---|---|
@@ -85,11 +87,15 @@ alone.
 | [`pages.mjs`](../tests/compat/pages.mjs) | The Pages Router ([`next-pages`](../fixtures/next-pages/), default, `basePath` and `trailingSlash` builds): static pages, the custom App and Document, 404/500 and blocked pages, `getServerSideProps` (params, query, headers, cookies, fetch, redirects, `notFound`, errors), `getStaticProps` with every `fallback` mode, ISR (stale, regenerated, failed regeneration, on-demand `res.revalidate`), `/_next/data` routes, API routes (JSON, forms, raw bodies, limits, streams, cookies, errors, a mutation ledger), Preview Mode (including a cookie minted by the other server), the proxy in front of pages and their data routes, RSC and conditional requests |
 | [`pages-isolation.mjs`](../tests/compat/pages-isolation.mjs) | Overlapping `getServerSideProps`, data-route and API requests, each with its own identity, plus clients that leave and mutations that must run once |
 | [`hybrid.mjs`](../tests/compat/hybrid.mjs) | App Router and Pages Router in one build ([`next-hybrid`](../fixtures/next-hybrid/)): both routers' pages, route handlers and API routes, data and RSC requests, the App Router not-found page answering for both, a rewrite between them, `next/image`, one proxy in front of both |
+| [`pages-i18n.mjs`](../tests/compat/pages-i18n.mjs) | Next's native `i18n` ([`next-pages-i18n`](../fixtures/next-pages-i18n/): default, no detection without a proxy, `basePath` + `trailingSlash`, domain locales, and a deployment-adapter build): the locale redirect for `/` (`Accept-Language`, `NEXT_LOCALE`, domains), prefixes, case and encoding, pages of every kind per locale, data routes, localized 404 pages, API routes under a locale, rules with and without `locale: false`, the proxy and bypass attempts, ISR and on-demand revalidation per locale, Preview Mode, concurrent identities, middleware prefetches |
+| [`pages-app-gip.mjs`](../tests/compat/pages-app-gip.mjs) | A custom App with `getInitialProps` ([`next-pages-app-gip`](../fixtures/next-pages-app-gip/)): App and page initial props, request headers and cookies, data routes, a redirect, the error page, concurrent identities |
 | [`browser/actions.mjs`](../tests/browser/actions.mjs) | Server Actions in Chromium (playwright-core), with and without JavaScript: what a user sees, cookies, every action request's status and headers |
 | [`browser/proxy.mjs`](../tests/browser/proxy.mjs) | Client-side navigation through the proxy and config rules |
 | [`browser/realworld.mjs`](../tests/browser/realworld.mjs) | The `jose` and `next-intl` applications: login and logout, redirects back, a protected mutation, language detection, locale switching |
 | [`browser/image.mjs`](../tests/browser/image.mjs) | `next/image`: selected sources and colours, lazy loading, preload, blur placeholders, responsive selection, broken sources, revalidation |
 | [`browser/pages.mjs`](../tests/browser/pages.mjs) | The Pages Router in Chromium: hydration with the custom App, Document and global CSS, client navigation through `/_next/data`, back/forward and reload, redirects and `notFound` during client navigation, fallback pages, Preview Mode, a protected page reached by the client router |
+| [`browser/pages-i18n.mjs`](../tests/browser/pages-i18n.mjs) | Native i18n in Chromium: hydration under a locale, switching with `next/link`, client navigation through localized data routes, history, detection from the browser language and the cookie, a protected page, the localized 404 |
+| [`browser/pages-app-gip.mjs`](../tests/browser/pages-app-gip.mjs) | A custom App's `getInitialProps` in Chromium: hydration, client navigation (initial props computed in the browser or carried by the data route), the redirect, history, the error page |
 | [`browser/hybrid.mjs`](../tests/browser/hybrid.mjs) | Navigation between the App Router and the Pages Router: links both ways, back/forward, reload, cookie continuity, authenticated pages in each router, an optimized image |
 
 Each script documents its usage in its header comment. Recorded runs are kept
@@ -128,8 +134,12 @@ rerun the suites with deliberate defects (a repeated mutation, an action that
 never runs, credentials dropped, another user's data, lost cookies, wrong
 redirects, broken image limits, the wrong page or data route selected, a
 skipped `getServerSideProps` or API handler, wrong route parameters, the
-proxy skipped for data requests) and must fail. Release builds never enable
-the feature.
+proxy skipped for data requests or locale-prefixed paths, the default
+locale for every request, locale-free lookups of stored pages, dropped
+Preview Mode cookies) and must fail. The Pages Router runner first runs the
+same binary without a defect, which must pass. The deployment-adapter
+cross-check has Rust tests instead (`adapter_pages_tests`). Release builds
+never enable the feature.
 
 ## Continuous integration
 

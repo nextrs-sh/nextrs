@@ -120,8 +120,9 @@ loopback.
 ## Unsupported-feature bypass
 
 `--allow-unsupported` removes a safety check. It lets NextRS start a build
-that uses features it cannot apply (edge middleware, Next's `i18n` config,
-Pages Router output from a deployment adapter). It does **not** implement
+that uses features it cannot apply (edge middleware, Next's `i18n` config
+with App Router routes, deployment-adapter output that disagrees with the
+build's manifests). It does **not** implement
 them. A build with a proxy
 started without the executor answers `501` for every request the proxy
 matches, rather than skipping the proxy.

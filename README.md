@@ -59,8 +59,9 @@ than `next start`.
   calls, encrypted closures, uploads and `route.ts` handlers.
 - **Pages Router** *(experimental):* `pages/` applications, alone or next
   to `app/`: `getServerSideProps`, `getStaticProps` and `getStaticPaths`
-  with ISR, API routes, Preview Mode and `/_next/data`, through Next.js's
-  compiled handlers.
+  with ISR, API routes, Preview Mode, `/_next/data` and Next's native
+  `i18n` routing, through Next.js's compiled handlers; also from
+  Deployment Adapter builds.
 - **Proxy and routing** *(experimental):* `proxy.ts` on the Node.js runtime,
   plus `next.config` headers, redirects, rewrites, `basePath` and
   `trailingSlash`, applied in `next start`'s order.
@@ -72,7 +73,7 @@ than `next start`.
   denied by default, and supervised isolates that are replaced when they
   fail.
 
-Not supported: the edge runtime and Next's `i18n` config.
+Not supported: the edge runtime, and Next's `i18n` config together with App Router routes (`i18n` with the Pages Router is supported).
 NextRS refuses to start a build it would serve incorrectly. See the
 [compatibility reference](engineering/compatibility.md) for details.
 
