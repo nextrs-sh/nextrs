@@ -124,11 +124,30 @@ pub(crate) fn static_data_page(state: &crate::AppState, item: &str) -> Option<St
     let prefix = format!("/_next/data/{}/", state.build_id);
     let rest = item.strip_prefix(&prefix)?.strip_suffix(".json")?;
     let page = denormalize(&format!("/{rest}"));
-    let decoded =
-        crate::routing::query::decode_uri_component(&page).unwrap_or_else(|| page.clone());
-    [page, decoded]
-        .into_iter()
-        .find(|candidate| state.pages_router.data_static.contains(candidate))
+    state
+        .pages_router
+        .data_static
+        .contains(&page)
+        .then_some(page)
+}
+
+/// A data path whose page names a data route only once percent-decoded
+/// (`/_next/data/<build>/%70rotected/secret.json`): next start's filesystem
+/// router matches it, but its page matching does not, and it renders the
+/// 404 page instead (as for page paths: `Output::EncodedApp`).
+pub(crate) fn encoded_data_page(state: &crate::AppState, item: &str) -> bool {
+    let prefix = format!("/_next/data/{}/", state.build_id);
+    let Some(rest) = item
+        .strip_prefix(&prefix)
+        .and_then(|r| r.strip_suffix(".json"))
+    else {
+        return false;
+    };
+    let Some(decoded) = crate::routing::query::decode_uri_component(&format!("/{rest}")) else {
+        return false;
+    };
+    let decoded_item = format!("{prefix}{}.json", &decoded[1..]);
+    decoded_item != item && static_data_page(state, &decoded_item).is_some()
 }
 
 /// The page path a data response names (`x-nextjs-matched-path`): without

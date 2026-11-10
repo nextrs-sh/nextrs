@@ -714,7 +714,9 @@ pub(crate) async fn get_item(state: &AppState, pathname: &str) -> Option<Output>
             data: Some(crate::pages::DataMatch::Static),
         });
     }
-    (decoded != item && state.exact_route(&decoded).is_some()).then_some(Output::EncodedApp)
+    ((decoded != item && state.exact_route(&decoded).is_some())
+        || crate::pages::encoded_data_page(state, item))
+    .then_some(Output::EncodedApp)
 }
 
 /// `checkTrue()`: the filesystem, then dynamic routes on the pathname
