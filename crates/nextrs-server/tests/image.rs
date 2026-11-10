@@ -624,8 +624,13 @@ async fn cancellation_releases_memory_while_waiting_and_after_running() {
                 tokio::spawn(async move { get(&app, &photo(w), "image/webp").await })
             })
             .collect();
-        tokio::time::sleep(std::time::Duration::from_millis(60)).await;
-        // Some wait for memory, some for the thread, one runs.
+        // Some wait for memory, some for the thread, one runs: wait until the
+        // running one holds its reservation (a fixed sleep raced it on a
+        // loaded host), well inside its 300 ms of work.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(250);
+        while stat(&stats, "memory_reserved_bytes") == 0 && std::time::Instant::now() < deadline {
+            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+        }
         assert!(stat(&stats, "memory_reserved_bytes") > 0);
         for r in &requests {
             r.abort();
