@@ -1533,13 +1533,16 @@ async fn not_found_render(
     }
     // A Pages Router build without an App Router not-found page.
     if state.not_found.is_none() && state.pages_router_404() {
+        // The routing headers go to the page as `keep` (not also as the
+        // initial headers, which would send them twice when the page is
+        // rendered by a handler).
         let ctx = pages::Ctx {
             method,
             uri: incoming.uri,
             headers,
             client: incoming.client,
             version,
-            initial,
+            initial: &[],
             max_body: state.max_request_body,
             listen: &state.listen,
         };
