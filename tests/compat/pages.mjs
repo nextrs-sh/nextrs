@@ -301,6 +301,14 @@ add("data-fallback-false-unknown", data("/posts/gamma.json"), (o) => status(o, 4
 add("data-redirect", data("/ssr/redirect.json"), (o) => all(status(o, 200), is(o.body?.pageProps?.__N_REDIRECT === "/about?from=ssr", `redirect data ${JSON.stringify(o.body)}`)));
 add("data-not-found", data("/ssr/not-found.json"), (o) => all(status(o, 404), is(o.body?.notFound === true, "notFound")));
 add("data-ssg-not-found", data("/ssg/not-found.json"), (o) => all(status(o, 404), is(o.body?.notFound === true, "notFound")));
+// next/link prefetches a link the proxy matches with x-middleware-prefetch:
+// for a page that is not statically generated, next start answers {}
+// without rendering it (getServerSideProps never runs for a prefetch).
+const PREFETCH = { headers: { "x-middleware-prefetch": "1", "x-nextjs-data": "1" } };
+add("prefetch-ssr-skipped", data("/books/42.json"), (o) => all(status(o, 200), is(o.headers["x-middleware-skip"] === "1", "x-middleware-skip"), is(JSON.stringify(o.body) === "{}", `body ${JSON.stringify(o.body)}`), is(!o.headers["x-book-id"], "getServerSideProps ran for a prefetch")), PREFETCH);
+add("prefetch-static-skipped", page("/about"), (o) => all(status(o, 200), is(o.headers["x-middleware-skip"] === "1", "x-middleware-skip")), { headers: { "x-middleware-prefetch": "1" } });
+add("prefetch-ssg-served", data("/ssg/static.json"), (o) => all(status(o, 200), is(o.body?.__N_SSG === true, "the page data")), PREFETCH);
+add("prefetch-api-served", page("/api/health"), (o) => status(o, 200), { headers: { "x-middleware-prefetch": "1" } });
 add("data-wrong-build", `${prefix}/_next/data/not-the-build/books/42.json`, (o) => status(o, 404));
 add("data-missing", data("/no-such-page.json"), (o) => status(o, 404));
 add("data-index", data("/index.json"), (o) => status(o, 200));

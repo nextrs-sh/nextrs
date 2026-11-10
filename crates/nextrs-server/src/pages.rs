@@ -435,6 +435,18 @@ pub(crate) async fn serve(
         {
             return Next::Done(redirect);
         }
+        // base server's middleware prefetch bail-out: next/link prefetches
+        // a link the proxy matches with `x-middleware-prefetch`, and for a
+        // page that is not statically generated next start answers `{}`
+        // without rendering it (getServerSideProps never runs for a
+        // prefetch).
+        if ctx.headers.contains_key("x-middleware-prefetch")
+            && !state.pages_router.ssg.contains(&route.page)
+            && route.page != "/404"
+            && route.page != "/_error"
+        {
+            return Next::Done(middleware_prefetch_skip(&route.page));
+        }
         if let Some((status, html)) = state.pages_router.static_pages.get(path) {
             let status_page = path == "/404" || path == "/500";
             if !readonly && !status_page {
@@ -613,6 +625,19 @@ pub(crate) async fn serve(
         }
         _ => Next::Done(dynamic::frame_for(ctx.version, response)),
     }
+}
+
+/// base server's answer to a middleware prefetch of a page that is not
+/// statically generated: an empty object, nothing rendered.
+fn middleware_prefetch_skip(page: &str) -> Response {
+    let mut response = Response::new(Body::from("{}"));
+    let headers = response.headers_mut();
+    if let Ok(value) = HeaderValue::from_str(page) {
+        headers.insert("x-matched-path", value);
+    }
+    headers.insert("x-middleware-skip", HeaderValue::from_static("1"));
+    headers.insert(header::CACHE_CONTROL, HeaderValue::from_static(NO_STORE));
+    response
 }
 
 /// What the handler writes when there is no router to render a 404 page.
