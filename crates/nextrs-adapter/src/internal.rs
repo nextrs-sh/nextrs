@@ -207,10 +207,11 @@ pub(crate) fn load(
             if prerender_manifest.not_found_routes.contains(pathname) {
                 continue;
             }
-            match resolve_pages_prerender(dist_dir, pathname)? {
+            let (page, locale) = split(pathname);
+            let route = entry.src_route.clone().unwrap_or(page);
+            match resolve_pages_prerender(dist_dir, pathname, &route)? {
                 Some(mut prerender) => {
-                    let (page, locale) = split(pathname);
-                    prerender.route = entry.src_route.clone().unwrap_or(page);
+                    prerender.route = route;
                     prerender.locale = locale;
                     prerender.status = entry.initial_status.unwrap_or(prerender.status);
                     prerender.revalidate = revalidate_seconds(&entry.initial_revalidate_seconds);
@@ -401,16 +402,29 @@ pub(crate) fn resolve_app_prerender(
 
 /// The stored HTML and page data of a Pages Router `getStaticProps`
 /// prerender: `server/pages/<name>.html`, `.json` and `.meta`.
+/// A getStaticProps output: `server/pages/<name>.html|.json|.meta`, or in a
+/// build made with a deployment adapter Next's route cache,
+/// `server/route-cache/PAGES/<sha256(page)>/$<name>.*` (getRouteCacheKey:
+/// the page is the locale-free route, the name keeps the locale).
 fn resolve_pages_prerender(
     dist_dir: &Path,
     pathname: &str,
+    route: &str,
 ) -> Result<Option<Prerender>, InspectError> {
     let name = normalize_page_path(pathname);
-    let base = dist_dir.join("server/pages").join(&name[1..]);
-    let html = with_suffix(&base, ".html");
-    if !html.is_file() {
+    let owner = hex(&Sha256::digest(route.as_bytes()));
+    let Some(base) = [
+        dist_dir.join("server/pages").join(&name[1..]),
+        dist_dir
+            .join("server/route-cache/PAGES")
+            .join(owner)
+            .join(format!("${name}")),
+    ]
+    .into_iter()
+    .find(|base| with_suffix(base, ".html").is_file()) else {
         return Ok(None);
-    }
+    };
+    let html = with_suffix(&base, ".html");
     let meta: PrerenderMeta = read_json_optional(&with_suffix(&base, ".meta"))?.unwrap_or_default();
     let headers = flatten_headers(&meta.headers);
     let data = with_suffix(&base, ".json");

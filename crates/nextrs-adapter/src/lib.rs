@@ -103,6 +103,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
     });
 
     let mut next_version = None;
+    let mut adapter_stored_files = Vec::new();
     let (source, mut routes, mut prerenders, rsc, mut config) = match adapter {
         Some(output) => {
             next_version = Some(DetectedVersion {
@@ -118,10 +119,32 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
                 skip_proxy_url_normalize: config_flag(required.as_ref(), "skipProxyUrlNormalize"),
             };
             let tables = adapter_output::tables(&project_dir, output, &mut diagnostics);
+            // One model for both sources: the Pages Router's routes and
+            // stored outputs come from the manifests next start reads (the
+            // adapter runs after next build wrote them all), checked
+            // against what the adapter reported.
+            check_adapter_pages(
+                &internal,
+                &tables.pages,
+                &build_id,
+                i18n.as_ref().map(|i| i.locales.as_slice()),
+                &mut diagnostics,
+            );
+            adapter_stored_files = tables.stored_files;
+            let mut routes = tables.routes;
+            let mut prerenders = tables.prerenders;
+            routes.extend(
+                internal
+                    .routes
+                    .iter()
+                    .filter(|r| matches!(r.kind, RouteKind::PagesPage | RouteKind::PagesApi))
+                    .cloned(),
+            );
+            prerenders.extend(internal.prerenders.iter().filter(|p| p.pages).cloned());
             (
                 MetadataSource::AdapterApi,
-                tables.routes,
-                tables.prerenders,
+                routes,
+                prerenders,
                 tables.rsc,
                 config,
             )
@@ -191,6 +214,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         source,
         routers: internal.routers,
         pages_router: internal.pages_router.clone(),
+        adapter_stored_files,
         config,
         rsc,
         routes,
@@ -298,6 +322,146 @@ fn server_actions_info(
 
 /// The adapter API does not list prerendered shells of framework routes such
 /// as `/_not-found` (16.4.3), although `next start` serves them for 404s.
+/// Compares the adapter's Pages Router outputs with the internal tables the
+/// model uses. Every page and API route function the adapter reported must
+/// be a route with the same entry (a getServerSideProps page's data path
+/// one of its data routes), every route with a handler must be reported,
+/// and every stored response the adapter reported must be the file the
+/// model serves or seeds the cache with. A difference is a refusal: the
+/// model would not describe the build the adapter saw.
+fn check_adapter_pages(
+    internal: &internal::InternalTables,
+    adapter: &adapter_output::AdapterPages,
+    build_id: &str,
+    locales: Option<&[String]>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    // With i18n the adapter lists each function once without a locale and
+    // once per locale (`/fr/ssr`, the index page as `/index` and `/fr`);
+    // the filesystem router strips the locale to find the page.
+    let page_of = |pathname: &str| -> String {
+        let page = match locales {
+            Some(locales) => normalize_locale_path(pathname, locales).0,
+            None => pathname,
+        };
+        if page == "/index" {
+            "/".to_owned()
+        } else {
+            page.to_owned()
+        }
+    };
+    let same = |a: &Path, b: &Path| match (a.canonicalize(), b.canonicalize()) {
+        (Ok(a), Ok(b)) => a == b,
+        _ => a == b,
+    };
+    let data_prefix = format!("/_next/data/{build_id}");
+    // `/_next/data/<build>/x.json` -> `/x` (`/index.json` -> `/`).
+    let data_page = |pathname: &str| -> Option<String> {
+        let rest = pathname.strip_prefix(&data_prefix)?.strip_suffix(".json")?;
+        Some(match rest {
+            "/index" => "/".to_owned(),
+            rest => rest.to_owned(),
+        })
+    };
+    let mut mismatches = Vec::new();
+    for (kind, pathname, file) in &adapter.functions {
+        if let Some(page) = data_page(pathname).map(|p| page_of(&p)) {
+            if !internal
+                .pages_router
+                .data_routes
+                .iter()
+                .any(|d| d.page == page)
+            {
+                mismatches.push(format!(
+                    "data route {pathname} has no page with getServerSideProps"
+                ));
+            }
+            continue;
+        }
+        let pathname = &page_of(pathname);
+        if pathname == "/_error" {
+            if !internal
+                .pages_router
+                .error_entry
+                .as_deref()
+                .is_some_and(|e| same(e, file))
+            {
+                mismatches.push("_error entry differs".to_owned());
+            }
+            continue;
+        }
+        match internal.routes.iter().find(|r| r.page == *pathname) {
+            Some(route)
+                if route.kind == *kind && route.entry.as_deref().is_some_and(|e| same(e, file)) => {
+            }
+            // The adapter reports the 404 page as a function (its module
+            // stub) even when pages-manifest maps it to the HTML next start
+            // serves; so does the model.
+            Some(route)
+                if pathname == "/404"
+                    && route
+                        .entry
+                        .as_ref()
+                        .is_some_and(|e| e.extension().is_some_and(|x| x == "html")) => {}
+            Some(_) => mismatches.push(format!("{pathname}: kind or entry differs")),
+            None => mismatches.push(format!("{pathname}: no such route")),
+        }
+    }
+    for route in internal.routes.iter().filter(|r| {
+        matches!(r.kind, RouteKind::PagesPage | RouteKind::PagesApi)
+            && r.entry
+                .as_ref()
+                .is_some_and(|e| e.extension().is_some_and(|x| x == "js"))
+    }) {
+        if !adapter
+            .functions
+            .iter()
+            .any(|(_, p, _)| page_of(p) == route.page)
+        {
+            mismatches.push(format!("{}: not in the adapter output", route.page));
+        }
+    }
+    for (pathname, file, status) in &adapter.prerenders {
+        let (page, data) = match data_page(pathname) {
+            Some(page) => (page, true),
+            None => (pathname.clone(), false),
+        };
+        // A fallback page (`/x/[slug]`) is Next's handler's own business;
+        // a build-time notFound has no stored output of its own.
+        if page.contains('[') || *status == Some(404) || file.is_none() {
+            continue;
+        }
+        let stored = internal
+            .prerenders
+            .iter()
+            .find(|p| p.pages && p.pathname == page)
+            .and_then(|p| {
+                if data {
+                    p.data.as_ref()
+                } else {
+                    p.html.as_ref()
+                }
+            });
+        match (stored, file) {
+            (Some(stored), Some(file)) if same(&stored.file, file) => {}
+            _ => mismatches.push(format!("{pathname}: stored output differs")),
+        }
+    }
+    if !mismatches.is_empty() {
+        let shown = mismatches.len().min(5);
+        diagnostics.push(Diagnostic {
+            severity: Severity::Unsupported,
+            code: "pages-adapter-mismatch",
+            message: format!(
+                "the adapter output and the build's manifests disagree on {} Pages Router entries: {}{}",
+                mismatches.len(),
+                mismatches[..shown].join("; "),
+                if mismatches.len() > shown { "; ..." } else { "" }
+            ),
+        });
+    }
+}
+
 fn supplement_internal_prerenders(
     internal: &internal::InternalTables,
     routes: &mut [Route],
@@ -452,12 +616,6 @@ fn detect_features(
                     "Next's i18n config with {app_routes} App Router routes is not supported (Pages Router only)"
                 ),
             );
-        } else if info.source == MetadataSource::AdapterApi {
-            push(
-                Severity::Unsupported,
-                "i18n-adapter-output",
-                "Next's i18n config is not supported with deployment-adapter output; build without NEXT_ADAPTER_PATH".into(),
-            );
         } else {
             push(
                 Severity::Info,
@@ -483,21 +641,15 @@ fn detect_features(
         push(Severity::Unsupported, "i18n", "i18n routing".into());
     }
     if info.routers.pages {
-        if info.source == MetadataSource::AdapterApi {
-            // The adapter's prerender outputs carry the HTML but not the
-            // page data NextRS serves for /_next/data requests.
-            push(
-                Severity::Unsupported,
-                "pages-router-adapter-output",
-                "Pages Router routes from deployment-adapter output are not supported; build without NEXT_ADAPTER_PATH".into(),
-            );
-        } else {
-            push(
-                Severity::Info,
-                "pages-router",
-                "Pages Router: pages without data functions are served as built; getServerSideProps, getStaticProps, API routes and /_next/data run Next's compiled handlers".into(),
-            );
-        }
+        push(
+            Severity::Info,
+            "pages-router",
+            if info.source == MetadataSource::AdapterApi {
+                "Pages Router (deployment-adapter build): routes and stored outputs read from the manifests next start reads and checked against the adapter output; getServerSideProps, getStaticProps, API routes and /_next/data run Next's compiled handlers".into()
+            } else {
+                "Pages Router: pages without data functions are served as built; getServerSideProps, getStaticProps, API routes and /_next/data run Next's compiled handlers".into()
+            },
+        );
     }
     if !actions.node.is_empty() {
         push(

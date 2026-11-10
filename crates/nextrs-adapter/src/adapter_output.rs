@@ -87,6 +87,8 @@ pub(crate) struct Outputs {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct FunctionOutput {
+    #[serde(default)]
+    pub id: Option<String>,
     pub pathname: String,
     pub runtime: String,
     pub file_path: PathBuf,
@@ -116,6 +118,23 @@ pub(crate) struct AdapterTables {
     pub routes: Vec<Route>,
     pub prerenders: Vec<Prerender>,
     pub rsc: RscConfig,
+    /// The Pages Router entries, which the model takes from the internal
+    /// manifests (as next start does) and only compares with these.
+    pub pages: AdapterPages,
+    /// Every file the adapter reported as a stored prerender (fallback
+    /// shells included): what next build wrote.
+    pub stored_files: Vec<PathBuf>,
+}
+
+/// The adapter's Pages Router outputs, as it reported them.
+#[derive(Debug, Default)]
+pub(crate) struct AdapterPages {
+    /// Page and API route functions: kind, pathname, entry file. A page
+    /// with getServerSideProps is also listed at its `/_next/data` path.
+    pub functions: Vec<(RouteKind, String, PathBuf)>,
+    /// Prerendered responses: pathname (a page path or its `/_next/data`
+    /// path), stored file, initial status.
+    pub prerenders: Vec<(String, Option<PathBuf>, Option<u16>)>,
 }
 
 pub(crate) fn read(dist_dir: &Path) -> Result<Option<BuildOutput>, InspectError> {
@@ -139,13 +158,59 @@ pub(crate) fn tables(
     diagnostics: &mut Vec<Diagnostic>,
 ) -> AdapterTables {
     let rsc: RscConfig = output.routing.rsc.into();
-    let prerenders = group_prerenders(project_dir, &output.outputs.prerenders, &rsc);
+    // Pages Router outputs are compared with the internal tables, not
+    // turned into routes: the adapter lists a getServerSideProps page twice
+    // (its page and its data path), pages without data functions only as
+    // static files, and a getStaticProps page's data as a second prerender.
+    let page_ids: std::collections::HashSet<&str> = output
+        .outputs
+        .pages
+        .iter()
+        .chain(&output.outputs.pages_api)
+        .map(|f| f.id.as_deref().unwrap_or(&f.pathname))
+        .collect();
+    let is_pages_prerender = |p: &PrerenderOutput| {
+        page_ids.contains(p.parent_output_id.as_str()) || p.pathname.starts_with("/_next/data/")
+    };
+    let mut pages = AdapterPages::default();
+    for (kind, outputs) in [
+        (RouteKind::PagesPage, &output.outputs.pages),
+        (RouteKind::PagesApi, &output.outputs.pages_api),
+    ] {
+        for function in outputs {
+            pages.functions.push((
+                kind,
+                function.pathname.clone(),
+                project_dir.join(&function.file_path),
+            ));
+        }
+    }
+    for prerender in output
+        .outputs
+        .prerenders
+        .iter()
+        .filter(|p| is_pages_prerender(p))
+    {
+        let fallback = prerender.fallback.as_ref();
+        pages.prerenders.push((
+            prerender.pathname.clone(),
+            fallback
+                .and_then(|f| f.file_path.as_ref())
+                .map(|f| project_dir.join(f)),
+            fallback.and_then(|f| f.initial_status),
+        ));
+    }
+    let app_prerenders: Vec<&PrerenderOutput> = output
+        .outputs
+        .prerenders
+        .iter()
+        .filter(|p| !is_pages_prerender(p))
+        .collect();
+    let prerenders = group_prerenders(project_dir, &app_prerenders, &rsc);
 
     let function_outputs = [
         (RouteKind::AppPage, &output.outputs.app_pages),
         (RouteKind::AppRoute, &output.outputs.app_routes),
-        (RouteKind::PagesPage, &output.outputs.pages),
-        (RouteKind::PagesApi, &output.outputs.pages_api),
     ];
     let mut routes = Vec::new();
     for (kind, outputs) in function_outputs {
@@ -227,10 +292,19 @@ pub(crate) fn tables(
         });
     }
 
+    let stored_files = output
+        .outputs
+        .prerenders
+        .iter()
+        .filter_map(|p| p.fallback.as_ref()?.file_path.as_ref())
+        .map(|f| project_dir.join(f))
+        .collect();
     AdapterTables {
         routes,
         prerenders,
         rsc,
+        pages,
+        stored_files,
     }
 }
 
@@ -239,7 +313,7 @@ pub(crate) fn tables(
 /// page output they belong to.
 fn group_prerenders(
     project_dir: &Path,
-    outputs: &[PrerenderOutput],
+    outputs: &[&PrerenderOutput],
     rsc: &RscConfig,
 ) -> Vec<Prerender> {
     let mut groups: BTreeMap<&str, Prerender> = BTreeMap::new();

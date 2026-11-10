@@ -31,6 +31,10 @@ pub struct BuildInfo {
     pub images: Option<crate::ImagesConfig>,
     /// What the Pages Router needs beyond its routes and prerenders.
     pub pages_router: PagesRouterInfo,
+    /// A deployment-adapter build: every file the adapter reported as a
+    /// stored prerender (fallback shells included).
+    #[serde(skip)]
+    pub adapter_stored_files: Vec<PathBuf>,
     pub diagnostics: Vec<Diagnostic>,
 }
 
@@ -200,6 +204,35 @@ pub fn parse_byte_size(value: &str) -> Option<u64> {
 }
 
 impl BuildInfo {
+    /// Stored responses `next build` wrote under `server/route-cache` (a
+    /// build made with a deployment adapter keeps its prerenders there),
+    /// with their `.meta` files: the build's own output, which Next's cache
+    /// may seed from, unlike files a running server wrote there later.
+    pub fn route_cache_files(&self) -> Vec<PathBuf> {
+        let root = self.dist_dir.join("server/route-cache");
+        let mut files: Vec<PathBuf> = self
+            .adapter_stored_files
+            .iter()
+            .filter(|f| f.starts_with(&root))
+            .flat_map(|f| [f.clone(), f.with_extension("meta")])
+            .collect();
+        for prerender in &self.prerenders {
+            let stored = [&prerender.html, &prerender.rsc, &prerender.data]
+                .into_iter()
+                .flatten()
+                .chain(prerender.segments.iter().map(|(_, s)| s));
+            for response in stored {
+                if response.file.starts_with(&root) {
+                    files.push(response.file.clone());
+                    files.push(response.file.with_extension("meta"));
+                }
+            }
+        }
+        files.sort();
+        files.dedup();
+        files
+    }
+
     pub fn prerender(&self, pathname: &str) -> Option<&Prerender> {
         self.prerenders.iter().find(|p| p.pathname == pathname)
     }
