@@ -44,6 +44,9 @@
 # runs this part alone); then
 # fixtures/next-hybrid (app/ and pages/ with a proxy) with
 # tests/compat/hybrid.mjs and, with --browser, tests/browser/hybrid.mjs;
+# then fixtures/next-pages-app-gip (a custom App with getInitialProps) with
+# tests/compat/pages-app-gip.mjs and, with --browser,
+# tests/browser/pages-app-gip.mjs;
 # then fixtures/next-pages-i18n (Next's native i18n config) four times
 # (default; no-detect: localeDetection false and no proxy; base-path:
 # basePath with trailingSlash; domains: domain locales) with
@@ -440,6 +443,38 @@ if [[ $pages == 1 && $only_i18n != 1 ]]; then
     fi
     stop_servers
   done
+
+  if [[ -z "$next_version" ]]; then
+    project="$root/fixtures/next-pages-app-gip"
+    (cd "$project" && npm ci --no-audit --no-fund --loglevel=error)
+  else
+    project="$work/next-pages-app-gip"
+    mkdir -p "$project"
+    (cd "$root/fixtures/next-pages-app-gip" && cp -r pages lib next.config.ts tsconfig.json package.json package-lock.json "$project/")
+    (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
+  fi
+  (cd "$project" && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-app-gip.log" 2>&1) || {
+    tail -40 "$out/build-app-gip.log"; exit 1;
+  }
+  (cd "$project" && NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 127.0.0.1 -p "$next_port") >> "$out/next-start-app-gip.log" 2>&1 &
+  next_pid=$!
+  pids+=($next_pid)
+  "$nextrs" start "$project/.next" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
+    --js-stall-timeout 3 --request-timeout 15 --js-env NEXTRS_UPSTREAM --net-allow "http://127.0.0.1:$upstream_port" \
+    --net-allow-addr 127.0.0.1 >> "$out/nextrs-app-gip.log" 2>&1 &
+  nextrs_pid=$!
+  pids+=($nextrs_pid)
+  for port in "$next_port" "$nextrs_port"; do
+    for _ in $(seq 1 120); do
+      curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port/api/health" && break
+      sleep 0.25
+    done
+  done
+  run pages-app-gip tests/compat/pages-app-gip.mjs --baseline "$baseline" --candidate "$candidate" --dist "$project/.next" --json "$out/pages-app-gip.json"
+  if [[ $browser == 1 ]]; then
+    run browser-pages-app-gip tests/browser/pages-app-gip.mjs --baseline "$baseline" --candidate "$candidate" --json "$out/browser-pages-app-gip.json"
+  fi
+  stop_servers
 fi
 
 if [[ $pages == 1 ]]; then
