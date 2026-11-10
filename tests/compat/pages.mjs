@@ -267,10 +267,20 @@ scenarios["fallback-true-new"] = {
 add("fallback-true-missing-data", data(`/fallback-true/missing.json`), (o) => all(status(o, 404), is(o.body?.notFound === true, "notFound JSON")));
 // Regenerated in the background once its 60 s pass: the stamp is the
 // regeneration's time on each server.
+// revalidate 60: whether the build's entry is still fresh depends on when
+// each server first read it (in a deployment-adapter build, its age counts
+// from that read), which the two servers do seconds apart. The state is
+// asserted, not compared; everything else is.
 scenarios["fallback-blocking-known"] = {
   kind: "compare",
-  run: async (base) => unstamp(await look(base, { path: page("/fallback-blocking/known") })),
-  expect: (o) => all(status(o, 200), is(o.body.kind === "fallback-blocking", "page")),
+  run: async (base) => {
+    const o = unstamp(await look(base, { path: page("/fallback-blocking/known") }));
+    o.cacheState = o.headers["x-nextjs-cache"];
+    delete o.headers["x-nextjs-cache"];
+    o.cacheState = ["HIT", "STALE"].includes(o.cacheState) ? "HIT-or-STALE" : o.cacheState;
+    return o;
+  },
+  expect: (o) => all(status(o, 200), is(o.body.kind === "fallback-blocking", "page"), is(o.cacheState === "HIT-or-STALE", `cache ${o.cacheState}: the build's entry is served`)),
 };
 scenarios["fallback-blocking-new"] = {
   kind: "compare",
