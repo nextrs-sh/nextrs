@@ -242,6 +242,17 @@ pub struct RouteMeta {
     pub middleware_cookies: Vec<String>,
     /// Set when the request was rewritten to this route.
     pub rewrite: Option<Rewrite>,
+    /// With Next's i18n config: the locale meta routing found.
+    pub locale: Option<LocaleMeta>,
+}
+
+/// next start's locale request meta (`locale`, `defaultLocale`,
+/// `isLocaleDomain`), which Next's page handlers read.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocaleMeta {
+    pub locale: String,
+    pub default_locale: String,
+    pub locale_domain: bool,
 }
 
 /// A rewrite's target, for the params and query the route renders with.

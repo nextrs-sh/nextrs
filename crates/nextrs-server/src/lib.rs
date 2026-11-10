@@ -8,6 +8,7 @@
 mod dynamic;
 mod etag;
 mod external;
+mod i18n;
 mod image;
 mod pages;
 #[cfg(feature = "negative-controls")]
@@ -442,6 +443,8 @@ struct AppState {
     build_id: String,
     images: Option<Arc<image::Optimizer>>,
     pages_router: pages::PagesState,
+    /// Next's i18n config (Pages Router locale routing).
+    i18n: Option<i18n::I18n>,
 }
 
 /// next.config rules, compiled once at startup.
@@ -716,6 +719,7 @@ impl AppState {
             proxy,
             listen: Listen::from(SocketAddr::from(([127, 0, 0, 1], 3000))),
             config: info.config.clone(),
+            i18n: info.config.i18n.clone().map(i18n::I18n::new),
             rsc: info.rsc.clone(),
             static_root: canonical_dir(&info.static_dir).await,
             public_root,
@@ -913,13 +917,24 @@ fn invocation_for(
         },
         query_json: query_json(&resolved.query),
     });
-    if rewrite.is_none() && resolved.middleware_cookies.is_empty() {
+    let locale = resolved.locale.as_ref().map(locale_meta);
+    if rewrite.is_none() && resolved.middleware_cookies.is_empty() && locale.is_none() {
         return nextrs_runtime::Invocation::Handler;
     }
     nextrs_runtime::Invocation::Routed(nextrs_runtime::RouteMeta {
         middleware_cookies: resolved.middleware_cookies.clone(),
         rewrite,
+        locale,
     })
+}
+
+/// Routing's locale meta, as the executor passes it to Next's handler.
+pub(crate) fn locale_meta(locale: &resolve::RouteLocale) -> nextrs_runtime::LocaleMeta {
+    nextrs_runtime::LocaleMeta {
+        locale: locale.locale.clone(),
+        default_locale: locale.default_locale.clone(),
+        locale_domain: locale.locale_domain,
+    }
 }
 
 /// A query object as JSON (JavaScript reads it back with its own key order).
@@ -1135,17 +1150,24 @@ async fn serve_resolved(
             }
             let Some(page) = &state.not_found else {
                 // A Pages Router build: next start's page handler renders
-                // the 404 page (no router-server Cache-Control: routing
-                // matched the decoded file).
-                if let Some(page) = &state.pages_router.not_found {
-                    return pages::html_response(
-                        state,
-                        page,
-                        StatusCode::NOT_FOUND,
-                        None,
-                        headers,
+                // the 404 page, for the request's locale with i18n (no
+                // router-server Cache-Control: routing matched the decoded
+                // file).
+                if state.pages_router_404() {
+                    let ctx = pages::Ctx {
                         method,
-                    );
+                        uri,
+                        headers,
+                        client,
+                        version,
+                        initial: &[],
+                        max_body: state.max_request_body,
+                        listen: &state.listen,
+                        locale: resolved_ref.locale.as_ref(),
+                    };
+                    if let Some(response) = pages::not_found(state, ctx, Vec::new(), None).await {
+                        return response;
+                    }
                 }
                 return not_found_plain();
             };
@@ -1219,7 +1241,31 @@ async fn serve_resolved(
                     initial: &initial,
                     max_body: state.max_request_body,
                     listen: &state.listen,
+                    locale: resolved_ref.locale.as_ref(),
                 };
+                // base server's handleNextDataRequest with i18n and no proxy:
+                // a data path without a locale renders the 404 page.
+                if data.is_some()
+                    && state.proxy.is_none()
+                    && pages::data_path_without_locale(state, &resolved_ref.pathname)
+                {
+                    let ctx = pages::Ctx {
+                        initial: &[],
+                        ..ctx
+                    };
+                    let keep = initial
+                        .iter()
+                        .filter_map(|(n, v)| {
+                            Some((
+                                HeaderName::from_bytes(n.as_bytes()).ok()?,
+                                HeaderValue::from_str(v).ok()?,
+                            ))
+                        })
+                        .collect();
+                    if let Some(response) = pages::not_found(state, ctx, keep, None).await {
+                        return response;
+                    }
+                }
                 return match pages::serve(state, route, path, data, ctx, body, invocation).await {
                     pages::Next::Done(response) => response,
                     pages::Next::NotFound => {
@@ -1534,8 +1580,7 @@ async fn not_found_render(
     // A Pages Router build without an App Router not-found page.
     if state.not_found.is_none() && state.pages_router_404() {
         // The routing headers go to the page as `keep` (not also as the
-        // initial headers, which would send them twice when the page is
-        // rendered by a handler).
+        // initial headers, which would send them twice).
         let ctx = pages::Ctx {
             method,
             uri: incoming.uri,
@@ -1545,6 +1590,7 @@ async fn not_found_render(
             initial: &[],
             max_body: state.max_request_body,
             listen: &state.listen,
+            locale: resolved.locale.as_ref(),
         };
         let keep = initial
             .iter()
@@ -1586,7 +1632,9 @@ async fn not_found_render(
 impl AppState {
     /// The build renders its 404 through the Pages Router.
     fn pages_router_404(&self) -> bool {
-        self.pages_router.not_found.is_some() || self.pages_router.error_entry.is_some()
+        self.pages_router.not_found.is_some()
+            || self.pages_router.not_found_entry.is_some()
+            || self.pages_router.error_entry.is_some()
     }
 }
 

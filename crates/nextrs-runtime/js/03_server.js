@@ -740,6 +740,13 @@
   function routedMeta(invocation) {
     const meta = {};
     if (invocation.middlewareCookies?.length) meta.middlewareCookie = invocation.middlewareCookies;
+    // next start's locale meta (resolve-routes, then base server): the
+    // page handler's prepare() prefers it to the URL's own locale.
+    if (invocation.locale != null) {
+      meta.locale = invocation.locale;
+      meta.defaultLocale = invocation.defaultLocale;
+      if (invocation.localeDomain) meta.isLocaleDomain = true;
+    }
     if (invocation.page != null) {
       const params = paramsFor(invocation.page, invocation.invokePath);
       if (params) meta.params = params;

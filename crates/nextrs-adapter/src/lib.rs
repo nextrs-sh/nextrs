@@ -460,7 +460,7 @@ fn detect_features(
             );
         } else {
             push(
-                Severity::Unsupported,
+                Severity::Info,
                 "i18n",
                 format!(
                     "Pages Router i18n: locales {} (default {}){}{}",

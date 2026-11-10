@@ -241,6 +241,10 @@ struct JsInvocation {
     page: Option<String>,
     invoke_path: Option<String>,
     query: Option<String>,
+    /// With i18n: request meta `locale`, `defaultLocale`, `isLocaleDomain`.
+    locale: Option<String>,
+    default_locale: Option<String>,
+    locale_domain: bool,
 }
 
 impl From<crate::Invocation> for JsInvocation {
@@ -252,6 +256,9 @@ impl From<crate::Invocation> for JsInvocation {
             page: None,
             invoke_path: None,
             query: None,
+            locale: None,
+            default_locale: None,
+            locale_domain: false,
         };
         match invocation {
             crate::Invocation::Handler => {}
@@ -266,6 +273,11 @@ impl From<crate::Invocation> for JsInvocation {
                     js.page = Some(rewrite.page);
                     js.invoke_path = Some(rewrite.pathname);
                     js.query = Some(rewrite.query_json);
+                }
+                if let Some(locale) = meta.locale {
+                    js.locale = Some(locale.locale);
+                    js.default_locale = Some(locale.default_locale);
+                    js.locale_domain = locale.locale_domain;
                 }
             }
         }
