@@ -629,6 +629,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     let mut config =
                         ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
                     config.limits = limits.executor_limits();
+                    config.build_route_cache = info.route_cache_files();
                     if let Some(network) = &network {
                         let allow: Vec<String> = network
                             .policy

@@ -54,6 +54,7 @@ impl Server {
         let info = nextrs_adapter::inspect(&fixture()).expect("fixture is built");
         let mut config = ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
         config.limits = setup.limits;
+        config.build_route_cache = info.route_cache_files();
         let executor = tokio::task::spawn_blocking(move || Executor::start(config))
             .await
             .unwrap()

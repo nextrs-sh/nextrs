@@ -38,6 +38,8 @@ pub(crate) struct BootConfig {
     pub network: bool,
     /// The shared data cache is offered to Next.js as its cache handler.
     pub cache: bool,
+    /// See `ExecutorConfig::build_route_cache`.
+    pub build_route_cache: Vec<String>,
 }
 
 pub(crate) struct Inbox(pub Rc<tokio::sync::Mutex<mpsc::UnboundedReceiver<Box<Job>>>>);
