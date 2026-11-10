@@ -5,6 +5,7 @@
 #   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
 #                           [--cache-components] [--proxy] [--proxy-combinations]
 #                           [--images] [--only-images] [--pages] [--only-pages]
+#                           [--only-i18n]
 #
 # Without --next the fixture's pinned lockfile is used (npm ci, in place).
 # With --next the fixture is copied to a temporary directory and that
@@ -42,7 +43,13 @@
 # tests/browser/pages.mjs on the default and basePath builds (--only-pages
 # runs this part alone); then
 # fixtures/next-hybrid (app/ and pages/ with a proxy) with
-# tests/compat/hybrid.mjs and, with --browser, tests/browser/hybrid.mjs.
+# tests/compat/hybrid.mjs and, with --browser, tests/browser/hybrid.mjs;
+# then fixtures/next-pages-i18n (Next's native i18n config) four times
+# (default; no-detect: localeDetection false and no proxy; base-path:
+# basePath with trailingSlash; domains: domain locales) with
+# tests/compat/pages-i18n.mjs on each and, with --browser,
+# tests/browser/pages-i18n.mjs on the default build (--only-i18n runs
+# this last part alone).
 # Exits non-zero if any suite fails.
 set -euo pipefail
 
@@ -58,6 +65,7 @@ images=0
 only_images=0
 pages=0
 only_pages=0
+only_i18n=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
@@ -71,6 +79,7 @@ while [[ $# -gt 0 ]]; do
     --only-images) images=1; only_images=1; shift ;;
     --pages) pages=1; shift ;;
     --only-pages) pages=1; only_pages=1; shift ;;
+    --only-i18n) pages=1; only_pages=1; only_i18n=1; shift ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
@@ -326,7 +335,7 @@ if [[ $proxy == 1 ]]; then
   done
 fi
 
-if [[ $pages == 1 ]]; then
+if [[ $pages == 1 && $only_i18n != 1 ]]; then
   stop_servers
   if [[ -z "$next_version" ]]; then
     project="$root/fixtures/next-pages"
@@ -412,6 +421,54 @@ if [[ $pages == 1 ]]; then
     run browser-hybrid tests/browser/hybrid.mjs --baseline "$baseline" --candidate "$candidate" --json "$out/browser-hybrid.json"
   fi
   stop_servers
+fi
+
+if [[ $pages == 1 ]]; then
+  stop_servers
+  if [[ -z "$next_version" ]]; then
+    project="$root/fixtures/next-pages-i18n"
+    (cd "$project" && npm ci --no-audit --no-fund --loglevel=error)
+  else
+    project="$work/next-pages-i18n"
+    mkdir -p "$project"
+    (cd "$root/fixtures/next-pages-i18n" && cp -r pages lib proxy.mw.ts next.config.ts tsconfig.json package.json package-lock.json "$project/")
+    (cd "$project" && npm install --no-audit --no-fund --loglevel=error --save-exact "next@$next_version")
+  fi
+  [[ $only_i18n == 1 ]] && installed="$(node -p "require('$project/node_modules/next/package.json').version")"
+  for variant in default no-detect base-path domains; do
+    dist=".next"; [[ $variant != default ]] && dist=".next-$variant"
+    prefix=""; [[ $variant == base-path ]] && prefix="/base"
+    # A fresh build per run: next start writes pages it generates at
+    # runtime into the build directory and serves them after a restart.
+    (cd "$project" && rm -rf "$dist" && NEXTRS_VARIANT="$variant" NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-i18n-$variant.log" 2>&1) || {
+      tail -40 "$out/build-i18n-$variant.log"; exit 1;
+    }
+    for port in "$next_port" "$nextrs_port"; do
+      if curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port/"; then echo "port $port is still in use" >&2; exit 1; fi
+    done
+    # Each server counts its own ISR regenerations (NEXTRS_SIDE keys them).
+    (cd "$project" && NEXTRS_VARIANT="$variant" NEXTRS_SIDE=baseline NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 0.0.0.0 -p "$next_port") >> "$out/next-start-i18n.log" 2>&1 &
+    next_pid=$!
+    pids+=($next_pid)
+    NEXTRS_SIDE=candidate "$nextrs" start "$project/$dist" --port "$nextrs_port" --js-runtime embedded-v8 --isolates "$isolates" \
+      --js-stall-timeout 3 --request-timeout 15 \
+      --js-env NEXTRS_UPSTREAM --js-env NEXTRS_SIDE --net-allow "http://127.0.0.1:$upstream_port" \
+      --net-allow-addr 127.0.0.1 >> "$out/nextrs-i18n.log" 2>&1 &
+    nextrs_pid=$!
+    pids+=($nextrs_pid)
+    for port in "$next_port" "$nextrs_port"; do
+      for _ in $(seq 1 120); do
+        curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$port$prefix/api/whoami" && break
+        sleep 0.25
+      done
+    done
+    run "pages-i18n-$variant" tests/compat/pages-i18n.mjs --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
+      --dist "$project/$dist" --variant "$variant" --json "$out/pages-i18n-$variant.json"
+    if [[ $browser == 1 && $variant == default ]]; then
+      run browser-pages-i18n tests/browser/pages-i18n.mjs --baseline "$baseline" --candidate "$candidate" --json "$out/browser-pages-i18n.json"
+    fi
+    stop_servers
+  done
 fi
 
 if [[ $images == 1 ]]; then
