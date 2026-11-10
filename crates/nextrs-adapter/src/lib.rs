@@ -57,10 +57,25 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
     let mut diagnostics = Vec::new();
     let mut routes_manifest = internal::load_routes_manifest(&dist_dir)?;
     let prerender_manifest = internal::load_prerender_manifest(&dist_dir)?;
+    let required: Option<RequiredServerFiles> =
+        read_json_optional(&dist_dir.join("required-server-files.json"))?;
+    // Next's i18n config: the object next start reads (routes-manifest,
+    // else required-server-files), for both metadata sources.
+    let i18n_value = routes_manifest.i18n.clone().or_else(|| {
+        required
+            .as_ref()
+            .and_then(|r| r.config.get("i18n").cloned())
+    });
+    let (i18n, i18n_error) = match i18n_value.as_ref().map(I18nConfig::from_value) {
+        Some(Ok(parsed)) => (parsed, None),
+        Some(Err(error)) => (None, Some(error)),
+        None => (None, None),
+    };
     let internal = internal::load(
         &dist_dir,
         &routes_manifest,
         &prerender_manifest,
+        i18n.as_ref().map(|i| i.locales.as_slice()),
         &mut diagnostics,
     )?;
 
@@ -87,10 +102,8 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         fresh
     });
 
-    let required: Option<RequiredServerFiles> =
-        read_json_optional(&dist_dir.join("required-server-files.json"))?;
     let mut next_version = None;
-    let (source, mut routes, mut prerenders, rsc, config) = match adapter {
+    let (source, mut routes, mut prerenders, rsc, mut config) = match adapter {
         Some(output) => {
             next_version = Some(DetectedVersion {
                 version: output.next_version.clone(),
@@ -99,7 +112,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
             let config = RoutingConfig {
                 base_path: output.config.base_path.clone(),
                 trailing_slash: output.config.trailing_slash,
-                i18n: output.config.i18n.as_ref().is_some_and(|v| !v.is_null()),
+                i18n: None,
                 powered_by_header: output.config.powered_by_header,
                 generate_etags: output.config.generate_etags,
                 skip_proxy_url_normalize: config_flag(required.as_ref(), "skipProxyUrlNormalize"),
@@ -125,6 +138,8 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
             routing_config(required.as_ref(), &routes_manifest.base_path),
         ),
     };
+
+    config.i18n = i18n;
 
     if source == MetadataSource::AdapterApi {
         supplement_internal_prerenders(&internal, &mut routes, &mut prerenders, &mut diagnostics);
@@ -187,6 +202,13 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         images,
         diagnostics,
     };
+    if let Some(error) = i18n_error {
+        info.diagnostics.push(Diagnostic {
+            severity: Severity::Unsupported,
+            code: "i18n",
+            message: format!("the i18n config could not be read: {error}"),
+        });
+    }
     detect_features(&mut info, &routes_manifest)?;
     info.server_actions = server_actions_info(&info, required.as_ref())?;
     Ok(info)
@@ -220,9 +242,7 @@ fn routing_config(required: Option<&RequiredServerFiles>, base_path: &str) -> Ro
     RoutingConfig {
         base_path: base_path.to_owned(),
         trailing_slash: flag("trailingSlash", false),
-        i18n: config
-            .and_then(|c| c.get("i18n"))
-            .is_some_and(|v| !v.is_null()),
+        i18n: None,
         powered_by_header: flag("poweredByHeader", true),
         generate_etags: flag("generateEtags", true),
         skip_proxy_url_normalize: flag("skipProxyUrlNormalize", false)
@@ -416,7 +436,50 @@ fn detect_features(
             ),
         );
     }
-    if info.config.i18n || routes_manifest.i18n.is_some() {
+    if let Some(i18n) = &info.config.i18n {
+        // Next warns that i18n does not apply to app/ and routes its pages
+        // only under the default locale; that combination is untested here.
+        let app_routes = info
+            .routes
+            .iter()
+            .filter(|r| matches!(r.kind, RouteKind::AppPage | RouteKind::AppRoute) && !r.internal)
+            .count();
+        if app_routes > 0 {
+            push(
+                Severity::Unsupported,
+                "i18n-app-router",
+                format!(
+                    "Next's i18n config with {app_routes} App Router routes is not supported (Pages Router only)"
+                ),
+            );
+        } else if info.source == MetadataSource::AdapterApi {
+            push(
+                Severity::Unsupported,
+                "i18n-adapter-output",
+                "Next's i18n config is not supported with deployment-adapter output; build without NEXT_ADAPTER_PATH".into(),
+            );
+        } else {
+            push(
+                Severity::Unsupported,
+                "i18n",
+                format!(
+                    "Pages Router i18n: locales {} (default {}){}{}",
+                    i18n.locales.join(", "),
+                    i18n.default_locale,
+                    if i18n.domains.is_empty() {
+                        String::new()
+                    } else {
+                        format!(", {} locale domains", i18n.domains.len())
+                    },
+                    if i18n.locale_detection {
+                        ""
+                    } else {
+                        ", no locale detection"
+                    }
+                ),
+            );
+        }
+    } else if routes_manifest.i18n.as_ref().is_some_and(|v| !v.is_null()) {
         push(Severity::Unsupported, "i18n", "i18n routing".into());
     }
     if info.routers.pages {

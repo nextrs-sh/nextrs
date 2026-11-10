@@ -34,8 +34,6 @@ pub(crate) struct AdapterConfig {
     pub base_path: String,
     #[serde(default)]
     pub trailing_slash: bool,
-    #[serde(default)]
-    pub i18n: Option<Value>,
     #[serde(default = "yes")]
     pub powered_by_header: bool,
     #[serde(default = "yes")]
@@ -268,6 +266,7 @@ fn group_prerenders(
                 postponed: false,
                 pages: false,
                 data: None,
+                locale: None,
             });
         let stored = StoredResponse {
             file: project_dir.join(file),

@@ -32,8 +32,23 @@ pub(crate) fn load(
     dist_dir: &Path,
     routes_manifest: &RoutesManifest,
     prerender_manifest: &PrerenderManifest,
+    locales: Option<&[String]>,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<InternalTables, InspectError> {
+    // With Next's i18n config, pages-manifest lists a page without data
+    // functions once per locale (`/fr/about` -> `pages/fr/about.html`) and
+    // prerender-manifest keys getStaticProps output by locale (`/fr/isr`).
+    // next start's filesystem router strips the locale to find the page
+    // (fsChecker: one `pageFile` per locale-free pathname); so does this.
+    let split = |path: &str| -> (String, Option<String>) {
+        match locales {
+            Some(locales) => {
+                let (rest, locale) = crate::normalize_locale_path(path, locales);
+                (rest.to_owned(), locale.map(str::to_owned))
+            }
+            None => (path.to_owned(), None),
+        }
+    };
     let server_dir = dist_dir.join("server");
     let app_paths: BTreeMap<String, String> =
         read_json_optional(&server_dir.join("app-paths-manifest.json"))?.unwrap_or_default();
@@ -68,13 +83,17 @@ pub(crate) fn load(
     }
 
     let has_pages_routes = pages.keys().any(|page| {
+        let (page, _) = split(page);
         !PAGES_INTERNALS.contains(&page.as_str()) && !PAGES_STATUS.contains(&page.as_str())
     });
     let mut pages_router = PagesRouterInfo::default();
     let mut pages_prerenders = Vec::new();
     if has_pages_routes {
-        for (page, file) in &pages {
+        let mut seen = std::collections::BTreeSet::new();
+        for (manifest_key, file) in &pages {
             let entry = server_dir.join(file);
+            let (page, locale) = split(manifest_key);
+            let page = &page;
             if page == "/_error" {
                 pages_router.error_entry = Some(entry);
                 continue;
@@ -93,11 +112,14 @@ pub(crate) fn load(
             } else {
                 classify_page(page, prerender_manifest)
             };
+            if page == "/404" && !is_html {
+                pages_router.not_found_entry = Some(entry.clone());
+            }
             if is_html {
                 // A page without data functions: Next wrote its HTML at
                 // build time and next start sends that file as it is.
                 pages_prerenders.push(Prerender {
-                    pathname: page.clone(),
+                    pathname: manifest_key.clone(),
                     route: page.clone(),
                     status: match page.as_str() {
                         "/404" => 404,
@@ -114,7 +136,12 @@ pub(crate) fn load(
                     postponed: false,
                     pages: true,
                     data: None,
+                    locale: locale.clone(),
                 });
+            }
+            // One route per page, whatever the number of locales.
+            if !seen.insert(page.clone()) {
+                continue;
             }
             routes.push(Route {
                 page: page.clone(),
@@ -142,7 +169,7 @@ pub(crate) fn load(
                     .as_deref()
                     .is_some_and(|d| d.ends_with(".json"))
             })
-            .map(|(path, entry)| entry.src_route.clone().unwrap_or_else(|| path.clone()))
+            .map(|(path, entry)| entry.src_route.clone().unwrap_or_else(|| split(path).0))
             .collect();
         for (page, entry) in &prerender_manifest.dynamic_routes {
             if entry
@@ -154,7 +181,12 @@ pub(crate) fn load(
             }
         }
         // getStaticProps pages that returned notFound at build time.
-        ssg.extend(prerender_manifest.not_found_routes.iter().cloned());
+        ssg.extend(
+            prerender_manifest
+                .not_found_routes
+                .iter()
+                .map(|p| split(p).0),
+        );
         pages_router.ssg_pages = ssg.into_iter().collect();
     }
 
@@ -177,7 +209,9 @@ pub(crate) fn load(
             }
             match resolve_pages_prerender(dist_dir, pathname)? {
                 Some(mut prerender) => {
-                    prerender.route = entry.src_route.clone().unwrap_or_else(|| pathname.clone());
+                    let (page, locale) = split(pathname);
+                    prerender.route = entry.src_route.clone().unwrap_or(page);
+                    prerender.locale = locale;
                     prerender.status = entry.initial_status.unwrap_or(prerender.status);
                     prerender.revalidate = revalidate_seconds(&entry.initial_revalidate_seconds);
                     pages_prerenders.push(prerender);
@@ -361,6 +395,7 @@ pub(crate) fn resolve_app_prerender(
         postponed: meta.postponed.is_some_and(|p| !p.is_null()),
         pages: false,
         data: None,
+        locale: None,
     }))
 }
 
@@ -396,6 +431,7 @@ fn resolve_pages_prerender(
             file: data,
             headers,
         }),
+        locale: None,
     }))
 }
 

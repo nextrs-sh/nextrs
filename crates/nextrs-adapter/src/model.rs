@@ -47,6 +47,11 @@ pub struct PagesRouterInfo {
     /// Pages with `getStaticProps` (static generation): next start answers
     /// methods other than GET and HEAD with 405 before rendering them.
     pub ssg_pages: Vec<String>,
+    /// `pages/404.js`: a custom 404 page with `getStaticProps` (with Next's
+    /// i18n config, how a 404 page is localized). next start renders it
+    /// through its handler; a 404 without data functions is a stored HTML
+    /// file instead.
+    pub not_found_entry: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -238,11 +243,89 @@ pub struct Routers {
 pub struct RoutingConfig {
     pub base_path: String,
     pub trailing_slash: bool,
-    pub i18n: bool,
+    /// Next's `i18n` config, as `next build` recorded it.
+    pub i18n: Option<I18nConfig>,
     pub powered_by_header: bool,
     pub generate_etags: bool,
     /// `skipProxyUrlNormalize` (formerly `skipMiddlewareUrlNormalize`).
     pub skip_proxy_url_normalize: bool,
+}
+
+/// Next's `i18n` config (`routes-manifest.json#i18n`, the same object as
+/// `required-server-files.json#config.i18n`).
+#[derive(Debug, Clone, Serialize, serde::Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct I18nConfig {
+    /// In Next's order: it moves the default locale to the front.
+    pub locales: Vec<String>,
+    pub default_locale: String,
+    /// `localeDetection` (`false` turns off the redirect from `/`).
+    #[serde(default = "detection_default")]
+    pub locale_detection: bool,
+    #[serde(default)]
+    pub domains: Vec<DomainLocale>,
+}
+
+fn detection_default() -> bool {
+    true
+}
+
+/// Next's `normalizeLocalePath` (shared/lib/i18n/normalize-locale-path.js):
+/// the first path segment, compared without case (and not percent-decoded),
+/// names one of `locales`. Returns the path without it (`/` when nothing is
+/// left) and the locale as configured. Exact for paths that start with a
+/// slash, the only ones routing passes.
+pub fn normalize_locale_path<'p, 'l>(
+    pathname: &'p str,
+    locales: &'l [String],
+) -> (&'p str, Option<&'l str>) {
+    // `pathname.split('/', 2)[1]`: between the first and the second slash.
+    let Some(slash) = pathname.find('/') else {
+        return (pathname, None);
+    };
+    let after = &pathname[slash + 1..];
+    let segment = after.split('/').next().unwrap_or_default();
+    if segment.is_empty() {
+        return (pathname, None);
+    }
+    let lower = segment.to_lowercase();
+    let Some(locale) = locales.iter().find(|l| l.to_lowercase() == lower) else {
+        return (pathname, None);
+    };
+    // `pathname.slice(detectedLocale.length + 1) || '/'`.
+    let rest = &pathname[(slash + 1 + segment.len()).min(pathname.len())..];
+    (
+        if rest.is_empty() { "/" } else { rest },
+        Some(locale.as_str()),
+    )
+}
+
+/// One `i18n.domains` entry.
+#[derive(Debug, Clone, Serialize, serde::Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct DomainLocale {
+    /// A hostname, possibly with a port (Next ignores the port).
+    pub domain: String,
+    pub default_locale: String,
+    #[serde(default)]
+    pub locales: Vec<String>,
+    /// Redirects to this domain use `http` instead of `https`.
+    #[serde(default)]
+    pub http: bool,
+}
+
+impl I18nConfig {
+    /// Parses Next's recorded config; `None` for `null`.
+    pub fn from_value(value: &serde_json::Value) -> Result<Option<Self>, String> {
+        if value.is_null() {
+            return Ok(None);
+        }
+        let config: Self = serde_json::from_value(value.clone()).map_err(|e| e.to_string())?;
+        if config.locales.is_empty() || !config.locales.contains(&config.default_locale) {
+            return Err("defaultLocale must be one of locales".into());
+        }
+        Ok(Some(config))
+    }
 }
 
 /// RSC request/response conventions from `routes-manifest.json#rsc`.
@@ -350,6 +433,10 @@ pub struct Prerender {
     /// Pages Router page data (`.json`), served for `/_next/data` requests.
     #[serde(default)]
     pub data: Option<StoredResponse>,
+    /// With Next's i18n config: the locale this output is for (`pathname`
+    /// then starts with it, as Next keys the output).
+    #[serde(default)]
+    pub locale: Option<String>,
 }
 
 impl Prerender {
