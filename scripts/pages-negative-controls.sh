@@ -8,9 +8,10 @@
 # Build the binary with
 #   cargo build --release -p nextrs-cli --features nextrs-server/negative-controls
 # and copy it out of target/release (release builds never enable the feature).
-# fixtures/next-pages must be built (default variant) against the test
-# upstream this script starts (NEXTRS_UPSTREAM is baked into nothing; the
-# pages read it at request time).
+# fixtures/next-pages and fixtures/next-pages-i18n (default variants) are
+# built here, against the test upstream this script starts: the ISR
+# scenarios compare the upstream's counts with what the build fetched.
+# The i18n controls run tests/compat/pages-i18n.mjs.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -50,7 +51,12 @@ cleanup() {
 trap cleanup EXIT
 node "$root/tests/compat/upstream.mjs" --port "$upstream_port" > "$out/upstream.log" 2>&1 &
 pids+=($!)
-rm -rf "$project/.next/server/route-cache"
+for _ in $(seq 1 40); do curl -s --max-time 1 -o /dev/null "$NEXTRS_UPSTREAM/hits?key=x" && break; sleep 0.25; done
+for fixture in "$project" "$root/fixtures/next-pages-i18n"; do
+  (cd "$fixture" && rm -rf .next && NEXT_TELEMETRY_DISABLED=1 npx next build > "$out/build-$(basename "$fixture").log" 2>&1) || {
+    tail -30 "$out/build-$(basename "$fixture").log"; exit 1;
+  }
+done
 (cd "$project" && NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 0.0.0.0 -p "$next_port") > "$out/next-start.log" 2>&1 &
 pids+=($!)
 for _ in $(seq 1 120); do curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$next_port/api/health" && break; sleep 0.25; done
@@ -67,12 +73,16 @@ declare -A suites=(
   [replay-post]="pages isolation"
   [skip-proxy-data]="pages"
   [wrong-data-route]="pages"
+  [skip-preview]="pages"
 )
 caught=0
 missed=0
 summary="$out/summary.txt"
 : > "$summary"
-for control in wrong-page skip-ssr skip-api wrong-params cross-user replay-post skip-proxy-data wrong-data-route; do
+# `none` first: the same binary without a defect must pass every suite,
+# or a "caught" control proves nothing.
+suites[none]="pages isolation"
+for control in none wrong-page skip-ssr skip-api wrong-params cross-user replay-post skip-proxy-data wrong-data-route skip-preview; do
   NEXTRS_PAGES_NEGATIVE_CONTROL="$control" "$binary" start "$project" --port "$nextrs_port" --js-runtime embedded-v8 \
     --js-env NEXTRS_UPSTREAM --net-allow "$NEXTRS_UPSTREAM" --net-allow-addr 127.0.0.1 > "$out/nextrs-$control.log" 2>&1 &
   pid=$!
@@ -88,11 +98,42 @@ for control in wrong-page skip-ssr skip-api wrong-params cross-user replay-post 
   kill "$pid" 2>/dev/null || true
   wait "$pid" 2>/dev/null || true
   for _ in $(seq 1 40); do curl -s --max-time 1 -o /dev/null "$candidate/" || break; sleep 0.25; done
-  if [[ ${#failed[@]} -gt 0 ]]; then
+  if [[ $control == none ]]; then
+    if [[ ${#failed[@]} -gt 0 ]]; then
+      echo "BASELINE FAILED without a defect (${failed[*]})" | tee -a "$summary"; exit 1
+    fi
+    echo "BASELINE  passes without a defect" | tee -a "$summary"
+  elif [[ ${#failed[@]} -gt 0 ]]; then
     caught=$((caught + 1)); echo "CAUGHT  $control  (${failed[*]})" | tee -a "$summary"
   else
     missed=$((missed + 1)); echo "MISSED  $control" | tee -a "$summary"
   fi
+done
+# Native i18n (fixtures/next-pages-i18n): each control must fail
+# tests/compat/pages-i18n.mjs.
+kill -- "-${pids[1]}" 2>/dev/null || kill "${pids[1]}" 2>/dev/null || true
+for _ in $(seq 1 40); do curl -s --max-time 1 -o /dev/null "$baseline/" || break; sleep 0.25; done
+i18n="$root/fixtures/next-pages-i18n"
+(cd "$i18n" && NEXTRS_SIDE=baseline NEXT_TELEMETRY_DISABLED=1 exec setsid npx next start -H 0.0.0.0 -p "$next_port") > "$out/next-start-i18n.log" 2>&1 &
+pids+=($!)
+for _ in $(seq 1 120); do curl -s --max-time 2 -o /dev/null "http://127.0.0.1:$next_port/api/whoami" && break; sleep 0.25; done
+for control in none wrong-locale locale-cache-leak skip-preview skip-proxy-locale replay-post cross-user skip-api wrong-data-route; do
+  NEXTRS_SIDE=candidate NEXTRS_PAGES_NEGATIVE_CONTROL="$control" "$binary" start "$i18n" --port "$nextrs_port" --js-runtime embedded-v8 \
+    --js-env NEXTRS_UPSTREAM --js-env NEXTRS_SIDE --net-allow "$NEXTRS_UPSTREAM" --net-allow-addr 127.0.0.1 > "$out/nextrs-i18n-$control.log" 2>&1 &
+  pid=$!
+  for _ in $(seq 1 120); do curl -s --max-time 2 -o /dev/null "$candidate/api/whoami" && break; sleep 0.25; done
+  if node "$root/tests/compat/pages-i18n.mjs" --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" \
+    --dist "$i18n/.next" --variant default > "$out/i18n-$control.txt" 2>&1; then
+    if [[ $control == none ]]; then echo "BASELINE  i18n passes without a defect" | tee -a "$summary"
+    else missed=$((missed + 1)); echo "MISSED  i18n:$control" | tee -a "$summary"; fi
+  elif [[ $control == none ]]; then
+    echo "BASELINE FAILED  i18n without a defect" | tee -a "$summary"; exit 1
+  else
+    caught=$((caught + 1)); echo "CAUGHT  i18n:$control  ($(grep -cE '^(FAIL|DIFF)' "$out/i18n-$control.txt") scenarios)" | tee -a "$summary"
+  fi
+  kill "$pid" 2>/dev/null || true
+  wait "$pid" 2>/dev/null || true
+  for _ in $(seq 1 40); do curl -s --max-time 1 -o /dev/null "$candidate/" || break; sleep 0.25; done
 done
 echo "negative controls: $caught caught, $missed missed" | tee -a "$summary"
 [[ $missed == 0 ]]

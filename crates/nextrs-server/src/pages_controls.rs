@@ -85,3 +85,31 @@ pub(crate) fn skip_proxy_data(pathname: &str) -> bool {
 pub(crate) fn wrong_data_route() -> bool {
     active("wrong-data-route")
 }
+
+/// `wrong-locale`: every request routes under the default locale (the
+/// locale meta Next's handler gets ignores the URL's locale).
+pub(crate) fn wrong_locale() -> bool {
+    active("wrong-locale")
+}
+
+/// `locale-cache-leak`: pages without data functions are looked up without
+/// their locale (another locale's stored HTML answers).
+pub(crate) fn locale_cache_leak() -> bool {
+    active("locale-cache-leak")
+}
+
+/// `skip-preview`: Preview Mode cookies are dropped before the page's
+/// handler sees the request.
+pub(crate) fn skip_preview() -> bool {
+    active("skip-preview")
+}
+
+/// `skip-proxy-locale`: the proxy does not run for paths with a locale
+/// prefix.
+pub(crate) fn skip_proxy_locale(state: &crate::AppState, pathname: &str) -> bool {
+    active("skip-proxy-locale")
+        && state
+            .i18n
+            .as_ref()
+            .is_some_and(|i18n| i18n.split(pathname).1.is_some())
+}

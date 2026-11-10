@@ -538,7 +538,8 @@ pub(crate) async fn resolve(
 
     // The proxy.
     #[cfg(feature = "negative-controls")]
-    let skip_proxy = crate::pages_controls::skip_proxy_data(uri.path());
+    let skip_proxy = crate::pages_controls::skip_proxy_data(uri.path())
+        || crate::pages_controls::skip_proxy_locale(state, uri.path());
     #[cfg(not(feature = "negative-controls"))]
     let skip_proxy = false;
     if let Some(proxy) = &state.proxy
@@ -996,6 +997,12 @@ impl Router<'_> {
             .path_locale(routed)
             .or_else(|| init.original_locale.clone())
             .unwrap_or_else(|| init.default_locale.clone());
+        #[cfg(feature = "negative-controls")]
+        let locale = if crate::pages_controls::wrong_locale() {
+            init.default_locale.clone()
+        } else {
+            locale
+        };
         Some(RouteLocale {
             locale,
             default_locale: init.default_locale.clone(),

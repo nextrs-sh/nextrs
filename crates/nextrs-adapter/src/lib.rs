@@ -774,3 +774,162 @@ fn detect_features(
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod adapter_pages_tests {
+    //! Negative controls for the adapter cross-check: an adapter entry the
+    //! model ignores, or a route the adapter did not report, must refuse.
+    use super::*;
+    use std::path::PathBuf;
+
+    fn route(page: &str, kind: RouteKind, entry: &str) -> Route {
+        Route {
+            page: page.into(),
+            kind,
+            rendering: Rendering::Dynamic,
+            runtime: Runtime::Nodejs,
+            entry: Some(PathBuf::from(entry)),
+            matcher: Matcher::Exact {
+                pathname: page.into(),
+            },
+            internal: false,
+        }
+    }
+
+    fn tables() -> (internal::InternalTables, adapter_output::AdapterPages) {
+        let internal = internal::InternalTables {
+            routes: vec![
+                route("/ssr", RouteKind::PagesPage, "/b/server/pages/ssr.js"),
+                route("/api/x", RouteKind::PagesApi, "/b/server/pages/api/x.js"),
+                route("/about", RouteKind::PagesPage, "/b/server/pages/about.html"),
+            ],
+            prerenders: Vec::new(),
+            routers: Routers {
+                app: false,
+                pages: true,
+            },
+            pages_router: PagesRouterInfo {
+                data_routes: vec![DataRoute {
+                    page: "/ssr".into(),
+                    regex: "^/_next/data/B/ssr\\.json$".into(),
+                    dynamic: false,
+                }],
+                ..PagesRouterInfo::default()
+            },
+        };
+        let adapter = adapter_output::AdapterPages {
+            functions: vec![
+                (
+                    RouteKind::PagesPage,
+                    "/ssr".into(),
+                    "/b/server/pages/ssr.js".into(),
+                ),
+                (
+                    RouteKind::PagesPage,
+                    "/_next/data/B/ssr.json".into(),
+                    "/b/server/pages/ssr.js".into(),
+                ),
+                (
+                    RouteKind::PagesApi,
+                    "/api/x".into(),
+                    "/b/server/pages/api/x.js".into(),
+                ),
+            ],
+            prerenders: Vec::new(),
+        };
+        (internal, adapter)
+    }
+
+    fn refused(
+        internal: &internal::InternalTables,
+        adapter: &adapter_output::AdapterPages,
+    ) -> Option<String> {
+        let mut diagnostics = Vec::new();
+        check_adapter_pages(internal, adapter, "B", None, &mut diagnostics);
+        diagnostics
+            .into_iter()
+            .find(|d| d.code == "pages-adapter-mismatch" && d.severity == Severity::Unsupported)
+            .map(|d| d.message)
+    }
+
+    #[test]
+    fn consistent_tables_pass() {
+        let (internal, adapter) = tables();
+        assert_eq!(refused(&internal, &adapter), None);
+    }
+
+    #[test]
+    fn an_adapter_route_the_model_lacks_refuses() {
+        let (mut internal, adapter) = tables();
+        internal.routes.retain(|r| r.page != "/api/x");
+        assert!(
+            refused(&internal, &adapter)
+                .unwrap()
+                .contains("/api/x: no such route")
+        );
+    }
+
+    #[test]
+    fn a_route_the_adapter_did_not_report_refuses() {
+        let (internal, mut adapter) = tables();
+        adapter.functions.retain(|(_, p, _)| p != "/ssr");
+        assert!(
+            refused(&internal, &adapter)
+                .unwrap()
+                .contains("/ssr: not in the adapter output")
+        );
+    }
+
+    #[test]
+    fn a_different_entry_or_data_route_refuses() {
+        let (internal, mut adapter) = tables();
+        adapter.functions[2].2 = "/b/server/pages/api/other.js".into();
+        assert!(
+            refused(&internal, &adapter)
+                .unwrap()
+                .contains("/api/x: kind or entry differs")
+        );
+        let (internal, mut adapter) = tables();
+        adapter.functions.push((
+            RouteKind::PagesPage,
+            "/_next/data/B/gone.json".into(),
+            "/b/server/pages/gone.js".into(),
+        ));
+        assert!(
+            refused(&internal, &adapter)
+                .unwrap()
+                .contains("no page with getServerSideProps")
+        );
+    }
+
+    #[test]
+    fn a_stored_output_elsewhere_refuses() {
+        let (mut internal, mut adapter) = tables();
+        internal.prerenders.push(Prerender {
+            pathname: "/ssg".into(),
+            route: "/ssg".into(),
+            status: 200,
+            revalidate: None,
+            html: Some(StoredResponse {
+                file: "/b/server/pages/ssg.html".into(),
+                headers: Vec::new(),
+            }),
+            rsc: None,
+            segments: Vec::new(),
+            postponed: false,
+            pages: true,
+            data: None,
+            locale: None,
+        });
+        adapter.prerenders.push((
+            "/ssg".into(),
+            Some("/b/server/route-cache/PAGES/x/$/ssg.html".into()),
+            None,
+        ));
+        assert!(
+            refused(&internal, &adapter)
+                .unwrap()
+                .contains("/ssg: stored output differs")
+        );
+    }
+}

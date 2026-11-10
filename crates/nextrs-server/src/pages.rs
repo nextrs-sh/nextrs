@@ -164,6 +164,19 @@ fn escape_string_regexp(text: &str) -> String {
 /// A page's key among the outputs Next keys by locale (`/fr/about`, and
 /// `/fr` for the index page). Without i18n, the path itself.
 pub(crate) fn locale_key(path: &str, locale: Option<&crate::resolve::RouteLocale>) -> String {
+    #[cfg(feature = "negative-controls")]
+    let fallback;
+    #[cfg(feature = "negative-controls")]
+    let locale = match locale {
+        Some(l) if crate::pages_controls::locale_cache_leak() => {
+            fallback = crate::resolve::RouteLocale {
+                locale: l.default_locale.clone(),
+                ..l.clone()
+            };
+            Some(&fallback)
+        }
+        other => other,
+    };
     match locale {
         Some(l) if path == "/" => format!("/{}", l.locale),
         Some(l) => format!("/{}{path}", l.locale),
@@ -652,6 +665,34 @@ pub(crate) async fn serve(
     };
     #[cfg(feature = "negative-controls")]
     let wrong_uri;
+    #[cfg(feature = "negative-controls")]
+    let no_preview;
+    #[cfg(feature = "negative-controls")]
+    let ctx = if crate::pages_controls::skip_preview() {
+        let mut map = ctx.headers.clone();
+        let kept: Vec<String> = map
+            .get_all(header::COOKIE)
+            .iter()
+            .filter_map(|v| v.to_str().ok())
+            .flat_map(|v| v.split(';'))
+            .map(str::trim)
+            .filter(|c| {
+                !c.starts_with("__prerender_bypass") && !c.starts_with("__next_preview_data")
+            })
+            .map(str::to_owned)
+            .collect();
+        map.remove(header::COOKIE);
+        if let Ok(value) = HeaderValue::from_str(&kept.join("; ")) {
+            map.insert(header::COOKIE, value);
+        }
+        no_preview = map;
+        Ctx {
+            headers: &no_preview,
+            ..ctx
+        }
+    } else {
+        ctx
+    };
     #[cfg(feature = "negative-controls")]
     let (entry, ctx, body) = {
         use crate::pages_controls as controls;
