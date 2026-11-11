@@ -23,12 +23,21 @@ pub(crate) async fn resolve(root: &Path, url_path: &str) -> Option<PathBuf> {
             segment => path.push(segment),
         }
     }
-    let canonical = tokio::fs::canonicalize(&path).await.ok()?;
-    if !canonical.starts_with(root) {
-        return None;
-    }
-    let metadata = tokio::fs::metadata(&canonical).await.ok()?;
-    metadata.is_file().then_some(canonical)
+    // Canonicalisation, the containment check and the file check in one
+    // blocking task (not one hop to the blocking pool each).
+    let root = root.to_path_buf();
+    tokio::task::spawn_blocking(move || {
+        let canonical = std::fs::canonicalize(&path).ok()?;
+        if !canonical.starts_with(&root) {
+            return None;
+        }
+        std::fs::metadata(&canonical)
+            .ok()?
+            .is_file()
+            .then_some(canonical)
+    })
+    .await
+    .ok()?
 }
 
 /// Content types as sent by `next start` (the `send` package) for the
