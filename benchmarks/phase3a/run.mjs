@@ -6,6 +6,7 @@
 //     [--nextrs target/release/nextrs] [--label current]
 //     [--nextrs-b PATH --label-b NAME]       # a second NextRS build (A/B)
 //     [--args "..." --args-b "..."]          # extra nextrs start arguments per build
+//     [--env K=V,... --env-b K=V,...]        # extra environment per build
 //     [--isolates 1,2,4] [--no-next]          # configurations
 //     [--groups app,pages,...] [--only id,...] # workload selection
 //     [--rounds 5] [--duration 10] [--warmup 5] [--connections 32]
@@ -48,12 +49,15 @@ const r = L.rng(Number(args.seed ?? 1));
 // --args / --args-b: extra `nextrs start` arguments per build (whitespace-
 // separated), e.g. V8 flags for a flag-only experiment with one binary.
 const splitArgs = (a) => (typeof a === "string" ? a.match(/(?:[^\s"]+|"[^"]*")+/g).map((x) => x.replace(/^"|"$/g, "")) : []);
-const builds = [{ label: args.label ?? "nextrs", bin: resolve(args.nextrs ?? join(ROOT, "target/release/nextrs")), extra: splitArgs(args.args) }];
-if (args["nextrs-b"]) builds.push({ label: args["label-b"] ?? "nextrs-b", bin: resolve(args["nextrs-b"]), extra: splitArgs(args["args-b"]) });
+// --env / --env-b: extra environment per build, "K=V,K2=V2" (allocator
+// tunables such as MALLOC_ARENA_MAX or GLIBC_TUNABLES).
+const parseEnv = (e) => Object.fromEntries(typeof e === "string" ? e.split(",").map((kv) => [kv.slice(0, kv.indexOf("=")), kv.slice(kv.indexOf("=") + 1)]) : []);
+const builds = [{ label: args.label ?? "nextrs", bin: resolve(args.nextrs ?? join(ROOT, "target/release/nextrs")), extra: splitArgs(args.args), env: parseEnv(args.env) }];
+if (args["nextrs-b"]) builds.push({ label: args["label-b"] ?? "nextrs-b", bin: resolve(args["nextrs-b"]), extra: splitArgs(args["args-b"]), env: parseEnv(args["env-b"]) });
 const isolates = String(args.isolates ?? "1,2,4").split(",").map(Number);
 const configs = [];
 if (!args["no-next"]) configs.push({ id: "next-start", kind: "next" });
-for (const b of builds) for (const n of isolates) configs.push({ id: `${b.label}-i${n}`, kind: "nextrs", bin: b.bin, isolates: n, extra: b.extra });
+for (const b of builds) for (const n of isolates) configs.push({ id: `${b.label}-i${n}`, kind: "nextrs", bin: b.bin, isolates: n, extra: b.extra, env: b.env });
 
 const selectedGroups = args.groups ? new Set(String(args.groups).split(",")) : null;
 const only = args.only ? new Set(String(args.only).split(",")) : null;
@@ -93,7 +97,7 @@ async function withServer(group, config, fn) {
     metricsPort,
     isolates: config.isolates,
     cpus: serverCpus,
-    env: { ...(group.env?.(ctx) ?? {}) },
+    env: { ...(group.env?.(ctx) ?? {}), ...(config.env ?? {}) },
     extraArgs: [...(group.nextrsArgs?.(ctx) ?? []), ...(config.extra ?? [])],
     readyPath: group.readyPath ?? "/",
   });
