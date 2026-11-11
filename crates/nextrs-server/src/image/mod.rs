@@ -69,6 +69,9 @@ pub struct ImageFaults {
     /// before the transformation; with the source's href.
     #[allow(clippy::type_complexity)]
     pub before_transform: Option<Arc<dyn Fn(&str) -> ImageFault + Send + Sync>>,
+    /// Holds a cancelled transformation's task this long before it gives
+    /// up its flight (widens the moment a new request can arrive).
+    pub before_cancel: Option<Duration>,
 }
 
 impl std::fmt::Debug for ImageFaults {
@@ -134,11 +137,22 @@ struct Flight {
 }
 
 impl Flight {
+    /// Called with the flights lock held (see `Waiting`), so a request
+    /// cannot join between the last waiter leaving and the cancellation.
     fn leave(&self) {
         if self.waiters.fetch_sub(1, Ordering::AcqRel) == 1 && !self.background {
             self.cancelled.store(true, Ordering::Release);
             self.cancel.notify_waiters();
         }
+    }
+
+    /// Cancelled because every waiter left (not a timeout, which sets the
+    /// flag with waiters still there): its outcome is no one's. Decided
+    /// under the flights lock.
+    fn abandoned(&self) -> bool {
+        !self.background
+            && self.waiters.load(Ordering::Acquire) == 0
+            && self.cancelled.load(Ordering::Acquire)
     }
 }
 
@@ -151,10 +165,15 @@ impl Drop for Queued<'_> {
     }
 }
 
-struct Waiting(Arc<Flight>);
+/// A request's place among a flight's waiters. Leaving takes the flights
+/// lock, as joining does: a request that arrives as the last one leaves
+/// either joins in time or finds the flight abandoned and starts anew,
+/// never receiving the cancelled work's outcome.
+struct Waiting(Arc<Flight>, Arc<Optimizer>);
 
 impl Drop for Waiting {
     fn drop(&mut self) {
+        let _flights = self.1.flights.lock().expect("flights lock");
         self.0.leave();
     }
 }
@@ -351,14 +370,16 @@ impl Optimizer {
         background: bool,
     ) -> Result<(watch::Receiver<Option<Outcome>>, Option<Waiting>), Failure> {
         let mut flights = self.flights.lock().expect("flights lock");
-        if let Some(flight) = flights.get(key) {
+        // An abandoned flight (its clients left; its task is finishing with
+        // a cancellation) is not joined: this request starts new work.
+        if let Some(flight) = flights.get(key).filter(|f| !f.abandoned()) {
             self.counters.coalesced.fetch_add(1, Ordering::Relaxed);
             let rx = flight.done.subscribe();
             if background {
                 return Ok((rx, None));
             }
             flight.waiters.fetch_add(1, Ordering::AcqRel);
-            return Ok((rx, Some(Waiting(flight.clone()))));
+            return Ok((rx, Some(Waiting(flight.clone(), self.clone()))));
         }
         if flights.len() >= self.max_flights {
             self.counters.overloaded.fetch_add(1, Ordering::Relaxed);
@@ -374,7 +395,7 @@ impl Optimizer {
         });
         flights.insert(key.to_owned(), flight.clone());
         drop(flights);
-        let guard = (!background).then(|| Waiting(flight.clone()));
+        let guard = (!background).then(|| Waiting(flight.clone(), self.clone()));
         let this = self.clone();
         let key = key.to_owned();
         let params = params.clone();
@@ -385,10 +406,20 @@ impl Optimizer {
                 outcome = this.produce(&key, &params, previous, &flight) => outcome,
                 () = cancelled(&flight) => {
                     this.counters.cancelled.fetch_add(1, Ordering::Relaxed);
+                    if let Some(delay) = this.faults.before_cancel {
+                        tokio::time::sleep(delay).await;
+                    }
                     Err(Failure::Internal)
                 }
             };
-            this.flights.lock().expect("flights lock").remove(&key);
+            {
+                // Only this flight's entry: a newer one may have replaced
+                // an abandoned flight under the same key.
+                let mut flights = this.flights.lock().expect("flights lock");
+                if flights.get(&key).is_some_and(|f| Arc::ptr_eq(f, &flight)) {
+                    flights.remove(&key);
+                }
+            }
             let _ = flight.done.send(Some(outcome));
         });
         Ok((rx, guard))
