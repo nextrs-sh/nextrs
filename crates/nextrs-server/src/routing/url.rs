@@ -74,6 +74,91 @@ pub fn parse_url(input: &str) -> Result<ParsedUrl, String> {
 
 /// Next's `parseRelativeUrl(url)` for a path-absolute URL.
 pub fn parse_relative_url(input: &str) -> Result<ParsedUrl, String> {
+    if let Some(query_start) = unchanged_by_parser(input) {
+        let (pathname, query) = match query_start {
+            Some(q) => (&input[..q], &input[q + 1..]),
+            None => (input, ""),
+        };
+        return Ok(ParsedUrl {
+            pathname: pathname.to_owned(),
+            search: if query.is_empty() {
+                String::new()
+            } else {
+                format!("?{query}")
+            },
+            query: parse_search(query),
+            href: input.to_owned(),
+            ..ParsedUrl::default()
+        });
+    }
+    parse_relative_url_with_parser(input)
+}
+
+/// Whether the WHATWG URL parser would return `input` unchanged as the
+/// path and query of `http://n` + `input` (and where the query starts):
+/// a path-absolute URL of bytes the parser neither percent-encodes, strips
+/// nor reinterprets in a special URL's path or query, without dot segments
+/// (`.` or `%2e` forms) and without a fragment. Anything else takes the
+/// parser. Requests are almost always such URLs, and every request is
+/// parsed (Phase 3A: ~10 % of a prerendered page's CPU went to the general
+/// parse). `parses_like_the_url_parser` checks it against the parser.
+fn unchanged_by_parser(input: &str) -> Option<Option<usize>> {
+    let bytes = input.as_bytes();
+    // "//x" would be an authority.
+    if bytes.first() != Some(&b'/') || bytes.get(1) == Some(&b'/') {
+        return None;
+    }
+    let mut query = None;
+    for (i, &b) in bytes.iter().enumerate() {
+        let plain = b.is_ascii_alphanumeric()
+            || matches!(
+                b,
+                b'-' | b'_'
+                    | b'~'
+                    | b'!'
+                    | b'$'
+                    | b'&'
+                    | b'('
+                    | b')'
+                    | b'*'
+                    | b'+'
+                    | b','
+                    | b';'
+                    | b'='
+                    | b':'
+                    | b'@'
+                    | b'/'
+                    | b'%'
+                    | b'.'
+            );
+        if b == b'?' {
+            if query.is_none() {
+                query = Some(i);
+            }
+            continue;
+        }
+        if !plain {
+            return None;
+        }
+        if query.is_none() {
+            // A path segment starting with "." may be a dot segment;
+            // "%2e" may spell one.
+            if b == b'.' && bytes[i - 1] == b'/' {
+                return None;
+            }
+            if b == b'%'
+                && bytes.get(i + 1) == Some(&b'2')
+                && matches!(bytes.get(i + 2), Some(b'e' | b'E'))
+            {
+                return None;
+            }
+        }
+    }
+    Some(query)
+}
+
+/// `parse_relative_url` through the `url` crate (any input).
+fn parse_relative_url_with_parser(input: &str) -> Result<ParsedUrl, String> {
     let url = Url::parse(&format!("{RELATIVE_BASE}{input}"))
         .map_err(|error| format!("Invalid URL {input:?}: {error}"))?;
     let origin = url.origin().ascii_serialization();
@@ -206,5 +291,97 @@ mod tests {
             ..ParsedUrl::default()
         };
         assert_eq!(format_url(&p), "/a%23b%3Fc?x=1%23");
+    }
+
+    /// The fast path must agree with the URL parser on every input it
+    /// accepts: explicit tricky cases, then random inputs over an alphabet
+    /// weighted towards what the parser rewrites (dots, `%2e`, slashes,
+    /// backslashes, `?`, `#`, quotes, spaces, tabs, non-ASCII).
+    #[test]
+    fn parses_like_the_url_parser() {
+        let check = |input: &str| {
+            if unchanged_by_parser(input).is_some() {
+                assert_eq!(
+                    parse_relative_url(input),
+                    parse_relative_url_with_parser(input),
+                    "{input:?}"
+                );
+            }
+        };
+        let mut accepted = 0;
+        for input in [
+            "/",
+            "/a",
+            "/a/b/",
+            "/a?",
+            "/a?b",
+            "/a?b=c&d=e",
+            "/a??b",
+            "/a?b?c/d",
+            "/_next/static/chunks/x.js",
+            "/books/42?ref=b0000000001",
+            "/a.b/c.d",
+            "/a/.b",
+            "/a/./b",
+            "/a/../b",
+            "/.",
+            "/..",
+            "/a/.",
+            "/%2e",
+            "/a/%2E%2e/b",
+            "/a%2fb",
+            "/a%zz",
+            "/a%",
+            "/a?%2e",
+            "/a?.",
+            "/~user",
+            "/a:b@c",
+            "/a;b=c",
+            "//x",
+            "/a\\b",
+            "/a#b",
+            "/a b",
+            "/a\tb",
+            "/a'b",
+            "/a?b'c",
+            "/é",
+            "/a?é",
+            "/a|b",
+            "/a[b]",
+            "/a^b",
+            "/a`b",
+        ] {
+            check(input);
+            accepted += usize::from(unchanged_by_parser(input).is_some());
+        }
+        assert!(accepted >= 15, "the fast path should accept ordinary URLs");
+        let alphabet: Vec<char> = "/////....%%2eEaz09-_~!$&()*+,;=:@??#\\'\" <>`{}|^[] \té€"
+            .chars()
+            .collect();
+        let mut seed: u64 = 0x5eed;
+        let mut next = |n: usize| {
+            seed = seed
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            ((seed >> 33) as usize) % n
+        };
+        // Half the inputs use only characters the fast path may accept, so
+        // that it is exercised (dots, `%2e` and `?` placement still vary).
+        let safe: Vec<char> = "/..%2eEaz09-_~!$&()*+,;=:@?".chars().collect();
+        let mut random_accepted = 0;
+        for i in 0..300_000 {
+            let set = if i % 2 == 0 { &alphabet } else { &safe };
+            let len = 1 + next(12);
+            let mut input = String::from("/");
+            for _ in 0..len {
+                input.push(set[next(set.len())]);
+            }
+            check(&input);
+            random_accepted += usize::from(unchanged_by_parser(&input).is_some());
+        }
+        assert!(
+            random_accepted > 30_000,
+            "{random_accepted} random inputs took the fast path"
+        );
     }
 }

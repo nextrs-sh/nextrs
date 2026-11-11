@@ -5,6 +5,7 @@
 //   node benchmarks/phase3a/run.mjs --out benchmarks/results/phase3a/<name>
 //     [--nextrs target/release/nextrs] [--label current]
 //     [--nextrs-b PATH --label-b NAME]       # a second NextRS build (A/B)
+//     [--args "..." --args-b "..."]          # extra nextrs start arguments per build
 //     [--isolates 1,2,4] [--no-next]          # configurations
 //     [--groups app,pages,...] [--only id,...] # workload selection
 //     [--rounds 5] [--duration 10] [--warmup 5] [--connections 32]
@@ -44,12 +45,15 @@ const warmup = Number(args.warmup ?? 5);
 const openFraction = Number(args.open ?? 0.5);
 const r = L.rng(Number(args.seed ?? 1));
 
-const builds = [{ label: args.label ?? "nextrs", bin: resolve(args.nextrs ?? join(ROOT, "target/release/nextrs")) }];
-if (args["nextrs-b"]) builds.push({ label: args["label-b"] ?? "nextrs-b", bin: resolve(args["nextrs-b"]) });
+// --args / --args-b: extra `nextrs start` arguments per build (whitespace-
+// separated), e.g. V8 flags for a flag-only experiment with one binary.
+const splitArgs = (a) => (typeof a === "string" ? a.match(/(?:[^\s"]+|"[^"]*")+/g).map((x) => x.replace(/^"|"$/g, "")) : []);
+const builds = [{ label: args.label ?? "nextrs", bin: resolve(args.nextrs ?? join(ROOT, "target/release/nextrs")), extra: splitArgs(args.args) }];
+if (args["nextrs-b"]) builds.push({ label: args["label-b"] ?? "nextrs-b", bin: resolve(args["nextrs-b"]), extra: splitArgs(args["args-b"]) });
 const isolates = String(args.isolates ?? "1,2,4").split(",").map(Number);
 const configs = [];
 if (!args["no-next"]) configs.push({ id: "next-start", kind: "next" });
-for (const b of builds) for (const n of isolates) configs.push({ id: `${b.label}-i${n}`, kind: "nextrs", bin: b.bin, isolates: n });
+for (const b of builds) for (const n of isolates) configs.push({ id: `${b.label}-i${n}`, kind: "nextrs", bin: b.bin, isolates: n, extra: b.extra });
 
 const selectedGroups = args.groups ? new Set(String(args.groups).split(",")) : null;
 const only = args.only ? new Set(String(args.only).split(",")) : null;
@@ -90,7 +94,7 @@ async function withServer(group, config, fn) {
     isolates: config.isolates,
     cpus: serverCpus,
     env: { ...(group.env?.(ctx) ?? {}) },
-    extraArgs: group.nextrsArgs?.(ctx) ?? [],
+    extraArgs: [...(group.nextrsArgs?.(ctx) ?? []), ...(config.extra ?? [])],
     readyPath: group.readyPath ?? "/",
   });
   ctx.server = s;
