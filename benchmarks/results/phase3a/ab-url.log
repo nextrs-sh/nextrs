@@ -1,0 +1,101 @@
+12:16:39 closed round 1/5 app url-i1
+12:16:56   static-file            ok   45313 rps p95 1.19 ms cpu 0.076 ms/req rss 67.7 MiB
+12:17:13   prerendered            ok  114800 rps p95 0.41 ms cpu 0.021 ms/req rss 67.6 MiB (loadgen-limited)
+12:17:31   ssr                    ok     762 rps p95 47.07 ms cpu 1.657 ms/req rss 195 MiB
+12:17:48   isr-hit                ok    4609 rps p95 9.43 ms cpu 0.311 ms/req rss 197 MiB
+12:17:48 closed round 1/5 app base-i1
+12:18:05   static-file            ok   45408 rps p95 1.19 ms cpu 0.079 ms/req rss 63 MiB
+12:18:22   prerendered            ok  119585 rps p95 0.38 ms cpu 0.022 ms/req rss 63 MiB (loadgen-limited)
+12:18:40   ssr                    ok     762 rps p95 46.62 ms cpu 1.677 ms/req rss 184.8 MiB
+12:18:57   isr-hit                ok    4608 rps p95 9.42 ms cpu 0.312 ms/req rss 185.4 MiB
+12:18:57 closed round 1/5 proxy url-i1
+12:19:15   proxy-matched-static   ok    6468 rps p95 7.81 ms cpu 0.304 ms/req rss 149.4 MiB
+12:19:32   proxy-unmatched        ok  108853 rps p95 0.49 ms cpu 0.030 ms/req rss 149.3 MiB (loadgen-limited)
+12:19:32 closed round 1/5 proxy base-i1
+12:19:49   proxy-matched-static   ok    6393 rps p95 7.85 ms cpu 0.307 ms/req rss 152.1 MiB
+12:20:06   proxy-unmatched        ok  106181 rps p95 0.50 ms cpu 0.031 ms/req rss 151.8 MiB (loadgen-limited)
+12:20:07 closed round 1/5 image base-i1
+12:20:24   image-hit              ok   90484 rps p95 0.57 ms cpu 0.037 ms/req rss 60 MiB
+12:20:25 closed round 1/5 image url-i1
+12:20:43   image-hit              ok   93661 rps p95 0.56 ms cpu 0.036 ms/req rss 62.1 MiB
+12:20:43 closed round 2/5 app base-i1
+12:21:00   static-file            ok   45410 rps p95 1.20 ms cpu 0.078 ms/req rss 62.8 MiB
+12:21:17   prerendered            ok  119956 rps p95 0.39 ms cpu 0.021 ms/req rss 62.8 MiB (loadgen-limited)
+12:21:35   ssr                    ok     755 rps p95 47.13 ms cpu 1.674 ms/req rss 193.4 MiB
+12:21:52   isr-hit                ok    4624 rps p95 9.43 ms cpu 0.311 ms/req rss 194.9 MiB
+12:21:52 closed round 2/5 app url-i1
+12:22:10   static-file            ok   46833 rps p95 1.16 ms cpu 0.077 ms/req rss 63.5 MiB
+12:22:27   prerendered            ok  117905 rps p95 0.39 ms cpu 0.021 ms/req rss 63.5 MiB (loadgen-limited)
+12:22:44   ssr                    ok     758 rps p95 46.72 ms cpu 1.686 ms/req rss 191 MiB
+12:23:01   isr-hit                ok    4882 rps p95 8.12 ms cpu 0.285 ms/req rss 192.8 MiB
+12:23:01 closed round 2/5 proxy url-i1
+12:23:19   proxy-matched-static   ok    6314 rps p95 7.97 ms cpu 0.311 ms/req rss 154.5 MiB
+12:23:36   proxy-unmatched        ok  108351 rps p95 0.50 ms cpu 0.030 ms/req rss 153.9 MiB (loadgen-limited)
+12:23:36 closed round 2/5 proxy base-i1
+12:23:54   proxy-matched-static   ok    6488 rps p95 7.70 ms cpu 0.306 ms/req rss 152 MiB
+12:24:11   proxy-unmatched        ok  106793 rps p95 0.50 ms cpu 0.031 ms/req rss 151.8 MiB (loadgen-limited)
+12:24:11 closed round 2/5 image url-i1
+12:24:28   image-hit              ok   92500 rps p95 0.56 ms cpu 0.036 ms/req rss 60.9 MiB
+12:24:29 closed round 2/5 image base-i1
+12:24:47   image-hit              ok   90591 rps p95 0.57 ms cpu 0.037 ms/req rss 61 MiB
+12:24:47 closed round 3/5 app base-i1
+12:25:04   static-file            ok   45211 rps p95 1.20 ms cpu 0.079 ms/req rss 62.9 MiB
+12:25:21   prerendered            ok  119476 rps p95 0.39 ms cpu 0.021 ms/req rss 62.9 MiB (loadgen-limited)
+12:25:39   ssr                    ok     762 rps p95 47.23 ms cpu 1.654 ms/req rss 190.2 MiB
+12:25:56   isr-hit                ok    4709 rps p95 8.74 ms cpu 0.299 ms/req rss 191.9 MiB
+12:25:56 closed round 3/5 app url-i1
+12:26:13   static-file            ok   46833 rps p95 1.16 ms cpu 0.076 ms/req rss 63.7 MiB
+12:26:31   prerendered            ok  114255 rps p95 0.40 ms cpu 0.021 ms/req rss 63.7 MiB (loadgen-limited)
+12:26:48   ssr                    ok     772 rps p95 48.09 ms cpu 1.636 ms/req rss 195.3 MiB
+12:27:05   isr-hit                ok    4671 rps p95 9.36 ms cpu 0.307 ms/req rss 191.9 MiB
+12:27:05 closed round 3/5 proxy base-i1
+12:27:23   proxy-matched-static   ok    6429 rps p95 7.66 ms cpu 0.305 ms/req rss 150.5 MiB
+12:27:40   proxy-unmatched        ok  116799 rps p95 0.42 ms cpu 0.030 ms/req rss 150.2 MiB (loadgen-limited)
+12:27:40 closed round 3/5 proxy url-i1
+12:27:57   proxy-matched-static   ok    6345 rps p95 7.82 ms cpu 0.306 ms/req rss 153.8 MiB
+12:28:14   proxy-unmatched        ok  122056 rps p95 0.40 ms cpu 0.029 ms/req rss 153.8 MiB (loadgen-limited)
+12:28:15 closed round 3/5 image url-i1
+12:28:32   image-hit              ok   98949 rps p95 0.49 ms cpu 0.036 ms/req rss 60.7 MiB (loadgen-limited)
+12:28:33 closed round 3/5 image base-i1
+12:28:50   image-hit              ok   94546 rps p95 0.52 ms cpu 0.038 ms/req rss 60.1 MiB (loadgen-limited)
+12:28:51 closed round 4/5 app base-i1
+12:29:08   static-file            ok   47211 rps p95 1.11 ms cpu 0.077 ms/req rss 62.5 MiB
+12:29:25   prerendered            ok  121540 rps p95 0.37 ms cpu 0.023 ms/req rss 62.5 MiB (loadgen-limited)
+12:29:42   ssr                    ok     766 rps p95 46.78 ms cpu 1.655 ms/req rss 197 MiB
+12:29:59   isr-hit                ok    4732 rps p95 9.24 ms cpu 0.307 ms/req rss 198.3 MiB
+12:30:00 closed round 4/5 app url-i1
+12:30:17   static-file            ok   48716 rps p95 1.07 ms cpu 0.075 ms/req rss 63.8 MiB
+12:30:34   prerendered            ok  122205 rps p95 0.37 ms cpu 0.022 ms/req rss 63.8 MiB (loadgen-limited)
+12:30:51   ssr                    ok     765 rps p95 47.30 ms cpu 1.670 ms/req rss 194.7 MiB
+12:31:08   isr-hit                ok    4697 rps p95 9.26 ms cpu 0.307 ms/req rss 188.3 MiB
+12:31:09 closed round 4/5 proxy url-i1
+12:31:26   proxy-matched-static   ok    6482 rps p95 7.78 ms cpu 0.303 ms/req rss 155.7 MiB
+12:31:43   proxy-unmatched        ok  124110 rps p95 0.39 ms cpu 0.028 ms/req rss 155.5 MiB (loadgen-limited)
+12:31:44 closed round 4/5 proxy base-i1
+12:32:01   proxy-matched-static   ok    6573 rps p95 7.62 ms cpu 0.302 ms/req rss 152.9 MiB
+12:32:18   proxy-unmatched        ok  116647 rps p95 0.42 ms cpu 0.030 ms/req rss 152.8 MiB (loadgen-limited)
+12:32:18 closed round 4/5 image url-i1
+12:32:36   image-hit              ok   98961 rps p95 0.49 ms cpu 0.036 ms/req rss 60.6 MiB (loadgen-limited)
+12:32:36 closed round 4/5 image base-i1
+12:32:54   image-hit              ok   96053 rps p95 0.51 ms cpu 0.037 ms/req rss 60.7 MiB
+12:32:54 closed round 5/5 app base-i1
+12:33:12   static-file            ok   47532 rps p95 1.11 ms cpu 0.077 ms/req rss 62.9 MiB
+12:33:29   prerendered            ok  120411 rps p95 0.38 ms cpu 0.023 ms/req rss 62.9 MiB (loadgen-limited)
+12:33:46   ssr                    ok     768 rps p95 46.98 ms cpu 1.653 ms/req rss 193.2 MiB
+12:34:03   isr-hit                ok    4685 rps p95 9.29 ms cpu 0.308 ms/req rss 187.6 MiB
+12:34:03 closed round 5/5 app url-i1
+12:34:21   static-file            ok   48994 rps p95 1.08 ms cpu 0.074 ms/req rss 64.2 MiB
+12:34:38   prerendered            ok  122919 rps p95 0.37 ms cpu 0.022 ms/req rss 64.2 MiB (loadgen-limited)
+12:34:55   ssr                    ok     778 rps p95 45.79 ms cpu 1.644 ms/req rss 196.8 MiB
+12:35:12   isr-hit                ok    4996 rps p95 7.90 ms cpu 0.279 ms/req rss 196.7 MiB
+12:35:12 closed round 5/5 proxy base-i1
+12:35:30   proxy-matched-static   ok    6352 rps p95 7.87 ms cpu 0.309 ms/req rss 152.3 MiB
+12:35:47   proxy-unmatched        ok  117736 rps p95 0.41 ms cpu 0.030 ms/req rss 152.2 MiB (loadgen-limited)
+12:35:47 closed round 5/5 proxy url-i1
+12:36:05   proxy-matched-static   ok    6472 rps p95 7.65 ms cpu 0.301 ms/req rss 151.7 MiB
+12:36:22   proxy-unmatched        ok  124384 rps p95 0.39 ms cpu 0.028 ms/req rss 151.5 MiB (loadgen-limited)
+12:36:22 closed round 5/5 image url-i1
+12:36:40   image-hit              ok  100353 rps p95 0.49 ms cpu 0.035 ms/req rss 61.1 MiB (loadgen-limited)
+12:36:40 closed round 5/5 image base-i1
+12:36:58   image-hit              ok   96522 rps p95 0.51 ms cpu 0.037 ms/req rss 59.4 MiB (loadgen-limited)
+12:36:58 done benchmarks/results/phase3a/ab-url

@@ -1947,9 +1947,72 @@ async fn file_response(
     method: &Method,
     request: &HeaderMap,
 ) -> Response {
-    let Ok(metadata) = tokio::fs::metadata(file).await else {
+    // One blocking task opens the file, takes its metadata from the open
+    // handle, decides freshness and reads the body only when it is sent
+    // (Phase 3A: separate `tokio::fs` calls each hopped to the blocking
+    // pool). It gets only the headers `etag::fresh` reads.
+    let mut conditional = HeaderMap::new();
+    for name in [
+        header::IF_MODIFIED_SINCE,
+        header::IF_NONE_MATCH,
+        header::CACHE_CONTROL,
+    ] {
+        for value in request.get_all(&name) {
+            conditional.append(name.clone(), value.clone());
+        }
+    }
+    let path = file.to_path_buf();
+    let read_body = method != Method::HEAD;
+    let loaded =
+        tokio::task::spawn_blocking(move || load_file(&path, &conditional, read_body)).await;
+    let Ok(Some(loaded)) = loaded else {
         return not_found_plain();
     };
+
+    let mut response = Response::new(Body::empty());
+    let headers = response.headers_mut();
+    headers.insert(
+        header::CACHE_CONTROL,
+        HeaderValue::from_static(cache_control),
+    );
+    if let Some(etag) = loaded.etag {
+        headers.insert(header::ETAG, etag);
+    }
+    if let Some(last_modified) = loaded.last_modified {
+        headers.insert(header::LAST_MODIFIED, last_modified);
+    }
+    if loaded.fresh {
+        *response.status_mut() = StatusCode::NOT_MODIFIED;
+        return response;
+    }
+    headers.insert(
+        header::CONTENT_TYPE,
+        HeaderValue::from_static(static_files::content_type(file)),
+    );
+    let length = loaded.body.as_ref().map_or(loaded.len, |b| b.len() as u64);
+    headers.insert(header::CONTENT_LENGTH, HeaderValue::from(length));
+    if let Some(body) = loaded.body {
+        *response.body_mut() = Body::from(body);
+    }
+    response
+}
+
+/// A file's validators, freshness and (when it will be sent) contents.
+struct LoadedFile {
+    etag: Option<HeaderValue>,
+    last_modified: Option<HeaderValue>,
+    fresh: bool,
+    len: u64,
+    body: Option<Vec<u8>>,
+}
+
+/// Blocking: open, stat the handle, check the conditional headers, read.
+/// `None` when the file cannot be opened, stat'ed or read (a 404, as
+/// before).
+fn load_file(path: &Path, conditional: &HeaderMap, read_body: bool) -> Option<LoadedFile> {
+    use std::io::Read;
+    let mut handle = std::fs::File::open(path).ok()?;
+    let metadata = handle.metadata().ok()?;
     let modified = metadata.modified().ok();
     let etag = modified
         .and_then(|m| m.duration_since(UNIX_EPOCH).ok())
@@ -1960,40 +2023,25 @@ async fn file_response(
         });
     let last_modified =
         modified.and_then(|m| HeaderValue::from_str(&httpdate::fmt_http_date(m)).ok());
-
-    let mut response = Response::new(Body::empty());
-    let headers = response.headers_mut();
-    headers.insert(
-        header::CACHE_CONTROL,
-        HeaderValue::from_static(cache_control),
-    );
-    if let Some(etag) = &etag {
-        headers.insert(header::ETAG, etag.clone());
-    }
-    if let Some(last_modified) = &last_modified {
-        headers.insert(header::LAST_MODIFIED, last_modified.clone());
-    }
-    if etag::fresh(
-        request,
+    let fresh = etag::fresh(
+        conditional,
         etag.as_ref().and_then(|e| e.to_str().ok()),
         last_modified.as_ref().and_then(|l| l.to_str().ok()),
-    ) {
-        *response.status_mut() = StatusCode::NOT_MODIFIED;
-        return response;
-    }
-    let Ok(bytes) = tokio::fs::read(file).await else {
-        return not_found_plain();
-    };
-    let headers = response.headers_mut();
-    headers.insert(
-        header::CONTENT_TYPE,
-        HeaderValue::from_static(static_files::content_type(file)),
     );
-    headers.insert(header::CONTENT_LENGTH, HeaderValue::from(bytes.len()));
-    if method != Method::HEAD {
-        *response.body_mut() = Body::from(bytes);
-    }
-    response
+    let body = if fresh || !read_body {
+        None
+    } else {
+        let mut bytes = Vec::with_capacity(metadata.len() as usize);
+        handle.read_to_end(&mut bytes).ok()?;
+        Some(bytes)
+    };
+    Some(LoadedFile {
+        etag,
+        last_modified,
+        fresh,
+        len: metadata.len(),
+        body,
+    })
 }
 
 /// Routing redirects (router-server) carry the target as body, with a

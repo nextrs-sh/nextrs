@@ -30,6 +30,154 @@
   EventEmitter.call(process);
   Object.defineProperty(globalThis, "Buffer", { value: Buffer, writable: true, configurable: true });
 
+  // --- Buffer: UTF-8 through the native encoder and decoder ------------
+  // buffer@6 encodes a string by pushing every byte onto a JavaScript
+  // array (twice per Buffer.from: once to size the buffer, once to write
+  // it) and decodes through an array of code points. Server rendering
+  // converts every HTML and RSC chunk this way, which made it one of the
+  // hottest JavaScript functions in NextRS's profiles (Phase 3A). UTF-8
+  // goes to V8's encoder (TextEncoder) and deno_web's native decoder
+  // instead, which also follow Node where buffer@6 does not: a write cut
+  // short stores whole characters only, and an invalid sequence decodes to
+  // one U+FFFD per maximal subpart. tests/buffer_utf8.rs holds the result
+  // to Node's. Other encodings keep buffer@6's code. Argument handling
+  // below mirrors buffer@6 (fromString, byteLength, write, slowToString).
+  {
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder("utf-8", { ignoreBOM: true });
+    const proto = Buffer.prototype;
+    const utf8Name = (encoding) => {
+      if (encoding === "utf8" || encoding === "utf-8") return true;
+      if (typeof encoding !== "string") return false;
+      const lower = encoding.toLowerCase();
+      return lower === "utf8" || lower === "utf-8";
+    };
+    // Bytes of `string` in UTF-8, without encoding it: a lone surrogate
+    // becomes U+FFFD (3 bytes), as the encoder writes it.
+    const utf8Length = (string) => {
+      const length = string.length;
+      let bytes = length;
+      for (let i = 0; i < length; i++) {
+        const c = string.charCodeAt(i);
+        if (c < 0x80) continue;
+        if (c < 0x800) {
+          bytes += 1;
+        } else if (c >= 0xd800 && c <= 0xdbff && i + 1 < length) {
+          const d = string.charCodeAt(i + 1);
+          if (d >= 0xdc00 && d <= 0xdfff) {
+            bytes += 2;
+            i++;
+          } else {
+            bytes += 2;
+          }
+        } else {
+          bytes += 2;
+        }
+      }
+      return bytes;
+    };
+    const decode = (buf, start, end) =>
+      decoder.decode(
+        start === 0 && end === buf.length ? buf : new Uint8Array(buf.buffer, buf.byteOffset + start, end - start),
+      );
+
+    // fromString: a missing, non-string or empty encoding means UTF-8.
+    const vendorFrom = Buffer.from;
+    Buffer.from = function from(value, encodingOrOffset, length) {
+      if (
+        typeof value === "string" &&
+        (typeof encodingOrOffset !== "string" || encodingOrOffset === "" || utf8Name(encodingOrOffset))
+      ) {
+        const bytes = encoder.encode(value);
+        Object.setPrototypeOf(bytes, proto);
+        return bytes;
+      }
+      return vendorFrom.call(Buffer, value, encodingOrOffset, length);
+    };
+
+    // byteLength falls back to UTF-8 for an unknown encoding; only the
+    // named and default cases are taken here.
+    const vendorByteLength = Buffer.byteLength;
+    Buffer.byteLength = function byteLength(string, encoding) {
+      if (typeof string === "string" && arguments.length < 3 && (encoding === undefined || utf8Name(encoding))) {
+        return utf8Length(string);
+      }
+      return vendorByteLength.apply(Buffer, arguments);
+    };
+
+    const vendorWrite = proto.write;
+    proto.write = function write(string, offset, length, encoding) {
+      if (offset === undefined) {
+        encoding = "utf8";
+        length = this.length;
+        offset = 0;
+      } else if (length === undefined && typeof offset === "string") {
+        encoding = offset;
+        length = this.length;
+        offset = 0;
+      } else if (isFinite(offset)) {
+        offset = offset >>> 0;
+        if (isFinite(length)) {
+          length = length >>> 0;
+          if (encoding === undefined) encoding = "utf8";
+        } else {
+          encoding = length;
+          length = undefined;
+        }
+      } else {
+        return vendorWrite.apply(this, arguments);
+      }
+      if (encoding && !utf8Name(encoding)) return vendorWrite.apply(this, arguments);
+      const remaining = this.length - offset;
+      if (length === undefined || length > remaining) length = remaining;
+      if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
+        throw new RangeError("Attempt to write outside buffer bounds");
+      }
+      if (length <= 0) return 0;
+      return encoder.encodeInto(string, new Uint8Array(this.buffer, this.byteOffset + offset, length)).written;
+    };
+
+    const vendorToString = proto.toString;
+    proto.toString = function toString(encoding, start, end) {
+      const length = this.length;
+      if (arguments.length === 0) return length === 0 ? "" : decode(this, 0, length);
+      if (encoding && !utf8Name(encoding)) return vendorToString.apply(this, arguments);
+      if (length === 0) return "";
+      if (start === undefined || start < 0) start = 0;
+      if (start > length) return "";
+      if (end === undefined || end > length) end = length;
+      if (end <= 0) return "";
+      end >>>= 0;
+      start >>>= 0;
+      if (end <= start) return "";
+      return decode(this, start, end);
+    };
+    proto.toLocaleString = proto.toString;
+
+    // string_decoder's UTF-8 mode: Node's StringDecoder decodes as a
+    // streaming WHATWG decoder does (checked in Node 24 over 250 000 random
+    // chunkings), so it gets one; the vendored heuristics for characters
+    // cut at a chunk boundary only matched Node together with buffer@6's
+    // one-U+FFFD-per-byte decoding. Patched on the shared prototype, which
+    // readable-stream's captured constructor uses too. Other encodings keep
+    // the vendored code (their decoders set their own `end`).
+    const StringDecoder = vendor.string_decoder.StringDecoder;
+    const utf8Stream = Symbol("nextrs.utf8Stream");
+    const streamOf = (sd) => (sd[utf8Stream] ??= new TextDecoder("utf-8", { ignoreBOM: true }));
+    const vendorDecoderWrite = StringDecoder.prototype.write;
+    StringDecoder.prototype.write = function write(buf) {
+      if (this.encoding !== "utf8") return vendorDecoderWrite.call(this, buf);
+      if (typeof buf === "string") return buf;
+      return streamOf(this).decode(buf, { stream: true });
+    };
+    const vendorDecoderEnd = StringDecoder.prototype.end;
+    StringDecoder.prototype.end = function end(buf) {
+      if (this.encoding !== "utf8") return vendorDecoderEnd.call(this, buf);
+      const head = buf === undefined || buf.length === 0 ? "" : this.write(buf);
+      return head + streamOf(this).decode();
+    };
+  }
+
   // --- Buffer: base64url (Node >= 15) is missing from buffer@6 ---------
   {
     const toBase64 = (s) => s.replace(/-/g, "+").replace(/_/g, "/");

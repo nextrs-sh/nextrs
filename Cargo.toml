@@ -34,6 +34,8 @@ hyper = { version = "1", features = ["http1", "server"] }
 hyper-util = { version = "0.1", features = ["tokio", "service"] }
 percent-encoding = "2"
 regex = "1"
+# Microbenchmarks (dev-only): statistics and saved baselines, no plotting.
+criterion = { version = "0.7", default-features = false, features = ["cargo_bench_support"] }
 # JavaScript regexes from Next manifests (lookarounds) for routing rules.
 fancy-regex = "0.16"
 # Outbound fetch: HTTP/1.1 only (as Node's fetch), no system proxy, TLS
