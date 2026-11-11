@@ -59,6 +59,7 @@ multer = "3"
 zeroize = "1"
 
 [dev-dependencies]
+criterion.workspace = true
 nextrs-runtime = { path = ".", features = ["fault-injection"] }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "test-util"] }
 futures-util.workspace = true
@@ -69,3 +70,7 @@ tracing-subscriber.workspace = true
 hyper = { workspace = true, features = ["server"] }
 hyper-util.workspace = true
 http-body-util.workspace = true
+
+[[bench]]
+name = "dispatch"
+harness = false
