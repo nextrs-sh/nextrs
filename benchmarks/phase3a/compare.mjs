@@ -27,6 +27,9 @@ const METRICS = [
   ["p99_ms", (r) => r.latency.p99_ms, "lower"],
   ["rss_peak_mib", (r) => r.mem_peak.rss_mib, "lower"],
   ["rss_steady_mib", (r) => r.mem_steady.rss_mib, "lower"],
+  // Anonymous memory only: RSS also counts the binary's file-backed pages,
+  // which differ between two builds without any change in working set.
+  ["anon_end_mib", (r) => r.mem_end.anon_mib, "lower"],
 ];
 
 const keys = [...new Set(rows.map((r) => `${r.group}/${r.workload}`))];
@@ -51,13 +54,13 @@ for (const key of keys) {
 const f = (x, d = 2) => (x == null ? "–" : Math.abs(x) >= 1000 ? x.toFixed(0) : x.toFixed(d));
 const pctChange = (m) => `${m.ratio >= 1 ? "+" : ""}${((m.ratio - 1) * 100).toFixed(1)}% [${((m.ci95[0] - 1) * 100).toFixed(1)}, ${((m.ci95[1] - 1) * 100).toFixed(1)}]`;
 const lines = [`# ${opt.b} vs ${opt.a} (${mode} loop) — ${dir}`, "", "Median of valid rounds; change = B/A − 1 with 95% bootstrap interval; ✔ better, ✘ worse, · within noise.", ""];
-lines.push("| Workload | n | req/s A → B | CPU ms/req A → B | instr/req A → B | p95 ms A → B | p99 ms A → B | peak RSS MiB A → B |");
-lines.push("|---|---|---|---|---|---|---|---|");
+lines.push("| Workload | n | req/s A → B | CPU ms/req A → B | instr/req A → B | p95 ms A → B | p99 ms A → B | peak RSS MiB A → B | anon RSS MiB A → B |");
+lines.push("|---|---|---|---|---|---|---|---|---|");
 const mark = (m) => (m ? (m.verdict === "better" ? "✔" : m.verdict === "worse" ? "✘" : "·") : "");
 const cell = (m, d) => (m ? `${f(m.a, d)} → ${f(m.b, d)} ${mark(m)}<br>${pctChange(m)}` : "–");
 for (const e of out) {
   const m = e.metrics;
-  lines.push(`| ${e.group}/${e.workload}${e.invalid ? ` ⚠ ${e.invalid} invalid` : ""}${e.loadLimited ? " (loadgen-limited)" : ""} | ${e.n.join("/")} | ${cell(m.rps, 0)} | ${cell(m.cpu_ms_per_req, 3)} | ${m.instr_per_req ? `${f(m.instr_per_req.a / 1e6)}M → ${f(m.instr_per_req.b / 1e6)}M ${mark(m.instr_per_req)}<br>${pctChange(m.instr_per_req)}` : "–"} | ${cell(m.p95_ms)} | ${cell(m.p99_ms)} | ${cell(m.rss_peak_mib, 0)} |`);
+  lines.push(`| ${e.group}/${e.workload}${e.invalid ? ` ⚠ ${e.invalid} invalid` : ""}${e.loadLimited ? " (loadgen-limited)" : ""} | ${e.n.join("/")} | ${cell(m.rps, 0)} | ${cell(m.cpu_ms_per_req, 3)} | ${m.instr_per_req ? `${f(m.instr_per_req.a / 1e6)}M → ${f(m.instr_per_req.b / 1e6)}M ${mark(m.instr_per_req)}<br>${pctChange(m.instr_per_req)}` : "–"} | ${cell(m.p95_ms)} | ${cell(m.p99_ms)} | ${cell(m.rss_peak_mib, 0)} | ${cell(m.anon_end_mib, 1)} |`);
 }
 const md = lines.join("\n") + "\n";
 console.log(md);
