@@ -67,6 +67,13 @@ cd ../..
 When `.next/nextrs/build-output.json` exists, NextRS reads it. Pass
 `--ignore-adapter-output` to read the internal manifests instead.
 
+For the Pages Router, NextRS reads routes and stored output from the same
+manifests `next start` reads, for both kinds of build, and compares them
+with the adapter's output at startup; if they disagree it refuses to start
+(`pages-adapter-mismatch`). An adapter build keeps its `getStaticProps`
+output under `.next/server/route-cache`; NextRS uses exactly the files the
+build wrote there.
+
 ## Serving
 
 | Option | Default | Purpose |

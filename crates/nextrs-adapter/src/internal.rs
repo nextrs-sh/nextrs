@@ -32,8 +32,23 @@ pub(crate) fn load(
     dist_dir: &Path,
     routes_manifest: &RoutesManifest,
     prerender_manifest: &PrerenderManifest,
+    locales: Option<&[String]>,
     diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<InternalTables, InspectError> {
+    // With Next's i18n config, pages-manifest lists a page without data
+    // functions once per locale (`/fr/about` -> `pages/fr/about.html`) and
+    // prerender-manifest keys getStaticProps output by locale (`/fr/isr`).
+    // next start's filesystem router strips the locale to find the page
+    // (fsChecker: one `pageFile` per locale-free pathname); so does this.
+    let split = |path: &str| -> (String, Option<String>) {
+        match locales {
+            Some(locales) => {
+                let (rest, locale) = crate::normalize_locale_path(path, locales);
+                (rest.to_owned(), locale.map(str::to_owned))
+            }
+            None => (path.to_owned(), None),
+        }
+    };
     let server_dir = dist_dir.join("server");
     let app_paths: BTreeMap<String, String> =
         read_json_optional(&server_dir.join("app-paths-manifest.json"))?.unwrap_or_default();
@@ -68,13 +83,17 @@ pub(crate) fn load(
     }
 
     let has_pages_routes = pages.keys().any(|page| {
+        let (page, _) = split(page);
         !PAGES_INTERNALS.contains(&page.as_str()) && !PAGES_STATUS.contains(&page.as_str())
     });
     let mut pages_router = PagesRouterInfo::default();
     let mut pages_prerenders = Vec::new();
     if has_pages_routes {
-        for (page, file) in &pages {
+        let mut seen = std::collections::BTreeSet::new();
+        for (manifest_key, file) in &pages {
             let entry = server_dir.join(file);
+            let (page, locale) = split(manifest_key);
+            let page = &page;
             if page == "/_error" {
                 pages_router.error_entry = Some(entry);
                 continue;
@@ -93,11 +112,14 @@ pub(crate) fn load(
             } else {
                 classify_page(page, prerender_manifest)
             };
+            if page == "/404" && !is_html {
+                pages_router.not_found_entry = Some(entry.clone());
+            }
             if is_html {
                 // A page without data functions: Next wrote its HTML at
                 // build time and next start sends that file as it is.
                 pages_prerenders.push(Prerender {
-                    pathname: page.clone(),
+                    pathname: manifest_key.clone(),
                     route: page.clone(),
                     status: match page.as_str() {
                         "/404" => 404,
@@ -114,7 +136,12 @@ pub(crate) fn load(
                     postponed: false,
                     pages: true,
                     data: None,
+                    locale: locale.clone(),
                 });
+            }
+            // One route per page, whatever the number of locales.
+            if !seen.insert(page.clone()) {
+                continue;
             }
             routes.push(Route {
                 page: page.clone(),
@@ -142,7 +169,7 @@ pub(crate) fn load(
                     .as_deref()
                     .is_some_and(|d| d.ends_with(".json"))
             })
-            .map(|(path, entry)| entry.src_route.clone().unwrap_or_else(|| path.clone()))
+            .map(|(path, entry)| entry.src_route.clone().unwrap_or_else(|| split(path).0))
             .collect();
         for (page, entry) in &prerender_manifest.dynamic_routes {
             if entry
@@ -154,7 +181,12 @@ pub(crate) fn load(
             }
         }
         // getStaticProps pages that returned notFound at build time.
-        ssg.extend(prerender_manifest.not_found_routes.iter().cloned());
+        ssg.extend(
+            prerender_manifest
+                .not_found_routes
+                .iter()
+                .map(|p| split(p).0),
+        );
         pages_router.ssg_pages = ssg.into_iter().collect();
     }
 
@@ -175,9 +207,12 @@ pub(crate) fn load(
             if prerender_manifest.not_found_routes.contains(pathname) {
                 continue;
             }
-            match resolve_pages_prerender(dist_dir, pathname)? {
+            let (page, locale) = split(pathname);
+            let route = entry.src_route.clone().unwrap_or(page);
+            match resolve_pages_prerender(dist_dir, pathname, &route)? {
                 Some(mut prerender) => {
-                    prerender.route = entry.src_route.clone().unwrap_or_else(|| pathname.clone());
+                    prerender.route = route;
+                    prerender.locale = locale;
                     prerender.status = entry.initial_status.unwrap_or(prerender.status);
                     prerender.revalidate = revalidate_seconds(&entry.initial_revalidate_seconds);
                     pages_prerenders.push(prerender);
@@ -361,21 +396,35 @@ pub(crate) fn resolve_app_prerender(
         postponed: meta.postponed.is_some_and(|p| !p.is_null()),
         pages: false,
         data: None,
+        locale: None,
     }))
 }
 
 /// The stored HTML and page data of a Pages Router `getStaticProps`
 /// prerender: `server/pages/<name>.html`, `.json` and `.meta`.
+/// A getStaticProps output: `server/pages/<name>.html|.json|.meta`, or in a
+/// build made with a deployment adapter Next's route cache,
+/// `server/route-cache/PAGES/<sha256(page)>/$<name>.*` (getRouteCacheKey:
+/// the page is the locale-free route, the name keeps the locale).
 fn resolve_pages_prerender(
     dist_dir: &Path,
     pathname: &str,
+    route: &str,
 ) -> Result<Option<Prerender>, InspectError> {
     let name = normalize_page_path(pathname);
-    let base = dist_dir.join("server/pages").join(&name[1..]);
-    let html = with_suffix(&base, ".html");
-    if !html.is_file() {
+    let owner = hex(&Sha256::digest(route.as_bytes()));
+    let Some(base) = [
+        dist_dir.join("server/pages").join(&name[1..]),
+        dist_dir
+            .join("server/route-cache/PAGES")
+            .join(owner)
+            .join(format!("${name}")),
+    ]
+    .into_iter()
+    .find(|base| with_suffix(base, ".html").is_file()) else {
         return Ok(None);
-    }
+    };
+    let html = with_suffix(&base, ".html");
     let meta: PrerenderMeta = read_json_optional(&with_suffix(&base, ".meta"))?.unwrap_or_default();
     let headers = flatten_headers(&meta.headers);
     let data = with_suffix(&base, ".json");
@@ -396,6 +445,7 @@ fn resolve_pages_prerender(
             file: data,
             headers,
         }),
+        locale: None,
     }))
 }
 

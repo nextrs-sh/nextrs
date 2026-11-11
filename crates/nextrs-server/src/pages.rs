@@ -43,10 +43,15 @@ pub(crate) struct PagesState {
     /// with the status next start sends them with (404 and 500 for the
     /// status pages requested by name).
     pub static_pages: HashMap<String, (StatusCode, Cached)>,
-    /// `pages/404.html`.
+    /// `pages/404.html` (with i18n, the default locale's).
     pub not_found: Option<Cached>,
-    /// `pages/500.html`.
+    /// `pages/500.html` (with i18n, the default locale's).
     pub server_error: Option<Cached>,
+    /// With i18n: `pages/<locale>/404.html` and `pages/<locale>/500.html`.
+    pub localized_not_found: HashMap<String, Cached>,
+    pub localized_server_error: HashMap<String, Cached>,
+    /// `pages/404.js`, a 404 page with getStaticProps.
+    pub not_found_entry: Option<PathBuf>,
     /// `pages/_error.js`.
     pub error_entry: Option<PathBuf>,
     /// Pages with a data route and no parameters.
@@ -78,9 +83,29 @@ impl PagesState {
                 continue;
             };
             let status = StatusCode::from_u16(prerender.status).unwrap_or(StatusCode::OK);
-            match prerender.pathname.as_str() {
-                "/404" => state.not_found = Some(html.clone()),
-                "/500" => state.server_error = Some(html.clone()),
+            let default = info.config.i18n.as_ref().map(|i| i.default_locale.as_str());
+            let is_default = prerender.locale.as_deref() == default;
+            match (prerender.route.as_str(), &prerender.locale) {
+                ("/404", locale) => {
+                    if is_default {
+                        state.not_found = Some(html.clone());
+                    }
+                    if let Some(locale) = locale {
+                        state
+                            .localized_not_found
+                            .insert(locale.clone(), html.clone());
+                    }
+                }
+                ("/500", locale) => {
+                    if is_default {
+                        state.server_error = Some(html.clone());
+                    }
+                    if let Some(locale) = locale {
+                        state
+                            .localized_server_error
+                            .insert(locale.clone(), html.clone());
+                    }
+                }
                 _ => {}
             }
             state
@@ -88,9 +113,15 @@ impl PagesState {
                 .insert(prerender.pathname.clone(), (status, html));
         }
         state.error_entry = info.pages_router.error_entry.clone();
+        state.not_found_entry = info.pages_router.not_found_entry.clone();
         for data in &info.pages_router.data_routes {
             if data.dynamic {
-                let regex = Regex::new(&data.regex).map_err(|error| StartError::RouteRegex {
+                let source = if info.config.i18n.is_some() {
+                    add_locale_to_data_regex(&data.regex, &info.build_id)
+                } else {
+                    data.regex.clone()
+                };
+                let regex = Regex::new(&source).map_err(|error| StartError::RouteRegex {
                     page: data.page.clone(),
                     error,
                 })?;
@@ -101,6 +132,55 @@ impl PagesState {
         }
         state.ssg = info.pages_router.ssg_pages.iter().cloned().collect();
         Ok(state)
+    }
+}
+
+/// Next's `addLocalePrefixToDataRouteRegex` (router-utils/build-data-route):
+/// with i18n, a data route's regex takes one more segment after the build
+/// id (any segment: the locale is checked later).
+fn add_locale_to_data_regex(regex: &str, build_id: &str) -> String {
+    let segment = format!("/{}", escape_string_regexp(build_id));
+    match regex.find(&segment) {
+        Some(index) => {
+            let at = index + segment.len();
+            format!("{}/(?:[^/]+?){}", &regex[..at], &regex[at..])
+        }
+        None => regex.to_owned(),
+    }
+}
+
+/// Next's `escapeStringRegexp`.
+fn escape_string_regexp(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    for c in text.chars() {
+        if "|\\{}()[]^$+*?.-".contains(c) {
+            out.push('\\');
+        }
+        out.push(c);
+    }
+    out
+}
+
+/// A page's key among the outputs Next keys by locale (`/fr/about`, and
+/// `/fr` for the index page). Without i18n, the path itself.
+pub(crate) fn locale_key(path: &str, locale: Option<&crate::resolve::RouteLocale>) -> String {
+    #[cfg(feature = "negative-controls")]
+    let fallback;
+    #[cfg(feature = "negative-controls")]
+    let locale = match locale {
+        Some(l) if crate::pages_controls::locale_cache_leak() => {
+            fallback = crate::resolve::RouteLocale {
+                locale: l.default_locale.clone(),
+                ..l.clone()
+            };
+            Some(&fallback)
+        }
+        other => other,
+    };
+    match locale {
+        Some(l) if path == "/" => format!("/{}", l.locale),
+        Some(l) => format!("/{}{path}", l.locale),
+        None => path.to_owned(),
     }
 }
 
@@ -123,12 +203,49 @@ pub(crate) fn static_data_page(state: &crate::AppState, item: &str) -> Option<St
     }
     let prefix = format!("/_next/data/{}/", state.build_id);
     let rest = item.strip_prefix(&prefix)?.strip_suffix(".json")?;
-    let page = denormalize(&format!("/{rest}"));
-    let decoded =
-        crate::routing::query::decode_uri_component(&page).unwrap_or_else(|| page.clone());
-    [page, decoded]
-        .into_iter()
-        .find(|candidate| state.pages_router.data_static.contains(candidate))
+    let page = format!("/{rest}");
+    // With i18n, fsChecker strips the locale before `/index` becomes `/`.
+    let page = match &state.i18n {
+        Some(i18n) => match i18n.split(&page).0 {
+            "/index" => "/".to_owned(),
+            other => other.to_owned(),
+        },
+        None => denormalize(&page),
+    };
+    state
+        .pages_router
+        .data_static
+        .contains(&page)
+        .then_some(page)
+}
+
+/// A data path whose page names a data route only once percent-decoded
+/// (`/_next/data/<build>/%70rotected/secret.json`): next start's filesystem
+/// router matches it, but its page matching does not, and it renders the
+/// 404 page instead (as for page paths: `Output::EncodedApp`).
+pub(crate) fn encoded_data_page(state: &crate::AppState, item: &str) -> bool {
+    let prefix = format!("/_next/data/{}/", state.build_id);
+    let Some(rest) = item
+        .strip_prefix(&prefix)
+        .and_then(|r| r.strip_suffix(".json"))
+    else {
+        return false;
+    };
+    let Some(decoded) = crate::routing::query::decode_uri_component(&format!("/{rest}")) else {
+        return false;
+    };
+    let decoded_item = format!("{prefix}{}.json", &decoded[1..]);
+    decoded_item != item && static_data_page(state, &decoded_item).is_some()
+}
+
+/// With i18n: a `/_next/data/<build>/<page>.json` path whose page part names
+/// no locale (getNextPathnameInfo finds none).
+pub(crate) fn data_path_without_locale(state: &crate::AppState, pathname: &str) -> bool {
+    let Some(i18n) = &state.i18n else {
+        return false;
+    };
+    let path = crate::i18n::remove_path_prefix(pathname, &state.config.base_path);
+    path.starts_with("/_next/data/") && i18n.path_locale(path).is_none()
 }
 
 /// The page path a data response names (`x-nextjs-matched-path`): without
@@ -192,6 +309,10 @@ pub(crate) fn dynamic_data_page<'s>(
         .and_then(|rest| rest.strip_suffix(".json"))
         .map(denormalize)
         .unwrap_or_else(|| path.to_owned());
+    let pathname = match &state.i18n {
+        Some(i18n) => i18n.split(&pathname).0.to_owned(),
+        None => pathname,
+    };
     Some((page.as_str(), pathname))
 }
 
@@ -274,7 +395,13 @@ pub(crate) async fn not_found(
     keep: Vec<(HeaderName, HeaderValue)>,
     cache_control: Option<&'static str>,
 ) -> Option<Response> {
-    if let Some(page) = &state.pages_router.not_found {
+    // With i18n, the page of the request's locale (render404 renders
+    // `/<locale>/404`).
+    let localized = match ctx.locale {
+        Some(l) => state.pages_router.localized_not_found.get(&l.locale),
+        None => state.pages_router.not_found.as_ref(),
+    };
+    if let Some(page) = localized {
         let mut response = html_response(
             state,
             page,
@@ -287,7 +414,13 @@ pub(crate) async fn not_found(
         add_rsc_vary(state, ctx.headers, &mut response);
         return Some(response);
     }
-    let entry = state.pages_router.error_entry.as_deref()?;
+    // A 404 page with getStaticProps renders through its own handler (it
+    // serves its cache entry, `/<locale>/404`); else _error with 404.
+    let entry = state
+        .pages_router
+        .not_found_entry
+        .as_deref()
+        .or(state.pages_router.error_entry.as_deref())?;
     let executor = state.executor.as_deref()?;
     let mut initial = ctx.initial.to_vec();
     if let Some(cache_control) = cache_control {
@@ -301,7 +434,7 @@ pub(crate) async fn not_found(
         headers: &initial,
         vary: rsc_vary(state, ctx.headers),
         status: Some(404),
-        invocation: nextrs_runtime::Invocation::Handler,
+        invocation: locale_invocation(ctx.locale),
     };
     let response = dynamic::render(executor, entry, &policy, ctx.incoming(Body::empty())).await;
     Some(dynamic::frame_for(ctx.version, response))
@@ -317,7 +450,11 @@ async fn server_error(
     ctx: Ctx<'_>,
     keep: Vec<(HeaderName, HeaderValue)>,
 ) -> Option<Response> {
-    if let Some(page) = &state.pages_router.server_error {
+    let localized = match ctx.locale {
+        Some(l) => state.pages_router.localized_server_error.get(&l.locale),
+        None => state.pages_router.server_error.as_ref(),
+    };
+    if let Some(page) = localized {
         let mut response = html_response(
             state,
             page,
@@ -341,10 +478,21 @@ async fn server_error(
         headers: &initial,
         vary: rsc_vary(state, ctx.headers),
         status: Some(500),
-        invocation: nextrs_runtime::Invocation::Handler,
+        invocation: locale_invocation(ctx.locale),
     };
     let response = dynamic::render(executor, entry, &policy, ctx.incoming(Body::empty())).await;
     Some(dynamic::frame_for(ctx.version, response))
+}
+
+/// An error page's invocation: with i18n, the request's locale meta.
+fn locale_invocation(locale: Option<&crate::resolve::RouteLocale>) -> nextrs_runtime::Invocation {
+    match locale {
+        Some(locale) => nextrs_runtime::Invocation::Routed(nextrs_runtime::RouteMeta {
+            locale: Some(crate::locale_meta(locale)),
+            ..Default::default()
+        }),
+        None => nextrs_runtime::Invocation::Handler,
+    }
 }
 
 /// Headers set before a response is replaced by an error page are kept,
@@ -389,6 +537,8 @@ pub(crate) struct Ctx<'a> {
     pub initial: &'a [(String, String)],
     pub max_body: u64,
     pub listen: &'a crate::Listen,
+    /// With i18n: the request's locale meta.
+    pub locale: Option<&'a crate::resolve::RouteLocale>,
 }
 
 impl<'a> Ctx<'a> {
@@ -435,7 +585,23 @@ pub(crate) async fn serve(
         {
             return Next::Done(redirect);
         }
-        if let Some((status, html)) = state.pages_router.static_pages.get(path) {
+        // base server's middleware prefetch bail-out: next/link prefetches
+        // a link the proxy matches with `x-middleware-prefetch`, and for a
+        // page that is not statically generated next start answers `{}`
+        // without rendering it (getServerSideProps never runs for a
+        // prefetch).
+        if ctx.headers.contains_key("x-middleware-prefetch")
+            && !state.pages_router.ssg.contains(&route.page)
+            && route.page != "/404"
+            && route.page != "/_error"
+        {
+            return Next::Done(middleware_prefetch_skip(&route.page));
+        }
+        if let Some((status, html)) = state
+            .pages_router
+            .static_pages
+            .get(&locale_key(path, ctx.locale))
+        {
             let status_page = path == "/404" || path == "/500";
             if !readonly && !status_page {
                 return Next::Done(method_not_allowed());
@@ -446,7 +612,7 @@ pub(crate) async fn serve(
             // reaches a page without data only through the proxy's
             // normalization).
             if ctx.headers.contains_key("x-nextjs-data")
-                && let Ok(value) = HeaderValue::from_str(path)
+                && let Ok(value) = HeaderValue::from_str(&locale_key(path, ctx.locale))
             {
                 response
                     .headers_mut()
@@ -499,6 +665,34 @@ pub(crate) async fn serve(
     };
     #[cfg(feature = "negative-controls")]
     let wrong_uri;
+    #[cfg(feature = "negative-controls")]
+    let no_preview;
+    #[cfg(feature = "negative-controls")]
+    let ctx = if crate::pages_controls::skip_preview() {
+        let mut map = ctx.headers.clone();
+        let kept: Vec<String> = map
+            .get_all(header::COOKIE)
+            .iter()
+            .filter_map(|v| v.to_str().ok())
+            .flat_map(|v| v.split(';'))
+            .map(str::trim)
+            .filter(|c| {
+                !c.starts_with("__prerender_bypass") && !c.starts_with("__next_preview_data")
+            })
+            .map(str::to_owned)
+            .collect();
+        map.remove(header::COOKIE);
+        if let Ok(value) = HeaderValue::from_str(&kept.join("; ")) {
+            map.insert(header::COOKIE, value);
+        }
+        no_preview = map;
+        Ctx {
+            headers: &no_preview,
+            ..ctx
+        }
+    } else {
+        ctx
+    };
     #[cfg(feature = "negative-controls")]
     let (entry, ctx, body) = {
         use crate::pages_controls as controls;
@@ -613,6 +807,19 @@ pub(crate) async fn serve(
         }
         _ => Next::Done(dynamic::frame_for(ctx.version, response)),
     }
+}
+
+/// base server's answer to a middleware prefetch of a page that is not
+/// statically generated: an empty object, nothing rendered.
+fn middleware_prefetch_skip(page: &str) -> Response {
+    let mut response = Response::new(Body::from("{}"));
+    let headers = response.headers_mut();
+    if let Ok(value) = HeaderValue::from_str(page) {
+        headers.insert("x-matched-path", value);
+    }
+    headers.insert("x-middleware-skip", HeaderValue::from_static("1"));
+    headers.insert(header::CACHE_CONTROL, HeaderValue::from_static(NO_STORE));
+    response
 }
 
 /// What the handler writes when there is no router to render a 404 page.

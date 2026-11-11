@@ -17,7 +17,7 @@ same build.
   CI.
 - **Also passing:** the same comparison suites on 16.4.4 and 16.4.5. CI runs
   them without gating. 16.4.0 is refused by Next's own security check.
-- **App Router only**, Node.js runtime only.
+- **Node.js runtime only.**
 
 Every check runs against small applications in [`fixtures/`](../fixtures/).
 Only their routes have been verified. Other applications may use code paths
@@ -35,6 +35,10 @@ these fixtures do not reach.
 | [`next-platform-proxy`](../fixtures/next-platform-proxy/) | A proxy that fetches, external rewrites, `waitUntil`, `instrumentation.ts`, Draft Mode, `dynamicParams = false` |
 | [`next-otel`](../fixtures/next-otel/) | OpenTelemetry through `@vercel/otel` |
 | [`next-image`](../fixtures/next-image/) | `next/image` and `/_next/image` with local and remote sources |
+| [`next-pages`](../fixtures/next-pages/) | The Pages Router: every data function, ISR, Preview Mode, API routes, `/_next/data`, a proxy (also built with the deployment adapter) |
+| [`next-hybrid`](../fixtures/next-hybrid/) | App Router and Pages Router in one build (also built with the deployment adapter) |
+| [`next-pages-i18n`](../fixtures/next-pages-i18n/) | Next's native `i18n` config: sub-path locales with and without detection, `basePath` + `trailingSlash`, domain locales, a build without a proxy, and a deployment-adapter build |
+| [`next-pages-app-gip`](../fixtures/next-pages-app-gip/) | A custom App with `getInitialProps` beside page `getInitialProps`, `getServerSideProps` and `getStaticProps` |
 
 The suites that compare these fixtures are described in
 [testing.md](testing.md).
@@ -65,10 +69,11 @@ The suites that compare these fixtures are described in
 | Rewrites to another origin (config or proxy) | 🧪 Experimental | Forwarded as `next start` forwards them, only to destinations `--net-allow` permits (the same policy as `fetch`, checked for every connection); otherwise `502` (`external-rewrite-denied`) and nothing is sent. WebSocket upgrades answer `501` |
 | `basePath`, `trailingSlash`, `assetPrefix`, `experimental.caseSensitiveRoutes` | 🧪 Experimental | Tested in separate fixture builds, including `basePath` with `trailingSlash` |
 | Image optimization (`/_next/image`, `next/image`) | 🧪 Experimental | Answered in Rust, no executor needed for public files and static imports: Next's validation, cache keys, headers and 304s; JPEG, PNG, WebP, GIF and TIFF sources; WebP, AVIF, JPEG and PNG output; EXIF orientation and colour profiles; remote sources only where both `images.remotePatterns` and `--net-allow` allow them. AVIF/HEIF and JPEG-compressed TIFF sources are served unchanged (see [Known gaps](#known-gaps)) |
-| Pages Router (`pages/`): pages, `getServerSideProps`, `getStaticProps`/`getStaticPaths`, API routes, `/_next/data` | 🧪 Experimental | Pages without data functions are served from Rust as `next start` serves them; everything else runs Next's compiled page and API handlers (requires `--js-runtime embedded-v8`, otherwise `501`): every `fallback` mode, ISR and on-demand `res.revalidate`, Preview Mode, `getInitialProps`, the custom App, Document, 404, 500 and `_error` pages. Hybrid `app/` + `pages/` builds are supported. Not with Next's `i18n` config or the edge runtime; builds made with a deployment adapter (`NEXT_ADAPTER_PATH`) are refused |
+| Pages Router (`pages/`): pages, `getServerSideProps`, `getStaticProps`/`getStaticPaths`, API routes, `/_next/data` | 🧪 Experimental | Pages without data functions are served from Rust as `next start` serves them; everything else runs Next's compiled page and API handlers (requires `--js-runtime embedded-v8`, otherwise `501`): every `fallback` mode, ISR and on-demand `res.revalidate`, Preview Mode, `getInitialProps`, the custom App, Document, 404, 500 and `_error` pages. Hybrid `app/` + `pages/` builds are supported, as are builds made with a deployment adapter (`NEXT_ADAPTER_PATH`; checked against the build's manifests at startup). Not with the edge runtime |
+| Next's `i18n` config (Pages Router) | 🧪 Experimental | Sub-path and domain locales, `localeDetection`, the `NEXT_LOCALE` cookie and `Accept-Language` (Next's own matching), locale-prefixed pages, data routes, ISR and 404 pages, `basePath` and `trailingSlash`, the proxy, as next start applies them; also from deployment-adapter builds. Domain locales follow the `Host` header only, as in next start |
 | Edge runtime routes | ⛔ Unsupported | Answers `501` |
 | Edge-runtime middleware | ⛔ Unsupported | Startup refusal |
-| Next's `i18n` config | ⛔ Unsupported | Startup refusal. Locale routing with `next-intl`'s middleware (no `i18n` config) works |
+| Next's `i18n` config with App Router routes | ⛔ Unsupported | Startup refusal (Next itself deprecates `i18n` with `app/`). Locale routing with `next-intl`'s middleware (no `i18n` config) works |
 | Interception routes (with the executor) | ⛔ Unsupported | Answers `501` |
 
 Every refusal is a `501` response with an `x-nextrs-unsupported` header that
@@ -158,11 +163,18 @@ with Server Actions, ISR or a proxy is refused at startup (unless
 
 - **Dynamic SSR beyond the fixtures:** only the fixtures' routes have been
   verified.
-- **Pages Router gaps:** Next's `i18n` config (locale routing) and
-  edge-runtime pages and API routes are not supported; a custom App's
-  `getInitialProps` is untested. Each `getStaticProps` cache hit runs
-  Next's handler (only pages without data functions are answered without
-  JavaScript). Builds made with a deployment adapter are refused.
+- **Pages Router gaps:** edge-runtime pages and API routes are not
+  supported. Each `getStaticProps` cache hit runs Next's handler (only
+  pages without data functions are answered without JavaScript). Next's
+  `i18n` config is supported for the Pages Router only, not with an
+  `assetPrefix`; pages whose names need percent-encoding are untested under
+  a locale. With `--cache-dir`, `getStaticProps` redirects and not-found
+  results survive a restart (next start runs `getStaticProps` again for
+  them; status and body are the same). Behaviours of next start that
+  NextRS reproduces and applications should know: with `basePath` and
+  `i18n` together, the proxy sees the basePath and a non-default locale in
+  `nextUrl.pathname`; a `next.config` rewrite into a protected path skips
+  the proxy.
   `node:crypto` ciphers other than AES-GCM, and asymmetric `KeyObject`s,
   are not implemented.
 - **Execution limits are per isolate, not per request:** many requests share
@@ -190,8 +202,8 @@ with Server Actions, ISR or a proxy is refused at startup (unless
   database adapters, email providers). Web Crypto has no ECDH, RSA-OAEP,
   AES-KW, PBKDF2, `deriveKey` or key wrapping, no P-521 (ES512), no RSA key
   generation, and refuses RSA keys under 2048 bits.
-- **Proxy limits:** edge-runtime middleware, `skipProxyUrlNormalize` and
-  Next's `i18n` config are refused. A request body that reaches the proxy
+- **Proxy limits:** edge-runtime middleware and `skipProxyUrlNormalize`
+  are refused. A request body that reaches the proxy
   is buffered for the proxy and the route; above `proxyClientMaxBodySize`
   (10 MB by default) NextRS answers `413`, where `next start` truncates it.
   Each proxied request takes one more trip through an isolate. External
@@ -222,8 +234,8 @@ with Server Actions, ISR or a proxy is refused at startup (unless
 
 | Feature | Behavior |
 |---|---|
-| Next's `i18n` config | Startup refusal (use `next-intl`'s middleware instead) |
-| Pages Router builds from a deployment adapter (`NEXT_ADAPTER_PATH`) | Startup refusal (build without the adapter) |
+| Next's `i18n` config with App Router routes | Startup refusal (use `next-intl`'s middleware instead) |
+| A deployment-adapter build whose Pages Router output disagrees with its manifests | Startup refusal (`pages-adapter-mismatch`) |
 | Edge-runtime middleware | Startup refusal |
 | Edge runtime routes | `501` |
 | Server Actions on the edge runtime | Startup refusal |

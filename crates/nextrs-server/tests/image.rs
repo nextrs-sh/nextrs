@@ -448,6 +448,7 @@ fn unsafe_euid() -> u32 {
 fn faults(f: impl Fn(&str) -> ImageFault + Send + Sync + 'static) -> ImageFaults {
     ImageFaults {
         before_transform: Some(std::sync::Arc::new(f)),
+        before_cancel: None,
     }
 }
 
@@ -624,8 +625,13 @@ async fn cancellation_releases_memory_while_waiting_and_after_running() {
                 tokio::spawn(async move { get(&app, &photo(w), "image/webp").await })
             })
             .collect();
-        tokio::time::sleep(std::time::Duration::from_millis(60)).await;
-        // Some wait for memory, some for the thread, one runs.
+        // Some wait for memory, some for the thread, one runs: wait until the
+        // running one holds its reservation (a fixed sleep raced it on a
+        // loaded host), well inside its 300 ms of work.
+        let deadline = std::time::Instant::now() + std::time::Duration::from_millis(250);
+        while stat(&stats, "memory_reserved_bytes") == 0 && std::time::Instant::now() < deadline {
+            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
+        }
         assert!(stat(&stats, "memory_reserved_bytes") > 0);
         for r in &requests {
             r.abort();
@@ -838,4 +844,52 @@ async fn the_source_budget_refuses_sources_it_cannot_hold() {
     assert_eq!(small.status, StatusCode::OK);
     all_released(&stats).await;
     let _ = std::fs::remove_dir_all(dir);
+}
+
+/// A request that arrives as the last client of a transformation leaves
+/// must not inherit the cancelled work: it gets an optimized image (found by
+/// the Phase 2G soak as a rare 500 or an unoptimized source).
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+async fn a_request_after_the_last_client_left_gets_its_own_transformation() {
+    let dir = project("admit-rejoin");
+    let (app, stats) = app(
+        &dir,
+        ImageOptions {
+            faults: ImageFaults {
+                // The cancelled task keeps its flight 50 ms: the next request
+                // arrives inside that window.
+                before_cancel: Some(std::time::Duration::from_millis(50)),
+                ..faults(|_| ImageFault::Sleep(std::time::Duration::from_millis(40)))
+            },
+            ..ImageOptions::default()
+        },
+    )
+    .await;
+    let widths = [
+        32, 48, 64, 96, 128, 256, 384, 640, 750, 828, 1080, 1200, 1920, 2048, 3840,
+    ];
+    // One key per width: a finished transformation is cached, so each
+    // attempt needs its own.
+    {
+        for &width in &widths {
+            let uri = photo(width);
+            let first = {
+                let app = app.clone();
+                let uri = uri.clone();
+                tokio::spawn(async move { get(&app, &uri, "image/webp").await })
+            };
+            // The first client is transforming; it leaves, and the next one
+            // arrives right away.
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+            first.abort();
+            let second = get(&app, &uri, "image/webp").await;
+            assert_eq!(second.status, StatusCode::OK, "{uri}");
+            assert_eq!(
+                header(&second, "content-type"),
+                "image/webp",
+                "{uri}: got the cancelled work's fallback"
+            );
+        }
+    }
+    all_released(&stats).await;
 }

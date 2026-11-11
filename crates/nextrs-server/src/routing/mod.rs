@@ -41,6 +41,8 @@ pub struct Rule {
     pub destination: Option<String>,
     pub status: Option<u16>,
     pub headers: Vec<(String, String)>,
+    /// Added by Next itself (its trailing-slash redirects).
+    pub internal: bool,
 }
 
 fn has_conditions(specs: &[HasSpec]) -> Result<Vec<HasCondition>, String> {
@@ -95,6 +97,7 @@ impl Rule {
             destination: spec.destination.clone(),
             status: spec.status,
             headers: spec.headers.clone(),
+            internal: spec.internal,
         })
     }
 

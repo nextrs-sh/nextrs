@@ -57,10 +57,25 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
     let mut diagnostics = Vec::new();
     let mut routes_manifest = internal::load_routes_manifest(&dist_dir)?;
     let prerender_manifest = internal::load_prerender_manifest(&dist_dir)?;
+    let required: Option<RequiredServerFiles> =
+        read_json_optional(&dist_dir.join("required-server-files.json"))?;
+    // Next's i18n config: the object next start reads (routes-manifest,
+    // else required-server-files), for both metadata sources.
+    let i18n_value = routes_manifest.i18n.clone().or_else(|| {
+        required
+            .as_ref()
+            .and_then(|r| r.config.get("i18n").cloned())
+    });
+    let (i18n, i18n_error) = match i18n_value.as_ref().map(I18nConfig::from_value) {
+        Some(Ok(parsed)) => (parsed, None),
+        Some(Err(error)) => (None, Some(error)),
+        None => (None, None),
+    };
     let internal = internal::load(
         &dist_dir,
         &routes_manifest,
         &prerender_manifest,
+        i18n.as_ref().map(|i| i.locales.as_slice()),
         &mut diagnostics,
     )?;
 
@@ -87,10 +102,9 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         fresh
     });
 
-    let required: Option<RequiredServerFiles> =
-        read_json_optional(&dist_dir.join("required-server-files.json"))?;
     let mut next_version = None;
-    let (source, mut routes, mut prerenders, rsc, config) = match adapter {
+    let mut adapter_stored_files = Vec::new();
+    let (source, mut routes, mut prerenders, rsc, mut config) = match adapter {
         Some(output) => {
             next_version = Some(DetectedVersion {
                 version: output.next_version.clone(),
@@ -99,16 +113,38 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
             let config = RoutingConfig {
                 base_path: output.config.base_path.clone(),
                 trailing_slash: output.config.trailing_slash,
-                i18n: output.config.i18n.as_ref().is_some_and(|v| !v.is_null()),
+                i18n: None,
                 powered_by_header: output.config.powered_by_header,
                 generate_etags: output.config.generate_etags,
                 skip_proxy_url_normalize: config_flag(required.as_ref(), "skipProxyUrlNormalize"),
             };
             let tables = adapter_output::tables(&project_dir, output, &mut diagnostics);
+            // One model for both sources: the Pages Router's routes and
+            // stored outputs come from the manifests next start reads (the
+            // adapter runs after next build wrote them all), checked
+            // against what the adapter reported.
+            check_adapter_pages(
+                &internal,
+                &tables.pages,
+                &build_id,
+                i18n.as_ref().map(|i| i.locales.as_slice()),
+                &mut diagnostics,
+            );
+            adapter_stored_files = tables.stored_files;
+            let mut routes = tables.routes;
+            let mut prerenders = tables.prerenders;
+            routes.extend(
+                internal
+                    .routes
+                    .iter()
+                    .filter(|r| matches!(r.kind, RouteKind::PagesPage | RouteKind::PagesApi))
+                    .cloned(),
+            );
+            prerenders.extend(internal.prerenders.iter().filter(|p| p.pages).cloned());
             (
                 MetadataSource::AdapterApi,
-                tables.routes,
-                tables.prerenders,
+                routes,
+                prerenders,
                 tables.rsc,
                 config,
             )
@@ -125,6 +161,8 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
             routing_config(required.as_ref(), &routes_manifest.base_path),
         ),
     };
+
+    config.i18n = i18n;
 
     if source == MetadataSource::AdapterApi {
         supplement_internal_prerenders(&internal, &mut routes, &mut prerenders, &mut diagnostics);
@@ -176,6 +214,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         source,
         routers: internal.routers,
         pages_router: internal.pages_router.clone(),
+        adapter_stored_files,
         config,
         rsc,
         routes,
@@ -187,6 +226,13 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         images,
         diagnostics,
     };
+    if let Some(error) = i18n_error {
+        info.diagnostics.push(Diagnostic {
+            severity: Severity::Unsupported,
+            code: "i18n",
+            message: format!("the i18n config could not be read: {error}"),
+        });
+    }
     detect_features(&mut info, &routes_manifest)?;
     info.server_actions = server_actions_info(&info, required.as_ref())?;
     Ok(info)
@@ -220,9 +266,7 @@ fn routing_config(required: Option<&RequiredServerFiles>, base_path: &str) -> Ro
     RoutingConfig {
         base_path: base_path.to_owned(),
         trailing_slash: flag("trailingSlash", false),
-        i18n: config
-            .and_then(|c| c.get("i18n"))
-            .is_some_and(|v| !v.is_null()),
+        i18n: None,
         powered_by_header: flag("poweredByHeader", true),
         generate_etags: flag("generateEtags", true),
         skip_proxy_url_normalize: flag("skipProxyUrlNormalize", false)
@@ -278,6 +322,146 @@ fn server_actions_info(
 
 /// The adapter API does not list prerendered shells of framework routes such
 /// as `/_not-found` (16.4.3), although `next start` serves them for 404s.
+/// Compares the adapter's Pages Router outputs with the internal tables the
+/// model uses. Every page and API route function the adapter reported must
+/// be a route with the same entry (a getServerSideProps page's data path
+/// one of its data routes), every route with a handler must be reported,
+/// and every stored response the adapter reported must be the file the
+/// model serves or seeds the cache with. A difference is a refusal: the
+/// model would not describe the build the adapter saw.
+fn check_adapter_pages(
+    internal: &internal::InternalTables,
+    adapter: &adapter_output::AdapterPages,
+    build_id: &str,
+    locales: Option<&[String]>,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    // With i18n the adapter lists each function once without a locale and
+    // once per locale (`/fr/ssr`, the index page as `/index` and `/fr`);
+    // the filesystem router strips the locale to find the page.
+    let page_of = |pathname: &str| -> String {
+        let page = match locales {
+            Some(locales) => normalize_locale_path(pathname, locales).0,
+            None => pathname,
+        };
+        if page == "/index" {
+            "/".to_owned()
+        } else {
+            page.to_owned()
+        }
+    };
+    let same = |a: &Path, b: &Path| match (a.canonicalize(), b.canonicalize()) {
+        (Ok(a), Ok(b)) => a == b,
+        _ => a == b,
+    };
+    let data_prefix = format!("/_next/data/{build_id}");
+    // `/_next/data/<build>/x.json` -> `/x` (`/index.json` -> `/`).
+    let data_page = |pathname: &str| -> Option<String> {
+        let rest = pathname.strip_prefix(&data_prefix)?.strip_suffix(".json")?;
+        Some(match rest {
+            "/index" => "/".to_owned(),
+            rest => rest.to_owned(),
+        })
+    };
+    let mut mismatches = Vec::new();
+    for (kind, pathname, file) in &adapter.functions {
+        if let Some(page) = data_page(pathname).map(|p| page_of(&p)) {
+            if !internal
+                .pages_router
+                .data_routes
+                .iter()
+                .any(|d| d.page == page)
+            {
+                mismatches.push(format!(
+                    "data route {pathname} has no page with getServerSideProps"
+                ));
+            }
+            continue;
+        }
+        let pathname = &page_of(pathname);
+        if pathname == "/_error" {
+            if !internal
+                .pages_router
+                .error_entry
+                .as_deref()
+                .is_some_and(|e| same(e, file))
+            {
+                mismatches.push("_error entry differs".to_owned());
+            }
+            continue;
+        }
+        match internal.routes.iter().find(|r| r.page == *pathname) {
+            Some(route)
+                if route.kind == *kind && route.entry.as_deref().is_some_and(|e| same(e, file)) => {
+            }
+            // The adapter reports the 404 page as a function (its module
+            // stub) even when pages-manifest maps it to the HTML next start
+            // serves; so does the model.
+            Some(route)
+                if pathname == "/404"
+                    && route
+                        .entry
+                        .as_ref()
+                        .is_some_and(|e| e.extension().is_some_and(|x| x == "html")) => {}
+            Some(_) => mismatches.push(format!("{pathname}: kind or entry differs")),
+            None => mismatches.push(format!("{pathname}: no such route")),
+        }
+    }
+    for route in internal.routes.iter().filter(|r| {
+        matches!(r.kind, RouteKind::PagesPage | RouteKind::PagesApi)
+            && r.entry
+                .as_ref()
+                .is_some_and(|e| e.extension().is_some_and(|x| x == "js"))
+    }) {
+        if !adapter
+            .functions
+            .iter()
+            .any(|(_, p, _)| page_of(p) == route.page)
+        {
+            mismatches.push(format!("{}: not in the adapter output", route.page));
+        }
+    }
+    for (pathname, file, status) in &adapter.prerenders {
+        let (page, data) = match data_page(pathname) {
+            Some(page) => (page, true),
+            None => (pathname.clone(), false),
+        };
+        // A fallback page (`/x/[slug]`) is Next's handler's own business;
+        // a build-time notFound has no stored output of its own.
+        if page.contains('[') || *status == Some(404) || file.is_none() {
+            continue;
+        }
+        let stored = internal
+            .prerenders
+            .iter()
+            .find(|p| p.pages && p.pathname == page)
+            .and_then(|p| {
+                if data {
+                    p.data.as_ref()
+                } else {
+                    p.html.as_ref()
+                }
+            });
+        match (stored, file) {
+            (Some(stored), Some(file)) if same(&stored.file, file) => {}
+            _ => mismatches.push(format!("{pathname}: stored output differs")),
+        }
+    }
+    if !mismatches.is_empty() {
+        let shown = mismatches.len().min(5);
+        diagnostics.push(Diagnostic {
+            severity: Severity::Unsupported,
+            code: "pages-adapter-mismatch",
+            message: format!(
+                "the adapter output and the build's manifests disagree on {} Pages Router entries: {}{}",
+                mismatches.len(),
+                mismatches[..shown].join("; "),
+                if mismatches.len() > shown { "; ..." } else { "" }
+            ),
+        });
+    }
+}
+
 fn supplement_internal_prerenders(
     internal: &internal::InternalTables,
     routes: &mut [Route],
@@ -416,25 +600,56 @@ fn detect_features(
             ),
         );
     }
-    if info.config.i18n || routes_manifest.i18n.is_some() {
-        push(Severity::Unsupported, "i18n", "i18n routing".into());
-    }
-    if info.routers.pages {
-        if info.source == MetadataSource::AdapterApi {
-            // The adapter's prerender outputs carry the HTML but not the
-            // page data NextRS serves for /_next/data requests.
+    if let Some(i18n) = &info.config.i18n {
+        // Next warns that i18n does not apply to app/ and routes its pages
+        // only under the default locale; that combination is untested here.
+        let app_routes = info
+            .routes
+            .iter()
+            .filter(|r| matches!(r.kind, RouteKind::AppPage | RouteKind::AppRoute) && !r.internal)
+            .count();
+        if app_routes > 0 {
             push(
                 Severity::Unsupported,
-                "pages-router-adapter-output",
-                "Pages Router routes from deployment-adapter output are not supported; build without NEXT_ADAPTER_PATH".into(),
+                "i18n-app-router",
+                format!(
+                    "Next's i18n config with {app_routes} App Router routes is not supported (Pages Router only)"
+                ),
             );
         } else {
             push(
                 Severity::Info,
-                "pages-router",
-                "Pages Router: pages without data functions are served as built; getServerSideProps, getStaticProps, API routes and /_next/data run Next's compiled handlers".into(),
+                "i18n",
+                format!(
+                    "Pages Router i18n: locales {} (default {}){}{}",
+                    i18n.locales.join(", "),
+                    i18n.default_locale,
+                    if i18n.domains.is_empty() {
+                        String::new()
+                    } else {
+                        format!(", {} locale domains", i18n.domains.len())
+                    },
+                    if i18n.locale_detection {
+                        ""
+                    } else {
+                        ", no locale detection"
+                    }
+                ),
             );
         }
+    } else if routes_manifest.i18n.as_ref().is_some_and(|v| !v.is_null()) {
+        push(Severity::Unsupported, "i18n", "i18n routing".into());
+    }
+    if info.routers.pages {
+        push(
+            Severity::Info,
+            "pages-router",
+            if info.source == MetadataSource::AdapterApi {
+                "Pages Router (deployment-adapter build): routes and stored outputs read from the manifests next start reads and checked against the adapter output; getServerSideProps, getStaticProps, API routes and /_next/data run Next's compiled handlers".into()
+            } else {
+                "Pages Router: pages without data functions are served as built; getServerSideProps, getStaticProps, API routes and /_next/data run Next's compiled handlers".into()
+            },
+        );
     }
     if !actions.node.is_empty() {
         push(
@@ -558,4 +773,163 @@ fn detect_features(
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod adapter_pages_tests {
+    //! Negative controls for the adapter cross-check: an adapter entry the
+    //! model ignores, or a route the adapter did not report, must refuse.
+    use super::*;
+    use std::path::PathBuf;
+
+    fn route(page: &str, kind: RouteKind, entry: &str) -> Route {
+        Route {
+            page: page.into(),
+            kind,
+            rendering: Rendering::Dynamic,
+            runtime: Runtime::Nodejs,
+            entry: Some(PathBuf::from(entry)),
+            matcher: Matcher::Exact {
+                pathname: page.into(),
+            },
+            internal: false,
+        }
+    }
+
+    fn tables() -> (internal::InternalTables, adapter_output::AdapterPages) {
+        let internal = internal::InternalTables {
+            routes: vec![
+                route("/ssr", RouteKind::PagesPage, "/b/server/pages/ssr.js"),
+                route("/api/x", RouteKind::PagesApi, "/b/server/pages/api/x.js"),
+                route("/about", RouteKind::PagesPage, "/b/server/pages/about.html"),
+            ],
+            prerenders: Vec::new(),
+            routers: Routers {
+                app: false,
+                pages: true,
+            },
+            pages_router: PagesRouterInfo {
+                data_routes: vec![DataRoute {
+                    page: "/ssr".into(),
+                    regex: "^/_next/data/B/ssr\\.json$".into(),
+                    dynamic: false,
+                }],
+                ..PagesRouterInfo::default()
+            },
+        };
+        let adapter = adapter_output::AdapterPages {
+            functions: vec![
+                (
+                    RouteKind::PagesPage,
+                    "/ssr".into(),
+                    "/b/server/pages/ssr.js".into(),
+                ),
+                (
+                    RouteKind::PagesPage,
+                    "/_next/data/B/ssr.json".into(),
+                    "/b/server/pages/ssr.js".into(),
+                ),
+                (
+                    RouteKind::PagesApi,
+                    "/api/x".into(),
+                    "/b/server/pages/api/x.js".into(),
+                ),
+            ],
+            prerenders: Vec::new(),
+        };
+        (internal, adapter)
+    }
+
+    fn refused(
+        internal: &internal::InternalTables,
+        adapter: &adapter_output::AdapterPages,
+    ) -> Option<String> {
+        let mut diagnostics = Vec::new();
+        check_adapter_pages(internal, adapter, "B", None, &mut diagnostics);
+        diagnostics
+            .into_iter()
+            .find(|d| d.code == "pages-adapter-mismatch" && d.severity == Severity::Unsupported)
+            .map(|d| d.message)
+    }
+
+    #[test]
+    fn consistent_tables_pass() {
+        let (internal, adapter) = tables();
+        assert_eq!(refused(&internal, &adapter), None);
+    }
+
+    #[test]
+    fn an_adapter_route_the_model_lacks_refuses() {
+        let (mut internal, adapter) = tables();
+        internal.routes.retain(|r| r.page != "/api/x");
+        assert!(
+            refused(&internal, &adapter)
+                .unwrap()
+                .contains("/api/x: no such route")
+        );
+    }
+
+    #[test]
+    fn a_route_the_adapter_did_not_report_refuses() {
+        let (internal, mut adapter) = tables();
+        adapter.functions.retain(|(_, p, _)| p != "/ssr");
+        assert!(
+            refused(&internal, &adapter)
+                .unwrap()
+                .contains("/ssr: not in the adapter output")
+        );
+    }
+
+    #[test]
+    fn a_different_entry_or_data_route_refuses() {
+        let (internal, mut adapter) = tables();
+        adapter.functions[2].2 = "/b/server/pages/api/other.js".into();
+        assert!(
+            refused(&internal, &adapter)
+                .unwrap()
+                .contains("/api/x: kind or entry differs")
+        );
+        let (internal, mut adapter) = tables();
+        adapter.functions.push((
+            RouteKind::PagesPage,
+            "/_next/data/B/gone.json".into(),
+            "/b/server/pages/gone.js".into(),
+        ));
+        assert!(
+            refused(&internal, &adapter)
+                .unwrap()
+                .contains("no page with getServerSideProps")
+        );
+    }
+
+    #[test]
+    fn a_stored_output_elsewhere_refuses() {
+        let (mut internal, mut adapter) = tables();
+        internal.prerenders.push(Prerender {
+            pathname: "/ssg".into(),
+            route: "/ssg".into(),
+            status: 200,
+            revalidate: None,
+            html: Some(StoredResponse {
+                file: "/b/server/pages/ssg.html".into(),
+                headers: Vec::new(),
+            }),
+            rsc: None,
+            segments: Vec::new(),
+            postponed: false,
+            pages: true,
+            data: None,
+            locale: None,
+        });
+        adapter.prerenders.push((
+            "/ssg".into(),
+            Some("/b/server/route-cache/PAGES/x/$/ssg.html".into()),
+            None,
+        ));
+        assert!(
+            refused(&internal, &adapter)
+                .unwrap()
+                .contains("/ssg: stored output differs")
+        );
+    }
 }

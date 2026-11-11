@@ -30,6 +30,7 @@ pub fn config(limits: Limits) -> ExecutorConfig {
         limits,
         network: None,
         cache: None,
+        build_route_cache: Vec::new(),
     }
 }
 

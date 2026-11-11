@@ -90,6 +90,11 @@ fn run(
             fault_injection: cfg!(feature = "fault-injection"),
             network: services.net.is_some(),
             cache: services.cache.is_some(),
+            build_route_cache: config
+                .build_route_cache
+                .iter()
+                .map(|path| path.to_string_lossy().into_owned())
+                .collect(),
         };
         let create_params = config
             .limits

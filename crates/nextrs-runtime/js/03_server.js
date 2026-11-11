@@ -740,6 +740,13 @@
   function routedMeta(invocation) {
     const meta = {};
     if (invocation.middlewareCookies?.length) meta.middlewareCookie = invocation.middlewareCookies;
+    // next start's locale meta (resolve-routes, then base server): the
+    // page handler's prepare() prefers it to the URL's own locale.
+    if (invocation.locale != null) {
+      meta.locale = invocation.locale;
+      meta.defaultLocale = invocation.defaultLocale;
+      if (invocation.localeDomain) meta.isLocaleDomain = true;
+    }
     if (invocation.page != null) {
       const params = paramsFor(invocation.page, invocation.invokePath);
       if (params) meta.params = params;
@@ -927,10 +934,13 @@
   // start keeps regenerated pages under server/route-cache) must not feed
   // this process: such files are reported missing, so FileSystemCache
   // falls back to the immutable build prerender, verified by its
-  // route-cache ownership record.
+  // route-cache ownership record. The files next build itself wrote there
+  // (a deployment-adapter build keeps its prerenders in route-cache) stay
+  // visible: Rust lists them from the build's manifests.
+  const buildRouteCache = new Set(boot.buildRouteCache ?? []);
   function buildOnlyFs(fs, serverDistDir) {
     const scoped = path.join(serverDistDir, "route-cache") + path.sep;
-    const hidden = (file) => String(file).startsWith(scoped);
+    const hidden = (file) => String(file).startsWith(scoped) && !buildRouteCache.has(path.resolve(String(file)));
     const missing = (file) => {
       const error = new Error(`ENOENT: no such file or directory, open '${file}'`);
       error.code = "ENOENT";
@@ -1182,6 +1192,27 @@
     },
   };
 
+  // next start registers its runtime config for the route modules
+  // (router-server: routerServerContext.nextConfig), which they prefer to
+  // the build's recorded config. The two differ in adapterPath: next build
+  // records the deployment adapter it ran with, while next start's own
+  // config has none unless NEXT_ADAPTER_PATH is set again when it starts
+  // (and the Pages handler answers a fallback: false miss differently with
+  // one). For such a build, give the handlers next start's view.
+  function registerRouterServerConfig() {
+    let config;
+    try {
+      config = rootRequire(path.join(distDir, "required-server-files.json")).config;
+    } catch {
+      return;
+    }
+    if (!config?.adapterPath) return;
+    const symbol = Symbol.for("@next/router-server-methods");
+    globalThis[symbol] ??= {};
+    const { adapterPath: _adapterPath, ...runtime } = config;
+    globalThis[symbol]["."] = { ...globalThis[symbol]["."], nextConfig: runtime };
+  }
+
   globalThis.__nextrsStart = function start() {
     delete globalThis.__nextrsStart;
     delete globalThis.__nextrsInternal;
@@ -1203,6 +1234,7 @@
       return;
     }
     patchFetchAsNextStartDoes();
+    registerRouterServerConfig();
     if (boot.faultInjection) {
       Object.defineProperty(globalThis, "__nextrsFault", { value: (kind) => ops.op_nextrs_fault(kind) });
     }

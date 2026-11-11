@@ -125,7 +125,7 @@ jobs:
       - name: HTTP comparison against next start
         run: |
           if [ "${{ matrix.next }}" = pinned ]; then
-            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser --cache-components --proxy --proxy-combinations --images --pages
+            scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --browser --cache-components --proxy --proxy-combinations --images --pages --adapter
           else
             scripts/compat-suite.sh --next ${{ matrix.next }} --isolates ${{ matrix.isolates }} --out compat-out --cache-components --proxy --images --pages
           fi

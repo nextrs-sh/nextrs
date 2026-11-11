@@ -93,6 +93,10 @@ pub struct ExecutorConfig {
     /// handler, separate in each isolate and in memory only (the build
     /// directory is read-only).
     pub cache: Option<CacheConfig>,
+    /// Files under `server/route-cache` that `next build` itself wrote
+    /// (absolute paths). Next's cache may seed from them; every other file
+    /// there (a server's runtime writes) stays hidden from it.
+    pub build_route_cache: Vec<PathBuf>,
 }
 
 impl ExecutorConfig {
@@ -110,6 +114,7 @@ impl ExecutorConfig {
             limits: Limits::default(),
             network: None,
             cache: Some(CacheConfig::default()),
+            build_route_cache: Vec::new(),
         }
     }
 
@@ -242,6 +247,17 @@ pub struct RouteMeta {
     pub middleware_cookies: Vec<String>,
     /// Set when the request was rewritten to this route.
     pub rewrite: Option<Rewrite>,
+    /// With Next's i18n config: the locale meta routing found.
+    pub locale: Option<LocaleMeta>,
+}
+
+/// next start's locale request meta (`locale`, `defaultLocale`,
+/// `isLocaleDomain`), which Next's page handlers read.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LocaleMeta {
+    pub locale: String,
+    pub default_locale: String,
+    pub locale_domain: bool,
 }
 
 /// A rewrite's target, for the params and query the route renders with.

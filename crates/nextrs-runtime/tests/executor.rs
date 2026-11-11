@@ -27,6 +27,7 @@ fn executor() -> Arc<Executor> {
         limits: Limits::default(),
         network: None,
         cache: None,
+        build_route_cache: Vec::new(),
     })
     .expect("executor starts")
 }

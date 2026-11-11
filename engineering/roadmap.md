@@ -19,6 +19,8 @@ and scope changes as the experiments produce evidence.
 | **2C: authentication libraries** | Asymmetric Web Crypto, `jose` with a remote JWKS, Auth.js v5, `next-intl` routing modes, OpenTelemetry, `experimental.proxyTimeout`, a fetch outliving its request, independent outcome checks and negative controls, a six-hour proxy soak | 🧪 Experimental |
 | **2D: images** | `/_next/image` in Rust for unchanged `next/image` applications: Next's request semantics, memory-safe decoding with resource limits, local sources through routing, remote sources under the network policy, an image cache, browser tests | 🧪 Experimental |
 | **2E: image hardening** | Shrink-on-load JPEG decoding, memory-weighted admission and a source budget, allocator settings, mozjpeg JPEG and lossless palette PNG output, HTTPS sources with private CAs, `assetPrefix` builds, image soaks beside SSR | 🧪 Experimental |
+| **2F: Pages Router** | `pages/` applications through Next's compiled handlers: every data function, ISR and on-demand revalidation, Preview Mode, API routes, `/_next/data`, hybrid `app/` + `pages/` builds, negative controls | 🧪 Experimental |
+| **2G: framework compatibility** | Next's native `i18n` routing (sub-path and domain locales, detection, data routes, localized 404s and ISR), Pages Router builds from the Deployment Adapter (one build model, cross-checked at startup), a custom App's `getInitialProps`, Pages Router cache review, middleware prefetches, a mixed App/Pages/image/i18n soak driver, new negative controls | 🧪 Experimental (six-hour mixed soak not yet run) |
 
 "Experimental" means the feature passes the comparison suites on the
 fixtures, with the gaps listed in
@@ -37,8 +39,8 @@ Drawn from the known gaps. These are directions, not commitments.
   cache hits.
 - **Image engine:** AVIF/HEIF sources, faster AVIF output (rav1e with
   assembly), PNG output size closer to sharp's without visible loss.
-- **Advanced Next.js features:** Next's `i18n` config (with the Pages
-  Router and the App Router), a Pages Router `getStaticProps` cache-hit
-  path without JavaScript.
+- **Advanced Next.js features:** Next's `i18n` config with the App
+  Router, a Pages Router `getStaticProps` cache-hit path without
+  JavaScript (feasibility studied in Phase 2G, deferred).
 - **Performance and production readiness:** performance work, measured only
   once correctness is established; operational hardening.
