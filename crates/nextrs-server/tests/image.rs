@@ -486,31 +486,42 @@ async fn all_released(stats: &ImageStats) {
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn small_images_proceed_side_by_side_within_the_budget() {
     let dir = project("admit-small");
+    // When each transformation was admitted (the fault runs as it starts).
+    let admitted = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+    let record = admitted.clone();
     let (app, stats) = app(
         &dir,
         ImageOptions {
             concurrency: 4,
             memory_budget: 64 * 1024 * 1024,
-            faults: faults(|_| ImageFault::Sleep(std::time::Duration::from_millis(200))),
+            faults: faults(move |_| {
+                record.lock().unwrap().push(std::time::Instant::now());
+                ImageFault::Sleep(std::time::Duration::from_millis(200))
+            }),
             ..ImageOptions::default()
         },
     )
     .await;
-    let started = std::time::Instant::now();
     let uris = [32, 48, 64, 96].map(photo);
     let answers =
         futures_util::future::join_all(uris.iter().map(|u| get(&app, u, "image/webp"))).await;
-    let elapsed = started.elapsed();
     assert!(answers.iter().all(|a| a.status == StatusCode::OK));
     assert!(
         answers
             .iter()
             .all(|a| header(a, "content-type") == "image/webp")
     );
-    // Four 200 ms transformations side by side, not one after another.
+    // Four 200 ms transformations side by side, not one after another:
+    // all four start before the first one's 200 ms ends would be ideal;
+    // one after another, the last would start >= 600 ms after the first.
+    // The bound sits between, so a slow runner cannot fail it (a wall-clock
+    // bound on the whole batch did, at 707 ms against 700).
+    let admitted = admitted.lock().unwrap().clone();
+    assert_eq!(admitted.len(), 4);
+    let spread = *admitted.iter().max().unwrap() - *admitted.iter().min().unwrap();
     assert!(
-        elapsed < std::time::Duration::from_millis(700),
-        "{elapsed:?}"
+        spread < std::time::Duration::from_millis(400),
+        "admissions spread over {spread:?}"
     );
     assert_eq!(stat(&stats, "memory_waits"), 0);
     all_released(&stats).await;

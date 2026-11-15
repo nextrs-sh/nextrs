@@ -25,13 +25,34 @@ fn isolate_of(whoami: &str) -> String {
 async fn concurrent_requests_spread_over_every_isolate() {
     let executor = pool(3);
     assert_eq!(executor.metrics().ready_executors(), 3);
+    // Warm every isolate first (concurrent requests reach all three): a
+    // cold isolate compiling its first handler counts as busy and is
+    // skipped by dispatch, which on a loaded CI runner skewed the split.
+    let warm: Vec<_> = (0..6)
+        .map(|_| {
+            let executor = executor.clone();
+            tokio::spawn(async move {
+                collect(
+                    &executor,
+                    request("faults.js", &[("x-mode", "whoami"), ("x-delay", "50")]),
+                )
+                .await
+            })
+        })
+        .collect();
+    for task in warm {
+        task.await.unwrap();
+    }
+    // Then all 60 requests outstanding at once (each holds its slot for
+    // 300 ms, far longer than dispatching them takes), so the split depends
+    // on outstanding counts, not on how fast the runner completes them.
     let tasks: Vec<_> = (0..60)
         .map(|_| {
             let executor = executor.clone();
             tokio::spawn(async move {
                 collect(
                     &executor,
-                    request("faults.js", &[("x-mode", "whoami"), ("x-delay", "30")]),
+                    request("faults.js", &[("x-mode", "whoami"), ("x-delay", "300")]),
                 )
                 .await
                 .text()
