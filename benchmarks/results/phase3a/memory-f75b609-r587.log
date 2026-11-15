@@ -1,0 +1,17 @@
+15:15:59 round 1 glibc-default
+15:27:59   glibc-default: ok 587 rps p99 13.951 ms; anon end 354.2 MiB, slope 3.43 MiB/min, after idle 204.7; malloc free 28.9 -> 38.9 MiB
+15:28:00 round 1 glibc-arena2
+15:40:01   glibc-arena2: ok 587 rps p99 13.839 ms; anon end 344.1 MiB, slope 5.04 MiB/min, after idle 194.1; malloc free 15.9 -> 25.5 MiB
+15:40:01 round 1 glibc-adaptive-mmap
+15:52:02   glibc-adaptive-mmap: ok 587 rps p99 13.239 ms; anon end 392.5 MiB, slope 4.51 MiB/min, after idle 244.2; malloc free 73.1 -> 83.5 MiB
+15:52:03 round 1 jemalloc
+16:04:03   jemalloc: ok 587 rps p99 15.015 ms; anon end 354.3 MiB, slope 4.96 MiB/min, after idle 205.7; malloc free 18.3 -> 24.1 MiB
+16:04:04 round 2 jemalloc
+16:16:05   jemalloc: ok 587 rps p99 15.447 ms; anon end 377 MiB, slope 4.24 MiB/min, after idle 212.8; malloc free 22 -> 28.1 MiB
+16:16:06 round 2 glibc-adaptive-mmap
+16:28:06   glibc-adaptive-mmap: ok 587 rps p99 13.407 ms; anon end 399.9 MiB, slope 3.34 MiB/min, after idle 252.8; malloc free 80.9 -> 89.5 MiB
+16:28:07 round 2 glibc-arena2
+16:40:08   glibc-arena2: ok 587 rps p99 13.511 ms; anon end 340.3 MiB, slope 5.59 MiB/min, after idle 188; malloc free 17.2 -> 26.8 MiB
+16:40:08 round 2 glibc-default
+16:52:09   glibc-default: ok 587 rps p99 13.383 ms; anon end 341.3 MiB, slope 3.25 MiB/min, after idle 198.3; malloc free 29.6 -> 37.3 MiB
+16:52:10 done benchmarks/results/phase3a/memory-f75b609-r587

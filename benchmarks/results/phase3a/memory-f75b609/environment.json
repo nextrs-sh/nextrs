@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-14T13:39:24.815Z",
+  "host_kind": "single-host (load generator and server on the same machine, pinned to disjoint CPUs)",
+  "cpu_model": "Intel(R) Core(TM) i5-9400F CPU @ 2.90GHz",
+  "logical_cpus": 6,
+  "cpu_governors": [
+    "performance"
+  ],
+  "cpu_max_mhz": 4100,
+  "turbo_disabled": "0",
+  "mem_total_mib": 15919,
+  "mem_available_mib_at_start": 10191,
+  "swap_total_mib": 8192,
+  "swap_used_mib_at_start": 0,
+  "loadavg_at_start": [
+    4.9,
+    3.43,
+    2.93
+  ],
+  "os": "Freedesktop SDK 25.08 (Flatpak runtime)",
+  "kernel": "7.3.3-300.fc45.x86_64",
+  "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1",
+  "node": "v24.18.0",
+  "nextrs_binary": "target/bench-bins/nextrs-f75b609",
+  "nextrs_binary_sha256": "a7fe039f7a6390e616a88e75ecae24ce7c2e03ea319b0ca3ed9dce0b65aea84d",
+  "nextrs_commit": "f75b609c959e21d3215d67cd51efb7d0f8bcdbec",
+  "nextrs_dirty": true,
+  "loadgen": "benchmarks/loadgen/target/release/nextrs-loadgen",
+  "loadgen_sha256": "2f7fd44252432f7ea406db33d411f2d3e6ad1a8f436f7d33924ee14690d720ca",
+  "server_cpus": "0-3",
+  "load_cpus": "4-5",
+  "memory_limit": "none (no cgroup limit applied); RSS is reported per process tree",
+  "memory_parameters": {
+    "group": "mixed",
+    "workload": "mixed",
+    "isolates": 4,
+    "rate": 1500,
+    "minutes": 10,
+    "idle": 2,
+    "every": 10,
+    "rounds": 2,
+    "connections": 256,
+    "configs": [
+      {
+        "label": "glibc-default",
+        "bin": "target/bench-bins/nextrs-f75b609",
+        "extra": [],
+        "env": {}
+      },
+      {
+        "label": "glibc-arena2",
+        "bin": "target/bench-bins/nextrs-f75b609",
+        "extra": [],
+        "env": {
+          "MALLOC_ARENA_MAX": "2"
+        }
+      },
+      {
+        "label": "glibc-adaptive-mmap",
+        "bin": "target/bench-bins/nextrs-f75b609",
+        "extra": [
+          "--malloc-mmap-threshold",
+          "0"
+        ],
+        "env": {}
+      },
+      {
+        "label": "jemalloc",
+        "bin": "target/bench-bins/nextrs-f75b609-jemalloc",
+        "extra": [],
+        "env": {}
+      }
+    ]
+  }
+}

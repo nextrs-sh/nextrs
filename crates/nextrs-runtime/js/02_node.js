@@ -178,6 +178,88 @@
     };
   }
 
+  // --- Buffer: base64 through deno_web's native (simdutf) codec --------
+  // buffer@6 decodes base64 in JavaScript, twice per Buffer.from (byteLength
+  // decodes the whole string to size the buffer), after a regular
+  // expression pass that strips invalid characters; it encodes through an
+  // array of 3-byte groups. NextRS's cache stores RSC and ISR payloads as
+  // base64, so every cache hit decoded them this way (Phase 3A: the hottest
+  // JavaScript on an ISR hit under moderate load). Decoding goes to
+  // simdutf's strict decoder first: it accepts the standard alphabet with
+  // ASCII whitespace and optional final padding, for which Node (which
+  // skips whitespace) produces the same bytes. What it refuses (Node
+  // ignores invalid characters, accepts the URL-safe alphabet, stops at
+  // padding and reads a character beyond U+00FF by its low byte) goes to
+  // buffer@6's decoder, low bytes first. No validation pass up front: a
+  // regular expression check cost as much as the decode it guarded.
+  // tests/buffer_base64.rs holds the results to Node's. byteLength follows
+  // Node's formula (base64ByteLength), not a decode. Argument handling
+  // mirrors buffer@6.
+  {
+    const proto = Buffer.prototype;
+    const { op_base64_decode, op_base64_encode_from_buffer } = ops;
+    const base64Name = (encoding) => encoding === "base64" || (typeof encoding === "string" && encoding.toLowerCase() === "base64");
+
+    // Node's decoder reads a character beyond U+00FF by its low byte (so
+    // "Ł", U+0141, counts as "A"); buffer@6 drops it as invalid.
+    const wide = /[^\x00-\xff]/;
+    const lowBytes = (s) => (wide.test(s) ? s.replace(/[^\x00-\xff]/g, (c) => String.fromCharCode(c.charCodeAt(0) & 0xff)) : s);
+
+    const vendorFrom = Buffer.from;
+    Buffer.from = function from(value, encodingOrOffset, length) {
+      if (typeof value === "string" && base64Name(encodingOrOffset)) {
+        let bytes;
+        try {
+          bytes = op_base64_decode(value);
+        } catch {
+          return vendorFrom.call(Buffer, lowBytes(value), encodingOrOffset, length);
+        }
+        Object.setPrototypeOf(bytes, proto);
+        return bytes;
+      }
+      return vendorFrom.call(Buffer, value, encodingOrOffset, length);
+    };
+
+    const vendorByteLength = Buffer.byteLength;
+    Buffer.byteLength = function byteLength(string, encoding) {
+      if (typeof string === "string" && arguments.length < 3 && base64Name(encoding)) {
+        let bytes = string.length;
+        if (bytes > 0 && string.charCodeAt(bytes - 1) === 0x3d) bytes--;
+        if (bytes > 1 && string.charCodeAt(bytes - 1) === 0x3d) bytes--;
+        return (bytes * 3) >>> 2;
+      }
+      return vendorByteLength.apply(Buffer, arguments);
+    };
+
+    // write keeps buffer@6's decoder; only the low-byte reading is added
+    // (the encoding is the second, third or fourth argument).
+    const vendorWrite = proto.write;
+    proto.write = function write(string, offset, length, encoding) {
+      if (typeof string === "string" && (base64Name(offset) || base64Name(length) || base64Name(encoding))) {
+        const args = [...arguments];
+        args[0] = lowBytes(string);
+        return vendorWrite.apply(this, args);
+      }
+      return vendorWrite.apply(this, arguments);
+    };
+
+    const vendorToString = proto.toString;
+    proto.toString = function toString(encoding, start, end) {
+      if (!base64Name(encoding)) return vendorToString.apply(this, arguments);
+      const length = this.length;
+      if (length === 0) return "";
+      if (start === undefined || start < 0) start = 0;
+      if (start > length) return "";
+      if (end === undefined || end > length) end = length;
+      if (end <= 0) return "";
+      end >>>= 0;
+      start >>>= 0;
+      if (end <= start) return "";
+      return op_base64_encode_from_buffer(this, start, end - start);
+    };
+    proto.toLocaleString = proto.toString;
+  }
+
   // --- Buffer: base64url (Node >= 15) is missing from buffer@6 ---------
   {
     const toBase64 = (s) => s.replace(/-/g, "+").replace(/_/g, "/");

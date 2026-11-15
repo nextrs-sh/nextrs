@@ -1,0 +1,21 @@
+== default
+    Finished `release` profile [optimized] target(s) in 2m 28s
+   149s build, 98874384 bytes (0 stripped), startup 134 ms
+== thin-lto
+    Finished `release` profile [optimized] target(s) in 2m 11s
+   132s build, 98665184 bytes (0 stripped), startup 134 ms
+== fat-lto-cgu1
+    Finished `release` profile [optimized] target(s) in 4m 21s
+   262s build, 88228072 bytes (0 stripped), startup 134 ms
+== cgu1
+    Finished `release` profile [optimized] target(s) in 2m 54s
+   174s build, 91143416 bytes (0 stripped), startup 134 ms
+== x86-64-v3
+    Finished `release` profile [optimized] target(s) in 2m 20s
+   140s build, 99256920 bytes (0 stripped), startup 134 ms
+variant       commit   build_seconds  binary_bytes  stripped_bytes  startup_ms_median
+default       f75b609  149            98874384      0               134
+thin-lto      f75b609  132            98665184      0               134
+fat-lto-cgu1  f75b609  262            88228072      0               134
+cgu1          f75b609  174            91143416      0               134
+x86-64-v3     f75b609  140            99256920      0               134

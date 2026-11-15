@@ -66,8 +66,19 @@ const CLK = Number(sh("getconf", ["CLK_TCK"]) ?? 100);
 
 /** CPU seconds (user, system) and memory of a process tree. */
 export function sample(pid) {
-  let user = 0, system = 0, rss = 0, anon = 0, file = 0, swap = 0, threads = 0;
+  let user = 0, system = 0, rss = 0, anon = 0, file = 0, swap = 0, threads = 0, vcsw = 0, ivcsw = 0;
   for (const p of tree(pid)) {
+    // Context switches, summed over the live threads (a thread's count
+    // goes with it when it exits; the server's threads are long-lived).
+    try {
+      for (const t of readdirSync(`/proc/${p}/task`)) {
+        try {
+          const ts = readFileSync(`/proc/${p}/task/${t}/status`, "utf8");
+          vcsw += Number(/voluntary_ctxt_switches:\s+(\d+)/.exec(ts)?.[1] ?? 0);
+          ivcsw += Number(/nonvoluntary_ctxt_switches:\s+(\d+)/.exec(ts)?.[1] ?? 0);
+        } catch {}
+      }
+    } catch {}
     try {
       const f = readFileSync(`/proc/${p}/stat`, "utf8").split(") ")[1].split(" ");
       user += Number(f[11]) / CLK;
@@ -82,7 +93,7 @@ export function sample(pid) {
     } catch {}
   }
   const mib = (kb) => +(kb / 1024).toFixed(1);
-  return { cpu_user_s: user, cpu_sys_s: system, rss_mib: mib(rss), anon_mib: mib(anon), file_mib: mib(file), swap_mib: mib(swap), threads };
+  return { cpu_user_s: user, cpu_sys_s: system, rss_mib: mib(rss), anon_mib: mib(anon), file_mib: mib(file), swap_mib: mib(swap), threads, voluntary_ctxt_switches: vcsw, nonvoluntary_ctxt_switches: ivcsw };
 }
 
 /** Samples memory every `ms` until stopped; returns peaks and the last sample. */

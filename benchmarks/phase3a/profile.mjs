@@ -4,7 +4,10 @@
 //
 //   node benchmarks/phase3a/profile.mjs --group app --workload ssr
 //     [--nextrs target/profiling/release/nextrs] [--isolates 1]
-//     [--seconds 15] [--connections 32] [--freq 999] [--out DIR] [--next]
+//     [--seconds 15] [--connections 32] [--rate N] [--freq 999] [--out DIR] [--next]
+//
+// --rate N profiles under open-loop load at N requests per second instead
+// of closed loop (file names get an `.open<N>` suffix).
 //
 // --next profiles `next start` instead (Node's --perf-basic-prof).
 // Writes DIR/<group>.<workload>.<server>.perf.data, a folded-stack file and
@@ -27,7 +30,7 @@ if (!w) throw new Error("unknown --group/--workload");
 const isNext = Boolean(args.next);
 const isolates = Number(args.isolates ?? 1);
 const seconds = Number(args.seconds ?? 15);
-const tag = `${group.id}.${w.id}.${isNext ? "next" : `nextrs-i${isolates}`}`;
+const tag = `${group.id}.${w.id}.${isNext ? "next" : `nextrs-i${isolates}`}${args.rate ? `.open${args.rate}` : ""}`;
 const port = 6300, metricsPort = 6301;
 const ctx = { group, config: { id: tag, kind: isNext ? "next" : "nextrs" }, port, root: ROOT, node: process.execPath, scratch: out };
 ctx.services = group.services ? await group.services(ctx) : null;
@@ -47,7 +50,8 @@ try {
   const lgBin = join(ROOT, "benchmarks/loadgen/target/release/nextrs-loadgen");
   const connections = Number(args.connections ?? w.connections ?? 32);
   const lg = (o) => L.loadgen(lgBin, { cpus: args["load-cpus"] ?? "4-5", target: `127.0.0.1:${port}`, spec: specPath, connections, ...o });
-  await lg({ duration: 5, warmup: 0 });
+  const rate = args.rate ? Number(args.rate) : undefined;
+  await lg({ rate, duration: 5, warmup: 0 });
   const data = join(out, `${tag}.perf.data`);
   const pids = L.tree(s.pid).join(",");
   // User-space samples and frame-pointer call chains only: with
@@ -58,7 +62,7 @@ try {
   const perfClosed = new Promise((r) => perf.on("close", r));
   const early = await Promise.race([perfClosed.then(() => true), L.sleep(500).then(() => false)]);
   if (early) throw new Error(`perf record exited: ${perfErr}`);
-  const res = await lg({ duration: seconds, warmup: 0 });
+  const res = await lg({ rate, duration: seconds, warmup: 0 });
   perf.kill("SIGINT");
   await perfClosed;
   writeFileSync(join(out, `${tag}.load.json`), JSON.stringify(res, null, 2));
