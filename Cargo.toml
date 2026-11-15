@@ -51,3 +51,14 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "fs", "
 tower = { version = "0.5", features = ["util"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Opt-in profile for distributed binaries: `cargo build --profile dist`.
+# Phase 3A measured 3-8 % less CPU on paths served from Rust (static
+# files, prerendered pages, the proxy), no change on JavaScript routes, and
+# an 11 % smaller binary, for 1.8x the release build time
+# (docs/research/release-build-experiments.md). `--release` is unchanged.
+# Portable: no target-cpu setting.
+[profile.dist]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
