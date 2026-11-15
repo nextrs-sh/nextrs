@@ -1,0 +1,221 @@
+05:35:59 closed round 1/5 app cgu1-i1
+05:36:16   static-file            ok   65129 rps p95 0.84 ms cpu 0.053 ms/req rss 65.8 MiB
+05:36:33   prerendered            ok  116094 rps p95 0.39 ms cpu 0.020 ms/req rss 65.9 MiB (loadgen-limited)
+05:36:50   ssr                    ok     749 rps p95 47.58 ms cpu 1.707 ms/req rss 191.6 MiB
+05:37:08   isr-hit                ok    4847 rps p95 8.28 ms cpu 0.283 ms/req rss 192.1 MiB
+05:37:08 closed round 1/5 app default-i1
+05:37:25   static-file            ok   64360 rps p95 0.85 ms cpu 0.054 ms/req rss 67.4 MiB
+05:37:42   prerendered            ok  105671 rps p95 0.55 ms cpu 0.019 ms/req rss 67.4 MiB (loadgen-limited)
+05:37:59   ssr                    ok     739 rps p95 48.32 ms cpu 1.707 ms/req rss 196.2 MiB
+05:38:16   isr-hit                ok    4544 rps p95 9.61 ms cpu 0.311 ms/req rss 198.6 MiB
+05:38:17 closed round 1/5 proxy cgu1-i1
+05:38:34   proxy-matched-static   ok    6465 rps p95 7.81 ms cpu 0.302 ms/req rss 153.5 MiB
+05:38:34 closed round 1/5 proxy default-i1
+05:38:52   proxy-matched-static   ok    6376 rps p95 7.88 ms cpu 0.306 ms/req rss 161.1 MiB
+05:38:52 closed round 1/5 pages cgu1-i1
+05:39:10   pages-ssr              ok    1471 rps p95 29.54 ms cpu 0.924 ms/req rss 164.3 MiB
+05:39:10 closed round 1/5 pages default-i1
+05:39:27   pages-ssr              ok    1475 rps p95 27.95 ms cpu 0.910 ms/req rss 163.1 MiB
+05:39:28 closed round 1/5 image default-i1
+05:39:46   image-transform        ok      56 rps p95 146.30 ms cpu 36.375 ms/req rss 98.5 MiB
+05:39:47 closed round 1/5 image cgu1-i1
+05:40:05   image-transform        ok      57 rps p95 143.49 ms cpu 35.863 ms/req rss 97.2 MiB
+05:40:06 closed round 2/5 app default-i1
+05:40:23   static-file            ok   63726 rps p95 0.86 ms cpu 0.055 ms/req rss 67.5 MiB
+05:40:40   prerendered            ok  119389 rps p95 0.38 ms cpu 0.020 ms/req rss 67.5 MiB (loadgen-limited)
+05:40:57   ssr                    ok     758 rps p95 47.33 ms cpu 1.667 ms/req rss 199.9 MiB
+05:41:14   isr-hit                ok    4581 rps p95 9.54 ms cpu 0.310 ms/req rss 193.3 MiB
+05:41:15 closed round 2/5 app cgu1-i1
+05:41:32   static-file            ok   65232 rps p95 0.83 ms cpu 0.054 ms/req rss 65.3 MiB
+05:41:49   prerendered            ok  116527 rps p95 0.40 ms cpu 0.020 ms/req rss 65.3 MiB (loadgen-limited)
+05:42:06   ssr                    ok     726 rps p95 49.73 ms cpu 1.752 ms/req rss 193.7 MiB
+05:42:23   isr-hit                ok    4627 rps p95 9.46 ms cpu 0.307 ms/req rss 193.1 MiB
+05:42:24 closed round 2/5 proxy default-i1
+05:42:41   proxy-matched-static   ok    6307 rps p95 8.10 ms cpu 0.305 ms/req rss 162.6 MiB
+05:42:41 closed round 2/5 proxy cgu1-i1
+05:42:59   proxy-matched-static   ok    6371 rps p95 7.93 ms cpu 0.305 ms/req rss 159.6 MiB
+05:42:59 closed round 2/5 pages default-i1
+05:43:17   pages-ssr              ok    1467 rps p95 29.97 ms cpu 0.914 ms/req rss 160 MiB
+05:43:17 closed round 2/5 pages cgu1-i1
+05:43:34   pages-ssr              ok    1467 rps p95 28.45 ms cpu 0.923 ms/req rss 160.8 MiB
+05:43:35 closed round 2/5 image default-i1
+05:43:53   image-transform        ok      56 rps p95 145.79 ms cpu 36.281 ms/req rss 99 MiB
+05:43:54 closed round 2/5 image cgu1-i1
+05:44:12   image-transform        ok      57 rps p95 144.00 ms cpu 35.842 ms/req rss 95.2 MiB
+05:44:13 closed round 3/5 app default-i1
+05:44:30   static-file            ok   63238 rps p95 0.86 ms cpu 0.055 ms/req rss 67 MiB
+05:44:47   prerendered            ok  112231 rps p95 0.47 ms cpu 0.020 ms/req rss 67 MiB (loadgen-limited)
+05:45:04   ssr                    ok     755 rps p95 46.78 ms cpu 1.686 ms/req rss 198.7 MiB
+05:45:21   isr-hit                ok    4900 rps p95 8.12 ms cpu 0.283 ms/req rss 195.8 MiB
+05:45:22 closed round 3/5 app cgu1-i1
+05:45:39   static-file            ok   67112 rps p95 0.79 ms cpu 0.053 ms/req rss 65.1 MiB
+05:45:56   prerendered            ok  116897 rps p95 0.39 ms cpu 0.021 ms/req rss 65.1 MiB (loadgen-limited)
+05:46:13   ssr                    ok     761 rps p95 46.59 ms cpu 1.664 ms/req rss 190.4 MiB
+05:46:30   isr-hit                ok    4736 rps p95 8.78 ms cpu 0.297 ms/req rss 182.6 MiB
+05:46:31 closed round 3/5 proxy cgu1-i1
+05:46:48   proxy-matched-static   ok    6583 rps p95 7.68 ms cpu 0.298 ms/req rss 154.8 MiB
+05:46:48 closed round 3/5 proxy default-i1
+05:47:06   proxy-matched-static   ok    6351 rps p95 7.77 ms cpu 0.306 ms/req rss 158.7 MiB
+05:47:06 closed round 3/5 pages cgu1-i1
+05:47:23   pages-ssr              ok    1480 rps p95 28.80 ms cpu 0.898 ms/req rss 162.3 MiB
+05:47:24 closed round 3/5 pages default-i1
+05:47:41   pages-ssr              ok    1481 rps p95 28.00 ms cpu 0.909 ms/req rss 156.3 MiB
+05:47:42 closed round 3/5 image cgu1-i1
+05:48:00   image-transform        ok      57 rps p95 142.85 ms cpu 35.787 ms/req rss 96.4 MiB
+05:48:01 closed round 3/5 image default-i1
+05:48:19   image-transform        ok      56 rps p95 144.64 ms cpu 36.277 ms/req rss 96.8 MiB
+05:48:20 closed round 4/5 app cgu1-i1
+05:48:37   static-file            ok   66986 rps p95 0.79 ms cpu 0.053 ms/req rss 65.5 MiB
+05:48:54   prerendered            ok  116130 rps p95 0.39 ms cpu 0.021 ms/req rss 65.5 MiB (loadgen-limited)
+05:49:11   ssr                    ok     755 rps p95 47.07 ms cpu 1.664 ms/req rss 190.8 MiB
+05:49:28   isr-hit                ok    4680 rps p95 9.36 ms cpu 0.305 ms/req rss 190.6 MiB
+05:49:28 closed round 4/5 app default-i1
+05:49:46   static-file            ok   65074 rps p95 0.82 ms cpu 0.055 ms/req rss 67.6 MiB
+05:50:03   prerendered            ok  117400 rps p95 0.39 ms cpu 0.021 ms/req rss 67.6 MiB (loadgen-limited)
+05:50:20   ssr                    ok     784 rps p95 46.21 ms cpu 1.592 ms/req rss 201.7 MiB
+05:50:37   isr-hit                ok    4551 rps p95 9.05 ms cpu 0.310 ms/req rss 201.8 MiB
+05:50:37 closed round 4/5 proxy cgu1-i1
+05:50:55   proxy-matched-static   ok    6526 rps p95 7.72 ms cpu 0.301 ms/req rss 156.9 MiB
+05:50:55 closed round 4/5 proxy default-i1
+05:51:13   proxy-matched-static   ok    6441 rps p95 7.74 ms cpu 0.304 ms/req rss 157 MiB
+05:51:13 closed round 4/5 pages default-i1
+05:51:30   pages-ssr              ok    1488 rps p95 27.77 ms cpu 0.906 ms/req rss 159.1 MiB
+05:51:31 closed round 4/5 pages cgu1-i1
+05:51:48   pages-ssr              ok    1462 rps p95 28.00 ms cpu 0.915 ms/req rss 159.5 MiB
+05:51:48 closed round 4/5 image cgu1-i1
+05:52:07   image-transform        ok      57 rps p95 142.97 ms cpu 35.807 ms/req rss 93.5 MiB
+05:52:07 closed round 4/5 image default-i1
+05:52:26   image-transform        ok      56 rps p95 144.64 ms cpu 36.277 ms/req rss 95.8 MiB
+05:52:26 closed round 5/5 app default-i1
+05:52:44   static-file            ok   65825 rps p95 0.81 ms cpu 0.054 ms/req rss 66.3 MiB
+05:53:01   prerendered            ok  120890 rps p95 0.37 ms cpu 0.021 ms/req rss 66.4 MiB (loadgen-limited)
+05:53:18   ssr                    ok     758 rps p95 47.62 ms cpu 1.659 ms/req rss 197.5 MiB
+05:53:35   isr-hit                ok    4595 rps p95 9.46 ms cpu 0.309 ms/req rss 198 MiB
+05:53:35 closed round 5/5 app cgu1-i1
+05:53:53   static-file            ok   67309 rps p95 0.79 ms cpu 0.053 ms/req rss 66.6 MiB
+05:54:10   prerendered            ok  120059 rps p95 0.38 ms cpu 0.021 ms/req rss 66.6 MiB (loadgen-limited)
+05:54:27   ssr                    ok     765 rps p95 47.97 ms cpu 1.646 ms/req rss 200.3 MiB
+05:54:44   isr-hit                ok    4582 rps p95 9.40 ms cpu 0.308 ms/req rss 201.4 MiB
+05:54:44 closed round 5/5 proxy cgu1-i1
+05:55:02   proxy-matched-static   ok    6416 rps p95 7.83 ms cpu 0.302 ms/req rss 161 MiB
+05:55:02 closed round 5/5 proxy default-i1
+05:55:19   proxy-matched-static   ok    6264 rps p95 8.08 ms cpu 0.308 ms/req rss 155.4 MiB
+05:55:20 closed round 5/5 pages default-i1
+05:55:37   pages-ssr              ok    1472 rps p95 27.95 ms cpu 0.913 ms/req rss 160.8 MiB
+05:55:38 closed round 5/5 pages cgu1-i1
+05:55:55   pages-ssr              ok    1493 rps p95 27.61 ms cpu 0.898 ms/req rss 159.4 MiB
+05:55:55 closed round 5/5 image default-i1
+05:56:14   image-transform        ok      56 rps p95 146.05 ms cpu 36.375 ms/req rss 97.5 MiB
+05:56:14 closed round 5/5 image cgu1-i1
+05:56:33   image-transform        ok      57 rps p95 143.36 ms cpu 35.842 ms/req rss 96.7 MiB
+05:56:33 open round 1/5 app cgu1-i1
+05:56:51   static-file            ok   32195 rps p95 0.58 ms cpu 0.072 ms/req rss 64.2 MiB
+05:57:08   prerendered            ok   58287 rps p95 0.96 ms cpu 0.024 ms/req rss 64.3 MiB
+05:57:25   ssr                    ok     377 rps p95 4.89 ms cpu 2.238 ms/req rss 184.1 MiB
+05:57:42   isr-hit                ok    2291 rps p95 2.74 ms cpu 0.554 ms/req rss 197.7 MiB
+05:57:42 open round 1/5 app default-i1
+05:58:00   static-file            ok   32188 rps p95 0.67 ms cpu 0.073 ms/req rss 65.5 MiB
+05:58:17   prerendered            ok   58272 rps p95 0.46 ms cpu 0.024 ms/req rss 65.5 MiB
+05:58:34   ssr                    ok     377 rps p95 4.88 ms cpu 2.248 ms/req rss 188.4 MiB
+05:58:51   isr-hit                ok    2291 rps p95 2.76 ms cpu 0.554 ms/req rss 199.2 MiB
+05:58:51 open round 1/5 proxy cgu1-i1
+05:59:08   proxy-matched-static   ok    3176 rps p95 2.18 ms cpu 0.350 ms/req rss 144 MiB
+05:59:09 open round 1/5 proxy default-i1
+05:59:26   proxy-matched-static   ok    3176 rps p95 2.25 ms cpu 0.354 ms/req rss 146.5 MiB
+05:59:26 open round 1/5 pages default-i1
+05:59:44   pages-ssr              ok     735 rps p95 8.44 ms cpu 1.078 ms/req rss 152.8 MiB
+05:59:44 open round 1/5 pages cgu1-i1
+06:00:01   pages-ssr              ok     735 rps p95 6.85 ms cpu 1.047 ms/req rss 154.1 MiB
+06:00:02 open round 1/5 image default-i1
+06:00:19   image-transform        ok      28 rps p95 37.95 ms cpu 36.406 ms/req rss 74.6 MiB
+06:00:20 open round 1/5 image cgu1-i1
+06:00:37   image-transform        ok      28 rps p95 37.53 ms cpu 35.943 ms/req rss 76.2 MiB
+06:00:38 open round 2/5 app default-i1
+06:00:55   static-file            ok   32188 rps p95 1.07 ms cpu 0.072 ms/req rss 66.1 MiB
+06:01:12   prerendered            ok   58288 rps p95 0.82 ms cpu 0.024 ms/req rss 66.1 MiB
+06:01:29   ssr                    ok     377 rps p95 5.17 ms cpu 2.246 ms/req rss 184.5 MiB
+06:01:47   isr-hit                ok    2290 rps p95 2.83 ms cpu 0.552 ms/req rss 197.6 MiB
+06:01:47 open round 2/5 app cgu1-i1
+06:02:04   static-file            ok   32195 rps p95 2.94 ms cpu 0.071 ms/req rss 65.6 MiB
+06:02:21   prerendered            ok   58291 rps p95 1.15 ms cpu 0.023 ms/req rss 65.7 MiB
+06:02:38   ssr                    ok     377 rps p95 4.68 ms cpu 2.222 ms/req rss 188.7 MiB
+06:02:55   isr-hit                ok    2291 rps p95 2.73 ms cpu 0.552 ms/req rss 198.4 MiB
+06:02:56 open round 2/5 proxy default-i1
+06:03:13   proxy-matched-static   ok    3176 rps p95 2.21 ms cpu 0.349 ms/req rss 147.5 MiB
+06:03:13 open round 2/5 proxy cgu1-i1
+06:03:31   proxy-matched-static   ok    3176 rps p95 2.13 ms cpu 0.342 ms/req rss 147.1 MiB
+06:03:31 open round 2/5 pages default-i1
+06:03:48   pages-ssr              ok     735 rps p95 6.43 ms cpu 1.040 ms/req rss 154.2 MiB
+06:03:49 open round 2/5 pages cgu1-i1
+06:04:06   pages-ssr              ok     735 rps p95 8.50 ms cpu 1.092 ms/req rss 152.8 MiB
+06:04:06 open round 2/5 image default-i1
+06:04:24   image-transform        ok      28 rps p95 40.32 ms cpu 36.690 ms/req rss 75 MiB
+06:04:24 open round 2/5 image cgu1-i1
+06:04:42   image-transform        ok      28 rps p95 37.38 ms cpu 35.979 ms/req rss 72.1 MiB
+06:04:43 open round 3/5 app default-i1
+06:05:00   static-file            ok   32187 rps p95 2.24 ms cpu 0.071 ms/req rss 66.9 MiB
+06:05:17   prerendered            ok   58273 rps p95 2.45 ms cpu 0.023 ms/req rss 66.9 MiB
+06:05:34   ssr                    ok     377 rps p95 4.81 ms cpu 2.256 ms/req rss 186.6 MiB
+06:05:51   isr-hit                ok    2291 rps p95 2.65 ms cpu 0.556 ms/req rss 200.7 MiB
+06:05:51 open round 3/5 app cgu1-i1
+06:06:09   static-file            ok   32194 rps p95 0.37 ms cpu 0.071 ms/req rss 63.3 MiB
+06:06:26   prerendered            ok   58286 rps p95 0.40 ms cpu 0.024 ms/req rss 63.5 MiB
+06:06:43   ssr                    ok     377 rps p95 4.70 ms cpu 2.243 ms/req rss 185.1 MiB
+06:07:00   isr-hit                ok    2291 rps p95 2.52 ms cpu 0.556 ms/req rss 192.5 MiB
+06:07:00 open round 3/5 proxy cgu1-i1
+06:07:18   proxy-matched-static   ok    3176 rps p95 1.84 ms cpu 0.351 ms/req rss 143.4 MiB
+06:07:18 open round 3/5 proxy default-i1
+06:07:35   proxy-matched-static   ok    3176 rps p95 1.79 ms cpu 0.356 ms/req rss 150.9 MiB
+06:07:36 open round 3/5 pages cgu1-i1
+06:07:53   pages-ssr              ok     735 rps p95 6.45 ms cpu 1.052 ms/req rss 151.5 MiB
+06:07:53 open round 3/5 pages default-i1
+06:08:11   pages-ssr              ok     735 rps p95 6.47 ms cpu 1.050 ms/req rss 157.1 MiB
+06:08:11 open round 3/5 image cgu1-i1
+06:08:29   image-transform        ok      28 rps p95 37.22 ms cpu 35.836 ms/req rss 69.9 MiB
+06:08:29 open round 3/5 image default-i1
+06:08:47   image-transform        ok      28 rps p95 37.57 ms cpu 36.335 ms/req rss 76.9 MiB
+06:08:47 open round 4/5 app cgu1-i1
+06:09:05   static-file            ok   32195 rps p95 0.35 ms cpu 0.072 ms/req rss 62.8 MiB
+06:09:22   prerendered            ok   58286 rps p95 0.27 ms cpu 0.024 ms/req rss 62.8 MiB
+06:09:39   ssr                    ok     377 rps p95 7.03 ms cpu 2.275 ms/req rss 185.7 MiB
+06:09:56   isr-hit                ok    2291 rps p95 2.70 ms cpu 0.554 ms/req rss 196.6 MiB
+06:09:56 open round 4/5 app default-i1
+06:10:13   static-file            ok   32194 rps p95 0.50 ms cpu 0.072 ms/req rss 64 MiB
+06:10:30   prerendered            ok   58285 rps p95 0.31 ms cpu 0.025 ms/req rss 64.2 MiB
+06:10:48   ssr                    ok     377 rps p95 5.12 ms cpu 2.259 ms/req rss 182.7 MiB
+06:11:05   isr-hit                ok    2291 rps p95 2.64 ms cpu 0.555 ms/req rss 201.4 MiB
+06:11:05 open round 4/5 proxy cgu1-i1
+06:11:22   proxy-matched-static   ok    3176 rps p95 2.77 ms cpu 0.352 ms/req rss 145.1 MiB
+06:11:23 open round 4/5 proxy default-i1
+06:11:40   proxy-matched-static   ok    3176 rps p95 1.90 ms cpu 0.356 ms/req rss 145.8 MiB
+06:11:40 open round 4/5 pages cgu1-i1
+06:11:58   pages-ssr              ok     735 rps p95 6.04 ms cpu 1.016 ms/req rss 153.7 MiB
+06:11:58 open round 4/5 pages default-i1
+06:12:15   pages-ssr              ok     735 rps p95 6.38 ms cpu 1.032 ms/req rss 151.5 MiB
+06:12:16 open round 4/5 image cgu1-i1
+06:12:33   image-transform        ok      28 rps p95 37.31 ms cpu 35.907 ms/req rss 71.6 MiB
+06:12:34 open round 4/5 image default-i1
+06:12:51   image-transform        ok      28 rps p95 37.85 ms cpu 36.370 ms/req rss 72.1 MiB
+06:12:52 open round 5/5 app cgu1-i1
+06:13:09   static-file            ok   32194 rps p95 0.38 ms cpu 0.072 ms/req rss 63.9 MiB
+06:13:26   prerendered            ok   58285 rps p95 0.25 ms cpu 0.024 ms/req rss 64 MiB
+06:13:43   ssr                    ok     377 rps p95 4.83 ms cpu 2.232 ms/req rss 184.8 MiB
+06:14:00   isr-hit                ok    2291 rps p95 2.47 ms cpu 0.554 ms/req rss 196 MiB
+06:14:01 open round 5/5 app default-i1
+06:14:18   static-file            ok   32195 rps p95 0.40 ms cpu 0.073 ms/req rss 63.8 MiB
+06:14:35   prerendered            ok   58285 rps p95 0.35 ms cpu 0.024 ms/req rss 63.8 MiB
+06:14:52   ssr                    ok     377 rps p95 4.66 ms cpu 2.238 ms/req rss 184.2 MiB
+06:15:09   isr-hit                ok    2291 rps p95 2.53 ms cpu 0.558 ms/req rss 196.5 MiB
+06:15:10 open round 5/5 proxy default-i1
+06:15:27   proxy-matched-static   ok    3176 rps p95 1.71 ms cpu 0.355 ms/req rss 148.8 MiB
+06:15:27 open round 5/5 proxy cgu1-i1
+06:15:45   proxy-matched-static   ok    3176 rps p95 1.80 ms cpu 0.351 ms/req rss 148.4 MiB
+06:15:45 open round 5/5 pages cgu1-i1
+06:16:02   pages-ssr              ok     735 rps p95 6.57 ms cpu 1.066 ms/req rss 152.8 MiB
+06:16:03 open round 5/5 pages default-i1
+06:16:20   pages-ssr              ok     735 rps p95 5.99 ms cpu 1.026 ms/req rss 153.6 MiB
+06:16:20 open round 5/5 image default-i1
+06:16:38   image-transform        ok      28 rps p95 37.79 ms cpu 36.406 ms/req rss 79.6 MiB
+06:16:38 open round 5/5 image cgu1-i1
+06:16:56   image-transform        ok      28 rps p95 38.08 ms cpu 35.943 ms/req rss 76.8 MiB
+06:16:56 done benchmarks/results/phase3a/ab-variant-cgu1
