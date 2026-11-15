@@ -160,6 +160,32 @@ if (phase !== "run") {
   process.exit(0);
 }
 
+// Independent expectations (Phase 3A audit: these were compared only). Both
+// servers could agree on a cache that never hits or never revalidates.
+// NEXTRS_NEGATIVE_CONTROL=cc-defects injects each scenario's failure into
+// both observations; every asserted scenario must then be ORACLE-FAIL.
+const why = (ok, o) => (ok ? null : JSON.stringify(o));
+const EXPECT = {
+  "first-call-then-cached": (o) => why(o.statuses?.every((x) => x === 200) && o.generations?.every((g) => g === 0) && o.executions === 1, o),
+  "arguments-are-keys": (o) => why(o.distinct === true && o.aCached === true && o.executions === 2, o),
+  "cache-life-expiry": (o) => why(JSON.stringify(o.generations) === "[0,0,1,1]" && o.executions === 2, o),
+  "updateTag-from-action": (o) => why(o.action?.status === 200 && JSON.stringify(o.generations) === "[0,1,1]" && o.executions === 2, o),
+  "revalidateTag-max-from-action": (o) => why(o.action?.status === 200 && o.generations?.at(-1) === 1 && o.executions === 2, o),
+  "unrelated-tag-untouched": (o) => why(o.same === true && o.executions === 1, o),
+  "concurrent-first-calls-agree-afterwards": (o) => why(o.allOk === true && o.afterwardOneValue === true, o),
+};
+const DEFECTS = {
+  "first-call-then-cached": (o) => ({ ...o, executions: 3 }),
+  "arguments-are-keys": (o) => ({ ...o, distinct: false }),
+  "cache-life-expiry": (o) => ({ ...o, generations: [0, 0, 0, 0] }),
+  "updateTag-from-action": (o) => ({ ...o, generations: [0, 0, 0] }),
+  "revalidateTag-max-from-action": (o) => ({ ...o, generations: [0, 0, 0, 0] }),
+  "unrelated-tag-untouched": (o) => ({ ...o, same: false }),
+  "concurrent-first-calls-agree-afterwards": (o) => ({ ...o, afterwardOneValue: false }),
+};
+for (const name of Object.keys(EXPECT)) if (!scenarios[name]) throw new Error(`no scenario ${name}`);
+const control = process.env.NEXTRS_NEGATIVE_CONTROL === "cc-defects";
+
 const results = [];
 let failures = 0;
 for (const [name, { kind, fn }] of Object.entries(scenarios)) {
@@ -171,10 +197,18 @@ for (const [name, { kind, fn }] of Object.entries(scenarios)) {
       detail = await fn(candidate, "c");
       verdict = detail.pass ? "PASS" : "FAIL";
     } else {
-      const b = await fn(baseline, "b");
-      const c = await fn(candidate, "c");
+      let b = await fn(baseline, "b");
+      let c = await fn(candidate, "c");
+      if (control && DEFECTS[name]) [b, c] = [DEFECTS[name](b), DEFECTS[name](c)];
       verdict = JSON.stringify(b) === JSON.stringify(c) ? "MATCH" : "DIFF";
       detail = verdict === "MATCH" ? b : { baseline: b, candidate: c };
+      const wrong = verdict === "MATCH" && EXPECT[name] ? EXPECT[name](b) : null;
+      if (wrong) {
+        verdict = "ORACLE-FAIL";
+        detail = { observed: b, wrong };
+      } else if (verdict === "MATCH" && EXPECT[name]) {
+        detail = { observed: b, asserted: true };
+      }
     }
   } catch (error) {
     verdict = "ERROR";
@@ -184,6 +218,6 @@ for (const [name, { kind, fn }] of Object.entries(scenarios)) {
   results.push({ name, verdict, detail });
   console.log(`${verdict.padEnd(6)} ${name.padEnd(42)} ${JSON.stringify(detail)}`);
 }
-console.log(`${results.length - failures}/${results.length} pass, ${failures} failing (isolates=${isolates})`);
+console.log(`${results.length - failures}/${results.length} pass (${results.filter((r) => r.detail?.asserted).length} asserted), ${results.filter((r) => r.verdict === "ORACLE-FAIL").length} ORACLE-FAIL, ${failures} failing (isolates=${isolates})${control ? " [negative control cc-defects]" : ""}`);
 if (args.json) writeFileSync(args.json, JSON.stringify({ run, isolates, results }, null, 2));
 process.exit(failures ? 1 : 0);

@@ -355,6 +355,44 @@ compare("rsc-and-html-entries-not-confused", async (base) => {
     vary: (flight.headers.get("vary") ?? "").replace(/, Accept-Encoding$/, ""), afterType: after.type, afterIsHtml: after.body.startsWith("<!DOCTYPE html>") };
 });
 
+// --- Independent expectations ----------------------------------------------
+// Two servers can agree on a wrong answer (both leak a private page, both
+// let a header poison the cache), so the caching, privacy and poisoning
+// scenarios also assert their outcome on their own: a MATCH whose
+// observation fails its expectation is ORACLE-FAIL. NEXTRS_NEGATIVE_CONTROL=
+// isr-defects injects each scenario's failure (DEFECTS) into both
+// observations; every asserted scenario must then be ORACLE-FAIL.
+const all = (xs, v) => Array.isArray(xs) && xs.length > 0 && xs.every((x) => x === v);
+const why = (ok, o) => (ok ? null : JSON.stringify(o));
+const EXPECT = {
+  "fresh-prerender": (o) => why(all(o.statuses, 200) && all(o.cache, "HIT") && o.sameGeneration && o.renders === 0, o),
+  "expired-regenerates-in-background": (o) => why(o.cache?.[0] === "STALE" && JSON.stringify(o.generations) === "[0,1,1]" && o.renders === 1, o),
+  "on-demand-params-cached": (o) => why(all(o.statuses, 200) && JSON.stringify(o.cache) === '["MISS","HIT","HIT"]' && all(o.generations, o.generations?.[0]) && o.renders === 1, o),
+  "failed-regeneration-keeps-last-good-page": (o) => why(all(o.statuses, 200) && o.generations?.slice(0, 5).every((g) => g === 0) && o.recovered === true, o),
+  "action-revalidatePath-on-isr-page": (o) => why(o.action?.status === 200 && o.mutations === 1 && o.renders === 2 && o.generations?.at(-1) === 1, o),
+  "action-none-on-isr-page": (o) => why(o.action?.status === 200 && o.mutations === 1 && o.renders === 0 && all(o.generations, 0), o),
+  "concurrent-mutations-on-isr-page": (o) => why(o.eachRecordedOnce === true && o.afterwardOneGeneration === true, o),
+  "cookie-dependent-page-not-shared": (o) => why(o.eachOwn === true && o.anonymous === true && o.cache !== "HIT" && /private|no-store/.test(o.cacheControl ?? ""), o),
+  "authorization-dependent-route-not-shared": (o) => why(o.eachOwn === true && !/s-maxage|public/.test(o.cacheControl ?? ""), o),
+  "poisoning-query-and-headers": (o) => why(o.attempts?.every((a) => a.status === 200 && a.sameGeneration && !a.setCookie) && o.renders === 0 && o.unchanged === true, o),
+  "rsc-and-html-entries-not-confused": (o) => why(o.htmlType === "text/html" && o.flightType === "text/x-component" && o.afterType === "text/html" && o.afterIsHtml === true, o),
+};
+const DEFECTS = {
+  "fresh-prerender": (o) => ({ ...o, renders: 1 }),
+  "expired-regenerates-in-background": (o) => ({ ...o, generations: [0, 0, 0] }),
+  "on-demand-params-cached": (o) => ({ ...o, renders: 3 }),
+  "failed-regeneration-keeps-last-good-page": (o) => ({ ...o, statuses: [200, 500, 200, 200, 200] }),
+  "action-revalidatePath-on-isr-page": (o) => ({ ...o, mutations: 2 }),
+  "action-none-on-isr-page": (o) => ({ ...o, renders: 1 }),
+  "concurrent-mutations-on-isr-page": (o) => ({ ...o, eachRecordedOnce: false }),
+  "cookie-dependent-page-not-shared": (o) => ({ ...o, eachOwn: false }),
+  "authorization-dependent-route-not-shared": (o) => ({ ...o, cacheControl: "s-maxage=3600" }),
+  "poisoning-query-and-headers": (o) => ({ ...o, unchanged: false }),
+  "rsc-and-html-entries-not-confused": (o) => ({ ...o, afterType: "text/x-component", afterIsHtml: false }),
+};
+for (const name of Object.keys(EXPECT)) if (!scenarios[name]) throw new Error(`no scenario ${name}`);
+const control = process.env.NEXTRS_NEGATIVE_CONTROL === "isr-defects";
+
 // ---------------------------------------------------------------------------
 const results = [];
 let failures = 0;
@@ -369,20 +407,30 @@ for (const [name, { kind, fn }] of Object.entries(scenarios)) {
       verdict = out.pass ? "PASS" : "FAIL";
       detail = out;
     } else {
-      const b = await fn(baseline, "b");
+      let b = await fn(baseline, "b");
       await sleep(300);
-      const c = await fn(candidate, "c");
+      let c = await fn(candidate, "c");
+      if (control && DEFECTS[name]) [b, c] = [DEFECTS[name](b), DEFECTS[name](c)];
       verdict = isEqual(b, c) ? "MATCH" : "DIFF";
       detail = verdict === "MATCH" ? b : { baseline: b, candidate: c };
+      const wrong = verdict === "MATCH" && EXPECT[name] ? EXPECT[name](b) : null;
+      if (wrong) {
+        verdict = "ORACLE-FAIL";
+        detail = { observed: b, wrong };
+      } else if (verdict === "MATCH" && EXPECT[name]) {
+        detail = { observed: b, asserted: true };
+      }
     }
   } catch (error) {
     verdict = "ERROR";
     detail = String(error?.stack ?? error);
   }
-  if (verdict === "DIFF" || verdict === "FAIL" || verdict === "ERROR") failures++;
+  if (verdict === "DIFF" || verdict === "FAIL" || verdict === "ERROR" || verdict === "ORACLE-FAIL") failures++;
   results.push({ name, verdict, detail });
   console.log(`${verdict.padEnd(6)} ${name.padEnd(44)} ${JSON.stringify(detail)}`);
 }
-console.log(`${results.filter((r) => r.verdict === "MATCH" || r.verdict === "PASS").length}/${results.length} pass, ${failures} failing (isolates=${isolates})`);
+const asserted = results.filter((r) => r.detail?.asserted).length;
+const oracleFails = results.filter((r) => r.verdict === "ORACLE-FAIL").length;
+console.log(`${results.filter((r) => r.verdict === "MATCH" || r.verdict === "PASS").length}/${results.length} pass (${asserted} asserted), ${oracleFails} ORACLE-FAIL, ${failures} failing (isolates=${isolates})${control ? " [negative control isr-defects]" : ""}`);
 if (args.json) writeFileSync(args.json, JSON.stringify({ run, isolates, results }, null, 2));
 process.exit(failures ? 1 : 0);

@@ -350,5 +350,17 @@ for (const [name, expect] of Object.entries(EXPECT)) {
   scenarios[name].expect = expect;
 }
 
+// Independent outcomes for scenarios that were compare-only (Phase 3A
+// audit): a duplicated session cookie must never show another user's data,
+// and an RSC request for a protected page must stay on that page.
+scenarios["duplicate-session-cookie"].expect = (o) =>
+  o.status === 307 && /^\/login\?next=/.test(o.headers.location ?? "")
+    ? null
+    : o.status === 200 && o.body?.secret === "dashboard of Alice" && JSON.parse(o.body?.info ?? "{}").userId === "u-alice" && JSON.parse(o.body?.info ?? "{}").proxyUser === "u-alice"
+      ? null
+      : `status ${o.status}, body ${JSON.stringify(o.body)}`;
+scenarios["valid-rsc"].expect = (o) =>
+  o.status === 200 || (o.status === 307 && /^\/dashboard(\?|$)/.test(o.headers.location ?? "")) ? null : `status ${o.status} location ${o.headers.location}`;
+
 const failures = await runScenarios("auth-proxy (jose)", scenarios, { baseline, candidate, json: args.json, only });
 process.exit(failures ? 1 : 0);

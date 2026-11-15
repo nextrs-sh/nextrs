@@ -536,6 +536,19 @@ const EXPECT = {
   "concurrent-identity": (o) => (o.n === 48 && o.leaks === 0 ? null : JSON.stringify(o)),
   "disconnect-after-commit": ledgerIs("a"),
   "disconnect-before-commit": ledgerIs("b"),
+  // Refusals (Phase 3A audit: compared only before). An action that must not
+  // run is refused with an error status and sets nothing; a crafted payload
+  // never leaks server source.
+  "invalid-origin-mpa": (o) => (o.status >= 400 && !o.setCookie ? null : `status ${o.status}, Set-Cookie ${o.setCookie}`),
+  "unknown-action-id": (o) => (o.status === 409 && o.notFound === "1" ? null : `status ${o.status}`),
+  "action-id-from-another-build": (o) => (o.status === 409 && o.notFound === "1" ? null : `status ${o.status}`),
+  "malformed-action-id": (o) => (o.status === 400 ? null : `status ${o.status}`),
+  "prototype-action-id": (o) => (o.status === 400 ? null : `status ${o.status}`),
+  "closure-tampered": (o) => (o.status >= 400 && o.leaked === false ? null : JSON.stringify(o)),
+  "closure-foreign-key": (o) => (o.status >= 400 ? null : `status ${o.status}`),
+  "closure-not-base64": (o) => (o.status >= 400 ? null : `status ${o.status}`),
+  "flight-proto-then": (o) => (o.status >= 400 && o.sourceLeak === false ? null : JSON.stringify(o)),
+  "flight-constructor-chain": (o) => (o.status >= 400 && o.sourceLeak === false ? null : JSON.stringify(o)),
 };
 for (const name of Object.keys(EXPECT)) if (!cases[name]) throw new Error(`no case ${name}`);
 
