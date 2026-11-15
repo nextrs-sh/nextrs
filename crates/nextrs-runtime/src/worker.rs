@@ -100,15 +100,17 @@ fn run(
             .limits
             .heap_limit_bytes
             .map(|max| v8::CreateParams::default().heap_limits(0, max));
+        let mut web = deno_web::deno_web::init(
+            Arc::new(deno_web::BlobStore::default()),
+            None,
+            false,
+            deno_web::InMemoryBroadcastChannel::default(),
+        );
+        crate::web_patches::apply(&mut web);
         let mut runtime = JsRuntime::new(RuntimeOptions {
             extensions: vec![
                 deno_webidl::deno_webidl::init(),
-                deno_web::deno_web::init(
-                    Arc::new(deno_web::BlobStore::default()),
-                    None,
-                    false,
-                    deno_web::InMemoryBroadcastChannel::default(),
-                ),
+                web,
                 ops::nextrs_runtime::init(
                     boot,
                     config.fs_policy(),

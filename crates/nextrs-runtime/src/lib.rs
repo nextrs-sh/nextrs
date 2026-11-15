@@ -27,6 +27,7 @@ mod ops;
 mod pool;
 mod response;
 mod sandbox;
+mod web_patches;
 mod webcrypto;
 mod worker;
 

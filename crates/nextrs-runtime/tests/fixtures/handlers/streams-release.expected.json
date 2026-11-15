@@ -1,0 +1,127 @@
+{
+ "closedWhileReadable": [
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  },
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  }
+ ],
+ "closedAfterClose": [
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  },
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  }
+ ],
+ "closedSameAcrossStreams": true,
+ "closedSameReadableAndClosed": true,
+ "pendingRead": [
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  },
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  }
+ ],
+ "pendingByobRead": [
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  },
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  }
+ ],
+ "pendingSameAcrossStreams": true,
+ "pendingSameDefaultAndByob": true,
+ "pendingDiffersFromClosed": true,
+ "writerClosed": [
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  },
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  }
+ ],
+ "writerReady": [
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  },
+  {
+   "ok": false,
+   "type": "TypeError",
+   "isTypeError": true
+  }
+ ],
+ "writerReadyIsClosed": true,
+ "writerSameAcrossStreams": true,
+ "firstRead": {
+  "value": "a",
+  "done": false
+ },
+ "readAfterRelease": {
+  "ok": false,
+  "type": "TypeError",
+  "isTypeError": true
+ },
+ "secondReader": [
+  {
+   "value": "b",
+   "done": false
+  },
+  {
+   "done": true
+  }
+ ],
+ "iterated": [
+  1,
+  2
+ ],
+ "earlyFirst": 1,
+ "earlyCancelled": "undefined",
+ "lockedAfterBreak": false,
+ "readAfterBreak": {
+  "done": true
+ },
+ "piped": [
+  "X",
+  "Y"
+ ],
+ "sourceLockedAfterPipe": false,
+ "upperLockedAfterPipe": false,
+ "tee": [
+  [
+   1,
+   2
+  ],
+  [
+   1,
+   2
+  ]
+ ],
+ "responseText": "hé",
+ "distinctErrorsOver200Releases": 1
+}

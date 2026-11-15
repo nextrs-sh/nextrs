@@ -1,0 +1,563 @@
+{
+ "cases": {
+  "empty": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 0,
+   "byteOffset": 0,
+   "bufferLength": 0,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": ""
+  },
+  "noArgument": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 0,
+   "byteOffset": 0,
+   "bufferLength": 0,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": ""
+  },
+  "noArgumentCall": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 0,
+   "byteOffset": 0,
+   "bufferLength": 0,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": ""
+  },
+  "null": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 4,
+   "byteOffset": 0,
+   "bufferLength": 4,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6e756c6c"
+  },
+  "number": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 5,
+   "byteOffset": 0,
+   "bufferLength": 5,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "3132332e35"
+  },
+  "object": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 3,
+   "byteOffset": 0,
+   "bufferLength": 3,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6f626a"
+  },
+  "array": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 3,
+   "byteOffset": 0,
+   "bufferLength": 3,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "312c32"
+  },
+  "symbol": "throws TypeError",
+  "wrongThis": "throws TypeError",
+  "ascii1": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 1,
+   "byteOffset": 0,
+   "bufferLength": 1,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61"
+  },
+  "ascii2": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 2,
+   "byteOffset": 0,
+   "bufferLength": 2,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162"
+  },
+  "ascii7": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 7,
+   "byteOffset": 0,
+   "bufferLength": 7,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61626364656667"
+  },
+  "ascii8": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 8,
+   "byteOffset": 0,
+   "bufferLength": 8,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162636465666768"
+  },
+  "ascii31": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 31,
+   "byteOffset": 0,
+   "bufferLength": 31,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162636465666768696a6162636465666768696a6162636465666768696a61"
+  },
+  "ascii32": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 32,
+   "byteOffset": 0,
+   "bufferLength": 32,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162636465666768696a6162636465666768696a6162636465666768696a6162"
+  },
+  "ascii63": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 63,
+   "byteOffset": 0,
+   "bufferLength": 63,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a616263"
+  },
+  "ascii64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 64,
+   "byteOffset": 0,
+   "bufferLength": 64,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a61626364"
+  },
+  "ascii65": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 65,
+   "byteOffset": 0,
+   "bufferLength": 65,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465"
+  },
+  "ascii66": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a616263646566"
+  },
+  "ascii127": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 127,
+   "byteOffset": 0,
+   "bufferLength": 127,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a61626364656667"
+  },
+  "ascii128": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 128,
+   "byteOffset": 0,
+   "bufferLength": 128,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768"
+  },
+  "ascii1000": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 1000,
+   "byteOffset": 0,
+   "bufferLength": 1000,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a6162636465666768696a"
+  },
+  "del7f": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 64,
+   "byteOffset": 0,
+   "bufferLength": 64,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f7f"
+  },
+  "x80": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 2,
+   "byteOffset": 0,
+   "bufferLength": 2,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "c280"
+  },
+  "controls": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 6,
+   "byteOffset": 0,
+   "bufferLength": 6,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "0001090a0d1b"
+  },
+  "latin1At0of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 65,
+   "byteOffset": 0,
+   "bufferLength": 65,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "c3a9626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "bmpAt0of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "e282ac626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "pairAt0of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 67,
+   "byteOffset": 0,
+   "bufferLength": 67,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "f09f9880626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "loneHighAt0of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "efbfbd626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "loneLowAt0of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "efbfbd626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "latin1At1of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 65,
+   "byteOffset": 0,
+   "bufferLength": 65,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61c3a96262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "bmpAt1of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61e282ac6262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "pairAt1of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 67,
+   "byteOffset": 0,
+   "bufferLength": 67,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61f09f98806262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "loneHighAt1of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61efbfbd6262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "loneLowAt1of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61efbfbd6262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "latin1At31of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 65,
+   "byteOffset": 0,
+   "bufferLength": 65,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61616161616161616161616161616161616161616161616161616161616161c3a96262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "bmpAt31of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61616161616161616161616161616161616161616161616161616161616161e282ac6262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "pairAt31of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 67,
+   "byteOffset": 0,
+   "bufferLength": 67,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61616161616161616161616161616161616161616161616161616161616161f09f98806262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "loneHighAt31of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61616161616161616161616161616161616161616161616161616161616161efbfbd6262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "loneLowAt31of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61616161616161616161616161616161616161616161616161616161616161efbfbd6262626262626262626262626262626262626262626262626262626262626262"
+  },
+  "latin1At62of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 65,
+   "byteOffset": 0,
+   "bufferLength": 65,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161c3a962"
+  },
+  "bmpAt62of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161e282ac62"
+  },
+  "pairAt62of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 67,
+   "byteOffset": 0,
+   "bufferLength": 67,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161f09f988062"
+  },
+  "loneHighAt62of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161efbfbd62"
+  },
+  "loneLowAt62of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161efbfbd62"
+  },
+  "latin1At63of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 65,
+   "byteOffset": 0,
+   "bufferLength": 65,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161c3a9"
+  },
+  "bmpAt63of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161e282ac"
+  },
+  "pairAt63of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 67,
+   "byteOffset": 0,
+   "bufferLength": 67,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161f09f9880"
+  },
+  "loneHighAt63of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161efbfbd"
+  },
+  "loneLowAt63of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161efbfbd"
+  },
+  "latin1At64of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 66,
+   "byteOffset": 0,
+   "bufferLength": 66,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161c3a9"
+  },
+  "bmpAt64of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 67,
+   "byteOffset": 0,
+   "bufferLength": 67,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161e282ac"
+  },
+  "pairAt64of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 68,
+   "byteOffset": 0,
+   "bufferLength": 68,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161f09f9880"
+  },
+  "loneHighAt64of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 67,
+   "byteOffset": 0,
+   "bufferLength": 67,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161efbfbd"
+  },
+  "loneLowAt64of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 67,
+   "byteOffset": 0,
+   "bufferLength": 67,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "61616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161efbfbd"
+  },
+  "latin1At65of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 67,
+   "byteOffset": 0,
+   "bufferLength": 67,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161c3a9"
+  },
+  "bmpAt65of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 68,
+   "byteOffset": 0,
+   "bufferLength": 68,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161e282ac"
+  },
+  "pairAt65of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 69,
+   "byteOffset": 0,
+   "bufferLength": 69,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161f09f9880"
+  },
+  "loneHighAt65of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 68,
+   "byteOffset": 0,
+   "bufferLength": 68,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161efbfbd"
+  },
+  "loneLowAt65of64": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 68,
+   "byteOffset": 0,
+   "bufferLength": 68,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "6161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161efbfbd"
+  },
+  "highAtEnd": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 6,
+   "byteOffset": 0,
+   "bufferLength": 6,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "616263efbfbd"
+  },
+  "lowFirst": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 6,
+   "byteOffset": 0,
+   "bufferLength": 6,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "efbfbd616263"
+  },
+  "reversedPair": {
+   "type": "[object Uint8Array]",
+   "proto": true,
+   "length": 6,
+   "byteOffset": 0,
+   "bufferLength": 6,
+   "bufferType": "[object ArrayBuffer]",
+   "hex": "efbfbdefbfbd"
+  }
+ },
+ "random": "28c2d357",
+ "independent": true,
+ "structuredCloneCopy": "73686f7274",
+ "bufferFrom": [
+  true,
+  "6869207468657265",
+  8
+ ]
+}
