@@ -1,0 +1,52 @@
+CAUGHT control identity:both (auth): auth-proxy (jose): 67 MATCH (65 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 11 ORACLE-FAIL, 0 ERROR [negative control identity:both]
+CAUGHT control allow:both (auth): auth-proxy (jose): 56 MATCH (54 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 22 ORACLE-FAIL, 0 ERROR [negative control allow:both]
+CAUGHT control set-cookie:both (auth): auth-proxy (jose): 74 MATCH (72 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 4 ORACLE-FAIL, 0 ERROR [negative control set-cookie:both]
+CAUGHT control location:both (auth): auth-proxy (jose): 57 MATCH (55 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 21 ORACLE-FAIL, 0 ERROR [negative control location:both]
+CAUGHT control ledger-twice:both (auth): auth-proxy (jose): 70 MATCH (68 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 8 ORACLE-FAIL, 0 ERROR [negative control ledger-twice:both]
+CAUGHT control ledger-lost:both (auth): auth-proxy (jose): 76 MATCH (74 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 2 ORACLE-FAIL, 0 ERROR [negative control ledger-lost:both]
+PROXY-OK (auth)
+CAUGHT control replay-post (auth): auth-proxy (jose): 76 MATCH (74 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 2 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control drop-action (auth): auth-proxy (jose): 65 MATCH (63 asserted), 0 PASS, 0 KNOWN-DIFF, 8 DIFF, 5 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control strip-credentials (auth): auth-proxy (jose): 59 MATCH (57 asserted), 0 PASS, 0 KNOWN-DIFF, 2 DIFF, 17 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control swap-identity (auth): auth-proxy (jose): 66 MATCH (64 asserted), 0 PASS, 0 KNOWN-DIFF, 2 DIFF, 10 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control strip-set-cookie (auth): auth-proxy (jose): 74 MATCH (72 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 4 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control wrong-location (auth): auth-proxy (jose): 41 MATCH (39 asserted), 0 PASS, 0 KNOWN-DIFF, 16 DIFF, 21 FAIL, 0 ORACLE-FAIL, 0 ERROR
+MISSED control identity:both (platform)
+CAUGHT control allow:both (platform): platform-proxy (1 isolate): 55 MATCH (21 asserted), 3 PASS, 8 KNOWN-DIFF, 0 DIFF, 0 FAIL, 4 ORACLE-FAIL, 0 ERROR [negative control allow:both]
+CAUGHT control set-cookie:both (platform): platform-proxy (1 isolate): 51 MATCH (17 asserted), 3 PASS, 8 KNOWN-DIFF, 0 DIFF, 0 FAIL, 8 ORACLE-FAIL, 0 ERROR [negative control set-cookie:both]
+CAUGHT control location:both (platform): platform-proxy (1 isolate): 56 MATCH (22 asserted), 3 PASS, 8 KNOWN-DIFF, 0 DIFF, 0 FAIL, 3 ORACLE-FAIL, 0 ERROR [negative control location:both]
+CAUGHT control ledger-twice:both (platform): platform-proxy (1 isolate): 58 MATCH (24 asserted), 3 PASS, 8 KNOWN-DIFF, 0 DIFF, 0 FAIL, 1 ORACLE-FAIL, 0 ERROR [negative control ledger-twice:both]
+CAUGHT control ledger-lost:both (platform): platform-proxy (1 isolate): 58 MATCH (24 asserted), 3 PASS, 8 KNOWN-DIFF, 0 DIFF, 0 FAIL, 1 ORACLE-FAIL, 0 ERROR [negative control ledger-lost:both]
+PROXY-BREAKS (platform): platform-proxy (1 isolate): 45 MATCH (15 asserted), 2 PASS, 8 KNOWN-DIFF, 13 DIFF, 2 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control replay-post (platform): platform-proxy (1 isolate): 45 MATCH (15 asserted), 2 PASS, 8 KNOWN-DIFF, 13 DIFF, 2 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control drop-action (platform): platform-proxy (1 isolate): 45 MATCH (15 asserted), 2 PASS, 8 KNOWN-DIFF, 13 DIFF, 2 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control strip-credentials (platform): platform-proxy (1 isolate): 43 MATCH (13 asserted), 2 PASS, 8 KNOWN-DIFF, 12 DIFF, 5 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control swap-identity (platform): platform-proxy (1 isolate): 45 MATCH (15 asserted), 2 PASS, 8 KNOWN-DIFF, 13 DIFF, 2 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control strip-set-cookie (platform): platform-proxy (1 isolate): 40 MATCH (12 asserted), 2 PASS, 8 KNOWN-DIFF, 8 DIFF, 12 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control wrong-location (platform): platform-proxy (1 isolate): 39 MATCH (11 asserted), 2 PASS, 8 KNOWN-DIFF, 16 DIFF, 5 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control identity:both (jwks): jwks-proxy (jose JWKS): 51 MATCH (51 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 28 ORACLE-FAIL, 0 ERROR [negative control identity:both]
+CAUGHT control allow:both (jwks): jwks-proxy (jose JWKS): 38 MATCH (38 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 41 ORACLE-FAIL, 0 ERROR [negative control allow:both]
+CAUGHT control set-cookie:both (jwks): jwks-proxy (jose JWKS): 77 MATCH (77 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 2 ORACLE-FAIL, 0 ERROR [negative control set-cookie:both]
+CAUGHT control location:both (jwks): jwks-proxy (jose JWKS): 70 MATCH (70 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 9 ORACLE-FAIL, 0 ERROR [negative control location:both]
+CAUGHT control ledger-twice:both (jwks): jwks-proxy (jose JWKS): 73 MATCH (73 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 6 ORACLE-FAIL, 0 ERROR [negative control ledger-twice:both]
+CAUGHT control ledger-lost:both (jwks): jwks-proxy (jose JWKS): 76 MATCH (76 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 3 ORACLE-FAIL, 0 ERROR [negative control ledger-lost:both]
+PROXY-BREAKS (jwks): jwks-proxy (jose JWKS): 78 MATCH (78 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 1 ORACLE-FAIL, 0 ERROR
+CAUGHT control replay-post (jwks): jwks-proxy (jose JWKS): 76 MATCH (76 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 2 FAIL, 1 ORACLE-FAIL, 0 ERROR
+CAUGHT control drop-action (jwks): jwks-proxy (jose JWKS): 72 MATCH (72 asserted), 1 PASS, 2 KNOWN-DIFF, 3 DIFF, 3 FAIL, 1 ORACLE-FAIL, 0 ERROR
+CAUGHT control strip-credentials (jwks): jwks-proxy (jose JWKS): 15 MATCH (15 asserted), 0 PASS, 0 KNOWN-DIFF, 8 DIFF, 58 FAIL, 1 ORACLE-FAIL, 0 ERROR
+CAUGHT control swap-identity (jwks): jwks-proxy (jose JWKS): 54 MATCH (54 asserted), 1 PASS, 2 KNOWN-DIFF, 2 DIFF, 22 FAIL, 1 ORACLE-FAIL, 0 ERROR
+CAUGHT control strip-set-cookie (jwks): jwks-proxy (jose JWKS): 77 MATCH (77 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 1 FAIL, 1 ORACLE-FAIL, 0 ERROR
+CAUGHT control wrong-location (jwks): jwks-proxy (jose JWKS): 70 MATCH (70 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 8 FAIL, 1 ORACLE-FAIL, 0 ERROR
+CAUGHT control identity:both (authjs): authjs (next-auth 5): 39 MATCH (39 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 19 ORACLE-FAIL, 0 ERROR [negative control identity:both]
+CAUGHT control allow:both (authjs): authjs (next-auth 5): 43 MATCH (43 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 15 ORACLE-FAIL, 0 ERROR [negative control allow:both]
+CAUGHT control set-cookie:both (authjs): authjs (next-auth 5): 53 MATCH (53 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 5 ORACLE-FAIL, 0 ERROR [negative control set-cookie:both]
+CAUGHT control location:both (authjs): authjs (next-auth 5): 53 MATCH (53 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 5 ORACLE-FAIL, 0 ERROR [negative control location:both]
+CAUGHT control ledger-twice:both (authjs): authjs (next-auth 5): 53 MATCH (53 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 5 ORACLE-FAIL, 0 ERROR [negative control ledger-twice:both]
+CAUGHT control ledger-lost:both (authjs): authjs (next-auth 5): 56 MATCH (56 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 2 ORACLE-FAIL, 0 ERROR [negative control ledger-lost:both]
+PROXY-OK (authjs)
+CAUGHT control replay-post (authjs): authjs (next-auth 5): 56 MATCH (56 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 2 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control drop-action (authjs): authjs (next-auth 5): 53 MATCH (53 asserted), 0 PASS, 0 KNOWN-DIFF, 3 DIFF, 2 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control strip-credentials (authjs): authjs (next-auth 5): 12 MATCH (12 asserted), 0 PASS, 0 KNOWN-DIFF, 11 DIFF, 17 FAIL, 0 ORACLE-FAIL, 18 ERROR
+CAUGHT control swap-identity (authjs): authjs (next-auth 5): 44 MATCH (44 asserted), 0 PASS, 0 KNOWN-DIFF, 3 DIFF, 11 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control strip-set-cookie (authjs): authjs (next-auth 5): 4 MATCH (4 asserted), 0 PASS, 0 KNOWN-DIFF, 29 DIFF, 8 FAIL, 0 ORACLE-FAIL, 17 ERROR
+CAUGHT control wrong-location (authjs): authjs (next-auth 5): 27 MATCH (27 asserted), 0 PASS, 0 KNOWN-DIFF, 2 DIFF, 12 FAIL, 0 ORACLE-FAIL, 17 ERROR

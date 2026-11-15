@@ -1,0 +1,196 @@
+Preparing worktree (detached HEAD 170d283)
+== base 170d283
+Benchmarking request/prerendered_page
+Benchmarking request/prerendered_page: Warming up for 2.0000 s
+Benchmarking request/prerendered_page: Collecting 100 samples in estimated 5.0009 s (1.4M iterations)
+Benchmarking request/prerendered_page: Analyzing
+Benchmarking request/static_chunk
+Benchmarking request/static_chunk: Warming up for 2.0000 s
+Benchmarking request/static_chunk: Collecting 100 samples in estimated 5.1434 s (152k iterations)
+Benchmarking request/static_chunk: Analyzing
+Benchmarking request/static_missing
+Benchmarking request/static_missing: Warming up for 2.0000 s
+Benchmarking request/static_missing: Collecting 100 samples in estimated 5.0312 s (152k iterations)
+Benchmarking request/static_missing: Analyzing
+Benchmarking request/trailing_slash_redirect
+Benchmarking request/trailing_slash_redirect: Warming up for 2.0000 s
+Benchmarking request/trailing_slash_redirect: Collecting 100 samples in estimated 5.0295 s (596k iterations)
+Benchmarking request/trailing_slash_redirect: Analyzing
+Benchmarking request/query_string
+Benchmarking request/query_string: Warming up for 2.0000 s
+Benchmarking request/query_string: Collecting 100 samples in estimated 5.0094 s (1000k iterations)
+Benchmarking request/query_string: Analyzing
+Benchmarking request/conditional_304
+Benchmarking request/conditional_304: Warming up for 2.0000 s
+Benchmarking request/conditional_304: Collecting 100 samples in estimated 5.0111 s (1.4M iterations)
+Benchmarking request/conditional_304: Analyzing
+Benchmarking routing/parse_url_path
+Benchmarking routing/parse_url_path: Warming up for 2.0000 s
+Benchmarking routing/parse_url_path: Collecting 100 samples in estimated 5.0000 s (27M iterations)
+Benchmarking routing/parse_url_path: Analyzing
+Benchmarking routing/parse_url_query
+Benchmarking routing/parse_url_query: Warming up for 2.0000 s
+Benchmarking routing/parse_url_query: Collecting 100 samples in estimated 5.0003 s (8.5M iterations)
+Benchmarking routing/parse_url_query: Analyzing
+Benchmarking routing/parse_url_needs_parser
+Benchmarking routing/parse_url_needs_parser: Warming up for 2.0000 s
+Benchmarking routing/parse_url_needs_parser: Collecting 100 samples in estimated 5.0002 s (5.8M iterations)
+Benchmarking routing/parse_url_needs_parser: Analyzing
+Benchmarking routing/parse_search
+Benchmarking routing/parse_search: Warming up for 2.0000 s
+Benchmarking routing/parse_search: Collecting 100 samples in estimated 5.0011 s (10M iterations)
+Benchmarking routing/parse_search: Analyzing
+Benchmarking dispatch/empty_response
+Benchmarking dispatch/empty_response: Warming up for 2.0000 s
+Benchmarking dispatch/empty_response: Collecting 100 samples in estimated 5.0118 s (177k iterations)
+Benchmarking dispatch/empty_response: Analyzing
+Benchmarking dispatch/html_16k_in_8_writes
+Benchmarking dispatch/html_16k_in_8_writes: Warming up for 2.0000 s
+Benchmarking dispatch/html_16k_in_8_writes: Collecting 100 samples in estimated 5.0076 s (71k iterations)
+Benchmarking dispatch/html_16k_in_8_writes: Analyzing
+Benchmarking dispatch/html_64k_in_32_writes
+Benchmarking dispatch/html_64k_in_32_writes: Warming up for 2.0000 s
+Benchmarking dispatch/html_64k_in_32_writes: Collecting 100 samples in estimated 5.9503 s (30k iterations)
+Benchmarking dispatch/html_64k_in_32_writes: Analyzing
+== working tree 170d283+dirty
+Benchmarking request/prerendered_page
+Benchmarking request/prerendered_page: Warming up for 2.0000 s
+Benchmarking request/prerendered_page: Collecting 100 samples in estimated 5.0178 s (1.4M iterations)
+Benchmarking request/prerendered_page: Analyzing
+request/prerendered_page
+                        time:   [3.6155 µs 3.6274 µs 3.6397 µs]
+                        change: [−1.2980% −0.8980% −0.5015%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 14 outliers among 100 measurements (14.00%)
+  7 (7.00%) low mild
+  3 (3.00%) high mild
+  4 (4.00%) high severe
+Benchmarking request/static_chunk
+Benchmarking request/static_chunk: Warming up for 2.0000 s
+Benchmarking request/static_chunk: Collecting 100 samples in estimated 5.0824 s (146k iterations)
+Benchmarking request/static_chunk: Analyzing
+request/static_chunk    time:   [37.291 µs 37.764 µs 38.214 µs]
+                        change: [+7.1056% +8.8396% +11.415%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high severe
+Benchmarking request/static_missing
+Benchmarking request/static_missing: Warming up for 2.0000 s
+Benchmarking request/static_missing: Collecting 100 samples in estimated 5.1102 s (136k iterations)
+Benchmarking request/static_missing: Analyzing
+request/static_missing  time:   [36.887 µs 37.191 µs 37.509 µs]
+                        change: [+2.5519% +4.8978% +6.9573%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 7 outliers among 100 measurements (7.00%)
+  1 (1.00%) low mild
+  4 (4.00%) high mild
+  2 (2.00%) high severe
+Benchmarking request/trailing_slash_redirect
+Benchmarking request/trailing_slash_redirect: Warming up for 2.0000 s
+Benchmarking request/trailing_slash_redirect: Collecting 100 samples in estimated 5.0024 s (606k iterations)
+Benchmarking request/trailing_slash_redirect: Analyzing
+request/trailing_slash_redirect
+                        time:   [8.1605 µs 8.1902 µs 8.2223 µs]
+                        change: [−2.2764% −1.6690% −1.0078%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 7 outliers among 100 measurements (7.00%)
+  1 (1.00%) low mild
+  5 (5.00%) high mild
+  1 (1.00%) high severe
+Benchmarking request/query_string
+Benchmarking request/query_string: Warming up for 2.0000 s
+Benchmarking request/query_string: Collecting 100 samples in estimated 5.0021 s (1.0M iterations)
+Benchmarking request/query_string: Analyzing
+request/query_string    time:   [5.0210 µs 5.0362 µs 5.0525 µs]
+                        change: [+3.3192% +3.7776% +4.1815%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 11 outliers among 100 measurements (11.00%)
+  6 (6.00%) low mild
+  5 (5.00%) high mild
+Benchmarking request/conditional_304
+Benchmarking request/conditional_304: Warming up for 2.0000 s
+Benchmarking request/conditional_304: Collecting 100 samples in estimated 5.0132 s (1.3M iterations)
+Benchmarking request/conditional_304: Analyzing
+request/conditional_304 time:   [3.7135 µs 3.7261 µs 3.7423 µs]
+                        change: [+1.5108% +1.9345% +2.3648%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 4 outliers among 100 measurements (4.00%)
+  2 (2.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking routing/parse_url_path
+Benchmarking routing/parse_url_path: Warming up for 2.0000 s
+Benchmarking routing/parse_url_path: Collecting 100 samples in estimated 5.0007 s (27M iterations)
+Benchmarking routing/parse_url_path: Analyzing
+routing/parse_url_path  time:   [186.29 ns 186.68 ns 187.13 ns]
+                        change: [+0.7147% +1.0937% +1.5345%] (p = 0.00 < 0.05)
+                        Change within noise threshold.
+Found 23 outliers among 100 measurements (23.00%)
+  4 (4.00%) low severe
+  12 (12.00%) low mild
+  2 (2.00%) high mild
+  5 (5.00%) high severe
+Benchmarking routing/parse_url_query
+Benchmarking routing/parse_url_query: Warming up for 2.0000 s
+Benchmarking routing/parse_url_query: Collecting 100 samples in estimated 5.0002 s (8.4M iterations)
+Benchmarking routing/parse_url_query: Analyzing
+routing/parse_url_query time:   [600.91 ns 601.53 ns 602.29 ns]
+                        change: [+1.5050% +1.8290% +2.1577%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking routing/parse_url_needs_parser
+Benchmarking routing/parse_url_needs_parser: Warming up for 2.0000 s
+Benchmarking routing/parse_url_needs_parser: Collecting 100 samples in estimated 5.0010 s (5.6M iterations)
+Benchmarking routing/parse_url_needs_parser: Analyzing
+routing/parse_url_needs_parser
+                        time:   [896.11 ns 898.12 ns 900.10 ns]
+                        change: [+3.2695% +3.6096% +3.9301%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) low mild
+  1 (1.00%) high mild
+Benchmarking routing/parse_search
+Benchmarking routing/parse_search: Warming up for 2.0000 s
+Benchmarking routing/parse_search: Collecting 100 samples in estimated 5.0022 s (10M iterations)
+Benchmarking routing/parse_search: Analyzing
+routing/parse_search    time:   [488.05 ns 489.01 ns 490.06 ns]
+                        change: [+1.0310% +1.3448% +1.7156%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking dispatch/empty_response
+Benchmarking dispatch/empty_response: Warming up for 2.0000 s
+Benchmarking dispatch/empty_response: Collecting 100 samples in estimated 5.0814 s (207k iterations)
+Benchmarking dispatch/empty_response: Analyzing
+dispatch/empty_response time:   [23.161 µs 23.289 µs 23.424 µs]
+                        change: [−10.527% −8.9101% −7.5197%] (p = 0.00 < 0.05)
+                        Performance has improved.
+Found 6 outliers among 100 measurements (6.00%)
+  5 (5.00%) high mild
+  1 (1.00%) high severe
+Benchmarking dispatch/html_16k_in_8_writes
+Benchmarking dispatch/html_16k_in_8_writes: Warming up for 2.0000 s
+Benchmarking dispatch/html_16k_in_8_writes: Collecting 100 samples in estimated 5.0122 s (71k iterations)
+Benchmarking dispatch/html_16k_in_8_writes: Analyzing
+dispatch/html_16k_in_8_writes
+                        time:   [72.021 µs 74.507 µs 77.401 µs]
+                        change: [−5.1409% −1.4147% +2.2861%] (p = 0.47 > 0.05)
+                        No change in performance detected.
+Found 8 outliers among 100 measurements (8.00%)
+  5 (5.00%) high mild
+  3 (3.00%) high severe
+Benchmarking dispatch/html_64k_in_32_writes
+Benchmarking dispatch/html_64k_in_32_writes: Warming up for 2.0000 s
+Benchmarking dispatch/html_64k_in_32_writes: Collecting 100 samples in estimated 5.0282 s (25k iterations)
+Benchmarking dispatch/html_64k_in_32_writes: Analyzing
+dispatch/html_64k_in_32_writes
+                        time:   [190.97 µs 193.14 µs 195.47 µs]
+                        change: [−0.1187% +1.8103% +3.9545%] (p = 0.08 > 0.05)
+                        No change in performance detected.
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+

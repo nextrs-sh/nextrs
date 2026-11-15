@@ -67,15 +67,20 @@ const CLK = Number(sh("getconf", ["CLK_TCK"]) ?? 100);
 /** CPU seconds (user, system) and memory of a process tree. */
 export function sample(pid) {
   let user = 0, system = 0, rss = 0, anon = 0, file = 0, swap = 0, threads = 0, vcsw = 0, ivcsw = 0;
+  const ctxt = {};
   for (const p of tree(pid)) {
-    // Context switches, summed over the live threads (a thread's count
-    // goes with it when it exits; the server's threads are long-lived).
+    // Context switches per live thread. A thread's count goes with it when
+    // it exits (tokio's idle blocking threads do), so deltas are taken per
+    // thread (ctxtDelta), never between process-wide sums.
     try {
       for (const t of readdirSync(`/proc/${p}/task`)) {
         try {
           const ts = readFileSync(`/proc/${p}/task/${t}/status`, "utf8");
-          vcsw += Number(/voluntary_ctxt_switches:\s+(\d+)/.exec(ts)?.[1] ?? 0);
-          ivcsw += Number(/nonvoluntary_ctxt_switches:\s+(\d+)/.exec(ts)?.[1] ?? 0);
+          const v = Number(/^voluntary_ctxt_switches:\s+(\d+)/m.exec(ts)?.[1] ?? 0);
+          const nv = Number(/^nonvoluntary_ctxt_switches:\s+(\d+)/m.exec(ts)?.[1] ?? 0);
+          vcsw += v;
+          ivcsw += nv;
+          ctxt[`${p}/${t}`] = [v, nv];
         } catch {}
       }
     } catch {}
@@ -93,7 +98,20 @@ export function sample(pid) {
     } catch {}
   }
   const mib = (kb) => +(kb / 1024).toFixed(1);
-  return { cpu_user_s: user, cpu_sys_s: system, rss_mib: mib(rss), anon_mib: mib(anon), file_mib: mib(file), swap_mib: mib(swap), threads, voluntary_ctxt_switches: vcsw, nonvoluntary_ctxt_switches: ivcsw };
+  return { cpu_user_s: user, cpu_sys_s: system, rss_mib: mib(rss), anon_mib: mib(anon), file_mib: mib(file), swap_mib: mib(swap), threads, voluntary_ctxt_switches: vcsw, nonvoluntary_ctxt_switches: ivcsw, ctxt };
+}
+
+/** [voluntary, nonvoluntary] context switches between two samples, summed
+ * over the threads alive at the second (a thread that started in between
+ * counts from zero; one that exited is not counted). */
+export function ctxtDelta(a, b) {
+  let v = 0, nv = 0;
+  for (const [t, [bv, bnv]] of Object.entries(b.ctxt ?? {})) {
+    const [av, anv] = a.ctxt?.[t] ?? [0, 0];
+    v += bv - av;
+    nv += bnv - anv;
+  }
+  return [v, nv];
 }
 
 /** Samples memory every `ms` until stopped; returns peaks and the last sample. */
@@ -144,7 +162,7 @@ export async function waitReady(port, path = "/", timeoutMs = 60000) {
  * Starts a server pinned to `cpus` (taskset list). kind: "next" or "nextrs".
  * Returns { child, pid, port, metricsPort, startup_ms }.
  */
-export async function startServer({ kind, node, nextrs, project, dist = ".next", port, metricsPort, isolates = 1, cpus, env = {}, extraArgs = [], readyPath = "/" }) {
+export async function startServer({ kind, node, nextrs, project, dist = ".next", port, metricsPort, isolates = 1, cpus, env = {}, extraArgs = [], readyPath = "/", stdout = "ignore" }) {
   let cmd, args;
   const fullEnv = { ...process.env, NODE_ENV: "production", NEXT_TELEMETRY_DISABLED: "1", ...env };
   if (kind === "next") {
@@ -155,7 +173,10 @@ export async function startServer({ kind, node, nextrs, project, dist = ".next",
     args = ["start", join(project, dist), "--port", String(port), "--js-runtime", "embedded-v8", "--isolates", String(isolates), "--metrics-addr", `127.0.0.1:${metricsPort}`, ...extraArgs];
   }
   const t0 = Date.now();
-  const child = spawn("taskset", ["-c", cpus, cmd, ...args], { cwd: project, env: fullEnv, stdio: ["ignore", "ignore", "pipe"], detached: true });
+  // A piped stdout (V8 GC traces) is line-buffered, so each line arrives
+  // when it is printed, not in 4 KiB blocks that can straddle windows.
+  const wrap = stdout === "pipe" ? ["stdbuf", "-oL", cmd] : [cmd];
+  const child = spawn("taskset", ["-c", cpus, ...wrap, ...args], { cwd: project, env: fullEnv, stdio: ["ignore", stdout, "pipe"], detached: true });
   let stderr = "";
   child.stderr.on("data", (c) => (stderr = (stderr + c).slice(-4000)));
   try {

@@ -1,0 +1,57 @@
+name: Microbenchmarks
+
+# Report-only: the request-path and executor-dispatch microbenchmarks on a
+# pull request's merge base and head, run one after the other on the same
+# runner. Shared runners vary from run to run, so the result is a signal
+# for a reviewer, never a gate (no thresholds; the job cannot fail the
+# pull request). End-to-end performance is measured on a controlled host
+# with benchmarks/phase3a (see engineering/benchmarks.md).
+
+on:
+  pull_request:
+    paths:
+      - "crates/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "benchmarks/micro-compare.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bench-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: never
+
+jobs:
+  micro:
+    name: microbenchmarks (report only)
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.98.0"
+      - uses: Swatinem/rust-cache@v2
+      - name: Base and head on this runner
+        run: |
+          base="${{ github.event.pull_request.base.sha || '' }}"
+          [ -n "$base" ] || base="$(git merge-base HEAD origin/main)"
+          benchmarks/micro-compare.sh "$base" 2>&1 | tee bench.txt
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Microbenchmarks (report only, shared runner)"
+            echo
+            echo '```'
+            grep -E '^[a-z_]+/|time:|change:|improved|regressed|No change|within noise|not in the base' bench.txt || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

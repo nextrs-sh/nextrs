@@ -5,6 +5,7 @@
 //   node benchmarks/phase3a/run.mjs --out benchmarks/results/phase3a/<name>
 //     [--nextrs target/release/nextrs] [--label current]
 //     [--nextrs-b PATH --label-b NAME]       # a second NextRS build (A/B)
+//     [--nextrs-c PATH --label-c NAME]       # a third (A/B/C), same options with -c
 //     [--args "..." --args-b "..."]          # extra nextrs start arguments per build
 //     [--env K=V,... --env-b K=V,...]        # extra environment per build
 //     [--isolates 1,2,4] [--no-next]          # configurations
@@ -54,10 +55,14 @@ const splitArgs = (a) => (typeof a === "string" ? a.match(/(?:[^\s"]+|"[^"]*")+/
 const parseEnv = (e) => Object.fromEntries(typeof e === "string" ? e.split(",").map((kv) => [kv.slice(0, kv.indexOf("=")), kv.slice(kv.indexOf("=") + 1)]) : []);
 const builds = [{ label: args.label ?? "nextrs", bin: resolve(args.nextrs ?? join(ROOT, "target/release/nextrs")), extra: splitArgs(args.args), env: parseEnv(args.env) }];
 if (args["nextrs-b"]) builds.push({ label: args["label-b"] ?? "nextrs-b", bin: resolve(args["nextrs-b"]), extra: splitArgs(args["args-b"]), env: parseEnv(args["env-b"]) });
+if (args["nextrs-c"]) builds.push({ label: args["label-c"] ?? "nextrs-c", bin: resolve(args["nextrs-c"]), extra: splitArgs(args["args-c"]), env: parseEnv(args["env-c"]) });
 const isolates = String(args.isolates ?? "1,2,4").split(",").map(Number);
 const configs = [];
 if (!args["no-next"]) configs.push({ id: "next-start", kind: "next" });
-for (const b of builds) for (const n of isolates) configs.push({ id: `${b.label}-i${n}`, kind: "nextrs", bin: b.bin, isolates: n, extra: b.extra, env: b.env });
+// --isolates-b / --isolates-c: other isolate counts for the second/third build
+// (e.g. a baseline measured at 1 isolate only).
+builds.forEach((b, i) => { const k = ["", "-b", "-c"][i]; b.isolates = args[`isolates${k}`] && k ? String(args[`isolates${k}`]).split(",").map(Number) : isolates; });
+for (const b of builds) for (const n of b.isolates) configs.push({ id: `${b.label}-i${n}`, kind: "nextrs", bin: b.bin, isolates: n, extra: b.extra, env: b.env });
 
 const selectedGroups = args.groups ? new Set(String(args.groups).split(",")) : null;
 const only = args.only ? new Set(String(args.only).split(",")) : null;
@@ -161,8 +166,8 @@ async function measure(ctx, s, w, mode, rate) {
     cycles_per_req: perf.cycles ? perf.cycles / n : null,
     // Server-side thread context switches per request (blocking waits and
     // preemptions): the cost of handing work between threads.
-    voluntary_ctxt_switches_per_req: (c1.voluntary_ctxt_switches - c0.voluntary_ctxt_switches) / n,
-    nonvoluntary_ctxt_switches_per_req: (c1.nonvoluntary_ctxt_switches - c0.nonvoluntary_ctxt_switches) / n,
+    voluntary_ctxt_switches_per_req: L.ctxtDelta(c0, c1)[0] / n,
+    nonvoluntary_ctxt_switches_per_req: L.ctxtDelta(c0, c1)[1] / n,
     mem_peak: mem.peak, mem_end: { rss_mib: c1.rss_mib, anon_mib: c1.anon_mib, file_mib: c1.file_mib, swap_mib: c1.swap_mib, threads: c1.threads },
     mem_steady: { rss_mib: steady.rss_mib, anon_mib: steady.anon_mib, swap_mib: steady.swap_mib },
     executor: exec,
@@ -182,6 +187,10 @@ function executorDelta(a, b) {
     queue_wait_ms_per_req: reqs ? (d("queue_wait_seconds_total") * 1000) / reqs : null,
     execution_ms_per_req: reqs ? (d("execution_seconds_total") * 1000) / reqs : null,
     queue_waits: d("queue_waits"),
+    // Response events received by the HTTP side, and how many it had to
+    // park for (null on builds without these counters).
+    response_events_per_req: reqs && d("response_events") !== null ? d("response_events") / reqs : null,
+    response_event_waits_per_req: reqs && d("response_event_waits") !== null ? d("response_event_waits") / reqs : null,
     rejected: ["rejected_overloaded", "rejected_queue_timeout", "rejected_shutting_down", "rejected_unavailable"].reduce((a, k) => a + (d(k) ?? 0), 0),
     cancelled: d("responses_cancelled"),
     handler_errors: d("handler_errors"),
