@@ -159,6 +159,10 @@ async function measure(ctx, s, w, mode, rate) {
     cpu_utilization: cpu / res.duration_s,
     instructions_per_req: perf.instructions ? perf.instructions / n : null,
     cycles_per_req: perf.cycles ? perf.cycles / n : null,
+    // Server-side thread context switches per request (blocking waits and
+    // preemptions): the cost of handing work between threads.
+    voluntary_ctxt_switches_per_req: (c1.voluntary_ctxt_switches - c0.voluntary_ctxt_switches) / n,
+    nonvoluntary_ctxt_switches_per_req: (c1.nonvoluntary_ctxt_switches - c0.nonvoluntary_ctxt_switches) / n,
     mem_peak: mem.peak, mem_end: { rss_mib: c1.rss_mib, anon_mib: c1.anon_mib, file_mib: c1.file_mib, swap_mib: c1.swap_mib, threads: c1.threads },
     mem_steady: { rss_mib: steady.rss_mib, anon_mib: steady.anon_mib, swap_mib: steady.swap_mib },
     executor: exec,

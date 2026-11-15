@@ -1,0 +1,621 @@
+11:11:37 closed round 1/5 app current-i1
+11:11:55   static-file            ok   57989 rps p95 1.05 ms cpu 0.056 ms/req rss 68 MiB
+11:12:12   prerendered            ok  108583 rps p95 0.52 ms cpu 0.020 ms/req rss 68 MiB (loadgen-limited)
+11:12:29   ssr                    ok     742 rps p95 49.63 ms cpu 1.693 ms/req rss 199.6 MiB
+11:12:46   ssr-identity           ok     840 rps p95 44.32 ms cpu 1.521 ms/req rss 200.3 MiB
+11:13:03   rsc                    ok    1350 rps p95 32.90 ms cpu 0.940 ms/req rss 198.5 MiB
+11:13:20   streaming              ok     483 rps p95 71.17 ms cpu 2.038 ms/req rss 196.1 MiB
+11:13:38   action                 ok    2384 rps p95 18.99 ms cpu 0.676 ms/req rss 194 MiB
+11:13:55   action-multipart       ok    2512 rps p95 16.56 ms cpu 0.567 ms/req rss 195.1 MiB
+11:14:12   isr-hit                ok    4467 rps p95 9.60 ms cpu 0.316 ms/req rss 191.5 MiB
+11:14:29   isr-regenerating       ok    5388 rps p95 8.59 ms cpu 0.274 ms/req rss 190.3 MiB
+11:14:29 closed round 1/5 app base-i1
+11:14:46   static-file            ok   46682 rps p95 1.13 ms cpu 0.078 ms/req rss 68.1 MiB
+11:15:03   prerendered            ok  102536 rps p95 0.56 ms cpu 0.021 ms/req rss 68.1 MiB
+11:15:21   ssr                    ok     682 rps p95 53.02 ms cpu 1.867 ms/req rss 202.6 MiB
+11:15:38   ssr-identity           ok     749 rps p95 48.38 ms cpu 1.687 ms/req rss 213.8 MiB
+11:15:55   rsc                    ok    1296 rps p95 33.25 ms cpu 0.998 ms/req rss 203.9 MiB
+11:16:12   streaming              ok     486 rps p95 70.59 ms cpu 2.243 ms/req rss 199.2 MiB
+11:16:29   action                 ok    2520 rps p95 17.76 ms cpu 0.656 ms/req rss 191.2 MiB
+11:16:47   action-multipart       ok    2412 rps p95 17.41 ms cpu 0.583 ms/req rss 198.7 MiB
+11:17:04   isr-hit                ok    3049 rps p95 11.70 ms cpu 0.445 ms/req rss 281.7 MiB
+11:17:21   isr-regenerating       ok    3270 rps p95 12.41 ms cpu 0.408 ms/req rss 350.6 MiB
+11:17:21 closed round 1/5 cache-components base-i1
+11:17:39   use-cache-hit          ok     499 rps p95 78.46 ms cpu 2.584 ms/req rss 237.6 MiB
+11:17:39 closed round 1/5 cache-components current-i1
+11:17:57   use-cache-hit          ok     544 rps p95 65.98 ms cpu 2.349 ms/req rss 205.3 MiB
+11:17:57 closed round 1/5 proxy base-i1
+11:18:15   proxy-matched-ssr      ok     550 rps p95 66.50 ms cpu 2.400 ms/req rss 207.1 MiB
+11:18:32   proxy-matched-static   ok    6047 rps p95 8.53 ms cpu 0.324 ms/req rss 207.1 MiB
+11:18:49   proxy-unmatched        ok   94741 rps p95 0.58 ms cpu 0.031 ms/req rss 189 MiB
+11:18:49 closed round 1/5 proxy current-i1
+11:19:07   proxy-matched-ssr      ok     589 rps p95 69.38 ms cpu 2.203 ms/req rss 203.4 MiB
+11:19:24   proxy-matched-static   ok    5840 rps p95 8.94 ms cpu 0.328 ms/req rss 203.6 MiB
+11:19:41   proxy-unmatched        ok   89115 rps p95 0.65 ms cpu 0.030 ms/req rss 193.3 MiB
+11:19:41 closed round 1/5 auth base-i1
+11:19:59   jwt-valid              ok     509 rps p95 81.86 ms cpu 2.526 ms/req rss 224.3 MiB
+11:20:16   jwt-rejected           ok    6841 rps p95 9.34 ms cpu 0.261 ms/req rss 224.2 MiB
+11:20:16 closed round 1/5 auth current-i1
+11:20:34   jwt-valid              ok     570 rps p95 62.62 ms cpu 2.319 ms/req rss 210.7 MiB
+11:20:51   jwt-rejected           ok    7352 rps p95 8.54 ms cpu 0.253 ms/req rss 207.3 MiB
+11:20:51 closed round 1/5 pages current-i1
+11:21:08   pages-ssr              ok    1458 rps p95 29.12 ms cpu 0.922 ms/req rss 164.3 MiB
+11:21:25   pages-ssr-proxied      ok    1108 rps p95 38.94 ms cpu 1.240 ms/req rss 182.9 MiB
+11:21:42   pages-api-get          ok    7799 rps p95 6.72 ms cpu 0.188 ms/req rss 168.2 MiB
+11:21:59   pages-api-post         ok    3859 rps p95 11.65 ms cpu 0.406 ms/req rss 175.7 MiB
+11:22:16   pages-data             ok    2778 rps p95 15.17 ms cpu 0.552 ms/req rss 181.3 MiB
+11:22:17 closed round 1/5 pages base-i1
+11:22:34   pages-ssr              ok    1337 rps p95 30.57 ms cpu 1.014 ms/req rss 172.7 MiB
+11:22:51   pages-ssr-proxied      ok    1030 rps p95 42.43 ms cpu 1.319 ms/req rss 207.4 MiB
+11:23:08   pages-api-get          ok    7855 rps p95 6.65 ms cpu 0.189 ms/req rss 176 MiB
+11:23:25   pages-api-post         ok    3769 rps p95 11.44 ms cpu 0.418 ms/req rss 180.9 MiB
+11:23:42   pages-data             ok    2763 rps p95 15.15 ms cpu 0.557 ms/req rss 183 MiB
+11:23:43 closed round 1/5 image base-i1
+11:24:00   image-hit              ok   90113 rps p95 0.57 ms cpu 0.037 ms/req rss 67.2 MiB
+11:24:18   image-transform        ok      56 rps p95 146.30 ms cpu 36.482 ms/req rss 98.9 MiB
+11:24:18 closed round 1/5 image current-i1
+11:24:36   image-hit              ok   80248 rps p95 0.66 ms cpu 0.037 ms/req rss 65.8 MiB
+11:24:53   image-transform        ok      56 rps p95 145.79 ms cpu 36.370 ms/req rss 94.9 MiB
+11:24:54 closed round 1/5 mixed current-i1
+11:25:14   mixed                  ok    1939 rps p95 59.52 ms cpu 1.327 ms/req rss 215.8 MiB
+11:25:14 closed round 1/5 mixed base-i1
+11:25:34   mixed                  ok    1857 rps p95 61.38 ms cpu 1.362 ms/req rss 232.3 MiB
+11:25:35 closed round 2/5 app current-i1
+11:25:52   static-file            ok   63435 rps p95 0.86 ms cpu 0.055 ms/req rss 67.5 MiB
+11:26:09   prerendered            ok  113617 rps p95 0.43 ms cpu 0.020 ms/req rss 67.6 MiB (loadgen-limited)
+11:26:26   ssr                    ok     755 rps p95 46.72 ms cpu 1.682 ms/req rss 195.6 MiB
+11:26:43   ssr-identity           ok     836 rps p95 42.88 ms cpu 1.524 ms/req rss 202.4 MiB
+11:27:00   rsc                    ok    1360 rps p95 32.38 ms cpu 0.950 ms/req rss 200 MiB
+11:27:18   streaming              ok     483 rps p95 71.49 ms cpu 2.046 ms/req rss 199.2 MiB
+11:27:35   action                 ok    2462 rps p95 18.32 ms cpu 0.667 ms/req rss 192.6 MiB
+11:27:52   action-multipart       ok    2431 rps p95 17.31 ms cpu 0.583 ms/req rss 196.9 MiB
+11:28:09   isr-hit                ok    4441 rps p95 9.76 ms cpu 0.317 ms/req rss 193.8 MiB
+11:28:26   isr-regenerating       ok    5258 rps p95 8.89 ms cpu 0.278 ms/req rss 195.3 MiB
+11:28:26 closed round 2/5 app base-i1
+11:28:44   static-file            ok   44388 rps p95 1.26 ms cpu 0.079 ms/req rss 67.7 MiB
+11:29:01   prerendered            ok  113256 rps p95 0.42 ms cpu 0.021 ms/req rss 67.7 MiB (loadgen-limited)
+11:29:18   ssr                    ok     643 rps p95 57.31 ms cpu 1.961 ms/req rss 210.1 MiB
+11:29:35   ssr-identity           ok     729 rps p95 48.99 ms cpu 1.761 ms/req rss 213.5 MiB
+11:29:52   rsc                    ok    1258 rps p95 33.22 ms cpu 1.018 ms/req rss 212.5 MiB
+11:30:09   streaming              ok     479 rps p95 72.83 ms cpu 2.345 ms/req rss 196.6 MiB
+11:30:27   action                 ok    2437 rps p95 18.22 ms cpu 0.660 ms/req rss 192.6 MiB
+11:30:44   action-multipart       ok    2440 rps p95 17.01 ms cpu 0.572 ms/req rss 193.2 MiB
+11:31:01   isr-hit                ok    3043 rps p95 11.52 ms cpu 0.445 ms/req rss 291.2 MiB
+11:31:18   isr-regenerating       ok    3396 rps p95 10.94 ms cpu 0.399 ms/req rss 351.8 MiB
+11:31:18 closed round 2/5 cache-components base-i1
+11:31:36   use-cache-hit          ok     515 rps p95 70.97 ms cpu 2.523 ms/req rss 216.1 MiB
+11:31:36 closed round 2/5 cache-components current-i1
+11:31:54   use-cache-hit          ok     557 rps p95 67.71 ms cpu 2.302 ms/req rss 211.9 MiB
+11:31:54 closed round 2/5 proxy base-i1
+11:32:12   proxy-matched-ssr      ok     566 rps p95 62.43 ms cpu 2.323 ms/req rss 219.2 MiB
+11:32:29   proxy-matched-static   ok    6199 rps p95 8.21 ms cpu 0.321 ms/req rss 204.4 MiB
+11:32:46   proxy-unmatched        ok  103702 rps p95 0.52 ms cpu 0.031 ms/req rss 187.7 MiB (loadgen-limited)
+11:32:46 closed round 2/5 proxy current-i1
+11:33:04   proxy-matched-ssr      ok     640 rps p95 54.21 ms cpu 2.084 ms/req rss 205.2 MiB
+11:33:21   proxy-matched-static   ok    6109 rps p95 8.13 ms cpu 0.321 ms/req rss 203.8 MiB
+11:33:38   proxy-unmatched        ok  101610 rps p95 0.55 ms cpu 0.029 ms/req rss 188 MiB
+11:33:38 closed round 2/5 auth base-i1
+11:33:56   jwt-valid              ok     528 rps p95 73.41 ms cpu 2.441 ms/req rss 223.5 MiB
+11:34:13   jwt-rejected           ok    7165 rps p95 8.92 ms cpu 0.258 ms/req rss 223.6 MiB
+11:34:13 closed round 2/5 auth current-i1
+11:34:31   jwt-valid              ok     571 rps p95 68.29 ms cpu 2.304 ms/req rss 207.2 MiB
+11:34:48   jwt-rejected           ok    7400 rps p95 8.47 ms cpu 0.253 ms/req rss 191.3 MiB
+11:34:48 closed round 2/5 pages current-i1
+11:35:05   pages-ssr              ok    1497 rps p95 27.33 ms cpu 0.895 ms/req rss 159.5 MiB
+11:35:22   pages-ssr-proxied      ok    1142 rps p95 38.05 ms cpu 1.216 ms/req rss 184.1 MiB
+11:35:40   pages-api-get          ok    8068 rps p95 6.50 ms cpu 0.184 ms/req rss 172.6 MiB
+11:35:57   pages-api-post         ok    3900 rps p95 11.26 ms cpu 0.406 ms/req rss 175.4 MiB
+11:36:14   pages-data             ok    2808 rps p95 14.80 ms cpu 0.545 ms/req rss 176.6 MiB
+11:36:14 closed round 2/5 pages base-i1
+11:36:31   pages-ssr              ok    1385 rps p95 29.39 ms cpu 0.979 ms/req rss 172.9 MiB
+11:36:49   pages-ssr-proxied      ok    1060 rps p95 41.73 ms cpu 1.297 ms/req rss 208.6 MiB
+11:37:06   pages-api-get          ok    8118 rps p95 6.42 ms cpu 0.185 ms/req rss 177.3 MiB
+11:37:23   pages-api-post         ok    3888 rps p95 11.00 ms cpu 0.410 ms/req rss 182.8 MiB
+11:37:40   pages-data             ok    2857 rps p95 14.29 ms cpu 0.534 ms/req rss 179.5 MiB
+11:37:40 closed round 2/5 image base-i1
+11:37:57   image-hit              ok   96473 rps p95 0.51 ms cpu 0.037 ms/req rss 65.7 MiB
+11:38:15   image-transform        ok      56 rps p95 145.53 ms cpu 36.370 ms/req rss 96.8 MiB
+11:38:15 closed round 2/5 image current-i1
+11:38:33   image-hit              ok   99015 rps p95 0.49 ms cpu 0.036 ms/req rss 66.4 MiB (loadgen-limited)
+11:38:50   image-transform        ok      56 rps p95 144.77 ms cpu 36.330 ms/req rss 98.5 MiB
+11:38:51 closed round 2/5 mixed base-i1
+11:39:11   mixed                  ok    1906 rps p95 58.69 ms cpu 1.345 ms/req rss 227.5 MiB
+11:39:11 closed round 2/5 mixed current-i1
+11:39:31   mixed                  ok    2003 rps p95 57.38 ms cpu 1.306 ms/req rss 219.4 MiB
+11:39:32 closed round 3/5 app base-i1
+11:39:49   static-file            ok   45429 rps p95 1.20 ms cpu 0.079 ms/req rss 67.9 MiB
+11:40:06   prerendered            ok  120338 rps p95 0.38 ms cpu 0.023 ms/req rss 67.9 MiB (loadgen-limited)
+11:40:23   ssr                    ok     697 rps p95 52.99 ms cpu 1.839 ms/req rss 187.9 MiB
+11:40:40   ssr-identity           ok     761 rps p95 46.56 ms cpu 1.683 ms/req rss 205 MiB
+11:40:57   rsc                    ok    1309 rps p95 32.80 ms cpu 0.992 ms/req rss 193.8 MiB
+11:41:15   streaming              ok     484 rps p95 73.41 ms cpu 2.228 ms/req rss 193 MiB
+11:41:32   action                 ok    2560 rps p95 17.30 ms cpu 0.642 ms/req rss 188.1 MiB
+11:41:49   action-multipart       ok    2540 rps p95 16.30 ms cpu 0.557 ms/req rss 185.7 MiB
+11:42:06   isr-hit                ok    3113 rps p95 10.86 ms cpu 0.439 ms/req rss 279.6 MiB
+11:42:23   isr-regenerating       ok    3471 rps p95 10.22 ms cpu 0.390 ms/req rss 345.3 MiB
+11:42:24 closed round 3/5 app current-i1
+11:42:41   static-file            ok   65122 rps p95 0.82 ms cpu 0.054 ms/req rss 67.9 MiB
+11:42:58   prerendered            ok  114253 rps p95 0.40 ms cpu 0.022 ms/req rss 67.9 MiB (loadgen-limited)
+11:43:15   ssr                    ok     755 rps p95 50.98 ms cpu 1.664 ms/req rss 191 MiB
+11:43:32   ssr-identity           ok     822 rps p95 46.11 ms cpu 1.532 ms/req rss 205.1 MiB
+11:43:49   rsc                    ok    1360 rps p95 32.29 ms cpu 0.938 ms/req rss 201.6 MiB
+11:44:07   streaming              ok     481 rps p95 72.96 ms cpu 2.049 ms/req rss 200.9 MiB
+11:44:24   action                 ok    2445 rps p95 18.48 ms cpu 0.661 ms/req rss 194 MiB
+11:44:41   action-multipart       ok    2385 rps p95 17.44 ms cpu 0.591 ms/req rss 197.2 MiB
+11:44:58   isr-hit                ok    4434 rps p95 9.70 ms cpu 0.317 ms/req rss 195.4 MiB
+11:45:15   isr-regenerating       ok    5294 rps p95 8.73 ms cpu 0.278 ms/req rss 193.7 MiB
+11:45:15 closed round 3/5 cache-components current-i1
+11:45:33   use-cache-hit          ok     560 rps p95 69.12 ms cpu 2.298 ms/req rss 197.5 MiB
+11:45:33 closed round 3/5 cache-components base-i1
+11:45:51   use-cache-hit          ok     512 rps p95 73.28 ms cpu 2.486 ms/req rss 223.4 MiB
+11:45:52 closed round 3/5 proxy current-i1
+11:46:09   proxy-matched-ssr      ok     633 rps p95 54.24 ms cpu 2.124 ms/req rss 198.3 MiB
+11:46:26   proxy-matched-static   ok    6229 rps p95 8.06 ms cpu 0.317 ms/req rss 196 MiB
+11:46:43   proxy-unmatched        ok  102065 rps p95 0.54 ms cpu 0.029 ms/req rss 189.3 MiB
+11:46:44 closed round 3/5 proxy base-i1
+11:47:01   proxy-matched-ssr      ok     563 rps p95 65.18 ms cpu 2.372 ms/req rss 206.5 MiB
+11:47:18   proxy-matched-static   ok    6217 rps p95 8.13 ms cpu 0.318 ms/req rss 204.5 MiB
+11:47:35   proxy-unmatched        ok  105845 rps p95 0.50 ms cpu 0.031 ms/req rss 188.1 MiB (loadgen-limited)
+11:47:36 closed round 3/5 auth current-i1
+11:47:53   jwt-valid              ok     573 rps p95 63.55 ms cpu 2.306 ms/req rss 201.9 MiB
+11:48:10   jwt-rejected           ok    7360 rps p95 8.61 ms cpu 0.253 ms/req rss 206.6 MiB
+11:48:10 closed round 3/5 auth base-i1
+11:48:28   jwt-valid              ok     518 rps p95 81.60 ms cpu 2.552 ms/req rss 219.5 MiB
+11:48:45   jwt-rejected           ok    7392 rps p95 8.54 ms cpu 0.253 ms/req rss 220 MiB
+11:48:45 closed round 3/5 pages base-i1
+11:49:03   pages-ssr              ok    1343 rps p95 31.63 ms cpu 1.011 ms/req rss 173.4 MiB
+11:49:20   pages-ssr-proxied      ok    1024 rps p95 43.62 ms cpu 1.328 ms/req rss 207.7 MiB
+11:49:37   pages-api-get          ok    8130 rps p95 6.55 ms cpu 0.186 ms/req rss 175.5 MiB
+11:49:54   pages-api-post         ok    3758 rps p95 11.41 ms cpu 0.424 ms/req rss 178.6 MiB
+11:50:11   pages-data             ok    2779 rps p95 14.76 ms cpu 0.548 ms/req rss 174.3 MiB
+11:50:11 closed round 3/5 pages current-i1
+11:50:29   pages-ssr              ok    1468 rps p95 27.95 ms cpu 0.915 ms/req rss 162 MiB
+11:50:46   pages-ssr-proxied      ok    1111 rps p95 39.04 ms cpu 1.236 ms/req rss 183.5 MiB
+11:51:03   pages-api-get          ok    7912 rps p95 6.66 ms cpu 0.187 ms/req rss 190.5 MiB
+11:51:20   pages-api-post         ok    3879 rps p95 11.56 ms cpu 0.405 ms/req rss 182.5 MiB
+11:51:37   pages-data             ok    2687 rps p95 16.33 ms cpu 0.561 ms/req rss 186.2 MiB
+11:51:37 closed round 3/5 image current-i1
+11:51:55   image-hit              ok   80542 rps p95 0.67 ms cpu 0.037 ms/req rss 67.2 MiB
+11:52:12   image-transform        ok      56 rps p95 151.17 ms cpu 36.541 ms/req rss 95.7 MiB
+11:52:13 closed round 3/5 image base-i1
+11:52:30   image-hit              ok   89075 rps p95 0.58 ms cpu 0.038 ms/req rss 67.7 MiB
+11:52:47   image-transform        ok      56 rps p95 145.66 ms cpu 36.411 ms/req rss 97.5 MiB
+11:52:48 closed round 3/5 mixed current-i1
+11:53:08   mixed                  ok    1959 rps p95 60.96 ms cpu 1.319 ms/req rss 208.3 MiB
+11:53:08 closed round 3/5 mixed base-i1
+11:53:28   mixed                  ok    1858 rps p95 61.41 ms cpu 1.362 ms/req rss 226.6 MiB
+11:53:29 closed round 4/5 app base-i1
+11:53:46   static-file            ok   44635 rps p95 1.25 ms cpu 0.078 ms/req rss 68.2 MiB
+11:54:03   prerendered            ok  114422 rps p95 0.41 ms cpu 0.021 ms/req rss 68.2 MiB (loadgen-limited)
+11:54:20   ssr                    ok     681 rps p95 54.49 ms cpu 1.835 ms/req rss 212.8 MiB
+11:54:38   ssr-identity           ok     770 rps p95 48.99 ms cpu 1.654 ms/req rss 211.3 MiB
+11:54:55   rsc                    ok    1297 rps p95 32.93 ms cpu 0.988 ms/req rss 199 MiB
+11:55:12   streaming              ok     481 rps p95 72.45 ms cpu 2.290 ms/req rss 198.8 MiB
+11:55:29   action                 ok    2514 rps p95 17.92 ms cpu 0.646 ms/req rss 198.7 MiB
+11:55:46   action-multipart       ok    2509 rps p95 16.54 ms cpu 0.557 ms/req rss 195.8 MiB
+11:56:03   isr-hit                ok    3075 rps p95 11.19 ms cpu 0.440 ms/req rss 315.9 MiB
+11:56:20   isr-regenerating       ok    3413 rps p95 10.89 ms cpu 0.395 ms/req rss 352.6 MiB
+11:56:21 closed round 4/5 app current-i1
+11:56:38   static-file            ok   58775 rps p95 1.02 ms cpu 0.056 ms/req rss 67.6 MiB
+11:56:55   prerendered            ok  113178 rps p95 0.41 ms cpu 0.021 ms/req rss 67.6 MiB (loadgen-limited)
+11:57:12   ssr                    ok     749 rps p95 47.10 ms cpu 1.729 ms/req rss 195.2 MiB
+11:57:29   ssr-identity           ok     816 rps p95 43.20 ms cpu 1.612 ms/req rss 199.8 MiB
+11:57:46   rsc                    ok    1363 rps p95 32.32 ms cpu 0.934 ms/req rss 193.2 MiB
+11:58:04   streaming              ok     479 rps p95 72.77 ms cpu 2.109 ms/req rss 194.3 MiB
+11:58:21   action                 ok    2457 rps p95 18.19 ms cpu 0.647 ms/req rss 188.5 MiB
+11:58:38   action-multipart       ok    2439 rps p95 17.30 ms cpu 0.568 ms/req rss 187 MiB
+11:58:55   isr-hit                ok    4490 rps p95 9.57 ms cpu 0.316 ms/req rss 188.8 MiB
+11:59:12   isr-regenerating       ok    5326 rps p95 8.69 ms cpu 0.277 ms/req rss 187.6 MiB
+11:59:13 closed round 4/5 cache-components current-i1
+11:59:30   use-cache-hit          ok     569 rps p95 65.28 ms cpu 2.281 ms/req rss 209 MiB
+11:59:31 closed round 4/5 cache-components base-i1
+11:59:48   use-cache-hit          ok     528 rps p95 68.93 ms cpu 2.481 ms/req rss 239.1 MiB
+11:59:49 closed round 4/5 proxy base-i1
+12:00:06   proxy-matched-ssr      ok     570 rps p95 64.25 ms cpu 2.353 ms/req rss 212.8 MiB
+12:00:23   proxy-matched-static   ok    6343 rps p95 7.83 ms cpu 0.315 ms/req rss 207.3 MiB
+12:00:40   proxy-unmatched        ok  112419 rps p95 0.44 ms cpu 0.030 ms/req rss 189.7 MiB (loadgen-limited)
+12:00:41 closed round 4/5 proxy current-i1
+12:00:58   proxy-matched-ssr      ok     595 rps p95 73.98 ms cpu 2.221 ms/req rss 202.5 MiB
+12:01:15   proxy-matched-static   ok    6220 rps p95 7.96 ms cpu 0.317 ms/req rss 194.3 MiB
+12:01:33   proxy-unmatched        ok   99548 rps p95 0.56 ms cpu 0.029 ms/req rss 193 MiB
+12:01:33 closed round 4/5 auth current-i1
+12:01:50   jwt-valid              ok     553 rps p95 67.07 ms cpu 2.361 ms/req rss 206.6 MiB
+12:02:07   jwt-rejected           ok    7188 rps p95 8.63 ms cpu 0.257 ms/req rss 201.3 MiB
+12:02:08 closed round 4/5 auth base-i1
+12:02:25   jwt-valid              ok     512 rps p95 77.44 ms cpu 2.510 ms/req rss 224.3 MiB
+12:02:42   jwt-rejected           ok    6991 rps p95 8.92 ms cpu 0.260 ms/req rss 220 MiB
+12:02:42 closed round 4/5 pages current-i1
+12:03:00   pages-ssr              ok    1413 rps p95 30.06 ms cpu 0.952 ms/req rss 167.8 MiB
+12:03:17   pages-ssr-proxied      ok    1073 rps p95 39.81 ms cpu 1.255 ms/req rss 188.3 MiB
+12:03:34   pages-api-get          ok    7666 rps p95 6.82 ms cpu 0.191 ms/req rss 176.2 MiB
+12:03:51   pages-api-post         ok    3804 rps p95 11.55 ms cpu 0.413 ms/req rss 183.5 MiB
+12:04:08   pages-data             ok    2699 rps p95 15.62 ms cpu 0.563 ms/req rss 186 MiB
+12:04:08 closed round 4/5 pages base-i1
+12:04:26   pages-ssr              ok    1291 rps p95 31.34 ms cpu 1.043 ms/req rss 186.7 MiB
+12:04:43   pages-ssr-proxied      ok    1038 rps p95 42.62 ms cpu 1.314 ms/req rss 209.9 MiB
+12:05:00   pages-api-get          ok    7474 rps p95 7.15 ms cpu 0.196 ms/req rss 180 MiB
+12:05:17   pages-api-post         ok    3617 rps p95 12.21 ms cpu 0.435 ms/req rss 182.1 MiB
+12:05:34   pages-data             ok    2803 rps p95 14.78 ms cpu 0.545 ms/req rss 178.3 MiB
+12:05:34 closed round 4/5 image current-i1
+12:05:52   image-hit              ok   86479 rps p95 0.60 ms cpu 0.036 ms/req rss 65.7 MiB
+12:06:09   image-transform        ok      55 rps p95 149.63 ms cpu 36.757 ms/req rss 94.3 MiB
+12:06:10 closed round 4/5 image base-i1
+12:06:27   image-hit              ok   90293 rps p95 0.55 ms cpu 0.037 ms/req rss 67.3 MiB
+12:06:45   image-transform        ok      55 rps p95 151.04 ms cpu 36.763 ms/req rss 97.3 MiB
+12:06:45 closed round 4/5 mixed base-i1
+12:07:05   mixed                  ok    1860 rps p95 60.26 ms cpu 1.364 ms/req rss 228.4 MiB
+12:07:06 closed round 4/5 mixed current-i1
+12:07:26   mixed                  ok    1823 rps p95 60.67 ms cpu 1.341 ms/req rss 210 MiB
+12:07:26 closed round 5/5 app base-i1
+12:07:43   static-file            ok   42446 rps p95 1.41 ms cpu 0.079 ms/req rss 68 MiB
+12:08:00   prerendered            ok  107795 rps p95 0.50 ms cpu 0.021 ms/req rss 68 MiB (loadgen-limited)
+12:08:18   ssr                    ok     669 rps p95 55.36 ms cpu 1.863 ms/req rss 214.9 MiB
+12:08:35   ssr-identity           ok     749 rps p95 48.64 ms cpu 1.688 ms/req rss 222.9 MiB
+12:08:52   rsc                    ok    1238 rps p95 34.24 ms cpu 1.017 ms/req rss 197.9 MiB
+12:09:09   streaming              ok     477 rps p95 79.94 ms cpu 2.297 ms/req rss 193.8 MiB
+12:09:27   action                 ok    2335 rps p95 19.45 ms cpu 0.674 ms/req rss 193.6 MiB
+12:09:44   action-multipart       ok    2404 rps p95 17.77 ms cpu 0.569 ms/req rss 200.3 MiB
+12:10:01   isr-hit                ok    2983 rps p95 12.77 ms cpu 0.450 ms/req rss 291.6 MiB
+12:10:18   isr-regenerating       ok    3378 rps p95 11.21 ms cpu 0.400 ms/req rss 353.5 MiB
+12:10:18 closed round 5/5 app current-i1
+12:10:35   static-file            ok   62062 rps p95 0.91 ms cpu 0.055 ms/req rss 68.1 MiB
+12:10:52   prerendered            ok  106381 rps p95 0.51 ms cpu 0.020 ms/req rss 68.1 MiB (loadgen-limited)
+12:11:10   ssr                    ok     730 rps p95 52.48 ms cpu 1.716 ms/req rss 200.5 MiB
+12:11:27   ssr-identity           ok     829 rps p95 44.09 ms cpu 1.541 ms/req rss 199.2 MiB
+12:11:44   rsc                    ok    1352 rps p95 32.70 ms cpu 0.941 ms/req rss 195.3 MiB
+12:12:01   streaming              ok     480 rps p95 72.00 ms cpu 2.021 ms/req rss 195.7 MiB
+12:12:18   action                 ok    2430 rps p95 18.67 ms cpu 0.666 ms/req rss 190.2 MiB
+12:12:35   action-multipart       ok    2435 rps p95 17.36 ms cpu 0.579 ms/req rss 194.6 MiB
+12:12:53   isr-hit                ok    4359 rps p95 9.97 ms cpu 0.319 ms/req rss 191.7 MiB
+12:13:10   isr-regenerating       ok    5277 rps p95 8.89 ms cpu 0.278 ms/req rss 196.8 MiB
+12:13:10 closed round 5/5 cache-components base-i1
+12:13:28   use-cache-hit          ok     504 rps p95 71.81 ms cpu 2.562 ms/req rss 220.8 MiB
+12:13:28 closed round 5/5 cache-components current-i1
+12:13:46   use-cache-hit          ok     556 rps p95 63.84 ms cpu 2.304 ms/req rss 203.2 MiB
+12:13:46 closed round 5/5 proxy base-i1
+12:14:04   proxy-matched-ssr      ok     546 rps p95 66.30 ms cpu 2.386 ms/req rss 222.5 MiB
+12:14:21   proxy-matched-static   ok    5872 rps p95 8.91 ms cpu 0.327 ms/req rss 209 MiB
+12:14:38   proxy-unmatched        ok   84961 rps p95 0.69 ms cpu 0.031 ms/req rss 193.6 MiB
+12:14:38 closed round 5/5 proxy current-i1
+12:14:56   proxy-matched-ssr      ok     605 rps p95 60.38 ms cpu 2.197 ms/req rss 202.9 MiB
+12:15:13   proxy-matched-static   ok    6006 rps p95 8.49 ms cpu 0.323 ms/req rss 195 MiB
+12:15:30   proxy-unmatched        ok   85122 rps p95 0.68 ms cpu 0.030 ms/req rss 191.8 MiB
+12:15:30 closed round 5/5 auth base-i1
+12:15:48   jwt-valid              ok     515 rps p95 73.34 ms cpu 2.492 ms/req rss 221.5 MiB
+12:16:05   jwt-rejected           ok    7078 rps p95 8.88 ms cpu 0.257 ms/req rss 221 MiB
+12:16:05 closed round 5/5 auth current-i1
+12:16:22   jwt-valid              ok     554 rps p95 68.16 ms cpu 2.346 ms/req rss 206.5 MiB
+12:16:40   jwt-rejected           ok    7277 rps p95 8.66 ms cpu 0.254 ms/req rss 206.4 MiB
+12:16:40 closed round 5/5 pages current-i1
+12:16:57   pages-ssr              ok    1444 rps p95 28.91 ms cpu 0.950 ms/req rss 163.3 MiB
+12:17:14   pages-ssr-proxied      ok    1110 rps p95 38.98 ms cpu 1.234 ms/req rss 188.2 MiB
+12:17:31   pages-api-get          ok    7741 rps p95 6.90 ms cpu 0.191 ms/req rss 177.1 MiB
+12:17:48   pages-api-post         ok    3801 rps p95 11.89 ms cpu 0.424 ms/req rss 183.5 MiB
+12:18:05   pages-data             ok    2684 rps p95 16.02 ms cpu 0.576 ms/req rss 183.1 MiB
+12:18:06 closed round 5/5 pages base-i1
+12:18:23   pages-ssr              ok    1332 rps p95 32.03 ms cpu 1.016 ms/req rss 169.8 MiB
+12:18:40   pages-ssr-proxied      ok    1013 rps p95 43.62 ms cpu 1.330 ms/req rss 203.7 MiB
+12:18:57   pages-api-get          ok    7507 rps p95 7.08 ms cpu 0.194 ms/req rss 208.5 MiB
+12:19:14   pages-api-post         ok    3730 rps p95 11.51 ms cpu 0.425 ms/req rss 181.2 MiB
+12:19:31   pages-data             ok    2664 rps p95 15.86 ms cpu 0.573 ms/req rss 177.4 MiB
+12:19:32 closed round 5/5 image base-i1
+12:19:49   image-hit              ok   83740 rps p95 0.63 ms cpu 0.038 ms/req rss 67.7 MiB
+12:20:07   image-transform        ok      55 rps p95 151.29 ms cpu 36.891 ms/req rss 95.5 MiB
+12:20:07 closed round 5/5 image current-i1
+12:20:25   image-hit              ok   77636 rps p95 0.69 ms cpu 0.037 ms/req rss 67.2 MiB
+12:20:42   image-transform        ok      56 rps p95 147.07 ms cpu 36.487 ms/req rss 100.3 MiB
+12:20:43 closed round 5/5 mixed base-i1
+12:21:02   mixed                  ok    1806 rps p95 64.00 ms cpu 1.371 ms/req rss 224.6 MiB
+12:21:03 closed round 5/5 mixed current-i1
+12:21:23   mixed                  ok    1933 rps p95 57.76 ms cpu 1.335 ms/req rss 216.9 MiB
+12:21:24 open round 1/5 app current-i1
+12:21:41   static-file            ok   22322 rps p95 0.62 ms cpu 0.076 ms/req rss 66.2 MiB
+12:21:58   prerendered            ok   56612 rps p95 0.24 ms cpu 0.025 ms/req rss 66 MiB
+12:22:15   ssr                    ok     340 rps p95 3.18 ms cpu 2.249 ms/req rss 189.1 MiB
+12:22:32   ssr-identity           ok     374 rps p95 4.78 ms cpu 2.143 ms/req rss 191.3 MiB
+12:22:49   rsc                    ok     647 rps p95 1.82 ms cpu 1.211 ms/req rss 191.1 MiB
+12:23:06   streaming              ok     240 rps p95 64.45 ms cpu 2.461 ms/req rss 196.4 MiB
+12:23:24   action                 ok    1222 rps p95 5.79 ms cpu 1.056 ms/req rss 202.5 MiB
+12:23:41   action-multipart       ok    1217 rps p95 4.88 ms cpu 0.923 ms/req rss 207.2 MiB
+12:23:58   isr-hit                ok    1524 rps p95 2.26 ms cpu 0.731 ms/req rss 216.9 MiB
+12:24:15   isr-regenerating       ok    1699 rps p95 1.85 ms cpu 0.661 ms/req rss 214.9 MiB
+12:24:15 open round 1/5 app base-i1
+12:24:33   static-file            ok   22327 rps p95 1.39 ms cpu 0.103 ms/req rss 65.2 MiB
+12:24:50   prerendered            ok   56595 rps p95 1.04 ms cpu 0.026 ms/req rss 65.3 MiB
+12:25:07   ssr                    ok     340 rps p95 4.43 ms cpu 2.516 ms/req rss 186.1 MiB
+12:25:24   ssr-identity           ok     374 rps p95 4.32 ms cpu 2.218 ms/req rss 187.7 MiB
+12:25:41   rsc                    ok     647 rps p95 2.31 ms cpu 1.271 ms/req rss 190.4 MiB
+12:25:58   streaming              ok     240 rps p95 65.34 ms cpu 2.791 ms/req rss 192.4 MiB
+12:26:16   action                 ok    1223 rps p95 5.56 ms cpu 1.040 ms/req rss 195.8 MiB
+12:26:33   action-multipart       ok    1217 rps p95 3.31 ms cpu 0.868 ms/req rss 198 MiB
+12:26:50   isr-hit                ok    1524 rps p95 2.67 ms cpu 0.785 ms/req rss 242.4 MiB
+12:27:07   isr-regenerating       ok    1699 rps p95 2.75 ms cpu 0.700 ms/req rss 240.4 MiB
+12:27:07 open round 1/5 cache-components current-i1
+12:27:25   use-cache-hit          ok     255 rps p95 10.28 ms cpu 3.587 ms/req rss 196.9 MiB
+12:27:25 open round 1/5 cache-components base-i1
+12:27:42   use-cache-hit          ok     255 rps p95 10.41 ms cpu 3.699 ms/req rss 229.3 MiB
+12:27:43 open round 1/5 proxy current-i1
+12:28:00   proxy-matched-ssr      ok     281 rps p95 6.43 ms cpu 3.009 ms/req rss 178.6 MiB
+12:28:17   proxy-matched-static   ok    3055 rps p95 3.17 ms cpu 0.385 ms/req rss 186.6 MiB
+12:28:34   proxy-unmatched        ok   49780 rps p95 2.01 ms cpu 0.035 ms/req rss 182.8 MiB
+12:28:35 open round 1/5 proxy base-i1
+12:28:52   proxy-matched-ssr      ok     281 rps p95 5.86 ms cpu 3.108 ms/req rss 195.7 MiB
+12:29:09   proxy-matched-static   ok    3055 rps p95 3.09 ms cpu 0.383 ms/req rss 196.4 MiB
+12:29:26   proxy-unmatched        ok   49794 rps p95 1.66 ms cpu 0.038 ms/req rss 196.3 MiB
+12:29:26 open round 1/5 auth base-i1
+12:29:44   jwt-valid              ok     257 rps p95 6.02 ms cpu 3.289 ms/req rss 211.3 MiB
+12:30:01   jwt-rejected           ok    3540 rps p95 3.92 ms cpu 0.304 ms/req rss 215.6 MiB
+12:30:01 open round 1/5 auth current-i1
+12:30:18   jwt-valid              ok     257 rps p95 8.29 ms cpu 3.180 ms/req rss 198.2 MiB
+12:30:35   jwt-rejected           ok    3540 rps p95 3.47 ms cpu 0.307 ms/req rss 205.3 MiB
+12:30:35 open round 1/5 pages current-i1
+12:30:53   pages-ssr              ok     668 rps p95 5.78 ms cpu 1.086 ms/req rss 152.3 MiB
+12:31:10   pages-ssr-proxied      ok     514 rps p95 3.76 ms cpu 1.627 ms/req rss 157.5 MiB
+12:31:27   pages-api-get          ok    3900 rps p95 1.94 ms cpu 0.281 ms/req rss 168.6 MiB
+12:31:44   pages-api-post         ok    1880 rps p95 3.50 ms cpu 0.618 ms/req rss 170.6 MiB
+12:32:01   pages-data             ok    1349 rps p95 2.33 ms cpu 0.731 ms/req rss 171.3 MiB
+12:32:01 open round 1/5 pages base-i1
+12:32:19   pages-ssr              ok     668 rps p95 5.83 ms cpu 1.170 ms/req rss 153.6 MiB
+12:32:36   pages-ssr-proxied      ok     514 rps p95 3.29 ms cpu 1.697 ms/req rss 160.9 MiB
+12:32:53   pages-api-get          ok    3900 rps p95 1.88 ms cpu 0.279 ms/req rss 163.9 MiB
+12:33:10   pages-api-post         ok    1880 rps p95 3.26 ms cpu 0.617 ms/req rss 166.6 MiB
+12:33:27   pages-data             ok    1350 rps p95 2.24 ms cpu 0.718 ms/req rss 165 MiB
+12:33:27 open round 1/5 image current-i1
+12:33:45   image-hit              ok   40281 rps p95 0.86 ms cpu 0.045 ms/req rss 66.3 MiB
+12:34:02   image-transform        ok      27 rps p95 38.08 ms cpu 36.494 ms/req rss 80 MiB
+12:34:02 open round 1/5 image base-i1
+12:34:20   image-hit              ok   40287 rps p95 0.83 ms cpu 0.046 ms/req rss 67.9 MiB
+12:34:37   image-transform        ok      27 rps p95 38.08 ms cpu 36.494 ms/req rss 81.1 MiB
+12:34:38 open round 1/5 mixed base-i1
+12:34:57   mixed                  ok     929 rps p95 10.37 ms cpu 1.446 ms/req rss 196.3 MiB
+12:34:58 open round 1/5 mixed current-i1
+12:35:18   mixed                  ok     929 rps p95 9.93 ms cpu 1.416 ms/req rss 185.6 MiB
+12:35:18 open round 2/5 app base-i1
+12:35:36   static-file            ok   22331 rps p95 0.94 ms cpu 0.104 ms/req rss 67.1 MiB
+12:35:53   prerendered            ok   56617 rps p95 0.88 ms cpu 0.025 ms/req rss 67.2 MiB
+12:36:10   ssr                    ok     340 rps p95 5.04 ms cpu 2.554 ms/req rss 189.5 MiB
+12:36:27   ssr-identity           ok     374 rps p95 6.09 ms cpu 2.309 ms/req rss 194.5 MiB
+12:36:44   rsc                    ok     647 rps p95 2.04 ms cpu 1.265 ms/req rss 191.9 MiB
+12:37:01   streaming              ok     240 rps p95 65.22 ms cpu 2.820 ms/req rss 195 MiB
+12:37:19   action                 ok    1222 rps p95 5.35 ms cpu 1.047 ms/req rss 199.1 MiB
+12:37:36   action-multipart       ok    1217 rps p95 3.17 ms cpu 0.872 ms/req rss 199.8 MiB
+12:37:53   isr-hit                ok    1524 rps p95 2.29 ms cpu 0.796 ms/req rss 239.9 MiB
+12:38:10   isr-regenerating       ok    1699 rps p95 2.41 ms cpu 0.704 ms/req rss 235.3 MiB
+12:38:10 open round 2/5 app current-i1
+12:38:28   static-file            ok   22330 rps p95 0.85 ms cpu 0.077 ms/req rss 66.1 MiB
+12:38:45   prerendered            ok   56620 rps p95 0.79 ms cpu 0.024 ms/req rss 66.2 MiB
+12:39:02   ssr                    ok     340 rps p95 4.82 ms cpu 2.349 ms/req rss 186.1 MiB
+12:39:19   ssr-identity           ok     374 rps p95 4.63 ms cpu 2.149 ms/req rss 187.7 MiB
+12:39:36   rsc                    ok     647 rps p95 1.86 ms cpu 1.194 ms/req rss 187.5 MiB
+12:39:53   streaming              ok     240 rps p95 64.89 ms cpu 2.614 ms/req rss 192.3 MiB
+12:40:10   action                 ok    1222 rps p95 5.37 ms cpu 1.053 ms/req rss 197.6 MiB
+12:40:27   action-multipart       ok    1217 rps p95 3.09 ms cpu 0.890 ms/req rss 199 MiB
+12:40:45   isr-hit                ok    1525 rps p95 1.92 ms cpu 0.740 ms/req rss 211.2 MiB
+12:41:02   isr-regenerating       ok    1698 rps p95 1.75 ms cpu 0.658 ms/req rss 216.5 MiB
+12:41:02 open round 2/5 cache-components current-i1
+12:41:19   use-cache-hit          ok     255 rps p95 10.12 ms cpu 3.555 ms/req rss 192.6 MiB
+12:41:20 open round 2/5 cache-components base-i1
+12:41:37   use-cache-hit          ok     255 rps p95 9.86 ms cpu 3.606 ms/req rss 212.7 MiB
+12:41:38 open round 2/5 proxy current-i1
+12:41:55   proxy-matched-ssr      ok     281 rps p95 6.26 ms cpu 2.984 ms/req rss 197.5 MiB
+12:42:12   proxy-matched-static   ok    3055 rps p95 2.67 ms cpu 0.381 ms/req rss 210.3 MiB
+12:42:29   proxy-unmatched        ok   49800 rps p95 1.86 ms cpu 0.036 ms/req rss 209.9 MiB
+12:42:29 open round 2/5 proxy base-i1
+12:42:47   proxy-matched-ssr      ok     281 rps p95 5.11 ms cpu 3.147 ms/req rss 202.2 MiB
+12:43:04   proxy-matched-static   ok    3055 rps p95 2.90 ms cpu 0.377 ms/req rss 208 MiB
+12:43:21   proxy-unmatched        ok   49801 rps p95 1.07 ms cpu 0.037 ms/req rss 207.8 MiB
+12:43:21 open round 2/5 auth current-i1
+12:43:39   jwt-valid              ok     257 rps p95 6.00 ms cpu 3.099 ms/req rss 203 MiB
+12:43:56   jwt-rejected           ok    3540 rps p95 3.26 ms cpu 0.303 ms/req rss 209.8 MiB
+12:43:56 open round 2/5 auth base-i1
+12:44:13   jwt-valid              ok     257 rps p95 5.20 ms cpu 3.262 ms/req rss 200.2 MiB
+12:44:30   jwt-rejected           ok    3540 rps p95 3.42 ms cpu 0.309 ms/req rss 206.2 MiB
+12:44:30 open round 2/5 pages base-i1
+12:44:48   pages-ssr              ok     668 rps p95 5.80 ms cpu 1.178 ms/req rss 152.3 MiB
+12:45:05   pages-ssr-proxied      ok     514 rps p95 3.29 ms cpu 1.694 ms/req rss 157.1 MiB
+12:45:22   pages-api-get          ok    3900 rps p95 1.73 ms cpu 0.280 ms/req rss 161.3 MiB
+12:45:39   pages-api-post         ok    1880 rps p95 3.70 ms cpu 0.622 ms/req rss 163.6 MiB
+12:45:56   pages-data             ok    1349 rps p95 2.18 ms cpu 0.723 ms/req rss 160.4 MiB
+12:45:56 open round 2/5 pages current-i1
+12:46:14   pages-ssr              ok     668 rps p95 6.08 ms cpu 1.089 ms/req rss 151.4 MiB
+12:46:31   pages-ssr-proxied      ok     514 rps p95 3.80 ms cpu 1.631 ms/req rss 157.6 MiB
+12:46:48   pages-api-get          ok    3899 rps p95 1.61 ms cpu 0.278 ms/req rss 162.8 MiB
+12:47:05   pages-api-post         ok    1880 rps p95 3.31 ms cpu 0.616 ms/req rss 165.2 MiB
+12:47:22   pages-data             ok    1349 rps p95 2.19 ms cpu 0.726 ms/req rss 164.1 MiB
+12:47:22 open round 2/5 image current-i1
+12:47:40   image-hit              ok   40291 rps p95 1.50 ms cpu 0.046 ms/req rss 66 MiB
+12:47:57   image-transform        ok      27 rps p95 38.17 ms cpu 36.531 ms/req rss 78.6 MiB
+12:47:57 open round 2/5 image base-i1
+12:48:15   image-hit              ok   40286 rps p95 0.77 ms cpu 0.048 ms/req rss 67.2 MiB
+12:48:32   image-transform        ok      27 rps p95 38.53 ms cpu 36.679 ms/req rss 79.6 MiB
+12:48:32 open round 2/5 mixed current-i1
+12:48:52   mixed                  ok     929 rps p95 9.72 ms cpu 1.416 ms/req rss 190.3 MiB
+12:48:53 open round 2/5 mixed base-i1
+12:49:13   mixed                  ok     929 rps p95 9.66 ms cpu 1.451 ms/req rss 192.2 MiB
+12:49:13 open round 3/5 app base-i1
+12:49:31   static-file            ok   22331 rps p95 0.92 ms cpu 0.103 ms/req rss 66.6 MiB
+12:49:48   prerendered            ok   56608 rps p95 0.57 ms cpu 0.026 ms/req rss 66.7 MiB
+12:50:05   ssr                    ok     340 rps p95 5.16 ms cpu 2.540 ms/req rss 191.1 MiB
+12:50:22   ssr-identity           ok     374 rps p95 4.93 ms cpu 2.284 ms/req rss 191.6 MiB
+12:50:39   rsc                    ok     647 rps p95 2.03 ms cpu 1.237 ms/req rss 193.5 MiB
+12:50:56   streaming              ok     240 rps p95 65.31 ms cpu 2.814 ms/req rss 197.1 MiB
+12:51:14   action                 ok    1222 rps p95 5.25 ms cpu 1.037 ms/req rss 200 MiB
+12:51:31   action-multipart       ok    1217 rps p95 3.11 ms cpu 0.872 ms/req rss 201.1 MiB
+12:51:48   isr-hit                ok    1524 rps p95 2.22 ms cpu 0.795 ms/req rss 263.3 MiB
+12:52:05   isr-regenerating       ok    1698 rps p95 2.14 ms cpu 0.708 ms/req rss 255.2 MiB
+12:52:05 open round 3/5 app current-i1
+12:52:22   static-file            ok   22329 rps p95 0.51 ms cpu 0.077 ms/req rss 65.3 MiB
+12:52:39   prerendered            ok   56599 rps p95 0.53 ms cpu 0.024 ms/req rss 65.3 MiB
+12:52:57   ssr                    ok     340 rps p95 5.50 ms cpu 2.340 ms/req rss 184.4 MiB
+12:53:14   ssr-identity           ok     374 rps p95 4.33 ms cpu 2.111 ms/req rss 184.7 MiB
+12:53:31   rsc                    ok     647 rps p95 2.18 ms cpu 1.197 ms/req rss 186.6 MiB
+12:53:48   streaming              ok     240 rps p95 64.99 ms cpu 2.586 ms/req rss 191.2 MiB
+12:54:05   action                 ok    1223 rps p95 5.28 ms cpu 1.034 ms/req rss 196.1 MiB
+12:54:22   action-multipart       ok    1217 rps p95 3.31 ms cpu 0.893 ms/req rss 199.6 MiB
+12:54:39   isr-hit                ok    1524 rps p95 2.04 ms cpu 0.741 ms/req rss 207 MiB
+12:54:57   isr-regenerating       ok    1699 rps p95 1.89 ms cpu 0.659 ms/req rss 213 MiB
+12:54:57 open round 3/5 cache-components base-i1
+12:55:14   use-cache-hit          ok     255 rps p95 9.82 ms cpu 3.664 ms/req rss 212.4 MiB
+12:55:15 open round 3/5 cache-components current-i1
+12:55:32   use-cache-hit          ok     255 rps p95 9.93 ms cpu 3.516 ms/req rss 189.5 MiB
+12:55:32 open round 3/5 proxy base-i1
+12:55:50   proxy-matched-ssr      ok     281 rps p95 5.56 ms cpu 3.158 ms/req rss 192.6 MiB
+12:56:07   proxy-matched-static   ok    3055 rps p95 2.81 ms cpu 0.383 ms/req rss 195.6 MiB
+12:56:24   proxy-unmatched        ok   49793 rps p95 0.85 ms cpu 0.038 ms/req rss 195.5 MiB
+12:56:24 open round 3/5 proxy current-i1
+12:56:42   proxy-matched-ssr      ok     281 rps p95 5.75 ms cpu 2.955 ms/req rss 188.8 MiB
+12:56:59   proxy-matched-static   ok    3055 rps p95 2.77 ms cpu 0.382 ms/req rss 194.3 MiB
+12:57:16   proxy-unmatched        ok   49794 rps p95 0.78 ms cpu 0.037 ms/req rss 193.8 MiB
+12:57:16 open round 3/5 auth current-i1
+12:57:34   jwt-valid              ok     257 rps p95 5.87 ms cpu 3.110 ms/req rss 196.1 MiB
+12:57:51   jwt-rejected           ok    3540 rps p95 3.33 ms cpu 0.305 ms/req rss 202.6 MiB
+12:57:51 open round 3/5 auth base-i1
+12:58:08   jwt-valid              ok     257 rps p95 5.01 ms cpu 3.243 ms/req rss 198.1 MiB
+12:58:25   jwt-rejected           ok    3540 rps p95 3.29 ms cpu 0.306 ms/req rss 202.9 MiB
+12:58:25 open round 3/5 pages base-i1
+12:58:43   pages-ssr              ok     668 rps p95 5.75 ms cpu 1.172 ms/req rss 146.7 MiB
+12:59:00   pages-ssr-proxied      ok     514 rps p95 3.50 ms cpu 1.692 ms/req rss 155.2 MiB
+12:59:17   pages-api-get          ok    3901 rps p95 1.67 ms cpu 0.281 ms/req rss 158.5 MiB
+12:59:34   pages-api-post         ok    1880 rps p95 3.15 ms cpu 0.614 ms/req rss 159.9 MiB
+12:59:51   pages-data             ok    1350 rps p95 2.49 ms cpu 0.717 ms/req rss 162.2 MiB
+12:59:51 open round 3/5 pages current-i1
+13:00:08   pages-ssr              ok     668 rps p95 5.75 ms cpu 1.070 ms/req rss 154.5 MiB
+13:00:26   pages-ssr-proxied      ok     514 rps p95 5.46 ms cpu 1.666 ms/req rss 160.5 MiB
+13:00:43   pages-api-get          ok    3900 rps p95 1.49 ms cpu 0.275 ms/req rss 164.2 MiB
+13:01:00   pages-api-post         ok    1879 rps p95 3.63 ms cpu 0.625 ms/req rss 170.8 MiB
+13:01:17   pages-data             ok    1349 rps p95 2.38 ms cpu 0.735 ms/req rss 164.6 MiB
+13:01:17 open round 3/5 image current-i1
+13:01:35   image-hit              ok   40275 rps p95 0.72 ms cpu 0.046 ms/req rss 66.2 MiB
+13:01:52   image-transform        ok      27 rps p95 38.05 ms cpu 36.568 ms/req rss 78 MiB
+13:01:52 open round 3/5 image base-i1
+13:02:10   image-hit              ok   40291 rps p95 0.72 ms cpu 0.047 ms/req rss 67.2 MiB
+13:02:27   image-transform        ok      27 rps p95 37.98 ms cpu 36.568 ms/req rss 79.9 MiB
+13:02:27 open round 3/5 mixed current-i1
+13:02:47   mixed                  ok     929 rps p95 9.04 ms cpu 1.405 ms/req rss 192.9 MiB
+13:02:48 open round 3/5 mixed base-i1
+13:03:08   mixed                  ok     929 rps p95 9.43 ms cpu 1.458 ms/req rss 201.3 MiB
+13:03:08 open round 4/5 app current-i1
+13:03:26   static-file            ok   22327 rps p95 0.42 ms cpu 0.077 ms/req rss 64.3 MiB
+13:03:43   prerendered            ok   56613 rps p95 0.52 ms cpu 0.025 ms/req rss 64.3 MiB
+13:04:00   ssr                    ok     340 rps p95 3.32 ms cpu 2.310 ms/req rss 182.3 MiB
+13:04:17   ssr-identity           ok     374 rps p95 4.50 ms cpu 2.133 ms/req rss 184.2 MiB
+13:04:34   rsc                    ok     647 rps p95 1.82 ms cpu 1.202 ms/req rss 182.3 MiB
+13:04:51   streaming              ok     240 rps p95 64.99 ms cpu 2.645 ms/req rss 187.8 MiB
+13:05:08   action                 ok    1223 rps p95 5.47 ms cpu 1.061 ms/req rss 199.4 MiB
+13:05:25   action-multipart       ok    1217 rps p95 3.19 ms cpu 0.885 ms/req rss 195.2 MiB
+13:05:43   isr-hit                ok    1525 rps p95 1.90 ms cpu 0.740 ms/req rss 218.2 MiB
+13:06:00   isr-regenerating       ok    1699 rps p95 2.38 ms cpu 0.657 ms/req rss 221 MiB
+13:06:00 open round 4/5 app base-i1
+13:06:17   static-file            ok   22322 rps p95 0.61 ms cpu 0.104 ms/req rss 65.5 MiB
+13:06:34   prerendered            ok   56617 rps p95 2.58 ms cpu 0.026 ms/req rss 65.5 MiB
+13:06:51   ssr                    ok     340 rps p95 4.84 ms cpu 2.496 ms/req rss 187.4 MiB
+13:07:08   ssr-identity           ok     374 rps p95 4.92 ms cpu 2.261 ms/req rss 190.4 MiB
+13:07:26   rsc                    ok     647 rps p95 2.05 ms cpu 1.253 ms/req rss 205.4 MiB
+13:07:43   streaming              ok     240 rps p95 65.31 ms cpu 2.831 ms/req rss 193 MiB
+13:08:00   action                 ok    1222 rps p95 5.09 ms cpu 1.041 ms/req rss 196.6 MiB
+13:08:17   action-multipart       ok    1217 rps p95 3.30 ms cpu 0.880 ms/req rss 197.3 MiB
+13:08:34   isr-hit                ok    1525 rps p95 2.22 ms cpu 0.794 ms/req rss 220.2 MiB
+13:08:51   isr-regenerating       ok    1698 rps p95 2.16 ms cpu 0.706 ms/req rss 249.7 MiB
+13:08:52 open round 4/5 cache-components base-i1
+13:09:09   use-cache-hit          ok     255 rps p95 9.93 ms cpu 3.630 ms/req rss 193.4 MiB
+13:09:09 open round 4/5 cache-components current-i1
+13:09:27   use-cache-hit          ok     255 rps p95 9.90 ms cpu 3.507 ms/req rss 193.1 MiB
+13:09:27 open round 4/5 proxy current-i1
+13:09:45   proxy-matched-ssr      ok     281 rps p95 5.69 ms cpu 2.949 ms/req rss 185.9 MiB
+13:10:02   proxy-matched-static   ok    3055 rps p95 2.92 ms cpu 0.388 ms/req rss 197 MiB
+13:10:19   proxy-unmatched        ok   49786 rps p95 0.71 ms cpu 0.037 ms/req rss 196.9 MiB
+13:10:19 open round 4/5 proxy base-i1
+13:10:37   proxy-matched-ssr      ok     281 rps p95 5.08 ms cpu 3.172 ms/req rss 189.5 MiB
+13:10:54   proxy-matched-static   ok    3055 rps p95 2.60 ms cpu 0.382 ms/req rss 193.5 MiB
+13:11:11   proxy-unmatched        ok   49790 rps p95 0.78 ms cpu 0.038 ms/req rss 193.3 MiB
+13:11:11 open round 4/5 auth current-i1
+13:11:28   jwt-valid              ok     257 rps p95 4.97 ms cpu 3.127 ms/req rss 198.8 MiB
+13:11:45   jwt-rejected           ok    3540 rps p95 3.32 ms cpu 0.309 ms/req rss 206 MiB
+13:11:46 open round 4/5 auth base-i1
+13:12:03   jwt-valid              ok     257 rps p95 5.16 ms cpu 3.322 ms/req rss 195 MiB
+13:12:20   jwt-rejected           ok    3540 rps p95 3.17 ms cpu 0.308 ms/req rss 199.4 MiB
+13:12:20 open round 4/5 pages base-i1
+13:12:37   pages-ssr              ok     668 rps p95 5.74 ms cpu 1.167 ms/req rss 153.7 MiB
+13:12:55   pages-ssr-proxied      ok     514 rps p95 3.28 ms cpu 1.684 ms/req rss 158.8 MiB
+13:13:12   pages-api-get          ok    3900 rps p95 1.53 ms cpu 0.278 ms/req rss 160.9 MiB
+13:13:29   pages-api-post         ok    1880 rps p95 2.76 ms cpu 0.613 ms/req rss 163.5 MiB
+13:13:46   pages-data             ok    1349 rps p95 2.25 ms cpu 0.721 ms/req rss 163.3 MiB
+13:13:46 open round 4/5 pages current-i1
+13:14:03   pages-ssr              ok     668 rps p95 5.76 ms cpu 1.082 ms/req rss 149.6 MiB
+13:14:20   pages-ssr-proxied      ok     514 rps p95 3.43 ms cpu 1.614 ms/req rss 153.4 MiB
+13:14:37   pages-api-get          ok    3900 rps p95 1.60 ms cpu 0.283 ms/req rss 162.5 MiB
+13:14:55   pages-api-post         ok    1880 rps p95 3.61 ms cpu 0.622 ms/req rss 164.8 MiB
+13:15:12   pages-data             ok    1349 rps p95 2.50 ms cpu 0.719 ms/req rss 169.2 MiB
+13:15:12 open round 4/5 image current-i1
+13:15:29   image-hit              ok   40291 rps p95 0.60 ms cpu 0.046 ms/req rss 65.3 MiB
+13:15:47   image-transform        ok      27 rps p95 39.20 ms cpu 36.531 ms/req rss 77.8 MiB
+13:15:47 open round 4/5 image base-i1
+13:16:05   image-hit              ok   40273 rps p95 0.62 ms cpu 0.047 ms/req rss 67.4 MiB
+13:16:22   image-transform        ok      27 rps p95 37.76 ms cpu 36.494 ms/req rss 79.7 MiB
+13:16:22 open round 4/5 mixed current-i1
+13:16:42   mixed                  ok     929 rps p95 13.04 ms cpu 1.399 ms/req rss 187.4 MiB
+13:16:43 open round 4/5 mixed base-i1
+13:17:03   mixed                  ok     929 rps p95 9.42 ms cpu 1.447 ms/req rss 192.8 MiB
+13:17:03 open round 5/5 app current-i1
+13:17:20   static-file            ok   22322 rps p95 0.72 ms cpu 0.077 ms/req rss 65.6 MiB
+13:17:37   prerendered            ok   56603 rps p95 0.76 ms cpu 0.025 ms/req rss 65.7 MiB
+13:17:55   ssr                    ok     340 rps p95 3.31 ms cpu 2.287 ms/req rss 188.9 MiB
+13:18:12   ssr-identity           ok     374 rps p95 4.15 ms cpu 2.138 ms/req rss 191.4 MiB
+13:18:29   rsc                    ok     647 rps p95 1.84 ms cpu 1.207 ms/req rss 191.3 MiB
+13:18:46   streaming              ok     240 rps p95 65.18 ms cpu 2.641 ms/req rss 195.2 MiB
+13:19:03   action                 ok    1223 rps p95 5.37 ms cpu 1.070 ms/req rss 201.4 MiB
+13:19:20   action-multipart       ok    1217 rps p95 3.16 ms cpu 0.876 ms/req rss 198.5 MiB
+13:19:37   isr-hit                ok    1524 rps p95 1.93 ms cpu 0.733 ms/req rss 213.9 MiB
+13:19:54   isr-regenerating       ok    1699 rps p95 1.93 ms cpu 0.658 ms/req rss 212.2 MiB
+13:19:55 open round 5/5 app base-i1
+13:20:12   static-file            ok   22322 rps p95 1.46 ms cpu 0.102 ms/req rss 66.4 MiB
+13:20:29   prerendered            ok   56619 rps p95 0.84 ms cpu 0.026 ms/req rss 66.5 MiB
+13:20:46   ssr                    ok     340 rps p95 4.56 ms cpu 2.487 ms/req rss 194.7 MiB
+13:21:03   ssr-identity           ok     374 rps p95 4.79 ms cpu 2.210 ms/req rss 191.4 MiB
+13:21:20   rsc                    ok     647 rps p95 2.21 ms cpu 1.254 ms/req rss 193.7 MiB
+13:21:38   streaming              ok     240 rps p95 65.06 ms cpu 2.795 ms/req rss 195.2 MiB
+13:21:55   action                 ok    1222 rps p95 5.30 ms cpu 1.045 ms/req rss 202.5 MiB
+13:22:12   action-multipart       ok    1217 rps p95 3.08 ms cpu 0.860 ms/req rss 203.4 MiB
+13:22:29   isr-hit                ok    1524 rps p95 2.27 ms cpu 0.794 ms/req rss 237.6 MiB
+13:22:46   isr-regenerating       ok    1699 rps p95 2.23 ms cpu 0.709 ms/req rss 246.5 MiB
+13:22:46 open round 5/5 cache-components base-i1
+13:23:04   use-cache-hit          ok     255 rps p95 9.74 ms cpu 3.629 ms/req rss 198.1 MiB
+13:23:04 open round 5/5 cache-components current-i1
+13:23:22   use-cache-hit          ok     255 rps p95 10.17 ms cpu 3.544 ms/req rss 196.4 MiB
+13:23:22 open round 5/5 proxy base-i1
+13:23:40   proxy-matched-ssr      ok     281 rps p95 5.89 ms cpu 3.154 ms/req rss 203 MiB
+13:23:57   proxy-matched-static   ok    3055 rps p95 2.96 ms cpu 0.382 ms/req rss 205.7 MiB
+13:24:14   proxy-unmatched        ok   49804 rps p95 0.91 ms cpu 0.038 ms/req rss 205.6 MiB
+13:24:14 open round 5/5 proxy current-i1
+13:24:31   proxy-matched-ssr      ok     281 rps p95 6.19 ms cpu 2.991 ms/req rss 193.2 MiB
+13:24:49   proxy-matched-static   ok    3055 rps p95 2.93 ms cpu 0.385 ms/req rss 197.9 MiB
+13:25:06   proxy-unmatched        ok   49786 rps p95 0.77 ms cpu 0.037 ms/req rss 197.8 MiB
+13:25:06 open round 5/5 auth current-i1
+13:25:23   jwt-valid              ok     257 rps p95 5.21 ms cpu 3.092 ms/req rss 201.8 MiB
+13:25:40   jwt-rejected           ok    3540 rps p95 3.25 ms cpu 0.303 ms/req rss 234.2 MiB
+13:25:40 open round 5/5 auth base-i1
+13:25:58   jwt-valid              ok     257 rps p95 5.24 ms cpu 3.289 ms/req rss 198.3 MiB
+13:26:15   jwt-rejected           ok    3540 rps p95 3.26 ms cpu 0.305 ms/req rss 203.5 MiB
+13:26:15 open round 5/5 pages base-i1
+13:26:32   pages-ssr              ok     668 rps p95 6.36 ms cpu 1.199 ms/req rss 156.4 MiB
+13:26:49   pages-ssr-proxied      ok     514 rps p95 5.13 ms cpu 1.721 ms/req rss 164.5 MiB
+13:27:06   pages-api-get          ok    3900 rps p95 2.74 ms cpu 0.287 ms/req rss 168.1 MiB
+13:27:23   pages-api-post         ok    1880 rps p95 6.18 ms cpu 0.625 ms/req rss 180.1 MiB
+13:27:41   pages-data             ok    1349 rps p95 3.05 ms cpu 0.753 ms/req rss 168.7 MiB
+13:27:41 open round 5/5 pages current-i1
+13:27:58   pages-ssr              ok     668 rps p95 6.26 ms cpu 1.115 ms/req rss 154.7 MiB
+13:28:15   pages-ssr-proxied      ok     514 rps p95 3.60 ms cpu 1.643 ms/req rss 161 MiB
+13:28:32   pages-api-get          ok    3900 rps p95 1.79 ms cpu 0.279 ms/req rss 168.3 MiB
+13:28:49   pages-api-post         ok    1880 rps p95 3.88 ms cpu 0.623 ms/req rss 168.3 MiB
+13:29:06   pages-data             ok    1350 rps p95 2.26 ms cpu 0.725 ms/req rss 168.8 MiB
+13:29:07 open round 5/5 image current-i1
+13:29:24   image-hit              ok   40288 rps p95 0.75 ms cpu 0.046 ms/req rss 66.4 MiB
+13:29:41   image-transform        ok      27 rps p95 38.11 ms cpu 36.531 ms/req rss 78.8 MiB
+13:29:42 open round 5/5 image base-i1
+13:29:59   image-hit              ok   40290 rps p95 0.61 ms cpu 0.046 ms/req rss 67.8 MiB
+13:30:17   image-transform        ok      27 rps p95 38.27 ms cpu 36.753 ms/req rss 79.9 MiB
+13:30:17 open round 5/5 mixed base-i1
+13:30:37   mixed                  ok     929 rps p95 10.38 ms cpu 1.461 ms/req rss 195.8 MiB
+13:30:37 open round 5/5 mixed current-i1
+13:30:57   mixed                  ok     929 rps p95 9.68 ms cpu 1.412 ms/req rss 188.2 MiB
+13:30:58 done benchmarks/results/phase3a/ab-964995c-f75b609
