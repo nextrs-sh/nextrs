@@ -8,8 +8,8 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::InspectError;
 use crate::manifests::read_json_optional;
+use crate::{Diagnostic, InspectError, Severity};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -61,6 +61,8 @@ pub struct ImagesConfig {
 /// `{ pathname, search }`; `pathname` is a JavaScript regular expression.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LocalPattern {
+    /// Absent in a `next.config` pattern (then `**`); always in the manifest.
+    #[serde(default)]
     pub pathname: String,
     #[serde(default)]
     pub search: Option<String>,
@@ -75,6 +77,7 @@ pub struct RemotePattern {
     pub hostname: String,
     #[serde(default)]
     pub port: Option<String>,
+    #[serde(default)]
     pub pathname: String,
     #[serde(default)]
     pub search: Option<String>,
@@ -142,16 +145,65 @@ struct ImagesManifest {
     images: ImagesConfig,
 }
 
+/// `next.config` `images` as next start's config loader leaves it (in
+/// `required-server-files.json`): the manifest's fields, with
+/// `localPatterns[].pathname` and `remotePatterns[].hostname`/`.pathname`
+/// still globs. Compiled as the build compiles them for the manifest:
+/// `makeRe(pathname ?? '**', { dot: true })`, `makeRe(hostname)`.
+fn from_config(value: &Value) -> Result<ImagesConfig, String> {
+    let mut images: ImagesConfig =
+        serde_json::from_value(value.clone()).map_err(|e| format!("images: {e}"))?;
+    let raw = |key: &str| value.get(key).and_then(Value::as_array);
+    if let Some(patterns) = &mut images.local_patterns {
+        let globs = raw("localPatterns").ok_or("localPatterns")?;
+        for (pattern, glob) in patterns.iter_mut().zip(globs) {
+            let glob = glob.get("pathname").and_then(Value::as_str).unwrap_or("**");
+            pattern.pathname = crate::glob::make_re(glob, true)?;
+        }
+    }
+    let globs = raw("remotePatterns").map(Vec::as_slice).unwrap_or_default();
+    for (pattern, glob) in images.remote_patterns.iter_mut().zip(globs) {
+        let hostname = glob
+            .get("hostname")
+            .and_then(Value::as_str)
+            .ok_or("remotePatterns[].hostname")?;
+        pattern.hostname = crate::glob::make_re(hostname, false)?;
+        let pathname = glob.get("pathname").and_then(Value::as_str).unwrap_or("**");
+        pattern.pathname = crate::glob::make_re(pathname, true)?;
+    }
+    Ok(images)
+}
+
 pub(crate) fn images_config(
     dist_dir: &Path,
     config: Option<&Value>,
+    diagnostics: &mut Vec<Diagnostic>,
 ) -> Result<Option<ImagesConfig>, InspectError> {
-    let Some(manifest) =
-        read_json_optional::<ImagesManifest>(&dist_dir.join("images-manifest.json"))?
-    else {
-        return Ok(None);
+    let mut images = match read_json_optional::<ImagesManifest>(
+        &dist_dir.join("images-manifest.json"),
+    )? {
+        Some(manifest) => manifest.images,
+        // `output: 'standalone'` copies required-server-files.json but not
+        // the manifest; next start's standalone server.js reads the same
+        // config from it, with patterns still as globs.
+        None => match config.and_then(|c| c.get("images")) {
+            Some(value) => match from_config(value) {
+                Ok(images) => images,
+                Err(why) => {
+                    diagnostics.push(Diagnostic {
+                        severity: Severity::Unsupported,
+                        code: "images-config",
+                        message: format!(
+                            "no images-manifest.json, and required-server-files.json's images config \
+                             cannot be compiled: {why}"
+                        ),
+                    });
+                    return Ok(None);
+                }
+            },
+            None => return Ok(None),
+        },
     };
-    let mut images = manifest.images;
     let experimental = config.and_then(|c| c.get("experimental"));
     let number = |key: &str| {
         experimental

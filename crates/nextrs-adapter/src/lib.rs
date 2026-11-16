@@ -11,6 +11,7 @@
 
 mod adapter_output;
 mod error;
+mod glob;
 mod images;
 mod internal;
 mod manifests;
@@ -197,7 +198,11 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
     let mut routing = routing::routing_rules(&dist_dir, &mut invalid_rules)?;
     routing.proxy_timeout_ms = routing::proxy_timeout_ms(required.as_ref().map(|r| &r.config));
     let proxy = routing::proxy_info(&dist_dir, required.as_ref().map(|r| &r.config))?;
-    let images = images::images_config(&dist_dir, required.as_ref().map(|r| &r.config))?;
+    let images = images::images_config(
+        &dist_dir,
+        required.as_ref().map(|r| &r.config),
+        &mut diagnostics,
+    )?;
     for rule in invalid_rules {
         diagnostics.push(Diagnostic {
             severity: Severity::Unsupported,
@@ -795,7 +800,7 @@ fn detect_features(
         None => push(
             Severity::Info,
             "image-optimizer",
-            "no images-manifest.json: /_next/image answers 404".into(),
+            "no images config (images-manifest.json or required-server-files.json): /_next/image answers 404".into(),
         ),
         Some(images) => {
             if images.disabled() {
