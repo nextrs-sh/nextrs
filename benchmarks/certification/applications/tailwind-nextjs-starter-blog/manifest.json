@@ -1,0 +1,30 @@
+{
+  "name": "tailwind-nextjs-starter-blog",
+  "description": "timlrx/tailwind-nextjs-starter-blog: a widely used community blog template (App Router, Contentlayer MDX, tags, search index, RSS, sitemap). Third-party, not maintained by Vercel or NextRS. Pinned to Next.js 15.5.12 by its own lockfile.",
+  "pattern": "content/blog (community, App Router, MDX)",
+  "repository": "https://github.com/timlrx/tailwind-nextjs-starter-blog.git",
+  "commit": "b45bef66b40c63b6f57c15ee8cd090682238df4c",
+  "ref": "main (2026-02-08)",
+  "install": ["corepack", "yarn", "install", "--immutable"],
+  "build": ["corepack", "yarn", "build"],
+  "buildEnv": { "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0" },
+  "health": "/",
+  "mask": [],
+  "scenarios": [
+    { "name": "home", "path": "/", "expect": { "status": 200, "contains": ["Latest"] } },
+    { "name": "blog-index", "path": "/blog", "expect": { "status": 200 } },
+    { "name": "blog-page-2", "path": "/blog/page/2", "expect": { "status": 200 } },
+    { "name": "post", "path": "/blog/release-of-tailwind-nextjs-starter-blog-v2.0", "expect": { "status": 200, "contains": ["Release of Tailwind Nextjs Starter Blog v2.0"] } },
+    { "name": "nested-post", "path": "/blog/nested-route/introducing-multi-part-posts-with-nested-routing", "expect": { "status": 200 } },
+    { "name": "tags", "path": "/tags", "expect": { "status": 200 } },
+    { "name": "tag-page", "path": "/tags/next-js", "expect": { "status": 200 } },
+    { "name": "about", "path": "/about", "expect": { "status": 200 } },
+    { "name": "projects", "path": "/projects", "expect": { "status": 200 } },
+    { "name": "sitemap", "path": "/sitemap.xml", "expect": { "status": 200 } },
+    { "name": "robots", "path": "/robots.txt", "expect": { "status": 200 } },
+    { "name": "rss", "path": "/feed.xml", "expect": { "status": 200 } },
+    { "name": "search-index", "path": "/search.json", "expect": { "status": 200 } },
+    { "name": "missing-post", "path": "/blog/does-not-exist", "expect": { "status": 404 } },
+    { "name": "unknown-path", "path": "/nope", "expect": { "status": 404 } }
+  ]
+}

@@ -10,3 +10,8 @@ docs/
 __pycache__/
 /benchmarks/loadgen/target
 /benchmarks/phase3a/.build-*.log
+
+# Phase 3B certification: Playwright traces and videos stay local (summaries,
+# reports, logs, screenshots and error contexts are kept).
+/benchmarks/certification/results/**/*.zip
+/benchmarks/certification/results/**/*.webm

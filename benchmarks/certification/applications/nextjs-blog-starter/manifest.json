@@ -1,0 +1,153 @@
+{
+  "name": "nextjs-blog-starter",
+  "description": "Vercel's blog-starter example (App Router content site: markdown posts, generateStaticParams, next/image). Independently maintained by the Next.js team.",
+  "pattern": "content/blog (App Router, SSG)",
+  "repository": "https://github.com/vercel/next.js.git",
+  "commit": "54b876b6b161b0ecda19562eb264bec637e60d6d",
+  "ref": "v16.4.6",
+  "subdir": "examples/blog-starter",
+  "install": [
+    "npm",
+    "install",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "installNote": "The example has no lockfile and asks for next@latest; the resolved versions are recorded in build.json.",
+  "build": [
+    "node",
+    "node_modules/next/dist/bin/next",
+    "build"
+  ],
+  "health": "/",
+  "mask": [
+    "digest[^0-9]{1,6}[0-9]+"
+  ],
+  "scenarios": [
+    {
+      "name": "home",
+      "path": "/",
+      "expect": {
+        "status": 200,
+        "contains": [
+          "Blog.",
+          "Dynamic Routing and Static Generation",
+          "Learn How to Pre-render Pages Using Static Generation with Next.js",
+          "Preview Mode for Static Generation"
+        ]
+      }
+    },
+    {
+      "name": "post-hello-world",
+      "path": "/posts/hello-world",
+      "expect": {
+        "status": 200,
+        "contains": [
+          "Learn How to Pre-render Pages Using Static Generation with Next.js"
+        ]
+      }
+    },
+    {
+      "name": "post-dynamic-routing",
+      "path": "/posts/dynamic-routing",
+      "expect": {
+        "status": 200,
+        "contains": [
+          "Dynamic Routing and Static Generation"
+        ]
+      }
+    },
+    {
+      "name": "post-preview",
+      "path": "/posts/preview",
+      "expect": {
+        "status": 200,
+        "contains": [
+          "Preview Mode for Static Generation"
+        ]
+      }
+    },
+    {
+      "name": "post-rsc",
+      "path": "/posts/preview",
+      "headers": {
+        "rsc": "1"
+      },
+      "expect": {
+        "status": 307
+      },
+      "note": "An RSC request without Next router headers is redirected (cache-busting check) by next start; parity is what is checked."
+    },
+    {
+      "name": "missing-post",
+      "path": "/posts/does-not-exist",
+      "expect": {
+        "status": 500
+      },
+      "note": "The example throws for an unknown slug instead of calling notFound(): next start answers 500 too."
+    },
+    {
+      "name": "unknown-path",
+      "path": "/nope",
+      "expect": {
+        "status": 404
+      }
+    },
+    {
+      "name": "cover-image",
+      "path": "/assets/blog/hello-world/cover.jpg",
+      "expect": {
+        "status": 200,
+        "header": {
+          "content-type": "image/jpeg"
+        }
+      }
+    },
+    {
+      "name": "image-optimizer",
+      "path": "/_next/image?url=%2Fassets%2Fblog%2Fhello-world%2Fcover.jpg&w=640&q=75",
+      "headers": {
+        "accept": "image/webp"
+      },
+      "bodyMayDiffer": true,
+      "expect": {
+        "status": 200,
+        "header": {
+          "content-type": "image/webp"
+        }
+      }
+    },
+    {
+      "name": "image-bad-width",
+      "path": "/_next/image?url=%2Fassets%2Fblog%2Fhello-world%2Fcover.jpg&w=641&q=75",
+      "expect": {
+        "status": 400
+      }
+    },
+    {
+      "name": "post-to-prerendered-dynamic-route",
+      "method": "POST",
+      "path": "/posts/hello-world",
+      "bodyMayDiffer": true,
+      "expect": {
+        "status": 200
+      },
+      "note": "next start serves a generateStaticParams prerender from its cache for any method (200); a static route answers 405 (see post-to-static-route)."
+    },
+    {
+      "name": "head-home",
+      "method": "HEAD",
+      "path": "/",
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "name": "post-to-static-route",
+      "method": "POST",
+      "path": "/",
+      "expect": {
+        "status": 405
+      }
+    }
+  ]
+}

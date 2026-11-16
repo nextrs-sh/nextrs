@@ -1,0 +1,26 @@
+{
+  "name": "nextjs-api-routes-rest",
+  "description": "Vercel's api-routes-rest example: a Pages Router app with REST API routes (GET/PUT, 405 with Allow) and SWR client fetching. Independently maintained by the Next.js team.",
+  "pattern": "traditional Pages Router + API routes",
+  "repository": "https://github.com/vercel/next.js.git",
+  "commit": "54b876b6b161b0ecda19562eb264bec637e60d6d",
+  "ref": "v16.4.6",
+  "subdir": "examples/api-routes-rest",
+  "install": ["npm", "install", "--no-audit", "--no-fund"],
+  "installNote": "No lockfile; next@latest. Resolved versions in build.json.",
+  "build": ["node", "node_modules/next/dist/bin/next", "build"],
+  "health": "/",
+  "mask": [],
+  "scenarios": [
+    { "name": "index-page", "path": "/", "expect": { "status": 200, "contains": ["__NEXT_DATA__"] } },
+    { "name": "user-page", "path": "/user/2", "expect": { "status": 200 } },
+    { "name": "users-api", "path": "/api/users", "expect": { "status": 200, "contains": ["[{\"id\":1},{\"id\":2},{\"id\":3}]"], "header": { "content-type": "application/json" } } },
+    { "name": "user-get", "path": "/api/user/7", "expect": { "status": 200, "contains": ["{\"id\":7,\"name\":\"User 7\"}"] } },
+    { "name": "user-put", "method": "PUT", "path": "/api/user/7?name=Ada", "expect": { "status": 200, "contains": ["{\"id\":7,\"name\":\"Ada\"}"] } },
+    { "name": "user-delete-405", "method": "DELETE", "path": "/api/user/7", "expect": { "status": 405, "contains": ["Method DELETE Not Allowed"], "header": { "allow": "GET" } } },
+    { "name": "user-post-405-body", "method": "POST", "path": "/api/user/7", "headers": { "content-type": "application/json" }, "body": "{\"x\":1}", "expect": { "status": 405 } },
+    { "name": "api-unknown", "path": "/api/nope", "expect": { "status": 404 } },
+    { "name": "page-unknown", "path": "/nope", "expect": { "status": 404 } },
+    { "name": "data-route-missing", "path": "/_next/data/BUILD/index.json", "expect": { "status": 404 } }
+  ]
+}

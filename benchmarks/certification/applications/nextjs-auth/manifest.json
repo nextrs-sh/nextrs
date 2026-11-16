@@ -1,0 +1,177 @@
+{
+  "name": "nextjs-auth",
+  "description": "Vercel's auth example: Auth.js (next-auth v5) with the GitHub provider, applied in middleware, and its route handlers. Independently maintained by the Next.js team. No real OAuth: the GitHub app id/secret are dummies, so tests stop at the redirect to github.com.",
+  "pattern": "authentication (Auth.js, middleware)",
+  "repository": "https://github.com/vercel/next.js.git",
+  "commit": "54b876b6b161b0ecda19562eb264bec637e60d6d",
+  "ref": "v16.4.6",
+  "subdir": "examples/auth",
+  "install": [
+    "npm",
+    "install",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "installNote": "No lockfile; next@latest, next-auth ^5 beta. Resolved versions in build.json.",
+  "build": [
+    "node",
+    "node_modules/next/dist/bin/next",
+    "build"
+  ],
+  "buildEnv": {
+    "AUTH_SECRET": "phase3b-certification-secret-not-a-real-one-000000",
+    "AUTH_GITHUB_ID": "dummy-client-id",
+    "AUTH_GITHUB_SECRET": "dummy-client-secret",
+    "AUTH_TRUST_HOST": "true"
+  },
+  "runEnv": {
+    "AUTH_SECRET": "phase3b-certification-secret-not-a-real-one-000000",
+    "AUTH_GITHUB_ID": "dummy-client-id",
+    "AUTH_GITHUB_SECRET": "dummy-client-secret",
+    "AUTH_TRUST_HOST": "true"
+  },
+  "health": "/api/auth/providers",
+  "mask": [
+    "[0-9a-f]{64}",
+    "state=[A-Za-z0-9_.-]+",
+    "code_challenge=[A-Za-z0-9_-]+",
+    "\"csrfToken\":\"[^\"]+\"",
+    "nonce=[A-Za-z0-9_-]+"
+  ],
+  "scenarios": [
+    {
+      "name": "home-signed-out",
+      "path": "/",
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "name": "providers",
+      "path": "/api/auth/providers",
+      "expect": {
+        "status": 200,
+        "contains": [
+          "\"github\"",
+          "/api/auth/signin/github"
+        ]
+      }
+    },
+    {
+      "name": "session-empty",
+      "path": "/api/auth/session",
+      "expect": {
+        "status": 200,
+        "contains": [
+          "null"
+        ]
+      }
+    },
+    {
+      "name": "csrf",
+      "path": "/api/auth/csrf",
+      "bodyMayDiffer": true,
+      "expect": {
+        "status": 200,
+        "contains": [
+          "csrfToken"
+        ],
+        "header": {
+          "set-cookie": "authjs.csrf-token"
+        }
+      }
+    },
+    {
+      "name": "signin-page",
+      "path": "/api/auth/signin",
+      "bodyMayDiffer": true,
+      "expect": {
+        "status": 200,
+        "contains": [
+          "Sign in with GitHub"
+        ]
+      }
+    },
+    {
+      "name": "signin-post-without-csrf",
+      "method": "POST",
+      "path": "/api/auth/signin/github",
+      "headers": {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      "body": "callbackUrl=%2F",
+      "bodyMayDiffer": true,
+      "expect": {
+        "status": 302,
+        "location": "/api/auth/signin?error=MissingCSRF"
+      }
+    },
+    {
+      "name": "csrf-for-signin",
+      "path": "/api/auth/csrf",
+      "resetCookies": true,
+      "bodyMayDiffer": true,
+      "extract": {
+        "csrf": "\"csrfToken\":\"([^\"]+)\""
+      },
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "name": "signin-post-with-csrf",
+      "method": "POST",
+      "path": "/api/auth/signin/github",
+      "headers": {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      "body": "csrfToken={{csrf}}&callbackUrl=%2F",
+      "bodyMayDiffer": true,
+      "expect": {
+        "status": 302,
+        "location": "https://github.com/login/oauth/authorize"
+      }
+    },
+    {
+      "name": "signin-post-wrong-csrf",
+      "method": "POST",
+      "path": "/api/auth/signin/github",
+      "headers": {
+        "content-type": "application/x-www-form-urlencoded"
+      },
+      "body": "csrfToken=wrong&callbackUrl=%2F",
+      "bodyMayDiffer": true,
+      "expect": {
+        "status": 302,
+        "location": "MissingCSRF"
+      }
+    },
+    {
+      "name": "forged-session-cookie",
+      "path": "/api/auth/session",
+      "headers": {
+        "cookie": "authjs.session-token=forged.value.here"
+      },
+      "bodyMayDiffer": true,
+      "expect": {
+        "status": 200,
+        "notContains": [
+          "\"user\""
+        ]
+      }
+    },
+    {
+      "name": "unknown-auth-action",
+      "path": "/api/auth/nope",
+      "bodyMayDiffer": true,
+      "expect": {}
+    },
+    {
+      "name": "unknown-path",
+      "path": "/nope",
+      "expect": {
+        "status": 404
+      }
+    }
+  ]
+}
