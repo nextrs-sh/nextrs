@@ -107,6 +107,52 @@ async fn a_slow_consumer_gets_a_complete_ordered_body() {
     assert!(peak <= BUDGET + CHUNK, "peak buffered {peak}");
 }
 
+/// A handler that resolves once it has called `res.end()` (Next's
+/// pipeToNodeResponse does) while chunks still wait for the budget: the
+/// request must stay open until they are delivered, then end with `End`.
+/// Phase 3B: Server Action redirect renders, whose consumer is another
+/// request in the same isolate, lost their tail this way.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_handler_resolving_at_end_still_delivers_the_queued_tail() {
+    let executor = executor(limits());
+    let total = 1024 * 1024;
+    for ignore in ["0", "1"] {
+        let id = format!("resolve-on-end-{ignore}");
+        let mut stream = executor
+            .render(flood(
+                &id,
+                total,
+                &[("x-resolve-on-end", "1"), ("x-ignore-backpressure", ignore)],
+            ))
+            .await
+            .unwrap();
+        // The consumer is paused while the handler finishes.
+        tokio::time::sleep(Duration::from_millis(300)).await;
+        let mut body = Vec::new();
+        let mut ended = false;
+        while let Some(event) = stream.recv().await {
+            match event {
+                ResponseEvent::Head { .. } => {}
+                ResponseEvent::Chunk(chunk) => {
+                    body.extend_from_slice(&chunk);
+                    tokio::time::sleep(Duration::from_millis(1)).await;
+                }
+                ResponseEvent::End => {
+                    ended = true;
+                    break;
+                }
+                ResponseEvent::Error(error) => panic!("{error}"),
+            }
+        }
+        assert!(
+            ended,
+            "ignore-backpressure {ignore}: no End after {} bytes",
+            body.len()
+        );
+        assert_ordered(&body, total);
+    }
+}
+
 /// Large single writes are accepted one at a time.
 #[tokio::test(flavor = "multi_thread")]
 async fn chunks_larger_than_the_budget_still_flow() {

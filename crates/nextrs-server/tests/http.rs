@@ -353,3 +353,72 @@ fn copy_dir(from: &Path, to: &Path) {
         }
     }
 }
+
+/// Phase 3B, vercel/next.js `examples/api-routes-rest` (v16.4.6): a dynamic
+/// Pages Router page without data functions is optimized to one
+/// `pages/user/[id].html`. next start serves it for every id (GET 200,
+/// byte-identical; HEAD 200; POST/PUT 405); NextRS answered 501.
+#[tokio::test]
+async fn serves_an_optimized_dynamic_pages_page_for_every_path() {
+    let app = app_for("next-16.4.6-pages-optimized-dynamic").await;
+    let html = read(
+        "next-16.4.6-pages-optimized-dynamic",
+        "server/pages/user/[id].html",
+    );
+    for uri in ["/user/2", "/user/abc"] {
+        let (response, body) = get(&app, uri).await;
+        assert_eq!(response.status(), StatusCode::OK, "{uri}");
+        assert_eq!(body, html, "{uri}");
+        let (response, _) = send(&app, Request::head(uri).body(Body::empty()).unwrap()).await;
+        assert_eq!(response.status(), StatusCode::OK, "HEAD {uri}");
+        for method in ["POST", "PUT"] {
+            let request = Request::builder()
+                .method(method)
+                .uri(uri)
+                .body(Body::empty())
+                .unwrap();
+            let (response, _) = send(&app, request).await;
+            assert_eq!(
+                response.status(),
+                StatusCode::METHOD_NOT_ALLOWED,
+                "{method} {uri}"
+            );
+        }
+    }
+}
+
+/// Phase 3B, vercel/next.js `examples/blog-starter` (v16.4.6): next start
+/// serves a `generateStaticParams` prerender (`/posts/[slug]`) from its
+/// cache for any method (200), and answers other methods on a static
+/// route's prerender (`/`) with 405. NextRS answered 405 for both.
+#[tokio::test]
+async fn serves_a_static_params_prerender_for_any_method() {
+    let app = app_for("next-16.4.6-static-params").await;
+    let html = read(
+        "next-16.4.6-static-params",
+        "server/app/posts/hello-world.html",
+    );
+    for method in ["GET", "POST", "PUT", "DELETE"] {
+        let request = Request::builder()
+            .method(method)
+            .uri("/posts/hello-world")
+            .body(Body::empty())
+            .unwrap();
+        let (response, body) = send(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK, "{method}");
+        assert_eq!(body, html, "{method}");
+    }
+    for method in ["POST", "PUT", "DELETE"] {
+        let request = Request::builder()
+            .method(method)
+            .uri("/")
+            .body(Body::empty())
+            .unwrap();
+        let (response, _) = send(&app, request).await;
+        assert_eq!(
+            response.status(),
+            StatusCode::METHOD_NOT_ALLOWED,
+            "{method} /"
+        );
+    }
+}

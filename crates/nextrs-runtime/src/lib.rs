@@ -75,6 +75,13 @@ pub struct ExecutorConfig {
     pub project_dir: PathBuf,
     /// Its build output, normally `<project>/.next`.
     pub dist_dir: PathBuf,
+    /// The workspace (monorepo) root the project was built in, when it has
+    /// one. Its `node_modules` is readable too: package managers with
+    /// workspaces link `<project>/node_modules/<pkg>` to packages installed
+    /// there (pnpm always, npm and Yarn when hoisting), and
+    /// `output: 'standalone'` reproduces that layout. Nothing else under the
+    /// workspace root (sources, `.env*`) becomes readable.
+    pub workspace_dir: Option<PathBuf>,
     /// The complete `process.env` seen by JavaScript. Nothing from the host
     /// environment is inherited implicitly.
     pub env: BTreeMap<String, String>,
@@ -109,6 +116,7 @@ impl ExecutorConfig {
         Self {
             project_dir,
             dist_dir,
+            workspace_dir: None,
             env,
             bootstrap: Some(bootstrap),
             trace_node_api: false,
@@ -119,10 +127,20 @@ impl ExecutorConfig {
         }
     }
 
-    /// Read access: the build output and the installed packages. The
-    /// project root itself (`.env*`, sources, `next.config.*`) is excluded.
+    /// Read access: the build output and the installed packages (the
+    /// project's and, in a monorepo, the workspace root's). The project
+    /// and workspace roots themselves (`.env*`, sources, `next.config.*`)
+    /// are excluded.
     pub fn fs_policy(&self) -> FsPolicy {
-        FsPolicy::new([self.dist_dir.clone(), self.project_dir.join("node_modules")])
+        let workspace_packages = self
+            .workspace_dir
+            .as_ref()
+            .map(|root| root.join("node_modules"));
+        FsPolicy::new(
+            [self.dist_dir.clone(), self.project_dir.join("node_modules")]
+                .into_iter()
+                .chain(workspace_packages),
+        )
     }
 }
 

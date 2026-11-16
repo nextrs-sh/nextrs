@@ -1,0 +1,694 @@
+
+Running 111 tests using 2 workers
+
+  ✓    2 [desktop] › tests/e2e/booking.spec.ts:201:3 › booking: travellers, seats, extras, review › shows fare-family benefits as included and never charges for them (4.6s)
+  ✓    3 [desktop] › tests/e2e/booking.spec.ts:220:3 › booking: travellers, seats, extras, review › refreshes an expired offer at the same price and stays ready (4.3s)
+  ✓    1 [desktop] › tests/e2e/booking.spec.ts:39:3 › booking: travellers, seats, extras, review › books two travellers from search to a validated review, with nothing ordered (12.5s)
+  ✓    4 [desktop] › tests/e2e/booking.spec.ts:230:3 › booking: travellers, seats, extras, review › asks before accepting a higher price, then keeps seats and extras (4.5s)
+  ✓    5 [desktop] › tests/e2e/booking.spec.ts:248:3 › booking: travellers, seats, extras, review › sends the traveller back when their seat was taken meanwhile (4.9s)
+  ✓    6 [desktop] › tests/e2e/booking.spec.ts:262:3 › booking: travellers, seats, extras, review › never resends a change whose answer timed out, and shows what was saved (5.3s)
+  ✓    7 [desktop] › tests/e2e/booking.spec.ts:280:3 › booking: travellers, seats, extras, review › works with the keyboard alone on the seat map (2.9s)
+  ✓    9 [desktop] › tests/e2e/booking.spec.ts:330:3 › booking: travellers, seats, extras, review › redirects the US spelling of the first step (414ms)
+  -   10 [desktop] › tests/e2e/booking.spec.ts:339:3 › booking on phones @mobile › fills traveller details and chooses seats without page overflow @mobile
+  ✓   11 [desktop] › tests/e2e/branding.spec.ts:18:3 › Velasia Airways branding › shows the Velasia logo in the header and footer (771ms)
+  -   12 [desktop] › tests/e2e/branding.spec.ts:32:3 › Velasia Airways branding › shows the Velasia logo and menu on mobile @mobile
+  ✓    8 [desktop] › tests/e2e/booking.spec.ts:307:3 › booking: travellers, seats, extras, review › shows a recovery path for deep links without a session or with steps missing (3.6s)
+  ✓   13 [desktop] › tests/e2e/branding.spec.ts:42:3 › Velasia Airways branding › publishes Velasia metadata, icons, manifest, and a valid social card (790ms)
+  ✓   14 [desktop] › tests/e2e/branding.spec.ts:85:3 › Velasia Airways branding › keeps page-specific social titles (638ms)
+  ✓   16 [desktop] › tests/e2e/branding.spec.ts:123:3 › Velasia Airways branding › labels flights with the Velasia display flight numbers (488ms)
+  ✓   15 [desktop] › tests/e2e/branding.spec.ts:102:3 › Velasia Airways branding › never shows the retired brand on any page, in metadata, or in error states (2.4s)
+  ✓   18 [desktop] › tests/e2e/checkout.spec.ts:118:3 › checkout and payment › a declined payment keeps the seats held and can be retried (5.8s)
+  ✘   17 [desktop] › tests/e2e/checkout.spec.ts:44:3 › checkout and payment › books a trip end to end: checkout, demo payment, durable confirmation (12.3s)
+  ✓   19 [desktop] › tests/e2e/checkout.spec.ts:138:3 › checkout and payment › a timed-out payment is recovered by checking the status, never paid twice (7.5s)
+  ✓   21 [desktop] › tests/e2e/checkout.spec.ts:173:3 › checkout and payment › a double submission pays once (4.8s)
+  ✓   20 [desktop] › tests/e2e/checkout.spec.ts:158:3 › checkout and payment › a pending payment is shown as pending until the provider decides (8.2s)
+  ✓   23 [desktop] › tests/e2e/checkout.spec.ts:201:3 › checkout and payment › an expired hold releases the seats and can be held again (4.5s)
+  ✓   22 [desktop] › tests/e2e/checkout.spec.ts:186:3 › checkout and payment › an answer lost after the order was confirmed: the page finds the confirmed order (8.8s)
+  ✓   24 [desktop] › tests/e2e/checkout.spec.ts:219:3 › checkout and payment › an expired offer is refreshed at the same price at checkout (3.7s)
+  ✓   26 [desktop] › tests/e2e/checkout.spec.ts:250:3 › checkout and payment › a booking is private to the browser that made it (6.3s)
+  ✓   27 [desktop] › tests/e2e/checkout.spec.ts:268:3 › checkout and payment › checkout works with the keyboard alone (4.1s)
+  ✓   28 [desktop] › tests/e2e/checkout.spec.ts:287:3 › checkout and payment › the short /checkout URL goes to checkout (301ms)
+  -   29 [desktop] › tests/e2e/checkout.spec.ts:297:3 › checkout on phones @mobile › pays and shows the confirmation without page overflow @mobile
+  ✘   30 [desktop] › tests/e2e/destinations.spec.ts:5:3 › destinations › lists, searches, and filters destinations (1.1s)
+  ✘   31 [desktop] › tests/e2e/destinations.spec.ts:36:3 › destinations › a destination page shows guide content and a preset search (1.3s)
+  ✓   32 [desktop] › tests/e2e/destinations.spec.ts:56:3 › destinations › unknown destinations return a real 404 (414ms)
+  ✓   33 [desktop] › tests/e2e/destinations.spec.ts:64:3 › destinations › destination pages have no serious accessibility violations (2.5s)
+  ✘   34 [desktop] › tests/e2e/flights.spec.ts:40:3 › flight results › searches Manila to Singapore and shows real results (1.5s)
+  ✓   35 [desktop] › tests/e2e/flights.spec.ts:69:3 › flight results › changes the departure date from the date strip (560ms)
+  ✓   36 [desktop] › tests/e2e/flights.spec.ts:81:3 › flight results › filters to direct flights and sorts by lowest price (770ms)
+  ✓   37 [desktop] › tests/e2e/flights.spec.ts:105:3 › flight results › opens flight details with itinerary and cabin availability (587ms)
+  ✓   38 [desktop] › tests/e2e/flights.spec.ts:124:3 › round trips › selects outbound and return flights, then reviews the total (4.8s)
+  ✓   39 [desktop] › tests/e2e/flights.spec.ts:177:3 › round trips › browser back and forward keep the search and selections (3.2s)
+  ✓   25 [desktop] › tests/e2e/checkout.spec.ts:229:3 › checkout and payment › a higher price stops checkout until the traveller accepts it (31.2s)
+  ✓   40 [desktop] › tests/e2e/flights.spec.ts:206:3 › invalid searches and empty results › explains invalid search links without calling for results (551ms)
+  ✓   41 [desktop] › tests/e2e/flights.spec.ts:215:3 › invalid searches and empty results › resets unknown filter values and says so (463ms)
+  ✓   42 [desktop] › tests/e2e/flights.spec.ts:223:3 › invalid searches and empty results › explains a route Velasia does not fly, with alternatives (981ms)
+  ✓   43 [desktop] › tests/e2e/flights.spec.ts:241:3 › invalid searches and empty results › explains sold-out flights, missing cabins, and unpublished dates (1.2s)
+  ✓   44 [desktop] › tests/e2e/flights.spec.ts:264:3 › invalid searches and empty results › clears filters that match nothing (588ms)
+  ✓   45 [desktop] › tests/e2e/flights.spec.ts:274:3 › retailing API failures › shows a recoverable error and never invents flights (761ms)
+  ✓   46 [desktop] › tests/e2e/flights.spec.ts:293:3 › retailing API failures › times out slow responses and rejects malformed ones (3.1s)
+  ✓   47 [desktop] › tests/e2e/flights.spec.ts:309:3 › retailing API failures › shows a loading skeleton while results stream (2.6s)
+  ✓   48 [desktop] › tests/e2e/flights.spec.ts:322:3 › accessibility › core interactions work with the keyboard (1.8s)
+  -   50 [desktop] › tests/e2e/flights.spec.ts:383:3 › mobile › filters and sorts in a bottom sheet @mobile
+  -   51 [desktop] › tests/e2e/flights.spec.ts:401:3 › mobile › edits the search and opens details on a phone @mobile
+  -   52 [desktop] › tests/e2e/flights.spec.ts:423:3 › mobile › results pages do not overflow horizontally @mobile
+  ✓   49 [desktop] › tests/e2e/flights.spec.ts:361:3 › accessibility › results and details have no serious axe violations (2.2s)
+  ✘   53 [desktop] › tests/e2e/home.spec.ts:5:3 › homepage › loads without errors, broken images, or hydration warnings (1.7s)
+  ✓   54 [desktop] › tests/e2e/home.spec.ts:30:3 › homepage › has no serious accessibility violations (1.5s)
+  ✓   55 [desktop] › tests/e2e/home.spec.ts:51:3 › homepage › respects reduced-motion preferences (487ms)
+  ✓   57 [desktop] › tests/e2e/home.spec.ts:63:3 › homepage › animates the hero when motion is allowed (553ms)
+  ✓   56 [desktop] › tests/e2e/home.spec.ts:41:3 › homepage › offers a working skip link for keyboard users (739ms)
+  ✓   59 [desktop] › tests/e2e/manage.spec.ts:216:3 › manage booking and accounts › a booking can’t be opened or found from another browser, by id or by reference (8.3s)
+  ✓   60 [desktop] › tests/e2e/manage.spec.ts:250:3 › manage booking and accounts › a declined change payment leaves the booking unchanged and can be discarded (6.0s)
+  ✘   58 [desktop] › tests/e2e/manage.spec.ts:75:3 › manage booking and accounts › the whole post-booking journey: change, seat, bag, account, link, sign out and in, cancel (20.4s)
+  ✘   61 [desktop] › tests/e2e/manage.spec.ts:266:3 › manage booking and accounts › Manage Booking works with the keyboard alone (10.5s)
+  ✓   63 [desktop] › tests/e2e/navigation.spec.ts:3:3 › site navigation › primary navigation reaches every section (1.3s)
+  ✓   64 [desktop] › tests/e2e/navigation.spec.ts:24:3 › site navigation › footer links resolve without dead ends (715ms)
+  ✓   65 [desktop] › tests/e2e/navigation.spec.ts:39:3 › site navigation › unknown pages return a real 404 with a friendly page (346ms)
+  -   66 [desktop] › tests/e2e/navigation.spec.ts:47:3 › site navigation › mobile navigation opens, navigates, and closes @mobile
+  ✓   62 [desktop] › tests/e2e/manage.spec.ts:289:3 › manage booking on phones @mobile › overview, change search, and cancellation fit the screen @mobile (9.5s)
+  ✘   67 [desktop] › tests/e2e/offers.spec.ts:51:3 › fare families and offers › compares fares, selects Classic, then changes to Flex (4.2s)
+  ✓   69 [desktop] › tests/e2e/offers.spec.ts:182:3 › fare families and offers › explains families that are not offered on a flight (827ms)
+  ✓   70 [desktop] › tests/e2e/offers.spec.ts:200:3 › offer lifecycle › recovers from an expired offer at the same price (1.6s)
+  ✓   71 [desktop] › tests/e2e/offers.spec.ts:221:3 › offer lifecycle › requires explicit acceptance of a changed price (1.4s)
+  ✓   72 [desktop] › tests/e2e/offers.spec.ts:242:3 › offer lifecycle › marks a sold-out flight and keeps the other leg (2.8s)
+  ✓   73 [desktop] › tests/e2e/offers.spec.ts:263:3 › offer lifecycle › offers a way back when the shopping session has expired (2.0s)
+  ✘   68 [desktop] › tests/e2e/offers.spec.ts:140:3 › fare families and offers › round trip with different families, a combined total, and refresh (11.0s)
+  ✓   74 [desktop] › tests/e2e/offers.spec.ts:276:3 › offer lifecycle › keeps each guest’s selection private (1.4s)
+  ✓   76 [desktop] › tests/e2e/offers.spec.ts:307:3 › failures and accessibility › reports a failed selection without losing the page (633ms)
+  ✓   75 [desktop] › tests/e2e/offers.spec.ts:289:3 › failures and accessibility › explains an unavailable offer service and recovers on retry (1.7s)
+  ✓   77 [desktop] › tests/e2e/offers.spec.ts:318:3 › failures and accessibility › times out gracefully (3.3s)
+  ✓   78 [desktop] › tests/e2e/offers.spec.ts:330:3 › failures and accessibility › fare pages and the trip summary have no serious axe violations (3.4s)
+  -   80 [desktop] › tests/e2e/offers.spec.ts:374:3 › mobile › compares and selects fares on a phone @mobile
+  ✓   81 [desktop] › tests/e2e/production.spec.ts:31:5 › security headers › are sent on a static page (24ms)
+  ✓   82 [desktop] › tests/e2e/production.spec.ts:31:5 › security headers › are sent on a partial prerender (20ms)
+  ✓   83 [desktop] › tests/e2e/production.spec.ts:31:5 › security headers › are sent on a request-time search (23ms)
+  ✓   84 [desktop] › tests/e2e/production.spec.ts:31:5 › security headers › are sent on a route handler (96ms)
+  ✓   85 [desktop] › tests/e2e/production.spec.ts:46:3 › security headers › keep personal pages out of shared caches and let static pages be cached (84ms)
+  ✓   86 [desktop] › tests/e2e/production.spec.ts:62:1 › a full booking runs under the Content Security Policy with no violations (5.8s)
+  ✓   87 [desktop] › tests/e2e/production.spec.ts:87:3 › Server Actions › refuse a cross-site request and accept the same request from the site (423ms)
+  ✓   88 [desktop] › tests/e2e/production.spec.ts:107:3 › Server Actions › refuse oversized request bodies (396ms)
+  ✓   89 [desktop] › tests/e2e/production.spec.ts:123:3 › internal endpoints › liveness, readiness, and metrics answer (the proxy hides them publicly) (31ms)
+  ✓   90 [desktop] › tests/e2e/production.spec.ts:144:1 › requests that try to reach files or internals get nothing (230ms)
+  ✓   91 [desktop] › tests/e2e/search.spec.ts:4:3 › flight search › airport autocomplete filters and supports the keyboard (700ms)
+  ✓   92 [desktop] › tests/e2e/search.spec.ts:26:3 › flight search › rejects an incomplete search with accessible messages (659ms)
+  ✓   93 [desktop] › tests/e2e/search.spec.ts:45:3 › flight search › rejects returning before departing (892ms)
+  ✘   79 [desktop] › tests/e2e/offers.spec.ts:346:3 › failures and accessibility › compares and chooses fares with the keyboard alone (10.7s)
+  ✓   95 [desktop] › tests/e2e/search.spec.ts:96:3 › flight search › one-way trips hide the return date and swap works (1.4s)
+  ✘   94 [desktop] › tests/e2e/search.spec.ts:58:3 › flight search › a valid search navigates to /flights with serialized parameters (2.3s)
+  ✓   96 [desktop] › tests/e2e/search.spec.ts:116:3 › flight search › selections are preserved while navigating (1.0s)
+  ✓   97 [desktop] › tests/e2e/search.spec.ts:128:3 › flight search › invalid URL parameters are validated and explained (634ms)
+  -   99 [desktop] › tests/e2e/search.spec.ts:150:3 › flight search › works on a phone @mobile
+  -  100 [desktop] › tests/e2e/search.spec.ts:163:3 › mobile layout › no page overflows horizontally @mobile
+  ✓   98 [desktop] › tests/e2e/search.spec.ts:140:3 › flight search › date inputs restrict the bookable window (693ms)
+  ✓  102 [mobile] › tests/e2e/branding.spec.ts:32:3 › Velasia Airways branding › shows the Velasia logo and menu on mobile @mobile (947ms)
+  ✓  101 [mobile] › tests/e2e/booking.spec.ts:339:3 › booking on phones @mobile › fills traveller details and chooses seats without page overflow @mobile (5.9s)
+  ✓  104 [mobile] › tests/e2e/flights.spec.ts:383:3 › mobile › filters and sorts in a bottom sheet @mobile (1.1s)
+  ✓  105 [mobile] › tests/e2e/flights.spec.ts:401:3 › mobile › edits the search and opens details on a phone @mobile (1.1s)
+  ✓  106 [mobile] › tests/e2e/flights.spec.ts:423:3 › mobile › results pages do not overflow horizontally @mobile (653ms)
+  ✘  103 [mobile] › tests/e2e/checkout.spec.ts:297:3 › checkout on phones @mobile › pays and shows the confirmation without page overflow @mobile (10.5s)
+  ✓  108 [mobile] › tests/e2e/navigation.spec.ts:47:3 › site navigation › mobile navigation opens, navigates, and closes @mobile (1.3s)
+  ✓  109 [mobile] › tests/e2e/offers.spec.ts:374:3 › mobile › compares and selects fares on a phone @mobile (1.3s)
+  ✓  110 [mobile] › tests/e2e/search.spec.ts:150:3 › flight search › works on a phone @mobile (1.1s)
+  ✓  111 [mobile] › tests/e2e/search.spec.ts:163:3 › mobile layout › no page overflows horizontally @mobile (1.1s)
+  ✓  107 [mobile] › tests/e2e/manage.spec.ts:289:3 › manage booking on phones @mobile › overview, change search, and cancellation fit the screen @mobile (9.4s)
+
+
+  1) [desktop] › tests/e2e/checkout.spec.ts:44:3 › checkout and payment › books a trip end to end: checkout, demo payment, durable confirmation 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="seat-selector"][data-ready="true"]')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-testid="seat-selector"][data-ready="true"]') with timeout 10000ms
+      - waiting for locator('[data-testid="seat-selector"][data-ready="true"]')
+
+
+       at booking-flow.ts:70
+
+      68 |   await page.getByTestId('save-travellers').click();
+      69 |   await expect(page).toHaveURL(/\/booking\/seats/);
+    > 70 |   await expect(page.locator('[data-testid="seat-selector"][data-ready="true"]')).toBeVisible();
+         |                                                                                  ^
+      71 | }
+      72 |
+      73 | export const seat = (page: Page, look: string, nth = 0) =>
+        at saveTravellers (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/booking-flow.ts:70:82)
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/checkout.spec.ts:55:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/checkout-checkout-and-paym-9c149-ayment-durable-confirmation-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/checkout-checkout-and-paym-9c149-ayment-durable-confirmation-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/checkout-checkout-and-paym-9c149-ayment-durable-confirmation-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/checkout-checkout-and-paym-9c149-ayment-durable-confirmation-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › tests/e2e/destinations.spec.ts:5:3 › destinations › lists, searches, and filters destinations 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fmanila.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fcebu.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fdavao.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftokyo.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fseoul.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fbangkok.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fhong-kong.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fkuala-lumpur.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftaipei.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fosaka.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fho-chi-minh-city.jpg&w=828&q=70",
+    + ]
+
+       at helpers.ts:111
+
+      109 |       .map((img) => img.currentSrc || img.src);
+      110 |   });
+    > 111 |   expect(broken).toEqual([]);
+          |                  ^
+      112 | }
+      113 |
+      114 | export async function chooseAirport(
+        at expectNoBrokenImages (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/helpers.ts:111:18)
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/destinations.spec.ts:32:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/destinations-destinations--365e9-es-and-filters-destinations-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/destinations-destinations--365e9-es-and-filters-destinations-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/destinations-destinations--365e9-es-and-filters-destinations-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/destinations-destinations--365e9-es-and-filters-destinations-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › tests/e2e/destinations.spec.ts:36:3 › destinations › a destination page shows guide content and a preset search 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 18
+
+    - Array []
+    + Array [
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftokyo.jpg&w=1600&q=80",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fseoul.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fhong-kong.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftaipei.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fmanila.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fcebu.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fdavao.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftokyo.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fseoul.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fbangkok.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fhong-kong.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fkuala-lumpur.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftaipei.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fosaka.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fho-chi-minh-city.jpg&w=828&q=70",
+    + ]
+
+       at helpers.ts:111
+
+      109 |       .map((img) => img.currentSrc || img.src);
+      110 |   });
+    > 111 |   expect(broken).toEqual([]);
+          |                  ^
+      112 | }
+      113 |
+      114 | export async function chooseAirport(
+        at expectNoBrokenImages (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/helpers.ts:111:18)
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/destinations.spec.ts:52:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/destinations-destinations--82928-content-and-a-preset-search-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/destinations-destinations--82928-content-and-a-preset-search-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/destinations-destinations--82928-content-and-a-preset-search-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/destinations-destinations--82928-content-and-a-preset-search-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop] › tests/e2e/flights.spec.ts:40:3 › flight results › searches Manila to Singapore and shows real results 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 26
+
+    - Array []
+    + Array [
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Fhero.jpg&w=1600&q=80",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fcebu.jpg&w=1080&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=1080&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftokyo.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fbangkok.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fseoul.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fosaka.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fhong-kong.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fcebu.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftaipei.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Fwindow.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    + ]
+
+      64 |     await expect(first).toContainText('Airbus A321neo');
+      65 |     await expect(first).toContainText(/From₱[\d,]+per adult · indicative/);
+    > 66 |     expect(errors).toEqual([]);
+         |                    ^
+      67 |   });
+      68 |
+      69 |   test('changes the departure date from the date strip', async ({ page }) => {
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/flights.spec.ts:66:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/flights-flight-results-sea-a7ed3-pore-and-shows-real-results-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/flights-flight-results-sea-a7ed3-pore-and-shows-real-results-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/flights-flight-results-sea-a7ed3-pore-and-shows-real-results-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/flights-flight-results-sea-a7ed3-pore-and-shows-real-results-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [desktop] › tests/e2e/home.spec.ts:5:3 › homepage › loads without errors, broken images, or hydration warnings 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 17
+
+    - Array []
+    + Array [
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Fhero.jpg&w=1600&q=80",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fcebu.jpg&w=1080&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=1080&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftokyo.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fseoul.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fbangkok.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fosaka.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fcebu.jpg&w=384&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fhong-kong.jpg&w=384&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftaipei.jpg&w=384&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=384&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Fwindow.jpg&w=828&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Fbeach.jpg&w=640&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Ffood.jpg&w=640&q=70",
+    +   "http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Fculture.jpg&w=640&q=70",
+    + ]
+
+       at helpers.ts:111
+
+      109 |       .map((img) => img.currentSrc || img.src);
+      110 |   });
+    > 111 |   expect(broken).toEqual([]);
+          |                  ^
+      112 | }
+      113 |
+      114 | export async function chooseAirport(
+        at expectNoBrokenImages (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/helpers.ts:111:18)
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/home.spec.ts:26:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/home-homepage-loads-withou-c8a1d-mages-or-hydration-warnings-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/home-homepage-loads-withou-c8a1d-mages-or-hydration-warnings-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/home-homepage-loads-withou-c8a1d-mages-or-hydration-warnings-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/home-homepage-loads-withou-c8a1d-mages-or-hydration-warnings-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [desktop] › tests/e2e/manage.spec.ts:75:3 › manage booking and accounts › the whole post-booking journey: change, seat, bag, account, link, sign out and in, cancel 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('manage-updated').visible()
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('manage-updated').visible() with timeout 10000ms
+      - waiting for getByTestId('manage-updated').visible()
+
+
+      40 |     timeout: 20_000,
+      41 |   });
+    > 42 |   await expect(shown(page, 'manage-updated')).toBeVisible();
+         |                                               ^
+      43 | }
+      44 |
+      45 | async function expectNotice(page: Page, orderId: string, what: string) {
+        at expectUpdated (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/manage.spec.ts:42:47)
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/manage.spec.ts:120:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/manage-manage-booking-and--88414-link-sign-out-and-in-cancel-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/manage-manage-booking-and--88414-link-sign-out-and-in-cancel-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manage-manage-booking-and--88414-link-sign-out-and-in-cancel-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/manage-manage-booking-and--88414-link-sign-out-and-in-cancel-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [desktop] › tests/e2e/manage.spec.ts:266:3 › manage booking and accounts › Manage Booking works with the keyboard alone 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('trip-summary')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('trip-summary') with timeout 10000ms
+      - waiting for getByTestId('trip-summary')
+
+
+       at booking-flow.ts:49
+
+      47 |   await expect(page.getByTestId('fare-cards')).toBeVisible();
+      48 |   await selectFamily(page, family);
+    > 49 |   await expect(page.getByTestId('trip-summary')).toBeVisible();
+         |                                                  ^
+      50 |   await page.getByRole('button', { name: 'Continue to traveller details' }).click();
+      51 |   await expect(page).toHaveURL(/\/booking\/travellers$/);
+      52 |   await expect(page.getByTestId('traveller-form')).toBeVisible();
+        at startBooking (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/booking-flow.ts:49:50)
+        at toReview (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/booking-flow.ts:108:3)
+        at confirmedBooking (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/manage.spec.ts:16:3)
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/manage.spec.ts:267:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/manage-manage-booking-and--930c3-rks-with-the-keyboard-alone-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/manage-manage-booking-and--930c3-rks-with-the-keyboard-alone-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/manage-manage-booking-and--930c3-rks-with-the-keyboard-alone-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/manage-manage-booking-and--930c3-rks-with-the-keyboard-alone-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [desktop] › tests/e2e/offers.spec.ts:51:3 › fare families and offers › compares fares, selects Classic, then changes to Flex 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 26
+
+    - Array []
+    + Array [
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Fhero.jpg&w=1600&q=80",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fosaka.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fcebu.jpg&w=1080&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=1080&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftokyo.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fseoul.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fbangkok.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fcebu.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Fwindow.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fhong-kong.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftaipei.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    + ]
+
+      135 |
+      136 |     // 19. No hydration or runtime errors along the way.
+    > 137 |     expect(errors).toEqual([]);
+          |                    ^
+      138 |   });
+      139 |
+      140 |   test('round trip with different families, a combined total, and refresh', async ({ page }) => {
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/offers.spec.ts:137:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/offers-fare-families-and-o-04c14-lassic-then-changes-to-Flex-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/offers-fare-families-and-o-04c14-lassic-then-changes-to-Flex-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/offers-fare-families-and-o-04c14-lassic-then-changes-to-Flex-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/offers-fare-families-and-o-04c14-lassic-then-changes-to-Flex-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [desktop] › tests/e2e/offers.spec.ts:140:3 › fare families and offers › round trip with different families, a combined total, and refresh 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByTestId('selected-outbound')
+    Expected substring: "Velasia Classic"
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" getByTestId('selected-outbound') with timeout 10000ms
+      - waiting for getByTestId('selected-outbound')
+
+
+      150 |     await selectFamily(page, 'Classic');
+      151 |
+    > 152 |     await expect(page.getByTestId('selected-outbound')).toContainText('Velasia Classic');
+          |                                                         ^
+      153 |     await expect(page.getByRole('heading', { name: 'Choose your return flight' })).toBeVisible();
+      154 |     await cards(page)
+      155 |       .first()
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/offers.spec.ts:152:57
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/offers-fare-families-and-o-1f053--combined-total-and-refresh-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/offers-fare-families-and-o-1f053--combined-total-and-refresh-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/offers-fare-families-and-o-1f053--combined-total-and-refresh-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/offers-fare-families-and-o-1f053--combined-total-and-refresh-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [desktop] › tests/e2e/offers.spec.ts:346:3 › failures and accessibility › compares and chooses fares with the keyboard alone 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('trip-summary')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('trip-summary') with timeout 10000ms
+      - waiting for getByTestId('trip-summary')
+
+
+      363 |     await select.focus();
+      364 |     await page.keyboard.press('Enter');
+    > 365 |     await expect(page.getByTestId('trip-summary')).toBeVisible();
+          |                                                    ^
+      366 |     const proceed = page.getByRole('button', { name: 'Continue to traveller details' });
+      367 |     await proceed.focus();
+      368 |     await page.keyboard.press('Enter');
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/offers.spec.ts:365:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/offers-failures-and-access-a0c98-res-with-the-keyboard-alone-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/offers-failures-and-access-a0c98-res-with-the-keyboard-alone-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/offers-failures-and-access-a0c98-res-with-the-keyboard-alone-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/offers-failures-and-access-a0c98-res-with-the-keyboard-alone-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [desktop] › tests/e2e/search.spec.ts:58:3 › flight search › a valid search navigates to /flights with serialized parameters 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 26
+
+    - Array []
+    + Array [
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Fhero.jpg&w=1600&q=80",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fcebu.jpg&w=1080&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftokyo.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=1080&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fseoul.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fbangkok.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fosaka.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fcebu.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fhong-kong.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fbrand%2Fwindow.jpg&w=828&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Ftaipei.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    +   "http 404: http://127.0.0.1:3200/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=384&q=70",
+    +   "console: Failed to load resource: the server responded with a status of 404 (Not Found)",
+    + ]
+
+      91 |     await expect(page.getByRole('combobox', { name: 'To' })).toHaveValue('Seoul (ICN)');
+      92 |     await expect(page.getByLabel('Depart', { exact: true })).toHaveValue(depart);
+    > 93 |     expect(errors).toEqual([]);
+         |                    ^
+      94 |   });
+      95 |
+      96 |   test('one-way trips hide the return date and swap works', async ({ page }) => {
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/search.spec.ts:93:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/search-flight-search-a-val-04f0c--with-serialized-parameters-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/search-flight-search-a-val-04f0c--with-serialized-parameters-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/search-flight-search-a-val-04f0c--with-serialized-parameters-desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/search-flight-search-a-val-04f0c--with-serialized-parameters-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [mobile] › tests/e2e/checkout.spec.ts:297:3 › checkout on phones @mobile › pays and shows the confirmation without page overflow @mobile 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByTestId('trip-summary')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('trip-summary') with timeout 10000ms
+      - waiting for getByTestId('trip-summary')
+
+
+       at booking-flow.ts:49
+
+      47 |   await expect(page.getByTestId('fare-cards')).toBeVisible();
+      48 |   await selectFamily(page, family);
+    > 49 |   await expect(page.getByTestId('trip-summary')).toBeVisible();
+         |                                                  ^
+      50 |   await page.getByRole('button', { name: 'Continue to traveller details' }).click();
+      51 |   await expect(page).toHaveURL(/\/booking\/travellers$/);
+      52 |   await expect(page.getByTestId('traveller-form')).toBeVisible();
+        at startBooking (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/booking-flow.ts:49:50)
+        at toReview (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/booking-flow.ts:108:3)
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/checkout.spec.ts:303:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/checkout-checkout-on-phone-4df9c-ithout-page-overflow-mobile-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/checkout-checkout-on-phone-4df9c-ithout-page-overflow-mobile-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/checkout-checkout-on-phone-4df9c-ithout-page-overflow-mobile-mobile/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/checkout-checkout-on-phone-4df9c-ithout-page-overflow-mobile-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12 failed
+    [desktop] › tests/e2e/checkout.spec.ts:44:3 › checkout and payment › books a trip end to end: checkout, demo payment, durable confirmation 
+    [desktop] › tests/e2e/destinations.spec.ts:5:3 › destinations › lists, searches, and filters destinations 
+    [desktop] › tests/e2e/destinations.spec.ts:36:3 › destinations › a destination page shows guide content and a preset search 
+    [desktop] › tests/e2e/flights.spec.ts:40:3 › flight results › searches Manila to Singapore and shows real results 
+    [desktop] › tests/e2e/home.spec.ts:5:3 › homepage › loads without errors, broken images, or hydration warnings 
+    [desktop] › tests/e2e/manage.spec.ts:75:3 › manage booking and accounts › the whole post-booking journey: change, seat, bag, account, link, sign out and in, cancel 
+    [desktop] › tests/e2e/manage.spec.ts:266:3 › manage booking and accounts › Manage Booking works with the keyboard alone 
+    [desktop] › tests/e2e/offers.spec.ts:51:3 › fare families and offers › compares fares, selects Classic, then changes to Flex 
+    [desktop] › tests/e2e/offers.spec.ts:140:3 › fare families and offers › round trip with different families, a combined total, and refresh 
+    [desktop] › tests/e2e/offers.spec.ts:346:3 › failures and accessibility › compares and chooses fares with the keyboard alone 
+    [desktop] › tests/e2e/search.spec.ts:58:3 › flight search › a valid search navigates to /flights with serialized parameters 
+    [mobile] › tests/e2e/checkout.spec.ts:297:3 › checkout on phones @mobile › pays and shows the confirmation without page overflow @mobile 
+  10 skipped
+  89 passed (2.9m)

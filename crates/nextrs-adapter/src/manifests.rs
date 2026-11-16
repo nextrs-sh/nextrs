@@ -204,6 +204,11 @@ pub(crate) struct ServerReferenceManifest {
 #[derive(Debug, Deserialize)]
 pub(crate) struct RequiredServerFiles {
     pub config: Value,
+    /// The app's directory relative to `outputFileTracingRoot` (`""` for a
+    /// single-package project, `"apps/web"` in a monorepo). The same
+    /// relative layout is reproduced inside `.next/standalone`.
+    #[serde(default, rename = "relativeAppDir")]
+    pub relative_app_dir: Option<String>,
 }
 
 /// Header maps in `.meta` files and adapter outputs hold strings or arrays.

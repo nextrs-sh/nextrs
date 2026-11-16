@@ -7,6 +7,14 @@ use serde::Serialize;
 pub struct BuildInfo {
     pub project_dir: PathBuf,
     pub dist_dir: PathBuf,
+    /// The workspace (monorepo) root this app was built in, derived from
+    /// `required-server-files.json#relativeAppDir`: `project_dir` minus that
+    /// relative path. `None` for a single-package project, or when the
+    /// served directory does not end with `relativeAppDir`. Package managers
+    /// with workspaces (pnpm, npm, Yarn) install packages into
+    /// `<workspace root>/node_modules`; `output: 'standalone'` reproduces the
+    /// same layout under `.next/standalone`.
+    pub workspace_root: Option<PathBuf>,
     pub build_id: String,
     pub next_version: Option<DetectedVersion>,
     pub source: MetadataSource,

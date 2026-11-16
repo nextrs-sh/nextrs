@@ -1,0 +1,305 @@
+2026-11-16T10:40:50.185383Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+2026-11-16T10:40:50.189689Z  INFO nextrs: monorepo build: the workspace root's packages are readable packages=/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules
+2026-11-16T10:40:50.189728Z  INFO nextrs: outbound fetch enabled allow=http://127.0.0.1:4210
+2026-11-16T10:40:50.189760Z  INFO nextrs: shared data cache enabled persistent=false dir=
+2026-11-16T10:40:50.246384Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-16T10:40:50.246407Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-16T10:40:50.319459Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=129
+2026-11-16T10:40:50.319499Z  INFO nextrs: embedded V8 executor ready ready_ms=134 isolates=1
+2026-11-16T10:40:50.319732Z  INFO nextrs: Server Actions enabled actions=45 next_body_limit=131072 nextrs_body_limit=10485760 effective=131072
+2026-11-16T10:40:50.323374Z  INFO nextrs: metrics listening metrics_addr=127.0.0.1:4200
+2026-11-16T10:40:50.323400Z  INFO nextrs: nextrs ready addr=127.0.0.1:3200 build_id=HcU2kj-oE0Dq49qDuzYn4 ready_ms=137
+{"level":50,"time":1794825670125,"service":"velasia-web","msg":"retailing api call failed","area":"booking","action":"seats","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794825676919,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794825676919,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"unavailable","status":503}
+2026-11-16T10:41:17.628957Z  WARN nextrs_server::dynamic: aborting response after handler failure error=terminated
+Error: failed to pipe response
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+    at async d (.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+[90m    at async serve (ext:nextrs/03_server.js:442:11)[39m {
+  [cause]: TypeError: terminated
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m
+  [90m    ... 2 lines matching cause stack trace ...[39m {
+    [cause]: Error: JavaScript executor stopped mid-response
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m
+    [90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+    [90m    at drainTicks (ext:core/01_core.js:432:5)[39m {
+      code: [32m"UND_ERR_SOCKET"[39m
+    }
+  }
+}
+{"level":50,"time":1794825677640,"service":"velasia-web","msg":"request error","method":"POST","route":"/booking/travellers/page","routeType":"render","renderSource":null,"errorName":"Error","digest":null,"requestId":null}
+2026-11-16T10:41:17.640888Z  WARN nextrs::js: POST /booking/travellers: Error: failed to pipe response
+    at G (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:102739)
+    at processTicksAndRejections (ext:core/01_core.js:405:7)
+    at drainTicks (ext:core/01_core.js:432:5)
+    at __drainNextTickAndMacrotasks (ext:core/01_core.js:471:5)
+    at async ts.pipeToNodeResponse (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:105778)
+    at async d (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+    at async serve (ext:nextrs/03_server.js:442:11) kind="handler-error"
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m
+[90m    ... 2 lines matching cause stack trace ...[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m
+  [90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+  [90m    at drainTicks (ext:core/01_core.js:432:5)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m
+[90m    ... 2 lines matching cause stack trace ...[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m
+  [90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+  [90m    at drainTicks (ext:core/01_core.js:432:5)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+{"level":50,"time":1794825703632,"service":"velasia-web","msg":"retailing api call failed","area":"checkout","action":"payment","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794825707882,"service":"velasia-web","msg":"retailing api call failed","area":"checkout","action":"prepare","code":"CHECKOUT_NOT_READY","kind":"rejected","status":409}
+{"level":50,"time":1794825737347,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794825737347,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794825739902,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794825739904,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794825739978,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"bad-response","status":null}
+{"level":50,"time":1794825739978,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"bad-response","status":null}
+2026-11-16T10:42:34.322501Z  WARN nextrs_server::dynamic: aborting response after handler failure error=terminated
+Error: failed to pipe response
+    at async d (.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+[90m    at async serve (ext:nextrs/03_server.js:442:11)[39m {
+  [cause]: TypeError: terminated
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    [cause]: Error: JavaScript executor stopped mid-response
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+      code: [32m"UND_ERR_SOCKET"[39m
+    }
+  }
+}
+{"level":50,"time":1794825754326,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking/[orderId]/seats/page","routeType":"render","renderSource":null,"errorName":"Error","digest":null,"requestId":null}
+2026-11-16T10:42:34.326081Z  WARN nextrs::js: POST /manage-booking/ord_AnJiGeRv365VvPHU4L-UBQ/seats: Error: failed to pipe response
+    at G (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:102739)
+    at async ts.pipeToNodeResponse (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:105778)
+    at async d (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+    at async serve (ext:nextrs/03_server.js:442:11) kind="handler-error"
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+2026-11-16T10:42:40.105726Z  WARN nextrs_server::dynamic: aborting response after handler failure error=terminated
+Error: failed to pipe response
+    at async d (.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+[90m    at async serve (ext:nextrs/03_server.js:442:11)[39m {
+  [cause]: TypeError: terminated
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    [cause]: Error: JavaScript executor stopped mid-response
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+      code: [32m"UND_ERR_SOCKET"[39m
+    }
+  }
+}
+{"level":50,"time":1794825760106,"service":"velasia-web","msg":"request error","method":"POST","route":"/flights/page","routeType":"render","renderSource":null,"errorName":"Error","digest":null,"requestId":null}
+2026-11-16T10:42:40.106617Z  WARN nextrs::js: POST /flights: Error: failed to pipe response
+    at G (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:102739)
+    at async ts.pipeToNodeResponse (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:105778)
+    at async d (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+    at async serve (ext:nextrs/03_server.js:442:11) kind="handler-error"
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+2026-11-16T10:42:57.187067Z  WARN nextrs_server::dynamic: aborting response after handler failure error=terminated
+Error: failed to pipe response
+    at async d (.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+[90m    at async serve (ext:nextrs/03_server.js:442:11)[39m {
+  [cause]: TypeError: terminated
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    [cause]: Error: JavaScript executor stopped mid-response
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+      code: [32m"UND_ERR_SOCKET"[39m
+    }
+  }
+}
+{"level":50,"time":1794825777188,"service":"velasia-web","msg":"request error","method":"POST","route":"/flights/page","routeType":"render","renderSource":null,"errorName":"Error","digest":null,"requestId":null}
+2026-11-16T10:42:57.188122Z  WARN nextrs::js: POST /flights: Error: failed to pipe response
+    at G (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:102739)
+    at async ts.pipeToNodeResponse (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:105778)
+    at async d (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+    at async serve (ext:nextrs/03_server.js:442:11) kind="handler-error"
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+{"level":50,"time":1794825788742,"service":"velasia-web","msg":"retailing api call failed","area":"offers","action":"NV501-20261215","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794825791864,"service":"velasia-web","msg":"retailing api call failed","area":"offers","action":"NV501-20261215","code":null,"kind":"timeout","status":null}
+2026-11-16T10:43:12.889056Z  WARN nextrs_server::dynamic: aborting response after handler failure error=terminated
+Error: failed to pipe response
+    at async d (.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+[90m    at async serve (ext:nextrs/03_server.js:442:11)[39m {
+  [cause]: TypeError: terminated
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    [cause]: Error: JavaScript executor stopped mid-response
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+      code: [32m"UND_ERR_SOCKET"[39m
+    }
+  }
+}
+{"level":50,"time":1794825792890,"service":"velasia-web","msg":"request error","method":"POST","route":"/flights/page","routeType":"render","renderSource":null,"errorName":"Error","digest":null,"requestId":null}
+2026-11-16T10:43:12.890314Z  WARN nextrs::js: POST /flights: Error: failed to pipe response
+    at G (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:102739)
+    at async ts.pipeToNodeResponse (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:105778)
+    at async d (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+    at async serve (ext:nextrs/03_server.js:442:11) kind="handler-error"
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+`x-forwarded-host` header with value `127.0.0.1:3200` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+    at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+    at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+    at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+[90m    at async serve (ext:nextrs/03_server.js:442:11)[39m {
+  digest: [32m"2886464282"[39m
+}
+{"level":50,"time":1794825799689,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"2886464282","requestId":null}
+Error: Body exceeded 128kb limit.
+To configure the body size limit for Server Actions, see: https://nextjs.org/docs/app/api-reference/next-config-js/serverActions#bodysizelimit
+[90m    at Transform._write (ext:nextrs/node-polyfills.js:7071:14)[39m
+[90m    at writeOrBuffer (ext:nextrs/node-polyfills.js:6116:18)[39m
+[90m    at _write (ext:nextrs/node-polyfills.js:6073:16)[39m
+[90m    at Writable.write (ext:nextrs/node-polyfills.js:6076:16)[39m
+[90m    at IncomingMessage.ondata (ext:nextrs/node-polyfills.js:5432:28)[39m
+[90m    at IncomingMessage.emit (ext:nextrs/node-polyfills.js:1893:11)[39m
+[90m    at addChunk (ext:nextrs/node-polyfills.js:5189:18)[39m
+[90m    at readableAddChunk (ext:nextrs/node-polyfills.js:5172:15)[39m
+[90m    at Readable.push (ext:nextrs/node-polyfills.js:5122:16)[39m {
+  statusCode: [33m413[39m,
+  digest: [32m"4216285632"[39m
+}
+{"level":50,"time":1794825800096,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"4216285632","requestId":null}
+2026-11-16T10:43:28.778863Z  WARN nextrs_server::dynamic: aborting response after handler failure error=terminated
+Error: failed to pipe response
+    at async d (.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+[90m    at async serve (ext:nextrs/03_server.js:442:11)[39m {
+  [cause]: TypeError: terminated
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    [cause]: Error: JavaScript executor stopped mid-response
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+      code: [32m"UND_ERR_SOCKET"[39m
+    }
+  }
+}
+{"level":50,"time":1794825808779,"service":"velasia-web","msg":"request error","method":"POST","route":"/flights/page","routeType":"render","renderSource":null,"errorName":"Error","digest":null,"requestId":null}
+2026-11-16T10:43:28.779814Z  WARN nextrs::js: POST /flights: Error: failed to pipe response
+    at G (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:102739)
+    at async ts.pipeToNodeResponse (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:105778)
+    at async d (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44823)
+    at async $ (/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+    at async serve (ext:nextrs/03_server.js:442:11) kind="handler-error"
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+⨯ unhandledRejection: TypeError: terminated
+[90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+[90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+  [cause]: Error: JavaScript executor stopped mid-response
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+  [90m    at Object.pull (ext:nextrs/01_fetch.js:812:27)[39m {
+    code: [32m"UND_ERR_SOCKET"[39m
+  }
+}
+2026-11-16T10:43:45.864166Z  INFO nextrs: stopping JavaScript isolates
+2026-11-16T10:43:45.943554Z  INFO nextrs: nextrs stopped

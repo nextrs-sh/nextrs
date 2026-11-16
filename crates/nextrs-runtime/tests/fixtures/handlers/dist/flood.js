@@ -3,7 +3,9 @@
 // pipeToNodeResponse does (unless x-ignore-backpressure: 1). Each chunk
 // starts with its index (u32 BE) and is filled with index % 251, so the
 // consumer can check order and integrity. Progress per x-id is kept for
-// flood-progress.js.
+// flood-progress.js. With x-resolve-on-end: 1 the handler resolves as soon
+// as it has called res.end(), before queued chunks reach the consumer, as
+// Next's pipeToNodeResponse does.
 globalThis.__flood ??= new Map();
 
 function chunk(index, size) {
@@ -19,6 +21,7 @@ exports.handler = (req, res) =>
     const size = Number(req.headers["x-chunk"] ?? 16384);
     const ignoreBackpressure = req.headers["x-ignore-backpressure"] === "1";
     const throwAfter = Number(req.headers["x-throw-after"] ?? -1);
+    const resolveOnEnd = req.headers["x-resolve-on-end"] === "1";
     const state = { produced: 0, drains: 0, closed: false, finished: false };
     globalThis.__flood.set(id, state);
     let index = 0;
@@ -45,6 +48,7 @@ exports.handler = (req, res) =>
         state.finished = true;
         resolve();
       });
+      if (resolveOnEnd) resolve();
     }
     pump();
   });

@@ -1,0 +1,62 @@
+2026-11-16T14:35:34.308185Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+2026-11-16T14:35:35.620808Z  INFO nextrs: monorepo build: the workspace root's packages are readable packages=/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules
+2026-11-16T14:35:35.620830Z  INFO nextrs: outbound fetch enabled allow=http://127.0.0.1:4210
+2026-11-16T14:35:35.620862Z  INFO nextrs: shared data cache enabled persistent=false dir=
+2026-11-16T14:35:37.796213Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-16T14:35:37.796239Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-16T14:35:39.577973Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=3956
+2026-11-16T14:35:39.578003Z  INFO nextrs: embedded V8 executor ready ready_ms=5269 isolates=1
+2026-11-16T14:35:39.578518Z  INFO nextrs: Server Actions enabled actions=45 next_body_limit=131072 nextrs_body_limit=10485760 effective=131072
+2026-11-16T14:35:39.643825Z  INFO nextrs: metrics listening metrics_addr=127.0.0.1:4200
+2026-11-16T14:35:39.643854Z  INFO nextrs: nextrs ready addr=127.0.0.1:3200 build_id=HcU2kj-oE0Dq49qDuzYn4 ready_ms=5335
+{"level":50,"time":1794839806389,"service":"velasia-web","msg":"retailing api call failed","area":"booking","action":"seats","code":null,"kind":"timeout","status":null}
+Error: Premature close
+[90m    at Transform.<anonymous> (ext:nextrs/node-polyfills.js:7494:20)[39m
+[90m    at Transform.emit (ext:nextrs/node-polyfills.js:1898:13)[39m
+[90m    at emitCloseNT (ext:nextrs/node-polyfills.js:4057:16)[39m
+[90m    at emitErrorCloseNT (ext:nextrs/node-polyfills.js:4045:9)[39m
+[90m    at processTicksAndRejections (ext:core/01_core.js:378:17)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m {
+  digest: [32m"895833239"[39m,
+  code: [32m"ERR_STREAM_PREMATURE_CLOSE"[39m
+}
+{"level":50,"time":1794839807268,"service":"velasia-web","msg":"request error","method":"POST","route":"/booking/seats","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"895833239","requestId":null}
+{"level":50,"time":1794839816151,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794839816152,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794839838761,"service":"velasia-web","msg":"retailing api call failed","area":"checkout","action":"payment","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794839846197,"service":"velasia-web","msg":"retailing api call failed","area":"checkout","action":"prepare","code":"CHECKOUT_NOT_READY","kind":"rejected","status":409}
+{"level":50,"time":1794839885693,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794839885693,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794839888408,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794839888408,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794839888482,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"bad-response","status":null}
+{"level":50,"time":1794839888484,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"bad-response","status":null}
+{"level":50,"time":1794839936943,"service":"velasia-web","msg":"retailing api call failed","area":"offers","action":"NV501-20261215","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794839941048,"service":"velasia-web","msg":"retailing api call failed","area":"offers","action":"NV501-20261215","code":null,"kind":"timeout","status":null}
+`x-forwarded-host` header with value `127.0.0.1:3200` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+    at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+    at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+    at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+[90m    at async serve (ext:nextrs/03_server.js:442:11)[39m {
+  digest: [32m"2886464282"[39m
+}
+{"level":50,"time":1794839943700,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"2886464282","requestId":null}
+Error: Body exceeded 128kb limit.
+To configure the body size limit for Server Actions, see: https://nextjs.org/docs/app/api-reference/next-config-js/serverActions#bodysizelimit
+[90m    at Transform._write (ext:nextrs/node-polyfills.js:7071:14)[39m
+[90m    at writeOrBuffer (ext:nextrs/node-polyfills.js:6116:18)[39m
+[90m    at _write (ext:nextrs/node-polyfills.js:6073:16)[39m
+[90m    at Writable.write (ext:nextrs/node-polyfills.js:6076:16)[39m
+[90m    at IncomingMessage.ondata (ext:nextrs/node-polyfills.js:5432:28)[39m
+[90m    at IncomingMessage.emit (ext:nextrs/node-polyfills.js:1893:11)[39m
+[90m    at addChunk (ext:nextrs/node-polyfills.js:5189:18)[39m
+[90m    at readableAddChunk (ext:nextrs/node-polyfills.js:5172:15)[39m
+[90m    at Readable.push (ext:nextrs/node-polyfills.js:5122:16)[39m {
+  statusCode: [33m413[39m,
+  digest: [32m"4216285632"[39m
+}
+{"level":50,"time":1794839944164,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"4216285632","requestId":null}
+2026-11-16T14:39:33.640967Z  INFO nextrs: stopping JavaScript isolates
+2026-11-16T14:39:33.723749Z  INFO nextrs: nextrs stopped

@@ -1342,6 +1342,25 @@
     return kind(file) === "file" ? file : null;
   }
 
+  // Node resolves every module filename to its real path (Module._findPath's
+  // toRealPath; no --preserve-symlinks). A package linked into node_modules
+  // (pnpm, workspaces, output: 'standalone') then finds its own dependencies
+  // beside its real location, and one file reached through two links is one
+  // module (one React).
+  const realpathCache = new Map();
+  function toRealPath(file) {
+    if (!realpathCache.has(file)) {
+      let real = file;
+      try {
+        real = ops.op_nextrs_fs_realpath(file);
+      } catch {
+        // Unreachable for files found through the read policy; keep the path.
+      }
+      realpathCache.set(file, real);
+    }
+    return realpathCache.get(file);
+  }
+
   function tryExtensions(base) {
     for (const extension of EXTENSIONS) {
       const file = tryFile(base + extension);
@@ -1511,7 +1530,7 @@
           requireStack: parent?.filename ? [parent.filename] : [],
         });
       }
-      return resolved;
+      return toRealPath(resolved);
     }
 
     static _load(request, parent, isMain) {
@@ -1810,7 +1829,8 @@
     path: () => observed("path", path),
     "path/posix": () => observed("path/posix", path),
     querystring: () => strict("querystring", querystring),
-    perf_hooks: () => strict("perf_hooks", { performance, PerformanceEntry, PerformanceMark, PerformanceMeasure }),
+    perf_hooks: () =>
+      strict("perf_hooks", { performance, PerformanceEntry, PerformanceMark, PerformanceMeasure, monitorEventLoopDelay, createHistogram }),
     process: () => process,
     stream: () => observed("stream", stream),
     "stream/promises": () => observed("stream/promises", stream.promises),
@@ -1829,7 +1849,7 @@
     "assert", "assert/strict", "child_process", "cluster", "console", "constants", "dgram",
     "diagnostics_channel", "dns", "dns/promises", "domain", "http", "http2", "https", "net",
     "punycode", "readline", "repl", "sqlite", "sys", "test", "tls", "trace_events",
-    "v8", "wasi", "zlib",
+    "v8", "wasi",
   ]) {
     BUILTINS.set(name, () => unsupportedModule(name));
   }
@@ -1872,6 +1892,215 @@
       },
     });
   }
+  // node:perf_hooks histograms. Node keeps an HdrHistogram; this keeps the
+  // recorded values themselves (bounded: the oldest are overwritten past
+  // HISTOGRAM_SAMPLES, which an event-loop monitor at 10 ms reaches after
+  // about 17 minutes without a reset), and answers the same accessors.
+  const HISTOGRAM_SAMPLES = 100_000;
+  class RecordableHistogram {
+    #values = [];
+    #next = 0;
+    #count = 0;
+    #exceeds = 0;
+    #min = Infinity;
+    #max = 0;
+    #sum = 0;
+    #sumSquares = 0;
+    #sorted = null;
+
+    record(value) {
+      const n = typeof value === "bigint" ? Number(value) : value;
+      if (!Number.isFinite(n) || n < 1) {
+        throw nodeError(`The value of "val" is out of range. It must be >= 1 && <= ${Number.MAX_SAFE_INTEGER}. Received ${value}`, { code: "ERR_OUT_OF_RANGE", name: "RangeError" });
+      }
+      if (this.#values.length < HISTOGRAM_SAMPLES) this.#values.push(n);
+      else {
+        this.#values[this.#next] = n;
+        this.#next = (this.#next + 1) % HISTOGRAM_SAMPLES;
+        this.#exceeds++;
+      }
+      this.#count++;
+      this.#min = Math.min(this.#min, n);
+      this.#max = Math.max(this.#max, n);
+      this.#sum += n;
+      this.#sumSquares += n * n;
+      this.#sorted = null;
+    }
+
+    recordDelta() {
+      const now = performance.now();
+      if (this.lastDelta !== undefined) this.record(Math.max(1, Math.round((now - this.lastDelta) * 1e6)));
+      this.lastDelta = now;
+    }
+
+    reset() {
+      this.#values = [];
+      this.#next = 0;
+      this.#count = 0;
+      this.#exceeds = 0;
+      this.#min = Infinity;
+      this.#max = 0;
+      this.#sum = 0;
+      this.#sumSquares = 0;
+      this.#sorted = null;
+    }
+
+    // Node reports min as 9223372036854776000 and mean/stddev as NaN when empty.
+    get count() { return this.#count; }
+    get countBigInt() { return BigInt(this.#count); }
+    get exceeds() { return this.#exceeds; }
+    get exceedsBigInt() { return BigInt(this.#exceeds); }
+    get min() { return this.#count ? this.#min : 9223372036854776000; }
+    get minBigInt() { return this.#count ? BigInt(this.#min) : 9223372036854775807n; }
+    get max() { return this.#max; }
+    get maxBigInt() { return BigInt(this.#max); }
+    get mean() { return this.#count ? this.#sum / this.#count : NaN; }
+    get stddev() {
+      if (!this.#count) return NaN;
+      const mean = this.#sum / this.#count;
+      return Math.sqrt(Math.max(0, this.#sumSquares / this.#count - mean * mean));
+    }
+
+    percentile(percentile) {
+      if (typeof percentile !== "number" || !(percentile > 0 && percentile <= 100)) {
+        throw nodeError(`The value of "percentile" is out of range. It must be > 0 && <= 100. Received ${percentile}`, { code: "ERR_OUT_OF_RANGE", name: "RangeError" });
+      }
+      if (!this.#values.length) return 0;
+      this.#sorted ??= [...this.#values].sort((a, b) => a - b);
+      const index = Math.min(this.#sorted.length - 1, Math.max(0, Math.ceil((percentile / 100) * this.#sorted.length) - 1));
+      return this.#sorted[index];
+    }
+
+    percentileBigInt(percentile) {
+      return BigInt(this.percentile(percentile));
+    }
+
+    get percentiles() {
+      const out = new Map();
+      if (!this.#values.length) return out.set(100, 0);
+      for (const p of [0.001, 50, 75, 87.5, 93.75, 96.875, 98.4375, 99.21875, 100]) out.set(p, this.percentile(p));
+      return out;
+    }
+
+    get percentilesBigInt() {
+      return new Map([...this.percentiles].map(([k, v]) => [k, BigInt(v)]));
+    }
+
+    toJSON() {
+      return { count: this.count, min: this.min, max: this.max, mean: this.mean, exceeds: this.exceeds, stddev: this.stddev, percentiles: Object.fromEntries(this.percentiles) };
+    }
+  }
+
+  function createHistogram() {
+    return new RecordableHistogram();
+  }
+
+  // As Node's ELDHistogram: an unref'd timer every `resolution` ms records
+  // the time since the previous tick, in nanoseconds (so an idle loop
+  // reports about `resolution` ms; a blocked one, more).
+  class IntervalHistogram extends RecordableHistogram {
+    #resolution;
+    #timer = null;
+    #last = 0;
+
+    constructor(resolution) {
+      super();
+      this.#resolution = resolution;
+    }
+
+    enable() {
+      if (this.#timer) return false;
+      this.#last = performance.now();
+      this.#timer = setInterval(() => {
+        const now = performance.now();
+        this.record(Math.max(1, Math.round((now - this.#last) * 1e6)));
+        this.#last = now;
+      }, this.#resolution);
+      this.#timer.unref();
+      return true;
+    }
+
+    disable() {
+      if (!this.#timer) return false;
+      clearInterval(this.#timer);
+      this.#timer = null;
+      return true;
+    }
+
+    [Symbol.dispose]() {
+      this.disable();
+    }
+  }
+
+  function monitorEventLoopDelay(options = {}) {
+    const resolution = options?.resolution ?? 10;
+    if (!Number.isInteger(resolution) || resolution < 1) {
+      throw nodeError(`The value of "options.resolution" is out of range. It must be >= 1 && <= 2147483647. Received ${resolution}`, { code: "ERR_OUT_OF_RANGE", name: "RangeError" });
+    }
+    return new IntervalHistogram(resolution);
+  }
+
+  // node:zlib: the one-shot codecs (sync, and callback forms finishing on a
+  // later turn as Node's do), over flate2. Next.js inflates the Partial
+  // Prerendering resume data cache with inflateSync. Streams (createGzip,
+  // ...), brotli, dictionaries and zstd stay unsupported.
+  const zlibConstants = Object.freeze({
+    Z_NO_FLUSH: 0, Z_PARTIAL_FLUSH: 1, Z_SYNC_FLUSH: 2, Z_FULL_FLUSH: 3, Z_FINISH: 4, Z_BLOCK: 5,
+    Z_OK: 0, Z_STREAM_END: 1, Z_NEED_DICT: 2, Z_ERRNO: -1, Z_STREAM_ERROR: -2, Z_DATA_ERROR: -3,
+    Z_MEM_ERROR: -4, Z_BUF_ERROR: -5, Z_VERSION_ERROR: -6, Z_NO_COMPRESSION: 0, Z_BEST_SPEED: 1,
+    Z_BEST_COMPRESSION: 9, Z_DEFAULT_COMPRESSION: -1, Z_FILTERED: 1, Z_HUFFMAN_ONLY: 2, Z_RLE: 3,
+    Z_FIXED: 4, Z_DEFAULT_STRATEGY: 0, DEFLATE: 1, INFLATE: 2, GZIP: 3, GUNZIP: 4, DEFLATERAW: 5,
+    INFLATERAW: 6, UNZIP: 7,
+  });
+  // Node's default maxOutputLength is buffer.kMaxLength; NextRS bounds it.
+  const ZLIB_MAX_OUTPUT = 1024 * 1024 * 1024;
+  function zlibInput(data) {
+    if (typeof data === "string") return Buffer.from(data);
+    if (ArrayBuffer.isView(data)) return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+    if (data instanceof ArrayBuffer) return new Uint8Array(data);
+    throw nodeError(`The "buffer" argument must be of type string or an instance of Buffer, TypedArray, DataView, or ArrayBuffer. Received ${typeof data}`, { code: "ERR_INVALID_ARG_TYPE", name: "TypeError" });
+  }
+  function zlibSync(mode) {
+    return function (data, options = {}) {
+      for (const key of ["dictionary", "info"]) {
+        if (options?.[key]) unsupported(`zlib.${mode}Sync`, `option ${key}`);
+      }
+      const input = zlibInput(data);
+      const max = options?.maxOutputLength ?? ZLIB_MAX_OUTPUT;
+      try {
+        return Buffer.from(ops.op_nextrs_zlib(mode, input, options?.level ?? -1, Math.min(max, ZLIB_MAX_OUTPUT)));
+      } catch (error) {
+        const message = String(error?.message ?? error);
+        if (message.startsWith("ERR_BUFFER_TOO_LARGE")) {
+          throw nodeError("Cannot create a Buffer larger than maxOutputLength", { code: "ERR_BUFFER_TOO_LARGE", name: "RangeError" });
+        }
+        if (message.startsWith("ERR_ZLIB: ")) {
+          throw nodeError(message.slice("ERR_ZLIB: ".length), { code: "Z_DATA_ERROR", errno: -3 });
+        }
+        throw error;
+      }
+    };
+  }
+  const zlib = { constants: zlibConstants, codes: Object.freeze({ Z_OK: 0, Z_STREAM_END: 1, Z_NEED_DICT: 2, Z_ERRNO: -1, Z_STREAM_ERROR: -2, Z_DATA_ERROR: -3, Z_MEM_ERROR: -4, Z_BUF_ERROR: -5, Z_VERSION_ERROR: -6 }) };
+  for (const mode of ["deflate", "inflate", "deflateRaw", "inflateRaw", "gzip", "gunzip", "unzip"]) {
+    const sync = zlibSync(mode);
+    zlib[`${mode}Sync`] = sync;
+    zlib[mode] = function (data, options, callback) {
+      if (typeof options === "function") [callback, options] = [options, {}];
+      if (typeof callback !== "function") {
+        throw nodeError(`The "callback" argument must be of type function. Received ${typeof callback}`, { code: "ERR_INVALID_ARG_TYPE", name: "TypeError" });
+      }
+      let result;
+      let failure = null;
+      try {
+        result = sync(data, options);
+      } catch (error) {
+        failure = error;
+      }
+      setImmediate(() => (failure ? callback(failure) : callback(null, result)));
+    };
+  }
+  BUILTINS.set("zlib", () => partialModule("zlib", zlib));
   BUILTINS.set("os", () => partialModule("os", os, new Set(["homedir"])));
   // node:tty: no stream of the runtime is a terminal (process.stdout and
   // stderr say isTTY: false); logging libraries ask before using colors.

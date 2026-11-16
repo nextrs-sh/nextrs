@@ -597,11 +597,25 @@ pub(crate) async fn serve(
         {
             return Next::Done(middleware_prefetch_skip(&route.page));
         }
-        if let Some((status, html)) = state
+        // A dynamic page without data functions is optimized to one HTML
+        // file for its pattern (`pages/user/[id].html`), which next start
+        // serves for every matching path. Never for a getStaticProps page:
+        // its pattern's HTML is a fallback shell, not the page.
+        let stored = state
             .pages_router
             .static_pages
             .get(&locale_key(path, ctx.locale))
-        {
+            .or_else(|| {
+                (route.page != path && !state.pages_router.ssg.contains(&route.page))
+                    .then(|| {
+                        state
+                            .pages_router
+                            .static_pages
+                            .get(&locale_key(&route.page, ctx.locale))
+                    })
+                    .flatten()
+            });
+        if let Some((status, html)) = stored {
             let status_page = path == "/404" || path == "/500";
             if !readonly && !status_page {
                 return Next::Done(method_not_allowed());

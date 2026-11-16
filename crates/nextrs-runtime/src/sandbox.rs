@@ -166,6 +166,57 @@ mod tests {
         );
     }
 
+    /// A pnpm workspace: `apps/web/node_modules/next` links into the
+    /// workspace root's `node_modules/.pnpm`, as `pnpm install` and
+    /// `output: 'standalone'` lay it out (Phase 3B, Velasia Airways).
+    #[test]
+    fn workspace_packages_are_readable_only_with_the_workspace_root() {
+        use std::os::unix::fs::symlink;
+        let base = temp_tree();
+        let ws = base.join("ws");
+        let store = ws.join("node_modules/.pnpm/next@1/node_modules/next");
+        std::fs::create_dir_all(&store).unwrap();
+        std::fs::write(store.join("index.js"), "module.exports = 1").unwrap();
+        std::fs::create_dir_all(ws.join("apps/web/.next/server")).unwrap();
+        std::fs::create_dir_all(ws.join("apps/web/node_modules")).unwrap();
+        symlink(
+            "../../../node_modules/.pnpm/next@1/node_modules/next",
+            ws.join("apps/web/node_modules/next"),
+        )
+        .unwrap();
+        std::fs::write(ws.join(".env"), "SECRET=1").unwrap();
+        std::fs::write(ws.join("apps/web/.env.local"), "SECRET=2").unwrap();
+        std::fs::write(ws.join("package.json"), "{}").unwrap();
+        symlink(ws.join(".env"), ws.join("node_modules/escape")).unwrap();
+
+        let linked = ws.join("apps/web/node_modules/next/index.js");
+        let linked = linked.to_str().unwrap();
+        let mut config = crate::ExecutorConfig::new(ws.join("apps/web"), ws.join("apps/web/.next"));
+        assert_eq!(
+            config.fs_policy().resolve_read(linked),
+            Err(FsDenied::OutsideRoots),
+            "without a workspace root the linked package is outside the sandbox"
+        );
+
+        config.workspace_dir = Some(ws.clone());
+        let policy = config.fs_policy();
+        assert!(policy.resolve_read(linked).is_ok());
+        for denied in [
+            ws.join(".env"),
+            ws.join("package.json"),
+            ws.join("apps/web/.env.local"),
+            ws.join("node_modules/escape"),
+            ws.join("node_modules/../.env"),
+        ] {
+            assert_eq!(
+                policy.resolve_read(denied.to_str().unwrap()),
+                Err(FsDenied::OutsideRoots),
+                "{}",
+                denied.display()
+            );
+        }
+    }
+
     #[test]
     fn rejects_symlinks_escaping_roots() {
         let base = temp_tree();

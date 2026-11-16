@@ -477,6 +477,20 @@
           }
         }
       }
+      // Next's pipeToNodeResponse resolves once it has called res.end(),
+      // while chunks may still wait for the response's buffer budget (they
+      // reach Rust, and then End, only as the consumer drains them: _final
+      // runs after the last write). Node keeps the connection past the
+      // handler; here the request ends with op_nextrs_request_done, which
+      // would drop what is still queued. Wait for the response to finish,
+      // or for the request to stop mattering.
+      if (res.writableEnded && !res.writableFinished && !res.destroyed) {
+        const done = new Promise((resolve) => {
+          res.once("finish", resolve);
+          res.once("close", resolve);
+        });
+        await Promise.race([done, cancelled]);
+      }
       if (pending.length > 0) {
         const settled = await Promise.race([Promise.allSettled(pending), cancelled]);
         if (Array.isArray(settled)) {
@@ -1238,7 +1252,32 @@
     if (boot.faultInjection) {
       Object.defineProperty(globalThis, "__nextrsFault", { value: (kind) => ops.op_nextrs_fault(kind) });
     }
-    ops.op_nextrs_ready(null);
-    loop().catch((error) => core.reportUnhandledException(error));
+    registerInstrumentation().then(
+      () => {
+        ops.op_nextrs_ready(null);
+        loop().catch((error) => core.reportUnhandledException(error));
+      },
+      (error) => ops.op_nextrs_ready(`instrumentation register() failed: ${errorText(error)}`),
+    );
   };
+
+  // next start runs `instrumentation.register()` once while the server
+  // starts (an application validates its environment there and exits on a
+  // bad one); route handlers otherwise run it lazily on their first
+  // request. Each isolate is a server here: register before it is ready,
+  // through Next's own once-only entry point, so the handlers' later calls
+  // reuse the same promise. A failure (or process.exit, which the runtime
+  // refuses) fails the isolate's bootstrap: NextRS does not start.
+  async function registerInstrumentation() {
+    if (!boot.bootstrap) return;
+    let globals;
+    try {
+      globals = rootRequire("next/dist/server/lib/router-utils/instrumentation-globals.external.js");
+    } catch {
+      // Older Next.js: the handlers register lazily, as before.
+      return;
+    }
+    if (typeof globals?.ensureInstrumentationRegistered !== "function") return;
+    await globals.ensureInstrumentationRegistered(boot.projectDir, path.relative(boot.projectDir, distDir));
+  }
 })(globalThis);

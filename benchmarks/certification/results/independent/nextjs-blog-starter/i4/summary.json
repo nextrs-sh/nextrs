@@ -1,0 +1,262 @@
+{
+  "app": "nextjs-blog-starter",
+  "commit": "54b876b6b161b0ecda19562eb264bec637e60d6d",
+  "nextrsCommit": "90bf59e2b57d40e6f73935a2f47c17affeb98af3",
+  "isolates": 4,
+  "startupMs": {
+    "next": 418,
+    "nextrs": 2
+  },
+  "total": 13,
+  "passed": 13,
+  "failed": 0,
+  "results": [
+    {
+      "name": "home",
+      "method": "GET",
+      "path": "/",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 7,
+        "bytes": 24228,
+        "digest": "a9db89fc8d85476a"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 24228,
+        "digest": "a9db89fc8d85476a"
+      }
+    },
+    {
+      "name": "post-hello-world",
+      "method": "GET",
+      "path": "/posts/hello-world",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 9,
+        "bytes": 22436,
+        "digest": "126fc5f7d7a3c49f"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 3,
+        "bytes": 22436,
+        "digest": "126fc5f7d7a3c49f"
+      }
+    },
+    {
+      "name": "post-dynamic-routing",
+      "method": "GET",
+      "path": "/posts/dynamic-routing",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 7,
+        "bytes": 22169,
+        "digest": "ed8141da68b6829c"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 1,
+        "bytes": 22169,
+        "digest": "ed8141da68b6829c"
+      }
+    },
+    {
+      "name": "post-preview",
+      "method": "GET",
+      "path": "/posts/preview",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 7,
+        "bytes": 22060,
+        "digest": "1ac3c4b95e5ffd61"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 1,
+        "bytes": 22060,
+        "digest": "1ac3c4b95e5ffd61"
+      }
+    },
+    {
+      "name": "post-rsc",
+      "method": "GET",
+      "path": "/posts/preview",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 307,
+        "ms": 3,
+        "bytes": 0,
+        "digest": "e3b0c44298fc1c14"
+      },
+      "nextrs": {
+        "status": 307,
+        "ms": 2,
+        "bytes": 0,
+        "digest": "e3b0c44298fc1c14"
+      }
+    },
+    {
+      "name": "missing-post",
+      "method": "GET",
+      "path": "/posts/does-not-exist",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 500,
+        "ms": 91,
+        "bytes": 8896,
+        "digest": "0cc047e2f317ca97"
+      },
+      "nextrs": {
+        "status": 500,
+        "ms": 133,
+        "bytes": 8896,
+        "digest": "0cc047e2f317ca97"
+      }
+    },
+    {
+      "name": "unknown-path",
+      "method": "GET",
+      "path": "/nope",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 404,
+        "ms": 7,
+        "bytes": 14887,
+        "digest": "6ade658b734fc353"
+      },
+      "nextrs": {
+        "status": 404,
+        "ms": 2,
+        "bytes": 14887,
+        "digest": "6ade658b734fc353"
+      }
+    },
+    {
+      "name": "cover-image",
+      "method": "GET",
+      "path": "/assets/blog/hello-world/cover.jpg",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 7,
+        "bytes": 100455,
+        "digest": "9bf97b40d091c94b"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 5,
+        "bytes": 100455,
+        "digest": "9bf97b40d091c94b"
+      }
+    },
+    {
+      "name": "image-optimizer",
+      "method": "GET",
+      "path": "/_next/image?url=%2Fassets%2Fblog%2Fhello-world%2Fcover.jpg&w=640&q=75",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 20,
+        "bytes": 4696,
+        "digest": "be911cd0819a1fe5"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 25,
+        "bytes": 4693,
+        "digest": "1a95c0e112340e48"
+      }
+    },
+    {
+      "name": "image-bad-width",
+      "method": "GET",
+      "path": "/_next/image?url=%2Fassets%2Fblog%2Fhello-world%2Fcover.jpg&w=641&q=75",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 400,
+        "ms": 2,
+        "bytes": 43,
+        "digest": "8b68a08ccef1566d"
+      },
+      "nextrs": {
+        "status": 400,
+        "ms": 2,
+        "bytes": 43,
+        "digest": "8b68a08ccef1566d"
+      }
+    },
+    {
+      "name": "post-to-prerendered-dynamic-route",
+      "method": "POST",
+      "path": "/posts/hello-world",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 5,
+        "bytes": 22436,
+        "digest": "126fc5f7d7a3c49f"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 22436,
+        "digest": "126fc5f7d7a3c49f"
+      }
+    },
+    {
+      "name": "head-home",
+      "method": "HEAD",
+      "path": "/",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 5,
+        "bytes": 0,
+        "digest": "e3b0c44298fc1c14"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 1,
+        "bytes": 0,
+        "digest": "e3b0c44298fc1c14"
+      }
+    },
+    {
+      "name": "post-to-static-route",
+      "method": "POST",
+      "path": "/",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 405,
+        "ms": 2,
+        "bytes": 18,
+        "digest": "e3933184560739b7"
+      },
+      "nextrs": {
+        "status": 405,
+        "ms": 1,
+        "bytes": 18,
+        "digest": "e3933184560739b7"
+      }
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "name": "velasia-airways",
+  "description": "Velasia Airways: Next.js 16 App Router storefront (Cache Components, PPR, Server Actions) with an independent Fastify retailing API that owns a TalaDB order store. Read-only compatibility target.",
+  "repository": "https://github.com/nextrs-sh/velasia-airways.git",
+  "commit": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+  "readOnly": true,
+  "toolchain": {
+    "node": "24.18.0",
+    "nodeEngines": ">=22.22.2",
+    "nodeCi": "22.22.2",
+    "pnpm": "10.23.0"
+  },
+  "install": ["pnpm", "install", "--frozen-lockfile"],
+  "build": ["pnpm", "build"],
+  "buildEnv": {
+    "NEXT_TELEMETRY_DISABLED": "1",
+    "TURBO_TELEMETRY_DISABLED": "1"
+  },
+  "app": {
+    "dir": "apps/web",
+    "standaloneDir": "apps/web/.next/standalone/apps/web"
+  },
+  "ports": { "api": 4210, "web": 3200 },
+  "today": "2026-12-01",
+  "api": {
+    "command": ["pnpm", "--filter", "@velasia/retailing-api", "start"],
+    "health": "/health",
+    "startupTimeoutMs": 60000,
+    "databaseEnv": "TALADB_PATH",
+    "env": {
+      "RETAILING_API_HOST": "127.0.0.1",
+      "LOG_LEVEL": "warn",
+      "RETAILING_API_FAULTS": "enabled",
+      "RETAILING_API_FAULT_TIMEOUT_MS": "10000",
+      "PAYMENT_OUTCOME_CONTROLS": "enabled",
+      "PAYMENT_PROVIDER_DELAY_MS": "150",
+      "PAYMENT_PROVIDER_TIMEOUT_MS": "1500",
+      "PAYMENT_PENDING_RESOLVE_MS": "1500",
+      "ORDER_SWEEP_INTERVAL_MS": "600000"
+    },
+    "envSource": "playwright.config.ts webServer[0] (copied, not imported)"
+  },
+  "web": {
+    "health": "/api/internal/health/ready",
+    "startupTimeoutMs": 120000,
+    "env": {
+      "VELASIA_TODAY": "2026-12-01",
+      "RETAILING_API_FORWARD_FAULTS": "enabled",
+      "VELASIA_ALLOW_TEST_CONTROLS": "enabled",
+      "RETAILING_API_TIMEOUT_MS": "2500"
+    },
+    "envSource": "playwright.config.ts webServer[1] (copied, not imported); SITE_URL and RETAILING_API_URL are derived from the ports",
+    "baseline": {
+      "description": "Official Next.js standalone server, exactly as Velasia's own E2E and production image run it",
+      "command": ["node", "apps/web/.next/standalone/apps/web/server.js"],
+      "env": { "NODE_ENV": "production" }
+    },
+    "nextrs": {
+      "description": "NextRS serving the same standalone directory; environment exposed explicitly, outbound fetch limited to the API",
+      "args": [
+        "start",
+        "{standaloneDir}",
+        "--js-runtime", "embedded-v8",
+        "--port", "{webPort}",
+        "--isolates", "{isolates}",
+        "--net-allow", "http://127.0.0.1:{apiPort}",
+        "--net-allow-addr", "127.0.0.1",
+        "--metrics-addr", "127.0.0.1:{metricsPort}"
+      ]
+    }
+  },
+  "e2e": {
+    "command": ["pnpm", "exec", "playwright", "test"],
+    "note": "playwright.config.ts reuses servers that already answer on the E2E ports when CI is unset; the runner starts them itself and never sets CI.",
+    "args": ["--retries=0", "--reporter=list,json"]
+  }
+}

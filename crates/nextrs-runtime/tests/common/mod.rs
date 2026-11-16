@@ -24,6 +24,7 @@ pub fn config(limits: Limits) -> ExecutorConfig {
     ExecutorConfig {
         dist_dir: project.join("dist"),
         project_dir: project,
+        workspace_dir: None,
         env,
         bootstrap: None,
         trace_node_api: false,

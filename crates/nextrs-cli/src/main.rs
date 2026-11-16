@@ -630,6 +630,13 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                         ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
                     config.limits = limits.executor_limits();
                     config.build_route_cache = info.route_cache_files();
+                    if let Some(root) = &info.workspace_root {
+                        tracing::info!(
+                            packages = %root.join("node_modules").display(),
+                            "monorepo build: the workspace root's packages are readable"
+                        );
+                        config.workspace_dir = Some(root.clone());
+                    }
                     if let Some(network) = &network {
                         let allow: Vec<String> = network
                             .policy
@@ -804,6 +811,9 @@ fn render_report(info: &BuildInfo) -> String {
     let detected = |yes: bool| if yes { "detected" } else { "not detected" };
     let _ = writeln!(out, "NextRS Inspector\n");
     let _ = writeln!(out, "Project:          {}", info.project_dir.display());
+    if let Some(root) = &info.workspace_root {
+        let _ = writeln!(out, "Workspace root:   {} (monorepo)", root.display());
+    }
     match &info.next_version {
         Some(v) => {
             let _ = writeln!(out, "Next.js version:  {} (from {})", v.version, v.source);

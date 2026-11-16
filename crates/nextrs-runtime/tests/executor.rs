@@ -21,6 +21,7 @@ fn executor() -> Arc<Executor> {
     Executor::start(ExecutorConfig {
         dist_dir: project.join("dist"),
         project_dir: project,
+        workspace_dir: None,
         env,
         bootstrap: None,
         trace_node_api: false,

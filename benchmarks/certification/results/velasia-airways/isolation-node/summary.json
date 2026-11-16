@@ -1,0 +1,47 @@
+{
+  "meta": {
+    "app": "velasia-airways",
+    "commit": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+    "runtime": "node",
+    "isolates": null,
+    "nextrsCommit": "90bf59e2b57d40e6f73935a2f47c17affeb98af3",
+    "nextrsDirty": true,
+    "node": "v24.18.0",
+    "startupMs": 533,
+    "wallMs": 35663,
+    "exitCode": 0,
+    "integrity": {
+      "head": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+      "pinned": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+      "headMatchesPin": true,
+      "modifiedTrackedFiles": [],
+      "diffAgainstPin": "",
+      "untrackedNotIgnored": [],
+      "clean": true
+    }
+  },
+  "stats": {
+    "startTime": "2026-11-16T11:38:11.118Z",
+    "duration": 34647.801999999996,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "flaky": 0,
+  "skipped": 0,
+  "failures": [],
+  "tests": [
+    {
+      "file": "isolation.spec.ts",
+      "title": "concurrent customers never see each other’s data",
+      "project": "",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 33864
+    }
+  ]
+}
