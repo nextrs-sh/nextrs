@@ -132,6 +132,8 @@ deno_core::extension!(
         op_nextrs_fs_readdir,
         op_nextrs_fs_realpath,
         op_nextrs_hash,
+        op_nextrs_zlib,
+        op_nextrs_cpu_usage,
         op_nextrs_random_fill,
         op_nextrs_vm_run_in_new_context,
         op_nextrs_fetch_start,
@@ -620,6 +622,71 @@ fn op_nextrs_hash(#[string] algorithm: &str, #[buffer] data: &[u8]) -> Result<Ve
             )));
         }
     })
+}
+
+/// node:zlib's one-shot codecs: `deflate`/`inflate` (zlib format),
+/// `deflateRaw`/`inflateRaw`, `gzip`/`gunzip`, and `unzip` (zlib or gzip,
+/// detected from the header, as Node's Unzip does). Output beyond
+/// `max_output` bytes fails, as Node's `maxOutputLength` does.
+#[op2]
+#[buffer]
+fn op_nextrs_zlib(
+    #[string] mode: &str,
+    #[buffer] data: &[u8],
+    level: i32,
+    #[number] max_output: u64,
+) -> Result<Vec<u8>, JsErrorBox> {
+    use flate2::Compression;
+    use flate2::read::{
+        DeflateDecoder, DeflateEncoder, GzDecoder, GzEncoder, ZlibDecoder, ZlibEncoder,
+    };
+    use std::io::Read;
+    let level = if (0..=9).contains(&level) {
+        Compression::new(level as u32)
+    } else {
+        Compression::default()
+    };
+    let reader: Box<dyn Read + '_> = match mode {
+        "deflate" => Box::new(ZlibEncoder::new(data, level)),
+        "inflate" => Box::new(ZlibDecoder::new(data)),
+        "deflateRaw" => Box::new(DeflateEncoder::new(data, level)),
+        "inflateRaw" => Box::new(DeflateDecoder::new(data)),
+        "gzip" => Box::new(GzEncoder::new(data, level)),
+        "gunzip" => Box::new(GzDecoder::new(data)),
+        "unzip" if data.starts_with(&[0x1f, 0x8b]) => Box::new(GzDecoder::new(data)),
+        "unzip" => Box::new(ZlibDecoder::new(data)),
+        other => {
+            return Err(JsErrorBox::generic(format!(
+                "ERR_NEXTRS_UNSUPPORTED: zlib mode '{other}' is not supported"
+            )));
+        }
+    };
+    let mut out = Vec::new();
+    let read = reader
+        .take(max_output.saturating_add(1))
+        .read_to_end(&mut out)
+        .map_err(|error| JsErrorBox::generic(format!("ERR_ZLIB: {error}")))?;
+    if read as u64 > max_output {
+        return Err(JsErrorBox::generic(format!(
+            "ERR_BUFFER_TOO_LARGE: output exceeds maxOutputLength ({max_output} bytes)"
+        )));
+    }
+    Ok(out)
+}
+
+/// `process.cpuUsage()`: user and system CPU time of the whole process, in
+/// microseconds (getrusage, as Node's uv_getrusage). Written into `out`.
+#[op2(fast)]
+fn op_nextrs_cpu_usage(#[buffer] out: &mut [f64]) {
+    // SAFETY: getrusage writes a plain struct; zeroed is a valid initial value.
+    let mut usage: libc::rusage = unsafe { std::mem::zeroed() };
+    // SAFETY: a valid pointer to a rusage struct.
+    if unsafe { libc::getrusage(libc::RUSAGE_SELF, &mut usage) } != 0 || out.len() < 2 {
+        return;
+    }
+    let micros = |t: libc::timeval| t.tv_sec as f64 * 1e6 + t.tv_usec as f64;
+    out[0] = micros(usage.ru_utime);
+    out[1] = micros(usage.ru_stime);
 }
 
 #[op2(fast)]

@@ -309,6 +309,19 @@
       return this.#refed;
     }
 
+    // Node's libuv timestamp of when the timer was scheduled; its timer list
+    // (deno_core's is a port) decides expiry from it. Next.js (16.4+,
+    // app-render-scheduling.js) copies one timer's value onto the others of
+    // a render-stage group so they all fire in the same timer phase, and
+    // warns that Cache Components cannot be guaranteed without it.
+    get _idleStart() {
+      return this[kTimer]._idleStart;
+    }
+
+    set _idleStart(value) {
+      this[kTimer]._idleStart = value;
+    }
+
     refresh() {
       core.refreshTimer(this[kTimer]);
       return this;
@@ -501,7 +514,20 @@
       },
       { rss: () => core.memoryUsage().physicalTotal },
     ),
-    cpuUsage: () => unsupported("process", "cpuUsage"),
+    // The whole process's CPU time, as Node reports it (every isolate shares
+    // the process, as worker threads share Node's).
+    cpuUsage(previous) {
+      const now = new Float64Array(2);
+      ops.op_nextrs_cpu_usage(now);
+      const usage = { user: now[0], system: now[1] };
+      if (previous === undefined) return usage;
+      if (typeof previous?.user !== "number" || typeof previous?.system !== "number") {
+        const error = new TypeError('The "prevValue" argument must be of type object with numeric user and system');
+        error.code = "ERR_INVALID_ARG_TYPE";
+        throw error;
+      }
+      return { user: usage.user - previous.user, system: usage.system - previous.system };
+    },
     emitWarning(warning, type) {
       const message = typeof warning === "string" ? warning : warning?.message;
       core.print(`(nextrs) ${type && typeof type === "string" ? type : "Warning"}: ${message}\n`, true);

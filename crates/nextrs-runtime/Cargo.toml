@@ -21,6 +21,8 @@ deno_core = "=0.413.0"
 deno_error = "=0.7.1"
 deno_web = "=0.291.0"
 deno_webidl = "=0.260.0"
+# node:zlib's synchronous codecs (Next.js inflates the PPR resume data cache).
+flate2 = "1.1"
 futures-util.workspace = true
 getrandom = "0.3"
 hyper.workspace = true

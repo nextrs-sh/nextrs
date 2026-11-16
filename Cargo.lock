@@ -2185,6 +2185,7 @@ checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
 name = "nextrs-adapter"
 version = "0.0.0"
 dependencies = [
+ "fancy-regex",
  "regex",
  "serde",
  "serde_json",
@@ -2239,6 +2240,7 @@ dependencies = [
  "deno_web",
  "deno_webidl",
  "der",
+ "flate2",
  "futures-util",
  "getrandom 0.3.4",
  "hkdf",
