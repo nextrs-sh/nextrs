@@ -45,9 +45,9 @@ output** from a single Rust process.
 - **Resources are explicit.** Isolate pools, queues, timeouts, body sizes and
   outbound network access are bounded and set from the command line.
 
-These are design goals. The [early benchmarks](#performance-benchmarks) cover
-one small workload, so NextRS makes no general claim to be faster or lighter
-than `next start`.
+These are design goals. The [benchmarks](#performance-benchmarks) cover 24
+workloads on test fixtures and one machine, so NextRS makes no general claim
+to be faster or lighter than `next start`.
 
 ## Features
 
@@ -92,23 +92,44 @@ Rust store shared by every isolate.
 
 ## Performance Benchmarks
 
-Early measurements comparing NextRS with the official Next.js server
-(`next start`) on identical build output.
+NextRS compared with the official Next.js server (`next start`), both
+serving the same `.next` build. The measurements cover 24 workloads; these
+charts show two of them.
 
 <p align="center">
   <picture>
     <source media="(max-width: 600px)" srcset=".github/assets/nextrs-benchmarks-mobile.svg">
-    <img src=".github/assets/nextrs-benchmarks.svg" width="100%" alt="Preliminary benchmarks, historical Phase 1A measurement from 2026-11-03: dynamic SSR of /books/42 with Next.js 16.4.3 at 32 concurrent requests, median of 3 runs. Throughput: NextRS 648 req/s, next start 453 req/s. p95 latency: NextRS 58.5 ms, next start 79.9 ms. Process-tree RSS after load: NextRS 222.8 MiB, next start 268.8 MiB. Server CPU per request: NextRS 1.88 ms, next start 2.38 ms.">
+    <img src=".github/assets/nextrs-benchmarks.svg" width="100%" alt="Measured 2026-11-16 on NextRS 6c1101d, Next.js 16.4.3: Dynamic App Router SSR (/books/[id]); throughput, CPU and memory in a closed loop with 32 connections, p95 latency in an open loop at an equal offered rate; median of 3 interleaved rounds on one machine. Throughput: next start 654 req/s, NextRS · 1 isolate 781 req/s, NextRS · 4 isolates 2,074 req/s. p95 latency: next start 5.25 ms, NextRS · 1 isolate 2.89 ms. Anonymous memory: next start 348 MiB, NextRS · 1 isolate 156 MiB. CPU per request: next start 1.80 ms, NextRS · 1 isolate 1.64 ms.">
+  </picture>
+</p>
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset=".github/assets/nextrs-benchmarks-pages-ssr-mobile.svg">
+    <img src=".github/assets/nextrs-benchmarks-pages-ssr.svg" width="100%" alt="Measured 2026-11-16 on NextRS 6c1101d, Next.js 16.4.3: Pages Router getServerSideProps (no proxy match) (/ssr/whoami); throughput, CPU and memory in a closed loop with 32 connections, p95 latency in an open loop at an equal offered rate; median of 3 interleaved rounds on one machine. Throughput: next start 1,484 req/s, NextRS · 1 isolate 1,722 req/s, NextRS · 4 isolates 3,645 req/s. p95 latency: next start 3.12 ms, NextRS · 1 isolate 5.11 ms. Anonymous memory: next start 292 MiB, NextRS · 1 isolate 120 MiB. CPU per request: next start 0.78 ms, NextRS · 1 isolate 0.82 ms.">
   </picture>
 </p>
 
 > [!NOTE]
-> **Benchmark notice.** These are historical results from 2026-11-03
-> (Phase 1A, commit `b43a255`), not measurements of the current commit. They
-> cover one dynamic page of a small fixture (Next.js 16.4.3, 32 concurrent
-> requests, one V8 isolate) on a single machine, with the load generator on
-> the same host. They do not represent production performance or other
-> workloads. See [benchmark methodology and raw data](engineering/benchmarks.md).
+> **Benchmark notice.**
+> - **When and what:**
+>   - Measured on 2026-11-16.
+>   - NextRS `6c1101d`, Next.js 16.4.3, Node.js 24.18.0.
+>   - One Intel Core i5-9400F host: the server on 4 CPUs, the load
+>     generator on 2 others.
+> - **How:**
+>   - Closed loop with 32 connections for throughput, CPU and memory.
+>   - Open loop at an equal offered rate for p95 latency.
+>   - 3 interleaved rounds, medians reported.
+> - **Results are mixed.**
+>   - On Pages SSR, NextRS with one isolate has a higher p95 and slightly
+>     more CPU per request than `next start`.
+>   - `next start` transforms images faster.
+>
+> All 24 workloads, the method, the regressions, the raw data and the
+> reproduction steps are in [engineering/benchmarks.md](engineering/benchmarks.md).
+> Results are specific to the tested workloads, hardware, and runtime
+> configurations. They are not guarantees of production performance.
 
 ## Quick Start
 

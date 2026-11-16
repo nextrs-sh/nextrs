@@ -4,25 +4,208 @@ Measurements of NextRS against the official Next.js server (`next start`),
 with their method, conditions and raw data.
 
 > [!IMPORTANT]
-> **These are historical, preliminary results.** The figures below were
-> measured on 2026-11-03, at the Phase 0 and Phase 1A stage of NextRS. They
-> have **not** been re-measured on the current commit, and NextRS has changed
-> a lot since then (isolate pool, caching, Server Actions, ISR, proxy,
-> images). They describe one small fixture on one machine. They are not a
-> measure of production performance, and they do not show that NextRS is
-> faster than `next start` for other applications or workloads.
+> Results are specific to the tested workloads, hardware, and runtime
+> configurations. They are not guarantees of production performance.
 
-- [Summary](#summary)
-- [Environment](#environment)
-- [Method](#method)
-- [Dynamic rendering results](#dynamic-rendering-results)
-- [Static serving results](#static-serving-results)
-- [Limitations](#limitations)
-- [Reproducing](#reproducing)
-- [Other benchmark data](#other-benchmark-data)
-- [Benchmark drivers](#benchmark-drivers)
+- [Current results (Phase 3A, 2026-11-16)](#current-results-phase-3a-2026-11-16)
+  - [Environment](#environment)
+  - [Method](#method)
+  - [Results](#results)
+  - [Where NextRS is not ahead](#where-nextrs-is-not-ahead)
+  - [Reproducing](#reproducing)
+- [Historical results (Phase 1A, 2026-11-03)](#historical-results-phase-1a-2026-11-03)
 
-## Summary
+## Current results (Phase 3A, 2026-11-16)
+
+The README charts come from this run: Dynamic App Router SSR
+(`/books/[id]`) and Pages Router `getServerSideProps` (`/ssr/whoami`).
+All 24 workloads are listed below.
+
+Raw data: [`benchmarks/results/phase3a/matrix-final-6c1101d/`](../benchmarks/results/phase3a/matrix-final-6c1101d/)
+(`rows.jsonl` holds one row per cell, with every round;
+`environment.json` records the conditions; `summary.md` and the
+`compare-*.md` files hold the tables with bootstrap intervals).
+
+### Environment
+
+| | |
+|---|---|
+| Date | 2026-11-16 |
+| NextRS | `6c1101d` (release profile, default allocator) |
+| Next.js | 16.4.3, the same `.next` build served by both servers |
+| Node.js | 24.18.0 (for `next start`) |
+| CPU | Intel Core i5-9400F, 6 cores, `performance` governor, turbo on |
+| Memory | 16 GiB, no cgroup limit |
+| Kernel | Linux 7.3 |
+| Placement | server on CPUs 0–3, load generator on CPUs 4–5, one host |
+| Load generator | `benchmarks/loadgen` (Rust, HTTP/1.1 keep-alive); checks every response body |
+
+### Method
+
+- **Configurations.**
+  - `next start`.
+  - NextRS with 1, 2 and 4 V8 isolates.
+  - NextRS at `964995c` (the Phase 2G release) with 1 isolate, as the
+    baseline.
+
+  Isolates are parallelism within the same 4 CPUs. NextRS with 1 isolate
+  runs JavaScript on one thread, as `next start` does.
+- **Runs.**
+  - 3 rounds per workload.
+  - Configurations run interleaved, in a shuffled order each round.
+  - Each run uses a new server process.
+  - Medians are reported. Differences count only when the 95 % bootstrap
+    interval of the ratio excludes 1.
+- **Closed loop:** 32 connections, 5 s warm-up, 10 s measured. Used for
+  throughput, CPU per request and memory.
+- **Open loop:** a fixed arrival rate, the same for every configuration,
+  equal to half of the slowest configuration's closed-loop throughput.
+  Latency is coordinated-omission-aware. Used for p95 latency.
+- **Correctness checks.** Each response is checked against an expected
+  body. A run with any failed check, or failed oracle preflight, is
+  invalid. All 720 cells of this run were valid.
+- **Load-limited cells (⚑).** On the three cheapest workloads the load
+  generator saturates before NextRS, so those figures are lower bounds.
+- **CPU** is process-tree user plus system time, divided by the number of
+  requests.
+- **Anonymous RSS** is the process tree's anonymous memory after load. It
+  excludes file-backed pages of the binary and of `node_modules`.
+
+### Results
+
+Medians of 3 rounds. ⚑: load generator limited, so req/s is a lower bound.
+
+| Workload | `next start` req/s | NextRS 1 isolate req/s | NextRS 4 isolates req/s | CPU ms/req `next start` → NextRS 1 | open-loop p95 ms `next start` → NextRS 1 | anon RSS MiB `next start` → NextRS 1 |
+|---|---:|---:|---:|---|---|---|
+| app/static-file | 9,831 | 68,368 | 68,014 | 0.127 → 0.053 | 0.41 → 0.22 | 268 → 25 |
+| app/prerendered | 3,117 | 121,896 ⚑ | 122,034 ⚑ | 0.335 → 0.022 | 0.64 → 0.30 | 294 → 23 |
+| app/ssr | 654 | 781 | 2,074 | 1.800 → 1.642 | 5.25 → 2.89 | 348 → 156 |
+| app/ssr-identity | 705 | 886 | 2,256 | 1.650 → 1.473 | 4.37 → 2.88 | 359 → 146 |
+| app/rsc | 1,022 | 1,485 | 4,434 | 1.098 → 0.830 | 1.52 → 1.35 | 400 → 146 |
+| app/streaming | 499 | 481 | 503 | 1.953 → 1.954 | 64.35 → 64.42 | 416 → 140 |
+| app/action | 1,260 | 2,587 | 4,756 | 0.949 → 0.634 | 4.72 → 1.39 | 426 → 145 |
+| app/action-multipart | 1,387 | 2,585 | 6,009 | 0.809 → 0.564 | 1.27 → 1.06 | 430 → 147 |
+| app/isr-hit | 2,753 | 4,841 | 10,916 | 0.379 → 0.293 | 0.68 → 0.79 | 432 → 140 |
+| app/isr-regenerating | 2,999 | 5,782 | 12,631 | 0.350 → 0.253 | 0.64 → 0.73 | 432 → 144 |
+| cache-components/use-cache-hit | 477 | 614 | 1,396 | 2.516 → 2.150 | 6.62 → 6.81 | 369 → 165 |
+| proxy/proxy-matched-ssr | 509 | 666 | 1,476 | 2.327 → 2.028 | 3.56 → 3.37 | 373 → 153 |
+| proxy/proxy-matched-static | 1,485 | 6,244 | 11,482 | 0.739 → 0.312 | 1.14 → 0.73 | 413 → 141 |
+| proxy/proxy-unmatched | 2,789 | 124,465 ⚑ | 121,663 ⚑ | 0.354 → 0.028 | 0.67 → 0.32 | 415 → 49 |
+| auth/jwt-valid | 456 | 598 | 1,428 | 2.707 → 2.239 | 4.10 → 3.25 | 581 → 155 |
+| auth/jwt-rejected | 3,383 | 7,532 | 15,579 | 0.315 → 0.249 | 0.61 → 0.56 | 922 → 147 |
+| pages/pages-ssr | 1,484 | 1,722 | 3,645 | 0.780 → 0.820 | 3.12 → 5.11 | 292 → 120 |
+| pages/pages-ssr-proxied | 947 | 1,261 | 2,900 | 1.192 → 1.152 | 1.55 → 1.91 | 333 → 138 |
+| pages/pages-api-get | 4,012 | 8,056 | 17,011 | 0.267 → 0.187 | 0.57 → 0.54 | 356 → 126 |
+| pages/pages-api-post | 1,870 | 3,909 | 7,354 | 0.606 → 0.411 | 0.95 → 0.90 | 356 → 132 |
+| pages/pages-data | 1,629 | 2,823 | 6,418 | 0.675 → 0.544 | 1.01 → 1.01 | 357 → 135 |
+| image/image-hit | 7,700 | 76,303 ⚑ | 94,202 ⚑ | 0.141 → 0.036 | 2.15 → 0.19 | 273 → 21 |
+| image/image-transform | 85 | 56 | 57 | 45.523 → 36.370 | 50.53 → 36.58 | 396 → 33 |
+| mixed/mixed | 1,200 | 2,093 | 2,259 | 0.997 → 1.257 | 6.00 → 7.48 | 397 → 156 |
+
+Against the Phase 2G baseline (`964995c`), with 1 isolate:
+- Pages SSR throughput: +21.5 %.
+- App SSR throughput: +11.9 %.
+- ISR throughput: +54–65 %.
+- Instructions per request on JavaScript workloads: 10–53 % lower.
+
+Significant regressions against the baseline (95 % interval excludes no
+change):
+- **Pages SSR p99, open loop.**
+  - Behind the proxy: 4.9 → 6.5 ms (+34 %), in all three rounds. The p95
+    did not get worse (2.04 → 1.91 ms). The cause is not yet known.
+  - Without the proxy: +7.9 %.
+- **Small throughput regressions, closed loop.**
+  - Streaming: −1.3 %.
+  - Image transformation: −2.4 %, with unchanged instructions per request.
+    At an equal offered rate both are unchanged.
+- **Memory.**
+  - Peak RSS is 2–10 % higher on several workloads. End-of-run anonymous
+    memory is within noise on most, and +1.5–3.4 % on Pages data and API
+    POST.
+  - The open-loop peak on proxy-unmatched is about 70 MiB higher, during
+    the run only. End-of-run anonymous memory is unchanged (66–81 vs
+    64–73 MiB).
+- **Mixed closed-loop p99.** It doubles. See
+  [the mixed workload](#where-nextrs-is-not-ahead) below.
+
+All comparisons are in
+[`compare-base-vs-current-i1-closed.md`](../benchmarks/results/phase3a/matrix-final-6c1101d/compare-base-vs-current-i1-closed.md)
+and the `-open` variant.
+
+### Where NextRS is not ahead
+
+- **Image transformation (`image-transform`).** `next start` completes more
+  transforms per second (85 vs 56). NextRS limits concurrent
+  transformations to bound memory: anonymous RSS is 33 MiB against
+  396 MiB. At an equal offered rate, NextRS has the lower p95 (36.6 vs
+  50.5 ms).
+- **Pages SSR latency at low load.** `/ssr/whoami` awaits
+  `setTimeout(resolve, 0)` in `getServerSideProps`. At 708 req/s, NextRS's
+  p50 is about 1 ms higher (3.5 vs 2.5 ms), and its p95 is 5.1 vs 3.1 ms,
+  with equal CPU per request. The extra time comes before the first byte.
+  The likely cause, not yet confirmed, is that a NextRS timer fires about
+  a millisecond later than Node's. The Pages SSR page behind the proxy
+  does not wait on a timer and is within 0.1 ms of `next start` at p50.
+  Its p95 is higher (1.91 vs 1.55 ms).
+- **Small p95 differences.** ISR hits, `use cache` hits and Pages SSR
+  behind the proxy have a p95 0.1–0.4 ms higher than `next start` at equal
+  load.
+- **Mixed workload.**
+  - CPU per request in the closed loop is higher: 1.26 vs 1.00 ms.
+  - NextRS completes more of everything, including image work that
+    `next start` serves more slowly.
+  - Closed-loop p99 is dominated by image transforms waiting for the two
+    transformation slots.
+  - At an equal offered rate, image-miss p99 is unchanged from the
+    baseline: 14.2 ms on `964995c`, 14.4–15.0 ms on `6c1101d`.
+- **Streaming.** The page waits on timers for about 64 ms, so throughput is
+  equal across servers.
+- **Isolate scaling.**
+  - 4 isolates reach 2.1–3.6× the 1-isolate throughput on rendering
+    workloads, not 4×.
+  - The isolates share 4 CPUs with the HTTP server threads and with V8's
+    GC helpers.
+  - Scavenge pauses roughly double at 4 isolates.
+
+### Reproducing
+
+Requires Linux, Rust, Node.js 24, `perf` and `taskset`. Run from the
+repository root.
+
+```sh
+# 1. Build the NextRS binary under test and the load generator
+cargo build --release -p nextrs-cli
+cargo build --release --manifest-path benchmarks/loadgen/Cargo.toml
+
+# 2. Build the benchmark fixtures (same .next output for both servers)
+benchmarks/phase3a/build-fixtures.sh
+
+# 3. Run the matrix
+#    Optional: add a baseline build with --nextrs-b PATH --label-b NAME --isolates-b 1
+node benchmarks/phase3a/run.mjs --out benchmarks/results/phase3a/my-run \
+  --nextrs target/release/nextrs --label current --isolates 1,2,4 \
+  --rounds 3 --seed 21
+
+# 4. Tables and charts
+node benchmarks/phase3a/summarize.mjs benchmarks/results/phase3a/my-run
+node benchmarks/phase3a/compare.mjs benchmarks/results/phase3a/my-run --a next-start --b current-i1
+node benchmarks/phase3a/chart.mjs benchmarks/results/phase3a/my-run \
+  --workload app/ssr --configs next-start,current-i1,current-i4 --out /tmp
+```
+
+The full matrix takes about 3.5 hours. Use `--only ssr,pages-ssr` to run a
+subset. Set the CPU governor to `performance` and keep the machine
+otherwise idle.
+
+## Historical results (Phase 1A, 2026-11-03)
+
+> [!NOTE]
+> Kept for the record. These figures were measured at the Phase 0 and Phase
+> 1A stage (commit `b43a255`) and are superseded by the results above. Do
+> not compare them with the current numbers: the load generator and the
+> method differ.
+
+### Summary
 
 The README chart shows one workload: dynamic server-side rendering of
 `/books/42` (an App Router page with a route parameter) at 32 concurrent
@@ -41,7 +224,7 @@ entries with `"path": "/books/42"` and `"concurrency": 32`. The charts
 [`nextrs-benchmarks-mobile.svg`](../.github/assets/nextrs-benchmarks-mobile.svg)
 for narrow screens) are drawn from these values, with bars starting at zero.
 
-## Environment
+### Environment
 
 | | |
 |---|---|
@@ -57,7 +240,7 @@ for narrow screens) are drawn from these values, with bars starting at zero.
 
 Each result file records its own environment under `"environment"`.
 
-## Method
+### Method
 
 Both servers serve **the same `.next` build** of `fixtures/next-app`, on the
 same machine, one after another.
@@ -96,7 +279,7 @@ Reference hosts (a minimal Node.js host and the Deno CLI calling the same
 compiled handlers) were measured in the same run and are in the JSON file.
 They are omitted here because they are not deployable servers.
 
-## Dynamic rendering results
+### Dynamic rendering results
 
 NextRS with `--js-runtime embedded-v8` (one isolate), against `next start`.
 Same build, same equivalence gate.
@@ -133,7 +316,7 @@ failed requests.
 | `next start` | 381 | 442 | 122.9 |
 | NextRS | 113 | 219 | 61.7 |
 
-## Static serving results
+### Static serving results
 
 A separate workload: prerendered and hashed static responses, which NextRS
 answers from Rust without JavaScript. Measured on 2026-11-03 at Phase 0
@@ -159,7 +342,7 @@ measurement; treat the static figures as an upper bound on serving overhead,
 not as a comparable throughput number. The Phase 0 binary did not include
 V8 at all; a current NextRS with `--js-runtime embedded-v8` uses more memory.
 
-## Limitations
+### Limitations
 
 - **Historical:** NextRS has gained an isolate pool, a shared cache, ISR,
   Server Actions, `proxy.ts` and image optimization since these runs. Their
@@ -178,7 +361,7 @@ V8 at all; a current NextRS with `--js-runtime embedded-v8` uses more memory.
 - **Not production performance:** no TLS, no real network, no database or
   upstream services, no long-running traffic.
 
-## Reproducing
+### Reproducing
 
 The scripts are unchanged since these results were recorded. They need
 `ab` (ApacheBench), Python 3, Node.js and a release build of NextRS.
@@ -202,7 +385,7 @@ way, so the static benchmark only runs at its original commit.
 Run benchmarks on an otherwise idle machine, and compare results only within
 one run.
 
-## Other benchmark data
+### Other benchmark data
 
 Raw results in [`benchmarks/results`](../benchmarks/results/), all from the
 same machine:
@@ -217,7 +400,7 @@ same machine:
 
 Each file contains its configuration and every individual run.
 
-## Benchmark drivers
+### Benchmark drivers
 
 Drivers in [`benchmarks/`](../benchmarks/) run `next start`, NextRS and
 reference hosts against the same build. Each path's responses must be
