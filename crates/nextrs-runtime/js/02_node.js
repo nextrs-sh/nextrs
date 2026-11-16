@@ -1342,6 +1342,25 @@
     return kind(file) === "file" ? file : null;
   }
 
+  // Node resolves every module filename to its real path (Module._findPath's
+  // toRealPath; no --preserve-symlinks). A package linked into node_modules
+  // (pnpm, workspaces, output: 'standalone') then finds its own dependencies
+  // beside its real location, and one file reached through two links is one
+  // module (one React).
+  const realpathCache = new Map();
+  function toRealPath(file) {
+    if (!realpathCache.has(file)) {
+      let real = file;
+      try {
+        real = ops.op_nextrs_fs_realpath(file);
+      } catch {
+        // Unreachable for files found through the read policy; keep the path.
+      }
+      realpathCache.set(file, real);
+    }
+    return realpathCache.get(file);
+  }
+
   function tryExtensions(base) {
     for (const extension of EXTENSIONS) {
       const file = tryFile(base + extension);
@@ -1511,7 +1530,7 @@
           requireStack: parent?.filename ? [parent.filename] : [],
         });
       }
-      return resolved;
+      return toRealPath(resolved);
     }
 
     static _load(request, parent, isMain) {

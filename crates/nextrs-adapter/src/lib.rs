@@ -205,8 +205,16 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
             message: format!("routes-manifest rule without source or regex: {rule}"),
         });
     }
+    let workspace_root = workspace_root(
+        &project_dir,
+        required
+            .as_ref()
+            .and_then(|r| r.relative_app_dir.as_deref()),
+        &mut diagnostics,
+    );
     let mut info = BuildInfo {
         static_dir: dist_dir.join("static"),
+        workspace_root,
         project_dir,
         dist_dir,
         build_id,
@@ -253,6 +261,47 @@ fn locate(path: &Path) -> Result<(PathBuf, PathBuf), InspectError> {
         return Err(InspectError::NoBuildOutput { dist_dir: dist });
     }
     Ok((path, dist))
+}
+
+/// The workspace root of a monorepo build: `project_dir` with Next's
+/// `relativeAppDir` removed from its end. Only plain relative paths are
+/// accepted (no `..`, no absolute paths), and only when `project_dir`
+/// really ends with them: the build may have been moved, and then the root
+/// cannot be known. Never an ancestor chosen from anything but the build.
+pub(crate) fn workspace_root(
+    project_dir: &Path,
+    relative_app_dir: Option<&str>,
+    diagnostics: &mut Vec<Diagnostic>,
+) -> Option<PathBuf> {
+    use std::path::Component;
+    let relative = relative_app_dir?.trim_matches('/');
+    if relative.is_empty() {
+        return None;
+    }
+    let relative = Path::new(relative);
+    let plain = relative
+        .components()
+        .all(|component| matches!(component, Component::Normal(_)));
+    let mut root = project_dir.to_path_buf();
+    let matches = plain
+        && relative
+            .components()
+            .rev()
+            .all(|component| root.file_name() == Some(component.as_os_str()) && root.pop());
+    if !matches {
+        diagnostics.push(Diagnostic {
+            severity: Severity::Warning,
+            code: "workspace-root",
+            message: format!(
+                "required-server-files.json gives the app directory as {:?} within its workspace, \
+                 but {} does not end with it; packages are read from <project>/node_modules only",
+                relative.display(),
+                project_dir.display()
+            ),
+        });
+        return None;
+    }
+    Some(root)
 }
 
 fn routing_config(required: Option<&RequiredServerFiles>, base_path: &str) -> RoutingConfig {
@@ -931,5 +980,60 @@ mod adapter_pages_tests {
                 .unwrap()
                 .contains("/ssg: stored output differs")
         );
+    }
+}
+
+#[cfg(test)]
+mod workspace_root_tests {
+    //! `relativeAppDir` from required-server-files.json gives the monorepo
+    //! root only when the served directory really ends with it.
+    use super::*;
+
+    fn root(project: &str, relative: Option<&str>) -> (Option<PathBuf>, Vec<Diagnostic>) {
+        let mut diagnostics = Vec::new();
+        let root = workspace_root(Path::new(project), relative, &mut diagnostics);
+        (root, diagnostics)
+    }
+
+    #[test]
+    fn single_package_projects_have_no_workspace_root() {
+        assert_eq!(root("/srv/app", None), (None, vec![]));
+        assert_eq!(root("/srv/app", Some("")), (None, vec![]));
+    }
+
+    #[test]
+    fn monorepo_and_standalone_layouts() {
+        assert_eq!(
+            root("/w/repo/apps/web", Some("apps/web")).0,
+            Some(PathBuf::from("/w/repo"))
+        );
+        // output: 'standalone' reproduces the layout under .next/standalone.
+        assert_eq!(
+            root(
+                "/w/repo/apps/web/.next/standalone/apps/web",
+                Some("apps/web")
+            )
+            .0,
+            Some(PathBuf::from("/w/repo/apps/web/.next/standalone"))
+        );
+        assert_eq!(
+            root("/w/repo/web", Some("web/")).0,
+            Some(PathBuf::from("/w/repo"))
+        );
+    }
+
+    #[test]
+    fn mismatched_or_unsafe_relative_dirs_are_refused_with_a_warning() {
+        for (project, relative) in [
+            ("/w/repo/apps/site", "apps/web"),
+            ("/w/repo/apps/web", "../apps/web"),
+            ("/w/repo/apps/web", "apps/../web"),
+            ("/web", "x/web"),
+        ] {
+            let (found, diagnostics) = root(project, Some(relative));
+            assert_eq!(found, None, "{project} {relative}");
+            assert_eq!(diagnostics.len(), 1, "{project} {relative}");
+            assert_eq!(diagnostics[0].code, "workspace-root");
+        }
     }
 }
