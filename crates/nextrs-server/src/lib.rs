@@ -1538,9 +1538,13 @@ async fn not_found_render(
     // not-found page's handler, whose action handler answers it (an
     // unknown action is 409, a known one is forwarded to its page); an
     // RSC request for an unknown path gets the not-found page's payload
-    // from the same handler.
+    // from the same handler. So does a document request when the not-found
+    // page has no static shell to serve: Cache Components store it as ISR
+    // (or as a Partial Prerendering shell), which only its handler serves.
     let rsc = headers.get(&state.rsc.header).is_some_and(|v| v == "1");
-    if (is_possible_server_action(method, headers) || (readonly && rsc))
+    if (is_possible_server_action(method, headers)
+        || (readonly && rsc)
+        || (readonly && state.not_found.is_none()))
         && let Some(executor) = &state.executor
         && !state.has_interception_routes
         && let Some(entry) = state
