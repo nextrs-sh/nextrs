@@ -477,6 +477,20 @@
           }
         }
       }
+      // Next's pipeToNodeResponse resolves once it has called res.end(),
+      // while chunks may still wait for the response's buffer budget (they
+      // reach Rust, and then End, only as the consumer drains them: _final
+      // runs after the last write). Node keeps the connection past the
+      // handler; here the request ends with op_nextrs_request_done, which
+      // would drop what is still queued. Wait for the response to finish,
+      // or for the request to stop mattering.
+      if (res.writableEnded && !res.writableFinished && !res.destroyed) {
+        const done = new Promise((resolve) => {
+          res.once("finish", resolve);
+          res.once("close", resolve);
+        });
+        await Promise.race([done, cancelled]);
+      }
       if (pending.length > 0) {
         const settled = await Promise.race([Promise.allSettled(pending), cancelled]);
         if (Array.isArray(settled)) {
