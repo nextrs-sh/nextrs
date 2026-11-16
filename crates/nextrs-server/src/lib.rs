@@ -532,6 +532,10 @@ struct Page {
     /// When the prerender was written (Unix ms): a revalidation of one of
     /// its tags after this makes it stale.
     written_ms: u64,
+    /// Prerendered from a dynamic route (`generateStaticParams`): next
+    /// start's handler serves it from the cache for any method, where a
+    /// static route's prerender answers other methods with 405.
+    dynamic_route: bool,
 }
 
 impl Page {
@@ -650,6 +654,7 @@ impl AppState {
                     segments,
                     tags,
                     written_ms,
+                    dynamic_route: prerender.route.contains('['),
                 },
             );
         }
@@ -1385,7 +1390,12 @@ async fn serve_resolved(
                             );
                         }
                     }
-                    return method_not_allowed(state);
+                    // A static route's prerender: 405. A dynamic route's
+                    // (generateStaticParams) is served as for GET, as next
+                    // start's handler serves it from the cache.
+                    if !page.dynamic_route {
+                        return method_not_allowed(state);
+                    }
                 }
                 if headers.get(&state.rsc.header).is_some_and(|v| v == "1") {
                     return serve_rsc(state, page, &request_path, query, headers, method);

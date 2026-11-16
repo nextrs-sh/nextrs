@@ -41,10 +41,13 @@ DIRS.forEach(copy);
 // for adapter builds to keep default snapshots identical to a fresh build.
 if (existsSync(path.join(distDir, "nextrs/build-output.json"))) copy("server/route-cache");
 // Prerendered responses in the default layout: server/app/**/*.{html,rsc,meta}
-cpSync(path.join(distDir, "server/app"), path.join(outDir, "server/app"), {
-  recursive: true,
-  filter: (src) => !/\.(js|map|json)$/.test(src),
-});
+// (A Pages-only build has no server/app.)
+if (existsSync(path.join(distDir, "server/app"))) {
+  cpSync(path.join(distDir, "server/app"), path.join(outDir, "server/app"), {
+    recursive: true,
+    filter: (src) => !/\.(js|map|json)$/.test(src),
+  });
+}
 // Also keep pages/*.html (default 404/500 shells).
 cpSync(path.join(distDir, "server/pages"), path.join(outDir, "server/pages"), { recursive: true });
 
