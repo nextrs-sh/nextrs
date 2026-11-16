@@ -1,0 +1,5 @@
+[certify] start api: pnpm --filter @velasia/retailing-api start
+[certify] start web (nextrs): /home/dennispaler/Documents/OpenSource/nextrs/target/release/nextrs start /home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web --js-runtime embedded-v8 --port 3200 --isolates 4 --net-allow http://127.0.0.1:4210 --net-allow-addr 127.0.0.1 --metrics-addr 127.0.0.1:4200 --js-env VELASIA_TODAY --js-env RETAILING_API_FORWARD_FAULTS --js-env VELASIA_ALLOW_TEST_CONTROLS --js-env RETAILING_API_TIMEOUT_MS --js-env SITE_URL --js-env RETAILING_API_URL
+[certify] ready: nextrs on http://127.0.0.1:3200 (startup 296 ms), api on http://127.0.0.1:4210, db /tmp/velasia-cert-db-WsgN6O
+{"stateDir":"/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/results/velasia-airways/http-security/nextrs-i4","startupMs":296}
+[certify] web exited (0)

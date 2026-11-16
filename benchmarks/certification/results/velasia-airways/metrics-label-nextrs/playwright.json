@@ -1,0 +1,167 @@
+{
+  "config": {
+    "argv": [
+      "/home/dennispaler/.cache/nextrs-phase3a/node-v24.18.0-linux-x64/bin/node",
+      "/home/dennispaler/.cache/nextrs-phase3b/velasia-src/node_modules/@playwright/test/cli.js",
+      "test",
+      "--retries=0",
+      "--reporter=list,json",
+      "--config",
+      "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/playwright.isolation.config.ts",
+      "metrics-reference-label.spec.ts"
+    ],
+    "configFile": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/playwright.isolation.config.ts",
+    "rootDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/dennispaler/.cache/nextrs-phase3b/velasia-src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.spec\\.ts$/"
+        ],
+        "timeout": 600000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/dennispaler/.cache/nextrs-phase3b/velasia-src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios",
+        "snapshotDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 600000,
+        "use": {
+          "baseURL": "http://127.0.0.1:3200",
+          "timezoneId": "Asia/Manila",
+          "locale": "en-PH",
+          "trace": "retain-on-failure",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.8154.6 Safari/537.36",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.65.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "metrics-reference-label.spec.ts",
+      "file": "metrics-reference-label.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "a reference lookup and the metrics labels",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5692,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "reference VEL-55PRYK\n"
+                    },
+                    {
+                      "text": "velasia_web_upstream_requests_total{operation=\"/v1/orders/reference/:id\",method=\"GET\",outcome=\"ok\"} 1\nvelasia_web_upstream_requests_total{operation=\"/v1/orders/reference/VEL-ZZZZZZ\",method=\"GET\",outcome=\"4xx\"} 1\nvelasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/:id\",method=\"GET\",le=\"0.001\"} 0\nvelasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/:id\",method=\"GET\",le=\"0.0025\"} 0\nvelasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/:id\",method=\"GET\",le=\"0.005\"} 0\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T11:37:11.521Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "27371d1e275acb42c545-1f91ae43fc6a0d106d41",
+          "file": "metrics-reference-label.spec.ts",
+          "line": 15,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T11:37:11.039Z",
+    "duration": 6291.496,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

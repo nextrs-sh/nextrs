@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+reference VEL-4DK7DF
+velasia_web_upstream_requests_total{operation="/v1/orders/reference/:id",method="GET",outcome="ok"} 1
+velasia_web_upstream_requests_total{operation="/v1/orders/reference/VEL-ZZZZZZ",method="GET",outcome="4xx"} 1
+velasia_web_upstream_request_duration_seconds_bucket{operation="/v1/orders/reference/:id",method="GET",le="0.001"} 0
+velasia_web_upstream_request_duration_seconds_bucket{operation="/v1/orders/reference/:id",method="GET",le="0.0025"} 0
+velasia_web_upstream_request_duration_seconds_bucket{operation="/v1/orders/reference/:id",method="GET",le="0.005"} 0
+  ✓  1 ../../../Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/metrics-reference-label.spec.ts:15:1 › a reference lookup and the metrics labels (6.0s)
+
+  1 passed (6.7s)

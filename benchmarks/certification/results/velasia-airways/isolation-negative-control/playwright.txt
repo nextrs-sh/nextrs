@@ -1,0 +1,38 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 ../../../Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/isolation.spec.ts:119:1 › concurrent customers never see each other’s data (9.0s)
+
+
+  1) ../../../Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/isolation.spec.ts:119:1 › concurrent customers never see each other’s data 
+
+    Error: /account/trips for customer 0 shows customer 0's ProbeAAmwjz
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      112 |   for (const o of others(all, me)) {
+      113 |     for (const secret of [o.family, o.email, o.reference!, o.orderId!]) {
+    > 114 |       expect(text.includes(secret), `${where} for customer ${me.index} shows customer ${o.index}'s ${secret}`).toBe(false);
+          |                                                                                                                ^
+      115 |     }
+      116 |   }
+      117 | }
+        at assertNoneOf (/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/isolation.spec.ts:114:112)
+        at /home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/isolation.spec.ts:140:13
+        at /home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/isolation.spec.ts:132:7
+
+    Error Context: test-results/isolation-concurrent-customers-never-see-each-other’s-data/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/isolation-concurrent-customers-never-see-each-other’s-data/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/isolation-concurrent-customers-never-see-each-other’s-data/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    ../../../Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/isolation.spec.ts:119:1 › concurrent customers never see each other’s data 

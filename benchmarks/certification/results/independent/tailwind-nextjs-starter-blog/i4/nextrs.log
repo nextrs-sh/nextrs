@@ -1,0 +1,12 @@
+2026-11-16T12:24:01.771869Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+2026-11-16T12:24:01.774361Z  WARN nextrs: images.remotePatterns is configured but no --net-allow: remote images answer 400
+2026-11-16T12:24:01.774431Z  INFO nextrs: shared data cache enabled persistent=false dir=
+error: JavaScript bootstrap failed: Error: Cannot find module '/home/dennispaler/.cache/nextrs-phase3b/independent/tailwind-nextjs-starter-blog/node_modules/next/dist/build/adapter/setup-node-env.external.js'
+Require stack:
+- /home/dennispaler/.cache/nextrs-phase3b/independent/tailwind-nextjs-starter-blog/nextrs-host.js
+    at Module._resolveFilename (ext:nextrs/02_node.js:1528:15)
+    at Module._load (ext:nextrs/02_node.js:1540:31)
+    at Module.require (ext:nextrs/02_node.js:1483:21)
+    at require (ext:nextrs/02_node.js:1592:36)
+    at start (ext:nextrs/03_server.js:1245:27)
+    at ext:nextrs/start:1:12

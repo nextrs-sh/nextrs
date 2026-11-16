@@ -1,0 +1,205 @@
+{
+  "app": "nextjs-api-routes-rest",
+  "commit": "54b876b6b161b0ecda19562eb264bec637e60d6d",
+  "nextrsCommit": "90bf59e2b57d40e6f73935a2f47c17affeb98af3",
+  "isolates": 4,
+  "startupMs": {
+    "next": 340,
+    "nextrs": 1
+  },
+  "total": 10,
+  "passed": 10,
+  "failed": 0,
+  "results": [
+    {
+      "name": "index-page",
+      "method": "GET",
+      "path": "/",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 7,
+        "bytes": 1669,
+        "digest": "2afb653d2a3fb57d"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 1669,
+        "digest": "2afb653d2a3fb57d"
+      }
+    },
+    {
+      "name": "user-page",
+      "method": "GET",
+      "path": "/user/2",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 6,
+        "bytes": 1657,
+        "digest": "0418a35169df0052"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 1657,
+        "digest": "0418a35169df0052"
+      }
+    },
+    {
+      "name": "users-api",
+      "method": "GET",
+      "path": "/api/users",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 17,
+        "bytes": 28,
+        "digest": "d99179347cb13877"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 36,
+        "bytes": 28,
+        "digest": "d99179347cb13877"
+      }
+    },
+    {
+      "name": "user-get",
+      "method": "GET",
+      "path": "/api/user/7",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 5,
+        "bytes": 24,
+        "digest": "11bf6332ee647819"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 6,
+        "bytes": 24,
+        "digest": "11bf6332ee647819"
+      }
+    },
+    {
+      "name": "user-put",
+      "method": "PUT",
+      "path": "/api/user/7?name=Ada",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 4,
+        "bytes": 21,
+        "digest": "56a046b3f421098e"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 4,
+        "bytes": 21,
+        "digest": "56a046b3f421098e"
+      }
+    },
+    {
+      "name": "user-delete-405",
+      "method": "DELETE",
+      "path": "/api/user/7",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 405,
+        "ms": 3,
+        "bytes": 25,
+        "digest": "6b2f12f9b7b48fb6"
+      },
+      "nextrs": {
+        "status": 405,
+        "ms": 3,
+        "bytes": 25,
+        "digest": "6b2f12f9b7b48fb6"
+      }
+    },
+    {
+      "name": "user-post-405-body",
+      "method": "POST",
+      "path": "/api/user/7",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 405,
+        "ms": 6,
+        "bytes": 23,
+        "digest": "89cbc7c46a4531d0"
+      },
+      "nextrs": {
+        "status": 405,
+        "ms": 4,
+        "bytes": 23,
+        "digest": "89cbc7c46a4531d0"
+      }
+    },
+    {
+      "name": "api-unknown",
+      "method": "GET",
+      "path": "/api/nope",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 404,
+        "ms": 4,
+        "bytes": 2450,
+        "digest": "8d6432a3d5b96c74"
+      },
+      "nextrs": {
+        "status": 404,
+        "ms": 2,
+        "bytes": 2450,
+        "digest": "8d6432a3d5b96c74"
+      }
+    },
+    {
+      "name": "page-unknown",
+      "method": "GET",
+      "path": "/nope",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 404,
+        "ms": 3,
+        "bytes": 2450,
+        "digest": "8d6432a3d5b96c74"
+      },
+      "nextrs": {
+        "status": 404,
+        "ms": 2,
+        "bytes": 2450,
+        "digest": "8d6432a3d5b96c74"
+      }
+    },
+    {
+      "name": "data-route-missing",
+      "method": "GET",
+      "path": "/_next/data/BUILD/index.json",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 404,
+        "ms": 4,
+        "bytes": 2450,
+        "digest": "8d6432a3d5b96c74"
+      },
+      "nextrs": {
+        "status": 404,
+        "ms": 2,
+        "bytes": 2450,
+        "digest": "8d6432a3d5b96c74"
+      }
+    }
+  ]
+}

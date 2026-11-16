@@ -1,0 +1,305 @@
+{
+  "actionId": "80128180e643f5a8648cb91638127e5d0da3699f42",
+  "actionPage": "/flights",
+  "total": 27,
+  "passed": 27,
+  "results": [
+    {
+      "name": "security headers /",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "security headers /flights",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "security headers /destinations/manila",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "security headers /booking/travellers",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "security headers /account",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "security headers /api/airports",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "security headers /api/internal/health/live",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "security headers /nope",
+      "ok": true,
+      "node": 404,
+      "nextrs": 404,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "security headers /sitemap.xml",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "security headers /_next/image?url=%2Fimages%2Fbrand%2Fhero.jpg&w=640&q=70",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "config redirect /checkout (parity)",
+      "ok": true,
+      "node": 307,
+      "nextrs": 307,
+      "location": [
+        "/booking/checkout",
+        "/booking/checkout"
+      ],
+      "problems": []
+    },
+    {
+      "name": "config redirect /booking/travelers (parity)",
+      "ok": true,
+      "node": 308,
+      "nextrs": 308,
+      "location": [
+        "/booking/travellers",
+        "/booking/travellers"
+      ],
+      "problems": []
+    },
+    {
+      "name": "production CSP (no unsafe-eval, no ws:)",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "Server Action from a foreign Origin is refused",
+      "ok": true,
+      "node": 500,
+      "nextrs": 500,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "Server Action with a matching Origin is accepted for processing",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "Server Action with a spoofed X-Forwarded-Host matching a foreign Origin (no proxy flags: passes through, as next start)",
+      "ok": true,
+      "node": 200,
+      "nextrs": 200,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "Unknown Server Action id",
+      "ok": true,
+      "node": 409,
+      "nextrs": 409,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "Server Action body over the 128 kb limit",
+      "ok": true,
+      "node": 500,
+      "nextrs": 500,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "Host header injection does not change redirects",
+      "ok": true,
+      "node": 307,
+      "nextrs": 307,
+      "location": [
+        "/booking/checkout",
+        "/booking/checkout"
+      ],
+      "problems": []
+    },
+    {
+      "name": "no file disclosure /.env",
+      "ok": true,
+      "node": 404,
+      "nextrs": 404,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "no file disclosure /_next/static/..%2f..%2f..%2fpackage.json",
+      "ok": true,
+      "node": 404,
+      "nextrs": 404,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "no file disclosure /_next/static/../../../.env",
+      "ok": true,
+      "node": 404,
+      "nextrs": 404,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "no file disclosure /public/../package.json",
+      "ok": true,
+      "node": 404,
+      "nextrs": 404,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "no file disclosure /api/offers/..%2F..%2Fv1%2Forders",
+      "ok": true,
+      "node": 400,
+      "nextrs": 400,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "no file disclosure /.next/server/server-reference-manifest.json",
+      "ok": true,
+      "node": 404,
+      "nextrs": 404,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "no file disclosure /node_modules/next/package.json",
+      "ok": true,
+      "node": 404,
+      "nextrs": 404,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    },
+    {
+      "name": "no file disclosure /apps/web/next.config.ts",
+      "ok": true,
+      "node": 404,
+      "nextrs": 404,
+      "location": [
+        null,
+        null
+      ],
+      "problems": []
+    }
+  ]
+}

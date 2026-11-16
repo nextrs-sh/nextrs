@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "app": "velasia-airways",
+    "commit": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+    "runtime": "nextrs",
+    "isolates": 4,
+    "nextrsCommit": "90bf59e2b57d40e6f73935a2f47c17affeb98af3",
+    "nextrsDirty": true,
+    "node": "v24.18.0",
+    "startupMs": 297,
+    "wallMs": 11192,
+    "exitCode": 1,
+    "integrity": {
+      "head": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+      "pinned": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+      "headMatchesPin": true,
+      "modifiedTrackedFiles": [],
+      "diffAgainstPin": "",
+      "untrackedNotIgnored": [],
+      "clean": true
+    }
+  },
+  "stats": {
+    "startTime": "2026-11-16T11:40:23.073Z",
+    "duration": 10483.11,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "total": 1,
+  "passed": 0,
+  "failed": 1,
+  "flaky": 0,
+  "skipped": 0,
+  "failures": [
+    {
+      "file": "isolation.spec.ts",
+      "title": "concurrent customers never see each other’s data",
+      "project": "",
+      "status": "unexpected",
+      "outcome": "failed",
+      "durationMs": 8982,
+      "error": "Error: /account/trips for customer 0 shows customer 0's ProbeAAmwjz\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m"
+    }
+  ],
+  "tests": [
+    {
+      "file": "isolation.spec.ts",
+      "title": "concurrent customers never see each other’s data",
+      "project": "",
+      "status": "unexpected",
+      "outcome": "failed",
+      "durationMs": 8982,
+      "error": "Error: /account/trips for customer 0 shows customer 0's ProbeAAmwjz\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mfalse\u001b[39m\nReceived: \u001b[31mtrue\u001b[39m"
+    }
+  ]
+}

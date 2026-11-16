@@ -1,0 +1,14 @@
+
+> @velasia/retailing-api@0.1.0 start /home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/retailing-api
+> tsx src/server.ts
+
+{"level":40,"time":1794839732681,"service":"velasia-retailing-api","version":"0.7.0","msg":"fault injection is ENABLED (x-velasia-fault header honoured)"}
+{"level":50,"time":1794839816147,"service":"velasia-retailing-api","version":"0.7.0","requestId":"e5d04bb7-0a36-41df-a063-9963b54a77ed","method":"GET","route":"/v1/flights/calendar","statusCode":503,"statusClass":"5xx","durationMs":0.4,"msg":"request failed"}
+{"level":50,"time":1794839816149,"service":"velasia-retailing-api","version":"0.7.0","requestId":"6150d495-8ccf-4372-989a-71a3af81c9da","method":"GET","route":"/v1/flights","statusCode":503,"statusClass":"5xx","durationMs":0.4,"msg":"request failed"}
+{"level":40,"time":1794839829223,"service":"velasia-retailing-api","version":"0.7.0","requestId":"db721a97-1347-4c48-b0e9-244cd6241007","method":"POST","route":"/v1/orders/:orderId/payment-attempts","statusCode":202,"statusClass":"2xx","durationMs":1504.9,"msg":"slow request"}
+{"level":50,"time":1794839885687,"service":"velasia-retailing-api","version":"0.7.0","requestId":"3a8c7cf7-7469-4047-847e-18c54b50cd58","method":"GET","route":"/v1/flights/calendar","statusCode":503,"statusClass":"5xx","durationMs":0.3,"msg":"request failed"}
+{"level":50,"time":1794839885688,"service":"velasia-retailing-api","version":"0.7.0","requestId":"407fc38a-07e3-448c-b043-387a63acd6bd","method":"GET","route":"/v1/flights","statusCode":503,"statusClass":"5xx","durationMs":0.1,"msg":"request failed"}
+{"level":40,"time":1794839888244,"service":"velasia-retailing-api","version":"0.7.0","requestId":"f77c6dd6-3081-4ece-9114-eec5eb8821db","method":"GET","route":"/v1/flights/calendar","statusCode":200,"statusClass":"2xx","durationMs":1503,"msg":"slow request"}
+{"level":40,"time":1794839888245,"service":"velasia-retailing-api","version":"0.7.0","requestId":"fe39f153-d651-482f-9d7f-8b033be4b2d3","method":"GET","route":"/v1/flights","statusCode":200,"statusClass":"2xx","durationMs":1504,"msg":"slow request"}
+{"level":50,"time":1794839936942,"service":"velasia-retailing-api","version":"0.7.0","requestId":"53fd5101-7ffb-4531-869e-4c5df8cb217f","method":"GET","route":"/v1/offers","statusCode":503,"statusClass":"5xx","durationMs":1.1,"msg":"request failed"}
+{"level":50,"time":1794839938202,"service":"velasia-retailing-api","version":"0.7.0","requestId":"43165ecb-139a-4071-afc4-99ba094a50c5","method":"POST","route":"/v1/shopping-sessions","statusCode":503,"statusClass":"5xx","durationMs":0.3,"msg":"request failed"}

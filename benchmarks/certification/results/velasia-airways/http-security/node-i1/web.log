@@ -1,0 +1,27 @@
+▲ Next.js 16.4.6
+- Local:         http://127.0.0.1:3300
+- Network:       http://127.0.0.1:3300
+✓ Ready in 0ms
+✓ Running next.config took 4ms
+`x-forwarded-host` header with value `127.0.0.1:3300` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+⨯ Error: Invalid Server Actions request.
+    at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+    at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+    at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526) {
+  digest: '924502084'
+}
+{"level":50,"time":1794829325370,"service":"velasia-web","msg":"request error","method":"POST","route":"/flights","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"924502084","requestId":null}
+Error: Failed to find Server Action "000000000000000000000000000000000000000000". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at tP (.next/server/chunks/[root-of-the-server]__0ui4g4a0-3-u2._.js:1:63503)
+    at Object.get (.next/server/chunks/[root-of-the-server]__0ui4g4a0-3-u2._.js:3:267)
+    at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+    at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+⨯ Error: Body exceeded 128kb limit.
+To configure the body size limit for Server Actions, see: https://nextjs.org/docs/app/api-reference/next-config-js/serverActions#bodysizelimit
+    at ignore-listed frames {
+  statusCode: 413,
+  digest: '3437875311'
+}
+{"level":50,"time":1794829325443,"service":"velasia-web","msg":"request error","method":"POST","route":"/flights","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"3437875311","requestId":null}
