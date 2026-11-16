@@ -110,7 +110,16 @@ jobs:
       - name: Browser for the Server Action suite
         if: matrix.next == 'pinned'
         working-directory: tests/browser
-        run: npm ci --no-audit --no-fund && npx playwright-core install --with-deps chromium-headless-shell
+        # Installing the browser (its apt dependencies and the download)
+        # fails transiently: apt exited 100 in both pinned jobs of run
+        # 43036814822. Retry the installation, never the tests.
+        run: |
+          npm ci --no-audit --no-fund
+          for attempt in 1 2 3; do
+            npx playwright-core install --with-deps chromium-headless-shell && exit 0
+            echo "browser install failed (attempt $attempt)"; sleep 20
+          done
+          exit 1
       - name: Build the pinned fixture
         if: matrix.next == 'pinned'
         working-directory: fixtures/next-app

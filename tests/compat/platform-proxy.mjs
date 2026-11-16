@@ -502,6 +502,22 @@ for (const [name, expect] of Object.entries(EXPECT)) {
   scenarios[name].expect ??= expect;
 }
 
+// Independent outcomes for the draft-mode scenarios (Phase 3A audit): they
+// were compared between servers only.
+const bypassSet = (list) => (list ?? []).some((c) => /^__prerender_bypass=[^;]+/.test(c));
+scenarios["draft-wrong-secret"].expect = (o) =>
+  o.status === 401 && !bypassSet(o.setCookie) ? null : `status ${o.status}, Set-Cookie ${JSON.stringify(o.setCookie)}`;
+scenarios["draft-forged-cookie"].expect = (o) =>
+  o.status === 200 && o.body?.kind === "published" && !bypassSet(o.setCookie) && (o.setCookie ?? []).some((c) => /^__prerender_bypass=;/.test(c))
+    ? null
+    : `status ${o.status}, kind ${o.body?.kind}, Set-Cookie ${JSON.stringify(o.setCookie)}`;
+scenarios["draft-mode-round-trip"].expect = (o) =>
+  o.enable?.status === 307 && o.enable.cookieSet && o.enable.attrs?.includes("httponly") &&
+  o.draft?.status === 200 && o.draft.kind === "draft" && /no-store/.test(o.draft.cache ?? "") &&
+  o.disabled?.cleared === true && o.published?.kind === "published"
+    ? null
+    : JSON.stringify(o);
+
 const failures = await runScenarios(`platform-proxy (${isolates} isolate${isolates === 1 ? "" : "s"})`, scenarios, {
   baseline,
   candidate,

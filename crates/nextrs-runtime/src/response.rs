@@ -229,7 +229,19 @@ pub struct ResponseStream {
 
 impl ResponseStream {
     pub async fn recv(&mut self) -> Option<ResponseEvent> {
-        self.events.recv().await
+        let counters = &self.flow.counters;
+        let event = match self.events.try_recv() {
+            Ok(event) => Some(event),
+            Err(mpsc::error::TryRecvError::Disconnected) => None,
+            Err(mpsc::error::TryRecvError::Empty) => {
+                metrics::add(&counters.response_event_waits, 1);
+                self.events.recv().await
+            }
+        };
+        if event.is_some() {
+            metrics::add(&counters.response_events, 1);
+        }
+        event
     }
 
     /// Whether JavaScript ever received the request. A request that was

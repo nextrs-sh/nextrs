@@ -338,6 +338,7 @@ const actionId = (name, file) => {
 };
 const ids = {
   login: actionId("login", "app/login/actions.ts"),
+  logout: actionId("logout", "app/login/actions.ts"),
   record: actionId("recordProtected", "app/actions/protected/actions.ts"),
 };
 function actionRequest(base, path, id, fields, headers = {}) {
@@ -348,28 +349,63 @@ function actionRequest(base, path, id, fields, headers = {}) {
 }
 
 // Login signs an ES256 session; its signature is checked with node:crypto
-// and the cookie must open the dashboard.
+// and the cookie must open the dashboard. The Set-Cookie header itself is
+// asserted too (attributes from app/login/actions.ts), not only compared
+// between servers: both could drop or mangle it alike.
+const sessionCookieOk = (list) => {
+  const set = (list ?? []).filter((c) => c.startsWith("session="));
+  if (set.length !== 1) return `${set.length} session Set-Cookie headers: ${JSON.stringify(list)}`;
+  const attrs = set[0].split(/;\s*/).slice(1).map((a) => a.toLowerCase());
+  for (const want of ["path=/", "httponly", "samesite=lax"]) if (!attrs.includes(want)) return `session cookie lacks ${want}: ${set[0]}`;
+  return attrs.some((a) => a.startsWith("expires=")) ? null : `session cookie has no Expires: ${set[0]}`;
+};
 scenarios["login-signs-es256-session"] = {
   kind: "compare",
   expect: (o) =>
     o.status !== 303 && o.status !== 200
       ? `login status ${o.status}`
-      : !o.session?.valid
+      : sessionCookieOk(o.setCookie) ??
+      (!o.session?.valid
         ? "the session's ES256 signature does not verify with node:crypto"
         : JSON.stringify(o.session.claims) !== JSON.stringify({ userId: "u-alice", name: "Alice", iss: "nextrs-jwks-app", aud: "nextrs-jwks-app" })
           ? `session claims ${JSON.stringify(o.session.claims)}`
           : o.dashboard?.body?.info !== JSON.stringify({ userId: "u-alice", proxyUser: "u-alice" })
             ? `dashboard ${JSON.stringify(o.dashboard?.body)}`
-            : null,
+            : null),
   run: async (base) => {
     const request = actionRequest(base, "/login", ids.login, { username: "alice", password: "alice-test-password", next: "/dashboard" });
     const raw = await fetch(`${base}/login`, { method: "POST", body: request.body, headers: request.headers, redirect: "manual" });
     await raw.text();
     const set = raw.headers.getSetCookie().find((c) => c.startsWith("session="));
     const token = set?.split(";")[0].slice("session=".length);
-    const out = { status: raw.status, session: token ? inspect(token, "ES256") : null };
+    const out = { status: raw.status, setCookie: raw.headers.getSetCookie().map(redactCookie), session: token ? inspect(token, "ES256") : null };
     if (token) out.dashboard = await look(base, { path: "/dashboard", headers: cookie(token) });
     return out;
+  },
+};
+// Logout deletes the session cookie (an expired, empty session=) and
+// redirects to /login. Expires is kept: the deletion date is fixed. Called
+// as a fetch action (Next-Action header), the redirect is a 200 with
+// x-action-redirect ("/login;replace"); a no-JavaScript form post would
+// get a 303 with Location instead. Either is accepted, nothing else.
+scenarios["logout-clears-session"] = {
+  kind: "compare",
+  expect: (o) => {
+    const target = o.status === 303 ? o.location : o.status === 200 ? o.actionRedirect?.split(";")[0] : null;
+    if (!/^\/login(\?|$)/.test(target ?? "")) return `status ${o.status} location ${o.location} x-action-redirect ${o.actionRedirect}, expected a redirect to /login`;
+    const cleared = (o.setCookie ?? []).filter((c) => /^session=;/.test(c));
+    if (cleared.length !== 1) return `expected one cleared session cookie, got ${JSON.stringify(o.setCookie)}`;
+    const expires = /expires=([^;]+)/i.exec(cleared[0])?.[1];
+    const maxAge = /max-age=(-?\d+)/i.exec(cleared[0])?.[1];
+    return (expires && Date.parse(expires) <= Date.now()) || maxAge === "0" ? null : `cookie not expired: ${cleared[0]}`;
+  },
+  run: async (base) => {
+    const request = actionRequest(base, "/dashboard", ids.logout, {}, cookie(session("u-alice", "Alice")));
+    const raw = await fetch(`${base}/dashboard`, { method: "POST", body: request.body, headers: request.headers, redirect: "manual" });
+    await raw.text();
+    const location = raw.headers.get("location")?.replace(/^https?:\/\/[^/]+/, "") ?? null;
+    const actionRedirect = raw.headers.get("x-action-redirect")?.replace(/^https?:\/\/[^/]+/, "") ?? null;
+    return { status: raw.status, location, actionRedirect, setCookie: raw.headers.getSetCookie().map((c) => c.replace(/^session=[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/, "session=<JWT>")) };
   },
 };
 for (const alg of ["ES256", "PS256", "RS256", "EdDSA"]) {

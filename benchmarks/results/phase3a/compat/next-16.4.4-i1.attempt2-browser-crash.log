@@ -1,0 +1,84 @@
+
+added 30 packages in 5s
+Next.js 16.4.4 built (hGwmEBgVl-Kj1F8nZJLOJ)
+PASS  compare
+PASS  semantic
+PASS  streaming
+PASS  isolation
+PASS  features
+PASS  data
+PASS  actions
+PASS  isr
+PASS  browser
+PASS  features-next-start
+PASS  restart
+
+added 30 packages in 5s
+PASS  cache-components
+REPORT use-cache entry across restart: next start kept=false nextrs kept=true (next start's default handler is memory-only; NextRS keeps it with --cache-dir)
+
+added 30 packages in 4s
+PASS  proxy-default
+PASS  routing-config-default
+FAIL  browser-proxy-default
+PASS            client-nav-proxy-rewrite
+PASS            client-nav-proxy-redirect
+PASS            client-nav-protected-anonymous
+PASS            client-nav-protected-session
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+browserContext.close: Protocol error (Target.disposeBrowserContext): Failed to find context with id 0732537A2305449D3A87CE48C593FD12
+    at async runScenario (./tests/browser/proxy.mjs:166:5)
+    at async file://./tests/browser/proxy.mjs:175:20 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v24.18.0
+PASS  proxy-base-path
+PASS  routing-config-base-path
+PASS  browser-proxy-base-path
+PASS  proxy-trailing-slash
+PASS  routing-config-trailing-slash
+PASS  proxy-base-path-trailing-slash
+PASS  routing-config-base-path-trailing-slash
+PASS  proxy-asset-prefix
+PASS  routing-config-asset-prefix
+PASS  config-flags-asset-prefix
+PASS  proxy-case-sensitive
+PASS  routing-config-case-sensitive
+PASS  config-flags-case-sensitive
+
+added 30 packages in 7s
+PASS  pages-default
+PASS  pages-isolation
+PASS  pages-isolation-next-start
+PASS  pages-reliability
+PASS  browser-pages-default
+PASS  pages-base-path
+PASS  browser-pages-base-path
+PASS  pages-trailing-slash
+PASS  pages-adapter
+PASS  browser-pages-adapter
+
+added 30 packages in 5s
+PASS  hybrid
+PASS  browser-hybrid
+PASS  hybrid-adapter
+PASS  browser-hybrid-adapter
+
+added 30 packages in 5s
+PASS  pages-app-gip
+PASS  browser-pages-app-gip
+
+added 30 packages in 5s
+PASS  pages-i18n-default
+PASS  browser-pages-i18n
+PASS  pages-i18n-no-detect
+PASS  pages-i18n-base-path
+PASS  pages-i18n-domains
+PASS  pages-i18n-adapter
+
+added 30 packages in 5s

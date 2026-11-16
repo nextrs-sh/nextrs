@@ -432,5 +432,12 @@ for (const [name, expect] of Object.entries(EXPECT)) {
   scenarios[name].expect = expect;
 }
 
+// Independent outcome (Phase 3A audit): internal x-middleware-* headers sent
+// by a client must not reach the page as if the proxy had set them.
+scenarios["internal-headers-from-client"].expect = (o) => {
+  const info = JSON.parse(o.body?.info ?? "null");
+  return o.status === 200 && o.body?.title === "dynamic" && info && info.user === null && info.proxyRequest === "set-by-proxy" ? null : `status ${o.status}, info ${o.body?.info}`;
+};
+
 const failures = await runScenarios(`proxy (${variant})`, scenarios, { baseline, candidate, json: args.json, only });
 process.exit(failures ? 1 : 0);

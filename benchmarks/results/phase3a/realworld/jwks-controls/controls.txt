@@ -1,0 +1,9 @@
+CAUGHT control identity:both (jwks): jwks-proxy (jose JWKS): 52 MATCH (52 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 27 ORACLE-FAIL, 0 ERROR [negative control identity:both]
+CAUGHT control allow:both (jwks): jwks-proxy (jose JWKS): 39 MATCH (39 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 40 ORACLE-FAIL, 0 ERROR [negative control allow:both]
+CAUGHT control set-cookie:both (jwks): jwks-proxy (jose JWKS): 77 MATCH (77 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 2 ORACLE-FAIL, 0 ERROR [negative control set-cookie:both]
+CAUGHT control location:both (jwks): jwks-proxy (jose JWKS): 71 MATCH (71 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 8 ORACLE-FAIL, 0 ERROR [negative control location:both]
+CAUGHT control ledger-twice:both (jwks): jwks-proxy (jose JWKS): 74 MATCH (74 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 5 ORACLE-FAIL, 0 ERROR [negative control ledger-twice:both]
+CAUGHT control ledger-lost:both (jwks): jwks-proxy (jose JWKS): 77 MATCH (77 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 2 ORACLE-FAIL, 0 ERROR [negative control ledger-lost:both]
+PROXY-OK (jwks)
+CAUGHT control strip-set-cookie (jwks): jwks-proxy (jose JWKS): 77 MATCH (77 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 2 FAIL, 0 ORACLE-FAIL, 0 ERROR
+CAUGHT control wrong-location (jwks): jwks-proxy (jose JWKS): 71 MATCH (71 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 8 FAIL, 0 ORACLE-FAIL, 0 ERROR

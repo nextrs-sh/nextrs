@@ -1,0 +1,10 @@
+ORACLE-FAIL first-call-then-cached                     {"observed":{"statuses":[200,200,200],"generations":[0,0,0],"executions":3},"wrong":"{\"statuses\":[200,200,200],\"generations\":[0,0,0],\"executions\":3}"}
+ORACLE-FAIL arguments-are-keys                         {"observed":{"distinct":false,"aCached":true,"executions":2},"wrong":"{\"distinct\":false,\"aCached\":true,\"executions\":2}"}
+ORACLE-FAIL cache-life-expiry                          {"observed":{"generations":[0,0,0,0],"executions":2},"wrong":"{\"generations\":[0,0,0,0],\"executions\":2}"}
+ORACLE-FAIL updateTag-from-action                      {"observed":{"action":{"status":200,"revalidated":"1"},"generations":[0,0,0],"executions":2},"wrong":"{\"action\":{\"status\":200,\"revalidated\":\"1\"},\"generations\":[0,0,0],\"executions\":2}"}
+ORACLE-FAIL revalidateTag-max-from-action              {"observed":{"action":{"status":200,"revalidated":null},"generations":[0,0,0,0],"executions":2},"wrong":"{\"action\":{\"status\":200,\"revalidated\":null},\"generations\":[0,0,0,0],\"executions\":2}"}
+ORACLE-FAIL unrelated-tag-untouched                    {"observed":{"same":false,"executions":1},"wrong":"{\"same\":false,\"executions\":1}"}
+ORACLE-FAIL concurrent-first-calls-agree-afterwards    {"observed":{"allOk":true,"afterwardOneValue":false},"wrong":"{\"allOk\":true,\"afterwardOneValue\":false}"}
+PASS   shared-by-isolates                         {"pass":true,"executions":1}
+PASS   tag-revalidation-reaches-every-isolate     {"pass":true,"distinct":1}
+2/9 pass (0 asserted), 7 ORACLE-FAIL, 7 failing (isolates=1) [negative control cc-defects]

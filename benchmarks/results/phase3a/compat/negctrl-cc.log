@@ -1,0 +1,28 @@
+
+added 31 packages in 7s
+Next.js 16.4.3 built (qKt7_kL8BgD130eiFuH2w)
+PASS  compare
+PASS  semantic
+PASS  streaming
+PASS  isolation
+PASS  features
+PASS  data
+PASS  actions
+PASS  isr
+PASS  features-next-start
+PASS  restart
+
+added 31 packages in 29s
+FAIL  cache-components
+ORACLE-FAIL first-call-then-cached                     {"observed":{"statuses":[200,200,200],"generations":[0,0,0],"executions":3},"wrong":"{\"statuses\":[200,200,200],\"generations\":[0,0,0],\"executions\":3}"}
+ORACLE-FAIL arguments-are-keys                         {"observed":{"distinct":false,"aCached":true,"executions":2},"wrong":"{\"distinct\":false,\"aCached\":true,\"executions\":2}"}
+ORACLE-FAIL cache-life-expiry                          {"observed":{"generations":[0,0,0,0],"executions":2},"wrong":"{\"generations\":[0,0,0,0],\"executions\":2}"}
+ORACLE-FAIL updateTag-from-action                      {"observed":{"action":{"status":200,"revalidated":"1"},"generations":[0,0,0],"executions":2},"wrong":"{\"action\":{\"status\":200,\"revalidated\":\"1\"},\"generations\":[0,0,0],\"executions\":2}"}
+ORACLE-FAIL revalidateTag-max-from-action              {"observed":{"action":{"status":200,"revalidated":null},"generations":[0,0,0,0],"executions":2},"wrong":"{\"action\":{\"status\":200,\"revalidated\":null},\"generations\":[0,0,0,0],\"executions\":2}"}
+ORACLE-FAIL unrelated-tag-untouched                    {"observed":{"same":false,"executions":1},"wrong":"{\"same\":false,\"executions\":1}"}
+ORACLE-FAIL concurrent-first-calls-agree-afterwards    {"observed":{"allOk":true,"afterwardOneValue":false},"wrong":"{\"allOk\":true,\"afterwardOneValue\":false}"}
+PASS   shared-by-isolates                         {"pass":true,"executions":1}
+PASS   tag-revalidation-reaches-every-isolate     {"pass":true,"distinct":1}
+2/9 pass (0 asserted), 7 ORACLE-FAIL, 7 failing (isolates=1) [negative control cc-defects]
+REPORT use-cache entry across restart: next start kept=false nextrs kept=true (next start's default handler is memory-only; NextRS keeps it with --cache-dir)
+compare: {"MATCH":41,"MATCH (header diffs)":1,"MATCH (normalized)":1}

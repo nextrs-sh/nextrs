@@ -24,6 +24,12 @@ pub(crate) struct Counters {
     pub responses_cancelled: AtomicU64,
     /// Writes that had to wait for the consumer to drain.
     pub backpressure_waits: AtomicU64,
+    /// Response events (head, body chunks, end) the HTTP side received.
+    pub response_events: AtomicU64,
+    /// Of those, events the HTTP side had to wait for: nothing was queued
+    /// when it asked, so its task parked until the isolate sent one (each
+    /// such wait is a cross-thread wake-up when the worker is idle).
+    pub response_event_waits: AtomicU64,
     pub request_timeouts: AtomicU64,
     pub wait_until_timeouts: AtomicU64,
     pub handler_errors: AtomicU64,
@@ -303,6 +309,8 @@ pub struct MetricsSnapshot {
     pub rejected_unavailable: u64,
     pub responses_cancelled: u64,
     pub backpressure_waits: u64,
+    pub response_events: u64,
+    pub response_event_waits: u64,
     pub request_timeouts: u64,
     pub wait_until_timeouts: u64,
     pub handler_errors: u64,
@@ -435,6 +443,8 @@ impl MetricsSnapshot {
             rejected_unavailable: get(&counters.rejected_unavailable),
             responses_cancelled: get(&counters.responses_cancelled),
             backpressure_waits: get(&counters.backpressure_waits),
+            response_events: get(&counters.response_events),
+            response_event_waits: get(&counters.response_event_waits),
             request_timeouts: get(&counters.request_timeouts),
             wait_until_timeouts: get(&counters.wait_until_timeouts),
             handler_errors: get(&counters.handler_errors),
@@ -540,6 +550,16 @@ impl MetricsSnapshot {
                 "nextrs_executor_backpressure_waits_total",
                 "Response writes that waited for a slow consumer.",
                 self.backpressure_waits,
+            ),
+            (
+                "nextrs_executor_response_events_total",
+                "Response events (head, body chunks, end) received by the HTTP side.",
+                self.response_events,
+            ),
+            (
+                "nextrs_executor_response_event_waits_total",
+                "Response events the HTTP side had to wait for (nothing was queued).",
+                self.response_event_waits,
             ),
             (
                 "nextrs_executor_request_timeouts_total",
