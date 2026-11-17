@@ -15,8 +15,18 @@ same build.
 
 - **Pinned baseline:** Next.js 16.4.3 (React 19.3.1). Only this version gates
   CI.
-- **Also passing:** the same comparison suites on 16.4.4 and 16.4.5. CI runs
-  them without gating. 16.4.0 is refused by Next's own security check.
+- **Also passing:** the same comparison suites on 16.4.4, 16.4.5 and 16.4.6.
+  CI runs them without gating. 16.4.0 is refused by Next's own security
+  check.
+- **Version policy at startup:**
+  - a 16.4.x build runs;
+  - another 16.x minor starts with an `untested-next-version` warning;
+  - a build of another major, such as 15.x, is refused with
+    `unsupported-next-version`, which names the version and where it was
+    read from;
+  - an unknown version starts with a warning.
+  `--allow-unsupported` overrides the refusal, and behaviour is then
+  undefined.
 - **Node.js runtime only.**
 
 Every check runs against small applications in [`fixtures/`](../fixtures/).

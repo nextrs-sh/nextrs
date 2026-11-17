@@ -179,11 +179,17 @@ NextRS is a research project, developed in the open.
 
 - **Experimental:** not recommended for untrusted production traffic. It
   binds to `127.0.0.1` by default.
-- **Selected features:** tested against ten small App Router applications
-  with Next.js 16.4.3, and the same suites pass on 16.4.4 and 16.4.5.
+- **Selected features:** tested against small App and Pages Router
+  applications with Next.js 16.4.3. The same suites pass on 16.4.4–16.4.6.
+  One larger application (Velasia Airways) was also checked with its own
+  browser suite.
+- **Next.js 16 only:** builds of other Next.js majors are refused at
+  startup.
 - **A narrow Node.js layer:** Node's network modules (`http`, `net`, TCP
-  sockets), `zlib`, `child_process` and native addons are unavailable, so
-  many database drivers will not work.
+  sockets), `zlib` streams, `child_process` and native addons are
+  unavailable, so many database drivers will not work.
+- **Operations:** health, readiness, Prometheus metrics and JSON logs are
+  documented in [Operations](engineering/operations.md).
 - **Isolation limits:** a V8 isolate is a memory boundary, not a security
   boundary, and CPU limits apply per isolate, not per request.
 

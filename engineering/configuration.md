@@ -82,7 +82,8 @@ build wrote there.
 | `--port`, `-p` | `3000` | Port |
 | `--js-runtime` | `none` | `none` answers `501` for dynamic routes; `embedded-v8` executes them |
 | `--js-env NAME` | none | Expose one host environment variable to JavaScript (repeatable). Nothing else is inherited; `NODE_ENV` is always `production` |
-| `--allow-unsupported` | off | Start despite unsupported features. This does **not** add those features |
+| `--allow-unsupported` | off | Start despite unsupported features, including a build of an unsupported Next.js major (see [compatibility.md](compatibility.md#tested-versions-and-fixtures)). This does **not** add those features |
+| `--log-format` | `text` | `text`, or `json` (one object per line on stderr). `NEXTRS_LOG_FORMAT=json` sets the default; levels come from `RUST_LOG` (default `nextrs=info`) |
 | `--ignore-adapter-output` | off | Read internal manifests even if adapter output exists |
 
 ## Runtime limits
@@ -104,6 +105,7 @@ timeout.
 | `--max-connections`, `--write-timeout` | `1024`, `30` | Open connections; close clients that stop reading |
 | `--shutdown-grace` | `10` | On SIGINT/SIGTERM, time for in-flight requests to finish |
 | `--metrics-addr` | off | See [Metrics](#metrics) |
+| `--ready-min-isolates` | `1` | `/readyz` reports ready only with at least this many ready isolates |
 | `--v8-flags` | none | Experimental: V8 flags for tuning experiments (e.g. `"--max-semi-space-size=8"`). Unknown flags are refused; some flags weaken the sandbox |
 
 ## Outbound network
@@ -172,14 +174,35 @@ Action origin check, redirects and absolute URLs).
 | `--strip-forwarded-headers` | off | Remove those headers from every request (no proxy in front) |
 
 Without either option the headers are passed through from every client, as
-with `next start`, so the proxy in front must overwrite them. With a chain of
+with `next start`, so the proxy in front must overwrite them. Startup logs a
+warning when that default is used on a non-loopback `--host`. With a chain of
 proxies, list the one that connects to NextRS. `--trusted-proxy` never makes
 an `Origin` acceptable that Next would refuse; it only decides whose
 forwarded headers Next sees.
 
 ## Metrics
 
-`--metrics-addr ADDR` serves `/metrics` (Prometheus text), `/metrics.json`
-and `/healthz` on a separate address: counters, per-isolate state, heap
-gauges and the first line of the last isolate failure. Keep it on loopback;
-see [security.md](security.md).
+`--metrics-addr ADDR` serves these on a separate address. Keep it on
+loopback or a private network; see [security.md](security.md).
+
+| Path | Content |
+|---|---|
+| `/metrics` | Prometheus text |
+| `/metrics.json` | The same as JSON, plus native allocator detail |
+| `/healthz` | Liveness: 200 while at least one isolate is ready |
+| `/readyz` | Readiness: 503 once graceful shutdown begins, or with fewer than `--ready-min-isolates` ready isolates |
+
+The metrics cover:
+
+| Group | Metrics |
+|---|---|
+| HTTP | `nextrs_http_requests_total{class}`, `nextrs_http_response_head_seconds` and `nextrs_http_request_duration_seconds` histograms, `nextrs_http_requests_in_flight`, `nextrs_http_response_bodies_total{outcome=completed,aborted,failed}`, `nextrs_http_connections_open`/`_total`, `nextrs_http_draining` |
+| Executor | Isolates, ready isolates, queue, rejections by reason, restarts and failures per slot, heap gauges and `nextrs_executor_full_gcs_total` per slot, execution and queue time |
+| Shared cache | Hits, misses, entries, memory and storage bytes, evictions, errors by reason |
+| Images | `nextrs_image_*`: queue, in flight, transforms, rejections, memory reservations, cache |
+| Process | `nextrs_process_resident_memory_bytes`, `_anon_bytes`, `_file_bytes`, `_peak_bytes`, `nextrs_process_swap_bytes`, `nextrs_process_cpu_seconds_total`, `_threads`, `_open_fds`, `_uptime_seconds`, and `nextrs_malloc_in_use_bytes`/`_free_bytes`/`_releasable_bytes` |
+
+Every label comes from a fixed set (status class, outcome, reason, slot). No
+path, host or header value is ever a label.
+
+The metrics listener works with or without `--js-runtime embedded-v8`.
