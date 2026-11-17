@@ -16,7 +16,7 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 mixed="$root/fixtures/next-soak-mixed"
 i18n="$root/fixtures/next-pages-i18n"
 out="" nextrs="$root/target/release/nextrs" isolates=4 minutes=360 concurrency=24
-inject_every=300 inject_ms=3000 stall_timeout=1 build=0
+inject_every=300 inject_ms=3000 stall_timeout=1 build=0 idle_minutes=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --out) out="$2"; shift 2 ;;
@@ -28,6 +28,7 @@ while [[ $# -gt 0 ]]; do
     --inject-ms) inject_ms="$2"; shift 2 ;;
     --stall-timeout) stall_timeout="$2"; shift 2 ;;
     --build) build=1; shift ;;
+    --idle-minutes) idle_minutes="$2"; shift 2 ;;
     *) echo "unknown argument $1" >&2; exit 2 ;;
   esac
 done
@@ -68,6 +69,7 @@ status=0
   --project "$mixed" --ledger "$NEXTRS_UPSTREAM" --pid "${servers[0]}" --i18n-pid "${servers[1]}" \
   --i18n-target "http://127.0.0.1:$i18n_port" --i18n-metrics "http://127.0.0.1:$i18n_metrics" --i18n-dist "$i18n/.next" \
   --minutes "$minutes" --concurrency "$concurrency" --inject-every "$inject_every" --inject-ms "$inject_ms" \
+  --idle-minutes "$idle_minutes" \
   --json "$out/phase2g-soak-i$isolates.json" > "$out/phase2g-soak-i$isolates.txt" 2>&1 || status=$?
 echo "soak exit $status: $out/phase2g-soak-i$isolates.json"
 exit $status
