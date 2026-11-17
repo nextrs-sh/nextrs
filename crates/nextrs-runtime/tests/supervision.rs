@@ -222,6 +222,33 @@ async fn a_bootstrap_that_never_finishes_fails_at_its_deadline() {
     assert!(started.elapsed() < Duration::from_secs(10));
 }
 
+/// The deadline can expire before the isolate exists (creating it is slow
+/// on a cold machine): the termination must still reach the bootstrap once
+/// it runs, instead of being lost and leaving it spinning forever.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_bootstrap_deadline_that_expires_before_the_isolate_exists_still_applies() {
+    let mut config = config(Limits {
+        bootstrap_timeout: Some(Duration::from_millis(1)),
+        ..small_limits()
+    });
+    config.bootstrap = Some(fixture().join("dist/slow-bootstrap.js"));
+    config.env.insert("NEXTRS_TEST_BOOT_MS".into(), "-1".into());
+    // Isolate creation outlasts the deadline and a watch interval or two.
+    config
+        .env
+        .insert("NEXTRS_FAULT_ISOLATE_CREATE_MS".into(), "300".into());
+    let started = Instant::now();
+    let outcome = tokio::task::spawn_blocking(move || Executor::start(config));
+    match tokio::time::timeout(Duration::from_secs(20), outcome).await {
+        Ok(Ok(Err(ExecutorError::Bootstrap(error)))) => {
+            assert!(error.contains("did not finish its bootstrap"), "{error}")
+        }
+        Ok(other) => panic!("expected a bootstrap deadline error, got {other:?}"),
+        Err(_) => panic!("the spinning bootstrap was never terminated"),
+    }
+    assert!(started.elapsed() < Duration::from_secs(10));
+}
+
 /// Repeated failures back off exponentially (20, 40, 80, 160, 200 ms
 /// here) instead of restarting in a tight loop.
 #[tokio::test(flavor = "multi_thread")]

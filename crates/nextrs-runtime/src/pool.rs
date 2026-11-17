@@ -225,8 +225,20 @@ impl WorkerShared {
         if matches!(why, Termination::Failed(_)) {
             self.set_state(FAILED);
         }
-        self.stopping.store(true, Ordering::Release);
+        self.stopping.store(true, Ordering::SeqCst);
         self.stop.notify_one();
+        self.interrupt();
+    }
+
+    /// Interrupts running JavaScript if a termination was requested. The
+    /// supervisor repeats it until the thread exits: a request made before
+    /// the isolate existed (its handle is published after creation, which
+    /// can be slow on a cold machine) would otherwise be lost, and a
+    /// bootstrap that never yields would run forever.
+    pub(crate) fn interrupt(&self) {
+        if !self.stopping.load(Ordering::SeqCst) {
+            return;
+        }
         if let Some(isolate) = self.isolate.get() {
             isolate.terminate_execution();
         }
@@ -928,6 +940,9 @@ fn wait_ready(
         if inner.is_shutting_down() {
             worker.terminate(Termination::Shutdown);
         }
+        // A termination already requested (the deadline, shutdown, the
+        // heap limit) is repeated until the thread reports.
+        worker.interrupt();
         if let Some(limit) = limit
             && !expired
             && started.elapsed() > limit
@@ -955,6 +970,9 @@ fn watch(inner: &PoolInner, worker: &WorkerShared, exit: &Receiver<WorkerExit>) 
             Err(RecvTimeoutError::Disconnected) => return Ok(()),
             Err(RecvTimeoutError::Timeout) => {}
         }
+        // A termination already requested is repeated until the thread
+        // exits (see `interrupt`).
+        worker.interrupt();
         // One reading: the turn may end between a second call and the log,
         // which then showed the stall as busy_ms=0.
         let busy = worker.busy_for();
