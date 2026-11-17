@@ -8,6 +8,7 @@
 mod dynamic;
 mod etag;
 mod external;
+pub mod http_metrics;
 mod i18n;
 mod image;
 mod pages;
@@ -21,6 +22,7 @@ mod serve;
 mod static_files;
 
 pub use crate::dynamic::DEFAULT_MAX_REQUEST_BODY;
+pub use crate::http_metrics::HttpMetrics;
 pub use crate::image::{ImageCacheOptions, ImageFault, ImageFaults, ImageOptions};
 pub use crate::serve::{ClientAddr, ServeOptions, serve};
 
@@ -1687,38 +1689,106 @@ pub(crate) async fn render_not_found_for_handler(
     pages::not_found(state, ctx, keep, None).await
 }
 
-/// Executor metrics for a separate (loopback) listener: `GET /metrics` in
-/// the Prometheus text format, `GET /metrics.json`, and `GET /healthz`
-/// (200 while at least one isolate is ready, 503 otherwise).
-pub fn metrics_app(executor: Arc<Executor>, images: Option<ImageStats>) -> Router {
+/// What the metrics listener reports.
+#[derive(Clone)]
+pub struct MetricsSources {
+    /// The JavaScript executor (isolates, queue, heaps, shared cache).
+    pub executor: Option<Arc<Executor>>,
+    /// The image optimizer (when the build has an image config).
+    pub images: Option<ImageStats>,
+    /// The main listener's request, response and connection counters.
+    pub http: Arc<HttpMetrics>,
+    /// `/readyz` answers 200 only with at least this many ready isolates.
+    pub ready_min_isolates: usize,
+}
+
+impl MetricsSources {
+    /// Ready for traffic: not shutting down, and enough isolates ready.
+    fn ready(&self) -> Result<(), String> {
+        if self
+            .http
+            .draining
+            .load(std::sync::atomic::Ordering::Relaxed)
+        {
+            return Err("shutting down".into());
+        }
+        if let Some(executor) = &self.executor {
+            let ready = executor.metrics().ready_executors();
+            if ready < self.ready_min_isolates.max(1) {
+                return Err(format!(
+                    "{ready} isolate(s) ready, {} required",
+                    self.ready_min_isolates.max(1)
+                ));
+            }
+        }
+        Ok(())
+    }
+}
+
+/// Metrics and health for a separate (loopback) listener:
+///
+/// * `GET /metrics`: Prometheus text format (executor, shared cache, image
+///   optimizer, HTTP, process);
+/// * `GET /metrics.json`: the same as JSON;
+/// * `GET /healthz`: liveness (the server runs and at least one isolate is
+///   ready);
+/// * `GET /readyz`: readiness. 503 once graceful shutdown begins, or with
+///   fewer ready isolates than `ready_min_isolates`.
+///
+/// Labels are bounded: no path, host or header value is ever a label.
+pub fn metrics_app(sources: MetricsSources) -> Router {
     use axum::routing::get;
-    let text = executor.clone();
-    let json = executor.clone();
-    let text_images = images.clone();
+    let text = sources.clone();
+    let json = sources.clone();
+    let health = sources.clone();
+    let ready = sources;
     Router::new()
         .route(
             "/metrics",
             get(move || async move {
-                let mut out = text.metrics().to_prometheus();
-                if let Some(images) = &text_images {
+                let mut out = String::new();
+                if let Some(executor) = &text.executor {
+                    out.push_str(&executor.metrics().to_prometheus());
+                }
+                if let Some(images) = &text.images {
+                    out.push_str("# HELP nextrs_image_* Image optimizer counters (_total-less names are counters unless named *_bytes, queued or in_flight).\n");
                     for (name, value) in images.snapshot() {
                         out.push_str(&format!("nextrs_image_{name} {value}\n"));
                     }
                 }
+                out.push_str(&text.http.to_prometheus());
+                let malloc = text
+                    .executor
+                    .as_ref()
+                    .and_then(|e| e.metrics().memory.malloc.clone());
+                out.push_str(&http_metrics::process_prometheus(
+                    text.http.uptime_seconds(),
+                    malloc.as_ref(),
+                ));
                 ([(header::CONTENT_TYPE, "text/plain; version=0.0.4")], out)
             }),
         )
         .route(
             "/metrics.json",
             get(move || async move {
-                let mut value = serde_json::to_value(json.metrics()).unwrap_or_default();
-                if let (Some(images), Some(object)) = (&images, value.as_object_mut()) {
-                    let map: serde_json::Map<String, serde_json::Value> = images
-                        .snapshot()
-                        .into_iter()
-                        .map(|(k, v)| (k.to_owned(), v.into()))
-                        .collect();
-                    object.insert("images".into(), map.into());
+                let mut value = match &json.executor {
+                    Some(executor) => serde_json::to_value(executor.metrics()).unwrap_or_default(),
+                    None => serde_json::json!({}),
+                };
+                if let Some(object) = value.as_object_mut() {
+                    if let Some(images) = &json.images {
+                        let map: serde_json::Map<String, serde_json::Value> = images
+                            .snapshot()
+                            .into_iter()
+                            .map(|(k, v)| (k.to_owned(), v.into()))
+                            .collect();
+                        object.insert("images".into(), map.into());
+                    }
+                    object.insert("http".into(), json.http.to_json());
+                    object.insert(
+                        "process".into(),
+                        http_metrics::process_json(json.http.uptime_seconds()),
+                    );
                 }
                 axum::Json(value)
             }),
@@ -1726,10 +1796,23 @@ pub fn metrics_app(executor: Arc<Executor>, images: Option<ImageStats>) -> Route
         .route(
             "/healthz",
             get(move || async move {
-                if executor.metrics().ready_executors() > 0 {
-                    (StatusCode::OK, "ok\n")
+                let alive = health
+                    .executor
+                    .as_ref()
+                    .is_none_or(|e| e.metrics().ready_executors() > 0);
+                if alive {
+                    (StatusCode::OK, "ok\n".to_owned())
                 } else {
-                    (StatusCode::SERVICE_UNAVAILABLE, "no ready isolate\n")
+                    (StatusCode::SERVICE_UNAVAILABLE, "no ready isolate\n".to_owned())
+                }
+            }),
+        )
+        .route(
+            "/readyz",
+            get(move || async move {
+                match ready.ready() {
+                    Ok(()) => (StatusCode::OK, "ready\n".to_owned()),
+                    Err(reason) => (StatusCode::SERVICE_UNAVAILABLE, format!("not ready: {reason}\n")),
                 }
             }),
         )
