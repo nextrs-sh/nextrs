@@ -394,8 +394,11 @@
           resolve(reason);
         };
       });
-      ops.op_nextrs_response_closed(id).then(() => {
-        if (res.writableFinished) return;
+      ops.op_nextrs_response_closed(id).then((complete) => {
+        // complete: the client received every byte the response declared
+        // (Content-Length), and HTTP stopped reading before end() was
+        // processed. That is a delivered response, not a disconnect.
+        if (res.writableFinished || complete) return;
         if (!res.destroyed) {
           req.aborted = true;
           req.destroy();

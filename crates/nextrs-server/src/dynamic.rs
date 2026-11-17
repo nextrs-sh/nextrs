@@ -185,7 +185,11 @@ pub(crate) async fn render(
         }
     };
 
-    let mut response = Response::new(Body::from_stream(body_stream(events, deadline)));
+    let declared = response_headers
+        .iter()
+        .find(|(name, _)| name.eq_ignore_ascii_case("content-length"))
+        .and_then(|(_, value)| value.trim().parse::<u64>().ok());
+    let mut response = Response::new(Body::from_stream(body_stream(events, deadline, declared)));
     *response.status_mut() =
         StatusCode::from_u16(status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
     let map = response.headers_mut();
@@ -290,16 +294,25 @@ async fn next_event(
 /// deadline mid-body aborts the HTTP response instead of ending it cleanly,
 /// so a truncated render is never presented as complete. Dropping the
 /// stream (client disconnect) cancels the request in JavaScript.
+///
+/// With a declared length (`Content-Length`), the stream is marked complete
+/// as it passes on the last declared byte: hyper stops reading there, and
+/// the drop that follows is a delivered response, not a cancellation.
 fn body_stream(
     events: ResponseStream,
     deadline: Option<Instant>,
+    declared: Option<u64>,
 ) -> impl futures_util::Stream<Item = Result<Bytes, std::io::Error>> {
-    futures_util::stream::unfold(Some(events), move |state| async move {
-        let mut events = state?;
+    futures_util::stream::unfold(Some((events, 0u64)), move |state| async move {
+        let (mut events, mut sent) = state?;
         loop {
             let failure = match next_event(&mut events, deadline).await {
                 Ok(Some(ResponseEvent::Chunk(chunk))) => {
-                    return Some((Ok(chunk), Some(events)));
+                    sent += chunk.len() as u64;
+                    if declared.is_some_and(|declared| sent >= declared) {
+                        events.mark_complete();
+                    }
+                    return Some((Ok(chunk), Some((events, sent))));
                 }
                 Ok(Some(ResponseEvent::Head { .. })) => continue,
                 Ok(Some(ResponseEvent::End)) => return None,

@@ -274,3 +274,44 @@ async fn an_exception_mid_stream_aborts_the_response() {
     );
     assert_eq!(executor.metrics().handler_errors, 1);
 }
+
+/// HTTP stops reading a body with a Content-Length at its last byte, often
+/// before JavaScript has ended the response (res.end(data) ends a tick
+/// later). Once the HTTP layer marks the stream complete, that drop is a
+/// delivered response: JavaScript is not told the client left, and nothing
+/// is counted as cancelled. Without the mark (a real disconnect) it is.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_body_dropped_after_its_declared_length_is_not_a_cancellation() {
+    for complete in [true, false] {
+        let executor = executor(small_limits());
+        let mut stream = executor
+            .render(request("declared-length.js", &[]))
+            .await
+            .expect("admitted");
+        assert!(matches!(
+            stream.recv().await,
+            Some(ResponseEvent::Head { status: 200, .. })
+        ));
+        let Some(ResponseEvent::Chunk(chunk)) = stream.recv().await else {
+            panic!("expected the body");
+        };
+        assert_eq!(&chunk[..], b"hello");
+        if complete {
+            stream.mark_complete();
+        }
+        drop(stream);
+        tokio::time::sleep(Duration::from_millis(150)).await;
+        let seen = collect(
+            &executor,
+            request("declared-length.js", &[("x-mode", "report")]),
+        )
+        .await;
+        let expected = if complete { "ok" } else { "destroyed" };
+        assert_eq!(seen.text(), expected, "complete={complete}");
+        assert_eq!(
+            executor.metrics().responses_cancelled,
+            u64::from(!complete),
+            "complete={complete}"
+        );
+    }
+}

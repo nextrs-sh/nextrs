@@ -469,17 +469,23 @@ fn op_nextrs_response_error(state: &mut OpState, #[smi] id: u32, #[string] messa
 
 /// Resolves when the consumer of the response (the HTTP connection) has
 /// dropped it: after the body was delivered, or when the client went away
-/// or the request was cancelled.
+/// or the request was cancelled. Resolves true when the whole declared body
+/// (its Content-Length) had been passed on: the client got the response,
+/// even if JavaScript has not ended it yet.
 #[op2]
-async fn op_nextrs_response_closed(state: Rc<RefCell<OpState>>, #[smi] id: u32) {
+async fn op_nextrs_response_closed(state: Rc<RefCell<OpState>>, #[smi] id: u32) -> bool {
     let flow = state
         .borrow()
         .borrow::<Requests>()
         .open
         .get(&id)
         .map(|open| open.flow.clone());
-    if let Some(flow) = flow {
-        flow.closed().await;
+    match flow {
+        Some(flow) => {
+            flow.closed().await;
+            flow.is_complete()
+        }
+        None => false,
     }
 }
 

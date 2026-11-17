@@ -278,6 +278,11 @@ impl RequestTimer {
         self.done = true;
         let metrics = self.metrics.clone();
         let started = self.started;
+        let declared = response
+            .headers()
+            .get(axum::http::header::CONTENT_LENGTH)
+            .and_then(|v| v.to_str().ok())
+            .and_then(|v| v.trim().parse::<u64>().ok());
         response.map(|body| {
             let finished = body.is_end_stream();
             let mut metered = MeteredBody {
@@ -286,6 +291,8 @@ impl RequestTimer {
                 started,
                 class,
                 ended: false,
+                declared,
+                sent: 0,
             };
             if finished {
                 metered.end(0);
@@ -311,6 +318,10 @@ struct MeteredBody {
     started: Instant,
     class: usize,
     ended: bool,
+    /// Content-Length, if declared: hyper stops reading at the last
+    /// declared byte, so reaching it is a complete body.
+    declared: Option<u64>,
+    sent: u64,
 }
 
 impl MeteredBody {
@@ -339,7 +350,14 @@ impl http_body::Body for MeteredBody {
         match &polled {
             Poll::Ready(None) => self.end(0),
             Poll::Ready(Some(Err(_))) => self.end(2),
-            Poll::Ready(Some(Ok(_))) if self.inner.is_end_stream() => self.end(0),
+            Poll::Ready(Some(Ok(frame))) => {
+                self.sent += frame.data_ref().map_or(0, |d| d.len() as u64);
+                if self.inner.is_end_stream()
+                    || self.declared.is_some_and(|declared| self.sent >= declared)
+                {
+                    self.end(0);
+                }
+            }
             _ => {}
         }
         polled
