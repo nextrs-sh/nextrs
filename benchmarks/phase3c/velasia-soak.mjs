@@ -157,7 +157,9 @@ try {
   const kinds = {
     'ppr-home': { w: 10, make: () => ({ path: '/' }), expect: 'Beyond every horizon' },
     'ppr-destination': { w: 8, make: (r) => ({ path: `/destinations/${DEST[Math.floor(r() * DEST.length)]}` }), expect: '</html>' },
-    'rsc-destination': { w: 3, make: (r) => ({ path: `/destinations/${DEST[Math.floor(r() * DEST.length)]}`, headers: { rsc: '1' } }) },
+    // An RSC request without Next 16's `_rsc` cache-busting parameter is
+    // redirected to add it, by next start and NextRS alike (checked).
+    'rsc-destination': { w: 3, make: (r) => ({ path: `/destinations/${DEST[Math.floor(r() * DEST.length)]}`, headers: { rsc: '1' } }), ok: [307] },
     'static-page': { w: 3, make: (r) => ({ path: ['/about', '/help', '/credits', '/destinations', '/robots.txt', '/sitemap.xml'][Math.floor(r() * 6)] }) },
     'flight-search-shell': { w: 4, make: () => ({ path: '/flights' }), expect: 'Velasia' },
     'flight-results': { w: 10, make: (r) => ({ path: search(r) }), expect: 'Singapore' },
