@@ -166,7 +166,15 @@ pub(crate) async fn render(
     let (status, response_headers) = match first {
         Ok(Some(ResponseEvent::Head { status, headers })) => (status, headers),
         Ok(Some(ResponseEvent::Error(error))) => {
-            return error_response(StatusCode::BAD_GATEWAY, "render-failed", &error);
+            // The message is JavaScript's (res.destroy(error) before a
+            // status line): it may name files or internals, so it is
+            // logged here and never sent to the client.
+            tracing::warn!(%error, "response failed before its status line");
+            return error_response(
+                StatusCode::BAD_GATEWAY,
+                "render-failed",
+                "the response failed before it started",
+            );
         }
         Ok(Some(ResponseEvent::Chunk(_) | ResponseEvent::End)) => {
             return error_response(
