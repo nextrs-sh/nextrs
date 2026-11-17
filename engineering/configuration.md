@@ -97,7 +97,7 @@ timeout.
 | `--max-concurrent` | `128` | Requests executing at once in one isolate |
 | `--max-queued`, `--queue-timeout` | `512`, `10` | Requests waiting for an isolate, and for how long; beyond either, `503` with `Retry-After` |
 | `--request-timeout` | `60` | Deadline per dynamic request, including `after()` work: `504`, or an aborted response if it already started |
-| `--js-stall-timeout` | `10` | Terminate and replace an isolate whose JavaScript runs this long without yielding (affects every request in it) |
+| `--js-stall-timeout` | `10` | Terminate and replace an isolate whose JavaScript runs this long **on the CPU** without yielding (affects every request in it). A turn that is blocked rather than computing (a slow disk, page faults, CPU throttling) is logged and ended only after 6 times this in wall time. Without a per-thread CPU clock (non-Linux), wall time decides |
 | `--js-bootstrap-timeout` | `60` | Longest an isolate may take to start (loading Next's bundles); not judged by the stall limit. On the first start, expiry fails startup; later, the isolate is restarted with backoff |
 | `--js-heap-limit` | V8 default | Heap limit per isolate, in MiB; reaching it replaces the isolate. Lower values trade throughput for memory |
 | `--response-buffer` | `64` | Response KiB buffered per request before the renderer waits for the client |

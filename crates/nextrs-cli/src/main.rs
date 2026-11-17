@@ -443,8 +443,10 @@ struct LimitArgs {
     /// Expiry gives a 504 (or aborts a started response).
     #[arg(long, value_name = "SECONDS", default_value_t = 60.0)]
     request_timeout: f64,
-    /// Terminate and replace an isolate whose JavaScript runs this long
-    /// without yielding. Affects every request in that isolate.
+    /// Terminate and replace an isolate whose JavaScript runs this long on
+    /// the CPU without yielding (thread CPU time; a turn blocked off the CPU,
+    /// as on a slow disk or under CPU throttling, is ended only after 6
+    /// times this in wall time). Affects every request in that isolate.
     #[arg(long, value_name = "SECONDS", default_value_t = 10.0)]
     js_stall_timeout: f64,
     /// Longest an isolate may take to start (loading Next's bundles); 0

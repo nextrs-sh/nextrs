@@ -76,6 +76,56 @@ async fn a_cpu_bound_loop_is_terminated_and_replaced() {
     fails_and_recovers("loop", FailureReason::CpuStall, small_limits()).await;
 }
 
+/// A turn that blocks without using the CPU (a slow disk, page faults,
+/// CPU throttling) for longer than the stall limit is not a runaway: the
+/// isolate is kept and the request completes. Measured in Phase 3C, where
+/// wall-clock stall detection killed all four isolates of a process whose
+/// threads were blocked on a saturated disk.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_turn_blocked_off_the_cpu_is_not_a_stall() {
+    // Stall limit 500 ms; blocked for 1.5 s (below the 6x wall backstop).
+    let executor = executor(small_limits());
+    let response = collect(
+        &executor,
+        request("faults.js", &[("x-mode", "block"), ("x-delay", "1500")]),
+    )
+    .await;
+    assert_eq!(response.status, 200, "{}", response.text());
+    assert!(response.text().ends_with(":blocked"), "{}", response.text());
+    let metrics = executor.metrics();
+    assert_eq!(metrics.executors[0].restarts, 0, "{:?}", metrics.executors);
+}
+
+/// A turn blocked for good is still ended, at 6 times the stall limit in
+/// wall time.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_turn_blocked_for_good_is_terminated_at_the_wall_backstop() {
+    let executor = executor(small_limits());
+    let started = Instant::now();
+    let _ = collect(
+        &executor,
+        request("faults.js", &[("x-mode", "block"), ("x-delay", "30000")]),
+    )
+    .await;
+    assert!(
+        eventually(Duration::from_secs(10), async || failures(
+            &executor,
+            FailureReason::CpuStall
+        ) == 1)
+        .await,
+        "not terminated: {:?}",
+        executor.metrics().executors
+    );
+    let elapsed = started.elapsed();
+    assert!(
+        // Not at the 500 ms limit (the turn uses no CPU), but by the 3 s
+        // backstop, counted from the last heartbeat, which can precede the
+        // turn by a little under load.
+        elapsed >= Duration::from_secs(2) && elapsed < Duration::from_secs(15),
+        "{elapsed:?}"
+    );
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn an_endless_microtask_chain_is_terminated_and_replaced() {
     fails_and_recovers("microtask-loop", FailureReason::CpuStall, small_limits()).await;

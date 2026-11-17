@@ -119,6 +119,12 @@ pub(crate) struct WorkerShared {
     inbox: Mutex<Option<mpsc::UnboundedSender<Box<Job>>>>,
     epoch: Instant,
     heartbeat_ms: AtomicU64,
+    /// The isolate thread's CPU time (ns) at its last heartbeat, and the
+    /// clock to read it from another thread (`thread_cpu_clock`). Unset
+    /// where no per-thread CPU clock exists: stalls are then judged by
+    /// wall time alone.
+    heartbeat_cpu_ns: AtomicU64,
+    cpu_clock: OnceLock<CpuClock>,
     /// V8 heap statistics, sampled by the isolate thread (`record_heap`).
     heap_used: AtomicUsize,
     heap_total: AtomicUsize,
@@ -145,6 +151,8 @@ impl WorkerShared {
             inbox: Mutex::new(Some(inbox)),
             epoch: Instant::now(),
             heartbeat_ms: AtomicU64::new(0),
+            heartbeat_cpu_ns: AtomicU64::new(0),
+            cpu_clock: OnceLock::new(),
             heap_used: AtomicUsize::new(0),
             heap_total: AtomicUsize::new(0),
             heap_external: AtomicUsize::new(0),
@@ -167,9 +175,32 @@ impl WorkerShared {
         self.state.store(state, Ordering::Release);
     }
 
+    /// Called on the isolate thread whenever its event loop has control.
     pub fn beat(&self) {
         let now = self.epoch.elapsed().as_millis() as u64;
+        if let Some(clock) = self.cpu_clock.get()
+            && let Some(cpu) = clock.now_ns()
+        {
+            self.heartbeat_cpu_ns.store(cpu, Ordering::Relaxed);
+        }
         self.heartbeat_ms.store(now, Ordering::Relaxed);
+    }
+
+    /// Called once on the isolate thread: lets the supervisor read this
+    /// thread's CPU time.
+    pub fn register_cpu_clock(&self) {
+        if let Some(clock) = CpuClock::current_thread() {
+            let _ = self.cpu_clock.set(clock);
+        }
+    }
+
+    /// CPU time the isolate thread has used since its event loop last had
+    /// control, if a per-thread CPU clock is available.
+    fn busy_cpu_for(&self) -> Option<Duration> {
+        let now = self.cpu_clock.get()?.now_ns()?;
+        Some(Duration::from_nanos(now.saturating_sub(
+            self.heartbeat_cpu_ns.load(Ordering::Relaxed),
+        )))
     }
 
     pub fn record_heap(&self, stats: &v8::HeapStatistics) {
@@ -959,10 +990,62 @@ fn wait_ready(
     }
 }
 
+/// A turn that has run longer than the stall timeout on the CPU is a
+/// runaway; one that has not yielded for `STALL_WALL_FACTOR` times the
+/// limit is terminated even if it is blocked rather than computing.
+const STALL_WALL_FACTOR: u32 = 6;
+
+/// Whether a turn counts as stalled. With a thread CPU clock, the CPU time
+/// of the turn decides: a thread blocked in the kernel (slow disk, page
+/// faults, cgroup CPU throttling) is not a runaway, and killing it would
+/// turn slowness into failed requests. Wall time is the backstop. Without
+/// a CPU clock, wall time decides.
+fn stalled(limit: Duration, busy: Duration, cpu: Option<Duration>) -> bool {
+    match cpu {
+        Some(cpu) => cpu > limit || busy > limit * STALL_WALL_FACTOR,
+        None => busy > limit,
+    }
+}
+
+/// A thread's CPU-time clock, readable from other threads (Linux:
+/// `pthread_getcpuclockid`).
+#[derive(Debug, Clone, Copy)]
+struct CpuClock(libc::clockid_t);
+
+impl CpuClock {
+    #[cfg(target_os = "linux")]
+    fn current_thread() -> Option<Self> {
+        let mut clock: libc::clockid_t = 0;
+        // SAFETY: pthread_self() is the calling thread; the out pointer is
+        // a valid clockid_t.
+        let rc = unsafe { libc::pthread_getcpuclockid(libc::pthread_self(), &mut clock) };
+        (rc == 0).then_some(Self(clock))
+    }
+
+    #[cfg(not(target_os = "linux"))]
+    fn current_thread() -> Option<Self> {
+        None
+    }
+
+    /// Nanoseconds of CPU the thread has used; `None` once it has exited.
+    fn now_ns(self) -> Option<u64> {
+        let mut ts = libc::timespec {
+            tv_sec: 0,
+            tv_nsec: 0,
+        };
+        // SAFETY: a valid timespec out pointer; an invalid clock (the
+        // thread exited) is reported through the return value.
+        let rc = unsafe { libc::clock_gettime(self.0, &mut ts) };
+        (rc == 0).then(|| ts.tv_sec as u64 * 1_000_000_000 + ts.tv_nsec as u64)
+    }
+}
+
 /// Watches a ready isolate until its thread reports an exit.
 fn watch(inner: &PoolInner, worker: &WorkerShared, exit: &Receiver<WorkerExit>) -> WorkerExit {
     let limits = &inner.config.limits;
     let mut draining_since: Option<Instant> = None;
+    // The heartbeat of the turn last reported as blocked.
+    let mut blocked_turn: Option<u64> = None;
     loop {
         match exit.recv_timeout(WATCH_INTERVAL) {
             Ok(result) => return result,
@@ -973,21 +1056,40 @@ fn watch(inner: &PoolInner, worker: &WorkerShared, exit: &Receiver<WorkerExit>) 
         // A termination already requested is repeated until the thread
         // exits (see `interrupt`).
         worker.interrupt();
-        // One reading: the turn may end between a second call and the log,
-        // which then showed the stall as busy_ms=0.
+        // One reading of each: the turn may end between a second call and
+        // the log, which then showed the stall as busy_ms=0.
         let busy = worker.busy_for();
+        let cpu = worker.busy_cpu_for();
         if let Some(limit) = limits.stall_timeout
-            && busy > limit
+            && stalled(limit, busy, cpu)
             && worker.termination().is_none()
         {
             tracing::error!(
                 target: "nextrs::executor",
                 slot = worker.slot,
                 busy_ms = busy.as_millis() as u64,
+                cpu_ms = cpu.map(|c| c.as_millis() as u64),
                 active = worker.active.load(Ordering::Relaxed),
                 "JavaScript exceeded the stall timeout; terminating the isolate"
             );
             worker.terminate(Termination::Failed(FailureReason::CpuStall));
+        } else if let Some(limit) = limits.stall_timeout
+            && busy > limit
+            && worker.termination().is_none()
+            && blocked_turn != Some(worker.heartbeat_ms.load(Ordering::Relaxed))
+        {
+            // Long in one turn but not on the CPU: blocked (a synchronous
+            // read on a slow disk, page faults under memory pressure, CPU
+            // throttling). Reported once per turn, not terminated.
+            blocked_turn = Some(worker.heartbeat_ms.load(Ordering::Relaxed));
+            tracing::warn!(
+                target: "nextrs::executor",
+                slot = worker.slot,
+                busy_ms = busy.as_millis() as u64,
+                cpu_ms = cpu.map(|c| c.as_millis() as u64),
+                "JavaScript has not yielded for longer than the stall timeout, but is not \
+                 using the CPU (blocked or throttled); not terminating it"
+            );
         }
         if inner.is_shutting_down() {
             match draining_since {

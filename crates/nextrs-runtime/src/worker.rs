@@ -155,6 +155,7 @@ fn run(
             gc_data,
             v8::GCType::kGCTypeMarkSweepCompact,
         );
+        worker.register_cpu_clock();
         worker.beat();
         let heartbeat = {
             let worker = worker.clone();
