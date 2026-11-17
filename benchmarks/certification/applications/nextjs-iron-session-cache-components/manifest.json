@@ -1,0 +1,85 @@
+{
+  "repository": "https://github.com/vercel/next.js.git",
+  "commit": "54b876b6b161b0ecda19562eb264bec637e60d6d",
+  "ref": "v16.4.6",
+  "install": [
+    "npm",
+    "install",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "installNote": "No lockfile; next@latest (16.4.6 when installed, 2026-11-17). Resolved versions in build.json.",
+  "build": [
+    "node",
+    "node_modules/next/dist/bin/next",
+    "build"
+  ],
+  "health": "/login",
+  "mask": [
+    "digest[^0-9]{1,6}[0-9]+",
+    "[A-Za-z0-9_-]{21}[a-z](?=\\\\\\\\?\")"
+  ],
+  "name": "nextjs-iron-session-cache-components",
+  "description": "Vercel's with-iron-session-cache-components example: Cache Components with PPR, 'use cache' and 'use cache: private', Server Actions (login with useActionState, add note, logout) and an encrypted iron-session cookie (Web Crypto). Independently maintained by the Next.js team.",
+  "pattern": "session auth + Cache Components (App Router)",
+  "subdir": "examples/with-iron-session-cache-components",
+  "runEnv": {
+    "SESSION_PASSWORD": "phase3c-synthetic-session-password-0123456789abcdef"
+  },
+  "scenarios": [
+    {
+      "name": "login-page",
+      "path": "/login",
+      "expect": {
+        "status": 200,
+        "contains": [
+          "Log in",
+          "ada@example.com"
+        ]
+      }
+    },
+    {
+      "name": "home-shell-anonymous",
+      "path": "/",
+      "expect": {
+        "contains": [
+          "Announcements",
+          "Cache Components is now enabled."
+        ],
+        "notContains": [
+          "Finish the analytical engine notes."
+        ]
+      }
+    },
+    {
+      "name": "note-anonymous",
+      "path": "/notes/n1",
+      "expect": {
+        "notContains": [
+          "Finish the analytical engine notes."
+        ]
+      }
+    },
+    {
+      "name": "forged-session-cookie",
+      "path": "/",
+      "headers": {
+        "cookie": "app_session=Fe26.2**forged**not-a-real-seal"
+      },
+      "expect": {
+        "notContains": [
+          "Finish the analytical engine notes.",
+          "Ada Lovelace"
+        ]
+      }
+    },
+    {
+      "name": "not-found",
+      "path": "/no-such-page",
+      "expect": {
+        "status": 404
+      }
+    }
+  ],
+  "maskNote": "Next renders a random 22-character key per request into the RSC payload (head boundaries)."
+}
