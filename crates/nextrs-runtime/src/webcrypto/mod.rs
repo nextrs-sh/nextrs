@@ -145,6 +145,9 @@ pub(crate) enum Algorithm {
     AesCbc,
     Hmac(Hash),
     Hkdf,
+    /// A PBKDF2 password key (`deriveBits` with the hash and iteration
+    /// count given per call).
+    Pbkdf2,
     Ecdsa(Curve),
     RsassaPkcs1(Hash),
     RsaPss(Hash),
@@ -182,6 +185,7 @@ impl Algorithm {
             "AES-CBC" => Self::AesCbc,
             "HMAC" => Self::Hmac(hash()?),
             "HKDF" => Self::Hkdf,
+            "PBKDF2" => Self::Pbkdf2,
             "ECDSA" => Self::Ecdsa(curve()?),
             "RSASSA-PKCS1-v1_5" => Self::RsassaPkcs1(rsa_hash(hash()?)?),
             "RSA-PSS" => Self::RsaPss(rsa_hash(hash()?)?),
@@ -332,7 +336,11 @@ pub(crate) fn op_nextrs_key_import(
     check_data_len(data.len(), "key")?;
     let algorithm = Algorithm::parse(&spec)?;
     let material = match algorithm {
-        Algorithm::AesGcm | Algorithm::AesCbc | Algorithm::Hmac(_) | Algorithm::Hkdf => {
+        Algorithm::AesGcm
+        | Algorithm::AesCbc
+        | Algorithm::Hmac(_)
+        | Algorithm::Hkdf
+        | Algorithm::Pbkdf2 => {
             if format != "raw" {
                 return Err(error(
                     "NotSupportedError",
@@ -388,8 +396,11 @@ pub(crate) fn op_nextrs_key_generate(
         Algorithm::AesGcm | Algorithm::AesCbc | Algorithm::Hmac(_) => {
             vec![secret::generate(algorithm, spec.length.unwrap_or(0))?]
         }
-        Algorithm::Hkdf => {
-            return Err(error("NotSupportedError", "HKDF keys cannot be generated"));
+        Algorithm::Hkdf | Algorithm::Pbkdf2 => {
+            return Err(error(
+                "NotSupportedError",
+                "HKDF and PBKDF2 keys cannot be generated",
+            ));
         }
         Algorithm::Ecdsa(curve) => {
             let (public, private) = asymmetric::generate_ec(curve)?;
@@ -432,8 +443,11 @@ pub(crate) fn op_nextrs_key_export(
     let key = key_of(state, id)?;
     match (&key.material, format) {
         (Material::Secret(bytes), "raw") => {
-            if key.algorithm == Algorithm::Hkdf {
-                return Err(error("InvalidAccessError", "HKDF keys are not extractable"));
+            if matches!(key.algorithm, Algorithm::Hkdf | Algorithm::Pbkdf2) {
+                return Err(error(
+                    "InvalidAccessError",
+                    "HKDF and PBKDF2 keys are not extractable",
+                ));
             }
             Ok(bytes.to_vec())
         }
@@ -454,8 +468,11 @@ pub(crate) fn op_nextrs_key_export_jwk(
     #[smi] id: u32,
 ) -> Result<jwk::Jwk, JsErrorBox> {
     let key = key_of(state, id)?;
-    if key.algorithm == Algorithm::Hkdf {
-        return Err(error("InvalidAccessError", "HKDF keys are not extractable"));
+    if matches!(key.algorithm, Algorithm::Hkdf | Algorithm::Pbkdf2) {
+        return Err(error(
+            "InvalidAccessError",
+            "HKDF and PBKDF2 keys are not extractable",
+        ));
     }
     Ok(jwk::export(&key.material))
 }
@@ -583,6 +600,27 @@ pub(crate) fn op_nextrs_hkdf(
         return Err(error("InvalidAccessError", "the key is not an HKDF key"));
     };
     secret::hkdf(hash, ikm, salt, info, bits)
+}
+
+/// `deriveBits({ name: "PBKDF2", hash, salt, iterations }, key, length)`
+/// (RFC 8018 PBKDF2 with HMAC; `bits` a non-zero multiple of 8).
+#[op2]
+#[buffer]
+pub(crate) fn op_nextrs_pbkdf2_bits(
+    state: &mut OpState,
+    #[smi] id: u32,
+    #[string] hash: &str,
+    #[buffer] salt: &[u8],
+    iterations: u32,
+    bits: u32,
+) -> Result<Vec<u8>, JsErrorBox> {
+    check_data_len(salt.len(), "PBKDF2 salt")?;
+    let hash = Hash::parse(hash)?;
+    let key = key_of(state, id)?;
+    let (Algorithm::Pbkdf2, Material::Secret(password)) = (key.algorithm, &key.material) else {
+        return Err(error("InvalidAccessError", "the key is not a PBKDF2 key"));
+    };
+    secret::pbkdf2(hash, password, salt, iterations, bits)
 }
 
 /// node:crypto's `hkdf`/`hkdfSync`: HKDF over key bytes JavaScript passes

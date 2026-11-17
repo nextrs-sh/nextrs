@@ -80,9 +80,9 @@ pub(crate) fn import(algorithm: Algorithm, jwk: &Jwk) -> Result<Material, JsErro
             check_kty(jwk, "oct")?;
             secret::import(algorithm, &decode(&jwk.k, "k")?)
         }
-        Algorithm::Hkdf => Err(error(
+        Algorithm::Hkdf | Algorithm::Pbkdf2 => Err(error(
             "NotSupportedError",
-            "HKDF keys import from 'raw' only",
+            "HKDF and PBKDF2 keys import from 'raw' only",
         )),
         Algorithm::Ecdsa(curve) => import_ec(curve, jwk),
         Algorithm::RsassaPkcs1(_) | Algorithm::RsaPss(_) => import_rsa(jwk),

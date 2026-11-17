@@ -2,7 +2,7 @@
 // which node:crypto's webcrypto/subtle re-export (02_node.js).
 //
 // Implemented (src/webcrypto/): digest (SHA-1/256/384/512); AES-GCM and
-// AES-CBC; HMAC; HKDF deriveBits; ECDSA P-256/P-384, RSASSA-PKCS1-v1_5,
+// AES-CBC; HMAC; HKDF and PBKDF2 deriveBits; ECDSA P-256/P-384, RSASSA-PKCS1-v1_5,
 // RSA-PSS and Ed25519 sign/verify; key formats raw, spki, pkcs8 and jwk
 // where the algorithm has them; generateKey for AES, HMAC, ECDSA and
 // Ed25519. Key material stays in Rust: a CryptoKey holds a handle, released
@@ -36,16 +36,18 @@
   };
 
   // --- Names --------------------------------------------------------------
-  const REGISTERED = ["AES-GCM", "AES-CBC", "HMAC", "HKDF", "ECDSA", "RSASSA-PKCS1-v1_5", "RSA-PSS", "Ed25519"];
+  const REGISTERED = ["AES-GCM", "AES-CBC", "HMAC", "HKDF", "PBKDF2", "ECDSA", "RSASSA-PKCS1-v1_5", "RSA-PSS", "Ed25519"];
   // Web Crypto algorithms NextRS knows but does not implement.
-  const NOT_IMPLEMENTED = ["RSA-OAEP", "ECDH", "AES-CTR", "AES-KW", "PBKDF2", "X25519", "X448", "Ed448", "SHA-3"];
+  const NOT_IMPLEMENTED = ["RSA-OAEP", "ECDH", "AES-CTR", "AES-KW", "X25519", "X448", "Ed448", "SHA-3"];
   const HASHES = ["SHA-1", "SHA-256", "SHA-384", "SHA-512"];
   const byUpper = (names) => Object.fromEntries(names.map((n) => [n.toUpperCase(), n]));
   const REGISTERED_BY_UPPER = byUpper(REGISTERED);
   const HASH_BY_UPPER = byUpper(HASHES);
   const NOT_IMPLEMENTED_BY_UPPER = byUpper(NOT_IMPLEMENTED);
   const SIGNATURE = ["ECDSA", "RSASSA-PKCS1-v1_5", "RSA-PSS", "Ed25519"];
-  const SECRET = ["AES-GCM", "AES-CBC", "HMAC", "HKDF"];
+  const SECRET = ["AES-GCM", "AES-CBC", "HMAC", "HKDF", "PBKDF2"];
+  // Keys that only derive: imported from raw bytes, never extractable.
+  const DERIVING = ["HKDF", "PBKDF2"];
   const RSA = ["RSASSA-PKCS1-v1_5", "RSA-PSS"];
 
   // The operations each algorithm has here.
@@ -57,7 +59,7 @@
     verify: ["HMAC", ...SIGNATURE],
     encrypt: ["AES-GCM", "AES-CBC"],
     decrypt: ["AES-GCM", "AES-CBC"],
-    deriveBits: ["HKDF"],
+    deriveBits: ["HKDF", "PBKDF2"],
   };
 
   function algorithmName(algorithm, operation) {
@@ -117,7 +119,7 @@
   function allowedUsages(name, type) {
     if (name === "AES-GCM" || name === "AES-CBC") return ["encrypt", "decrypt", "wrapKey", "unwrapKey"];
     if (name === "HMAC") return ["sign", "verify"];
-    if (name === "HKDF") return ["deriveKey", "deriveBits"];
+    if (DERIVING.includes(name)) return ["deriveKey", "deriveBits"];
     return type === "public" ? ["verify"] : ["sign"];
   }
 
@@ -298,9 +300,9 @@
       if (SECRET.includes(name)) type = "secret";
       else if (format === "jwk") type = keyData?.d === undefined ? "public" : "private";
       else type = format === "pkcs8" ? "private" : "public";
-      if (name === "HKDF") {
-        if (format !== "raw") throw domError("NotSupportedError", "HKDF keys import from 'raw' only");
-        if (extractable) throw domError("SyntaxError", "HKDF keys cannot be extractable");
+      if (DERIVING.includes(name)) {
+        if (format !== "raw") throw domError("NotSupportedError", `${name} keys import from 'raw' only`);
+        if (extractable) throw domError("SyntaxError", `${name} keys cannot be extractable`);
       }
       if (SECRET.includes(name) && (format === "spki" || format === "pkcs8")) {
         throw domError("NotSupportedError", `${name} keys do not have the '${format}' format`);
@@ -363,7 +365,7 @@
       if (!(key instanceof CryptoKey) || key[kHandle] === undefined) throw new TypeError("crypto.subtle.exportKey: key is not a CryptoKey");
       const name = key.algorithm.name;
       // Web Crypto checks that the algorithm exports before extractability.
-      if (name === "HKDF") throw domError("NotSupportedError", "HKDF keys cannot be exported");
+      if (DERIVING.includes(name)) throw domError("NotSupportedError", `${name} keys cannot be exported`);
       if (!key.extractable) throw domError("InvalidAccessError", "the key is not extractable");
       if (format !== "jwk") return arrayBuffer(host(() => ops.op_nextrs_key_export(key[kHandle], format)));
       const jwk = host(() => ops.op_nextrs_key_export_jwk(key[kHandle]));
@@ -404,6 +406,18 @@
     async deriveBits(algorithm, baseKey, length) {
       const name = normalizeName(algorithm, "deriveBits");
       const hash = normalizeHash(algorithm.hash, "deriveBits");
+      if (name === "PBKDF2") {
+        if (algorithm.salt === undefined) throw new TypeError("crypto.subtle.deriveBits: PBKDF2 needs a salt");
+        const iterations = Number(algorithm.iterations);
+        if (!Number.isInteger(iterations) || iterations < 0 || iterations > 0xffffffff) throw new TypeError("crypto.subtle.deriveBits: invalid iterations");
+        if (iterations === 0) throw domError("OperationError", "PBKDF2 needs at least one iteration");
+        const salt = copy(algorithm.salt, "salt");
+        const handle = useKey(baseKey, name, "deriveBits", "deriveBits");
+        if (length === null || length === undefined) throw domError("OperationError", "PBKDF2 needs a length");
+        const bits = Number(length);
+        if (!Number.isInteger(bits) || bits < 0 || bits > 0xffffffff) throw new TypeError("crypto.subtle.deriveBits: invalid length");
+        return arrayBuffer(host(() => ops.op_nextrs_pbkdf2_bits(handle, hash, salt, iterations, bits)));
+      }
       if (algorithm.salt === undefined || algorithm.info === undefined) throw new TypeError("crypto.subtle.deriveBits: HKDF needs a salt and an info");
       const salt = copy(algorithm.salt, "salt");
       const info = copy(algorithm.info, "info");

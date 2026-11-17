@@ -42,6 +42,8 @@ pub(crate) fn import(algorithm: Algorithm, data: &[u8]) -> Result<Material, JsEr
             check_data_len(data.len(), "HMAC key")?;
         }
         Algorithm::Hkdf => check_data_len(data.len(), "HKDF key")?,
+        // A password: empty is allowed, as in browsers and Node.
+        Algorithm::Pbkdf2 => check_data_len(data.len(), "PBKDF2 key")?,
         _ => return Err(error("NotSupportedError", "not a secret-key algorithm")),
     }
     Ok(Material::Secret(Zeroizing::new(data.to_vec())))
@@ -252,9 +254,60 @@ pub(crate) fn hkdf(
     Ok(out)
 }
 
+/// PBKDF2 with HMAC-`hash` (RFC 8018) to `bits` bits, a non-zero multiple
+/// of 8, as Web Crypto's deriveBits defines it.
+pub(crate) fn pbkdf2(
+    hash: Hash,
+    password: &[u8],
+    salt: &[u8],
+    iterations: u32,
+    bits: u32,
+) -> Result<Vec<u8>, JsErrorBox> {
+    if bits == 0 || !bits.is_multiple_of(8) {
+        return Err(error(
+            "OperationError",
+            "the PBKDF2 length must be a non-zero multiple of 8",
+        ));
+    }
+    let iterations = std::num::NonZeroU32::new(iterations)
+        .ok_or_else(|| error("OperationError", "PBKDF2 needs at least one iteration"))?;
+    let len = (bits / 8) as usize;
+    check_data_len(len, "PBKDF2 output")?;
+    let algorithm = match hash {
+        Hash::Sha1 => ring::pbkdf2::PBKDF2_HMAC_SHA1,
+        Hash::Sha256 => ring::pbkdf2::PBKDF2_HMAC_SHA256,
+        Hash::Sha384 => ring::pbkdf2::PBKDF2_HMAC_SHA384,
+        Hash::Sha512 => ring::pbkdf2::PBKDF2_HMAC_SHA512,
+    };
+    let mut out = vec![0u8; len];
+    ring::pbkdf2::derive(algorithm, iterations, salt, password, &mut out);
+    Ok(out)
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{Hash, aes_cbc, aes_gcm, hkdf, hmac_sign, hmac_verify};
+    use super::{Hash, aes_cbc, aes_gcm, hkdf, hmac_sign, hmac_verify, pbkdf2};
+
+    /// RFC 6070 (PBKDF2-HMAC-SHA1) and the common SHA-256 vector.
+    #[test]
+    fn pbkdf2_known_vectors() {
+        let hex = |b: Vec<u8>| b.iter().map(|x| format!("{x:02x}")).collect::<String>();
+        assert_eq!(
+            hex(pbkdf2(Hash::Sha1, b"password", b"salt", 1, 160).unwrap()),
+            "0c60c80f961f0e71f3a9b524af6012062fe037a6"
+        );
+        assert_eq!(
+            hex(pbkdf2(Hash::Sha1, b"password", b"salt", 4096, 160).unwrap()),
+            "4b007901b765489abead49d926f721d065a429c1"
+        );
+        assert_eq!(
+            hex(pbkdf2(Hash::Sha256, b"password", b"salt", 1, 256).unwrap()),
+            "120fb6cffcf8b32c43e7225256c4f837a86548c92ccc35480805987cb70be17b"
+        );
+        assert!(pbkdf2(Hash::Sha256, b"p", b"s", 0, 256).is_err());
+        assert!(pbkdf2(Hash::Sha256, b"p", b"s", 1, 0).is_err());
+        assert!(pbkdf2(Hash::Sha256, b"p", b"s", 1, 12).is_err());
+    }
 
     pub(crate) fn hex(s: &str) -> Vec<u8> {
         (0..s.len())

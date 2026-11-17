@@ -161,6 +161,7 @@ deno_core::extension!(
         crate::webcrypto::op_nextrs_aes_gcm,
         crate::webcrypto::op_nextrs_aes_cbc,
         crate::webcrypto::op_nextrs_hkdf,
+        crate::webcrypto::op_nextrs_pbkdf2_bits,
         crate::webcrypto::op_nextrs_hkdf_bytes,
         crate::webcrypto::op_nextrs_pbkdf2,
         crate::webcrypto::op_nextrs_node_aes_gcm,
