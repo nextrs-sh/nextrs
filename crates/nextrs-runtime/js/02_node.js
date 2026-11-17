@@ -53,29 +53,10 @@
       return lower === "utf8" || lower === "utf-8";
     };
     // Bytes of `string` in UTF-8, without encoding it: a lone surrogate
-    // becomes U+FFFD (3 bytes), as the encoder writes it.
-    const utf8Length = (string) => {
-      const length = string.length;
-      let bytes = length;
-      for (let i = 0; i < length; i++) {
-        const c = string.charCodeAt(i);
-        if (c < 0x80) continue;
-        if (c < 0x800) {
-          bytes += 1;
-        } else if (c >= 0xd800 && c <= 0xdbff && i + 1 < length) {
-          const d = string.charCodeAt(i + 1);
-          if (d >= 0xdc00 && d <= 0xdfff) {
-            bytes += 2;
-            i++;
-          } else {
-            bytes += 2;
-          }
-        } else {
-          bytes += 2;
-        }
-      }
-      return bytes;
-    };
+    // becomes U+FFFD (3 bytes), as the encoder writes it. V8 counts (as in
+    // Node); a JavaScript loop here cost Next.js half its CPU on large
+    // cached pages (Content-Length of the whole HTML).
+    const utf8Length = ops.op_nextrs_utf8_length;
     const decode = (buf, start, end) =>
       decoder.decode(
         start === 0 && end === buf.length ? buf : new Uint8Array(buf.buffer, buf.byteOffset + start, end - start),
