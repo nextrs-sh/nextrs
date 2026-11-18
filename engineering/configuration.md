@@ -29,7 +29,7 @@ nextrs start <PATH> [OPTIONS]     Serve a build
 ```text
 NextRS Inspector
 
-Next.js version:  16.4.3 (from .next/diagnostics/framework.json)
+Next.js version:  16.4.6 (from .next/diagnostics/framework.json)
 Metadata source:  internal .next manifests (undocumented)
 App Router:       detected
 Pages Router:     not detected

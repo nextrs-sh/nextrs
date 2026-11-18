@@ -22,6 +22,12 @@ SHA=$(git rev-parse --short HEAD)
 BIN=$ROOT/target/phase3c-soak/nextrs-$SHA
 mkdir -p "$(dirname "$BIN")"
 cp target/release/nextrs "$BIN"
+# The soak fixtures, rebuilt once from their pinned lockfiles before any
+# soak starts (a zero-minute run of the wrapper with --build, so the build
+# sees the same upstream and environment as the soak), so no soak serves a
+# stale build or overlaps a build.
+benchmarks/phase2g-soak.sh --out "$ROOT/benchmarks/results/phase3c/soak-build" --nextrs "$BIN" --isolates 1 --minutes 0 --build > "$ROOT/benchmarks/results/phase3c/soak-build.log" 2>&1
+grep -q '"version": "16.4.6"' fixtures/next-soak-mixed/node_modules/next/package.json || { echo "soak fixtures are not on the pinned Next.js"; exit 1; }
 for i in $ISOLATES; do
   O=$ROOT/benchmarks/results/phase3c/soak-i$i
   [[ -e $O ]] && mv "$O" "$O-previous-$(date +%s)"

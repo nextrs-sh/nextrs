@@ -13,11 +13,15 @@ same build.
 
 ## Tested versions and fixtures
 
-- **Pinned baseline:** Next.js 16.4.3 (React 19.3.1). Only this version gates
+- **Pinned baseline:** Next.js 16.4.6 (React 19.3.1). Only this version gates
   CI.
-- **Also passing:** the same comparison suites on 16.4.4, 16.4.5 and 16.4.6.
-  CI runs them without gating. 16.4.0 is refused by Next's own security
-  check.
+- **Also passing:** the same comparison suites on 16.4.5. CI runs it without
+  gating.
+- **No longer buildable:** 16.4.0–16.4.4. Next's own `next build` refuses
+  them because of security advisories. For 16.4.3 and 16.4.4 these are two
+  `'use cache'` cache-leak advisories, GHSA-mfr8-8qww-v76h and
+  GHSA-vc7v-qv4w-wrv8, fixed in 16.4.5. Up to Phase 3B the baseline was
+  16.4.3.
 - **Version policy at startup:**
   - a 16.4.x build runs;
   - another 16.x minor starts with an `untested-next-version` warning;

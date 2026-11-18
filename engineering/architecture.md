@@ -202,7 +202,7 @@ C code (libwebp, mozjpeg) only encodes pixels NextRS produced.
 | [`crates/nextrs-image`](../crates/nextrs-image/) | Image decoding (Rust decoders only), resizing with sharp's geometry, and encoding |
 | [`crates/nextrs-cli`](../crates/nextrs-cli/) | The `nextrs` binary: `inspect` and `start` |
 | [`packages/next-adapter`](../packages/next-adapter/) | Next.js Deployment Adapter that writes `.next/nextrs/build-output.json` |
-| [`fixtures/`](../fixtures/) | Next.js 16.4.3 App Router fixtures (see [compatibility.md](compatibility.md#tested-versions-and-fixtures)) |
+| [`fixtures/`](../fixtures/) | Next.js 16.4.6 App Router fixtures (see [compatibility.md](compatibility.md#tested-versions-and-fixtures)) |
 | [`tests/compat`](../tests/compat/) | HTTP comparison suites against `next start` |
 | [`tests/browser`](../tests/browser/) | Chromium suites against `next start` |
 | [`tests/data`](../tests/data/) | Redacted `.next` snapshots used by `cargo test` |

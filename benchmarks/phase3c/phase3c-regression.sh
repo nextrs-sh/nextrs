@@ -43,7 +43,9 @@ step compat-pinned-i1 scripts/compat-suite.sh --isolates 1 --out "$OUT/compat-pi
 step realworld-pinned-i1 scripts/realworld-suite.sh --isolates 1 --out "$OUT/realworld-pinned-i1" --browser
 step compat-pinned-i4 scripts/compat-suite.sh --isolates 4 --out "$OUT/compat-pinned-i4" --browser --cache-components --proxy --proxy-combinations --images --pages --adapter
 step realworld-pinned-i4 scripts/realworld-suite.sh --isolates 4 --out "$OUT/realworld-pinned-i4" --browser
-for v in 16.4.4 16.4.5 16.4.6; do
+# The fixtures pin 16.4.6; 16.4.3 and 16.4.4 no longer build (security
+# advisories, see engineering/compatibility.md).
+for v in 16.4.5; do
   step "compat-$v-i1" scripts/compat-suite.sh --next "$v" --isolates 1 --out "$OUT/compat-$v-i1" --cache-components --proxy --images --pages
   step "realworld-$v-i1" scripts/realworld-suite.sh --next "$v" --isolates 1 --out "$OUT/realworld-$v-i1"
 done

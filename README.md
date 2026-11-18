@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="#project-status"><img src="https://img.shields.io/badge/status-experimental-CE422B?style=flat-square" alt="Status: experimental"></a>
-  <a href="engineering/compatibility.md"><img src="https://img.shields.io/badge/tested%20with-Next.js%2016.4.3-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Tested with Next.js 16.4.3"></a>
+  <a href="engineering/compatibility.md"><img src="https://img.shields.io/badge/tested%20with-Next.js%2016.4.6-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Tested with Next.js 16.4.6"></a>
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-1.88%2B-CE422B?style=flat-square&logo=rust&logoColor=white" alt="Rust 1.88 or later"></a>
 </p>
 
@@ -180,7 +180,7 @@ NextRS is a research project, developed in the open.
 - **Experimental:** not recommended for untrusted production traffic. It
   binds to `127.0.0.1` by default.
 - **Selected features:** tested against small App and Pages Router
-  applications with Next.js 16.4.3. The same suites pass on 16.4.4–16.4.6.
+  applications with Next.js 16.4.6. The same suites pass on 16.4.5.
   One larger application (Velasia Airways) was also checked with its own
   browser suite.
 - **Next.js 16 only:** builds of other Next.js majors are refused at

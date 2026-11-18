@@ -8,6 +8,8 @@
 #    and Phase 3C, closed and open loop (benchmarks/phase3a/run.mjs).
 # 3. Image capacity: Phase 3C with --image-concurrency 2, 3 (this
 #    machine's default, half the CPUs) and 6, on image and mixed traffic.
+# 4. The README chart run (next start, final build at 1 and 4 isolates,
+#    dynamic App Router SSR).
 #
 #   benchmarks/phase3c/final-bench.sh [OUT] [--quick]
 set -eu
@@ -46,5 +48,11 @@ node benchmarks/phase3a/run.mjs --out "$OUT/images" --no-next \
   --nextrs-c $P3C --label-c conc6 --args-c "--image-concurrency 6" \
   --isolates 1 --groups image,mixed --only image-transform,image-hit,mixed \
   --rounds "$ROUNDS" --duration 10 --warmup 5 > "$OUT/images.log" 2>&1
+
+# 4. The README chart: next start against the final build at 1 and 4
+#    isolates on dynamic App Router SSR (/books/[id]), as Phase 3A drew it.
+node benchmarks/phase3a/run.mjs --out "$OUT/readme" --nextrs $P3C --label nextrs \
+  --isolates 1,4 --groups app --only ssr --rounds "$ROUNDS" --duration 10 --warmup 5 > "$OUT/readme.log" 2>&1
+node benchmarks/phase3a/summarize.mjs "$OUT/readme" > "$OUT/readme-summary.log" 2>&1
 
 echo "finished $(date -u +%FT%TZ)" >> "$OUT/README.txt"
