@@ -7,7 +7,8 @@ with their method, conditions and raw data.
 > Results are specific to the tested workloads, hardware, and runtime
 > configurations. They are not guarantees of production performance.
 
-- [Current results (Phase 3A, 2026-11-16)](#current-results-phase-3a-2026-11-16)
+- [README chart (NextRS 0.6.0, 2026-11-18)](#readme-chart-nextrs-060-2026-11-18)
+- [Full matrix (Phase 3A, 2026-11-16)](#full-matrix-phase-3a-2026-11-16)
   - [Environment](#environment)
   - [Method](#method)
   - [Results](#results)
@@ -15,11 +16,37 @@ with their method, conditions and raw data.
   - [Reproducing](#reproducing)
 - [Historical results (Phase 1A, 2026-11-03)](#historical-results-phase-1a-2026-11-03)
 
-## Current results (Phase 3A, 2026-11-16)
+## README chart (NextRS 0.6.0, 2026-11-18)
 
-The README charts come from this run: Dynamic App Router SSR
-(`/books/[id]`) and Pages Router `getServerSideProps` (`/ssr/whoami`).
-All 24 workloads are listed below.
+The README chart comes from the Phase 3C final run: dynamic App Router SSR
+(`/books/[id]`). It compares `next start` with NextRS 0.6.0 (`f5c480d`) at 1
+and 4 isolates. Next.js is 16.4.6; the environment and method are those of
+the full matrix below. Each figure is the median of 3 interleaved rounds.
+
+| | `next start` | NextRS · 1 isolate | NextRS · 4 isolates |
+|---|---:|---:|---:|
+| Throughput, closed loop | 611 req/s | 736 req/s | 1,898 req/s |
+| p95, open loop at 305 req/s | 6.26 ms | 3.30 ms | |
+| Anonymous memory after load | 376 MiB | 141 MiB | |
+| CPU per request | 1.92 ms | 1.75 ms | |
+
+Raw data: [`benchmarks/results/phase3c/final-bench-f5c480d/readme/`](../benchmarks/results/phase3c/final-bench-f5c480d/readme/).
+The same run also re-measured ten of the matrix workloads against the
+Phase 3A and 3B builds: [`fixtures/`](../benchmarks/results/phase3c/final-bench-f5c480d/fixtures/)
+(`compare-*.md`).
+
+The chart was drawn with:
+
+```sh
+node benchmarks/phase3a/chart.mjs benchmarks/results/phase3c/final-bench-f5c480d/readme \
+  --workload app/ssr --configs next-start,nextrs-i1,nextrs-i4 \
+  --raw-url benchmarks/results/phase3c/final-bench-f5c480d/readme --version 0.6.0
+```
+
+## Full matrix (Phase 3A, 2026-11-16)
+
+All 24 workloads, measured at Phase 3A (`6c1101d`, Next.js 16.4.3). The
+earlier README charts came from this run.
 
 Raw data: [`benchmarks/results/phase3a/matrix-final-6c1101d/`](../benchmarks/results/phase3a/matrix-final-6c1101d/)
 (`rows.jsonl` holds one row per cell, with every round;
