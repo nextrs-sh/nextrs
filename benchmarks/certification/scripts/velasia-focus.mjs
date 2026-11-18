@@ -9,6 +9,7 @@
 //       [--workloads home,destination] [--rounds 5] [--duration 8] [--warmup 3]
 //       [--connections 16] [--nextrs-bin target/release/nextrs]
 //       [--alt-bin target/other/nextrs]   (config "alt:1" runs this binary)
+//       [--bin NAME=PATH]...              (config "NAME:1" runs PATH)
 //       [--perf DIR] [--perf-seconds 10]  (perf record per config/workload)
 //       [--out DIR] [--extra-arg ARG]...
 //
@@ -40,6 +41,11 @@ const perfDir = opt('perf', null);
 const perfSeconds = Number(opt('perf-seconds', 10));
 const out = resolve(opt('out', join(repo, 'benchmarks/results/phase3c/focus')));
 const bins = { nextrs: resolve(opt('nextrs-bin', join(repo, 'target/release/nextrs'))), alt: opt('alt-bin', null) && resolve(opt('alt-bin')) };
+// --bin NAME=PATH (repeatable): more NextRS builds, used as config NAME:N.
+for (const spec of many('bin')) {
+  const [name, path] = spec.split('=');
+  bins[name] = resolve(path);
+}
 const extraArgs = many('extra-arg');
 const manifest = JSON.parse(readFileSync(join(here, '../applications/velasia-airways/manifest.json'), 'utf8'));
 const loadgenBin = join(repo, 'benchmarks/loadgen/target/release/nextrs-loadgen');
