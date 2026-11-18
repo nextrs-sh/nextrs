@@ -1,0 +1,749 @@
+[2m2026-11-18T04:13:15.270312Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T04:13:15.272577Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5426, http://127.0.0.1:5427
+[2m2026-11-18T04:13:15.272668Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mtrue [3mdir[0m[2m=[0m/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/results/phase3c/regression-f5c480d-pinned/compat-pinned-i4/nextrs-cache
+[2m2026-11-18T04:13:15.333107Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:13:15.333152Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:13:15.337142Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:13:15.337257Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:13:15.339673Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:13:15.339720Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:13:15.343909Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:13:15.343957Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:13:15.412683Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m139
+[2m2026-11-18T04:13:15.415649Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m142
+[2m2026-11-18T04:13:15.428449Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m155
+[2m2026-11-18T04:13:15.431774Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m158
+[2m2026-11-18T04:13:15.431805Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m161 [3misolates[0m[2m=[0m4
+[2m2026-11-18T04:13:15.432218Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m16 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-18T04:13:15.435071Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5425 [3mbuild_id[0m[2m=[0mr_IFMtnTLvxz43IseRwH2 [3mready_ms[0m[2m=[0m164
+[2m2026-11-18T04:13:16.254610Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+Error: boundary failure for cmp-odd
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"507385122"[39m
+}
+Error: boundary failure for fx-9fe450-51
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2431694703"[39m
+}
+Error: boundary failure for fx-9fe450-1
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"1091696674"[39m
+}
+Error: boundary failure for fx-9fe450-71
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"754361986"[39m
+}
+Error: boundary failure for fx-9fe450-31
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3930977519"[39m
+}
+Error: boundary failure for fx-9fe450-11
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"1398641519"[39m
+}
+Error: boundary failure for fx-9fe450-21
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"34649007"[39m
+}
+Error: boundary failure for fx-9fe450-41
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2830333487"[39m
+}
+Error: boundary failure for fx-9fe450-91
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"1311863612"[39m
+}
+Error: boundary failure for fx-9fe450-61
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3319330044"[39m
+}
+Error: boundary failure for fx-9fe450-81
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"4276114479"[39m
+}
+Error: boundary failure for fx-9fe450-101
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"566426799"[39m
+}
+Error: boundary failure for fx-9fe450-131
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"870350434"[39m
+}
+Error: boundary failure for fx-9fe450-121
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2687676399"[39m
+}
+Error: boundary failure for fx-9fe450-111
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"59117090"[39m
+}
+Error: boundary failure for fx-9fe450-141
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"264118319"[39m
+}
+Error: boundary failure for fx-9fe450-151
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"361425570"[39m
+}
+Error: boundary failure for fx-9fe450-161
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2385367919"[39m
+}
+Error: boundary failure for fx-9fe450-171
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2417363919"[39m
+}
+Error: boundary failure for fx-9fe450-181
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"444236930"[39m
+}
+Error: boundary failure for fx-9fe450-191
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3761420047"[39m
+}
+Error: boundary failure for fx-9fe450-201
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2927148700"[39m
+}
+Error: boundary failure for fx-9fe450-221
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"587291663"[39m
+}
+Error: boundary failure for fx-9fe450-211
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2029769788"[39m
+}
+Error: boundary failure for fx-9fe450-241
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2624840220"[39m
+}
+Error: boundary failure for fx-9fe450-231
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"202401007"[39m
+}
+Error: boundary failure for fx-9fe450-251
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3508647215"[39m
+}
+Error: boundary failure for fx-9fe450-261
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"284983183"[39m
+}
+Error: boundary failure for fx-9fe450-291
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"273244418"[39m
+}
+Error: boundary failure for fx-9fe450-281
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2764573903"[39m
+}
+Error: boundary failure for fx-9fe450-271
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"4195059823"[39m
+}
+Error: boundary failure for fx-9fe450-311
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"1844000738"[39m
+}
+Error: boundary failure for fx-9fe450-301
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3661326703"[39m
+}
+Error: boundary failure for fx-9fe450-331
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3219897564"[39m
+}
+Error: boundary failure for fx-9fe450-321
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"4121458095"[39m
+}
+Error: boundary failure for fx-9fe450-341
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3359018223"[39m
+}
+Error: boundary failure for fx-9fe450-351
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"170501199"[39m
+}
+Error: boundary failure for fx-9fe450-371
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3663131023"[39m
+}
+Error: boundary failure for fx-9fe450-361
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3819149615"[39m
+}
+Error: boundary failure for fx-9fe450-411
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"1308276092"[39m
+}
+Error: boundary failure for fx-9fe450-381
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3791825519"[39m
+}
+Error: boundary failure for fx-9fe450-391
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"603308495"[39m
+}
+Error: boundary failure for fx-9fe450-401
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2536404623"[39m
+}
+Error: boundary failure for fx-9fe450-421
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"380709839"[39m
+}
+Error: boundary failure for fx-9fe450-431
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3191984303"[39m
+}
+Error: boundary failure for fx-9fe450-441
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2772062735"[39m
+}
+Error: boundary failure for fx-9fe450-451
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"4021565935"[39m
+}
+Error: boundary failure for fx-9fe450-461
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"616367951"[39m
+}
+Error: boundary failure for fx-9fe450-471
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3427642415"[39m
+}
+Error: boundary failure for fx-9fe450-491
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"1438774908"[39m
+}
+Error: boundary failure for fx-9fe450-481
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2666903439"[39m
+}
+Error: boundary failure for fx-9fe450-521
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"1066288239"[39m
+}
+Error: boundary failure for fx-9fe450-501
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"3240005935"[39m
+}
+Error: boundary failure for fx-9fe450-511
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"1680505250"[39m
+}
+Error: boundary failure for fx-9fe450-531
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2384263196"[39m
+}
+Error: boundary failure for fx-9fe450-541
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2783632572"[39m
+}
+Error: boundary failure for fx-9fe450-551
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"2245191183"[39m
+}
+Error: boundary failure for fx-9fe450-561
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"108096380"[39m
+}
+Error: boundary failure for fx-9fe450-571
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:286:9)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"1333942351"[39m
+}
+Error: boundary failure for fx-9fe450-581
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: [32m"2065625090"[39m
+}
+Error: boundary failure for fx-9fe450-591
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728)
+[90m    at drainTicks (ext:core/01_core.js:427:7)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:246:9)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m {
+  digest: [32m"759916636"[39m
+}
+`x-forwarded-host` header with value `127.0.0.1:5425` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+  digest: [32m"518303570"[39m
+}
+`x-forwarded-host` header with value `127.0.0.1:5425` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-18T04:13:27.508831Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m POST /actions/cookies: Error: Invalid Server Actions request.
+    at t0 (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:17:12043)
+    at sg (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:282:2192)
+    at sy (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:282:3506)
+    at async m (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js:1:11826)
+    at async n (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js:2:4601)
+    at async o6.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:326:53836)
+    at async t (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js:2:6022)
+    at async $ (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js:4:1526)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+`x-forwarded-host` header with value `127.0.0.1:5425` does not match `origin` header with value `null` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+  digest: [32m"518303570"[39m
+}
+Error: Failed to find Server Action "40abababababababababababababababababababab". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at tw (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:1:75477)
+    at Object.get (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:3:267)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+Error: The Server Reference ID did not match the expected format. Received "../../etc/passwd".
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at Object.get (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:2:2682)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+Error: The Server Reference ID did not match the expected format. Received "__proto__".
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at Object.get (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:2:2682)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+Error: Failed to find Server Action "7c0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at tw (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:1:75477)
+    at Object.get (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:3:267)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+Error: Server Action arguments list is too long (1001). Maximum allowed is 1000.
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m {
+  digest: [32m"997390962"[39m
+}
+OperationError: the AES-GCM iv must not be empty
+    at domError (ext:nextrs/02_webcrypto.js:21:39)
+    at hostError (ext:nextrs/02_webcrypto.js:28:12)
+    at host (ext:nextrs/02_webcrypto.js:34:13)
+    at aes (ext:nextrs/02_webcrypto.js:262:24)
+    at SubtleCrypto.decrypt (ext:nextrs/02_webcrypto.js:386:14)
+    at l (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:1494)
+    at t (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:2516)
+    at processTicksAndRejections (ext:core/01_core.js:405:7)
+    at drainTicks (ext:core/01_core.js:432:5)
+    at __drainNextTickAndMacrotasks (ext:core/01_core.js:471:5)
+[2m2026-11-18T04:13:28.958156Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m POST /actions/bound: OperationError: the AES-GCM iv must not be empty
+    at domError (ext:nextrs/02_webcrypto.js:21:39)
+    at hostError (ext:nextrs/02_webcrypto.js:28:12)
+    at host (ext:nextrs/02_webcrypto.js:34:13)
+    at aes (ext:nextrs/02_webcrypto.js:262:24)
+    at SubtleCrypto.decrypt (ext:nextrs/02_webcrypto.js:386:14)
+    at l (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:1494)
+    at t (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:2516)
+    at processTicksAndRejections (ext:core/01_core.js:405:7)
+    at drainTicks (ext:core/01_core.js:432:5)
+    at __drainNextTickAndMacrotasks (ext:core/01_core.js:471:5) [3mkind[0m[2m=[0m"handler-error"
+OperationError: AES-GCM decryption failed
+    at domError (ext:nextrs/02_webcrypto.js:21:39)
+    at hostError (ext:nextrs/02_webcrypto.js:28:12)
+    at host (ext:nextrs/02_webcrypto.js:34:13)
+    at aes (ext:nextrs/02_webcrypto.js:262:24)
+    at SubtleCrypto.decrypt (ext:nextrs/02_webcrypto.js:386:14)
+    at l (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:1494)
+    at t (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:2516)
+    at processTicksAndRejections (ext:core/01_core.js:405:7)
+    at drainTicks (ext:core/01_core.js:432:5)
+    at __drainNextTickAndMacrotasks (ext:core/01_core.js:471:5)
+[2m2026-11-18T04:13:28.975207Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m POST /actions/bound: OperationError: AES-GCM decryption failed
+    at domError (ext:nextrs/02_webcrypto.js:21:39)
+    at hostError (ext:nextrs/02_webcrypto.js:28:12)
+    at host (ext:nextrs/02_webcrypto.js:34:13)
+    at aes (ext:nextrs/02_webcrypto.js:262:24)
+    at SubtleCrypto.decrypt (ext:nextrs/02_webcrypto.js:386:14)
+    at l (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:1494)
+    at t (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:2516)
+    at processTicksAndRejections (ext:core/01_core.js:405:7)
+    at drainTicks (ext:core/01_core.js:432:5)
+    at __drainNextTickAndMacrotasks (ext:core/01_core.js:471:5) [3mkind[0m[2m=[0m"handler-error"
+[90mundefined[39m
+[2m2026-11-18T04:13:28.991127Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m POST /actions/bound: undefined [3mkind[0m[2m=[0m"handler-error"
+Error: Body exceeded 1 MB limit.
+To configure the body size limit for Server Actions, see: https://nextjs.org/docs/app/api-reference/next-config-js/serverActions#bodysizelimit
+[90m    at Transform._write (ext:nextrs/node-polyfills.js:7071:14)[39m
+[90m    at writeOrBuffer (ext:nextrs/node-polyfills.js:6116:18)[39m
+[90m    at _write (ext:nextrs/node-polyfills.js:6073:16)[39m
+[90m    at Writable.write (ext:nextrs/node-polyfills.js:6076:16)[39m
+[90m    at IncomingMessage.ondata (ext:nextrs/node-polyfills.js:5432:28)[39m
+[90m    at IncomingMessage.emit (ext:nextrs/node-polyfills.js:1893:11)[39m
+[90m    at addChunk (ext:nextrs/node-polyfills.js:5189:18)[39m
+[90m    at readableAddChunk (ext:nextrs/node-polyfills.js:5172:15)[39m
+[90m    at Readable.push (ext:nextrs/node-polyfills.js:5122:16)[39m {
+  statusCode: [33m413[39m,
+  digest: [32m"556745804"[39m
+}
+Error: Unexpected end of form
+[90m    at callFinal (ext:nextrs/node-polyfills.js:6348:18)[39m
+[90m    at prefinish (ext:nextrs/node-polyfills.js:6358:13)[39m
+[90m    at finishMaybe (ext:nextrs/node-polyfills.js:6367:11)[39m
+[90m    at Writable.end (ext:nextrs/node-polyfills.js:6304:11)[39m
+[90m    at Transform.endFn2 (ext:nextrs/node-polyfills.js:7503:17)[39m
+[90m    at Object.onceWrapper (ext:nextrs/node-polyfills.js:1958:34)[39m
+[90m    at Transform.emit (ext:nextrs/node-polyfills.js:1898:13)[39m
+[90m    at endReadableNT (ext:nextrs/node-polyfills.js:5863:18)[39m
+[90m    at processTicksAndRejections (ext:core/01_core.js:378:17)[39m {
+  digest: [32m"2865431680"[39m
+}
+Error: Unexpected end of form
+[90m    at callFinal (ext:nextrs/node-polyfills.js:6348:18)[39m
+[90m    at prefinish (ext:nextrs/node-polyfills.js:6358:13)[39m
+[90m    at finishMaybe (ext:nextrs/node-polyfills.js:6367:11)[39m
+[90m    at Writable.end (ext:nextrs/node-polyfills.js:6304:11)[39m
+[90m    at Transform.endFn2 (ext:nextrs/node-polyfills.js:7503:17)[39m
+[90m    at Object.onceWrapper (ext:nextrs/node-polyfills.js:1958:34)[39m
+[90m    at Transform.emit (ext:nextrs/node-polyfills.js:1898:13)[39m
+[90m    at endReadableNT (ext:nextrs/node-polyfills.js:5863:18)[39m
+[90m    at processTicksAndRejections (ext:core/01_core.js:378:17)[39m {
+  digest: [32m"2865431680"[39m
+}
+TypeError: Failed to parse body as FormData: field "title" received with incomplete data
+[90m    at Request.formData (ext:nextrs/01_fetch.js:235:17)[39m
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[2m2026-11-18T04:13:29.079935Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m POST /actions/form: TypeError: Failed to parse body as FormData: field "title" received with incomplete data
+    at Request.formData (ext:nextrs/01_fetch.js:235:17)
+    at processTicksAndRejections (ext:core/01_core.js:405:7)
+    at drainTicks (ext:core/01_core.js:432:5)
+    at __drainNextTickAndMacrotasks (ext:core/01_core.js:471:5)
+    at async Promise.all (index 1)
+    at async /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:18:622
+    at async t0 (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:17:12665)
+    at async sg (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:282:2186)
+    at async m (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js:1:11826)
+    at async n (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js:2:4601) [3mkind[0m[2m=[0m"handler-error"
+Error: Invalid forward reference.
+[90m    at e.exports.emit (ext:nextrs/node-polyfills.js:1893:11)[39m {
+  digest: [32m"3890987698"[39m
+}
+Error: Invalid forward reference.
+[90m    at e.exports.emit (ext:nextrs/node-polyfills.js:1893:11)[39m {
+  digest: [32m"3890987698"[39m
+}
+Error: Invalid forward reference.
+[90m    at e.exports.emit (ext:nextrs/node-polyfills.js:1893:11)[39m {
+  digest: [32m"3276345082"[39m
+}
+RangeError: Maximum call stack size exceeded
+    at ignore-listed frames {
+  digest: [32m"971166041"[39m
+}
+TypeError: Failed to parse body as FormData: more than 4096 parts
+[90m    at Request.formData (ext:nextrs/01_fetch.js:235:17)[39m
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[2m2026-11-18T04:13:42.102224Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m POST /actions/form: TypeError: Failed to parse body as FormData: more than 4096 parts
+    at Request.formData (ext:nextrs/01_fetch.js:235:17)
+    at processTicksAndRejections (ext:core/01_core.js:405:7)
+    at drainTicks (ext:core/01_core.js:432:5)
+    at __drainNextTickAndMacrotasks (ext:core/01_core.js:471:5)
+    at async Promise.all (index 1)
+    at async /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:18:622
+    at async t0 (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:17:12665)
+    at async sg (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:282:2186)
+    at async m (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js:1:11826)
+    at async n (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/node_modules_next_dist_0-amwqbrge23p._.js:2:4601) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-18T04:13:45.149736Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m JavaScript exceeded the stall timeout; terminating the isolate [3mslot[0m[2m=[0m0 [3mbusy_ms[0m[2m=[0m3047 [3mcpu_ms[0m[2m=[0m3036 [3mactive[0m[2m=[0m1
+[2m2026-11-18T04:13:45.152935Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m isolate failed: terminated [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mreason[0m[2m=[0m"cpu_stall" [3muptime_ms[0m[2m=[0m29879
+[2m2026-11-18T04:13:45.152959Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m restarting isolate [3mslot[0m[2m=[0m0 [3mdelay_ms[0m[2m=[0m100 [3mrecent_failures[0m[2m=[0m1
+[2m2026-11-18T04:13:45.300878Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:13:45.300915Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:13:45.369697Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m2 [3mboot_ms[0m[2m=[0m116
+[2m2026-11-18T04:14:07.203731Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m POST /actions/mutation exceeded 15000 ms [3mkind[0m[2m=[0m"request-timeout"
+Error: ISR regeneration failed on purpose
+    at d (.next/server/chunks/ssr/[root-of-the-server]__0zed-ea-mhayq._.js:1:1613) {
+  digest: [32m"1368851318"[39m
+}
+Error: ISR regeneration failed on purpose
+    at d (.next/server/chunks/ssr/[root-of-the-server]__0zed-ea-mhayq._.js:1:1613) {
+  digest: [32m"1368851318"[39m
+}
+Error: ISR regeneration failed on purpose
+    at d (.next/server/chunks/ssr/[root-of-the-server]__0zed-ea-mhayq._.js:1:1613) {
+  digest: [32m"1368851318"[39m
+}
+Error: client-called failure
+    at m (.next/server/chunks/ssr/_1ec2_4r-i68xy._.js:1:1098)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m {
+  digest: [32m"634699006"[39m
+}
+Error: Action failed on purpose (error)
+    at l (.next/server/chunks/ssr/_1ec2_4r-i68xy._.js:1:1031)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m {
+  digest: [32m"2200800860"[39m
+}
+Error: Action failed on purpose (error)
+    at l (.next/server/chunks/ssr/_1ec2_4r-i68xy._.js:1:1031)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[2m2026-11-18T04:15:11.012523Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m POST /actions/error: Error: Action failed on purpose (error)
+    at l (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/.next/server/chunks/ssr/_1ec2_4r-i68xy._.js:1:1031)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:18:3465
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at t1 (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:18:3453)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:18:1421
+    at processTicksAndRejections (ext:core/01_core.js:405:7)
+    at drainTicks (ext:core/01_core.js:432:5)
+    at __drainNextTickAndMacrotasks (ext:core/01_core.js:471:5)
+    at async t0 (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-app/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:17:12665) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-18T04:15:27.403734Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m1 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T04:15:27.403922Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T04:15:27.452238Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-18T04:15:27.475814Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T04:15:27.477938Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5426, http://127.0.0.1:5427
+[2m2026-11-18T04:15:27.477984Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mtrue [3mdir[0m[2m=[0m/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/results/phase3c/regression-f5c480d-pinned/compat-pinned-i4/nextrs-cache
+[2m2026-11-18T04:15:27.539267Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:27.539310Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:27.540834Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:27.540872Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:27.544446Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:27.544495Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:27.553966Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:27.556545Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:27.615148Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m136
+[2m2026-11-18T04:15:27.615516Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m136
+[2m2026-11-18T04:15:27.629530Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m150
+[2m2026-11-18T04:15:27.638798Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m160
+[2m2026-11-18T04:15:27.638829Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m162 [3misolates[0m[2m=[0m4
+[2m2026-11-18T04:15:27.639154Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m16 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-18T04:15:27.642504Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5425 [3mbuild_id[0m[2m=[0mr_IFMtnTLvxz43IseRwH2 [3mready_ms[0m[2m=[0m166
+[2m2026-11-18T04:15:28.431163Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m1 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T04:15:28.431273Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T04:15:28.482306Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-18T04:15:47.570097Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T04:15:47.570867Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5426, http://127.0.0.1:5427
+[2m2026-11-18T04:15:47.570908Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mtrue [3mdir[0m[2m=[0m/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/results/phase3c/regression-f5c480d-pinned/compat-pinned-i4/nextrs-cache
+[2m2026-11-18T04:15:47.630063Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:47.630110Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:47.633206Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:47.633319Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:47.646349Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:47.646455Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:47.647610Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:47.647657Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:47.708451Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m136
+[2m2026-11-18T04:15:47.714270Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m142
+[2m2026-11-18T04:15:47.729272Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m157
+[2m2026-11-18T04:15:47.733087Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m162 [3misolates[0m[2m=[0m4
+[2m2026-11-18T04:15:47.733321Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m161
+[2m2026-11-18T04:15:47.734291Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m3 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-18T04:15:47.735824Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5425 [3mbuild_id[0m[2m=[0mxq9Whhk-mMKcgbvgLx2vR [3mready_ms[0m[2m=[0m165
+[2m2026-11-18T04:15:56.097270Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m1 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T04:15:56.097347Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T04:15:56.147413Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-18T04:15:56.170847Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T04:15:56.171554Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5426, http://127.0.0.1:5427
+[2m2026-11-18T04:15:56.171602Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mtrue [3mdir[0m[2m=[0m/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/results/phase3c/regression-f5c480d-pinned/compat-pinned-i4/nextrs-cache
+[2m2026-11-18T04:15:56.232079Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:56.232198Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:56.237749Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:56.237878Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:56.238534Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:56.238552Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:56.238596Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:56.238575Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:15:56.313071Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m139
+[2m2026-11-18T04:15:56.317799Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m145
+[2m2026-11-18T04:15:56.320343Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m148
+[2m2026-11-18T04:15:56.321983Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m151 [3misolates[0m[2m=[0m4
+[2m2026-11-18T04:15:56.322191Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m149
+[2m2026-11-18T04:15:56.322469Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m3 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-18T04:15:56.326189Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5425 [3mbuild_id[0m[2m=[0mxq9Whhk-mMKcgbvgLx2vR [3mready_ms[0m[2m=[0m155
+[2m2026-11-18T04:15:57.115168Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m1 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T04:15:57.115225Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T04:15:57.165959Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

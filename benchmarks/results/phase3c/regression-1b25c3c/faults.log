@@ -1,0 +1,239 @@
+[faults] api-outage
+[faults] sigterm-drain
+[faults] sigkill-cache
+[faults] cache-unwritable
+{
+  "api-outage": {
+    "before": {
+      "/ 200": 243,
+      "/flights 200": 400
+    },
+    "during": {
+      "/flights 200": 1438,
+      "/ 200": 1286,
+      "/api/flights 503": 1362,
+      "/destinations/manila 500": 5,
+      "/destinations/manila 200": 1388
+    },
+    "duringSamples": [
+      {
+        "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+        "status": 503,
+        "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+      },
+      {
+        "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+        "status": 503,
+        "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+      },
+      {
+        "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+        "status": 503,
+        "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+      },
+      {
+        "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+        "status": 503,
+        "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+      },
+      {
+        "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+        "status": 503,
+        "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+      },
+      {
+        "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+        "status": 503,
+        "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+      }
+    ],
+    "searchDuringOutage": {
+      "status": 200,
+      "showsErrorUi": true,
+      "inventsFlights": false
+    },
+    "after": {
+      "/ 200": 393,
+      "/flights 200": 479
+    },
+    "recovered": {
+      "status": 200,
+      "showsFlights": true
+    },
+    "restarts": 0,
+    "readyIsolates": 2
+  },
+  "sigterm-drain": {
+    "readyzAfterSignal": {
+      "status": 503,
+      "afterMs": 1
+    },
+    "newConnectionAfterSignal": {
+      "status": 0,
+      "error": "ECONNREFUSED"
+    },
+    "inFlight": [
+      {
+        "status": 200,
+        "ms": 2408,
+        "complete": true
+      },
+      {
+        "status": 200,
+        "ms": 2411,
+        "complete": true
+      },
+      {
+        "status": 200,
+        "ms": 2410,
+        "complete": true
+      },
+      {
+        "status": 200,
+        "ms": 2419,
+        "complete": true
+      },
+      {
+        "status": 200,
+        "ms": 2419,
+        "complete": true
+      },
+      {
+        "status": 200,
+        "ms": 2418,
+        "complete": true
+      }
+    ],
+    "exitMs": 2012,
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "log": [
+      "2026-11-18T03:48:26.569580Z  INFO nextrs_server::serve: shutting down: no new connections; draining connections=7 grace_ms=10000",
+      "2026-11-18T03:48:28.487653Z  INFO nextrs: stopping JavaScript isolates",
+      "2026-11-18T03:48:28.571085Z  INFO nextrs: nextrs stopped"
+    ]
+  },
+  "sigkill-cache": {
+    "warm": {
+      "/flights 200": 531,
+      "/ 200": 172,
+      "/destinations/tokyo 200": 179,
+      "/destinations/manila 200": 162,
+      "/destinations/seoul 200": 227
+    },
+    "killed": {
+      "code": null,
+      "signal": "SIGKILL"
+    },
+    "cacheEntriesBeforeKill": 11,
+    "filesAfterKill": 14,
+    "restarted": true,
+    "afterRestart": [
+      {
+        "path": "/",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "path": "/destinations/manila",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "path": "/destinations/tokyo",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "path": "/destinations/seoul",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "path": "/flights",
+        "status": 200,
+        "ok": true
+      },
+      {
+        "path": "/flights?trip=one-way&from=MNL&to=SIN&depart=2026-12-15&adults=1&cabin=economy",
+        "status": 200,
+        "ok": true
+      }
+    ],
+    "cacheAfterRestart": {
+      "entries": 11,
+      "corrupt": 0,
+      "io_errors": 0,
+      "hits": 8
+    }
+  },
+  "cache-unwritable": {
+    "firstVisit": [
+      {
+        "path": "/destinations/bangkok",
+        "status": 200
+      },
+      {
+        "path": "/destinations/osaka",
+        "status": 200
+      },
+      {
+        "path": "/destinations/taipei",
+        "status": 200
+      },
+      {
+        "path": "/destinations/cebu",
+        "status": 200
+      },
+      {
+        "path": "/about",
+        "status": 200
+      },
+      {
+        "path": "/help",
+        "status": 200
+      }
+    ],
+    "secondVisit": [
+      {
+        "path": "/destinations/bangkok",
+        "status": 200
+      },
+      {
+        "path": "/destinations/osaka",
+        "status": 200
+      },
+      {
+        "path": "/destinations/taipei",
+        "status": 200
+      },
+      {
+        "path": "/destinations/cebu",
+        "status": 200
+      },
+      {
+        "path": "/about",
+        "status": 200
+      },
+      {
+        "path": "/help",
+        "status": 200
+      }
+    ],
+    "cacheErrors": {
+      "before": 0,
+      "after": 22
+    },
+    "entries": {
+      "before": 3,
+      "after": 14
+    },
+    "log": [
+      "2026-11-18T03:48:36.366637Z  WARN nextrs::cache: cannot persist a cache entry error=Permission denied (os error 13)",
+      "2026-11-18T03:48:36.368875Z  WARN nextrs::cache: cannot persist a cache entry error=Permission denied (os error 13)",
+      "2026-11-18T03:48:36.371420Z  WARN nextrs::cache: cannot persist a cache entry error=Permission denied (os error 13)"
+    ]
+  }
+}

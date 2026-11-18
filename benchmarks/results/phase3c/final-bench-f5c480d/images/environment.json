@@ -1,0 +1,115 @@
+{
+  "date": "2026-11-18T06:04:48.173Z",
+  "host_kind": "single-host (load generator and server on the same machine, pinned to disjoint CPUs)",
+  "cpu_model": "Intel(R) Core(TM) i5-9400F CPU @ 2.90GHz",
+  "logical_cpus": 6,
+  "cpu_governors": [
+    "performance"
+  ],
+  "cpu_max_mhz": 4100,
+  "turbo_disabled": "0",
+  "mem_total_mib": 15919,
+  "mem_available_mib_at_start": 9421,
+  "swap_total_mib": 8192,
+  "swap_used_mib_at_start": 3513,
+  "loadavg_at_start": [
+    1.99,
+    1.85,
+    1.87
+  ],
+  "os": "Freedesktop SDK 26.08 (Flatpak runtime)",
+  "kernel": "7.3.4-300.fc45.x86_64",
+  "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1",
+  "node": "v24.18.0",
+  "nextrs_binary": "target/release/nextrs",
+  "nextrs_binary_sha256": "3597a25176abfe8a6d0bc11ba30084919ec451ab000000ef4f17b176f70d897c",
+  "nextrs_commit": "f5c480d9c48f42f69b27da4fe62f65210c4551ec",
+  "nextrs_dirty": true,
+  "loadgen": "benchmarks/loadgen/target/release/nextrs-loadgen",
+  "loadgen_sha256": "68954d708fe6fa167baf55a1bfacd602875060c04b568b45e5eeed2fbf5d7aa8",
+  "server_cpus": "0-3",
+  "load_cpus": "4-5",
+  "memory_limit": "none (no cgroup limit applied); RSS is reported per process tree",
+  "builds": [
+    {
+      "label": "conc2",
+      "bin": "target/release/nextrs",
+      "extra": [],
+      "env": {},
+      "isolates": [
+        1
+      ],
+      "sha256": "3597a25176abfe8a6d0bc11ba30084919ec451ab000000ef4f17b176f70d897c"
+    },
+    {
+      "label": "conc3",
+      "bin": "target/release/nextrs",
+      "extra": [],
+      "env": {},
+      "isolates": [
+        1
+      ],
+      "sha256": "3597a25176abfe8a6d0bc11ba30084919ec451ab000000ef4f17b176f70d897c"
+    },
+    {
+      "label": "conc6",
+      "bin": "target/release/nextrs",
+      "extra": [],
+      "env": {},
+      "isolates": [
+        1
+      ],
+      "sha256": "3597a25176abfe8a6d0bc11ba30084919ec451ab000000ef4f17b176f70d897c"
+    }
+  ],
+  "parameters": {
+    "rounds": 3,
+    "duration": 10,
+    "warmup": 5,
+    "openFraction": 0.5,
+    "configs": [
+      "conc2-i1",
+      "conc3-i1",
+      "conc6-i1"
+    ],
+    "seed": 1
+  },
+  "fixtures": {
+    "image": {
+      "project": "fixtures/next-image",
+      "dist": ".next",
+      "build_id": "aH0FhvIyU7SsVljVqsRu2",
+      "manifests_sha256": "82797747545a8b7733761ca42a5be7917d161e418bf4b53b656436c798b23a44",
+      "manifests": [
+        "BUILD_ID",
+        "build-manifest.json",
+        "routes-manifest.json",
+        "prerender-manifest.json",
+        "app-path-routes-manifest.json",
+        "server/middleware-manifest.json",
+        "server/app-paths-manifest.json",
+        "server/pages-manifest.json",
+        "required-server-files.json"
+      ],
+      "next_version": "16.4.6"
+    },
+    "mixed": {
+      "project": "fixtures/next-soak-mixed",
+      "dist": ".next",
+      "build_id": "tM6PftNffS3tzh_aAq1iU",
+      "manifests_sha256": "0738374f2a9c69832b95d1d0410224b292f2b80f5e3d048fa8e3b2052a48e62f",
+      "manifests": [
+        "BUILD_ID",
+        "build-manifest.json",
+        "routes-manifest.json",
+        "prerender-manifest.json",
+        "app-path-routes-manifest.json",
+        "server/middleware-manifest.json",
+        "server/app-paths-manifest.json",
+        "server/pages-manifest.json",
+        "required-server-files.json"
+      ],
+      "next_version": "16.4.6"
+    }
+  }
+}

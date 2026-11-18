@@ -1,0 +1,5 @@
+[certify] start api: pnpm --filter @velasia/retailing-api start
+[certify] start web (nextrs): /home/dennispaler/Documents/OpenSource/nextrs/target/release/nextrs start /home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web --js-runtime embedded-v8 --port 3200 --isolates 4 --net-allow http://127.0.0.1:4210 --net-allow-addr 127.0.0.1 --metrics-addr 127.0.0.1:4200 --js-env VELASIA_TODAY --js-env RETAILING_API_FORWARD_FAULTS --js-env VELASIA_ALLOW_TEST_CONTROLS --js-env RETAILING_API_TIMEOUT_MS --js-env SITE_URL --js-env RETAILING_API_URL
+[certify] ready: nextrs on http://127.0.0.1:3200 (startup 266 ms), api on http://127.0.0.1:4210, db /tmp/velasia-cert-db-RVKNyG
+[certify] $ pnpm exec playwright test --retries=0 --reporter=list,json --config /home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/playwright.isolation.config.ts isolation.spec.ts
+[certify] phase3c-isolation-i4: 1/1 passed, 0 failed, 0 flaky, 0 skipped

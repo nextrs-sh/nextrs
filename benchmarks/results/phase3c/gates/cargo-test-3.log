@@ -1,0 +1,497 @@
+   Compiling nextrs-runtime v0.0.0 (/home/dennispaler/Documents/OpenSource/nextrs/crates/nextrs-runtime)
+   Compiling nextrs-server v0.0.0 (/home/dennispaler/Documents/OpenSource/nextrs/crates/nextrs-server)
+   Compiling nextrs-cli v0.0.0 (/home/dennispaler/Documents/OpenSource/nextrs/crates/nextrs-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5m 11s
+     Running unittests src/lib.rs (target/debug/deps/nextrs_adapter-59573b9f9b61263f)
+
+running 15 tests
+test adapter_pages_tests::an_adapter_route_the_model_lacks_refuses ... ok
+test adapter_pages_tests::a_stored_output_elsewhere_refuses ... ok
+test adapter_pages_tests::a_route_the_adapter_did_not_report_refuses ... ok
+test adapter_pages_tests::consistent_tables_pass ... ok
+test adapter_pages_tests::a_different_entry_or_data_route_refuses ... ok
+test model::tests::byte_sizes_parse_as_next_parses_them ... ok
+test glob::tests::refuses_syntax_it_does_not_model ... ok
+test version_support_tests::other_majors_and_garbage_are_unsupported ... ok
+test routing::proxy_timeout_tests::proxy_timeout_follows_router_server ... ok
+test version_support_tests::other_minors_of_the_supported_major_are_untested_not_refused ... ok
+test version_support_tests::the_tested_line_is_tested ... ok
+test workspace_root_tests::mismatched_or_unsafe_relative_dirs_are_refused_with_a_warning ... ok
+test workspace_root_tests::monorepo_and_standalone_layouts ... ok
+test workspace_root_tests::single_package_projects_have_no_workspace_root ... ok
+test glob::tests::agrees_with_picomatch_on_the_corpus ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+
+     Running tests/inspect.rs (target/debug/deps/inspect-262d3efdac5e100b)
+
+running 8 tests
+test accepts_the_dist_directory_itself ... ok
+test default_build_is_read_from_internal_manifests ... ok
+test missing_build_output_is_an_error ... ok
+test adapter_build_is_read_from_adapter_output ... ok
+test adapter_and_internal_sources_agree ... ok
+test dynamic_route_matcher_comes_from_build_metadata ... ok
+test features_that_change_responses_are_flagged ... ok
+test stale_adapter_output_is_ignored ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+     Running unittests src/main.rs (target/debug/deps/nextrs-f2570e00b909617b)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/nextrs_image-95942857d14f1465)
+
+running 15 tests
+test sniff::tests::animation ... ok
+test sniff::tests::magic_numbers ... ok
+test sniff::tests::png_signature_without_ihdr_throws ... ok
+test sniff::tests::detector_fallback ... ok
+test png::tests::few_colours_become_an_indexed_png_losslessly ... ok
+test tests::corrupt_and_truncated_inputs_fail ... ok
+test tests::cancelled_and_expired_jobs_stop ... ok
+test jpeg::tests::encodes_and_refuses_impossible_sizes ... ok
+test tests::keeps_alpha ... ok
+test png::tests::grey_and_full_colour_images_stay_lossless ... ok
+test tests::refuses_before_decoding_too_many_pixels ... ok
+test tests::resizes_to_width_keeping_aspect ... ok
+test tests::corrupt_scaled_jpegs_fail_cleanly ... ok
+test tests::scaled_jpegs_keep_orientation_and_greyscale ... ok
+test tests::large_jpegs_decode_scaled_with_sharps_geometry_and_close_pixels ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.77s
+
+     Running tests/estimate.rs (target/debug/deps/estimate-98c993990c712a13)
+
+running 1 test
+test estimates_bound_measured_peaks ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 31.92s
+
+     Running unittests src/lib.rs (target/debug/deps/nextrs_runtime-803fcb131afd8718)
+
+running 50 tests
+test cache::tests::a_symlinked_cache_directory_is_refused ... ok
+test cache::tests::evicted_response_entries_are_remembered_not_forgotten ... ok
+test cache::tests::corrupted_and_foreign_files_are_misses_and_removed ... ok
+test cache::tests::memory_limit_evicts_least_recently_used ... ok
+test cache::tests::oversized_keys_and_tag_sets_are_not_stored ... ok
+test cache::tests::other_namespaces_are_never_read_and_are_removed ... ok
+test cache::tests::response_entries_have_their_own_size_limit ... ok
+test cache::tests::oversized_values_are_not_stored ... ok
+test cache::tests::entries_persist_and_tags_survive_restart ... ok
+test cache::tests::values_evicted_from_memory_are_reloaded_from_disk ... ok
+test cache::tests::values_round_trip_in_memory ... ok
+test multipart::tests::fields_files_and_repeats ... ok
+test multipart::tests::malformed_bodies_are_type_errors ... ok
+test cache::tests::revalidated_since_sees_tag_events_after_a_time ... ok
+test cache::tests::an_isolate_behind_the_tag_log_gets_the_whole_manifest ... ok
+test net::tests::allowed_ranges_admit_only_their_addresses ... ok
+test net::tests::allowlist_matches_scheme_host_and_port_exactly ... ok
+test net::tests::a_rebinding_answer_is_refused_on_the_next_connection ... ok
+test net::tests::default_policy_denies_everything ... ok
+test net::tests::an_answer_with_any_forbidden_address_is_refused_whole ... ok
+test cache::tests::tags_are_recorded_like_next_and_synced_by_version ... ok
+test cache::tests::disk_limit_removes_least_recently_used_files ... ok
+test net::tests::extra_ca_files_must_hold_usable_certificates ... ok
+test net::tests::ip_literals_are_normalized_before_the_address_check ... ok
+test net::tests::non_public_addresses_are_classified ... ok
+test net::tests::rules_parse_with_secure_defaults ... ok
+test net::tests::urls_with_other_schemes_or_credentials_are_denied ... ok
+test response::tests::an_oversized_chunk_is_accepted_alone ... ok
+test response::tests::closed_resolves_when_the_stream_is_dropped ... ok
+test net::tests::external_rewrites_refuse_unlisted_destinations_before_connecting ... ok
+test net::tests::external_rewrites_use_the_policy_resolver ... ok
+test response::tests::drained_wakes_on_release_and_on_close ... ok
+test response::tests::writes_stop_at_the_budget_until_bytes_are_released ... ok
+test sandbox::tests::allows_files_inside_roots ... ok
+test sandbox::tests::missing_files_inside_roots_are_not_found_but_outside_are_denied ... ok
+test sandbox::tests::rejects_symlinks_escaping_roots ... ok
+test sandbox::tests::rejects_traversal_siblings_and_relative_paths ... ok
+test sandbox::tests::workspace_packages_are_readable_only_with_the_workspace_root ... ok
+test webcrypto::secret::tests::cbc_sp800_38a_vector ... ok
+test webcrypto::secret::tests::gcm_spec_test_case_14 ... ok
+test webcrypto::secret::tests::gcm_spec_test_case_16 ... ok
+test webcrypto::secret::tests::hkdf_rfc5869_vectors ... ok
+test webcrypto::secret::tests::hmac_rfc_vectors ... ok
+test webcrypto::secret::tests::sixteen_byte_iv_round_trips_and_detects_tampering ... ok
+test webcrypto::secret::tests::unsupported_parameters_are_refused ... ok
+test cache::tests::concurrent_writers_leave_the_newest_value_on_disk ... ok
+test multipart::tests::part_count_is_bounded ... ok
+test net::tests::dropping_a_forwarded_body_aborts_the_upstream ... ok
+test web_patches::tests::a_changed_source_is_left_alone ... ok
+test web_patches::tests::the_pinned_streams_source_is_patched ... ok
+
+test result: ok. 50 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+
+     Running tests/backpressure.rs (target/debug/deps/backpressure-1182f78be8a69b50)
+
+running 8 tests
+test an_exception_mid_stream_aborts_the_response ... ok
+test chunks_larger_than_the_budget_still_flow ... ok
+test disconnecting_while_blocked_on_capacity_releases_the_request ... ok
+test a_slow_consumer_gets_a_complete_ordered_body ... ok
+test ignoring_backpressure_cannot_grow_host_buffers ... ok
+test a_client_that_stops_reading_stops_the_producer ... ok
+test many_paused_clients_stay_within_their_budgets ... ok
+test a_handler_resolving_at_end_still_delivers_the_queued_tail ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.47s
+
+     Running tests/body.rs (target/debug/deps/body-467e8659f139bdf3)
+
+running 8 tests
+test a_body_over_the_limit_fails_with_413_semantics ... ok
+test an_aborted_upload_reaches_the_handler_as_econnreset ... ok
+test an_unread_body_is_not_pulled ... ok
+test a_streamed_body_can_be_streamed_back ... ok
+test small_buffered_body ... ok
+test slow_uploads_are_consumed_as_they_arrive ... ok
+test simultaneous_uploads_stay_separate ... ok
+test large_streamed_body_arrives_intact_in_many_reads ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.92s
+
+     Running tests/buffer_base64.rs (target/debug/deps/buffer_base64-bd82301de44589b9)
+
+running 1 test
+test buffer_base64_conversions_match_node ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.05s
+
+     Running tests/buffer_utf8.rs (target/debug/deps/buffer_utf8-0b43961b72631e45)
+
+running 2 tests
+test print_one_random_decode_case ... ignored
+test buffer_utf8_conversions_match_node ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.60s
+
+     Running tests/cache.rs (target/debug/deps/cache-bfd33b26e615cb32)
+
+running 10 tests
+test a_failing_disk_degrades_to_memory ... ok
+test a_corrupted_entry_is_a_miss_and_is_removed ... ok
+test every_isolate_sees_one_cache ... ok
+test entries_and_tags_persist_across_processes_and_pool_sizes ... ok
+test javascript_cannot_read_cache_files_or_store_page_entries ... ok
+test a_missing_page_is_regenerated_once_across_isolates ... ok
+test page_entries_are_shared_persisted_and_tag_expired ... ok
+test the_handler_is_offered_only_when_the_cache_is_enabled ... ok
+test a_write_is_visible_to_every_isolate_before_it_is_persisted ... ok
+test entries_outlive_an_isolate_restart ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.73s
+
+     Running tests/deadlines.rs (target/debug/deps/deadlines-18f9c2d537aa4670)
+
+running 7 tests
+test cancelling_during_execution_releases_the_slot ... ok
+test queue_deadline_and_queue_bound_are_enforced ... ok
+test a_promise_that_never_settles_gets_a_504_at_the_deadline ... ok
+test a_started_response_is_aborted_at_the_deadline ... ok
+test cancelling_while_queued_never_executes_the_request ... ok
+test wait_until_work_is_bounded_by_the_deadline ... ok
+test timeouts_do_not_disturb_other_requests_in_the_isolate ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.74s
+
+     Running tests/executor.rs (target/debug/deps/executor-d4b760110c64c3aa)
+
+running 7 tests
+test async_local_storage_follows_a_single_request ... ok
+test application_code_only_reaches_granted_capabilities ... ok
+test handler_failures_are_reported_and_the_runtime_survives ... ok
+test responses_stream_chunks_with_status_and_repeated_headers ... ok
+test unsupported_apis_fail_explicitly ... ok
+test dropping_the_response_closes_it_in_javascript ... ok
+test concurrent_requests_never_observe_each_others_context ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+
+     Running tests/fetch.rs (target/debug/deps/fetch-fa42db924694856a)
+
+running 24 tests
+test authorized_get_returns_status_headers_and_body ... ok
+test abort_signals_reject_and_close_the_upstream_connection ... ok
+test compressed_responses_are_decoded ... ok
+test destinations_outside_the_policy_are_denied ... ok
+test fetch_metrics_count_requests_failures_and_latency ... ok
+test a_shared_fetch_survives_the_request_that_started_it ... ok
+test an_isolate_restart_aborts_its_fetches_and_the_next_one_works ... ok
+test fetches_in_wait_until_work_complete ... ok
+test forbidden_request_headers_are_rejected ... ok
+test hostnames_are_checked_after_resolution ... ok
+test methods_bodies_and_headers_reach_the_upstream ... ok
+test public_https_smoke ... ignored, needs internet access
+test network_access_is_denied_by_default ... ok
+test redirects_are_checked_at_every_hop ... ok
+test redirects_follow_fetch_method_and_header_rules ... ok
+test response_bodies_are_bounded ... ok
+test streamed_responses_are_forwarded_as_they_arrive ... ok
+test the_default_pool_idle_timeout_is_below_nodes_keep_alive ... ok
+test request_bodies_stream_to_the_upstream ... ok
+test a_slow_reader_stalls_the_upstream_instead_of_buffering ... ok
+test fetches_left_open_end_after_their_request ... ok
+test concurrent_fetches_keep_their_request_context ... ok
+test an_idle_connection_is_not_reused_after_the_pool_idle_timeout ... ok
+test timeouts_and_connection_failures_are_network_errors ... ok
+
+test result: ok. 23 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.37s
+
+     Running tests/pool.rs (target/debug/deps/pool-495a489a1e6b7c1b)
+
+running 9 tests
+test async_context_stays_isolated_within_and_across_isolates ... ok
+test a_failing_isolate_does_not_take_the_pool_down ... ok
+test module_state_is_per_isolate ... ok
+test concurrent_requests_spread_over_every_isolate ... ok
+test shutdown_stops_every_isolate ... ok
+test metrics_report_heap_statistics_per_isolate ... ok
+test saturated_pools_queue_then_refuse ... ok
+test a_stalled_isolate_only_fails_its_own_requests ... ok
+test dispatch_avoids_an_isolate_busy_on_the_cpu ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.19s
+
+     Running tests/streams_release.rs (target/debug/deps/streams_release-a4354355baadcce2)
+
+running 1 test
+test stream_release_behavior_matches_node ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests/supervision.rs (target/debug/deps/supervision-f7df785b372b0dde)
+
+running 17 tests
+test an_executor_thread_panic_is_recovered ... ok
+test a_bootstrap_deadline_that_expires_before_the_isolate_exists_still_applies ... ok
+test an_uncaught_exception_restarts_the_isolate ... ok
+test bootstrap_failure_fails_startup ... ok
+test closed_response_channels_end_streams_without_completion ... ok
+test an_unhandled_rejection_restarts_the_isolate ... ok
+test handler_exceptions_do_not_restart_the_isolate ... ok
+test a_cpu_bound_loop_is_terminated_and_replaced ... ok
+test an_endless_microtask_chain_is_terminated_and_replaced ... ok
+test a_bootstrap_that_never_finishes_fails_at_its_deadline ... ok
+test graceful_shutdown_finishes_in_flight_requests ... ok
+test reaching_the_heap_limit_replaces_the_isolate_instead_of_aborting ... ok
+test shutdown_terminates_requests_that_outlive_the_grace_period ... ok
+test requests_during_a_restart_wait_for_the_new_isolate ... ok
+test in_flight_requests_fail_with_their_isolate ... ok
+test a_slow_bootstrap_is_not_judged_by_the_stall_limit ... ok
+test repeated_failures_back_off ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.52s
+
+     Running tests/text_encoder.rs (target/debug/deps/text_encoder-a53d43ae07e87245)
+
+running 1 test
+test text_encoder_matches_node ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.04s
+
+     Running tests/timers.rs (target/debug/deps/timers-bbdf730fd3e7be0f)
+
+running 2 tests
+test timer_latency_report ... ignored, measurement, not a check
+test timers_fire_in_order_and_cleared_ones_never_fire ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 1.25s
+
+     Running tests/webapis.rs (target/debug/deps/webapis-375740ccc2c5d74e)
+
+running 2 tests
+test web_crypto_and_form_data_match_node ... ok
+test asymmetric_web_crypto_matches_node ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+
+     Running unittests src/lib.rs (target/debug/deps/nextrs_server-e3ecdbc2b092f386)
+
+running 53 tests
+test etag::tests::hashes_utf16_code_units ... ok
+test etag::tests::matches_next_js_for_ascii ... ok
+test external::tests::hop_by_hop_and_connection_named_headers_are_removed ... ok
+test external::tests::internal_headers_never_go_upstream_and_forwarded_host_is_the_clients ... ok
+test etag::tests::freshness_follows_the_fresh_package ... ok
+test http_metrics::tests::histogram_buckets_are_cumulative ... ok
+test i18n::tests::locale_paths ... ok
+test i18n::tests::accept_language_matches_next ... ok
+test image::accept::tests::q_values ... ok
+test http_metrics::tests::bodies_are_counted_once_by_how_they_end ... ok
+test i18n::tests::root_redirects ... ok
+test image::budget::tests::source_leases_are_bounded_and_returned ... ok
+test image::budget::tests::reservations_return_on_drop ... ok
+test image::cache::tests::corrupt_entries_are_deleted ... ok
+test image::cache::tests::persists_across_restarts_per_build ... ok
+test image::cache::tests::symlinked_entries_are_not_followed ... ok
+test image::fetch::tests::etags_like_next ... ok
+test image::fetch::tests::max_age_like_next ... ok
+test image::params::tests::cache_key_matches_next ... ok
+test image::params::tests::decoding ... ok
+test image::params::tests::recursion ... ok
+test image::response::tests::conditional_requests ... ok
+test image::response::tests::file_names ... ok
+test image::response::tests::disposition_like_next ... ok
+test pages::tests::data_paths_denormalize_as_next_does ... ok
+test pages::tests::denormalize_keeps_unrelated_index_prefixes ... ok
+test image::cache::tests::memory_lru_is_bounded ... ok
+test routing::destination::tests::non_path_values ... ok
+test routing::destination::tests::destinations_substitute_and_merge_queries ... ok
+test routing::path_to_regexp::tests::compile_repeats_and_optionals ... ok
+test routing::path_to_regexp::tests::keys_of_common_sources ... ok
+test routing::path_to_regexp::tests::parse_errors_match_path_to_regexp ... ok
+test routing::query::tests::cookies_parse_like_the_cookie_package ... ok
+test routing::query::tests::encode_and_decode_uri_component ... ok
+test routing::query::tests::js_property_order_puts_indexes_first ... ok
+test routing::query::tests::repeated_query_keys_become_arrays_in_first_position ... ok
+test routing::query::tests::repeated_slashes ... ok
+test routing::url::tests::format_escapes_like_node ... ok
+test routing::url::tests::absolute_urls_keep_origin_and_slashes ... ok
+test image::accept::tests::parameter_without_value_throws ... ok
+test routing::url::tests::relative_urls_parse_against_the_internal_base ... ok
+test routing::url::tests::relativize_same_origin_only ... ok
+test image::accept::tests::matches_next ... ok
+test rsc::tests::missing_param_never_matches ... ok
+test static_files::tests::content_types_match_next_start ... ok
+test rsc::tests::hashes_match_next_js ... ok
+test static_files::tests::rejects_traversal ... ok
+test rsc::tests::redirect_preserves_other_pairs ... ok
+test static_files::tests::rejects_symlinks_leaving_root ... ok
+test image::cache::tests::disk_quota_evicts_oldest ... ok
+test static_files::tests::serves_files_inside_root ... ok
+test routing::destination::tests::has_conditions ... ok
+test routing::url::tests::parses_like_the_url_parser ... ok
+
+test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.04s
+
+     Running tests/dynamic.rs (target/debug/deps/dynamic-1695523e5df6c62b)
+
+running 5 tests
+test dynamic_rsc_requests_keep_the_cache_busting_protocol ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test http_1_0_streamed_responses_close_the_connection ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test renders_dynamic_routes_with_next_semantics ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test server_action_requests_reach_next_action_handler ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test without_an_executor_dynamic_routes_are_refused ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+
+test result: ok. 0 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/http.rs (target/debug/deps/http-c58575e979033202)
+
+running 14 tests
+test never_serves_files_outside_static ... ok
+test adapter_layout_serves_the_same_way ... ok
+test head_and_conditional_requests ... ok
+test non_get_methods ... ok
+test rsc_requests_use_cache_busting_redirects ... ok
+test refuses_to_start_on_unsupported_features ... ok
+test serves_prerendered_html_like_next_start ... ok
+test serves_static_chunks_with_immutable_caching ... ok
+test trailing_slash_redirect_matches_next_start ... ok
+test unknown_paths_get_the_prerendered_not_found_page ... ok
+test serves_an_optimized_dynamic_pages_page_for_every_path ... ok
+test dynamic_routes_are_refused_explicitly ... ok
+test image_endpoint_without_config_is_not_found ... ok
+test serves_a_static_params_prerender_for_any_method ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+     Running tests/image.rs (target/debug/deps/image-ad75abfb04262fdf)
+
+running 20 tests
+test alpha_survives_webp ... ok
+test allowed_remote_image_without_network_policy_is_refused ... ok
+test concurrent_requests_share_one_transformation ... ok
+test a_timed_out_transformation_holds_its_memory_until_it_ends ... ok
+test decoder_encoder_and_panic_failures_release_memory ... ok
+test cancelled_waits_leave_the_queue ... ok
+test cancellation_releases_memory_while_waiting_and_after_running ... ok
+test disk_cache_survives_a_restart ... ok
+test a_saturated_queue_answers_503_and_recovers ... ok
+test refuses_paths_outside_public_and_patterns ... ok
+test overload_answers_503 ... ok
+test small_images_proceed_side_by_side_within_the_budget ... ok
+test the_source_budget_refuses_sources_it_cannot_hold ... ok
+test small_work_runs_beside_large_work_when_it_fits ... ok
+test optimizes_and_caches_a_public_image ... ok
+test too_many_pixels_serves_the_source ... ok
+test work_larger_than_the_whole_budget_serves_the_source ... ok
+test unwritable_cache_directory_still_serves ... ok
+test large_work_waits_for_memory_and_never_exceeds_the_budget ... ok
+test a_request_after_the_last_client_left_gets_its_own_transformation ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.61s
+
+     Running tests/memory.rs (target/debug/deps/memory-9c91edcb2c33144c)
+
+running 1 test
+test paused_clients_cannot_grow_process_memory ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/proxy.rs (target/debug/deps/proxy-0a268ecbb6324717)
+
+running 1 test
+test forwarded_headers_are_trusted_only_from_configured_proxies ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/reliability.rs (target/debug/deps/reliability-69504215cc75ddd3)
+
+running 13 tests
+test a_client_that_pauses_then_resumes_gets_the_whole_ordered_body ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test a_client_that_stops_reading_is_closed_after_the_write_timeout ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test a_cpu_stall_in_a_next_route_replaces_the_isolate ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test a_disconnect_mid_stream_cancels_the_request ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test a_malformed_chunked_body_is_rejected_without_hanging ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test a_saturated_executor_refuses_with_503_and_recovers ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test a_streamed_upload_can_be_streamed_back ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test an_aborted_upload_releases_the_request ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test connections_beyond_the_cap_wait_for_a_free_one ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test graceful_shutdown_finishes_streams_and_refuses_new_connections ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test queued_requests_time_out_with_503 ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test request_body_limits_hold_for_declared_and_chunked_lengths ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+test uncaught_errors_in_next_routes_are_logged_not_fatal ... ignored, requires fixtures/next-app to be built (npm ci && next build)
+
+test result: ok. 0 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/routing_vectors.rs (target/debug/deps/routing_vectors-ebece2be2e1178a0)
+
+running 3 tests
+test relative_urls_as_next_computes_them ... ok
+test rules_match_and_build_destinations_as_next_does ... ok
+test proxy_matchers_match_as_next_does ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s
+
+   Doc-tests nextrs_adapter
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests nextrs_image
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests nextrs_runtime
+
+running 1 test
+test /home/dennispaler/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/deno_core-0.413.0/extensions.rs - ops::nextrs_runtime (line 486) ... ignored
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+all doctests ran in 0.34s; merged doctests compilation took 0.34s
+   Doc-tests nextrs_server
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+EXIT=0

@@ -1,0 +1,10 @@
+    /// Per isolate: response-cache entries (ISR and prerendered pages) kept
+    /// decoded in JavaScript between requests, as next start keeps them in
+    /// its memory cache. Each request still checks the shared store, so
+    /// revalidations and new versions are seen at once. 0 decodes every
+    /// hit again.
+    #[arg(long, value_name = "MIB", default_value_t = 16)]
+    cache_isolate_memory: u64,
+
+---
+            isolate_decoded_bytes: self.cache_isolate_memory * 1024 * 1024,

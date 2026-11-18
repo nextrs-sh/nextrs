@@ -1,0 +1,1559 @@
+{
+  "summary": {
+    "title": "auth-proxy (jose)",
+    "total": 78,
+    "match": 78,
+    "pass": 0,
+    "knownDiff": 0,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 76,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "public-home",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Home",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "public-login",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Log in",
+            "query": "{\"next\":null,\"error\":null}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "public-login-next",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Log in",
+            "query": "{\"next\":\"/reports\",\"error\":null}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "public-health-not-matched",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":true}"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "anon-dashboard",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-dashboard-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard%3Ftab%3Dbilling%26x%3D1%2B2"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard%3Ftab%3Dbilling%26x%3D1%2B2"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-static-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Faccount"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Faccount"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Freports"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Freports"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-dynamic-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard%2Fprojects%2Fp-1"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard%2Fprojects%2Fp-1"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-route-handler",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-action-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Factions%2Fprotected"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Factions%2Fprotected"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-head",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Faccount"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-rsc",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-rsc-prefetch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Faccount"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Faccount"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-rsc-segment-prefetch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Freports"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Freports"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-rsc-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-alice-dashboard",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Dashboard",
+            "secret": "dashboard of Alice",
+            "info": "{\"userId\":\"u-alice\",\"proxyUser\":\"u-alice\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-bob-dashboard",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Dashboard",
+            "secret": "dashboard of Bob",
+            "info": "{\"userId\":\"u-bob\",\"proxyUser\":\"u-bob\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-static-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Account",
+            "secret": "account settings (prerendered, proxy-protected)",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=30, stale-while-revalidate=31535970",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Reports",
+            "secret": "quarterly reports (ISR, proxy-protected)",
+            "stamp": "present"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-dynamic-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Project",
+            "slug": "p-7",
+            "secret": "project p-7 of Bob",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-route-handler",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"userId\":\"u-alice\",\"name\":\"Alice\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-rsc",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/dashboard?_rsc"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-login-redirects-to-dashboard",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/dashboard"
+          },
+          "setCookie": [],
+          "body": "/dashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "expired-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "expired-session-route-handler",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "not-yet-valid-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "wrong-secret",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "tampered-payload",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "tampered-signature",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Faccount"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Faccount"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "alg-none",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "alg-not-allowed-hs512",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "missing-claims",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "malformed-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "empty-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "other-cookie-only",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "duplicate-session-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Dashboard",
+            "secret": "dashboard of Alice",
+            "info": "{\"userId\":\"u-alice\",\"proxyUser\":\"u-alice\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "spoofed-identity-header-anon",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "spoofed-identity-header-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Dashboard",
+            "secret": "dashboard of Bob",
+            "info": "{\"userId\":\"u-bob\",\"proxyUser\":\"u-bob\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-encoded-first-char",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-encoded-last-char",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-encoded-static",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-encoded-isr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-encoded-api",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-encoded-rsc",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/x-component",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300"
+          },
+          "setCookie": [],
+          "body": {
+            "rsc": true,
+            "value": null,
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-encoded-prefetch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/x-component",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300"
+          },
+          "setCookie": [],
+          "body": {
+            "rsc": true,
+            "value": null,
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-encoded-slash",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-dot-segments",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-encoded-dot-segments",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Faccount"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Faccount"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-double-slash",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/dashboard",
+            "refresh": "0;url=/dashboard"
+          },
+          "setCookie": [],
+          "body": "/dashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-backslash",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/account",
+            "refresh": "0;url=/account"
+          },
+          "setCookie": [],
+          "body": "/account"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-trailing-slash",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/account",
+            "refresh": "0;url=/account"
+          },
+          "setCookie": [],
+          "body": "/account"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-upper-case",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-upper-case-static",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-semicolon",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-rsc-suffix",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Faccount"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Faccount"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-html-suffix",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-data-route",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "x-nextjs-redirect": "/_next/data/unknown/login.json?next=%2Faccount"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-next-data-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Faccount%3F__nextDataReq%3D1"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Faccount%3F__nextDataReq%3D1"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-config-rewrite-alias",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "location": "/login",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-rewrite-alias-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Dashboard",
+            "secret": "dashboard of Alice",
+            "info": "{\"userId\":\"u-alice\",\"proxyUser\":\"u-alice\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-internal-headers",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Faccount"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Faccount"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-forwarded-host",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "login-action-success",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "s-maxage=30, stale-while-revalidate=31535970",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-action-redirect": "/reports;push",
+              "x-action-revalidated": "1",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1",
+              "x-nextjs-stale-time": "300"
+            },
+            "setCookie": [
+              "session=<JWT>; Path=/; Expires=<DATE>; HttpOnly; SameSite=lax"
+            ],
+            "body": {
+              "rsc": true,
+              "value": null,
+              "stamp": "absent"
+            }
+          },
+          "dashboard": {
+            "status": 200,
+            "headers": {
+              "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/html; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-powered-by": "Next.js"
+            },
+            "setCookie": [],
+            "body": {
+              "title": "Dashboard",
+              "secret": "dashboard of Alice",
+              "info": "{\"userId\":\"u-alice\",\"proxyUser\":\"u-alice\"}",
+              "stamp": "absent"
+            }
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "login-action-wrong-password",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-action-redirect": "/login?error=1&next=%2Freports;push"
+            },
+            "setCookie": [],
+            "body": {
+              "rsc": true,
+              "value": null,
+              "stamp": "absent"
+            }
+          },
+          "dashboard": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "login-action-open-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-action-redirect": "/dashboard;push",
+              "x-action-revalidated": "1"
+            },
+            "setCookie": [
+              "session=<JWT>; Path=/; Expires=<DATE>; HttpOnly; SameSite=lax"
+            ],
+            "body": {
+              "rsc": true,
+              "value": null,
+              "stamp": "absent"
+            }
+          },
+          "dashboard": {
+            "status": 200,
+            "headers": {
+              "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/html; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-powered-by": "Next.js"
+            },
+            "setCookie": [],
+            "body": {
+              "title": "Dashboard",
+              "secret": "dashboard of Bob",
+              "info": "{\"userId\":\"u-bob\",\"proxyUser\":\"u-bob\"}",
+              "stamp": "absent"
+            }
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "login-form-without-js",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 303,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "location": "/dashboard/projects/p-2",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "session=<JWT>; Path=/; Expires=<DATE>; HttpOnly; SameSite=lax"
+            ],
+            "body": ""
+          },
+          "dashboard": {
+            "status": 200,
+            "headers": {
+              "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/html; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-powered-by": "Next.js"
+            },
+            "setCookie": [],
+            "body": {
+              "title": "Dashboard",
+              "secret": "dashboard of Bob",
+              "info": "{\"userId\":\"u-bob\",\"proxyUser\":\"u-bob\"}",
+              "stamp": "absent"
+            }
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "login-action-cross-origin",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 500,
+            "headers": {
+              "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": {
+              "rsc": true,
+              "value": null,
+              "stamp": "absent"
+            }
+          },
+          "dashboard": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "logout-action",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/x-component",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-action-redirect": "/login;push",
+            "x-action-revalidated": "1"
+          },
+          "setCookie": [
+            "session=; Path=/; Expires=<DATE>"
+          ],
+          "body": {
+            "rsc": true,
+            "value": null,
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-anon-on-protected-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 307,
+            "headers": {
+              "location": "/login?next=%2Factions%2Fprotected"
+            },
+            "setCookie": [],
+            "body": "/login?next=%2Factions%2Fprotected"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-anon-on-public-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1"
+            },
+            "setCookie": [],
+            "body": "{}"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-expired-on-public-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1"
+            },
+            "setCookie": [],
+            "body": "{}"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-tampered-on-public-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1"
+            },
+            "setCookie": [],
+            "body": "{}"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-alice-on-protected-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": {
+              "rsc": true,
+              "value": "{\"recorded\":\"u-alice:1\",\"user\":\"u-alice\"}",
+              "stamp": "absent"
+            }
+          },
+          "ledger": [
+            "u-alice:1"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-bob-on-public-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1"
+            },
+            "setCookie": [],
+            "body": {
+              "rsc": true,
+              "value": "{\"recorded\":\"u-bob:1\",\"user\":\"u-bob\"}",
+              "stamp": "absent"
+            }
+          },
+          "ledger": [
+            "u-bob:1"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-anon-encoded-path",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 404,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1"
+            },
+            "setCookie": [],
+            "body": "{}"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-cross-origin-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 500,
+            "headers": {
+              "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": {
+              "rsc": true,
+              "value": null,
+              "stamp": "absent"
+            }
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "concurrent-identities",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "total": 240,
+          "wrong": 0,
+          "sample": [],
+          "failed": 0
+        },
+        "asserted": true
+      }
+    }
+  ]
+}

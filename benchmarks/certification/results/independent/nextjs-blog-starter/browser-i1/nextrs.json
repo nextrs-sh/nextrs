@@ -1,0 +1,159 @@
+{
+  "config": {
+    "argv": [
+      "/home/dennispaler/.cache/nextrs-phase3a/node-v24.18.0-linux-x64/bin/node",
+      "/home/dennispaler/.cache/nextrs-phase3b/velasia-src/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/browser/playwright.config.ts"
+    ],
+    "configFile": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/browser/playwright.config.ts",
+    "rootDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/dennispaler/.cache/nextrs-phase3b/velasia-src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "/nextjs-blog-starter\\.spec\\.ts$/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/dennispaler/.cache/nextrs-phase3b/velasia-src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/browser",
+        "snapshotDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/browser",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 60000,
+        "use": {
+          "baseURL": "http://127.0.0.1:3430",
+          "trace": "retain-on-failure",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.8154.6 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/results/independent/nextjs-blog-starter/browser-i1/nextrs.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.65.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "nextjs-blog-starter.spec.ts",
+      "file": "nextjs-blog-starter.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "home lists posts and a post renders with its cover image",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 376,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T03:15:37.450Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ed8cf2bf5dfa79189310-46c70401a1593e6d8291",
+          "file": "nextjs-blog-starter.spec.ts",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-18T03:15:37.060Z",
+    "duration": 33429.549000000006,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

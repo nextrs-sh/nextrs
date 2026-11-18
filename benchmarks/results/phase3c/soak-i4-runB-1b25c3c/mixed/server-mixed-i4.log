@@ -1,0 +1,51 @@
+[2m2026-11-17T05:33:22.577393Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-17T05:33:22.683482Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5934, http://127.0.0.1:4317
+[2m2026-11-17T05:33:22.683554Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mtrue [3mdir[0m[2m=[0m/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/results/phase3c/soak-i4/mixed/data-cache-i4
+[2m2026-11-17T05:33:23.560215Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:33:23.560245Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:33:23.560252Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:33:23.560278Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:33:23.560317Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:33:23.560339Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:33:23.632726Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m938
+[2m2026-11-17T05:33:23.633296Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m939
+[2m2026-11-17T05:33:23.633517Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m939
+[2m2026-11-17T05:33:23.642049Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:33:23.642099Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:33:23.715719Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m1021
+[2m2026-11-17T05:33:23.715750Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m1047 [3misolates[0m[2m=[0m4
+[2m2026-11-17T05:33:23.716008Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m2 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-17T05:33:23.842309Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m metrics listening [3mmetrics_addr[0m[2m=[0m127.0.0.1:5931
+[2m2026-11-17T05:33:23.842339Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5930 [3mbuild_id[0m[2m=[0mIrWTVOXH5fxE4D7pcRAKB [3mready_ms[0m[2m=[0m1174
+[2m2026-11-17T05:38:27.218333Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m JavaScript has not yielded for longer than the stall timeout, but is not using the CPU (blocked or throttled); not terminating it [3mslot[0m[2m=[0m0 [3mbusy_ms[0m[2m=[0m1035 [3mcpu_ms[0m[2m=[0m55
+[2m2026-11-17T05:38:28.221320Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m JavaScript exceeded the stall timeout; terminating the isolate [3mslot[0m[2m=[0m0 [3mbusy_ms[0m[2m=[0m2038 [3mcpu_ms[0m[2m=[0m1036 [3mactive[0m[2m=[0m7
+Error: Failed to revalidate /p/isr: Invalid response 502
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: Failed to revalidate /p/isr: Invalid response 502
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: Failed to revalidate /p/isr: Invalid response 502
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: Failed to revalidate /p/isr: Invalid response 502
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-17T05:38:30.189309Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m isolate failed: terminated [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mreason[0m[2m=[0m"cpu_stall" [3muptime_ms[0m[2m=[0m307495
+[2m2026-11-17T05:38:30.189331Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m restarting isolate [3mslot[0m[2m=[0m0 [3mdelay_ms[0m[2m=[0m100 [3mrecent_failures[0m[2m=[0m1
+[2m2026-11-17T05:38:30.446332Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:38:30.446374Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:38:30.562219Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m2 [3mboot_ms[0m[2m=[0m272
+[2m2026-11-17T05:43:27.208016Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m JavaScript has not yielded for longer than the stall timeout, but is not using the CPU (blocked or throttled); not terminating it [3mslot[0m[2m=[0m1 [3mbusy_ms[0m[2m=[0m1007 [3mcpu_ms[0m[2m=[0m625
+[2m2026-11-17T05:43:27.809492Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m JavaScript exceeded the stall timeout; terminating the isolate [3mslot[0m[2m=[0m1 [3mbusy_ms[0m[2m=[0m1609 [3mcpu_ms[0m[2m=[0m1036 [3mactive[0m[2m=[0m2
+[2m2026-11-17T05:43:27.821282Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m isolate failed: terminated [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mreason[0m[2m=[0m"cpu_stall" [3muptime_ms[0m[2m=[0m605127
+[2m2026-11-17T05:43:27.821316Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m restarting isolate [3mslot[0m[2m=[0m1 [3mdelay_ms[0m[2m=[0m100 [3mrecent_failures[0m[2m=[0m1
+[2m2026-11-17T05:43:28.050061Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:43:28.050095Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:43:28.127207Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m2 [3mboot_ms[0m[2m=[0m205
+[2m2026-11-17T05:48:27.226854Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m JavaScript has not yielded for longer than the stall timeout, but is not using the CPU (blocked or throttled); not terminating it [3mslot[0m[2m=[0m1 [3mbusy_ms[0m[2m=[0m1012 [3mcpu_ms[0m[2m=[0m655
+[2m2026-11-17T05:48:27.880555Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m JavaScript exceeded the stall timeout; terminating the isolate [3mslot[0m[2m=[0m1 [3mbusy_ms[0m[2m=[0m1666 [3mcpu_ms[0m[2m=[0m1034 [3mactive[0m[2m=[0m3
+[2m2026-11-17T05:48:27.889439Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m isolate failed: terminated [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m2 [3mreason[0m[2m=[0m"cpu_stall" [3muptime_ms[0m[2m=[0m299968
+[2m2026-11-17T05:48:27.889467Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m restarting isolate [3mslot[0m[2m=[0m1 [3mdelay_ms[0m[2m=[0m100 [3mrecent_failures[0m[2m=[0m1
+[2m2026-11-17T05:48:28.150435Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:48:28.150488Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-17T05:48:28.292217Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m3 [3mboot_ms[0m[2m=[0m302
+[2m2026-11-17T05:52:22.762004Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m27 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-17T05:52:22.795018Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-17T05:52:22.846338Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

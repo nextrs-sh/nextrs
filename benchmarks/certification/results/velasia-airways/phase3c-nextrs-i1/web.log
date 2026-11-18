@@ -1,0 +1,52 @@
+2026-11-18T02:34:56.708385Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+2026-11-18T02:34:56.984160Z  INFO nextrs: monorepo build: the workspace root's packages are readable packages=/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules
+2026-11-18T02:34:56.984198Z  INFO nextrs: outbound fetch enabled allow=http://127.0.0.1:4210
+2026-11-18T02:34:56.984227Z  INFO nextrs: shared data cache enabled persistent=false dir=
+2026-11-18T02:34:57.986415Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T02:34:57.986450Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T02:34:58.379671Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=1389
+2026-11-18T02:34:58.379707Z  INFO nextrs: embedded V8 executor ready ready_ms=1617 isolates=1
+2026-11-18T02:34:58.380074Z  INFO nextrs: Server Actions enabled actions=45 next_body_limit=131072 nextrs_body_limit=10485760 effective=131072
+2026-11-18T02:34:58.425644Z  INFO nextrs: metrics listening metrics_addr=127.0.0.1:4200
+2026-11-18T02:34:58.425669Z  INFO nextrs: nextrs ready addr=127.0.0.1:3200 build_id=HcU2kj-oE0Dq49qDuzYn4 ready_ms=1663
+{"level":50,"time":1794969331156,"service":"velasia-web","msg":"retailing api call failed","area":"booking","action":"seats","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794969338135,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794969338135,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794969359964,"service":"velasia-web","msg":"retailing api call failed","area":"checkout","action":"payment","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794969363912,"service":"velasia-web","msg":"retailing api call failed","area":"checkout","action":"prepare","code":"CHECKOUT_NOT_READY","kind":"rejected","status":409}
+{"level":50,"time":1794969394344,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794969394344,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794969396835,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794969396837,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"timeout","status":null}
+{"level":50,"time":1794969396921,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"calendar outbound","code":null,"kind":"bad-response","status":null}
+{"level":50,"time":1794969396925,"service":"velasia-web","msg":"retailing api call failed","area":"flights","action":"search outbound","code":null,"kind":"bad-response","status":null}
+{"level":50,"time":1794969437549,"service":"velasia-web","msg":"retailing api call failed","area":"offers","action":"NV501-20261215","code":null,"kind":"unavailable","status":503}
+{"level":50,"time":1794969441411,"service":"velasia-web","msg":"retailing api call failed","area":"offers","action":"NV501-20261215","code":null,"kind":"timeout","status":null}
+`x-forwarded-host` header with value `127.0.0.1:3200` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+    at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+    at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+    at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+  digest: [32m"2570004797"[39m
+}
+{"level":50,"time":1794969443103,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"2570004797","requestId":null}
+Error: Body exceeded 128kb limit.
+To configure the body size limit for Server Actions, see: https://nextjs.org/docs/app/api-reference/next-config-js/serverActions#bodysizelimit
+[90m    at Transform._write (ext:nextrs/node-polyfills.js:7071:14)[39m
+[90m    at writeOrBuffer (ext:nextrs/node-polyfills.js:6116:18)[39m
+[90m    at _write (ext:nextrs/node-polyfills.js:6073:16)[39m
+[90m    at Writable.write (ext:nextrs/node-polyfills.js:6076:16)[39m
+[90m    at IncomingMessage.ondata (ext:nextrs/node-polyfills.js:5432:28)[39m
+[90m    at IncomingMessage.emit (ext:nextrs/node-polyfills.js:1893:11)[39m
+[90m    at addChunk (ext:nextrs/node-polyfills.js:5189:18)[39m
+[90m    at readableAddChunk (ext:nextrs/node-polyfills.js:5172:15)[39m
+[90m    at Readable.push (ext:nextrs/node-polyfills.js:5122:16)[39m {
+  statusCode: [33m413[39m,
+  digest: [32m"4216285632"[39m
+}
+{"level":50,"time":1794969443560,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"4216285632","requestId":null}
+2026-11-18T02:37:51.776216Z  INFO nextrs_server::serve: shutting down: no new connections; draining connections=12 grace_ms=10000
+2026-11-18T02:37:51.776728Z  INFO nextrs: stopping JavaScript isolates
+2026-11-18T02:37:51.854457Z  INFO nextrs: nextrs stopped

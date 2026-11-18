@@ -1,0 +1,572 @@
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.6
+- Local:         http://127.0.0.1:5424
+- Network:       http://127.0.0.1:5424
+✓ Ready in 112ms
+✓ Running next.config.ts took 25ms
+⨯ internal image response failed for /foo.png 404
+⨯ Error: boundary failure for cmp-odd
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '507385122'
+}
+`x-forwarded-host` header with value `127.0.0.1:5424` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+⨯ Error: Invalid Server Actions request.
+    at ignore-listed frames {
+  digest: '1456169227'
+}
+`x-forwarded-host` header with value `127.0.0.1:5424` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+⨯ Error: Invalid Server Actions request.
+    at ignore-listed frames
+⨯ Error: Invalid Server Actions request.
+    at ignore-listed frames
+`x-forwarded-host` header with value `127.0.0.1:5424` does not match `origin` header with value `null` from a forwarded Server Actions request. Aborting the action.
+⨯ Error: Invalid Server Actions request.
+    at ignore-listed frames {
+  digest: '1456169227'
+}
+Error: Failed to find Server Action "40abababababababababababababababababababab". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at tw (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:1:75477)
+    at Object.get (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:3:267)
+Error: The Server Reference ID did not match the expected format. Received "../../etc/passwd".
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at Object.get (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:2:2682)
+Error: The Server Reference ID did not match the expected format. Received "__proto__".
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at Object.get (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:2:2682)
+Error: Failed to find Server Action "7c0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at tw (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:1:75477)
+    at Object.get (.next/server/chunks/[root-of-the-server]__15bjnu5yieigz._.js:3:267)
+⨯ Error: Server Action arguments list is too long (1001). Maximum allowed is 1000.
+    at ignore-listed frames {
+  digest: '332761990'
+}
+⨯ Error [OperationError]: The operation failed for an operation-specific reason
+    at l (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:1494)
+    at t (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:2516) {
+  code: 0,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25,
+  [cause]: TypeError: Invalid initialization vector
+      at l (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:1494)
+      at t (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:2516) {
+    code: 'ERR_CRYPTO_INVALID_IV'
+  }
+}
+⨯ Error [OperationError]: The operation failed for an operation-specific reason
+    at l (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:1494)
+    at t (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:2516) {
+  code: 0,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25,
+  [cause]: TypeError: Invalid initialization vector
+      at l (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:1494)
+      at t (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:2516) {
+    code: 'ERR_CRYPTO_INVALID_IV'
+  }
+}
+⨯ Error [OperationError]: The operation failed for an operation-specific reason
+    at ignore-listed frames {
+  code: 0,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25,
+  [cause]: [Error: Cipher job failed]
+}
+⨯ Error [OperationError]: The operation failed for an operation-specific reason
+    at ignore-listed frames {
+  code: 0,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25,
+  [cause]: [Error: Cipher job failed]
+}
+⨯ Error [InvalidCharacterError]: Invalid character
+    at t (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:2448)
+    at async x (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:4241)
+    at async g (.next/server/chunks/ssr/[root-of-the-server]__0jjv-uqo07f_b._.js:1:688) {
+  code: 5,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+⨯ Error [InvalidCharacterError]: Invalid character
+    at t (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:2448)
+    at async x (.next/server/chunks/ssr/_0s-mhj45051vf._.js:1:4241)
+    at async g (.next/server/chunks/ssr/[root-of-the-server]__0jjv-uqo07f_b._.js:1:688) {
+  code: 5,
+  INDEX_SIZE_ERR: 1,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  WRONG_DOCUMENT_ERR: 4,
+  INVALID_CHARACTER_ERR: 5,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_STATE_ERR: 11,
+  SYNTAX_ERR: 12,
+  INVALID_MODIFICATION_ERR: 13,
+  NAMESPACE_ERR: 14,
+  INVALID_ACCESS_ERR: 15,
+  VALIDATION_ERR: 16,
+  TYPE_MISMATCH_ERR: 17,
+  SECURITY_ERR: 18,
+  NETWORK_ERR: 19,
+  ABORT_ERR: 20,
+  URL_MISMATCH_ERR: 21,
+  QUOTA_EXCEEDED_ERR: 22,
+  TIMEOUT_ERR: 23,
+  INVALID_NODE_TYPE_ERR: 24,
+  DATA_CLONE_ERR: 25
+}
+⨯ Error: Body exceeded 1 MB limit.
+To configure the body size limit for Server Actions, see: https://nextjs.org/docs/app/api-reference/next-config-js/serverActions#bodysizelimit
+    at ignore-listed frames {
+  statusCode: 413,
+  digest: '216774339'
+}
+⨯ Error: Unexpected end of form
+    at ignore-listed frames {
+  digest: '482609849'
+}
+⨯ Error: Unexpected end of form
+    at ignore-listed frames {
+  digest: '482609849'
+}
+⨯ TypeError: Failed to parse body as FormData.
+    at ignore-listed frames {
+  [cause]: TypeError: expected boundary after body
+      at ignore-listed frames
+}
+⨯ TypeError: Failed to parse body as FormData.
+    at ignore-listed frames {
+  [cause]: TypeError: expected boundary after body
+      at ignore-listed frames
+}
+⨯ Error: Invalid forward reference.
+    at ignore-listed frames {
+  digest: '4244605236'
+}
+⨯ Error: Invalid forward reference.
+    at ignore-listed frames {
+  digest: '4244605236'
+}
+⨯ Error: Invalid forward reference.
+    at ignore-listed frames {
+  digest: '4111404540'
+}
+⨯ RangeError: Maximum call stack size exceeded
+    at ignore-listed frames {
+  digest: '971166041'
+}
+⨯ Error: ISR regeneration failed on purpose
+    at d (.next/server/chunks/ssr/[root-of-the-server]__0zed-ea-mhayq._.js:1:1613) {
+  digest: '81704793'
+}
+⨯ Error: ISR regeneration failed on purpose
+    at d (.next/server/chunks/ssr/[root-of-the-server]__0zed-ea-mhayq._.js:1:1613) {
+  digest: '81704793'
+}
+Error: ISR regeneration failed on purpose
+    at d (.next/server/chunks/ssr/[root-of-the-server]__0zed-ea-mhayq._.js:1:1613) {
+  digest: '81704793'
+}
+⨯ Error: client-called failure
+    at m (.next/server/chunks/ssr/_1ec2_4r-i68xy._.js:1:1098) {
+  digest: '1735635072'
+}
+⨯ Error: Action failed on purpose (error)
+    at l (.next/server/chunks/ssr/_1ec2_4r-i68xy._.js:1:1031) {
+  digest: '3096565090'
+}
+⨯ Error: Action failed on purpose (error)
+    at l (.next/server/chunks/ssr/_1ec2_4r-i68xy._.js:1:1031)
+⨯ Error: Action failed on purpose (error)
+    at l (.next/server/chunks/ssr/_1ec2_4r-i68xy._.js:1:1031)
+⨯ Error: boundary failure for fx-350636-1
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2774983756'
+}
+⨯ Error: boundary failure for fx-350636-11
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1930952684'
+}
+⨯ Error: boundary failure for fx-350636-21
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1938856428'
+}
+⨯ Error: boundary failure for fx-350636-31
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1101897964'
+}
+⨯ Error: boundary failure for fx-350636-41
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '4139242988'
+}
+⨯ Error: boundary failure for fx-350636-51
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3454573548'
+}
+⨯ Error: boundary failure for fx-350636-61
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2469040385'
+}
+⨯ Error: boundary failure for fx-350636-71
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2625518828'
+}
+⨯ Error: boundary failure for fx-350636-81
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '279020012'
+}
+⨯ Error: boundary failure for fx-350636-91
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3889317868'
+}
+⨯ Error: boundary failure for fx-350636-101
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3568760897'
+}
+⨯ Error: boundary failure for fx-350636-111
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2281948236'
+}
+⨯ Error: boundary failure for fx-350636-121
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '956111788'
+}
+⨯ Error: boundary failure for fx-350636-131
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3790693260'
+}
+⨯ Error: boundary failure for fx-350636-141
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '4158085612'
+}
+⨯ Error: boundary failure for fx-350636-151
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '988504012'
+}
+⨯ Error: boundary failure for fx-350636-161
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3957634860'
+}
+⨯ Error: boundary failure for fx-350636-171
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2497249036'
+}
+⨯ Error: boundary failure for fx-350636-181
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1291453804'
+}
+⨯ Error: boundary failure for fx-350636-191
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '427661281'
+}
+⨯ Error: boundary failure for fx-350636-201
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3263160716'
+}
+⨯ Error: boundary failure for fx-350636-211
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2850086892'
+}
+⨯ Error: boundary failure for fx-350636-221
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3191710945'
+}
+⨯ Error: boundary failure for fx-350636-231
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '4168063020'
+}
+⨯ Error: boundary failure for fx-350636-241
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '773851681'
+}
+⨯ Error: boundary failure for fx-350636-251
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1556642668'
+}
+⨯ Error: boundary failure for fx-350636-261
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1731256140'
+}
+⨯ Error: boundary failure for fx-350636-271
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2874618796'
+}
+⨯ Error: boundary failure for fx-350636-281
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3398051980'
+}
+⨯ Error: boundary failure for fx-350636-291
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2984978156'
+}
+⨯ Error: boundary failure for fx-350636-301
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2266071980'
+}
+⨯ Error: boundary failure for fx-350636-311
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3091656332'
+}
+⨯ Error: boundary failure for fx-350636-321
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2058594284'
+}
+⨯ Error: boundary failure for fx-350636-331
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1924189388'
+}
+⨯ Error: boundary failure for fx-350636-341
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '972627756'
+}
+⨯ Error: boundary failure for fx-350636-351
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1798212108'
+}
+⨯ Error: boundary failure for fx-350636-361
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '765150060'
+}
+⨯ Error: boundary failure for fx-350636-371
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '630745164'
+}
+⨯ Error: boundary failure for fx-350636-381
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2400963244'
+}
+⨯ Error: boundary failure for fx-350636-391
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3226547596'
+}
+⨯ Error: boundary failure for fx-350636-401
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '180774092'
+}
+⨯ Error: boundary failure for fx-350636-411
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1626750252'
+}
+⨯ Error: boundary failure for fx-350636-421
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2618525708'
+}
+⨯ Error: boundary failure for fx-350636-431
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2337799788'
+}
+⨯ Error: boundary failure for fx-350636-441
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1407567948'
+}
+⨯ Error: boundary failure for fx-350636-451
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2853544108'
+}
+⨯ Error: boundary failure for fx-350636-461
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3845319564'
+}
+⨯ Error: boundary failure for fx-350636-471
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3564593644'
+}
+⨯ Error: boundary failure for fx-350636-481
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '315665356'
+}
+⨯ Error: boundary failure for fx-350636-491
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1761641516'
+}
+⨯ Error: boundary failure for fx-350636-501
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1248848364'
+}
+⨯ Error: boundary failure for fx-350636-511
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2374234060'
+}
+⨯ Error: boundary failure for fx-350636-521
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1048397612'
+}
+⨯ Error: boundary failure for fx-350636-531
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3882979084'
+}
+⨯ Error: boundary failure for fx-350636-541
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2475642220'
+}
+⨯ Error: boundary failure for fx-350636-551
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '3601027916'
+}
+⨯ Error: boundary failure for fx-350636-561
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2275191468'
+}
+⨯ Error: boundary failure for fx-350636-571
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '814805644'
+}
+⨯ Error: boundary failure for fx-350636-581
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '1383739628'
+}
+⨯ Error: boundary failure for fx-350636-591
+    at d (.next/server/chunks/ssr/[root-of-the-server]__01tru-s0xden5._.js:1:1728) {
+  digest: '2509125324'
+}
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.6
+- Local:         http://127.0.0.1:5424
+- Network:       http://127.0.0.1:5424
+✓ Ready in 110ms
+✓ Running next.config.ts took 25ms
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.6
+- Local:         http://127.0.0.1:5424
+- Network:       http://127.0.0.1:5424
+✓ Ready in 112ms
+⚠ `cacheComponents` is enabled without a corresponding `partialPrefetching` option. Set `partialPrefetching` to either `true` or `false`.
+
+The only reason to set `partialPrefetching` to `false` is if you're migrating an older Cache Components app. The initial release of Cache Components did not include Partial Prefetching. New projects should enable both Cache Components and Partial Prefetching.
+
+Both Cache Components and Partial Prefetching will be enabled everywhere in the next major release, and the old configurations will be removed.
+
+Learn more: https://nextjs.org/docs/app/guides/adopting-partial-prefetching
+✓ Running next.config.ts took 27ms
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.6
+- Local:         http://127.0.0.1:5424
+- Network:       http://127.0.0.1:5424
+✓ Ready in 110ms
+⚠ `cacheComponents` is enabled without a corresponding `partialPrefetching` option. Set `partialPrefetching` to either `true` or `false`.
+
+The only reason to set `partialPrefetching` to `false` is if you're migrating an older Cache Components app. The initial release of Cache Components did not include Partial Prefetching. New projects should enable both Cache Components and Partial Prefetching.
+
+Both Cache Components and Partial Prefetching will be enabled everywhere in the next major release, and the old configurations will be removed.
+
+Learn more: https://nextjs.org/docs/app/guides/adopting-partial-prefetching
+✓ Running next.config.ts took 26ms

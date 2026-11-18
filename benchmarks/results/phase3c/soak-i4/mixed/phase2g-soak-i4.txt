@@ -1,0 +1,557 @@
+{
+ "minutes": 360,
+ "concurrency": 24,
+ "seconds": 22207.869,
+ "totals": {
+  "requests": 15008714,
+  "ok": 14722213,
+  "unexpected": 21,
+  "rejected503": 16389,
+  "lostToRestart": 135,
+  "rejectedDuringRestart": 21,
+  "identityLeaks": 0,
+  "wrongContent": 0,
+  "aborted": 269935,
+  "injections": 71
+ },
+ "accountedExactlyOnce": true,
+ "mutations": {
+  "sent": 409807,
+  "acknowledged": 409799,
+  "acknowledgedMissing": 0,
+  "lost": 8,
+  "lostApplied": 3,
+  "duplicates": 0
+ },
+ "loadSeconds": 21600.175,
+ "idleMinutes": 10,
+ "throughput": 694.8,
+ "latency": {
+  "p50": 9.6,
+  "p95": 134.3,
+  "p99": 473.6
+ },
+ "kinds": {
+  "img-hit": {
+   "count": 2998777,
+   "errors": 6,
+   "statuses": {
+    "0": 6,
+    "200": 2998771
+   },
+   "cache": {
+    "MISS": 28,
+    "HIT": 2850424,
+    "STALE": 148319
+   },
+   "p50": 3.8,
+   "p95": 20.5,
+   "p99": 40.5
+  },
+  "img-miss": {
+   "count": 1638732,
+   "errors": 3,
+   "statuses": {
+    "0": 3,
+    "200": 1635147,
+    "503": 3582
+   },
+   "cache": {
+    "MISS": 171518,
+    "HIT": 314895,
+    "STALE": 1148734
+   },
+   "p50": 4.3,
+   "p95": 350,
+   "p99": 634.3
+  },
+  "img-large": {
+   "count": 410071,
+   "errors": 0,
+   "statuses": {
+    "200": 410071
+   },
+   "cache": {
+    "MISS": 41,
+    "HIT": 226008,
+    "STALE": 184022
+   },
+   "p50": 3.8,
+   "p95": 21.3,
+   "p99": 41.9
+  },
+  "img-remote": {
+   "count": 818500,
+   "errors": 1,
+   "statuses": {
+    "0": 1,
+    "200": 806216,
+    "503": 12283
+   },
+   "cache": {
+    "MISS": 488065,
+    "HIT": 316570,
+    "STALE": 1581
+   },
+   "p50": 195.3,
+   "p95": 722,
+   "p99": 1132.5
+  },
+  "img-avif": {
+   "count": 408913,
+   "errors": 1,
+   "statuses": {
+    "0": 1,
+    "200": 408912
+   },
+   "cache": {
+    "MISS": 54,
+    "HIT": 207532,
+    "STALE": 201326
+   },
+   "p50": 3.5,
+   "p95": 20.2,
+   "p99": 41.4
+  },
+  "img-abort": {
+   "count": 272430,
+   "errors": 0,
+   "statuses": {
+    "0": 55615,
+    "200": 216291,
+    "503": 524
+   },
+   "cache": {
+    "STALE": 169444,
+    "HIT": 46505,
+    "MISS": 342
+   },
+   "p50": 8.9,
+   "p95": 50.7,
+   "p99": 70
+  },
+  "app-ssr": {
+   "count": 1092062,
+   "errors": 3,
+   "statuses": {
+    "0": 3,
+    "200": 1092034,
+    "502": 22,
+    "503": 3
+   },
+   "cache": {},
+   "p50": 17.1,
+   "p95": 95.3,
+   "p99": 176.2
+  },
+  "app-ssr-abort": {
+   "count": 273092,
+   "errors": 0,
+   "statuses": {
+    "0": 214320,
+    "200": 58772
+   },
+   "cache": {},
+   "p50": 13.2,
+   "p95": 31.3,
+   "p99": 53
+  },
+  "app-action": {
+   "count": 544789,
+   "errors": 0,
+   "statuses": {
+    "200": 544767,
+    "502": 20,
+    "503": 2
+   },
+   "cache": {
+    "HIT": 544767
+   },
+   "p50": 17.8,
+   "p95": 97.7,
+   "p99": 173.9
+  },
+  "app-isr": {
+   "count": 410088,
+   "errors": 2,
+   "statuses": {
+    "0": 2,
+    "200": 410084,
+    "502": 2
+   },
+   "cache": {
+    "HIT": 392521,
+    "STALE": 17563
+   },
+   "p50": 8.5,
+   "p95": 70.9,
+   "p99": 149.2
+  },
+  "app-proxy": {
+   "count": 410286,
+   "errors": 0,
+   "statuses": {
+    "200": 410278,
+    "502": 7,
+    "503": 1
+   },
+   "cache": {},
+   "p50": 21.5,
+   "p95": 115.6,
+   "p99": 195.5
+  },
+  "pages-ssr": {
+   "count": 954587,
+   "errors": 2,
+   "statuses": {
+    "0": 2,
+    "200": 954566,
+    "502": 17,
+    "503": 2
+   },
+   "cache": {},
+   "p50": 8.4,
+   "p95": 66.9,
+   "p99": 145
+  },
+  "pages-data": {
+   "count": 545791,
+   "errors": 0,
+   "statuses": {
+    "200": 545777,
+    "502": 14
+   },
+   "cache": {},
+   "p50": 7.6,
+   "p95": 67.7,
+   "p99": 146
+  },
+  "pages-ssg": {
+   "count": 545707,
+   "errors": 1,
+   "statuses": {
+    "0": 1,
+    "200": 545698,
+    "502": 4,
+    "503": 4
+   },
+   "cache": {
+    "HIT": 545698
+   },
+   "p50": 7.9,
+   "p95": 69,
+   "p99": 146.5
+  },
+  "pages-isr": {
+   "count": 408142,
+   "errors": 0,
+   "statuses": {
+    "200": 408138,
+    "502": 3,
+    "503": 1
+   },
+   "cache": {
+    "STALE": 191,
+    "HIT": 407947
+   },
+   "p50": 8,
+   "p95": 69.5,
+   "p99": 148.6
+  },
+  "pages-api-get": {
+   "count": 546809,
+   "errors": 0,
+   "statuses": {
+    "200": 546802,
+    "502": 4,
+    "503": 3
+   },
+   "cache": {},
+   "p50": 7.6,
+   "p95": 67.8,
+   "p99": 147.9
+  },
+  "pages-api-post": {
+   "count": 409807,
+   "errors": 0,
+   "statuses": {
+    "200": 409799,
+    "502": 7,
+    "503": 1
+   },
+   "cache": {},
+   "p50": 13,
+   "p95": 88,
+   "p99": 166.3
+  },
+  "pages-preview": {
+   "count": 273921,
+   "errors": 0,
+   "statuses": {
+    "200": 273913,
+    "502": 6,
+    "503": 2
+   },
+   "cache": {
+    "HIT": 273913
+   },
+   "p50": 107,
+   "p95": 205,
+   "p99": 267.4
+  },
+  "pages-preview-off": {
+   "count": 271453,
+   "errors": 0,
+   "statuses": {
+    "200": 271450,
+    "502": 2,
+    "503": 1
+   },
+   "cache": {
+    "HIT": 271450
+   },
+   "p50": 8.2,
+   "p95": 70.4,
+   "p99": 150
+  },
+  "pages-secure-anon": {
+   "count": 272610,
+   "errors": 0,
+   "statuses": {
+    "307": 272607,
+    "502": 2,
+    "503": 1
+   },
+   "cache": {},
+   "p50": 7.6,
+   "p95": 60.9,
+   "p99": 138.2
+  },
+  "pages-secure-session": {
+   "count": 136242,
+   "errors": 0,
+   "statuses": {
+    "200": 136239,
+    "502": 3
+   },
+   "cache": {},
+   "p50": 12.5,
+   "p95": 94.2,
+   "p99": 173.3
+  },
+  "pages-revalidate": {
+   "count": 136320,
+   "errors": 0,
+   "statuses": {
+    "200": 136298,
+    "500": 8,
+    "502": 14
+   },
+   "cache": {},
+   "p50": 24.9,
+   "p95": 315.6,
+   "p99": 1395.9
+  },
+  "locale-redirect": {
+   "count": 273877,
+   "errors": 1,
+   "statuses": {
+    "0": 1,
+    "307": 273876
+   },
+   "cache": {},
+   "p50": 3.7,
+   "p95": 24.3,
+   "p99": 47
+  },
+  "locale-ssr": {
+   "count": 545482,
+   "errors": 1,
+   "statuses": {
+    "0": 1,
+    "200": 545481
+   },
+   "cache": {},
+   "p50": 8.7,
+   "p95": 31.2,
+   "p99": 55.4
+  },
+  "locale-data": {
+   "count": 273153,
+   "errors": 0,
+   "statuses": {
+    "200": 273153
+   },
+   "cache": {
+    "HIT": 273152,
+    "MISS": 1
+   },
+   "p50": 6.3,
+   "p95": 28.7,
+   "p99": 53.4
+  },
+  "locale-404": {
+   "count": 137073,
+   "errors": 0,
+   "statuses": {
+    "404": 137073
+   },
+   "cache": {
+    "HIT": 137073
+   },
+   "p50": 6.2,
+   "p95": 29.2,
+   "p99": 55.5
+  }
+ },
+ "errors": [
+  {
+   "at": "2026-11-18T06:36:03.955Z",
+   "kind": "app-ssr",
+   "path": "/soak/ssr",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T07:06:34.340Z",
+   "kind": "img-remote",
+   "path": "/_next/image?url=http%3A%2F%2F127.0.0.1%3A4317%2Fimg%2Fphoto.jpg%3Fn%3D36&w=1920&q=50",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T07:21:34.437Z",
+   "kind": "img-avif",
+   "path": "/_next/image?url=%2Fphotos%2Fodd.jpg&w=256&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T07:22:04.466Z",
+   "kind": "img-miss",
+   "path": "/_next/image?url=%2Fphotos%2Fstill.gif&w=32&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T07:37:04.579Z",
+   "kind": "img-miss",
+   "path": "/_next/image?url=%2Fphotos%2Flzw.tiff&w=828&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T07:39:34.688Z",
+   "kind": "img-hit",
+   "path": "/_next/image?url=%2Fphotos%2Frotated.jpg&w=256&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T07:56:34.861Z",
+   "kind": "img-miss",
+   "path": "/_next/image?url=%2Fphotos%2Fphoto.webp&w=1200&q=50",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T08:34:05.413Z",
+   "kind": "pages-ssg",
+   "path": "/p/ssg",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T09:15:05.854Z",
+   "kind": "app-ssr",
+   "path": "/soak/ssr",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T09:20:35.907Z",
+   "kind": "app-ssr",
+   "path": "/soak/ssr",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T09:22:05.985Z",
+   "kind": "app-isr",
+   "path": "/soak/isr",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T09:28:57.913Z",
+   "kind": "locale-ssr",
+   "path": "/fr/ssr",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T09:47:36.206Z",
+   "kind": "img-hit",
+   "path": "/_next/image?url=%2Fphotos%2Fodd.jpg&w=640&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T09:50:36.597Z",
+   "kind": "locale-redirect",
+   "path": "/",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T09:51:36.262Z",
+   "kind": "pages-ssr",
+   "path": "/p/ssr/432",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T09:57:06.271Z",
+   "kind": "img-hit",
+   "path": "/_next/image?url=%2Fphotos%2Frotated.jpg&w=256&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T10:32:06.912Z",
+   "kind": "img-hit",
+   "path": "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=256&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T10:32:36.910Z",
+   "kind": "img-hit",
+   "path": "/_next/image?url=%2Fphotos%2Frotated.jpg&w=640&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T10:56:37.199Z",
+   "kind": "app-isr",
+   "path": "/soak/isr",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T12:02:08.288Z",
+   "kind": "pages-ssr",
+   "path": "/p/ssr/917",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T12:17:08.784Z",
+   "kind": "img-hit",
+   "path": "/_next/image?url=%2Fphotos%2Frotated.jpg&w=1080&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  }
+ ],
+ "samples": 741
+}

@@ -1,0 +1,3251 @@
+{
+ "started": "2026-11-17T05:33:42.662Z",
+ "config": {
+  "isolates": 4,
+  "minutes": 360,
+  "idleMinutes": 10,
+  "concurrency": 8,
+  "stormEvery": 30,
+  "stormMinutes": 3,
+  "seed": 7,
+  "nextrsBin": "/home/dennispaler/Documents/OpenSource/nextrs/target/phase3c-soak/nextrs-1b25c3c",
+  "velasiaCommit": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066"
+ },
+ "phases": [
+  {
+   "name": "load",
+   "from": 0
+  }
+ ],
+ "samples": [
+  {
+   "t": 0,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 335.76953125,
+    "anonMiB": 293.91796875,
+    "fileMiB": 41.7734375,
+    "swapMiB": 0,
+    "hwmMiB": 335.76953125,
+    "threads": 30,
+    "cpuSeconds": 3.88
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 135.7778549194336,
+   "heapTotalMiB": 218.8984375,
+   "heapAfterGcMiB": 98.403564453125,
+   "externalMiB": 10.981636047363281,
+   "malloc": {
+    "arena_bytes": 37593088,
+    "mmap_bytes": 1503232,
+    "in_use_bytes": 29450976,
+    "free_bytes": 8142112,
+    "releasable_bytes": 132320
+   },
+   "cacheMemoryMiB": 2.939136505126953,
+   "cacheEntries": 22,
+   "imageReservedMiB": 0,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 0,
+   "active": 0,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 10,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 0,
+    "handlerErrors": 0,
+    "completed": 157
+   },
+   "http": {
+    "inFlight": 0,
+    "connectionsOpen": 0,
+    "requests": {
+     "1xx": 0,
+     "2xx": 216,
+     "3xx": 0,
+     "4xx": 0,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 216,
+     "aborted": 0,
+     "failed": 0
+    }
+   },
+   "openFds": 39,
+   "totals": {
+    "requests": 0,
+    "ok": 0,
+    "degradedExpected": 0,
+    "aborted": 0,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 0,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 30,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 985.1171875,
+    "anonMiB": 939.40625,
+    "fileMiB": 45.6328125,
+    "swapMiB": 0,
+    "hwmMiB": 994.55859375,
+    "threads": 30,
+    "cpuSeconds": 75.29
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 373.4517288208008,
+   "heapTotalMiB": 634.26953125,
+   "heapAfterGcMiB": 240.84532928466797,
+   "externalMiB": 82.07349586486816,
+   "malloc": {
+    "arena_bytes": 276443136,
+    "mmap_bytes": 18567168,
+    "in_use_bytes": 198655360,
+    "free_bytes": 77787776,
+    "releasable_bytes": 134832
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 100.0166015625,
+   "imageCacheMiB": 0,
+   "imageQueued": 3,
+   "imageInFlight": 6,
+   "active": 2,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 33,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 121,
+    "handlerErrors": 0,
+    "completed": 3068
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 3375,
+     "3xx": 103,
+     "4xx": 37,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 3430,
+     "aborted": 132,
+     "failed": 0
+    }
+   },
+   "openFds": 50,
+   "totals": {
+    "requests": 3350,
+    "ok": 3148,
+    "degradedExpected": 66,
+    "aborted": 135,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 60,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1031.6953125,
+    "anonMiB": 985.984375,
+    "fileMiB": 45.6328125,
+    "swapMiB": 0,
+    "hwmMiB": 1038.3671875,
+    "threads": 30,
+    "cpuSeconds": 141.81
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 353.7441864013672,
+   "heapTotalMiB": 624.8125,
+   "heapAfterGcMiB": 244.31914520263672,
+   "externalMiB": 61.102508544921875,
+   "malloc": {
+    "arena_bytes": 308322304,
+    "mmap_bytes": 18501632,
+    "in_use_bytes": 151882448,
+    "free_bytes": 156439856,
+    "releasable_bytes": 134576
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 23.4716796875,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 1,
+   "active": 7,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 54,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 216,
+    "handlerErrors": 0,
+    "completed": 6252
+   },
+   "http": {
+    "inFlight": 7,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 6807,
+     "3xx": 244,
+     "4xx": 90,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 6984,
+     "aborted": 247,
+     "failed": 0
+    }
+   },
+   "openFds": 55,
+   "totals": {
+    "requests": 7024,
+    "ok": 6620,
+    "degradedExpected": 147,
+    "aborted": 256,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 90,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1003.6015625,
+    "anonMiB": 957.890625,
+    "fileMiB": 45.6328125,
+    "swapMiB": 0,
+    "hwmMiB": 1038.3671875,
+    "threads": 30,
+    "cpuSeconds": 211.17
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 370.697021484375,
+   "heapTotalMiB": 628.87109375,
+   "heapAfterGcMiB": 247.13424682617188,
+   "externalMiB": 64.14904403686523,
+   "malloc": {
+    "arena_bytes": 312721408,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 168702880,
+    "free_bytes": 144018528,
+    "releasable_bytes": 132000
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 10.373046875,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 1,
+   "active": 7,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 75,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 322,
+    "handlerErrors": 0,
+    "completed": 9497
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 10368,
+     "3xx": 378,
+     "4xx": 133,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 10635,
+     "aborted": 364,
+     "failed": 0
+    }
+   },
+   "openFds": 53,
+   "totals": {
+    "requests": 10793,
+    "ok": 10164,
+    "degradedExpected": 250,
+    "aborted": 378,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 120,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1043.29296875,
+    "anonMiB": 997.58203125,
+    "fileMiB": 45.6328125,
+    "swapMiB": 0,
+    "hwmMiB": 1062.828125,
+    "threads": 30,
+    "cpuSeconds": 276.91
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 322.5747528076172,
+   "heapTotalMiB": 595.79296875,
+   "heapAfterGcMiB": 260.7119369506836,
+   "externalMiB": 37.649550437927246,
+   "malloc": {
+    "arena_bytes": 324300800,
+    "mmap_bytes": 14196736,
+    "in_use_bytes": 120583632,
+    "free_bytes": 203717168,
+    "releasable_bytes": 133984
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 81.267578125,
+   "imageCacheMiB": 0,
+   "imageQueued": 1,
+   "imageInFlight": 4,
+   "active": 5,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 94,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 421,
+    "handlerErrors": 0,
+    "completed": 12607
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 13740,
+     "3xx": 505,
+     "4xx": 183,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 14124,
+     "aborted": 479,
+     "failed": 0
+    }
+   },
+   "openFds": 51,
+   "totals": {
+    "requests": 14401,
+    "ok": 13566,
+    "degradedExpected": 332,
+    "aborted": 502,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 150,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1055.765625,
+    "anonMiB": 1010.0546875,
+    "fileMiB": 45.6328125,
+    "swapMiB": 0,
+    "hwmMiB": 1072.9609375,
+    "threads": 30,
+    "cpuSeconds": 343.93
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 359.3964309692383,
+   "heapTotalMiB": 611.3125,
+   "heapAfterGcMiB": 254.32655334472656,
+   "externalMiB": 49.417447090148926,
+   "malloc": {
+    "arena_bytes": 325668864,
+    "mmap_bytes": 17485824,
+    "in_use_bytes": 122766240,
+    "free_bytes": 202902624,
+    "releasable_bytes": 131968
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 89.375,
+   "imageCacheMiB": 0,
+   "imageQueued": 1,
+   "imageInFlight": 4,
+   "active": 5,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 113,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 522,
+    "handlerErrors": 0,
+    "completed": 15833
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 17205,
+     "3xx": 633,
+     "4xx": 232,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 17693,
+     "aborted": 593,
+     "failed": 0
+    }
+   },
+   "openFds": 51,
+   "totals": {
+    "requests": 18092,
+    "ok": 17038,
+    "degradedExpected": 426,
+    "aborted": 627,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 180,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1035.30078125,
+    "anonMiB": 989.58984375,
+    "fileMiB": 45.6328125,
+    "swapMiB": 0,
+    "hwmMiB": 1078.8125,
+    "threads": 30,
+    "cpuSeconds": 406.16
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 378.82701873779297,
+   "heapTotalMiB": 626.21875,
+   "heapAfterGcMiB": 254.1053924560547,
+   "externalMiB": 52.808470726013184,
+   "malloc": {
+    "arena_bytes": 323608576,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 125154880,
+    "free_bytes": 198453696,
+    "releasable_bytes": 134352
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 10.373046875,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 1,
+   "active": 7,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 132,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 636,
+    "handlerErrors": 0,
+    "completed": 18883
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 20520,
+     "3xx": 764,
+     "4xx": 279,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 21107,
+     "aborted": 716,
+     "failed": 0
+    }
+   },
+   "openFds": 54,
+   "totals": {
+    "requests": 21632,
+    "ok": 20356,
+    "degradedExpected": 520,
+    "aborted": 755,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 210,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1040.96484375,
+    "anonMiB": 995.25390625,
+    "fileMiB": 45.6328125,
+    "swapMiB": 0,
+    "hwmMiB": 1078.8125,
+    "threads": 30,
+    "cpuSeconds": 473.22
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 345.8267822265625,
+   "heapTotalMiB": 615.65625,
+   "heapAfterGcMiB": 242.00501251220703,
+   "externalMiB": 62.83576202392578,
+   "malloc": {
+    "arena_bytes": 323248128,
+    "mmap_bytes": 15163392,
+    "in_use_bytes": 154840336,
+    "free_bytes": 168407792,
+    "releasable_bytes": 132288
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 50.642578125,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 2,
+   "active": 6,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 152,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 759,
+    "handlerErrors": 0,
+    "completed": 22101
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 23980,
+     "3xx": 890,
+     "4xx": 331,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 24653,
+     "aborted": 854,
+     "failed": 0
+    }
+   },
+   "openFds": 53,
+   "totals": {
+    "requests": 25321,
+    "ok": 23805,
+    "degradedExpected": 615,
+    "aborted": 900,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 240,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1021.21875,
+    "anonMiB": 975.5078125,
+    "fileMiB": 45.6328125,
+    "swapMiB": 0,
+    "hwmMiB": 1078.8125,
+    "threads": 30,
+    "cpuSeconds": 542.5
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 382.0548782348633,
+   "heapTotalMiB": 626.98046875,
+   "heapAfterGcMiB": 238.75778198242188,
+   "externalMiB": 63.56814098358154,
+   "malloc": {
+    "arena_bytes": 323158016,
+    "mmap_bytes": 11636736,
+    "in_use_bytes": 71033808,
+    "free_bytes": 252124208,
+    "releasable_bytes": 132288
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 35.189453125,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 2,
+   "active": 6,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 176,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 891,
+    "handlerErrors": 0,
+    "completed": 25505
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 27638,
+     "3xx": 1031,
+     "4xx": 383,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 28415,
+     "aborted": 1003,
+     "failed": 0
+    }
+   },
+   "openFds": 52,
+   "totals": {
+    "requests": 29237,
+    "ok": 27465,
+    "degradedExpected": 712,
+    "aborted": 1059,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 270,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1024.109375,
+    "anonMiB": 978.3984375,
+    "fileMiB": 45.6328125,
+    "swapMiB": 0,
+    "hwmMiB": 1078.8125,
+    "threads": 30,
+    "cpuSeconds": 601.64
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 390.0440216064453,
+   "heapTotalMiB": 624.7890625,
+   "heapAfterGcMiB": 239.78424072265625,
+   "externalMiB": 84.26550674438477,
+   "malloc": {
+    "arena_bytes": 323248128,
+    "mmap_bytes": 11636736,
+    "in_use_bytes": 190657168,
+    "free_bytes": 132590960,
+    "releasable_bytes": 132288
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 10.373046875,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 1,
+   "active": 7,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 192,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 1004,
+    "handlerErrors": 0,
+    "completed": 28471
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 30802,
+     "3xx": 1171,
+     "4xx": 452,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 31704,
+     "aborted": 1127,
+     "failed": 0
+    }
+   },
+   "openFds": 56,
+   "totals": {
+    "requests": 32655,
+    "ok": 30657,
+    "degradedExpected": 807,
+    "aborted": 1190,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 300,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1042.5625,
+    "anonMiB": 996.7890625,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1078.8125,
+    "threads": 30,
+    "cpuSeconds": 666.28
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 362.13585662841797,
+   "heapTotalMiB": 617.83203125,
+   "heapAfterGcMiB": 239.42410278320312,
+   "externalMiB": 71.91735649108887,
+   "malloc": {
+    "arena_bytes": 329183232,
+    "mmap_bytes": 20250624,
+    "in_use_bytes": 147927424,
+    "free_bytes": 181255808,
+    "releasable_bytes": 132288
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 38.21484375,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 3,
+   "active": 4,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 213,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 1106,
+    "handlerErrors": 0,
+    "completed": 31532
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 34123,
+     "3xx": 1301,
+     "4xx": 505,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 35140,
+     "aborted": 1241,
+     "failed": 0
+    }
+   },
+   "openFds": 54,
+   "totals": {
+    "requests": 36211,
+    "ok": 33982,
+    "degradedExpected": 915,
+    "aborted": 1313,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 330,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1022.94140625,
+    "anonMiB": 977.16796875,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1078.8125,
+    "threads": 30,
+    "cpuSeconds": 726.43
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 341.3369598388672,
+   "heapTotalMiB": 610.16015625,
+   "heapAfterGcMiB": 242.00929260253906,
+   "externalMiB": 36.475046157836914,
+   "malloc": {
+    "arena_bytes": 325373952,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 101366352,
+    "free_bytes": 224007600,
+    "releasable_bytes": 132288
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 10.373046875,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 1,
+   "active": 7,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 231,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 1225,
+    "handlerErrors": 0,
+    "completed": 34352
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 37250,
+     "3xx": 1438,
+     "4xx": 545,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 38347,
+     "aborted": 1376,
+     "failed": 0
+    }
+   },
+   "openFds": 53,
+   "totals": {
+    "requests": 39559,
+    "ok": 37115,
+    "degradedExpected": 989,
+    "aborted": 1454,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 360,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1041.63671875,
+    "anonMiB": 995.86328125,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1079.36328125,
+    "threads": 30,
+    "cpuSeconds": 788.94
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 363.08716583251953,
+   "heapTotalMiB": 631.6953125,
+   "heapAfterGcMiB": 243.90611267089844,
+   "externalMiB": 58.15137195587158,
+   "malloc": {
+    "arena_bytes": 326840320,
+    "mmap_bytes": 7688192,
+    "in_use_bytes": 140703312,
+    "free_bytes": 186137008,
+    "releasable_bytes": 132288
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 21.5908203125,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 2,
+   "active": 5,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 250,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 1345,
+    "handlerErrors": 0,
+    "completed": 37457
+   },
+   "http": {
+    "inFlight": 7,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 40626,
+     "3xx": 1573,
+     "4xx": 594,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 41824,
+     "aborted": 1510,
+     "failed": 0
+    }
+   },
+   "openFds": 55,
+   "totals": {
+    "requests": 43173,
+    "ok": 40503,
+    "degradedExpected": 1077,
+    "aborted": 1592,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 390,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1081.4140625,
+    "anonMiB": 1035.640625,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1094.10546875,
+    "threads": 30,
+    "cpuSeconds": 851.99
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 384.9283676147461,
+   "heapTotalMiB": 639.734375,
+   "heapAfterGcMiB": 244.25069427490234,
+   "externalMiB": 78.18075466156006,
+   "malloc": {
+    "arena_bytes": 342478848,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 176569664,
+    "free_bytes": 165909184,
+    "releasable_bytes": 133552
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 0,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 0,
+   "active": 8,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 268,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 1465,
+    "handlerErrors": 0,
+    "completed": 40796
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 44209,
+     "3xx": 1722,
+     "4xx": 653,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 45521,
+     "aborted": 1651,
+     "failed": 0
+    }
+   },
+   "openFds": 53,
+   "totals": {
+    "requests": 47019,
+    "ok": 44107,
+    "degradedExpected": 1168,
+    "aborted": 1743,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 420,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1070.67578125,
+    "anonMiB": 1024.90234375,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1094.10546875,
+    "threads": 30,
+    "cpuSeconds": 918.89
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 419.6646041870117,
+   "heapTotalMiB": 650.67578125,
+   "heapAfterGcMiB": 244.1142807006836,
+   "externalMiB": 82.82471084594727,
+   "malloc": {
+    "arena_bytes": 346542080,
+    "mmap_bytes": 21876736,
+    "in_use_bytes": 148630496,
+    "free_bytes": 197911584,
+    "releasable_bytes": 131760
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 98.0556640625,
+   "imageCacheMiB": 0,
+   "imageQueued": 1,
+   "imageInFlight": 4,
+   "active": 4,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 289,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 1574,
+    "handlerErrors": 0,
+    "completed": 43974
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 47685,
+     "3xx": 1842,
+     "4xx": 696,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 49085,
+     "aborted": 1774,
+     "failed": 0
+    }
+   },
+   "openFds": 55,
+   "totals": {
+    "requests": 50710,
+    "ok": 47558,
+    "degradedExpected": 1279,
+    "aborted": 1872,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 450,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1061.22265625,
+    "anonMiB": 1015.44921875,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1094.10546875,
+    "threads": 30,
+    "cpuSeconds": 986.97
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 411.6143798828125,
+   "heapTotalMiB": 656.44140625,
+   "heapAfterGcMiB": 248.54125213623047,
+   "externalMiB": 82.08220100402832,
+   "malloc": {
+    "arena_bytes": 344461312,
+    "mmap_bytes": 17186816,
+    "in_use_bytes": 187927264,
+    "free_bytes": 156534048,
+    "releasable_bytes": 132432
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 30.3193359375,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 2,
+   "active": 5,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 307,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 1704,
+    "handlerErrors": 0,
+    "completed": 47252
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 51298,
+     "3xx": 1967,
+     "4xx": 727,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 52766,
+     "aborted": 1922,
+     "failed": 0
+    }
+   },
+   "openFds": 55,
+   "totals": {
+    "requests": 54542,
+    "ok": 51139,
+    "degradedExpected": 1378,
+    "aborted": 2024,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 480,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1079.265625,
+    "anonMiB": 1033.4921875,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1110.0703125,
+    "threads": 30,
+    "cpuSeconds": 1058.36
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 288.2235107421875,
+   "heapTotalMiB": 623.1328125,
+   "heapAfterGcMiB": 254.81621551513672,
+   "externalMiB": 26.713214874267578,
+   "malloc": {
+    "arena_bytes": 363384832,
+    "mmap_bytes": 18763776,
+    "in_use_bytes": 116747136,
+    "free_bytes": 246637696,
+    "releasable_bytes": 133824
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 46.150390625,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 3,
+   "active": 6,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 327,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 1831,
+    "handlerErrors": 0,
+    "completed": 50788
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 55127,
+     "3xx": 2123,
+     "4xx": 781,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 56718,
+     "aborted": 2070,
+     "failed": 0
+    }
+   },
+   "openFds": 54,
+   "totals": {
+    "requests": 58647,
+    "ok": 54993,
+    "degradedExpected": 1474,
+    "aborted": 2179,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 510,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1092.97265625,
+    "anonMiB": 1047.19921875,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1110.0703125,
+    "threads": 30,
+    "cpuSeconds": 1121.58
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 366.19417572021484,
+   "heapTotalMiB": 612.03515625,
+   "heapAfterGcMiB": 243.55760192871094,
+   "externalMiB": 79.9141321182251,
+   "malloc": {
+    "arena_bytes": 375771136,
+    "mmap_bytes": 14196736,
+    "in_use_bytes": 198460224,
+    "free_bytes": 177310912,
+    "releasable_bytes": 132432
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 85.123046875,
+   "imageCacheMiB": 0,
+   "imageQueued": 2,
+   "imageInFlight": 5,
+   "active": 2,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 343,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 1954,
+    "handlerErrors": 0,
+    "completed": 53858
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 58473,
+     "3xx": 2257,
+     "4xx": 829,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 60171,
+     "aborted": 2210,
+     "failed": 0
+    }
+   },
+   "openFds": 50,
+   "totals": {
+    "requests": 62243,
+    "ok": 58351,
+    "degradedExpected": 1567,
+    "aborted": 2324,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 540,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1069.4453125,
+    "anonMiB": 1023.671875,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1112.4296875,
+    "threads": 30,
+    "cpuSeconds": 1183.81
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 381.0089111328125,
+   "heapTotalMiB": 634.58984375,
+   "heapAfterGcMiB": 244.6536636352539,
+   "externalMiB": 97.82451343536377,
+   "malloc": {
+    "arena_bytes": 373035008,
+    "mmap_bytes": 10850304,
+    "in_use_bytes": 222546512,
+    "free_bytes": 150488496,
+    "releasable_bytes": 132432
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 12.78125,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 1,
+   "active": 7,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 364,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 2071,
+    "handlerErrors": 0,
+    "completed": 56963
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 61850,
+     "3xx": 2392,
+     "4xx": 881,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 63643,
+     "aborted": 2342,
+     "failed": 0
+    }
+   },
+   "openFds": 52,
+   "totals": {
+    "requests": 65851,
+    "ok": 61737,
+    "degradedExpected": 1652,
+    "aborted": 2461,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 570,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1091.33984375,
+    "anonMiB": 1045.56640625,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1112.4296875,
+    "threads": 30,
+    "cpuSeconds": 1248.09
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 366.8325881958008,
+   "heapTotalMiB": 613.890625,
+   "heapAfterGcMiB": 251.73947143554688,
+   "externalMiB": 77.45401954650879,
+   "malloc": {
+    "arena_bytes": 376098816,
+    "mmap_bytes": 25141248,
+    "in_use_bytes": 161584368,
+    "free_bytes": 214514448,
+    "releasable_bytes": 132432
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 49.5009765625,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 3,
+   "active": 4,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 384,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 2198,
+    "handlerErrors": 0,
+    "completed": 60269
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 65423,
+     "3xx": 2528,
+     "4xx": 932,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 67317,
+     "aborted": 2490,
+     "failed": 0
+    }
+   },
+   "openFds": 53,
+   "totals": {
+    "requests": 69676,
+    "ok": 65305,
+    "degradedExpected": 1755,
+    "aborted": 2615,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 600,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1084.3984375,
+    "anonMiB": 1038.625,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1128.875,
+    "threads": 30,
+    "cpuSeconds": 1313.33
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 384.2324447631836,
+   "heapTotalMiB": 607.58203125,
+   "heapAfterGcMiB": 249.0153579711914,
+   "externalMiB": 86.83063316345215,
+   "malloc": {
+    "arena_bytes": 373022720,
+    "mmap_bytes": 11636736,
+    "in_use_bytes": 140435024,
+    "free_bytes": 232587696,
+    "releasable_bytes": 132432
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 21.7998046875,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 2,
+   "active": 5,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 405,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 2313,
+    "handlerErrors": 0,
+    "completed": 63385
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 68837,
+     "3xx": 2682,
+     "4xx": 970,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 70845,
+     "aborted": 2625,
+     "failed": 0
+    }
+   },
+   "openFds": 51,
+   "totals": {
+    "requests": 73344,
+    "ok": 68743,
+    "degradedExpected": 1843,
+    "aborted": 2757,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 630,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1096.2109375,
+    "anonMiB": 1050.4375,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1138.0234375,
+    "threads": 30,
+    "cpuSeconds": 1378.14
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 354.2004623413086,
+   "heapTotalMiB": 611.53125,
+   "heapAfterGcMiB": 254.91876983642578,
+   "externalMiB": 70.36430644989014,
+   "malloc": {
+    "arena_bytes": 375402496,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 169348640,
+    "free_bytes": 206053856,
+    "releasable_bytes": 132432
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 10.322265625,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 1,
+   "active": 9,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 421,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 2427,
+    "handlerErrors": 0,
+    "completed": 66596
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 72350,
+     "3xx": 2842,
+     "4xx": 1013,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 74487,
+     "aborted": 2749,
+     "failed": 0
+    }
+   },
+   "openFds": 53,
+   "totals": {
+    "requests": 77112,
+    "ok": 72291,
+    "degradedExpected": 1937,
+    "aborted": 2883,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 660,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1070.50390625,
+    "anonMiB": 1024.73046875,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1138.0234375,
+    "threads": 30,
+    "cpuSeconds": 1443.99
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 333.6390838623047,
+   "heapTotalMiB": 599.453125,
+   "heapAfterGcMiB": 247.33196258544922,
+   "externalMiB": 47.58688449859619,
+   "malloc": {
+    "arena_bytes": 375402496,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 131146064,
+    "free_bytes": 244256432,
+    "releasable_bytes": 132432
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 0,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 0,
+   "active": 7,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 442,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 2523,
+    "handlerErrors": 0,
+    "completed": 69869
+   },
+   "http": {
+    "inFlight": 7,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 75917,
+     "3xx": 2995,
+     "4xx": 1059,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 78184,
+     "aborted": 2858,
+     "failed": 0
+    }
+   },
+   "openFds": 55,
+   "totals": {
+    "requests": 80926,
+    "ok": 75909,
+    "degradedExpected": 2016,
+    "aborted": 3000,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 690,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1091.97265625,
+    "anonMiB": 1046.19921875,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1138.0234375,
+    "threads": 30,
+    "cpuSeconds": 1511.73
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 402.10203552246094,
+   "heapTotalMiB": 639.0390625,
+   "heapAfterGcMiB": 248.7010498046875,
+   "externalMiB": 96.73792171478271,
+   "malloc": {
+    "arena_bytes": 376598528,
+    "mmap_bytes": 23486464,
+    "in_use_bytes": 227025648,
+    "free_bytes": 149572880,
+    "releasable_bytes": 132432
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 52.5595703125,
+   "imageCacheMiB": 0,
+   "imageQueued": 1,
+   "imageInFlight": 4,
+   "active": 5,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 460,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 2654,
+    "handlerErrors": 0,
+    "completed": 73047
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 79437,
+     "3xx": 3156,
+     "4xx": 1102,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 81808,
+     "aborted": 3004,
+     "failed": 0
+    }
+   },
+   "openFds": 52,
+   "totals": {
+    "requests": 84700,
+    "ok": 79440,
+    "degradedExpected": 2104,
+    "aborted": 3155,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 720,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1085.75,
+    "anonMiB": 1039.9765625,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1138.0234375,
+    "threads": 30,
+    "cpuSeconds": 1581.14
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 354.0742721557617,
+   "heapTotalMiB": 624.55078125,
+   "heapAfterGcMiB": 250.63685607910156,
+   "externalMiB": 65.89348888397217,
+   "malloc": {
+    "arena_bytes": 375689216,
+    "mmap_bytes": 16891904,
+    "in_use_bytes": 165040464,
+    "free_bytes": 210648752,
+    "releasable_bytes": 132432
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 36.865234375,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 2,
+   "active": 6,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 479,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 2772,
+    "handlerErrors": 0,
+    "completed": 76297
+   },
+   "http": {
+    "inFlight": 7,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 83031,
+     "3xx": 3312,
+     "4xx": 1152,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 85518,
+     "aborted": 3137,
+     "failed": 0
+    }
+   },
+   "openFds": 53,
+   "totals": {
+    "requests": 88545,
+    "ok": 83058,
+    "degradedExpected": 2196,
+    "aborted": 3290,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 750,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1105.859375,
+    "anonMiB": 1060.0859375,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1138.0234375,
+    "threads": 30,
+    "cpuSeconds": 1642.98
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 359.9457321166992,
+   "heapTotalMiB": 660.8671875,
+   "heapAfterGcMiB": 248.7134246826172,
+   "externalMiB": 63.775179862976074,
+   "malloc": {
+    "arena_bytes": 375402496,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 146906304,
+    "free_bytes": 228496192,
+    "releasable_bytes": 132432
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 0,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 0,
+   "active": 9,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 496,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 2879,
+    "handlerErrors": 0,
+    "completed": 79397
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 86398,
+     "3xx": 3465,
+     "4xx": 1194,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 89002,
+     "aborted": 3257,
+     "failed": 0
+    }
+   },
+   "openFds": 58,
+   "totals": {
+    "requests": 92155,
+    "ok": 86450,
+    "degradedExpected": 2285,
+    "aborted": 3419,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 780,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1113.48046875,
+    "anonMiB": 1067.70703125,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1141.98828125,
+    "threads": 30,
+    "cpuSeconds": 1714.8
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 375.9408874511719,
+   "heapTotalMiB": 626.40234375,
+   "heapAfterGcMiB": 250.80034637451172,
+   "externalMiB": 75.00372314453125,
+   "malloc": {
+    "arena_bytes": 385400832,
+    "mmap_bytes": 8732672,
+    "in_use_bytes": 197630448,
+    "free_bytes": 187770384,
+    "releasable_bytes": 134224
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 30.4326171875,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 2,
+   "active": 6,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 516,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 2993,
+    "handlerErrors": 0,
+    "completed": 83019
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 90288,
+     "3xx": 3631,
+     "4xx": 1246,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 93027,
+     "aborted": 3386,
+     "failed": 0
+    }
+   },
+   "openFds": 53,
+   "totals": {
+    "requests": 96314,
+    "ok": 90376,
+    "degradedExpected": 2380,
+    "aborted": 3557,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 810,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1069.5078125,
+    "anonMiB": 1023.734375,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1144.578125,
+    "threads": 30,
+    "cpuSeconds": 1778.1
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 407.4942855834961,
+   "heapTotalMiB": 619.76953125,
+   "heapAfterGcMiB": 248.50546264648438,
+   "externalMiB": 102.77712821960449,
+   "malloc": {
+    "arena_bytes": 381353984,
+    "mmap_bytes": 8122368,
+    "in_use_bytes": 221769936,
+    "free_bytes": 159584048,
+    "releasable_bytes": 132688
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 26.232421875,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 2,
+   "active": 6,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 533,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 3105,
+    "handlerErrors": 0,
+    "completed": 86196
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 93751,
+     "3xx": 3774,
+     "4xx": 1293,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 96595,
+     "aborted": 3512,
+     "failed": 0
+    }
+   },
+   "openFds": 56,
+   "totals": {
+    "requests": 100008,
+    "ok": 93838,
+    "degradedExpected": 2485,
+    "aborted": 3684,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 840,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1118.73046875,
+    "anonMiB": 1072.95703125,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1144.578125,
+    "threads": 30,
+    "cpuSeconds": 1842.18
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 368.64727783203125,
+   "heapTotalMiB": 626.6796875,
+   "heapAfterGcMiB": 252.31879425048828,
+   "externalMiB": 60.53888511657715,
+   "malloc": {
+    "arena_bytes": 385679360,
+    "mmap_bytes": 39636992,
+    "in_use_bytes": 149218224,
+    "free_bytes": 236461136,
+    "releasable_bytes": 135040
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 91.0556640625,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 3,
+   "active": 5,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 553,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 3204,
+    "handlerErrors": 0,
+    "completed": 89281
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 97120,
+     "3xx": 3915,
+     "4xx": 1337,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 100080,
+     "aborted": 3620,
+     "failed": 0
+    }
+   },
+   "openFds": 53,
+   "totals": {
+    "requests": 103607,
+    "ok": 97227,
+    "degradedExpected": 2580,
+    "aborted": 3799,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 870,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1073.62109375,
+    "anonMiB": 1027.84765625,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1144.578125,
+    "threads": 30,
+    "cpuSeconds": 1907.25
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 435.95953369140625,
+   "heapTotalMiB": 641.80859375,
+   "heapAfterGcMiB": 247.6741180419922,
+   "externalMiB": 96.2598180770874,
+   "malloc": {
+    "arena_bytes": 381988864,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 202086592,
+    "free_bytes": 179902272,
+    "releasable_bytes": 135040
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 11.4267578125,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 1,
+   "active": 7,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 573,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 3328,
+    "handlerErrors": 0,
+    "completed": 92683
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 100782,
+     "3xx": 4062,
+     "4xx": 1377,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 103840,
+     "aborted": 3758,
+     "failed": 0
+    }
+   },
+   "openFds": 54,
+   "totals": {
+    "requests": 107506,
+    "ok": 100892,
+    "degradedExpected": 2671,
+    "aborted": 3942,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 900,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1077.76953125,
+    "anonMiB": 1031.99609375,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1144.578125,
+    "threads": 30,
+    "cpuSeconds": 1974.12
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 381.24037170410156,
+   "heapTotalMiB": 646.19140625,
+   "heapAfterGcMiB": 253.56964874267578,
+   "externalMiB": 76.01400184631348,
+   "malloc": {
+    "arena_bytes": 381337600,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 153312176,
+    "free_bytes": 228025424,
+    "releasable_bytes": 135040
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 10.373046875,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 1,
+   "active": 8,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 593,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 3457,
+    "handlerErrors": 0,
+    "completed": 95970
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 104386,
+     "3xx": 4193,
+     "4xx": 1419,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 107524,
+     "aborted": 3900,
+     "failed": 0
+    }
+   },
+   "openFds": 58,
+   "totals": {
+    "requests": 111334,
+    "ok": 104463,
+    "degradedExpected": 2780,
+    "aborted": 4090,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 930,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1094.6171875,
+    "anonMiB": 1048.84375,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1144.578125,
+    "threads": 30,
+    "cpuSeconds": 2041.71
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 404.0601806640625,
+   "heapTotalMiB": 631.5390625,
+   "heapAfterGcMiB": 250.13938903808594,
+   "externalMiB": 92.22067070007324,
+   "malloc": {
+    "arena_bytes": 381071360,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 173522768,
+    "free_bytes": 207548592,
+    "releasable_bytes": 133936
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 21.7490234375,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 2,
+   "active": 6,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 613,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 3576,
+    "handlerErrors": 0,
+    "completed": 99441
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 108161,
+     "3xx": 4328,
+     "4xx": 1457,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 111391,
+     "aborted": 4035,
+     "failed": 0
+    }
+   },
+   "openFds": 54,
+   "totals": {
+    "requests": 115339,
+    "ok": 108238,
+    "degradedExpected": 2870,
+    "aborted": 4230,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 960,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1121.546875,
+    "anonMiB": 1075.7734375,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1149.234375,
+    "threads": 30,
+    "cpuSeconds": 2107.27
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 406.4749069213867,
+   "heapTotalMiB": 638.33984375,
+   "heapAfterGcMiB": 246.97118377685547,
+   "externalMiB": 99.9795503616333,
+   "malloc": {
+    "arena_bytes": 381804544,
+    "mmap_bytes": 19963904,
+    "in_use_bytes": 222619888,
+    "free_bytes": 159184656,
+    "releasable_bytes": 133936
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 46.916015625,
+   "imageCacheMiB": 0,
+   "imageQueued": 1,
+   "imageInFlight": 4,
+   "active": 4,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 629,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 3701,
+    "handlerErrors": 0,
+    "completed": 102833
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 111813,
+     "3xx": 4454,
+     "4xx": 1509,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 115135,
+     "aborted": 4176,
+     "failed": 0
+    }
+   },
+   "openFds": 54,
+   "totals": {
+    "requests": 119227,
+    "ok": 111892,
+    "degradedExpected": 2960,
+    "aborted": 4374,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 990,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1112.1796875,
+    "anonMiB": 1066.40625,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1149.234375,
+    "threads": 30,
+    "cpuSeconds": 2166.05
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 369.9359588623047,
+   "heapTotalMiB": 661.84765625,
+   "heapAfterGcMiB": 250.36309051513672,
+   "externalMiB": 72.30391120910645,
+   "malloc": {
+    "arena_bytes": 384016384,
+    "mmap_bytes": 6516736,
+    "in_use_bytes": 129093600,
+    "free_bytes": 254922784,
+    "releasable_bytes": 132000
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 0,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 0,
+   "active": 10,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 646,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 3817,
+    "handlerErrors": 0,
+    "completed": 105946
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 9,
+    "requests": {
+     "1xx": 0,
+     "2xx": 115190,
+     "3xx": 4575,
+     "4xx": 1554,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 118591,
+     "aborted": 4314,
+     "failed": 0
+    }
+   },
+   "openFds": 51,
+   "totals": {
+    "requests": 122822,
+    "ok": 115238,
+    "degradedExpected": 3067,
+    "aborted": 4516,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 1020,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1082.82421875,
+    "anonMiB": 1037.05078125,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1169.3125,
+    "threads": 30,
+    "cpuSeconds": 2226.89
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 379.7112579345703,
+   "heapTotalMiB": 631.4140625,
+   "heapAfterGcMiB": 252.0379180908203,
+   "externalMiB": 66.85312175750732,
+   "malloc": {
+    "arena_bytes": 382656512,
+    "mmap_bytes": 11603968,
+    "in_use_bytes": 161438144,
+    "free_bytes": 221218368,
+    "releasable_bytes": 132048
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 10.322265625,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 1,
+   "active": 7,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 664,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 3931,
+    "handlerErrors": 0,
+    "completed": 108870
+   },
+   "http": {
+    "inFlight": 8,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 118359,
+     "3xx": 4706,
+     "4xx": 1607,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 121853,
+     "aborted": 4439,
+     "failed": 0
+    }
+   },
+   "openFds": 57,
+   "totals": {
+    "requests": 126214,
+    "ok": 118400,
+    "degradedExpected": 3166,
+    "aborted": 4647,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  },
+  {
+   "t": 1050,
+   "phase": "load",
+   "storm": false,
+   "proc": {
+    "rssMiB": 1096.80859375,
+    "anonMiB": 1051.03515625,
+    "fileMiB": 45.6953125,
+    "swapMiB": 0,
+    "hwmMiB": 1169.3125,
+    "threads": 30,
+    "cpuSeconds": 2286.7
+   },
+   "api": {
+    "rssMiB": 47.59375,
+    "anonMiB": 25.77734375,
+    "fileMiB": 21.73828125,
+    "swapMiB": 0,
+    "hwmMiB": 57.13671875,
+    "threads": 9,
+    "cpuSeconds": 0.07
+   },
+   "heapUsedMiB": 408.84801483154297,
+   "heapTotalMiB": 646.06640625,
+   "heapAfterGcMiB": 259.60499572753906,
+   "externalMiB": 88.40904331207275,
+   "malloc": {
+    "arena_bytes": 383975424,
+    "mmap_bytes": 25079808,
+    "in_use_bytes": 154244176,
+    "free_bytes": 229731248,
+    "releasable_bytes": 132048
+   },
+   "cacheMemoryMiB": 6.895033836364746,
+   "cacheEntries": 52,
+   "imageReservedMiB": 57.7958984375,
+   "imageCacheMiB": 0,
+   "imageQueued": 0,
+   "imageInFlight": 3,
+   "active": 4,
+   "queued": 0,
+   "readyIsolates": 4,
+   "restarts": 0,
+   "fullGcs": 682,
+   "executor": {
+    "rejectedOverloaded": 0,
+    "rejectedQueueTimeout": 0,
+    "rejectedUnavailable": 0,
+    "requestTimeouts": 0,
+    "responsesCancelled": 4039,
+    "handlerErrors": 0,
+    "completed": 111845
+   },
+   "http": {
+    "inFlight": 7,
+    "connectionsOpen": 8,
+    "requests": {
+     "1xx": 0,
+     "2xx": 121586,
+     "3xx": 4837,
+     "4xx": 1646,
+     "5xx": 0,
+     "other": 0
+    },
+    "bodies": {
+     "completed": 125180,
+     "aborted": 4560,
+     "failed": 0
+    }
+   },
+   "openFds": 52,
+   "totals": {
+    "requests": 129668,
+    "ok": 121635,
+    "degradedExpected": 3256,
+    "aborted": 4776,
+    "overload503": 0,
+    "clientTimeouts": 0,
+    "unexpected": 1,
+    "identityLeaks": 0,
+    "wrongContent": 0,
+    "cancelledByServer": 0
+   }
+  }
+ ],
+ "totals": {
+  "requests": 129668,
+  "ok": 121635,
+  "degradedExpected": 3256,
+  "aborted": 4776,
+  "overload503": 0,
+  "clientTimeouts": 0,
+  "unexpected": 1,
+  "identityLeaks": 0,
+  "wrongContent": 0,
+  "cancelledByServer": 0
+ },
+ "kinds": {
+  "ppr-home": {
+   "count": 16020,
+   "statuses": {
+    "200": 16020
+   },
+   "msTotal": 178710.3438640001,
+   "msMax": 116.34773,
+   "slow": 0
+  },
+  "ppr-destination": {
+   "count": 12694,
+   "statuses": {
+    "200": 12694
+   },
+   "msTotal": 121313.59151299941,
+   "msMax": 538.825902,
+   "slow": 0
+  },
+  "rsc-destination": {
+   "count": 4837,
+   "statuses": {
+    "307": 4837
+   },
+   "msTotal": 7380.139514000022,
+   "msMax": 42.831388,
+   "slow": 0
+  },
+  "static-page": {
+   "count": 4763,
+   "statuses": {
+    "200": 4763
+   },
+   "msTotal": 35920.31884000001,
+   "msMax": 103.683276,
+   "slow": 0
+  },
+  "flight-search-shell": {
+   "count": 6408,
+   "statuses": {
+    "200": 6408
+   },
+   "msTotal": 229941.34159299996,
+   "msMax": 386.538221,
+   "slow": 0
+  },
+  "flight-results": {
+   "count": 15934,
+   "statuses": {
+    "200": 15934
+   },
+   "msTotal": 1099879.1740570038,
+   "msMax": 703.98398,
+   "slow": 0
+  },
+  "fare-offers": {
+   "count": 6250,
+   "statuses": {
+    "200": 6250
+   },
+   "msTotal": 292222.2690010006,
+   "msMax": 450.467229,
+   "slow": 0
+  },
+  "api-route": {
+   "count": 9678,
+   "statuses": {
+    "200": 9678
+   },
+   "msTotal": 130511.75038000006,
+   "msMax": 595.602847,
+   "slow": 0
+  },
+  "booking-ssr": {
+   "count": 4725,
+   "statuses": {
+    "200": 4725
+   },
+   "msTotal": 238455.4317600005,
+   "msMax": 309.712392,
+   "slow": 0
+  },
+  "account-trips": {
+   "count": 4691,
+   "statuses": {
+    "200": 4691
+   },
+   "msTotal": 227752.16434799953,
+   "msMax": 1093.139451,
+   "slow": 0
+  },
+  "account-anon": {
+   "count": 3315,
+   "statuses": {
+    "200": 3315
+   },
+   "msTotal": 101361.90496200013,
+   "msMax": 170.56896,
+   "slow": 0
+  },
+  "manage-booking": {
+   "count": 3238,
+   "statuses": {
+    "200": 3238
+   },
+   "msTotal": 202294.84045599977,
+   "msMax": 736.407826,
+   "slow": 0
+  },
+  "manage-anon": {
+   "count": 1616,
+   "statuses": {
+    "200": 1616
+   },
+   "msTotal": 51847.08940100003,
+   "msMax": 175.547517,
+   "slow": 0
+  },
+  "server-action": {
+   "count": 6398,
+   "statuses": {
+    "200": 6398
+   },
+   "msTotal": 506727.3910729993,
+   "msMax": 811.714811,
+   "slow": 0
+  },
+  "image-hit": {
+   "count": 12787,
+   "statuses": {
+    "200": 12787
+   },
+   "msTotal": 1096165.4172910003,
+   "msMax": 465.262436,
+   "slow": 0
+  },
+  "image-transform": {
+   "count": 6471,
+   "statuses": {
+    "0": 1,
+    "200": 6470
+   },
+   "msTotal": 995803.5033479978,
+   "msMax": 798.923105,
+   "slow": 0
+  },
+  "not-found": {
+   "count": 1646,
+   "statuses": {
+    "404": 1646
+   },
+   "msTotal": 12051.148712000024,
+   "msMax": 201.454178,
+   "slow": 0
+  },
+  "api-fault": {
+   "count": 3256,
+   "statuses": {
+    "200": 3256
+   },
+   "msTotal": 2747280.2344500017,
+   "msMax": 2769.455565,
+   "slow": 0
+  },
+  "abort-results": {
+   "count": 3293,
+   "statuses": {
+    "0": 3206,
+    "200": 87
+   },
+   "msTotal": 74156.76771799978,
+   "msMax": 54.149071,
+   "slow": 0
+  },
+  "abort-home": {
+   "count": 1648,
+   "statuses": {
+    "0": 1570,
+    "200": 78
+   },
+   "msTotal": 7354.989241999996,
+   "msMax": 29.195884,
+   "slow": 0
+  }
+ },
+ "errors": [
+  {
+   "at": "2026-11-17T05:34:37.281Z",
+   "kind": "image-transform",
+   "path": "/_next/image?url=%2Fimages%2Fdestinations%2Fsingapore.jpg&w=256&q=80",
+   "error": "ECONNRESET"
+  }
+ ]
+}

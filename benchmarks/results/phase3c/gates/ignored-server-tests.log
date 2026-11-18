@@ -1,0 +1,133 @@
+   Compiling nextrs-server v0.0.0 (/home/dennispaler/Documents/OpenSource/nextrs/crates/nextrs-server)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 49.10s
+     Running tests/dynamic.rs (target/debug/deps/dynamic-31009f181d7c04f5)
+
+running 5 tests
+test without_an_executor_dynamic_routes_are_refused ... ok
+Error: Failed to find Server Action "40ffffffffffffffffffffffffffffffffffffffff". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at i (.next/server/chunks/ssr/[root-of-the-server]__1lip2kyhpdfi0._.js:10:28465)
+    at Object.get (.next/server/chunks/ssr/[root-of-the-server]__1lip2kyhpdfi0._.js:12:279)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+Error: The Server Reference ID did not match the expected format. Received "not-an-action".
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at Object.get (.next/server/chunks/ssr/[root-of-the-server]__1lip2kyhpdfi0._.js:11:2753)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+Error: Failed to find Server Action "40ffffffffffffffffffffffffffffffffffffffff". This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at i (.next/server/chunks/ssr/[root-of-the-server]__1lip2kyhpdfi0._.js:10:28465)
+    at Object.get (.next/server/chunks/ssr/[root-of-the-server]__1lip2kyhpdfi0._.js:12:279)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+Error: The Server Reference ID did not match the expected format. Received "not-an-action".
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at Object.get (.next/server/chunks/ssr/[root-of-the-server]__1lip2kyhpdfi0._.js:11:2753)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+test dynamic_rsc_requests_keep_the_cache_busting_protocol ... ok
+test http_1_0_streamed_responses_close_the_connection ... ok
+test server_action_requests_reach_next_action_handler ... ok
+test renders_dynamic_routes_with_next_semantics ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.10s
+
+     Running tests/memory.rs (target/debug/deps/memory-4a10145ee314e340)
+
+running 1 test
+test paused_clients_cannot_grow_process_memory ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.98s
+
+     Running tests/proxy.rs (target/debug/deps/proxy-85eb6ddf1c5666a0)
+
+running 1 test
+`x-forwarded-host` header with value `127.0.0.1:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+  digest: [32m"869999951"[39m
+}
+`x-forwarded-host` header with value `127.0.0.1:3000` does not match `origin` header with value `shop.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+  digest: [32m"869999951"[39m
+}
+`x-forwarded-host` header with value `shop.example` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+  digest: [32m"869999951"[39m
+}
+`x-forwarded-host` header with value `127.0.0.1:3000` does not match `origin` header with value `shop.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+  digest: [32m"869999951"[39m
+}
+test forwarded_headers_are_trusted_only_from_configured_proxies ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
+
+     Running tests/reliability.rs (target/debug/deps/reliability-79fd72d3e3632acc)
+
+running 13 tests
+Error: aborted
+[90m    at bodyError (ext:nextrs/03_server.js:26:23)[39m
+[90m    at <unknown> (ext:nextrs/03_server.js:124:27)[39m {
+  code: [32m"ECONNRESET"[39m
+}
+test a_saturated_executor_refuses_with_503_and_recovers ... ok
+test a_malformed_chunked_body_is_rejected_without_hanging ... ok
+test a_disconnect_mid_stream_cancels_the_request ... ok
+Error: aborted
+[90m    at bodyError (ext:nextrs/03_server.js:26:23)[39m
+[90m    at <unknown> (ext:nextrs/03_server.js:124:27)[39m {
+  code: [32m"ECONNRESET"[39m
+}
+test an_aborted_upload_releases_the_request ... ok
+test a_streamed_upload_can_be_streamed_back ... ok
+test graceful_shutdown_finishes_streams_and_refuses_new_connections ... ok
+test a_cpu_stall_in_a_next_route_replaces_the_isolate ... ok
+test connections_beyond_the_cap_wait_for_a_free_one ... ok
+Error: request body exceeds the 1048576-byte limit
+[90m    at bodyError (ext:nextrs/03_server.js:31:21)[39m
+[90m    at <unknown> (ext:nextrs/03_server.js:124:27)[39m
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m {
+  code: [32m"ERR_NEXTRS_BODY_TOO_LARGE"[39m,
+  statusCode: [33m413[39m,
+  status: [33m413[39m
+}
+⨯ unhandledRejection: Error: nextrs fixture: unhandled rejection
+    at t (.next/server/chunks/_0rl32_akxypag._.js:1:248)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+Error: nextrs fixture: uncaught exception from a timer
+    at Timeout._onTimeout (.next/server/chunks/_0rl32_akxypag._.js:1:155)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:38)[39m
+[90m    at Object._onTimeout (ext:nextrs/00_globals.js:282:11)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:307:17)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m
+⨯ unhandledRejection: Error: nextrs fixture: unhandled rejection
+    at t (.next/server/chunks/_0rl32_akxypag._.js:1:248)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+Error: nextrs fixture: uncaught exception from a timer
+    at Timeout._onTimeout (.next/server/chunks/_0rl32_akxypag._.js:1:155)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:38)[39m
+[90m    at Object._onTimeout (ext:nextrs/00_globals.js:282:11)[39m
+[90m    at listOnTimeout (ext:core/02_timers.js:307:17)[39m
+[90m    at Object.processTimers (ext:core/02_timers.js:250:7)[39m
+[90m    at __processTimers (ext:core/01_core.js:448:21)[39m
+test a_client_that_stops_reading_is_closed_after_the_write_timeout ... ok
+test request_body_limits_hold_for_declared_and_chunked_lengths ... ok
+test a_client_that_pauses_then_resumes_gets_the_whole_ordered_body ... ok
+test uncaught_errors_in_next_routes_are_logged_not_fatal ... ok
+test queued_requests_time_out_with_503 ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 11.25s
+

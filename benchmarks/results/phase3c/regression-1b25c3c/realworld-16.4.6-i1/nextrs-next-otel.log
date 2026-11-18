@@ -1,0 +1,22 @@
+[2m2026-11-18T03:12:28.382307Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T03:12:28.382964Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5428, http://127.0.0.1:5424, http://127.0.0.1:5425, http://127.0.0.1:5427
+[2m2026-11-18T03:12:28.382994Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-18T03:12:28.442290Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T03:12:28.442327Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T03:12:28.565204Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:os.homedir is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T03:12:28.592453Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:buffer.length is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T03:12:28.602745Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m219
+[2m2026-11-18T03:12:28.602920Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m220 [3misolates[0m[2m=[0m1
+[2m2026-11-18T03:12:28.612663Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5423 [3mbuild_id[0m[2m=[0msen9caGFluO1Byts1BPbE [3mready_ms[0m[2m=[0m230
+[2m2026-11-18T03:13:06.188242Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m JavaScript has not yielded for longer than the stall timeout, but is not using the CPU (blocked or throttled); not terminating it [3mslot[0m[2m=[0m0 [3mbusy_ms[0m[2m=[0m3005 [3mcpu_ms[0m[2m=[0m2976
+[2m2026-11-18T03:13:06.238376Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m JavaScript exceeded the stall timeout; terminating the isolate [3mslot[0m[2m=[0m0 [3mbusy_ms[0m[2m=[0m3056 [3mcpu_ms[0m[2m=[0m3026 [3mactive[0m[2m=[0m1
+[2m2026-11-18T03:13:06.239993Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m isolate failed: terminated [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mreason[0m[2m=[0m"cpu_stall" [3muptime_ms[0m[2m=[0m37856
+[2m2026-11-18T03:13:06.240011Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m restarting isolate [3mslot[0m[2m=[0m0 [3mdelay_ms[0m[2m=[0m100 [3mrecent_failures[0m[2m=[0m1
+[2m2026-11-18T03:13:06.389836Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T03:13:06.389868Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T03:13:06.501223Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:os.homedir is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T03:13:06.509808Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:buffer.length is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T03:13:06.519613Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m2 [3mboot_ms[0m[2m=[0m179
+[2m2026-11-18T03:13:07.659073Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m2 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T03:13:07.659171Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T03:13:07.673809Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

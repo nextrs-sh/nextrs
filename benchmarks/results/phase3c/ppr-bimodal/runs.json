@@ -1,0 +1,342 @@
+{
+  "started": "2026-11-16T15:50:46.390Z",
+  "configs": [
+    "alt:1",
+    "nextrs:1"
+  ],
+  "names": [
+    "home"
+  ],
+  "rounds": 6,
+  "duration": 5,
+  "warmup": 3,
+  "connections": 16,
+  "rate": 0,
+  "extraArgs": [],
+  "bins": {
+    "nextrs": "/home/dennispaler/Documents/OpenSource/nextrs/target/phase3c-utf8/nextrs",
+    "alt": "/home/dennispaler/Documents/OpenSource/nextrs/target/phase3c-base/nextrs"
+  },
+  "runs": [
+    {
+      "round": 1,
+      "config": "alt:1",
+      "name": "home",
+      "startup_ms": 760,
+      "rps": 665.1628265772413,
+      "cpu_ms_per_req": 1.6897173782321104,
+      "p50": 23.887,
+      "p95": 26.127,
+      "p99": 30.671,
+      "ttfb_p50": 23.855,
+      "completed": 3326,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 200.5,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0045,
+        "execution_seconds_total": 0.025,
+        "cache.hits": 0.0625,
+        "executors.0.heap_total_bytes": 4391.5622
+      }
+    },
+    {
+      "round": 1,
+      "config": "nextrs:1",
+      "name": "home",
+      "startup_ms": 370,
+      "rps": 883.8517319274954,
+      "cpu_ms_per_req": 1.3190045248868778,
+      "p50": 17.759,
+      "p95": 20.143,
+      "p99": 25.039,
+      "ttfb_p50": 17.743,
+      "completed": 4420,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 206.4,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0127,
+        "execution_seconds_total": 0.0184,
+        "cache.hits": 0.0627,
+        "executors.0.heap_total_bytes": -6585.1077
+      }
+    },
+    {
+      "round": 2,
+      "config": "nextrs:1",
+      "name": "home",
+      "startup_ms": 271,
+      "rps": 880.3665003931008,
+      "cpu_ms_per_req": 1.3150124914830799,
+      "p50": 17.855,
+      "p95": 20.351,
+      "p99": 24.335,
+      "ttfb_p50": 17.839,
+      "completed": 4403,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 224.2,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0018,
+        "execution_seconds_total": 0.0186,
+        "cache.hits": 0.0627,
+        "executors.0.heap_total_bytes": -1243.7774
+      }
+    },
+    {
+      "round": 2,
+      "config": "alt:1",
+      "name": "home",
+      "startup_ms": 266,
+      "rps": 665.3721280112036,
+      "cpu_ms_per_req": 1.7037259615384612,
+      "p50": 23.887,
+      "p95": 26.015,
+      "p99": 30.479,
+      "ttfb_p50": 23.871,
+      "completed": 3328,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 197.9,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0054,
+        "execution_seconds_total": 0.025,
+        "cache.hits": 0.0625,
+        "executors.0.heap_total_bytes": -8228.9231
+      }
+    },
+    {
+      "round": 3,
+      "config": "alt:1",
+      "name": "home",
+      "startup_ms": 267,
+      "rps": 666.9514488042577,
+      "cpu_ms_per_req": 1.6906474820143889,
+      "p50": 23.807,
+      "p95": 25.695,
+      "p99": 30.367,
+      "ttfb_p50": 23.791,
+      "completed": 3336,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 190.4,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0057,
+        "execution_seconds_total": 0.0249,
+        "cache.hits": 0.0629,
+        "executors.0.heap_total_bytes": 2002.5707
+      }
+    },
+    {
+      "round": 3,
+      "config": "nextrs:1",
+      "name": "home",
+      "startup_ms": 276,
+      "rps": 877.5767134178909,
+      "cpu_ms_per_req": 1.335156071998177,
+      "p50": 17.919,
+      "p95": 20.367,
+      "p99": 25.615,
+      "ttfb_p50": 17.887,
+      "completed": 4389,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 211.7,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0071,
+        "execution_seconds_total": 0.0186,
+        "cache.hits": 0.0627,
+        "executors.0.heap_total_bytes": -4542.0898
+      }
+    },
+    {
+      "round": 4,
+      "config": "nextrs:1",
+      "name": "home",
+      "startup_ms": 265,
+      "rps": 861.3848982364751,
+      "cpu_ms_per_req": 1.3765088207985146,
+      "p50": 18.159,
+      "p95": 21.215,
+      "p99": 26.495,
+      "ttfb_p50": 18.127,
+      "completed": 4308,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 196.7,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0149,
+        "execution_seconds_total": 0.019,
+        "cache.hits": 0.0629,
+        "executors.0.heap_total_bytes": -9330.0947
+      }
+    },
+    {
+      "round": 4,
+      "config": "alt:1",
+      "name": "home",
+      "startup_ms": 271,
+      "rps": 336.4205007560145,
+      "cpu_ms_per_req": 3.2085561497326194,
+      "p50": 47.743,
+      "p95": 50.015,
+      "p99": 54.431,
+      "ttfb_p50": 47.711,
+      "completed": 1683,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 197.3,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0113,
+        "execution_seconds_total": 0.0499,
+        "cache.hits": 0.0636,
+        "executors.0.heap_total_bytes": -6335.0493
+      }
+    },
+    {
+      "round": 5,
+      "config": "alt:1",
+      "name": "home",
+      "startup_ms": 271,
+      "rps": 658.785118392382,
+      "cpu_ms_per_req": 1.7086494688922607,
+      "p50": 24.015,
+      "p95": 26.671,
+      "p99": 29.695,
+      "ttfb_p50": 23.983,
+      "completed": 3295,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 205.6,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0039,
+        "execution_seconds_total": 0.0252,
+        "cache.hits": 0.0625,
+        "executors.0.heap_total_bytes": 4935.0895
+      }
+    },
+    {
+      "round": 5,
+      "config": "nextrs:1",
+      "name": "home",
+      "startup_ms": 268,
+      "rps": 878.1481660739704,
+      "cpu_ms_per_req": 1.325136612021858,
+      "p50": 17.887,
+      "p95": 20.255,
+      "p99": 25.199,
+      "ttfb_p50": 17.855,
+      "completed": 4392,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 205.8,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0036,
+        "execution_seconds_total": 0.0187,
+        "cache.hits": 0.0626,
+        "executors.0.heap_total_bytes": -1444.6047
+      }
+    },
+    {
+      "round": 6,
+      "config": "nextrs:1",
+      "name": "home",
+      "startup_ms": 267,
+      "rps": 889.2170457269626,
+      "cpu_ms_per_req": 1.3154935911850685,
+      "p50": 17.775,
+      "p95": 19.711,
+      "p99": 24.591,
+      "ttfb_p50": 17.743,
+      "completed": 4447,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 200.2,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0049,
+        "execution_seconds_total": 0.0184,
+        "cache.hits": 0.0627,
+        "executors.0.heap_total_bytes": -4946.148
+      }
+    },
+    {
+      "round": 6,
+      "config": "alt:1",
+      "name": "home",
+      "startup_ms": 264,
+      "rps": 663.6470231228881,
+      "cpu_ms_per_req": 1.7143717987345584,
+      "p50": 23.951,
+      "p95": 26.159,
+      "p99": 29.999,
+      "ttfb_p50": 23.919,
+      "completed": 3319,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 188.9,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0012,
+        "execution_seconds_total": 0.0249,
+        "cache.hits": 0.063,
+        "executors.0.heap_total_bytes": 936.687
+      }
+    }
+  ],
+  "summary": {
+    "alt:1 home": {
+      "rps": 664.4049248500646,
+      "rps_all": [
+        665,
+        665,
+        667,
+        336,
+        659,
+        664
+      ],
+      "cpu_ms_per_req": 1.706187715215361,
+      "p50": 23.919,
+      "p99": 30.423000000000002,
+      "failures": 0
+    },
+    "nextrs:1 home": {
+      "rps": 879.2573332335355,
+      "rps_all": [
+        884,
+        880,
+        878,
+        861,
+        878,
+        889
+      ],
+      "cpu_ms_per_req": 1.3220705684543679,
+      "p50": 17.871000000000002,
+      "p99": 25.119,
+      "failures": 0
+    }
+  }
+}

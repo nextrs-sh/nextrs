@@ -1,0 +1,116 @@
+{
+  "results": [
+    {
+      "name": "browser-language-redirect",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/de",
+          "lang": "de"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/de",
+          "lang": "de"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "client-nav-prefixed",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/de/about"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/de/about"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "client-nav-dynamic",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/fr/products/42",
+          "slug": "42"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/fr/products/42",
+          "slug": "42"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "locale-switch",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/de",
+          "cookies": [
+            "de"
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/de",
+          "cookies": [
+            "de"
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "unprefixed-direct-load",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/de/about"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/de/about"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "locale-aware-action",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "result": {
+            "recorded": "Ada salué en français",
+            "locale": "fr"
+          }
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "result": {
+            "recorded": "Ada salué en français",
+            "locale": "fr"
+          }
+        },
+        "errors": []
+      }
+    }
+  ]
+}

@@ -1,9 +1,10 @@
-2026-11-16T12:25:34.586345Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
-2026-11-16T12:25:34.587530Z  INFO nextrs: shared data cache enabled persistent=false dir=
-2026-11-16T12:25:34.646249Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:34.646279Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:34.658410Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=70
-2026-11-16T12:25:34.658411Z  INFO nextrs: embedded V8 executor ready ready_ms=72 isolates=1
-2026-11-16T12:25:34.660304Z  INFO nextrs: nextrs ready addr=127.0.0.1:3420 build_id=dYCPvgLjchyVqajKbQtUu ready_ms=73
-2026-11-16T12:25:35.818716Z  INFO nextrs: stopping JavaScript isolates
-2026-11-16T12:25:35.861742Z  INFO nextrs: nextrs stopped
+2026-11-18T03:13:24.172975Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+2026-11-18T03:13:24.411827Z  INFO nextrs: shared data cache enabled persistent=false dir=
+2026-11-18T03:13:28.686234Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:13:28.686259Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:13:29.183550Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=4771
+2026-11-18T03:13:29.183551Z  INFO nextrs: embedded V8 executor ready ready_ms=5010 isolates=1
+2026-11-18T03:13:29.196602Z  INFO nextrs: nextrs ready addr=127.0.0.1:3420 build_id=dYCPvgLjchyVqajKbQtUu ready_ms=5023
+2026-11-18T03:13:35.776952Z  INFO nextrs_server::serve: shutting down: no new connections; draining connections=1 grace_ms=10000
+2026-11-18T03:13:35.777097Z  INFO nextrs: stopping JavaScript isolates
+2026-11-18T03:13:35.797671Z  INFO nextrs: nextrs stopped

@@ -15,3 +15,11 @@ __pycache__/
 # reports, logs, screenshots and error contexts are kept).
 /benchmarks/certification/results/**/*.zip
 /benchmarks/certification/results/**/*.webm
+
+# Phase 3C evidence: soak caches (image and data cache directories) and
+# perf recordings stay local; logs, JSON and summaries are kept.
+/benchmarks/results/phase3c/**/image-cache-*/
+/benchmarks/results/phase3c/**/data-cache-*/
+/benchmarks/results/phase3c/**/*.perf.data
+/benchmarks/results/phase3c/**/certs/
+/benchmarks/results/phase3c/**/nextrs-cache/

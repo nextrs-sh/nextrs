@@ -1,0 +1,2 @@
+commit 3f42fc5; started 2026-11-17T04:31:47Z; host 6 CPUs 15 GiB; load 6.87 10.96 7.51
+Run A stopped 2026-11-17T05:32:24Z after about 60 min, restarted on HEAD with the CPU-time stall watchdog (1b25c3c). Reason: 23 Velasia isolate restarts from the wall-clock stall watchdog while the host was under I/O and swap pressure from outside this sandbox. Velasia JSON is complete up to the stop. The mixed driver writes its report only at exit, so mixed results are lost; server logs are kept.

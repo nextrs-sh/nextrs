@@ -1,0 +1,361 @@
+04:53:27 closed round 1/3 app p3c-i1
+04:53:45   ssr                    ok     758 rps p95 48.54 ms cpu 1.692 ms/req rss 192.2 MiB
+04:54:02   rsc                    ok    1393 rps p95 28.75 ms cpu 0.922 ms/req rss 184.7 MiB
+04:54:19   action                 ok    2503 rps p95 17.68 ms cpu 0.648 ms/req rss 180.1 MiB
+04:54:36   isr-hit                ok    4884 rps p95 8.99 ms cpu 0.295 ms/req rss 173.9 MiB
+04:54:37 closed round 1/3 app p3b-i1
+04:54:54   ssr                    ok     755 rps p95 47.17 ms cpu 1.691 ms/req rss 188 MiB
+04:55:11   rsc                    ok    1390 rps p95 31.61 ms cpu 0.918 ms/req rss 194.3 MiB
+04:55:29   action                 ok    2499 rps p95 17.68 ms cpu 0.645 ms/req rss 177.5 MiB
+04:55:46   isr-hit                ok    4616 rps p95 9.40 ms cpu 0.311 ms/req rss 176.4 MiB
+04:55:46 closed round 1/3 app p3a-i1
+04:56:03   ssr                    ok     749 rps p95 50.05 ms cpu 1.681 ms/req rss 194.5 MiB
+04:56:21   rsc                    ok    1387 rps p95 28.73 ms cpu 0.919 ms/req rss 193.9 MiB
+04:56:38   action                 ok    2509 rps p95 17.54 ms cpu 0.648 ms/req rss 177.9 MiB
+04:56:55   isr-hit                ok    4705 rps p95 9.26 ms cpu 0.306 ms/req rss 177.4 MiB
+04:56:55 closed round 1/3 app next-start
+04:57:14   ssr                    ok     608 rps p95 58.37 ms cpu 1.938 ms/req rss 420.6 MiB
+04:57:31   rsc                    ok     981 rps p95 39.33 ms cpu 1.131 ms/req rss 472.2 MiB
+04:57:49   action                 ok    1204 rps p95 34.27 ms cpu 0.987 ms/req rss 482.7 MiB
+04:58:06   isr-hit                ok    2615 rps p95 15.10 ms cpu 0.397 ms/req rss 487.2 MiB
+04:58:06 closed round 1/3 cache-components p3a-i1
+04:58:24   use-cache-hit          ok     586 rps p95 66.69 ms cpu 2.228 ms/req rss 190.9 MiB
+04:58:24 closed round 1/3 cache-components p3c-i1
+04:58:42   use-cache-hit          ok     582 rps p95 68.09 ms cpu 2.261 ms/req rss 191.2 MiB
+04:58:42 closed round 1/3 cache-components next-start
+04:59:02   use-cache-hit          ok     442 rps p95 81.22 ms cpu 2.699 ms/req rss 459.4 MiB
+04:59:02 closed round 1/3 cache-components p3b-i1
+04:59:20   use-cache-hit          ok     588 rps p95 64.67 ms cpu 2.242 ms/req rss 186.3 MiB
+04:59:20 closed round 1/3 pages p3b-i1
+04:59:37   pages-ssr              ok    1648 rps p95 25.10 ms cpu 0.868 ms/req rss 160.2 MiB
+04:59:55   pages-ssr-proxied      ok    1214 rps p95 36.19 ms cpu 1.186 ms/req rss 177.2 MiB
+04:59:55 closed round 1/3 pages next-start
+05:00:15   pages-ssr              ok    1459 rps p95 38.40 ms cpu 0.786 ms/req rss 370.2 MiB
+05:00:32   pages-ssr-proxied      ok     879 rps p95 40.99 ms cpu 1.280 ms/req rss 397.1 MiB
+05:00:32 closed round 1/3 pages p3a-i1
+05:00:50   pages-ssr              ok    1709 rps p95 24.03 ms cpu 0.828 ms/req rss 152.8 MiB
+05:01:07   pages-ssr-proxied      ok    1236 rps p95 35.87 ms cpu 1.168 ms/req rss 177.9 MiB
+05:01:07 closed round 1/3 pages p3c-i1
+05:01:24   pages-ssr              ok    1661 rps p95 25.66 ms cpu 0.864 ms/req rss 155.2 MiB
+05:01:41   pages-ssr-proxied      ok    1233 rps p95 36.00 ms cpu 1.174 ms/req rss 179.1 MiB
+05:01:42 closed round 1/3 image p3a-i1
+05:01:59   image-hit              ok   95953 rps p95 0.55 ms cpu 0.034 ms/req rss 60 MiB
+05:02:17   image-transform        ok      56 rps p95 144.77 ms cpu 36.294 ms/req rss 90.5 MiB
+05:02:17 closed round 1/3 image p3c-i1
+05:02:35   image-hit              ok   95289 rps p95 0.55 ms cpu 0.035 ms/req rss 60.1 MiB
+05:02:52   image-transform        ok      56 rps p95 145.02 ms cpu 36.436 ms/req rss 85.7 MiB
+05:02:53 closed round 1/3 image next-start
+05:03:13   image-hit              ok    7571 rps p95 4.81 ms cpu 0.143 ms/req rss 354.7 MiB
+05:03:30   image-transform        ok      84 rps p95 134.14 ms cpu 45.687 ms/req rss 495 MiB
+05:03:31 closed round 1/3 image p3b-i1
+05:03:48   image-hit              ok   97129 rps p95 0.54 ms cpu 0.035 ms/req rss 61 MiB
+05:04:06   image-transform        ok      56 rps p95 144.51 ms cpu 36.330 ms/req rss 92.5 MiB
+05:04:06 closed round 1/3 mixed p3a-i1
+05:04:26   mixed                  ok    2045 rps p95 58.88 ms cpu 1.279 ms/req rss 206.2 MiB
+05:04:27 closed round 1/3 mixed next-start
+05:04:48   mixed                  ok    1187 rps p95 62.27 ms cpu 1.633 ms/req rss 478.8 MiB
+05:04:48 closed round 1/3 mixed p3c-i1
+05:05:08   mixed                  ok    2054 rps p95 56.73 ms cpu 1.280 ms/req rss 208.5 MiB
+05:05:09 closed round 1/3 mixed p3b-i1
+05:05:29   mixed                  ok    2046 rps p95 56.06 ms cpu 1.284 ms/req rss 206.9 MiB
+05:05:29 closed round 2/3 app p3a-i1
+05:05:47   ssr                    ok     755 rps p95 47.36 ms cpu 1.723 ms/req rss 185.4 MiB
+05:06:04   rsc                    ok    1405 rps p95 28.59 ms cpu 0.878 ms/req rss 186.5 MiB
+05:06:21   action                 ok    2540 rps p95 17.15 ms cpu 0.640 ms/req rss 176.4 MiB
+05:06:38   isr-hit                ok    4717 rps p95 9.22 ms cpu 0.306 ms/req rss 175.2 MiB
+05:06:39 closed round 2/3 app next-start
+05:06:57   ssr                    ok     627 rps p95 57.22 ms cpu 1.886 ms/req rss 449.1 MiB
+05:07:14   rsc                    ok     978 rps p95 39.30 ms cpu 1.138 ms/req rss 491.3 MiB
+05:07:31   action                 ok    1203 rps p95 34.30 ms cpu 0.998 ms/req rss 500.5 MiB
+05:07:48   isr-hit                ok    2693 rps p95 12.66 ms cpu 0.367 ms/req rss 501.5 MiB
+05:07:48 closed round 2/3 app p3b-i1
+05:08:06   ssr                    ok     765 rps p95 48.32 ms cpu 1.678 ms/req rss 196.9 MiB
+05:08:23   rsc                    ok    1392 rps p95 29.57 ms cpu 0.919 ms/req rss 189.7 MiB
+05:08:40   action                 ok    2516 rps p95 17.60 ms cpu 0.645 ms/req rss 184.8 MiB
+05:08:57   isr-hit                ok    4603 rps p95 9.32 ms cpu 0.311 ms/req rss 182.8 MiB
+05:08:58 closed round 2/3 app p3c-i1
+05:09:15   ssr                    ok     768 rps p95 45.95 ms cpu 1.734 ms/req rss 178.4 MiB
+05:09:32   rsc                    ok    1399 rps p95 30.75 ms cpu 0.918 ms/req rss 176.9 MiB
+05:09:50   action                 ok    2509 rps p95 17.50 ms cpu 0.647 ms/req rss 174.7 MiB
+05:10:07   isr-hit                ok    4862 rps p95 9.02 ms cpu 0.295 ms/req rss 166.9 MiB
+05:10:07 closed round 2/3 cache-components p3c-i1
+05:10:25   use-cache-hit          ok     586 rps p95 71.81 ms cpu 2.247 ms/req rss 193.8 MiB
+05:10:25 closed round 2/3 cache-components next-start
+05:10:43   use-cache-hit          ok     448 rps p95 77.18 ms cpu 2.656 ms/req rss 460.9 MiB
+05:10:43 closed round 2/3 cache-components p3a-i1
+05:11:01   use-cache-hit          ok     586 rps p95 68.22 ms cpu 2.252 ms/req rss 194.2 MiB
+05:11:01 closed round 2/3 cache-components p3b-i1
+05:11:19   use-cache-hit          ok     583 rps p95 66.37 ms cpu 2.219 ms/req rss 191.9 MiB
+05:11:19 closed round 2/3 pages p3a-i1
+05:11:37   pages-ssr              ok    1708 rps p95 24.05 ms cpu 0.830 ms/req rss 156.5 MiB
+05:11:54   pages-ssr-proxied      ok    1238 rps p95 35.81 ms cpu 1.168 ms/req rss 175.8 MiB
+05:11:54 closed round 2/3 pages p3b-i1
+05:12:12   pages-ssr              ok    1668 rps p95 24.89 ms cpu 0.860 ms/req rss 159.9 MiB
+05:12:29   pages-ssr-proxied      ok    1232 rps p95 35.94 ms cpu 1.172 ms/req rss 181.5 MiB
+05:12:29 closed round 2/3 pages p3c-i1
+05:12:47   pages-ssr              ok    1663 rps p95 25.10 ms cpu 0.866 ms/req rss 153.9 MiB
+05:13:05   pages-ssr-proxied      ok    1232 rps p95 36.06 ms cpu 1.170 ms/req rss 174.8 MiB
+05:13:05 closed round 2/3 pages next-start
+05:13:23   pages-ssr              ok    1449 rps p95 38.59 ms cpu 0.793 ms/req rss 382 MiB
+05:13:40   pages-ssr-proxied      ok     877 rps p95 40.96 ms cpu 1.275 ms/req rss 420 MiB
+05:13:40 closed round 2/3 image p3c-i1
+05:13:58   image-hit              ok   93891 rps p95 0.56 ms cpu 0.036 ms/req rss 59.7 MiB
+05:14:15   image-transform        ok      56 rps p95 145.41 ms cpu 36.441 ms/req rss 91.9 MiB
+05:14:16 closed round 2/3 image p3a-i1
+05:14:33   image-hit              ok   96245 rps p95 0.54 ms cpu 0.035 ms/req rss 60.6 MiB
+05:14:50   image-transform        ok      56 rps p95 145.15 ms cpu 36.370 ms/req rss 89.1 MiB
+05:14:51 closed round 2/3 image p3b-i1
+05:15:08   image-hit              ok   95747 rps p95 0.55 ms cpu 0.035 ms/req rss 61.1 MiB
+05:15:26   image-transform        ok      56 rps p95 144.77 ms cpu 36.348 ms/req rss 92.3 MiB
+05:15:26 closed round 2/3 image next-start
+05:15:44   image-hit              ok    7481 rps p95 4.75 ms cpu 0.145 ms/req rss 351.9 MiB
+05:16:01   image-transform        ok      84 rps p95 134.01 ms cpu 45.995 ms/req rss 469 MiB
+05:16:02 closed round 2/3 mixed p3b-i1
+05:16:22   mixed                  ok    2049 rps p95 58.30 ms cpu 1.281 ms/req rss 208.3 MiB
+05:16:22 closed round 2/3 mixed p3c-i1
+05:16:43   mixed                  ok    2034 rps p95 58.30 ms cpu 1.291 ms/req rss 206.7 MiB
+05:16:43 closed round 2/3 mixed next-start
+05:17:03   mixed                  ok    1241 rps p95 54.81 ms cpu 1.009 ms/req rss 481.5 MiB
+05:17:03 closed round 2/3 mixed p3a-i1
+05:17:23   mixed                  ok    2028 rps p95 58.08 ms cpu 1.285 ms/req rss 202.2 MiB
+05:17:24 closed round 3/3 app p3a-i1
+05:17:41   ssr                    ok     755 rps p95 50.05 ms cpu 1.690 ms/req rss 186 MiB
+05:17:58   rsc                    ok    1396 rps p95 31.63 ms cpu 0.917 ms/req rss 180.2 MiB
+05:18:16   action                 ok    2507 rps p95 17.45 ms cpu 0.647 ms/req rss 179.8 MiB
+05:18:33   isr-hit                ok    4719 rps p95 9.29 ms cpu 0.306 ms/req rss 171.1 MiB
+05:18:33 closed round 3/3 app p3b-i1
+05:18:51   ssr                    ok     754 rps p95 47.01 ms cpu 1.722 ms/req rss 191.9 MiB
+05:19:08   rsc                    ok    1414 rps p95 28.48 ms cpu 0.875 ms/req rss 191.9 MiB
+05:19:25   action                 ok    2499 rps p95 17.58 ms cpu 0.647 ms/req rss 187.5 MiB
+05:19:42   isr-hit                ok    4619 rps p95 9.35 ms cpu 0.312 ms/req rss 176.2 MiB
+05:19:42 closed round 3/3 app next-start
+05:20:00   ssr                    ok     621 rps p95 57.66 ms cpu 1.893 ms/req rss 453.1 MiB
+05:20:17   rsc                    ok     979 rps p95 40.29 ms cpu 1.139 ms/req rss 479.8 MiB
+05:20:35   action                 ok    1203 rps p95 34.02 ms cpu 0.985 ms/req rss 494.3 MiB
+05:20:52   isr-hit                ok    2653 rps p95 14.89 ms cpu 0.382 ms/req rss 494.6 MiB
+05:20:52 closed round 3/3 app p3c-i1
+05:21:10   ssr                    ok     758 rps p95 48.03 ms cpu 1.673 ms/req rss 185.4 MiB
+05:21:27   rsc                    ok    1390 rps p95 31.61 ms cpu 0.918 ms/req rss 181 MiB
+05:21:44   action                 ok    2510 rps p95 17.54 ms cpu 0.645 ms/req rss 172.8 MiB
+05:22:01   isr-hit                ok    4848 rps p95 9.03 ms cpu 0.296 ms/req rss 174 MiB
+05:22:01 closed round 3/3 cache-components next-start
+05:22:19   use-cache-hit          ok     443 rps p95 80.38 ms cpu 2.684 ms/req rss 463.8 MiB
+05:22:20 closed round 3/3 cache-components p3b-i1
+05:22:37   use-cache-hit          ok     592 rps p95 69.12 ms cpu 2.231 ms/req rss 195.1 MiB
+05:22:38 closed round 3/3 cache-components p3a-i1
+05:22:55   use-cache-hit          ok     586 rps p95 66.30 ms cpu 2.214 ms/req rss 189.4 MiB
+05:22:56 closed round 3/3 cache-components p3c-i1
+05:23:13   use-cache-hit          ok     595 rps p95 65.44 ms cpu 2.187 ms/req rss 193.7 MiB
+05:23:14 closed round 3/3 pages next-start
+05:23:31   pages-ssr              ok    1478 rps p95 38.08 ms cpu 0.783 ms/req rss 400 MiB
+05:23:48   pages-ssr-proxied      ok     904 rps p95 39.52 ms cpu 1.249 ms/req rss 403.7 MiB
+05:23:49 closed round 3/3 pages p3c-i1
+05:24:06   pages-ssr              ok    1688 rps p95 24.69 ms cpu 0.848 ms/req rss 154.1 MiB
+05:24:23   pages-ssr-proxied      ok    1253 rps p95 35.42 ms cpu 1.155 ms/req rss 183 MiB
+05:24:24 closed round 3/3 pages p3b-i1
+05:24:41   pages-ssr              ok    1666 rps p95 25.73 ms cpu 0.848 ms/req rss 151.9 MiB
+05:24:58   pages-ssr-proxied      ok    1233 rps p95 35.97 ms cpu 1.171 ms/req rss 178.5 MiB
+05:24:58 closed round 3/3 pages p3a-i1
+05:25:16   pages-ssr              ok    1712 rps p95 24.14 ms cpu 0.823 ms/req rss 157.5 MiB
+05:25:33   pages-ssr-proxied      ok    1249 rps p95 35.74 ms cpu 1.156 ms/req rss 179.3 MiB
+05:25:33 closed round 3/3 image next-start
+05:25:51   image-hit              ok    7487 rps p95 4.63 ms cpu 0.144 ms/req rss 356.2 MiB
+05:26:09   image-transform        ok      84 rps p95 133.50 ms cpu 46.116 ms/req rss 488.3 MiB
+05:26:09 closed round 3/3 image p3a-i1
+05:26:27   image-hit              ok  100358 rps p95 0.50 ms cpu 0.034 ms/req rss 59 MiB
+05:26:44   image-transform        ok      54 rps p95 158.46 ms cpu 36.998 ms/req rss 88.9 MiB
+05:26:44 closed round 3/3 image p3c-i1
+05:27:02   image-hit              ok   87136 rps p95 0.63 ms cpu 0.036 ms/req rss 59.7 MiB
+05:27:19   image-transform        ok      55 rps p95 149.63 ms cpu 36.902 ms/req rss 90.1 MiB
+05:27:20 closed round 3/3 image p3b-i1
+05:27:37   image-hit              ok   86915 rps p95 0.63 ms cpu 0.035 ms/req rss 61.1 MiB
+05:27:55   image-transform        ok      55 rps p95 150.14 ms cpu 36.848 ms/req rss 87.3 MiB
+05:27:55 closed round 3/3 mixed p3c-i1
+05:28:15   mixed                  ok    1956 rps p95 56.93 ms cpu 1.323 ms/req rss 202.6 MiB
+05:28:16 closed round 3/3 mixed p3b-i1
+05:28:36   mixed                  ok    1941 rps p95 57.60 ms cpu 1.320 ms/req rss 196.4 MiB
+05:28:36 closed round 3/3 mixed p3a-i1
+05:28:56   mixed                  ok    1935 rps p95 56.67 ms cpu 1.329 ms/req rss 201.3 MiB
+05:28:57 closed round 3/3 mixed next-start
+05:29:17   mixed                  ok    1144 rps p95 59.45 ms cpu 1.036 ms/req rss 459.5 MiB
+05:29:17 open round 1/3 app p3b-i1
+05:29:35   ssr                    ok     310 rps p95 3.57 ms cpu 2.408 ms/req rss 172.6 MiB
+05:29:52   rsc                    ok     489 rps p95 1.82 ms cpu 1.257 ms/req rss 171.7 MiB
+05:30:09   action                 ok     601 rps p95 2.78 ms cpu 1.257 ms/req rss 177.3 MiB
+05:30:26   isr-hit                ok    1326 rps p95 1.52 ms cpu 0.630 ms/req rss 183.1 MiB
+05:30:26 open round 1/3 app p3c-i1
+05:30:44   ssr                    ok     310 rps p95 4.06 ms cpu 2.386 ms/req rss 173.3 MiB
+05:31:01   rsc                    ok     489 rps p95 1.93 ms cpu 1.267 ms/req rss 172.3 MiB
+05:31:18   action                 ok     601 rps p95 2.23 ms cpu 1.249 ms/req rss 176.5 MiB
+05:31:35   isr-hit                ok    1327 rps p95 1.52 ms cpu 0.617 ms/req rss 180.6 MiB
+05:31:36 open round 1/3 app p3a-i1
+05:31:53   ssr                    ok     310 rps p95 3.50 ms cpu 2.369 ms/req rss 170.2 MiB
+05:32:10   rsc                    ok     489 rps p95 1.99 ms cpu 1.265 ms/req rss 167.2 MiB
+05:32:27   action                 ok     601 rps p95 2.61 ms cpu 1.254 ms/req rss 172 MiB
+05:32:45   isr-hit                ok    1326 rps p95 1.41 ms cpu 0.617 ms/req rss 177.2 MiB
+05:32:45 open round 1/3 app next-start
+05:33:02   ssr                    ok     310 rps p95 6.58 ms cpu 2.456 ms/req rss 400.7 MiB
+05:33:20   rsc                    ok     489 rps p95 2.47 ms cpu 1.435 ms/req rss 433.9 MiB
+05:33:37   action                 ok     601 rps p95 5.16 ms cpu 1.240 ms/req rss 461.2 MiB
+05:33:54   isr-hit                ok    1327 rps p95 1.27 ms cpu 0.493 ms/req rss 462.6 MiB
+05:33:54 open round 1/3 cache-components p3a-i1
+05:34:12   use-cache-hit          ok     221 rps p95 7.43 ms cpu 3.306 ms/req rss 189.1 MiB
+05:34:12 open round 1/3 cache-components next-start
+05:34:30   use-cache-hit          ok     221 rps p95 8.24 ms cpu 3.392 ms/req rss 405.2 MiB
+05:34:30 open round 1/3 cache-components p3c-i1
+05:34:48   use-cache-hit          ok     221 rps p95 7.51 ms cpu 3.347 ms/req rss 186.7 MiB
+05:34:48 open round 1/3 cache-components p3b-i1
+05:35:06   use-cache-hit          ok     221 rps p95 7.51 ms cpu 3.356 ms/req rss 186.6 MiB
+05:35:06 open round 1/3 pages p3a-i1
+05:35:23   pages-ssr              ok     729 rps p95 5.26 ms cpu 0.984 ms/req rss 148.4 MiB
+05:35:40   pages-ssr-proxied      ok     439 rps p95 2.46 ms cpu 1.578 ms/req rss 153.5 MiB
+05:35:41 open round 1/3 pages p3c-i1
+05:35:58   pages-ssr              ok     729 rps p95 5.07 ms cpu 0.979 ms/req rss 147.3 MiB
+05:36:15   pages-ssr-proxied      ok     439 rps p95 2.53 ms cpu 1.582 ms/req rss 152.6 MiB
+05:36:15 open round 1/3 pages p3b-i1
+05:36:33   pages-ssr              ok     729 rps p95 6.67 ms cpu 1.019 ms/req rss 155.1 MiB
+05:36:50   pages-ssr-proxied      ok     439 rps p95 4.19 ms cpu 1.653 ms/req rss 155.1 MiB
+05:36:50 open round 1/3 pages next-start
+05:37:08   pages-ssr              ok     729 rps p95 4.12 ms cpu 1.039 ms/req rss 304.7 MiB
+05:37:25   pages-ssr-proxied      ok     439 rps p95 1.94 ms cpu 1.442 ms/req rss 365.4 MiB
+05:37:25 open round 1/3 image p3a-i1
+05:37:42   image-hit              ok    3744 rps p95 0.22 ms cpu 0.054 ms/req rss 59 MiB
+05:38:00   image-transform        ok      28 rps p95 38.59 ms cpu 36.263 ms/req rss 65.3 MiB
+05:38:00 open round 1/3 image p3b-i1
+05:38:18   image-hit              ok    3745 rps p95 0.23 ms cpu 0.056 ms/req rss 61.1 MiB
+05:38:35   image-transform        ok      28 rps p95 38.08 ms cpu 36.406 ms/req rss 67.8 MiB
+05:38:35 open round 1/3 image next-start
+05:38:53   image-hit              ok    3744 rps p95 2.77 ms cpu 0.262 ms/req rss 357.1 MiB
+05:39:10   image-transform        ok      28 rps p95 51.30 ms cpu 48.505 ms/req rss 404.5 MiB
+05:39:11 open round 1/3 image p3c-i1
+05:39:29   image-hit              ok    3744 rps p95 0.21 ms cpu 0.052 ms/req rss 60.2 MiB
+05:39:46   image-transform        ok      28 rps p95 38.43 ms cpu 36.370 ms/req rss 66.1 MiB
+05:39:46 open round 1/3 mixed p3b-i1
+05:40:06   mixed                  ok     593 rps p95 7.63 ms cpu 1.387 ms/req rss 174.8 MiB
+05:40:07 open round 1/3 mixed p3c-i1
+05:40:26   mixed                  ok     593 rps p95 7.54 ms cpu 1.414 ms/req rss 170.3 MiB
+05:40:27 open round 1/3 mixed p3a-i1
+05:40:47   mixed                  ok     593 rps p95 7.52 ms cpu 1.396 ms/req rss 176.2 MiB
+05:40:47 open round 1/3 mixed next-start
+05:41:07   mixed                  ok     593 rps p95 5.99 ms cpu 1.114 ms/req rss 416.6 MiB
+05:41:07 open round 2/3 app p3b-i1
+05:41:25   ssr                    ok     310 rps p95 3.14 ms cpu 2.235 ms/req rss 186.4 MiB
+05:41:42   rsc                    ok     489 rps p95 1.51 ms cpu 1.196 ms/req rss 183.2 MiB
+05:41:59   action                 ok     601 rps p95 1.87 ms cpu 1.186 ms/req rss 188.4 MiB
+05:42:16   isr-hit                ok    1326 rps p95 1.07 ms cpu 0.594 ms/req rss 197.7 MiB
+05:42:17 open round 2/3 app next-start
+05:42:34   ssr                    ok     310 rps p95 12.62 ms cpu 2.495 ms/req rss 401.7 MiB
+05:42:51   rsc                    ok     489 rps p95 3.16 ms cpu 1.465 ms/req rss 429.5 MiB
+05:43:09   action                 ok     601 rps p95 6.17 ms cpu 1.246 ms/req rss 455.8 MiB
+05:43:26   isr-hit                ok    1327 rps p95 1.24 ms cpu 0.505 ms/req rss 464.1 MiB
+05:43:26 open round 2/3 app p3a-i1
+05:43:44   ssr                    ok     310 rps p95 3.58 ms cpu 2.363 ms/req rss 178 MiB
+05:44:01   rsc                    ok     489 rps p95 1.85 ms cpu 1.269 ms/req rss 172.2 MiB
+05:44:18   action                 ok     601 rps p95 2.01 ms cpu 1.212 ms/req rss 177.6 MiB
+05:44:35   isr-hit                ok    1327 rps p95 1.21 ms cpu 0.601 ms/req rss 192.1 MiB
+05:44:35 open round 2/3 app p3c-i1
+05:44:53   ssr                    ok     310 rps p95 3.31 ms cpu 2.324 ms/req rss 180.1 MiB
+05:45:10   rsc                    ok     489 rps p95 1.79 ms cpu 1.253 ms/req rss 177.4 MiB
+05:45:27   action                 ok     601 rps p95 2.04 ms cpu 1.226 ms/req rss 184 MiB
+05:45:45   isr-hit                ok    1326 rps p95 1.34 ms cpu 0.596 ms/req rss 198.4 MiB
+05:45:45 open round 2/3 cache-components next-start
+05:46:03   use-cache-hit          ok     221 rps p95 6.73 ms cpu 3.306 ms/req rss 406.9 MiB
+05:46:03 open round 2/3 cache-components p3a-i1
+05:46:20   use-cache-hit          ok     221 rps p95 7.34 ms cpu 3.284 ms/req rss 190.1 MiB
+05:46:21 open round 2/3 cache-components p3c-i1
+05:46:38   use-cache-hit          ok     221 rps p95 7.97 ms cpu 3.338 ms/req rss 189.5 MiB
+05:46:39 open round 2/3 cache-components p3b-i1
+05:46:56   use-cache-hit          ok     221 rps p95 7.30 ms cpu 3.288 ms/req rss 187.1 MiB
+05:46:56 open round 2/3 pages p3b-i1
+05:47:14   pages-ssr              ok     729 rps p95 5.26 ms cpu 0.997 ms/req rss 148.7 MiB
+05:47:31   pages-ssr-proxied      ok     439 rps p95 2.44 ms cpu 1.575 ms/req rss 153.2 MiB
+05:47:31 open round 2/3 pages p3a-i1
+05:47:48   pages-ssr              ok     729 rps p95 5.34 ms cpu 1.004 ms/req rss 143.1 MiB
+05:48:06   pages-ssr-proxied      ok     439 rps p95 2.34 ms cpu 1.562 ms/req rss 148.4 MiB
+05:48:06 open round 2/3 pages p3c-i1
+05:48:23   pages-ssr              ok     729 rps p95 4.99 ms cpu 0.964 ms/req rss 148.5 MiB
+05:48:40   pages-ssr-proxied      ok     439 rps p95 2.38 ms cpu 1.562 ms/req rss 152.6 MiB
+05:48:41 open round 2/3 pages next-start
+05:48:58   pages-ssr              ok     729 rps p95 4.16 ms cpu 1.024 ms/req rss 297.4 MiB
+05:49:15   pages-ssr-proxied      ok     439 rps p95 2.14 ms cpu 1.485 ms/req rss 362.5 MiB
+05:49:16 open round 2/3 image p3b-i1
+05:49:33   image-hit              ok    3744 rps p95 0.29 ms cpu 0.059 ms/req rss 60.7 MiB
+05:49:50   image-transform        ok      28 rps p95 44.45 ms cpu 36.797 ms/req rss 70.3 MiB
+05:49:51 open round 2/3 image next-start
+05:50:09   image-hit              ok    3743 rps p95 3.28 ms cpu 0.263 ms/req rss 359.4 MiB
+05:50:26   image-transform        ok      28 rps p95 51.81 ms cpu 48.932 ms/req rss 407.2 MiB
+05:50:26 open round 2/3 image p3a-i1
+05:50:44   image-hit              ok    3745 rps p95 0.22 ms cpu 0.056 ms/req rss 60 MiB
+05:51:01   image-transform        ok      28 rps p95 38.17 ms cpu 36.548 ms/req rss 66.8 MiB
+05:51:02 open round 2/3 image p3c-i1
+05:51:19   image-hit              ok    3744 rps p95 0.22 ms cpu 0.056 ms/req rss 60.3 MiB
+05:51:36   image-transform        ok      28 rps p95 37.82 ms cpu 36.370 ms/req rss 66.3 MiB
+05:51:37 open round 2/3 mixed next-start
+05:51:56   mixed                  ok     593 rps p95 6.01 ms cpu 1.180 ms/req rss 370.4 MiB
+05:51:57 open round 2/3 mixed p3a-i1
+05:52:17   mixed                  ok     593 rps p95 7.71 ms cpu 1.417 ms/req rss 171.5 MiB
+05:52:17 open round 2/3 mixed p3c-i1
+05:52:37   mixed                  ok     593 rps p95 7.67 ms cpu 1.428 ms/req rss 174.8 MiB
+05:52:38 open round 2/3 mixed p3b-i1
+05:52:57   mixed                  ok     593 rps p95 7.69 ms cpu 1.416 ms/req rss 173.9 MiB
+05:52:58 open round 3/3 app p3b-i1
+05:53:15   ssr                    ok     310 rps p95 3.22 ms cpu 2.295 ms/req rss 172.4 MiB
+05:53:32   rsc                    ok     489 rps p95 1.61 ms cpu 1.204 ms/req rss 171.3 MiB
+05:53:50   action                 ok     601 rps p95 1.83 ms cpu 1.211 ms/req rss 175.9 MiB
+05:54:07   isr-hit                ok    1326 rps p95 1.13 ms cpu 0.602 ms/req rss 194.7 MiB
+05:54:07 open round 3/3 app next-start
+05:54:25   ssr                    ok     310 rps p95 5.97 ms cpu 2.396 ms/req rss 402 MiB
+05:54:42   rsc                    ok     489 rps p95 2.00 ms cpu 1.396 ms/req rss 428.1 MiB
+05:54:59   action                 ok     601 rps p95 4.67 ms cpu 1.192 ms/req rss 459.5 MiB
+05:55:16   isr-hit                ok    1326 rps p95 0.85 ms cpu 0.482 ms/req rss 464.5 MiB
+05:55:17 open round 3/3 app p3c-i1
+05:55:34   ssr                    ok     310 rps p95 3.17 ms cpu 2.292 ms/req rss 178.3 MiB
+05:55:51   rsc                    ok     489 rps p95 1.61 ms cpu 1.200 ms/req rss 177.3 MiB
+05:56:08   action                 ok     601 rps p95 2.40 ms cpu 1.221 ms/req rss 183.8 MiB
+05:56:26   isr-hit                ok    1326 rps p95 1.11 ms cpu 0.592 ms/req rss 192.6 MiB
+05:56:26 open round 3/3 app p3a-i1
+05:56:43   ssr                    ok     310 rps p95 3.24 ms cpu 2.305 ms/req rss 166.7 MiB
+05:57:00   rsc                    ok     489 rps p95 1.65 ms cpu 1.210 ms/req rss 164.8 MiB
+05:57:18   action                 ok     601 rps p95 1.90 ms cpu 1.197 ms/req rss 170 MiB
+05:57:35   isr-hit                ok    1326 rps p95 1.20 ms cpu 0.596 ms/req rss 185.1 MiB
+05:57:35 open round 3/3 cache-components next-start
+05:57:53   use-cache-hit          ok     221 rps p95 6.58 ms cpu 3.311 ms/req rss 408.8 MiB
+05:57:53 open round 3/3 cache-components p3a-i1
+05:58:11   use-cache-hit          ok     221 rps p95 7.18 ms cpu 3.256 ms/req rss 189.5 MiB
+05:58:11 open round 3/3 cache-components p3b-i1
+05:58:28   use-cache-hit          ok     221 rps p95 7.50 ms cpu 3.297 ms/req rss 188.9 MiB
+05:58:29 open round 3/3 cache-components p3c-i1
+05:58:46   use-cache-hit          ok     221 rps p95 7.27 ms cpu 3.269 ms/req rss 188.5 MiB
+05:58:46 open round 3/3 pages p3c-i1
+05:59:04   pages-ssr              ok     729 rps p95 5.41 ms cpu 0.986 ms/req rss 144.6 MiB
+05:59:21   pages-ssr-proxied      ok     439 rps p95 2.85 ms cpu 1.571 ms/req rss 148.3 MiB
+05:59:21 open round 3/3 pages next-start
+05:59:39   pages-ssr              ok     729 rps p95 3.83 ms cpu 1.016 ms/req rss 291.1 MiB
+05:59:56   pages-ssr-proxied      ok     439 rps p95 1.90 ms cpu 1.450 ms/req rss 350.2 MiB
+05:59:56 open round 3/3 pages p3a-i1
+06:00:13   pages-ssr              ok     729 rps p95 5.57 ms cpu 1.015 ms/req rss 142.7 MiB
+06:00:31   pages-ssr-proxied      ok     439 rps p95 3.42 ms cpu 1.633 ms/req rss 150.2 MiB
+06:00:31 open round 3/3 pages p3b-i1
+06:00:48   pages-ssr              ok     729 rps p95 6.59 ms cpu 1.001 ms/req rss 151.8 MiB
+06:01:05   pages-ssr-proxied      ok     439 rps p95 2.79 ms cpu 1.621 ms/req rss 155.4 MiB
+06:01:06 open round 3/3 image next-start
+06:01:23   image-hit              ok    3744 rps p95 2.58 ms cpu 0.261 ms/req rss 358.4 MiB
+06:01:41   image-transform        ok      28 rps p95 51.81 ms cpu 48.612 ms/req rss 436.4 MiB
+06:01:41 open round 3/3 image p3b-i1
+06:01:59   image-hit              ok    3744 rps p95 0.26 ms cpu 0.058 ms/req rss 61 MiB
+06:02:16   image-transform        ok      28 rps p95 38.40 ms cpu 36.584 ms/req rss 70.4 MiB
+06:02:16 open round 3/3 image p3c-i1
+06:02:34   image-hit              ok    3744 rps p95 0.23 ms cpu 0.057 ms/req rss 59.5 MiB
+06:02:51   image-transform        ok      28 rps p95 40.45 ms cpu 36.726 ms/req rss 69.6 MiB
+06:02:51 open round 3/3 image p3a-i1
+06:03:09   image-hit              ok    3744 rps p95 0.23 ms cpu 0.056 ms/req rss 59.3 MiB
+06:03:26   image-transform        ok      28 rps p95 38.91 ms cpu 36.655 ms/req rss 66.8 MiB
+06:03:27 open round 3/3 mixed p3c-i1
+06:03:46   mixed                  ok     593 rps p95 7.70 ms cpu 1.421 ms/req rss 176.6 MiB
+06:03:47 open round 3/3 mixed next-start
+06:04:06   mixed                  ok     593 rps p95 5.98 ms cpu 1.150 ms/req rss 419.5 MiB
+06:04:07 open round 3/3 mixed p3b-i1
+06:04:27   mixed                  ok     593 rps p95 7.55 ms cpu 1.407 ms/req rss 173.6 MiB
+06:04:27 open round 3/3 mixed p3a-i1
+06:04:47   mixed                  ok     593 rps p95 7.52 ms cpu 1.402 ms/req rss 171.7 MiB
+06:04:48 done benchmarks/results/phase3c/final-bench-f5c480d/fixtures
