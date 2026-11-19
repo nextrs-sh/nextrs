@@ -71,6 +71,39 @@ pub fn version_support(version: &str) -> VersionSupport {
     }
 }
 
+/// The earliest Next.js 16 release with no published security advisory when
+/// this NextRS release was made (checked against GitHub's advisory database
+/// on 2026-11-19). Older 16.x builds start with a warning naming it: they
+/// include, among others, GHSA-673q-mjm6-r5xr (remote code execution through
+/// `use cache`, fixed in 16.4.1) and GHSA-mfr8-8qww-v76h and
+/// GHSA-vc7v-qv4w-wrv8 (`use cache` data across root params, fixed in
+/// 16.4.5). NextRS runs Next's compiled handlers, so it inherits them.
+pub const NEXT_SECURITY_BASELINE: (u64, u64, u64) = (16, 4, 5);
+
+/// Whether a Next.js 16 version string is older than
+/// [`NEXT_SECURITY_BASELINE`]. Other majors and unparsable strings are
+/// not judged here (the version check handles them).
+pub fn below_security_baseline(version: &str) -> bool {
+    let version = version.trim().trim_start_matches('v');
+    let mut parts = version.split('.').map(|p| {
+        p.split(|c: char| !c.is_ascii_digit())
+            .next()
+            .unwrap_or("")
+            .parse::<u64>()
+            .ok()
+    });
+    match (
+        parts.next().flatten(),
+        parts.next().flatten(),
+        parts.next().flatten(),
+    ) {
+        (Some(major), Some(minor), patch) if major == NEXT_SECURITY_BASELINE.0 => {
+            (minor, patch.unwrap_or(0)) < (NEXT_SECURITY_BASELINE.1, NEXT_SECURITY_BASELINE.2)
+        }
+        _ => false,
+    }
+}
+
 /// The diagnostic code for a build of an unsupported Next.js version.
 pub const UNSUPPORTED_VERSION_CODE: &str = "unsupported-next-version";
 
@@ -211,6 +244,19 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
 
     if next_version.is_none() {
         next_version = detect_version(&project_dir, &dist_dir);
+    }
+    if let Some(v) = &next_version
+        && below_security_baseline(&v.version)
+    {
+        let (major, minor, patch) = NEXT_SECURITY_BASELINE;
+        diagnostics.push(Diagnostic {
+            severity: Severity::Warning,
+            code: "next-version-has-advisories",
+            message: format!(
+                "Next.js {} (from {}) is older than {major}.{minor}.{patch}, and published                  Next.js security advisories affect it; NextRS runs Next's own handlers, so                  they apply here too. Rebuild with Next.js {major}.{minor}.{patch} or later",
+                v.version, v.source
+            ),
+        });
     }
     match &next_version {
         Some(v) => match version_support(&v.version) {
@@ -1112,6 +1158,33 @@ mod version_support_tests {
         }
         // "16.40" is not the 16.4 line.
         assert_eq!(version_support("16.40.0"), VersionSupport::Untested);
+    }
+
+    #[test]
+    fn versions_below_the_security_baseline_are_flagged() {
+        for v in [
+            "16.0.0",
+            "16.3.9",
+            "16.4.0",
+            "16.4.4",
+            "v16.4.4",
+            "16.4.4-canary.9",
+        ] {
+            assert!(below_security_baseline(v), "{v}");
+        }
+        for v in [
+            "16.4.5",
+            "16.4.6",
+            "16.4.10",
+            "16.5.0",
+            "16.5.0-canary.3",
+            "15.5.12",
+            "17.0.0",
+            "",
+            "latest",
+        ] {
+            assert!(!below_security_baseline(v), "{v}");
+        }
     }
 
     #[test]
