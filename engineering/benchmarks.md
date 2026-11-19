@@ -167,6 +167,20 @@ and the `-open` variant.
   transformations to bound memory: anonymous RSS is 33 MiB against
   396 MiB. At an equal offered rate, NextRS has the lower p95 (36.6 vs
   50.5 ms).
+
+  **The gap is the default worker count, not the transform.** Phase 3D
+  re-measured on the same 4 server CPUs, with the RC binary
+  ([`benchmarks/results/phase3d/image-capacity`](../benchmarks/results/phase3d/image-capacity)).
+
+  | Server | `--image-concurrency` | Images/s | CPU per image |
+  |---|---|---|---|
+  | NextRS | 2 (the default, half the CPUs) | 56 | 36.3 ms |
+  | NextRS | 4 | **108** | 36.6 ms |
+  | `next start` | — | 81–84 | 46.0 ms |
+
+  A Phase 3C comparison of 2, 3 and 6 workers had reported no scaling. Its
+  harness dropped the `--args` value, so every configuration ran the
+  default; the bug is fixed in `run.mjs`.
 - **Pages SSR latency at low load.** `/ssr/whoami` awaits
   `setTimeout(resolve, 0)` in `getServerSideProps`. At 708 req/s, NextRS's
   p50 is about 1 ms higher (3.5 vs 2.5 ms), and its p95 is 5.1 vs 3.1 ms,

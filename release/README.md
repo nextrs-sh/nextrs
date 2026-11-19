@@ -268,6 +268,22 @@ instant can be reset.
 | `--image-max-input-pixels` | 64,000,000 | Larger sources are served unchanged |
 | `--image-timeout` | the build's `imgOptTimeoutInSeconds` (7 s) | Then the source is served unchanged |
 
+**Throughput.** The default leaves half the CPUs for rendering. Image
+transformation throughput scales with `--image-concurrency` until the CPUs
+are busy. The measured rates for a 1600×1200 JPEG to 640 px WebP, on 4
+CPUs, were:
+
+| Server | Workers | Images/s |
+|---|---|---|
+| NextRS | 2 | 56 |
+| NextRS | 4 | 108 |
+| `next start` with `sharp` | — | 81–84 |
+
+- **When to raise it.** Do so for image-heavy sites with idle CPU.
+- **What it costs.** Raising it lets transforms compete with server
+  rendering for CPU.
+- **Memory.** It stays bounded by `--image-memory-budget` either way.
+
 The build's `images` configuration applies unchanged: `remotePatterns`,
 `localPatterns`, sizes, qualities, formats and `dangerouslyAllowSVG`.
 
@@ -422,8 +438,10 @@ NextRS does not claim compatibility with every Next.js application.
 6. **Forwarded headers are permissive by default** (§8).
 7. **Pages Router tail latency.** Proxied Pages Router p99 is higher than
    Phase 2G's under open-loop load, a measured GC trade-off.
-8. **Image transformation throughput** is about 0.67× of `sharp` on the
-   measured workload. The defaults favour bounded memory.
+8. **Image transformation throughput at the defaults** is about 0.67× of
+   `sharp`'s, because `--image-concurrency` defaults to half the CPUs.
+   - Each transformation costs about 20 % less CPU than with `sharp`.
+   - At one worker per CPU, NextRS measured 1.3× `next start`'s rate (§10).
 9. **No access log or request ID** in v0.1.0.
 10. **Single-machine evidence.** All performance and soak evidence comes
     from one x86_64 machine.
