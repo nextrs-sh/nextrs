@@ -68,8 +68,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
-nextrs="$root/target/release/nextrs"
-[[ -x "$nextrs" ]] || { echo "build target/release/nextrs first" >&2; exit 2; }
+# NEXTRS_BIN runs the suites against another binary (a release artifact).
+nextrs="${NEXTRS_BIN:-$root/target/release/nextrs}"
+[[ -x "$nextrs" ]] || { echo "build target/release/nextrs first (or set NEXTRS_BIN)" >&2; exit 2; }
 [[ -n "$next_version" ]] && work="$(mktemp -d)"
 out="${out:-$(mktemp -d)}"
 mkdir -p "$out"
