@@ -1,0 +1,408 @@
+{
+ "minutes": 360,
+ "concurrency": 24,
+ "seconds": 22207.981,
+ "totals": {
+  "requests": 16324327,
+  "ok": 16047586,
+  "retriedTransport": 0,
+  "ambiguousMutations": 0,
+  "unexpected": 0,
+  "rejected503": 10998,
+  "lostToRestart": 113,
+  "rejectedDuringRestart": 18,
+  "identityLeaks": 0,
+  "wrongContent": 0,
+  "aborted": 265612,
+  "injections": 71
+ },
+ "accountedExactlyOnce": true,
+ "mutations": {
+  "sent": 444992,
+  "acknowledged": 444984,
+  "acknowledgedMissing": 0,
+  "lost": 8,
+  "lostApplied": 1,
+  "ambiguous": 0,
+  "ambiguousApplied": 0,
+  "duplicates": 0
+ },
+ "client": {
+  "idleRetireMs": 15000,
+  "retries": 0,
+  "retryLog": [],
+  "captured": 0
+ },
+ "loadSeconds": 21600.056,
+ "idleMinutes": 10,
+ "throughput": 755.8,
+ "latency": {
+  "p50": 8.4,
+  "p95": 117.7,
+  "p99": 445.7
+ },
+ "kinds": {
+  "img-hit": {
+   "count": 3267445,
+   "errors": 0,
+   "statuses": {
+    "200": 3267445
+   },
+   "cache": {
+    "MISS": 20,
+    "HIT": 3126330,
+    "STALE": 141095
+   },
+   "p50": 3.2,
+   "p95": 17.9,
+   "p99": 37
+  },
+  "img-miss": {
+   "count": 1781174,
+   "errors": 0,
+   "statuses": {
+    "200": 1778623,
+    "503": 2551
+   },
+   "cache": {
+    "MISS": 189019,
+    "HIT": 367349,
+    "STALE": 1222255
+   },
+   "p50": 4.1,
+   "p95": 361.5,
+   "p99": 642
+  },
+  "img-large": {
+   "count": 445062,
+   "errors": 0,
+   "statuses": {
+    "200": 445062
+   },
+   "cache": {
+    "MISS": 36,
+    "HIT": 255792,
+    "STALE": 189234
+   },
+   "p50": 3.4,
+   "p95": 18.6,
+   "p99": 37.7
+  },
+  "img-remote": {
+   "count": 890084,
+   "errors": 0,
+   "statuses": {
+    "200": 882023,
+    "503": 8061
+   },
+   "cache": {
+    "MISS": 535428,
+    "HIT": 345841,
+    "STALE": 754
+   },
+   "p50": 183.6,
+   "p95": 699.3,
+   "p99": 1237.8
+  },
+  "img-avif": {
+   "count": 446134,
+   "errors": 0,
+   "statuses": {
+    "200": 446134
+   },
+   "cache": {
+    "MISS": 49,
+    "STALE": 208613,
+    "HIT": 237472
+   },
+   "p50": 3.1,
+   "p95": 17.8,
+   "p99": 37.2
+  },
+  "img-abort": {
+   "count": 296081,
+   "errors": 0,
+   "statuses": {
+    "0": 55407,
+    "200": 240288,
+    "503": 386
+   },
+   "cache": {
+    "HIT": 56178,
+    "STALE": 183817,
+    "MISS": 293
+   },
+   "p50": 7.7,
+   "p95": 48.1,
+   "p99": 66.5
+  },
+  "app-ssr": {
+   "count": 1185822,
+   "errors": 0,
+   "statuses": {
+    "200": 1185801,
+    "502": 20,
+    "503": 1
+   },
+   "cache": {},
+   "p50": 16.3,
+   "p95": 87.7,
+   "p99": 163.6
+  },
+  "app-ssr-abort": {
+   "count": 295956,
+   "errors": 0,
+   "statuses": {
+    "0": 210205,
+    "200": 85751
+   },
+   "cache": {},
+   "p50": 11.9,
+   "p95": 28.3,
+   "p99": 48.5
+  },
+  "app-action": {
+   "count": 593570,
+   "errors": 0,
+   "statuses": {
+    "200": 593553,
+    "502": 16,
+    "503": 1
+   },
+   "cache": {
+    "HIT": 593553
+   },
+   "p50": 16.7,
+   "p95": 89.6,
+   "p99": 160.4
+  },
+  "app-isr": {
+   "count": 445753,
+   "errors": 0,
+   "statuses": {
+    "200": 445750,
+    "502": 3
+   },
+   "cache": {
+    "HIT": 429879,
+    "STALE": 15871
+   },
+   "p50": 7.2,
+   "p95": 58.3,
+   "p99": 130.2
+  },
+  "app-proxy": {
+   "count": 445612,
+   "errors": 0,
+   "statuses": {
+    "200": 445608,
+    "502": 3,
+    "503": 1
+   },
+   "cache": {},
+   "p50": 18.1,
+   "p95": 99.9,
+   "p99": 170.5
+  },
+  "pages-ssr": {
+   "count": 1039557,
+   "errors": 0,
+   "statuses": {
+    "200": 1039537,
+    "502": 16,
+    "503": 4
+   },
+   "cache": {},
+   "p50": 8.1,
+   "p95": 62.3,
+   "p99": 137.8
+  },
+  "pages-data": {
+   "count": 593064,
+   "errors": 0,
+   "statuses": {
+    "200": 593055,
+    "502": 9
+   },
+   "cache": {},
+   "p50": 6.9,
+   "p95": 59.2,
+   "p99": 133.6
+  },
+  "pages-ssg": {
+   "count": 593354,
+   "errors": 0,
+   "statuses": {
+    "200": 593351,
+    "502": 2,
+    "503": 1
+   },
+   "cache": {
+    "HIT": 593351
+   },
+   "p50": 7.1,
+   "p95": 60.1,
+   "p99": 134
+  },
+  "pages-isr": {
+   "count": 444328,
+   "errors": 0,
+   "statuses": {
+    "200": 444327,
+    "502": 1
+   },
+   "cache": {
+    "STALE": 75,
+    "HIT": 444252
+   },
+   "p50": 6.8,
+   "p95": 58,
+   "p99": 129
+  },
+  "pages-api-get": {
+   "count": 592986,
+   "errors": 0,
+   "statuses": {
+    "200": 592982,
+    "502": 3,
+    "503": 1
+   },
+   "cache": {},
+   "p50": 7,
+   "p95": 60.5,
+   "p99": 133.5
+  },
+  "pages-api-post": {
+   "count": 444992,
+   "errors": 0,
+   "statuses": {
+    "200": 444984,
+    "502": 6,
+    "503": 2
+   },
+   "cache": {},
+   "p50": 11,
+   "p95": 73.6,
+   "p99": 145.8
+  },
+  "pages-preview": {
+   "count": 297691,
+   "errors": 0,
+   "statuses": {
+    "200": 297681,
+    "502": 8,
+    "503": 2
+   },
+   "cache": {
+    "HIT": 297681
+   },
+   "p50": 97,
+   "p95": 176.5,
+   "p99": 231
+  },
+  "pages-preview-off": {
+   "count": 297030,
+   "errors": 0,
+   "statuses": {
+    "200": 297029,
+    "503": 1
+   },
+   "cache": {
+    "HIT": 297029
+   },
+   "p50": 6.5,
+   "p95": 56.3,
+   "p99": 127.4
+  },
+  "pages-secure-anon": {
+   "count": 296789,
+   "errors": 0,
+   "statuses": {
+    "307": 296785,
+    "502": 4
+   },
+   "cache": {},
+   "p50": 6.1,
+   "p95": 47.9,
+   "p99": 118.1
+  },
+  "pages-secure-session": {
+   "count": 148654,
+   "errors": 0,
+   "statuses": {
+    "200": 148649,
+    "502": 2,
+    "503": 3
+   },
+   "cache": {},
+   "p50": 9.8,
+   "p95": 78.8,
+   "p99": 144.7
+  },
+  "pages-revalidate": {
+   "count": 148617,
+   "errors": 0,
+   "statuses": {
+    "200": 148596,
+    "500": 10,
+    "502": 10,
+    "503": 1
+   },
+   "cache": {},
+   "p50": 17.2,
+   "p95": 183.2,
+   "p99": 927.2
+  },
+  "locale-redirect": {
+   "count": 296600,
+   "errors": 0,
+   "statuses": {
+    "307": 296600
+   },
+   "cache": {},
+   "p50": 3.2,
+   "p95": 20.6,
+   "p99": 41.7
+  },
+  "locale-ssr": {
+   "count": 593681,
+   "errors": 0,
+   "statuses": {
+    "200": 593681
+   },
+   "cache": {},
+   "p50": 7.9,
+   "p95": 29,
+   "p99": 51.6
+  },
+  "locale-data": {
+   "count": 296419,
+   "errors": 0,
+   "statuses": {
+    "200": 296419
+   },
+   "cache": {
+    "HIT": 296418,
+    "MISS": 1
+   },
+   "p50": 5.4,
+   "p95": 24.2,
+   "p99": 46.2
+  },
+  "locale-404": {
+   "count": 147872,
+   "errors": 0,
+   "statuses": {
+    "404": 147872
+   },
+   "cache": {
+    "HIT": 147872
+   },
+   "p50": 5.3,
+   "p95": 24.4,
+   "p99": 47.6
+  }
+ },
+ "errors": [],
+ "samples": 741
+}

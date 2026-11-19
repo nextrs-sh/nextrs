@@ -1,0 +1,282 @@
+{
+ "minutes": 0,
+ "concurrency": 24,
+ "seconds": 0.007,
+ "totals": {
+  "requests": 0,
+  "ok": 0,
+  "retriedTransport": 0,
+  "ambiguousMutations": 0,
+  "unexpected": 0,
+  "rejected503": 0,
+  "lostToRestart": 0,
+  "rejectedDuringRestart": 0,
+  "identityLeaks": 0,
+  "wrongContent": 0,
+  "aborted": 0,
+  "injections": 0
+ },
+ "accountedExactlyOnce": true,
+ "mutations": {
+  "sent": 0,
+  "acknowledged": 0,
+  "acknowledgedMissing": 0,
+  "lost": 0,
+  "lostApplied": 0,
+  "ambiguous": 0,
+  "ambiguousApplied": 0,
+  "duplicates": 0
+ },
+ "client": {
+  "idleRetireMs": 15000,
+  "retries": 0,
+  "retryLog": [],
+  "captured": 0
+ },
+ "loadSeconds": 0.005,
+ "idleMinutes": 0,
+ "throughput": 0,
+ "latency": {
+  "p50": null,
+  "p95": null,
+  "p99": null
+ },
+ "kinds": {
+  "img-hit": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "img-miss": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "img-large": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "img-remote": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "img-avif": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "img-abort": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "app-ssr": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "app-ssr-abort": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "app-action": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "app-isr": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "app-proxy": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-ssr": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-data": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-ssg": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-isr": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-api-get": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-api-post": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-preview": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-preview-off": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-secure-anon": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-secure-session": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "pages-revalidate": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "locale-redirect": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "locale-ssr": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "locale-data": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  },
+  "locale-404": {
+   "count": 0,
+   "errors": 0,
+   "statuses": {},
+   "cache": {},
+   "p50": null,
+   "p95": null,
+   "p99": null
+  }
+ },
+ "errors": [],
+ "samples": 2
+}
