@@ -24,6 +24,10 @@ same build.
   16.4.3.
 - **Version policy at startup:**
   - a 16.4.x build runs;
+  - a 16.x build older than 16.4.5 (one made before Next refused to build
+    those versions) also starts with a `next-version-has-advisories`
+    warning: published Next.js advisories affect it, and NextRS runs Next's
+    own handlers;
   - another 16.x minor starts with an `untested-next-version` warning;
   - a build of another major, such as 15.x, is refused with
     `unsupported-next-version`, which names the version and where it was
@@ -204,18 +208,20 @@ with Server Actions, ISR or a proxy is refused at startup (unless
   entries and revalidated tags survive a restart with `--cache-dir`, where
   `next start` forgets its tags and `"use cache"` entries. Module state is
   per isolate.
-- **Outbound fetch gaps:** no `data:` URLs, custom CAs, client certificates,
-  proxies or HTTP/2. A fetch still open when its request ends is detached
+- **Outbound fetch gaps:** no `data:` URLs, client certificates, proxies or
+  HTTP/2. Private certificate authorities are added with `--net-ca-file`. A fetch still open when its request ends is detached
   (a shared or background fetch completes) and aborted after a grace as
   long as the request's deadline; a response body nobody started to read
   is released when its request's handler finishes.
 - **Node.js API coverage:** NextRS provides a narrow Node.js layer. Node's
-  network modules (`http`, `https`, `net`, `dns`; use `fetch`), `zlib`,
-  `child_process`, `worker_threads`, `vm` and native addons are
-  unavailable, and so are database drivers that need TCP sockets (Auth.js
-  database adapters, email providers). Web Crypto has no ECDH, RSA-OAEP,
-  AES-KW, PBKDF2, `deriveKey` or key wrapping, no P-521 (ES512), no RSA key
-  generation, and refuses RSA keys under 2048 bits.
+  network modules (`http`, `https`, `net`, `dns`; use `fetch`), `zlib`
+  streams and Brotli (the one-shot deflate, inflate, gzip, gunzip and unzip
+  codecs work), `child_process`, `worker_threads`, `vm` and native addons
+  are unavailable, and so are database drivers that need TCP sockets
+  (Auth.js database adapters, email providers). Web Crypto has PBKDF2
+  (`deriveBits` from a raw key) but no ECDH, RSA-OAEP, AES-KW, `deriveKey`
+  or key wrapping, no P-521 (ES512), no RSA key generation, and refuses RSA
+  keys under 2048 bits.
 - **Proxy limits:** edge-runtime middleware and `skipProxyUrlNormalize`
   are refused. A request body that reaches the proxy
   is buffered for the proxy and the route; above `proxyClientMaxBodySize`
