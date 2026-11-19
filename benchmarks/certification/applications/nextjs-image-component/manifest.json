@@ -1,0 +1,162 @@
+{
+  "repository": "https://github.com/vercel/next.js.git",
+  "commit": "54b876b6b161b0ecda19562eb264bec637e60d6d",
+  "ref": "v16.4.6",
+  "install": [
+    "npm",
+    "install",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "installNote": "No lockfile; next@latest (16.4.6 when installed, 2026-11-17). Resolved versions in build.json.",
+  "build": [
+    "node",
+    "node_modules/next/dist/bin/next",
+    "build"
+  ],
+  "health": "/",
+  "mask": [],
+  "name": "nextjs-image-component",
+  "description": "Vercel's image-component example: next/image layouts (responsive, fill, placeholder, shimmer, color, background, theme) with local and remote sources. Independently maintained by the Next.js team.",
+  "pattern": "next/image showcase (App Router)",
+  "subdir": "examples/image-component",
+  "scenarios": [
+    {
+      "name": "home",
+      "path": "/",
+      "expect": {
+        "status": 200,
+        "contains": [
+          "Image Component with Next.js"
+        ]
+      },
+      "extract": {
+        "media": "url=%2F_next%2Fstatic%2Fmedia%2F([^&\"]+)"
+      }
+    },
+    {
+      "name": "page-responsive",
+      "path": "/responsive",
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "name": "page-fill",
+      "path": "/fill",
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "name": "page-placeholder",
+      "path": "/placeholder",
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "name": "page-shimmer",
+      "path": "/shimmer",
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "name": "page-color",
+      "path": "/color",
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "name": "page-background",
+      "path": "/background",
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "name": "page-theme",
+      "path": "/theme",
+      "expect": {
+        "status": 200
+      }
+    },
+    {
+      "name": "optimize-static-import",
+      "path": "/_next/image?url=%2F_next%2Fstatic%2Fmedia%2F{{media}}&w=640&q=75",
+      "headers": {
+        "accept": "image/webp,*/*"
+      },
+      "expect": {
+        "status": 200,
+        "header": {
+          "content-type": "image/webp"
+        }
+      },
+      "bodyMayDiffer": true,
+      "bodyMayDifferNote": "Encoded image bytes differ by encoder (NextRS's Rust codecs vs sharp); status and content type are compared, and the browser check verifies each image decodes."
+    },
+    {
+      "name": "optimize-public-jpeg",
+      "path": "/_next/image?url=%2Fmountains.jpg&w=1080&q=75",
+      "headers": {
+        "accept": "image/webp,*/*"
+      },
+      "expect": {
+        "status": 200,
+        "header": {
+          "content-type": "image/webp"
+        }
+      },
+      "bodyMayDiffer": true,
+      "bodyMayDifferNote": "Encoded image bytes differ by encoder (NextRS's Rust codecs vs sharp); status and content type are compared, and the browser check verifies each image decodes."
+    },
+    {
+      "name": "optimize-public-no-webp",
+      "path": "/_next/image?url=%2Fcat.jpg&w=384&q=75",
+      "headers": {
+        "accept": "*/*"
+      },
+      "expect": {
+        "status": 200,
+        "header": {
+          "content-type": "image/jpeg"
+        }
+      },
+      "bodyMayDiffer": true,
+      "bodyMayDifferNote": "Encoded image bytes differ by encoder (NextRS's Rust codecs vs sharp); status and content type are compared, and the browser check verifies each image decodes."
+    },
+    {
+      "name": "width-not-allowed",
+      "path": "/_next/image?url=%2Fdog.jpg&w=123&q=75",
+      "expect": {
+        "status": 400
+      }
+    },
+    {
+      "name": "remote-host-not-allowed",
+      "path": "/_next/image?url=https%3A%2F%2Fevil.example%2Fx.png&w=640&q=75",
+      "expect": {
+        "status": 400
+      }
+    },
+    {
+      "name": "missing-url",
+      "path": "/_next/image?w=640&q=75",
+      "expect": {
+        "status": 400
+      }
+    }
+  ],
+  "buildRewrites": [
+    "examples/image-component/tsconfig.json"
+  ],
+  "buildRewritesNote": "next build's verifyTypeScriptSetup rewrites tsconfig.json (moduleResolution 'bundler', target, .next type includes); recorded in build.json.",
+  "nextrsArgs": [
+    "--net-allow",
+    "https://assets.vercel.com"
+  ],
+  "nextrsArgsNote": "The app's remotePatterns name assets.vercel.com; NextRS denies outbound fetch unless allowed (next start fetches anything)."
+}

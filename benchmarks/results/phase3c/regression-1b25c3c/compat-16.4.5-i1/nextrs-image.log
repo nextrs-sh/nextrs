@@ -1,0 +1,115 @@
+[2m2026-11-18T02:51:12.507250Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T02:51:12.508579Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5486, https://localhost:5487, https://127.0.0.1:5487, https://localhost:5488, http://127.0.0.1:5489
+[2m2026-11-18T02:51:12.508610Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-18T02:51:12.564952Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T02:51:12.564987Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T02:51:12.637653Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m128
+[2m2026-11-18T02:51:12.637683Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m130 [3misolates[0m[2m=[0m1
+[2m2026-11-18T02:51:12.638059Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m2 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-18T02:51:12.643363Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5483 [3mbuild_id[0m[2m=[0mxaUwG4_-EOaG-ThChD49U [3mready_ms[0m[2m=[0m136
+[2m2026-11-18T02:51:13.448932Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:51:13.452468Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:51:13.455985Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:51:17.115007Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized; serving the source [3mhref[0m[2m=[0m/photos/photo.tiff [3merror[0m[2m=[0mdecode failed: The decoder for Tiff does not support the format features Unhandled TIFF color type YCbCr(8) for 8 bits
+[2m2026-11-18T02:51:17.940003Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized; serving the source [3mhref[0m[2m=[0m/photos/corrupt.jpg [3merror[0m[2m=[0mdecode failed: Format error decoding Jpeg: I/O errors Not enough bytes, expected 1 but found 0
+
+[2m2026-11-18T02:51:17.949836Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized; serving the source [3mhref[0m[2m=[0m/photos/truncated.png [3merror[0m[2m=[0mdecode failed: unexpected end of file
+[2m2026-11-18T02:51:19.878800Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized: it would need more than the whole image memory budget; serving the source [3mhref[0m[2m=[0m/photos/bomb.png [3mestimate_mib[0m[2m=[0m1215 [3mbudget_mib[0m[2m=[0m1024
+[2m2026-11-18T02:51:24.747395Z[0m [31mERROR[0m [2mnextrs_server::image[0m[2m:[0m the requested resource isn't a valid image [3mhref[0m[2m=[0m/photos/not-an-image.png
+[2m2026-11-18T02:51:24.750168Z[0m [31mERROR[0m [2mnextrs_server::image[0m[2m:[0m the requested resource isn't a valid image [3mhref[0m[2m=[0m/photos/document.pdf
+[2m2026-11-18T02:51:24.797288Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized; serving the source [3mhref[0m[2m=[0m/photos/photo.avif [3merror[0m[2m=[0mdecode failed: The image format Avif is not supported
+[2m2026-11-18T02:51:37.294361Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response had too many redirects [3morigin[0m[2m=[0mhttp://127.0.0.1:5486
+[2m2026-11-18T02:51:37.299338Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response had too many redirects [3morigin[0m[2m=[0mhttp://127.0.0.1:5486
+[2m2026-11-18T02:51:37.302507Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response failed [3morigin[0m[2m=[0mhttp://127.0.0.1:5486 [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:51:37.305109Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response failed [3morigin[0m[2m=[0mhttp://127.0.0.1:5486 [3mstatus[0m[2m=[0m503
+[2m2026-11-18T02:51:37.307965Z[0m [31mERROR[0m [2mnextrs_server::image[0m[2m:[0m the requested resource isn't a valid image [3mhref[0m[2m=[0mhttp://127.0.0.1:5486/img/text.jpg?n=29335-1794970273164
+[2m2026-11-18T02:51:37.310628Z[0m [31mERROR[0m [2mnextrs_server::image[0m[2m:[0m the requested resource isn't a valid image [3mhref[0m[2m=[0mhttp://127.0.0.1:5486/img/html.jpg?n=29335-1794970273164
+[2m2026-11-18T02:51:37.318572Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized; serving the source [3mhref[0m[2m=[0mhttp://127.0.0.1:5486/img/corrupt.jpg?n=29335-1794970273164 [3merror[0m[2m=[0mdecode failed: Format error decoding Jpeg: I/O errors Not enough bytes, expected 1 but found 0
+
+[2m2026-11-18T02:51:37.429881Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response exceeded maximum size [3morigin[0m[2m=[0mhttp://127.0.0.1:5486
+[2m2026-11-18T02:51:38.442881Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image request failed [3morigin[0m[2m=[0mhttp://127.0.0.1:5486 [3merror[0m[2m=[0merror sending request: client error (SendRequest): connection closed before message completed
+[2m2026-11-18T02:51:52.445656Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response timed out [3morigin[0m[2m=[0mhttp://127.0.0.1:5486
+[2m2026-11-18T02:52:06.457773Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response timed out [3morigin[0m[2m=[0mhttp://127.0.0.1:5486
+[2m2026-11-18T02:52:06.491720Z[0m [33m WARN[0m [2mnextrs_server::image::fetch[0m[2m:[0m remote image refused by the network policy [3morigin[0m[2m=[0mhttp://127.0.0.1:5486 [3merror[0m[2m=[0mURLs with credentials are not allowed
+[2m2026-11-18T02:52:06.521096Z[0m [33m WARN[0m [2mnextrs_server::image::fetch[0m[2m:[0m remote image refused by the network policy [3morigin[0m[2m=[0mhttp://127.0.0.2:5486 [3merror[0m[2m=[0mhttp://127.0.0.2:5486 is not allowed by the NextRS network policy
+[2m2026-11-18T02:52:06.552396Z[0m [33m WARN[0m [2mnextrs_server::image::fetch[0m[2m:[0m remote image refused by the network policy [3morigin[0m[2m=[0mhttp://localhost:5486 [3merror[0m[2m=[0mhttp://localhost:5486 is not allowed by the NextRS network policy
+[2m2026-11-18T02:52:06.553626Z[0m [33m WARN[0m [2mnextrs_server::image::fetch[0m[2m:[0m remote image refused by the network policy [3morigin[0m[2m=[0mhttp://169.254.169.254 [3merror[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-18T02:52:16.862985Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image request failed [3morigin[0m[2m=[0mhttps://localhost:5488 [3merror[0m[2m=[0merror sending request: client error (Connect): invalid peer certificate: UnknownIssuer
+[2m2026-11-18T02:52:16.870350Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image request failed [3morigin[0m[2m=[0mhttps://127.0.0.1:5487 [3merror[0m[2m=[0merror sending request: client error (Connect): invalid peer certificate: certificate not valid for name "127.0.0.1"; certificate is only valid for DnsName("localhost")
+[2m2026-11-18T02:52:16.976551Z[0m [33m WARN[0m [2mnextrs_server::image::fetch[0m[2m:[0m remote image refused by the network policy [3morigin[0m[2m=[0mhttps://127.0.0.2:5487 [3merror[0m[2m=[0mhttps://127.0.0.2:5487 is not allowed by the NextRS network policy
+[2m2026-11-18T02:52:17.002947Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response exceeded maximum size [3morigin[0m[2m=[0mhttps://localhost:5487
+[2m2026-11-18T02:52:31.007464Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response timed out [3morigin[0m[2m=[0mhttps://localhost:5487
+[2m2026-11-18T02:52:35.121394Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m74 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T02:52:35.121532Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T02:52:35.151963Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-18T02:52:40.002041Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T02:52:40.003324Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5486, https://localhost:5487, https://127.0.0.1:5487, https://localhost:5488, http://127.0.0.1:5489
+[2m2026-11-18T02:52:40.003349Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-18T02:52:40.057947Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T02:52:40.057983Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T02:52:40.130060Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m126
+[2m2026-11-18T02:52:40.130087Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m127 [3misolates[0m[2m=[0m1
+[2m2026-11-18T02:52:40.130344Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m2 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-18T02:52:40.134490Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5483 [3mbuild_id[0m[2m=[0mp0OV81G9-HiTHim8Upk4R [3mready_ms[0m[2m=[0m132
+[2m2026-11-18T02:52:40.702764Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:52:40.706488Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:52:40.709854Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:52:40.716657Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:52:40.719986Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:52:40.723286Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:52:40.726556Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:52:40.729864Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:52:40.733231Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:52:40.736086Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m internal image response failed [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:52:40.740016Z[0m [31mERROR[0m [2mnextrs_server::image[0m[2m:[0m the requested resource isn't a valid image [3mhref[0m[2m=[0m/base/second
+[2m2026-11-18T02:52:44.338703Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized; serving the source [3mhref[0m[2m=[0m/base/photos/photo.tiff [3merror[0m[2m=[0mdecode failed: The decoder for Tiff does not support the format features Unhandled TIFF color type YCbCr(8) for 8 bits
+[2m2026-11-18T02:52:45.167284Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized; serving the source [3mhref[0m[2m=[0m/base/photos/corrupt.jpg [3merror[0m[2m=[0mdecode failed: Format error decoding Jpeg: I/O errors Not enough bytes, expected 1 but found 0
+
+[2m2026-11-18T02:52:45.176815Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized; serving the source [3mhref[0m[2m=[0m/base/photos/truncated.png [3merror[0m[2m=[0mdecode failed: unexpected end of file
+[2m2026-11-18T02:52:47.089043Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized: it would need more than the whole image memory budget; serving the source [3mhref[0m[2m=[0m/base/photos/bomb.png [3mestimate_mib[0m[2m=[0m1215 [3mbudget_mib[0m[2m=[0m1024
+[2m2026-11-18T02:52:51.958777Z[0m [31mERROR[0m [2mnextrs_server::image[0m[2m:[0m the requested resource isn't a valid image [3mhref[0m[2m=[0m/base/photos/not-an-image.png
+[2m2026-11-18T02:52:51.961426Z[0m [31mERROR[0m [2mnextrs_server::image[0m[2m:[0m the requested resource isn't a valid image [3mhref[0m[2m=[0m/base/photos/document.pdf
+[2m2026-11-18T02:52:52.009079Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized; serving the source [3mhref[0m[2m=[0m/base/photos/photo.avif [3merror[0m[2m=[0mdecode failed: The image format Avif is not supported
+[2m2026-11-18T02:53:04.460289Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response had too many redirects [3morigin[0m[2m=[0mhttp://127.0.0.1:5486
+[2m2026-11-18T02:53:04.465356Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response had too many redirects [3morigin[0m[2m=[0mhttp://127.0.0.1:5486
+[2m2026-11-18T02:53:04.467964Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response failed [3morigin[0m[2m=[0mhttp://127.0.0.1:5486 [3mstatus[0m[2m=[0m404
+[2m2026-11-18T02:53:04.470359Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response failed [3morigin[0m[2m=[0mhttp://127.0.0.1:5486 [3mstatus[0m[2m=[0m503
+[2m2026-11-18T02:53:04.473156Z[0m [31mERROR[0m [2mnextrs_server::image[0m[2m:[0m the requested resource isn't a valid image [3mhref[0m[2m=[0mhttp://127.0.0.1:5486/img/text.jpg?n=29878-1794970360573
+[2m2026-11-18T02:53:04.476423Z[0m [31mERROR[0m [2mnextrs_server::image[0m[2m:[0m the requested resource isn't a valid image [3mhref[0m[2m=[0mhttp://127.0.0.1:5486/img/html.jpg?n=29878-1794970360573
+[2m2026-11-18T02:53:04.483626Z[0m [33m WARN[0m [2mnextrs_server::image[0m[2m:[0m image not optimized; serving the source [3mhref[0m[2m=[0mhttp://127.0.0.1:5486/img/corrupt.jpg?n=29878-1794970360573 [3merror[0m[2m=[0mdecode failed: Format error decoding Jpeg: I/O errors Not enough bytes, expected 1 but found 0
+
+[2m2026-11-18T02:53:04.595859Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response exceeded maximum size [3morigin[0m[2m=[0mhttp://127.0.0.1:5486
+[2m2026-11-18T02:53:05.410843Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image request failed [3morigin[0m[2m=[0mhttp://127.0.0.1:5486 [3merror[0m[2m=[0merror sending request: client error (SendRequest): connection closed before message completed
+[2m2026-11-18T02:53:19.414020Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response timed out [3morigin[0m[2m=[0mhttp://127.0.0.1:5486
+[2m2026-11-18T02:53:33.424639Z[0m [31mERROR[0m [2mnextrs_server::image::fetch[0m[2m:[0m upstream image response timed out [3morigin[0m[2m=[0mhttp://127.0.0.1:5486
+[2m2026-11-18T02:53:33.459349Z[0m [33m WARN[0m [2mnextrs_server::image::fetch[0m[2m:[0m remote image refused by the network policy [3morigin[0m[2m=[0mhttp://127.0.0.1:5486 [3merror[0m[2m=[0mURLs with credentials are not allowed
+[2m2026-11-18T02:53:33.489249Z[0m [33m WARN[0m [2mnextrs_server::image::fetch[0m[2m:[0m remote image refused by the network policy [3morigin[0m[2m=[0mhttp://127.0.0.2:5486 [3merror[0m[2m=[0mhttp://127.0.0.2:5486 is not allowed by the NextRS network policy
+[2m2026-11-18T02:53:33.521741Z[0m [33m WARN[0m [2mnextrs_server::image::fetch[0m[2m:[0m remote image refused by the network policy [3morigin[0m[2m=[0mhttp://localhost:5486 [3merror[0m[2m=[0mhttp://localhost:5486 is not allowed by the NextRS network policy
+[2m2026-11-18T02:53:33.522911Z[0m [33m WARN[0m [2mnextrs_server::image::fetch[0m[2m:[0m remote image refused by the network policy [3morigin[0m[2m=[0mhttp://169.254.169.254 [3merror[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-18T02:53:43.366610Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m1 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T02:53:43.366749Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T02:53:43.401098Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-18T02:53:48.363306Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T02:53:48.364666Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5486, https://localhost:5487, https://127.0.0.1:5487, https://localhost:5488, http://127.0.0.1:5489
+[2m2026-11-18T02:53:48.364695Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-18T02:53:48.418834Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T02:53:48.418869Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T02:53:48.490934Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m125
+[2m2026-11-18T02:53:48.490965Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m127 [3misolates[0m[2m=[0m1
+[2m2026-11-18T02:53:48.491234Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m2 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-18T02:53:48.497358Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5483 [3mbuild_id[0m[2m=[0mquyA7Wlcc6HbK5yvb_upw [3mready_ms[0m[2m=[0m133
+[2m2026-11-18T02:53:52.960040Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m1 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T02:53:52.960174Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T02:53:52.999510Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-18T02:53:57.622482Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T02:53:57.623804Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5486, https://localhost:5487, https://127.0.0.1:5487, https://localhost:5488, http://127.0.0.1:5489
+[2m2026-11-18T02:53:57.623837Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-18T02:53:57.678824Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T02:53:57.678862Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T02:53:57.751090Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m126
+[2m2026-11-18T02:53:57.751119Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m128 [3misolates[0m[2m=[0m1
+[2m2026-11-18T02:53:57.751351Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m2 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-18T02:53:57.757237Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5483 [3mbuild_id[0m[2m=[0ml4XVklGEcDk98MUxh7tro [3mready_ms[0m[2m=[0m134
+[2m2026-11-18T02:54:02.230940Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m1 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T02:54:02.231033Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T02:54:02.259852Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

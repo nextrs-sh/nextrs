@@ -1,0 +1,443 @@
+{
+ "minutes": 360,
+ "concurrency": 24,
+ "seconds": 22207.653,
+ "totals": {
+  "requests": 13704740,
+  "ok": 13420595,
+  "unexpected": 5,
+  "rejected503": 6458,
+  "lostToRestart": 1061,
+  "rejectedDuringRestart": 340,
+  "identityLeaks": 0,
+  "wrongContent": 0,
+  "aborted": 276281,
+  "injections": 72
+ },
+ "accountedExactlyOnce": true,
+ "mutations": {
+  "sent": 374677,
+  "acknowledged": 374586,
+  "acknowledgedMissing": 0,
+  "lost": 91,
+  "lostApplied": 54,
+  "duplicates": 0
+ },
+ "loadSeconds": 21600.219,
+ "idleMinutes": 10,
+ "throughput": 634.5,
+ "latency": {
+  "p50": 15.1,
+  "p95": 156,
+  "p99": 252.9
+ },
+ "kinds": {
+  "img-hit": {
+   "count": 2743332,
+   "errors": 1,
+   "statuses": {
+    "0": 1,
+    "200": 2743331
+   },
+   "cache": {
+    "MISS": 21,
+    "HIT": 2608562,
+    "STALE": 134748
+   },
+   "p50": 1.7,
+   "p95": 12,
+   "p99": 29.2
+  },
+  "img-miss": {
+   "count": 1495796,
+   "errors": 0,
+   "statuses": {
+    "200": 1494273,
+    "503": 1523
+   },
+   "cache": {
+    "MISS": 157262,
+    "STALE": 1064389,
+    "HIT": 272622
+   },
+   "p50": 2.3,
+   "p95": 66.7,
+   "p99": 229.2
+  },
+  "img-large": {
+   "count": 373662,
+   "errors": 0,
+   "statuses": {
+    "200": 373662
+   },
+   "cache": {
+    "MISS": 38,
+    "STALE": 174945,
+    "HIT": 198679
+   },
+   "p50": 2.2,
+   "p95": 14.4,
+   "p99": 32.6
+  },
+  "img-remote": {
+   "count": 746438,
+   "errors": 0,
+   "statuses": {
+    "200": 741690,
+    "503": 4748
+   },
+   "cache": {
+    "MISS": 454602,
+    "HIT": 285577,
+    "STALE": 1511
+   },
+   "p50": 28.6,
+   "p95": 286,
+   "p99": 692.1
+  },
+  "img-avif": {
+   "count": 374069,
+   "errors": 1,
+   "statuses": {
+    "0": 1,
+    "200": 374068
+   },
+   "cache": {
+    "MISS": 50,
+    "HIT": 182874,
+    "STALE": 191144
+   },
+   "p50": 1.9,
+   "p95": 13.5,
+   "p99": 31.4
+  },
+  "img-abort": {
+   "count": 249141,
+   "errors": 0,
+   "statuses": {
+    "0": 32489,
+    "200": 216465,
+    "503": 187
+   },
+   "cache": {
+    "HIT": 43125,
+    "STALE": 167674,
+    "MISS": 5666
+   },
+   "p50": 5.5,
+   "p95": 38.9,
+   "p99": 59.4
+  },
+  "app-ssr": {
+   "count": 997015,
+   "errors": 0,
+   "statuses": {
+    "200": 996667,
+    "502": 302,
+    "503": 46
+   },
+   "cache": {},
+   "p50": 86.4,
+   "p95": 239,
+   "p99": 318.5
+  },
+  "app-ssr-abort": {
+   "count": 248834,
+   "errors": 0,
+   "statuses": {
+    "0": 243792,
+    "200": 5042
+   },
+   "cache": {},
+   "p50": 13.6,
+   "p95": 27,
+   "p99": 44.6
+  },
+  "app-action": {
+   "count": 498648,
+   "errors": 1,
+   "statuses": {
+    "0": 1,
+    "200": 498515,
+    "502": 108,
+    "503": 24
+   },
+   "cache": {
+    "HIT": 498515
+   },
+   "p50": 64.8,
+   "p95": 180,
+   "p99": 247.2
+  },
+  "app-isr": {
+   "count": 373810,
+   "errors": 0,
+   "statuses": {
+    "200": 373761,
+    "502": 30,
+    "503": 19
+   },
+   "cache": {
+    "HIT": 336857,
+    "STALE": 36904
+   },
+   "p50": 22.2,
+   "p95": 127.1,
+   "p99": 190.4
+  },
+  "app-proxy": {
+   "count": 372887,
+   "errors": 0,
+   "statuses": {
+    "200": 372725,
+    "502": 127,
+    "503": 35
+   },
+   "cache": {},
+   "p50": 102.7,
+   "p95": 273.7,
+   "p99": 353.5
+  },
+  "pages-ssr": {
+   "count": 871078,
+   "errors": 0,
+   "statuses": {
+    "200": 870881,
+    "502": 150,
+    "503": 47
+   },
+   "cache": {},
+   "p50": 18.4,
+   "p95": 117,
+   "p99": 174.3
+  },
+  "pages-data": {
+   "count": 497901,
+   "errors": 0,
+   "statuses": {
+    "200": 497820,
+    "502": 68,
+    "503": 13
+   },
+   "cache": {},
+   "p50": 18.2,
+   "p95": 116.8,
+   "p99": 173.6
+  },
+  "pages-ssg": {
+   "count": 498285,
+   "errors": 0,
+   "statuses": {
+    "200": 498232,
+    "502": 31,
+    "503": 22
+   },
+   "cache": {
+    "HIT": 498232
+   },
+   "p50": 21.6,
+   "p95": 125.2,
+   "p99": 186.5
+  },
+  "pages-isr": {
+   "count": 373626,
+   "errors": 1,
+   "statuses": {
+    "0": 1,
+    "200": 373582,
+    "502": 21,
+    "503": 22
+   },
+   "cache": {
+    "STALE": 314,
+    "HIT": 373268
+   },
+   "p50": 22,
+   "p95": 127,
+   "p99": 189.7
+  },
+  "pages-api-get": {
+   "count": 498383,
+   "errors": 0,
+   "statuses": {
+    "200": 498343,
+    "502": 9,
+    "503": 31
+   },
+   "cache": {},
+   "p50": 21.1,
+   "p95": 124.1,
+   "p99": 187
+  },
+  "pages-api-post": {
+   "count": 374677,
+   "errors": 1,
+   "statuses": {
+    "0": 1,
+    "200": 374586,
+    "502": 67,
+    "503": 23
+   },
+   "cache": {},
+   "p50": 45.6,
+   "p95": 163.2,
+   "p99": 223.1
+  },
+  "pages-preview": {
+   "count": 248698,
+   "errors": 0,
+   "statuses": {
+    "200": 248635,
+    "502": 47,
+    "503": 16
+   },
+   "cache": {
+    "HIT": 248635
+   },
+   "p50": 69.3,
+   "p95": 179.5,
+   "p99": 240.9
+  },
+  "pages-preview-off": {
+   "count": 248916,
+   "errors": 0,
+   "statuses": {
+    "200": 248883,
+    "502": 19,
+    "503": 14
+   },
+   "cache": {
+    "HIT": 248883
+   },
+   "p50": 22,
+   "p95": 126.5,
+   "p99": 190.8
+  },
+  "pages-secure-anon": {
+   "count": 248933,
+   "errors": 0,
+   "statuses": {
+    "307": 248921,
+    "502": 2,
+    "503": 10
+   },
+   "cache": {},
+   "p50": 14,
+   "p95": 97.8,
+   "p99": 138.3
+  },
+  "pages-secure-session": {
+   "count": 123935,
+   "errors": 0,
+   "statuses": {
+    "200": 123904,
+    "502": 22,
+    "503": 9
+   },
+   "cache": {},
+   "p50": 47.2,
+   "p95": 160.5,
+   "p99": 216.6
+  },
+  "pages-revalidate": {
+   "count": 124750,
+   "errors": 0,
+   "statuses": {
+    "200": 124683,
+    "502": 58,
+    "503": 9
+   },
+   "cache": {},
+   "p50": 80.3,
+   "p95": 256.1,
+   "p99": 748
+  },
+  "locale-redirect": {
+   "count": 248623,
+   "errors": 0,
+   "statuses": {
+    "307": 248623
+   },
+   "cache": {},
+   "p50": 2.2,
+   "p95": 16.5,
+   "p99": 35.4
+  },
+  "locale-ssr": {
+   "count": 498803,
+   "errors": 0,
+   "statuses": {
+    "200": 498803
+   },
+   "cache": {},
+   "p50": 6,
+   "p95": 23.4,
+   "p99": 42.9
+  },
+  "locale-data": {
+   "count": 249507,
+   "errors": 0,
+   "statuses": {
+    "200": 249507
+   },
+   "cache": {
+    "HIT": 249506,
+    "MISS": 1
+   },
+   "p50": 4.2,
+   "p95": 20.3,
+   "p99": 40.3
+  },
+  "locale-404": {
+   "count": 124993,
+   "errors": 0,
+   "statuses": {
+    "404": 124993
+   },
+   "cache": {
+    "HIT": 124993
+   },
+   "p50": 4.1,
+   "p95": 20.3,
+   "p99": 40.1
+  }
+ },
+ "errors": [
+  {
+   "at": "2026-11-18T12:55:33.945Z",
+   "kind": "pages-api-post",
+   "path": "/api/p/mutate?id=02223a44-5ac2-4b83-ad66-135e79ccdbaa",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T14:47:34.494Z",
+   "kind": "pages-isr",
+   "path": "/p/isr",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T16:00:34.821Z",
+   "kind": "img-hit",
+   "path": "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=640&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T16:38:35.283Z",
+   "kind": "img-avif",
+   "path": "/_next/image?url=%2Fphotos%2Fodd.jpg&w=128&q=75",
+   "status": 0,
+   "error": "ECONNRESET"
+  },
+  {
+   "at": "2026-11-18T17:02:35.516Z",
+   "kind": "app-action",
+   "path": "/soak/action",
+   "status": 0,
+   "error": "ECONNRESET"
+  }
+ ],
+ "samples": 741
+}

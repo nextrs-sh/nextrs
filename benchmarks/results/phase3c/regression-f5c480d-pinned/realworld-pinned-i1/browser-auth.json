@@ -1,0 +1,172 @@
+{
+  "results": [
+    {
+      "name": "anonymous-direct-load-redirects-to-login",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/login?next=%2Fdashboard%3Ftab%3D1",
+          "query": "{\"next\":\"/dashboard?tab=1\",\"error\":null}",
+          "secret": null
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/login?next=%2Fdashboard%3Ftab%3D1",
+          "query": "{\"next\":\"/dashboard?tab=1\",\"error\":null}",
+          "secret": null
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "anonymous-client-nav-redirects-to-login",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/login?next=%2Faccount",
+          "secret": null
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/login?next=%2Faccount",
+          "secret": null
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "login-then-dashboard",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/dashboard",
+          "secret": "dashboard of Alice",
+          "cookies": [
+            "session"
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/dashboard",
+          "secret": "dashboard of Alice",
+          "cookies": [
+            "session"
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "login-redirects-back-to-isr-page",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/reports",
+          "secret": "quarterly reports (ISR, proxy-protected)"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/reports",
+          "secret": "quarterly reports (ISR, proxy-protected)"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "login-wrong-password",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/login?error=1&next=%2Fdashboard",
+          "query": "{\"next\":\"/dashboard\",\"error\":\"1\"}",
+          "cookies": []
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/login?error=1&next=%2Fdashboard",
+          "query": "{\"next\":\"/dashboard\",\"error\":\"1\"}",
+          "cookies": []
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "client-nav-after-login",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/dashboard/projects/p-1",
+          "secret": "project p-1 of Bob"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/dashboard/projects/p-1",
+          "secret": "project p-1 of Bob"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "protected-mutation",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/actions/protected?key=KEY",
+          "result": {
+            "recorded": "u-alice:browser",
+            "user": "u-alice"
+          },
+          "executions": [
+            "u-alice:browser"
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/actions/protected?key=KEY",
+          "result": {
+            "recorded": "u-alice:browser",
+            "user": "u-alice"
+          },
+          "executions": [
+            "u-alice:browser"
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "logout-ends-the-session",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "afterLogout": "/login",
+          "revisit": "/login?next=%2Fdashboard",
+          "cookies": []
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "afterLogout": "/login",
+          "revisit": "/login?next=%2Fdashboard",
+          "cookies": []
+        },
+        "errors": []
+      }
+    }
+  ]
+}

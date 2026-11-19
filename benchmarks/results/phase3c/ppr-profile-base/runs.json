@@ -1,0 +1,149 @@
+{
+  "started": "2026-11-16T15:09:11.942Z",
+  "configs": [
+    "node",
+    "nextrs:1"
+  ],
+  "names": [
+    "home",
+    "destination"
+  ],
+  "rounds": 1,
+  "duration": 6,
+  "warmup": 3,
+  "connections": 16,
+  "rate": 0,
+  "extraArgs": [],
+  "bins": {
+    "nextrs": "/home/dennispaler/Documents/OpenSource/nextrs/target/phase3c-base/nextrs-prof",
+    "alt": null
+  },
+  "runs": [
+    {
+      "round": 1,
+      "config": "node",
+      "name": "home",
+      "startup_ms": 19278,
+      "rps": 485.1003912810091,
+      "cpu_ms_per_req": 1.7176228100309174,
+      "p50": 24.799,
+      "p95": 48.895,
+      "p99": 57.343,
+      "ttfb_p50": 24.783,
+      "completed": 2911,
+      "check_failures": 0,
+      "errors": 4,
+      "anon_mib": 202.7,
+      "metrics_delta": null
+    },
+    {
+      "round": 1,
+      "config": "node",
+      "name": "destination",
+      "startup_ms": 19278,
+      "rps": 348.23993718142094,
+      "cpu_ms_per_req": 1.8516746411483258,
+      "p50": 25.855,
+      "p95": 48.895,
+      "p99": 72.447,
+      "ttfb_p50": 25.855,
+      "completed": 2090,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 280.6,
+      "metrics_delta": null
+    },
+    {
+      "round": 1,
+      "config": "nextrs:1",
+      "name": "home",
+      "startup_ms": 8956,
+      "rps": 315.1119330893741,
+      "cpu_ms_per_req": 3.453199365415125,
+      "p50": 50.591,
+      "p95": 54.879,
+      "p99": 68.863,
+      "ttfb_p50": 50.559,
+      "completed": 1891,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 199.2,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0243,
+        "execution_seconds_total": 0.0528,
+        "cache.hits": 0.0624,
+        "cache.sets": 0.0005,
+        "cache.response_sets": 0.0005,
+        "executors.0.heap_total_bytes": 34045.9693
+      }
+    },
+    {
+      "round": 1,
+      "config": "nextrs:1",
+      "name": "destination",
+      "startup_ms": 8956,
+      "rps": 390.7046352915857,
+      "cpu_ms_per_req": 2.8144989339019184,
+      "p50": 40.735,
+      "p95": 43.167,
+      "p99": 49.567,
+      "ttfb_p50": 40.703,
+      "completed": 2345,
+      "check_failures": 0,
+      "errors": 0,
+      "anon_mib": 194,
+      "metrics_delta": {
+        "backpressure_waits": 1,
+        "response_events": 2,
+        "response_event_waits": 1.0055,
+        "execution_seconds_total": 0.0431,
+        "cache.hits": 0.0627,
+        "executors.0.heap_total_bytes": -3350.1612
+      }
+    }
+  ],
+  "summary": {
+    "node home": {
+      "rps": 485.1003912810091,
+      "rps_all": [
+        485
+      ],
+      "cpu_ms_per_req": 1.7176228100309174,
+      "p50": 24.799,
+      "p99": 57.343,
+      "failures": 4
+    },
+    "node destination": {
+      "rps": 348.23993718142094,
+      "rps_all": [
+        348
+      ],
+      "cpu_ms_per_req": 1.8516746411483258,
+      "p50": 25.855,
+      "p99": 72.447,
+      "failures": 0
+    },
+    "nextrs:1 home": {
+      "rps": 315.1119330893741,
+      "rps_all": [
+        315
+      ],
+      "cpu_ms_per_req": 3.453199365415125,
+      "p50": 50.591,
+      "p99": 68.863,
+      "failures": 0
+    },
+    "nextrs:1 destination": {
+      "rps": 390.7046352915857,
+      "rps_all": [
+        391
+      ],
+      "cpu_ms_per_req": 2.8144989339019184,
+      "p50": 40.735,
+      "p99": 49.567,
+      "failures": 0
+    }
+  }
+}

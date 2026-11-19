@@ -1,0 +1,128 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 10K of event 'cycles:u'
+# Event count (approx.): 37369707825
+#
+# Children      Self  Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+# ........  ........  ..................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+   100.00%     0.00%  [.] __clone
+   100.00%     0.00%  [.] start_thread
+    96.37%     0.00%  [.] <std::sys::thread::unix::Thread>::new::thread_start
+    93.60%     0.00%  [.] <std::thread::lifecycle::spawn_unchecked<nextrs_runtime::worker::spawn::{closure#0}, ()>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0}
+    93.60%     0.00%  [.] <std::thread::local::LocalKey<tokio::runtime::context::Context>>::with::<tokio::runtime::context::set_scheduler<(alloc::boxed::Box<tokio::runtime::scheduler::current_thread::Core>, core::option::Option<core::result::Result<(), alloc::string::String>>), <tokio::runtime::scheduler::current_thread::CoreGuard>::enter<<tokio::runtime::scheduler::current_thread::CoreGuard>::block_on<nextrs_runtime::worker::run::{closure#1}>::{closure#0}, core::option::Option<core::result::Result<(), alloc::string::String>>>::{closure#0}>::{closure#0}, (alloc::boxed::Box<tokio::runtime::scheduler::current_thread::Core>, core::option::Option<core::result::Result<(), alloc::string::String>>)>
+    93.60%     0.00%  [.] <tokio::runtime::runtime::Runtime>::block_on::<nextrs_runtime::worker::run::{closure#1}>
+    93.60%     0.00%  [.] <tokio::runtime::scheduler::current_thread::CoreGuard>::block_on::<nextrs_runtime::worker::run::{closure#1}>
+    93.60%     0.00%  [.] nextrs_runtime::worker::run
+    93.60%     0.00%  [.] std::sys::backtrace::__rust_begin_short_backtrace::<nextrs_runtime::worker::spawn::{closure#0}, ()>
+    93.60%     0.00%  [.] tokio::runtime::context::runtime::enter_runtime::<<tokio::runtime::scheduler::current_thread::CurrentThread>::block_on<nextrs_runtime::worker::run::{closure#1}>::{closure#0}, core::result::Result<(), alloc::string::String>>
+    93.59%     0.01%  [.] <tokio::runtime::scheduler::current_thread::Context>::enter::<core::task::poll::Poll<core::result::Result<(), alloc::string::String>>, <tokio::runtime::scheduler::current_thread::CoreGuard>::block_on<nextrs_runtime::worker::run::{closure#1}>::{closure#0}::{closure#0}>
+    93.58%     0.01%  [.] <deno_core::runtime::jsruntime::JsRuntime>::poll_event_loop
+    93.58%     0.00%  [.] <core::future::poll_fn::PollFn<nextrs_runtime::worker::drive::{closure#0}::{closure#2}> as core::future::future::Future>::poll
+    93.24%     0.00%  [.] v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&)
+    92.09%     0.00%  [.] Builtins_JSRunMicrotasksEntry
+    92.09%     0.00%  [.] v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal::(anonymous namespace)::InvokeParams const&)
+    92.09%     0.00%  [.] v8::internal::Execution::TryRunMicrotasks(v8::internal::Isolate*, v8::internal::MicrotaskQueue*)
+    92.09%     0.00%  [.] v8::internal::MicrotaskQueue::PerformCheckpointInternal(v8::Isolate*)
+    92.09%     0.00%  [.] v8::internal::MicrotaskQueue::RunMicrotasks(v8::internal::Isolate*)
+    92.06%     0.06%  [.] Builtins_RunMicrotasks
+    89.46%     0.01%  [.] Builtins_PromiseFulfillReactionJob
+    89.27%     0.01%  [.] Builtins_AsyncFunctionAwaitResolveClosure
+    88.90%     0.00%  [.] Builtins_JSEntry
+    88.90%     0.00%  [.] Builtins_JSEntryTrampoline
+    88.90%     0.00%  [.] v8::Function::Call(v8::Isolate*, v8::Local<v8::Context>, v8::Local<v8::Value>, int, v8::Local<v8::Value>*)
+    88.90%     0.00%  [.] v8::internal::Execution::Call(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::Object>, v8::internal::DirectHandle<v8::internal::Object>, v8::base::Vector<v8::internal::DirectHandle<v8::internal::Object> const>)
+    88.87%     0.00%  [.] <deno_core::runtime::jsruntime::JsRuntime>::drain_next_tick_and_macrotasks
+    88.87%     0.00%  [.] JS:+'__drainNextTickAndMacrotasks ext:core/01_core.js:470:40
+    88.87%     0.00%  [.] JS:o+ file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/%5Broot-of-the-server%5D__1zwu0r35d4wow._.js:12:44207
+    88.86%     0.01%  [.] JS:+'processTicksAndRejections ext:core/01_core.js:356:37
+    88.42%     0.02%  [.] Builtins_CallApiCallbackOptimizedNoProfiling
+    87.75%     0.00%  [.] <deno_core::ops_builtin_v8::op_run_microtasks::op_run_microtasks>::v8_fn_ptr
+    86.00%     0.10%  [.] JS:+t file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/%5Broot-of-the-server%5D__0k8waiqs70wj4._.js:2:5790
+    85.58%     0.03%  [.] JS:+'d file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/%5Broot-of-the-server%5D__1zwu0r35d4wow._.js:12:43586
+    55.57%     0.00%  [.] JS:*'byteLength ext:nextrs/02_node.js:224:44
+    55.56%     0.01%  [.] JS:+'byteLength ext:nextrs/02_node.js:101:44
+    42.06%    26.04%  [.] JS:*'utf8Length ext:nextrs/02_node.js:57:24
+    26.11%    26.11%  [.] Builtins_LoadIC_Megamorphic
+    13.47%     0.02%  [.] JS:+'Writable.end ext:nextrs/node-polyfills.js:6280:40
+    13.45%     0.01%  [.] JS:+'_write ext:nextrs/node-polyfills.js:6034:22
+    12.82%     0.01%  [.] JS:+'from ext:nextrs/02_node.js:209:32
+    12.71%     0.01%  [.] JS:+a file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/05o__next_dist_1tcsz8ktsxtmp._.js:1:25206
+    12.65%     0.00%  [.] JS:+'from ext:nextrs/02_node.js:86:32
+    12.63%     0.01%  [.] JS:+'encode ext:deno_web/08_text_encoding.js:288:9
+    12.62%     0.00%  [.] <deno_core::ops_builtin_v8::op_encode::op_encode>::v8_fn_ptr
+    12.61%     0.00%  [.] serde_v8::de::to_utf8
+    12.60%     0.00%  [.] <deno_core::ops_builtin_v8::op_encode::op_encode>::slow_function_impl
+    12.57%     0.03%  [.] v8::internal::String::WriteUtf8(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::String>, char*, unsigned long, v8::base::Flags<v8::internal::String::Utf8EncodingFlag, int, int>, unsigned long*)
+    12.57%     0.00%  [.] <v8::data::String>::write_utf8_uninit_v2
+    12.57%     0.00%  [.] v8::String::WriteUtf8(v8::Isolate*, char*, unsigned long, int, unsigned long*) const
+    12.50%    12.47%  [.] unibrow::Utf8::EncodingResult unibrow::Utf8::Encode<unsigned short>(v8::base::Vector<unsigned short const>, char*, unsigned long, bool, bool)
+    10.50%    10.50%  [.] JS:* file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/%5Broot-of-the-server%5D__1zwu0r35d4wow._.js:12:44207
+     3.63%     0.00%  [.] v8::base::ThreadEntry(void*)
+     3.63%     0.00%  [.] v8::platform::DefaultJobWorker::Run()
+     3.63%     0.00%  [.] v8::platform::DefaultWorkerThreadsTaskRunner::WorkerThread::Run()
+     3.51%     3.51%  [.] Builtins_LoadICTrampoline_Megamorphic
+     2.77%     0.00%  [.] <std::thread::lifecycle::spawn_unchecked<<tokio::runtime::blocking::pool::Spawner>::spawn_thread::{closure#0}, ()>::{closure#1} as core::ops::function::FnOnce<()>>::call_once::{shim:vtable#0}
+     2.77%     0.00%  [.] <tokio::runtime::blocking::pool::Inner>::run
+     2.77%     0.00%  [.] <tokio::runtime::blocking::task::BlockingTask<tokio::runtime::scheduler::multi_thread::worker::maybe_move_runtime::{closure#0}::{closure#0}> as core::future::future::Future>::poll
+     2.77%     0.00%  [.] <tokio::runtime::context::scoped::Scoped<tokio::runtime::scheduler::Context>>::set::<tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}::{closure#0}, ()>
+     2.77%     0.00%  [.] <tokio::runtime::task::core::Core<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll
+     2.77%     0.00%  [.] <tokio::runtime::task::harness::Harness<tokio::runtime::blocking::task::BlockingTask<<tokio::runtime::scheduler::multi_thread::worker::Launch>::launch::{closure#0}>, tokio::runtime::blocking::schedule::BlockingSchedule>>::poll
+     2.77%     0.00%  [.] std::sys::backtrace::__rust_begin_short_backtrace::<<tokio::runtime::blocking::pool::Spawner>::spawn_thread::{closure#0}, ()>
+     2.77%     0.00%  [.] tokio::runtime::context::runtime::enter_runtime::<tokio::runtime::scheduler::multi_thread::worker::run::{closure#0}, ()>
+     2.77%     0.00%  [.] tokio::runtime::scheduler::multi_thread::worker::run
+     2.75%     0.02%  [.] <tokio::runtime::scheduler::multi_thread::worker::Context>::run
+     2.73%     2.73%  [.] JS:+'getRouterServerContext file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:326:33000
+     2.69%     2.69%  [.] JS:* file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/%5Broot-of-the-server%5D__1zwu0r35d4wow._.js:12:44207
+     2.51%     0.00%  [.] JS:^#responseEntry ext:nextrs/03_server.js:1056:25
+     2.44%     0.01%  [.] <tokio::runtime::scheduler::multi_thread::worker::Context>::run_task
+     2.36%     0.01%  [.] <tokio::runtime::task::harness::Harness<nextrs_server::serve::serve<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#0}, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll
+     2.34%     0.01%  [.] <tokio::runtime::task::core::Core<nextrs_server::serve::serve<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#0}, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::poll
+     2.34%     0.01%  [.] nextrs_server::serve::serve::<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#0}
+     2.32%     0.02%  [.] <core::future::poll_fn::PollFn<nextrs_server::serve::serve_connection::{closure#0}::{closure#2}> as core::future::future::Future>::poll
+     2.25%     0.02%  [.] <hyper::proto::h1::dispatch::Dispatcher<hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::{closure#0}, hyper::body::incoming::Incoming>, hyper::body::incoming::Incoming>, axum_core::body::Body, hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::role::Server>>::poll_catch
+     2.22%     0.02%  [.] JS:+'prepareImpl file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:326:40159
+     2.06%     0.00%  [.] v8::internal::ConcurrentMarking::JobTaskMajor::Run(v8::JobDelegate*)
+     2.02%     0.92%  [.] v8::internal::ConcurrentMarking::RunMajor(v8::JobDelegate*, v8::base::EnumSet<v8::internal::CodeFlushMode, int>, unsigned int, bool)
+     1.94%     0.01%  [.] <hyper::proto::h1::dispatch::Dispatcher<hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::{closure#0}, hyper::body::incoming::Incoming>, hyper::body::incoming::Incoming>, axum_core::body::Body, hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::role::Server>>::poll_write
+     1.64%     0.00%  [.] <axum::routing::route::RouteFuture<core::convert::Infallible> as core::future::future::Future>::poll
+     1.63%     0.00%  [.] <tower::util::oneshot::Oneshot<tower::util::boxed_clone_sync::BoxCloneSyncService<http::request::Request<axum_core::body::Body>, http::response::Response<axum_core::body::Body>, core::convert::Infallible>, http::request::Request<axum_core::body::Body>> as core::future::future::Future>::poll
+     1.60%     0.01%  [.] <axum::util::MapIntoResponseFuture<axum::handler::future::IntoServiceFuture<core::pin::Pin<alloc::boxed::Box<dyn core::future::future::Future<Output = http::response::Response<axum_core::body::Body>> + core::marker::Send>>>> as core::future::future::Future>::poll
+     1.60%     0.01%  [.] <futures_util::future::future::map::Map<core::pin::Pin<alloc::boxed::Box<dyn core::future::future::Future<Output = http::response::Response<axum_core::body::Body>> + core::marker::Send>>, fn(http::response::Response<axum_core::body::Body>) -> core::result::Result<http::response::Response<axum_core::body::Body>, core::convert::Infallible>> as core::future::future::Future>::poll
+     1.52%     0.04%  [.] <nextrs_server::handle as axum::handler::Handler<(axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>::call::{closure#0}
+     1.46%     0.00%  [.] Builtins_CEntry_Return1_ArgvOnStack_BuiltinExit
+     1.32%     0.00%  [.] v8::internal::Builtin_JsonParse(int, unsigned long*, v8::internal::Isolate*)
+     1.32%     0.00%  [.] v8::internal::JsonParser<unsigned short>::Parse(v8::internal::Isolate*, v8::internal::Handle<v8::internal::String>, v8::internal::Handle<v8::internal::Object>, std::__Cr::optional<v8::internal::ScriptDetails>)
+     1.31%     0.00%  [.] v8::internal::JsonParser<unsigned short>::ParseJson(bool)
+     1.31%     0.00%  [.] v8::internal::JsonParser<unsigned short>::ParseJsonObject(v8::internal::Handle<v8::internal::Map>)
+     1.26%     0.03%  [.] JS:+'ez file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:48469
+     1.11%     0.02%  [.] Builtins_CEntry_Return1_ArgvOnStack_NoBuiltinExit
+     1.08%     0.01%  [.] JS:+'loop ext:nextrs/03_server.js:529:22
+     1.07%     0.00%  [.] Builtins_CallApiCallbackGeneric
+     1.04%     0.01%  [.] JS:+ file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:88422
+     0.98%     0.01%  [.] <nextrs_runtime::ops::op_nextrs_cache_get::op_nextrs_cache_get>::slow_function_impl
+     0.98%     0.00%  [.] JS:^get ext:nextrs/03_server.js:1020:14
+     0.97%     0.00%  [.] <nextrs_runtime::ops::op_nextrs_cache_get::op_nextrs_cache_get>::v8_fn_ptr
+     0.94%     0.06%  [.] JS:+'serve ext:nextrs/03_server.js:374:23
+     0.93%     0.00%  [.] v8::internal::OptimizedCompilationJob::ExecuteJob(v8::internal::RuntimeCallStats*, v8::internal::LocalIsolate*)
+     0.87%     0.78%  [.] __memmove_avx_unaligned_erms
+     0.85%     0.00%  [.] JS:+'trace file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/server/lib/trace/tracer.js:190:10
+     0.84%     0.00%  [.] v8::internal::OptimizingCompileTaskExecutor::CompileTask::Run(v8::JobDelegate*)
+     0.83%     0.00%  [.] v8::internal::compiler::PipelineCompilationJob::ExecuteJobImpl(v8::internal::RuntimeCallStats*, v8::internal::LocalIsolate*)
+     0.83%     0.03%  [.] nextrs_server::serve_resolved::{closure#0}
+     0.82%     0.00%  [.] JS:^ file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:18:12888
+     0.82%     0.00%  [.] JS:+'run ext:nextrs/00_globals.js:188:8
+     0.82%     0.01%  [.] JS:+'L file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:2:34586
+     0.80%     0.00%  [.] JS:^ ext:nextrs/03_server.js:538:21
+     0.78%     0.04%  [.] JS:+$ file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/%5Broot-of-the-server%5D__0k8waiqs70wj4._.js:1:1677
+     0.77%     0.00%  [.] JS:+'_write ext:nextrs/03_server.js:246:11
+     0.77%     0.00%  [.] JS:o+ file:///home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/%5Broot-of-the-server%5D__1zwu0r35d4wow._.js:12:44207
+     0.76%     0.76%  [.] v8::internal::JsonParser<unsigned short>::ScanJsonString(bool)
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

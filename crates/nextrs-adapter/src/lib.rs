@@ -31,8 +31,48 @@ use manifests::{
     read_json_optional,
 };
 
-/// Next.js release line the Phase 0 parsers were written against.
+/// The Next.js major version this release serves. Builds of another major
+/// are refused at startup (`unsupported-next-version`).
+pub const SUPPORTED_NEXT_MAJOR: u64 = 16;
+
+/// The release line NextRS is tested against (the compatibility suites run
+/// 16.4.x patch releases). Other 16.x minors start with a warning.
 pub const TESTED_NEXT_VERSION: &str = "16.4";
+
+/// How a detected Next.js version relates to what this release supports.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum VersionSupport {
+    /// The tested release line.
+    Tested,
+    /// The supported major, another minor: expected to work, not tested.
+    Untested,
+    /// Another major, or a version string that is not `major.minor[...]`.
+    Unsupported,
+}
+
+/// Classifies a Next.js version string (`16.4.6`, `16.5.0-canary.3`,
+/// `v16.4.6`).
+pub fn version_support(version: &str) -> VersionSupport {
+    let version = version.trim().trim_start_matches('v');
+    let mut parts = version.split('.');
+    let major = parts.next().and_then(|m| m.parse::<u64>().ok());
+    let minor = parts
+        .next()
+        .map(|m| m.split(|c: char| !c.is_ascii_digit()).next().unwrap_or(""))
+        .and_then(|m| m.parse::<u64>().ok());
+    match (major, minor) {
+        (Some(SUPPORTED_NEXT_MAJOR), Some(_))
+            if version.starts_with(&format!("{TESTED_NEXT_VERSION}.")) =>
+        {
+            VersionSupport::Tested
+        }
+        (Some(SUPPORTED_NEXT_MAJOR), Some(_)) => VersionSupport::Untested,
+        _ => VersionSupport::Unsupported,
+    }
+}
+
+/// The diagnostic code for a build of an unsupported Next.js version.
+pub const UNSUPPORTED_VERSION_CODE: &str = "unsupported-next-version";
 
 #[derive(Debug, Clone, Default)]
 pub struct InspectOptions {
@@ -173,22 +213,33 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         next_version = detect_version(&project_dir, &dist_dir);
     }
     match &next_version {
-        Some(v) if !v.version.starts_with(&format!("{TESTED_NEXT_VERSION}.")) => {
-            diagnostics.push(Diagnostic {
+        Some(v) => match version_support(&v.version) {
+            VersionSupport::Tested => {}
+            VersionSupport::Untested => diagnostics.push(Diagnostic {
                 severity: Severity::Warning,
                 code: "untested-next-version",
                 message: format!(
-                    "Next.js {} has not been tested; Phase 0 targets {TESTED_NEXT_VERSION}.x",
-                    v.version
+                    "Next.js {} (from {}) has not been tested with this NextRS release, \
+                     which is tested with {TESTED_NEXT_VERSION}.x",
+                    v.version, v.source
                 ),
-            });
-        }
+            }),
+            VersionSupport::Unsupported => diagnostics.push(Diagnostic {
+                severity: Severity::Unsupported,
+                code: UNSUPPORTED_VERSION_CODE,
+                message: format!(
+                    "unsupported Next.js build version {} (from {}): this NextRS release \
+                     serves Next.js {SUPPORTED_NEXT_MAJOR} builds and is tested with \
+                     {TESTED_NEXT_VERSION}.x",
+                    v.version, v.source
+                ),
+            }),
+        },
         None => diagnostics.push(Diagnostic {
             severity: Severity::Warning,
             code: "unknown-next-version",
             message: "could not determine the Next.js version".into(),
         }),
-        _ => {}
     }
 
     routes.sort_by(|a, b| a.page.cmp(&b.page));
@@ -1039,6 +1090,34 @@ mod workspace_root_tests {
             assert_eq!(found, None, "{project} {relative}");
             assert_eq!(diagnostics.len(), 1, "{project} {relative}");
             assert_eq!(diagnostics[0].code, "workspace-root");
+        }
+    }
+}
+
+#[cfg(test)]
+mod version_support_tests {
+    use super::*;
+
+    #[test]
+    fn the_tested_line_is_tested() {
+        for v in ["16.4.0", "16.4.3", "16.4.6", "v16.4.6", "16.4.7-canary.2"] {
+            assert_eq!(version_support(v), VersionSupport::Tested, "{v}");
+        }
+    }
+
+    #[test]
+    fn other_minors_of_the_supported_major_are_untested_not_refused() {
+        for v in ["16.0.0", "16.3.9", "16.5.0", "16.5.0-canary.3", "16.10.1"] {
+            assert_eq!(version_support(v), VersionSupport::Untested, "{v}");
+        }
+        // "16.40" is not the 16.4 line.
+        assert_eq!(version_support("16.40.0"), VersionSupport::Untested);
+    }
+
+    #[test]
+    fn other_majors_and_garbage_are_unsupported() {
+        for v in ["15.5.12", "14.2.0", "17.0.0", "", "latest", "16", "x.4.6"] {
+            assert_eq!(version_support(v), VersionSupport::Unsupported, "{v}");
         }
     }
 }

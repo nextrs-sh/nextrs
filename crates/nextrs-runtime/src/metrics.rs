@@ -667,6 +667,17 @@ impl MetricsSnapshot {
         }
         let _ = writeln!(
             out,
+            "# HELP nextrs_executor_full_gcs_total Full (mark-compact) V8 collections per slot, this isolate generation.\n# TYPE nextrs_executor_full_gcs_total counter"
+        );
+        for e in &self.executors {
+            let _ = writeln!(
+                out,
+                "nextrs_executor_full_gcs_total{{slot=\"{}\"}} {}",
+                e.slot, e.full_gcs
+            );
+        }
+        let _ = writeln!(
+            out,
             "# HELP nextrs_executor_failures_total Isolate failures per slot and reason.\n# TYPE nextrs_executor_failures_total counter"
         );
         for e in &self.executors {

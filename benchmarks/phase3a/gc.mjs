@@ -37,6 +37,8 @@ const semis = String(args.semi ?? "default,16").split(",");
 const rounds = Number(args.rounds ?? 2);
 const duration = Number(args.duration ?? 10);
 const warmup = Number(args.warmup ?? 5);
+// Phase 3C: open loop at this many requests per second (0: closed loop).
+const rate = Number(args.rate ?? 0);
 const only = new Set(String(args.only ?? "ssr,rsc,isr-hit,action,pages-ssr,jwt-valid,mixed").split(","));
 const r = L.rng(Number(args.seed ?? 3));
 const log = (...m) => console.log(new Date().toISOString().slice(11, 19), ...m);
@@ -95,14 +97,14 @@ for (let round = 1; round <= rounds; round++) {
           writeFileSync(specPath, JSON.stringify(spec));
           const connections = w.connections ?? Number(args.connections ?? 32);
           const lg = (o) => L.loadgen(loadgenBin, { cpus: "4-5", target: `127.0.0.1:${ctx.port}`, spec: specPath, connections, ...o });
-          await lg({ duration: warmup, warmup: 0 });
+          await lg({ duration: warmup, warmup: 0, ...(rate ? { rate } : {}) });
           await w.beforeMeasure?.(ctx);
           const m0 = await L.metrics(metricsPort);
           const c0 = L.sample(s.pid);
           const stopMem = L.memorySampler(s.pid);
           events = [];
           collecting = true;
-          const res = await lg({ duration, warmup: 0 });
+          const res = await lg({ duration, warmup: 0, ...(rate ? { rate } : {}) });
           await L.sleep(200); // let the last lines of the window arrive
           collecting = false;
           const mem = stopMem();
@@ -140,6 +142,11 @@ for (let round = 1; round <= rounds; round++) {
             major_pause_ms_per_req: +(sum("major_pause_ms") / n).toFixed(4),
             gc_pause_share_of_cpu: cpu ? +(((sum("minor_pause_ms") + sum("major_pause_ms")) / 1000 / cpu) * 100).toFixed(1) : null,
             mean_minor_pause_ms: sum("minor") ? +(sum("minor_pause_ms") / sum("minor")).toFixed(3) : null,
+            max_pause_ms: events.length ? +Math.max(...events.map((e) => e.pause)).toFixed(2) : 0,
+            pauses_over_2ms: events.filter((e) => e.pause > 2).length,
+            pauses_over_5ms: events.filter((e) => e.pause > 5).length,
+            major_types: [...new Set(events.filter((e) => !MINOR.has(e.type)).map((e) => e.type))],
+            p50_ms: res.latency?.p50_ms,
             per_isolate: Object.values(per).map((p) => ({ ...p, allocated_mib: mib(p.allocated) })),
             heap: (m1?.executors ?? []).map((e) => ({ used_after_gc_mib: mib(e.heap_used_after_gc_bytes), total_mib: mib(e.heap_total_bytes), external_mib: mib(e.external_bytes) })),
             rss_peak_mib: mem.peak.rss_mib, anon_peak_mib: mem.peak.anon_mib, rss_end_mib: c1.rss_mib, anon_end_mib: c1.anon_mib,

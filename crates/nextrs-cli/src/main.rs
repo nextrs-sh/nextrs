@@ -1,6 +1,7 @@
 use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
 use std::process::ExitCode;
+use std::sync::Arc;
 use std::time::Duration;
 
 use clap::{Parser, Subcommand, ValueEnum};
@@ -11,7 +12,7 @@ use nextrs_runtime::{
     AddrRange, AllowRule, CacheConfig, Executor, ExecutorConfig, Limits, NetworkConfig,
     NetworkLimits, NetworkPolicy,
 };
-use nextrs_server::{ForwardedHeaders, ServeOptions, ServerOptions};
+use nextrs_server::{ForwardedHeaders, HttpMetrics, MetricsSources, ServeOptions, ServerOptions};
 
 #[derive(Parser)]
 #[command(
@@ -22,6 +23,17 @@ use nextrs_server::{ForwardedHeaders, ServeOptions, ServerOptions};
 struct Cli {
     #[command(subcommand)]
     command: Command,
+    /// Log line format on stderr: text, or json (one object per line, for
+    /// log collectors). NEXTRS_LOG_FORMAT sets the default. Levels and
+    /// targets come from RUST_LOG (default nextrs=info).
+    #[arg(long, global = true, value_enum)]
+    log_format: Option<LogFormat>,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+enum LogFormat {
+    Text,
+    Json,
 }
 
 #[derive(Subcommand)]
@@ -431,8 +443,10 @@ struct LimitArgs {
     /// Expiry gives a 504 (or aborts a started response).
     #[arg(long, value_name = "SECONDS", default_value_t = 60.0)]
     request_timeout: f64,
-    /// Terminate and replace an isolate whose JavaScript runs this long
-    /// without yielding. Affects every request in that isolate.
+    /// Terminate and replace an isolate whose JavaScript runs this long on
+    /// the CPU without yielding (thread CPU time; a turn blocked off the CPU,
+    /// as on a slow disk or under CPU throttling, is ended only after 6
+    /// times this in wall time). Affects every request in that isolate.
     #[arg(long, value_name = "SECONDS", default_value_t = 10.0)]
     js_stall_timeout: f64,
     /// Longest an isolate may take to start (loading Next's bundles); 0
@@ -464,10 +478,15 @@ struct LimitArgs {
     /// weaken the sandbox; for tuning experiments only.
     #[arg(long, value_name = "FLAGS", allow_hyphen_values = true)]
     v8_flags: Option<String>,
-    /// Serve executor metrics (/metrics, /metrics.json, /healthz) on this
-    /// address. Keep it on loopback.
+    /// Serve metrics and health on this address: /metrics (Prometheus),
+    /// /metrics.json, /healthz (liveness) and /readyz (readiness). Keep it
+    /// on loopback or a private network.
     #[arg(long, value_name = "ADDR")]
     metrics_addr: Option<SocketAddr>,
+    /// /readyz reports ready only with at least this many isolates ready
+    /// (and never once shutdown has begun).
+    #[arg(long, value_name = "N", default_value_t = 1)]
+    ready_min_isolates: usize,
 }
 
 fn seconds(value: f64) -> Option<Duration> {
@@ -491,11 +510,12 @@ impl LimitArgs {
         }
     }
 
-    fn serve_options(&self) -> ServeOptions {
+    fn serve_options(&self, metrics: Arc<HttpMetrics>) -> ServeOptions {
         ServeOptions {
             max_connections: self.max_connections.max(1),
             write_timeout: seconds(self.write_timeout),
             shutdown_grace: seconds(self.shutdown_grace).unwrap_or(Duration::ZERO),
+            metrics,
             ..ServeOptions::default()
         }
     }
@@ -530,15 +550,28 @@ enum JsRuntime {
 }
 
 fn main() -> ExitCode {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "nextrs=info".into()),
-        )
-        .with_writer(std::io::stderr)
-        .init();
+    let cli = Cli::parse();
+    let format =
+        cli.log_format
+            .unwrap_or_else(|| match std::env::var("NEXTRS_LOG_FORMAT").as_deref() {
+                Ok("json") => LogFormat::Json,
+                _ => LogFormat::Text,
+            });
+    let filter = tracing_subscriber::EnvFilter::try_from_default_env()
+        .unwrap_or_else(|_| "nextrs=info".into());
+    let builder = tracing_subscriber::fmt()
+        .with_env_filter(filter)
+        .with_writer(std::io::stderr);
+    match format {
+        LogFormat::Text => builder.init(),
+        LogFormat::Json => builder
+            .json()
+            .flatten_event(true)
+            .with_current_span(false)
+            .init(),
+    }
 
-    match run(Cli::parse()) {
+    match run(cli) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("error: {error}");
@@ -594,6 +627,17 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             }
             let forwarded = proxy.policy()?;
             match &forwarded {
+                // Reachable from other hosts with no forwarded-header
+                // policy: any client can claim another host or scheme to
+                // Next.js (redirect targets, absolute URLs, the Server
+                // Action origin check). Kept as next start behaves, but said
+                // loudly.
+                ForwardedHeaders::Pass if !host.is_loopback() => tracing::warn!(
+                    %host,
+                    "X-Forwarded-* headers are passed through from every client (as next start): \
+                     use --trusted-proxy <proxy address> behind a reverse proxy, or \
+                     --strip-forwarded-headers when clients connect directly"
+                ),
                 ForwardedHeaders::Pass => tracing::info!(
                     "X-Forwarded-* headers are passed through from every client (as next start); \
                      a reverse proxy must overwrite them, or use --trusted-proxy"
@@ -614,6 +658,23 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     ignore_adapter_output,
                 },
             )?;
+            // Before the executor loads the build's code: a build of another
+            // Next.js major fails there with errors that do not name the
+            // cause (or, worse, half works).
+            if let Some(d) = info
+                .diagnostics
+                .iter()
+                .find(|d| d.code == nextrs_adapter::UNSUPPORTED_VERSION_CODE)
+            {
+                if !allow_unsupported {
+                    return Err(format!(
+                        "{}\npass --allow-unsupported to start anyway (behaviour is undefined)",
+                        d.message
+                    )
+                    .into());
+                }
+                tracing::warn!(message = %d.message, "starting an unsupported Next.js build (--allow-unsupported)");
+            }
             let image_options = images.options(network.clone(), &info.project_dir)?;
             if let Some(config) = &info.images
                 && (!config.remote_patterns.is_empty() || !config.domains.is_empty())
@@ -762,9 +823,13 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     images: image_options,
                 };
                 let (app, image_stats) = nextrs_server::app_with_stats(&info, &options).await?;
+                let http_metrics = HttpMetrics::new();
                 if let Some(metrics_addr) = limits.metrics_addr {
-                    let Some(executor) = executor.clone() else {
-                        return Err("--metrics-addr needs --js-runtime embedded-v8".into());
+                    let sources = MetricsSources {
+                        executor: executor.clone(),
+                        images: image_stats,
+                        http: http_metrics.clone(),
+                        ready_min_isolates: limits.ready_min_isolates,
                     };
                     if !metrics_addr.ip().is_loopback() {
                         tracing::warn!(%metrics_addr, "serving metrics on a non-loopback address");
@@ -772,11 +837,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     let listener = tokio::net::TcpListener::bind(metrics_addr).await?;
                     tracing::info!(%metrics_addr, "metrics listening");
                     tokio::spawn(async move {
-                        let _ = axum::serve(
-                            listener,
-                            nextrs_server::metrics_app(executor, image_stats),
-                        )
-                        .await;
+                        let _ = axum::serve(listener, nextrs_server::metrics_app(sources)).await;
                     });
                 }
                 let addr = SocketAddr::new(host, port);
@@ -790,8 +851,13 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     ready_ms = started.elapsed().as_millis() as u64,
                     "nextrs ready"
                 );
-                nextrs_server::serve(listener, app, limits.serve_options(), shutdown_signal())
-                    .await?;
+                nextrs_server::serve(
+                    listener,
+                    app,
+                    limits.serve_options(http_metrics),
+                    shutdown_signal(),
+                )
+                .await?;
                 // Connections are drained (or the grace period is over);
                 // now let the isolates finish and stop.
                 if let Some(executor) = executor {

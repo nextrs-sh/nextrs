@@ -1,0 +1,10 @@
+MATCH  first-call-then-cached                     {"observed":{"statuses":[200,200,200],"generations":[0,0,0],"executions":1},"asserted":true}
+MATCH  arguments-are-keys                         {"observed":{"distinct":true,"aCached":true,"executions":2},"asserted":true}
+MATCH  cache-life-expiry                          {"observed":{"generations":[0,0,1,1],"executions":2},"asserted":true}
+MATCH  updateTag-from-action                      {"observed":{"action":{"status":200,"revalidated":"1"},"generations":[0,1,1],"executions":2},"asserted":true}
+MATCH  revalidateTag-max-from-action              {"observed":{"action":{"status":200,"revalidated":null},"generations":[0,0,1,1],"executions":2},"asserted":true}
+MATCH  unrelated-tag-untouched                    {"observed":{"same":true,"executions":1},"asserted":true}
+MATCH  concurrent-first-calls-agree-afterwards    {"observed":{"allOk":true,"afterwardOneValue":true},"asserted":true}
+PASS   shared-by-isolates                         {"pass":true,"executions":1}
+PASS   tag-revalidation-reaches-every-isolate     {"pass":true,"distinct":1}
+9/9 pass (7 asserted), 0 ORACLE-FAIL, 0 failing (isolates=4)

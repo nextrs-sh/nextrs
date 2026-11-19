@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="#project-status"><img src="https://img.shields.io/badge/status-experimental-CE422B?style=flat-square" alt="Status: experimental"></a>
-  <a href="engineering/compatibility.md"><img src="https://img.shields.io/badge/tested%20with-Next.js%2016.4.3-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Tested with Next.js 16.4.3"></a>
+  <a href="engineering/compatibility.md"><img src="https://img.shields.io/badge/tested%20with-Next.js%2016.4.6-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Tested with Next.js 16.4.6"></a>
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-1.88%2B-CE422B?style=flat-square&logo=rust&logoColor=white" alt="Rust 1.88 or later"></a>
 </p>
 
@@ -93,28 +93,21 @@ Rust store shared by every isolate.
 ## Performance Benchmarks
 
 NextRS compared with the official Next.js server (`next start`), both
-serving the same `.next` build. The measurements cover 24 workloads; these
-charts show two of them.
+serving the same `.next` build. The measurements cover 24 workloads; this
+chart shows one of them, measured on NextRS 0.6.0.
 
 <p align="center">
   <picture>
     <source media="(max-width: 600px)" srcset=".github/assets/nextrs-benchmarks-mobile.svg">
-    <img src=".github/assets/nextrs-benchmarks.svg" width="100%" alt="Measured 2026-11-16 on NextRS 6c1101d, Next.js 16.4.3: Dynamic App Router SSR (/books/[id]); throughput, CPU and memory in a closed loop with 32 connections, p95 latency in an open loop at an equal offered rate; median of 3 interleaved rounds on one machine. Throughput: next start 654 req/s, NextRS · 1 isolate 781 req/s, NextRS · 4 isolates 2,074 req/s. p95 latency: next start 5.25 ms, NextRS · 1 isolate 2.89 ms. Anonymous memory: next start 348 MiB, NextRS · 1 isolate 156 MiB. CPU per request: next start 1.80 ms, NextRS · 1 isolate 1.64 ms.">
-  </picture>
-</p>
-
-<p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset=".github/assets/nextrs-benchmarks-pages-ssr-mobile.svg">
-    <img src=".github/assets/nextrs-benchmarks-pages-ssr.svg" width="100%" alt="Measured 2026-11-16 on NextRS 6c1101d, Next.js 16.4.3: Pages Router getServerSideProps (no proxy match) (/ssr/whoami); throughput, CPU and memory in a closed loop with 32 connections, p95 latency in an open loop at an equal offered rate; median of 3 interleaved rounds on one machine. Throughput: next start 1,484 req/s, NextRS · 1 isolate 1,722 req/s, NextRS · 4 isolates 3,645 req/s. p95 latency: next start 3.12 ms, NextRS · 1 isolate 5.11 ms. Anonymous memory: next start 292 MiB, NextRS · 1 isolate 120 MiB. CPU per request: next start 0.78 ms, NextRS · 1 isolate 0.82 ms.">
+    <img src=".github/assets/nextrs-benchmarks.svg" width="100%" alt="Measured 2026-11-18 on NextRS 0.6.0 (f5c480d), Next.js 16.4.6: Dynamic App Router SSR (/books/[id]); throughput, CPU and memory in a closed loop with 32 connections, p95 latency in an open loop at an equal offered rate; median of 3 interleaved rounds on one machine. Throughput: next start 611 req/s, NextRS · 1 isolate 736 req/s, NextRS · 4 isolates 1,898 req/s. p95 latency: next start 6.26 ms, NextRS · 1 isolate 3.30 ms. Anonymous memory: next start 376 MiB, NextRS · 1 isolate 141 MiB. CPU per request: next start 1.92 ms, NextRS · 1 isolate 1.75 ms.">
   </picture>
 </p>
 
 > [!NOTE]
 > **Benchmark notice.**
 > - **When and what:**
->   - Measured on 2026-11-16.
->   - NextRS `6c1101d`, Next.js 16.4.3, Node.js 24.18.0.
+>   - Measured on 2026-11-18.
+>   - NextRS 0.6.0 (`f5c480d`), Next.js 16.4.6, Node.js 24.18.0.
 >   - One Intel Core i5-9400F host: the server on 4 CPUs, the load
 >     generator on 2 others.
 > - **How:**
@@ -122,8 +115,8 @@ charts show two of them.
 >   - Open loop at an equal offered rate for p95 latency.
 >   - 3 interleaved rounds, medians reported.
 > - **Results are mixed.**
->   - On Pages SSR, NextRS with one isolate has a higher p95 and slightly
->     more CPU per request than `next start`.
+>   - On Pages SSR, NextRS with one isolate has a higher open-loop p95 and
+>     slightly more CPU per request than `next start`.
 >   - `next start` transforms images faster.
 >
 > All 24 workloads, the method, the regressions, the raw data and the
@@ -179,11 +172,17 @@ NextRS is a research project, developed in the open.
 
 - **Experimental:** not recommended for untrusted production traffic. It
   binds to `127.0.0.1` by default.
-- **Selected features:** tested against ten small App Router applications
-  with Next.js 16.4.3, and the same suites pass on 16.4.4 and 16.4.5.
+- **Selected features:** tested against small App and Pages Router
+  applications with Next.js 16.4.6. The same suites pass on 16.4.5.
+  One larger application (Velasia Airways) was also checked with its own
+  browser suite.
+- **Next.js 16 only:** builds of other Next.js majors are refused at
+  startup.
 - **A narrow Node.js layer:** Node's network modules (`http`, `net`, TCP
-  sockets), `zlib`, `child_process` and native addons are unavailable, so
-  many database drivers will not work.
+  sockets), `zlib` streams, `child_process` and native addons are
+  unavailable, so many database drivers will not work.
+- **Operations:** health, readiness, Prometheus metrics and JSON logs are
+  documented in [Operations](engineering/operations.md).
 - **Isolation limits:** a V8 isolate is a memory boundary, not a security
   boundary, and CPU limits apply per isolate, not per request.
 

@@ -157,3 +157,21 @@ async fn asymmetric_web_crypto_matches_node() {
         })
     );
 }
+
+/// PBKDF2 deriveBits (Phase 3C; iron-session derives its keys with it):
+/// tests/fixtures/handlers/webcrypto-pbkdf2.expected.json is
+/// `node dist/webcrypto-pbkdf2.js` (Node 24.18.0). Every value must match:
+/// the derived bits for four hashes, empty and non-ASCII passwords, an
+/// empty salt, and the errors for misuse.
+#[tokio::test(flavor = "multi_thread")]
+async fn pbkdf2_matches_node() {
+    let executor = executor(Limits::default());
+    let response = collect(&executor, request("webcrypto-pbkdf2.js", &[])).await;
+    assert_eq!(response.status, 200, "{}", response.text());
+    let actual: Value = serde_json::from_str(&response.text()).unwrap();
+    let expected: Value = serde_json::from_str(include_str!(
+        "fixtures/handlers/webcrypto-pbkdf2.expected.json"
+    ))
+    .unwrap();
+    assert_eq!(actual, expected);
+}

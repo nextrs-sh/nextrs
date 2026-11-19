@@ -1,0 +1,11 @@
+[nextjs-api-routes-rest] PASS index-page GET / 200/200 
+[nextjs-api-routes-rest] PASS user-page GET /user/2 200/200 
+[nextjs-api-routes-rest] PASS users-api GET /api/users 200/200 
+[nextjs-api-routes-rest] PASS user-get GET /api/user/7 200/200 
+[nextjs-api-routes-rest] PASS user-put PUT /api/user/7?name=Ada 200/200 
+[nextjs-api-routes-rest] PASS user-delete-405 DELETE /api/user/7 405/405 
+[nextjs-api-routes-rest] PASS user-post-405-body POST /api/user/7 405/405 
+[nextjs-api-routes-rest] PASS api-unknown GET /api/nope 404/404 
+[nextjs-api-routes-rest] PASS page-unknown GET /nope 404/404 
+[nextjs-api-routes-rest] PASS data-route-missing GET /_next/data/BUILD/index.json 404/404 
+[nextjs-api-routes-rest] 10/10 scenarios passed

@@ -28,6 +28,13 @@ exports.handler = async (req, res) => {
       while (Date.now() < until) {}
       return res.end(`${globalThis.__isolateId}:spun`);
     }
+    // Blocks the thread without using the CPU for x-delay ms (as a
+    // synchronous read on a stalled disk does): not a runaway.
+    case "block": {
+      const ms = Number(req.headers["x-delay"] ?? 1500);
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+      return res.end(`${globalThis.__isolateId}:blocked`);
+    }
     // CPU-bound: only the stall watchdog stops these.
     case "loop":
       for (;;) {}

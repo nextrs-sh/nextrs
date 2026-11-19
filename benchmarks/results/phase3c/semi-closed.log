@@ -1,0 +1,73 @@
+02:53:17 round 1/2 app semi8-i4
+02:53:33   ssr            ok   1903 rps cpu 2.062 ms young 536 KiB/req minor 75.36/1k (2.16 ms) major 4.625/1k pause 9.2% of CPU anon 344.8 MiB
+02:53:49   action         ok   4484 rps cpu 0.854 ms young 175.7 KiB/req minor 28.43/1k (2.542 ms) major 2.029/1k pause 9.8% of CPU anon 357 MiB
+02:54:04   isr-hit        ok  10968 rps cpu 0.345 ms young 91.2 KiB/req minor 13.88/1k (1.364 ms) major 0.629/1k pause 6.3% of CPU anon 356.9 MiB
+02:54:04 round 1/2 app default-i4
+02:54:20   ssr            ok   1974 rps cpu 1.981 ms young 535.4 KiB/req minor 20.31/1k (5.562 ms) major 3.444/1k pause 6.8% of CPU anon 508 MiB
+02:54:35   action         ok   4534 rps cpu 0.839 ms young 175.2 KiB/req minor 6.88/1k (7.481 ms) major 1.654/1k pause 7.2% of CPU anon 510.1 MiB
+02:54:51   isr-hit        ok  11012 rps cpu 0.344 ms young 91.3 KiB/req minor 3.53/1k (3.835 ms) major 0.527/1k pause 4.6% of CPU anon 510.3 MiB
+02:54:51 round 1/2 app semi8-i1
+02:55:07   ssr            ok    707 rps cpu 1.938 ms young 542 KiB/req minor 70.46/1k (1.283 ms) major 5.801/1k pause 5.6% of CPU anon 100.3 MiB
+02:55:22   action         ok   2346 rps cpu 0.701 ms young 171.7 KiB/req minor 26.46/1k (1.396 ms) major 2.386/1k pause 6.2% of CPU anon 88.8 MiB
+02:55:37   isr-hit        ok   4824 rps cpu 0.297 ms young 81.7 KiB/req minor 11.09/1k (0.818 ms) major 0.746/1k pause 3.5% of CPU anon 85.6 MiB
+02:55:38 round 1/2 app default-i1
+02:55:53   ssr            ok    755 rps cpu 1.727 ms young 532.8 KiB/req minor 17.48/1k (3.203 ms) major 3.709/1k pause 3.9% of CPU anon 130.8 MiB
+02:56:09   action         ok   2507 rps cpu 0.638 ms young 171.5 KiB/req minor 6.74/1k (3.675 ms) major 1.675/1k pause 4.6% of CPU anon 130 MiB
+02:56:24   isr-hit        ok   4935 rps cpu 0.288 ms young 81.7 KiB/req minor 3/1k (2.488 ms) major 0.608/1k pause 3% of CPU anon 130.1 MiB
+02:56:24 round 1/2 pages default-i1
+02:56:40   pages-ssr      ok   1712 rps cpu 0.811 ms young 253.3 KiB/req minor 9.52/1k (2.22 ms) major 2.044/1k pause 3.1% of CPU anon 121.4 MiB
+02:56:55   pages-ssr-proxied ok   1261 rps cpu 1.139 ms young 335 KiB/req minor 11.18/1k (3.085 ms) major 2.22/1k pause 3.9% of CPU anon 140 MiB
+02:56:56 round 1/2 pages default-i4
+02:57:11   pages-ssr      ok   3717 rps cpu 0.926 ms young 255.5 KiB/req minor 10.14/1k (4.856 ms) major 2.663/1k pause 6.2% of CPU anon 402 MiB
+02:57:26   pages-ssr-proxied ok   2990 rps cpu 1.302 ms young 338.9 KiB/req minor 13.61/1k (6.227 ms) major 3.411/1k pause 7.7% of CPU anon 429.6 MiB
+02:57:27 round 1/2 pages semi8-i1
+02:57:42   pages-ssr      ok   1591 rps cpu 0.948 ms young 253.5 KiB/req minor 36.39/1k (1.031 ms) major 4.651/1k pause 4.8% of CPU anon 72.3 MiB
+02:57:57   pages-ssr-proxied ok   1159 rps cpu 1.280 ms young 346 KiB/req minor 43.05/1k (1.168 ms) major 3.882/1k pause 5% of CPU anon 90.7 MiB
+02:57:58 round 1/2 pages semi8-i4
+02:58:13   pages-ssr      ok   3570 rps cpu 0.981 ms young 256.2 KiB/req minor 40.08/1k (1.618 ms) major 3.865/1k pause 7.6% of CPU anon 213.7 MiB
+02:58:28   pages-ssr-proxied ok   2840 rps cpu 1.371 ms young 338.8 KiB/req minor 51.62/1k (2.126 ms) major 4.472/1k pause 9.2% of CPU anon 240.6 MiB
+02:58:29 round 1/2 mixed semi8-i4
+02:58:46   mixed          ok   2152 rps cpu 1.701 ms young 148.8 KiB/req minor 23.79/1k (2.104 ms) major 0.976/1k pause 3.2% of CPU anon 333.8 MiB
+02:58:47 round 1/2 mixed default-i1
+02:59:03   mixed          ok   2048 rps cpu 1.304 ms young 139 KiB/req minor 5.27/1k (3.418 ms) major 0.732/1k pause 1.6% of CPU anon 148 MiB
+02:59:03 round 1/2 mixed semi8-i1
+02:59:19   mixed          ok   1994 rps cpu 1.319 ms young 139.8 KiB/req minor 19.9/1k (1.231 ms) major 0.802/1k pause 2.1% of CPU anon 115.2 MiB
+02:59:20 round 1/2 mixed default-i4
+02:59:36   mixed          ok   2189 rps cpu 1.664 ms young 148.9 KiB/req minor 6.07/1k (6.045 ms) major 0.913/1k pause 2.5% of CPU anon 488.7 MiB
+02:59:36 round 2/2 app default-i4
+02:59:52   ssr            ok   1821 rps cpu 2.071 ms young 535.9 KiB/req minor 20.26/1k (6.352 ms) major 3.515/1k pause 7.5% of CPU anon 516.1 MiB
+03:00:08   action         ok   4376 rps cpu 0.859 ms young 176.1 KiB/req minor 7.02/1k (7.424 ms) major 1.714/1k pause 7.2% of CPU anon 514.2 MiB
+03:00:23   isr-hit        ok  10571 rps cpu 0.354 ms young 91.9 KiB/req minor 3.51/1k (3.925 ms) major 0.539/1k pause 4.6% of CPU anon 516.7 MiB
+03:00:23 round 2/2 app semi8-i1
+03:00:39   ssr            ok    646 rps cpu 1.907 ms young 537.1 KiB/req minor 70.08/1k (1.465 ms) major 4.177/1k pause 6.5% of CPU anon 110.7 MiB
+03:00:54   action         ok   2315 rps cpu 0.698 ms young 171.7 KiB/req minor 26.87/1k (1.387 ms) major 2.203/1k pause 6.2% of CPU anon 102.8 MiB
+03:01:09   isr-hit        ok   4743 rps cpu 0.299 ms young 81.7 KiB/req minor 11.19/1k (0.812 ms) major 0.759/1k pause 3.5% of CPU anon 98.1 MiB
+03:01:10 round 2/2 app default-i1
+03:01:25   ssr            ok    739 rps cpu 1.722 ms young 531.7 KiB/req minor 17.86/1k (2.977 ms) major 2.706/1k pause 3.8% of CPU anon 148.2 MiB
+03:01:41   action         ok   2340 rps cpu 0.660 ms young 170.6 KiB/req minor 6.62/1k (4.329 ms) major 1.666/1k pause 5.2% of CPU anon 139.4 MiB
+03:01:56   isr-hit        ok   3276 rps cpu 0.338 ms young 82 KiB/req minor 3.02/1k (6.038 ms) major 0.61/1k pause 6.4% of CPU anon 138.8 MiB
+03:01:57 round 2/2 app semi8-i4
+03:02:12   ssr            ok   1500 rps cpu 2.316 ms young 541.4 KiB/req minor 76.74/1k (2.874 ms) major 4.867/1k pause 11% of CPU anon 330.4 MiB
+03:02:28   action         ok   3779 rps cpu 0.949 ms young 176.8 KiB/req minor 28.89/1k (2.877 ms) major 2.117/1k pause 10% of CPU anon 337.8 MiB
+03:02:43   isr-hit        ok   9516 rps cpu 0.382 ms young 91.9 KiB/req minor 13.98/1k (1.525 ms) major 0.63/1k pause 6.4% of CPU anon 341.3 MiB
+03:02:43 round 2/2 pages default-i1
+03:02:59   pages-ssr      ok   1630 rps cpu 0.849 ms young 253.3 KiB/req minor 9.51/1k (2.606 ms) major 1.964/1k pause 3.5% of CPU anon 119.5 MiB
+03:03:14   pages-ssr-proxied ok   1214 rps cpu 1.174 ms young 335.5 KiB/req minor 11.12/1k (3.655 ms) major 2.306/1k pause 4.4% of CPU anon 135.3 MiB
+03:03:14 round 2/2 pages semi8-i1
+03:03:30   pages-ssr      ok   1512 rps cpu 0.986 ms young 253.5 KiB/req minor 36.24/1k (1.2 ms) major 4.497/1k pause 5.4% of CPU anon 78.9 MiB
+03:03:45   pages-ssr-proxied ok   1080 rps cpu 1.340 ms young 346.2 KiB/req minor 43.33/1k (1.467 ms) major 3.981/1k pause 6% of CPU anon 103.4 MiB
+03:03:46 round 2/2 pages semi8-i4
+03:04:01   pages-ssr      ok   3292 rps cpu 1.044 ms young 256.8 KiB/req minor 40.12/1k (2.093 ms) major 3.918/1k pause 9.3% of CPU anon 221.3 MiB
+03:04:16   pages-ssr-proxied ok   2646 rps cpu 1.469 ms young 339.9 KiB/req minor 51.85/1k (2.507 ms) major 4.459/1k pause 10.3% of CPU anon 251.3 MiB
+03:04:17 round 2/2 pages default-i4
+03:04:32   pages-ssr      ok   3326 rps cpu 1.008 ms young 256.9 KiB/req minor 10.1/1k (5.984 ms) major 2.856/1k pause 7% of CPU anon 405.1 MiB
+03:04:47   pages-ssr-proxied ok   2853 rps cpu 1.348 ms young 339.4 KiB/req minor 13.56/1k (6.571 ms) major 3.33/1k pause 7.8% of CPU anon 431.8 MiB
+03:04:48 round 2/2 mixed semi8-i1
+03:05:04   mixed          ok   1874 rps cpu 1.376 ms young 140.6 KiB/req minor 19.9/1k (1.369 ms) major 0.8/1k pause 2.2% of CPU anon 122.4 MiB
+03:05:04 round 2/2 mixed default-i4
+03:05:20   mixed          ok   1812 rps cpu 1.821 ms young 149.4 KiB/req minor 5.79/1k (8.311 ms) major 0.828/1k pause 2.9% of CPU anon 500.5 MiB
+03:05:21 round 2/2 mixed default-i1
+03:05:37   mixed          ok   1868 rps cpu 1.385 ms young 140.2 KiB/req minor 5.3/1k (4.176 ms) major 0.749/1k pause 1.9% of CPU anon 160.4 MiB
+03:05:38 round 2/2 mixed semi8-i4
+03:05:54   mixed          ok   1985 rps cpu 1.776 ms young 148.8 KiB/req minor 23.83/1k (2.34 ms) major 0.957/1k pause 3.5% of CPU anon 330.8 MiB
+03:05:55 done /home/dennispaler/Documents/OpenSource/nextrs/benchmarks/results/phase3c/semi-closed

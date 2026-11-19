@@ -66,8 +66,11 @@ jobs:
     name: next ${{ matrix.next }}, ${{ matrix.isolates }} isolate(s)
     needs: rust
     runs-on: ubuntu-24.04
-    # Only the pinned baseline gates merges. Other versions are reported,
-    # and become supported only after they pass and are recorded.
+    # Only the pinned baseline (the fixtures' lockfiles: Next.js 16.4.6)
+    # gates merges. Other versions are reported, and become supported only
+    # after they pass and are recorded. 16.4.3 and 16.4.4 are no longer
+    # tested: their `next build` stops on two 'use cache' advisories
+    # (GHSA-mfr8-8qww-v76h, GHSA-vc7v-qv4w-wrv8; fixed in 16.4.5).
     continue-on-error: ${{ matrix.next != 'pinned' }}
     strategy:
       fail-fast: false
@@ -75,7 +78,6 @@ jobs:
         include:
           - { next: pinned, isolates: 1 }
           - { next: pinned, isolates: 4 }
-          - { next: "16.4.4", isolates: 1 }
           - { next: "16.4.5", isolates: 1 }
     steps:
       - uses: actions/checkout@v4

@@ -1,0 +1,45 @@
+== next
+  action-same-origin: 200 accepted  
+  action-foreign-origin: 500 refused  
+  action-foreign-origin-forged-xfh: 200 accepted  
+  action-proxied-public-host: 200 accepted  
+  redirect-config-forged-xfh: 307  -> /booking/checkout 
+  redirect-auth-forged-xfh: 200   
+  home-forged-xfh: 200   
+  home-forged-forwarded: 200   
+== pass
+  action-same-origin: 200 accepted  
+  action-foreign-origin: 500 refused  
+  action-foreign-origin-forged-xfh: 200 accepted  
+  action-proxied-public-host: 200 accepted  
+  redirect-config-forged-xfh: 307  -> /booking/checkout 
+  redirect-auth-forged-xfh: 200   
+  home-forged-xfh: 200   
+  home-forged-forwarded: 200   
+== strip
+  action-same-origin: 200 accepted  
+  action-foreign-origin: 500 refused  
+  action-foreign-origin-forged-xfh: 500 refused  
+  action-proxied-public-host: 500 refused  
+  redirect-config-forged-xfh: 307  -> /booking/checkout 
+  redirect-auth-forged-xfh: 200   
+  home-forged-xfh: 200   
+  home-forged-forwarded: 200   
+== trusted
+  action-same-origin: 200 accepted  
+  action-foreign-origin: 500 refused  
+  action-foreign-origin-forged-xfh: 200 accepted  
+  action-proxied-public-host: 200 accepted  
+  redirect-config-forged-xfh: 307  -> /booking/checkout 
+  redirect-auth-forged-xfh: 200   
+  home-forged-xfh: 200   
+  home-forged-forwarded: 200   
+== untrusted
+  action-same-origin: 200 accepted  
+  action-foreign-origin: 500 refused  
+  action-foreign-origin-forged-xfh: 500 refused  
+  action-proxied-public-host: 500 refused  
+  redirect-config-forged-xfh: 307  -> /booking/checkout 
+  redirect-auth-forged-xfh: 200   
+  home-forged-xfh: 200   
+  home-forged-forwarded: 200   

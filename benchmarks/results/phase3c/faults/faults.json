@@ -1,0 +1,238 @@
+{
+  "nextrs": "/home/dennispaler/Documents/OpenSource/nextrs/target/phase3c-soak/nextrs-3f42fc5",
+  "started": "2026-11-17T04:38:54.411Z",
+  "scenarios": {
+    "api-outage": {
+      "before": {
+        "/ 200": 107,
+        "/flights 200": 107
+      },
+      "during": {
+        "/ 200": 453,
+        "/destinations/manila 200": 452,
+        "/flights 200": 484,
+        "/api/flights 503": 470
+      },
+      "duringSamples": [
+        {
+          "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+          "status": 503,
+          "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+        },
+        {
+          "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+          "status": 503,
+          "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+        },
+        {
+          "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+          "status": 503,
+          "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+        },
+        {
+          "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+          "status": 503,
+          "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+        },
+        {
+          "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+          "status": 503,
+          "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+        },
+        {
+          "path": "/api/flights?from=MNL&to=SIN&departureDate=2026-12-15&adults=1",
+          "status": 503,
+          "body": "{\"error\":{\"code\":\"UPSTREAM_UNAVAILABLE\",\"message\":\"Flights are temporarily unavailable. Please try again.\"}}"
+        }
+      ],
+      "searchDuringOutage": {
+        "status": 200,
+        "showsErrorUi": true,
+        "inventsFlights": false
+      },
+      "after": {
+        "/ 200": 147,
+        "/flights 200": 184
+      },
+      "recovered": {
+        "status": 200,
+        "showsFlights": true
+      },
+      "restarts": 0,
+      "readyIsolates": 2
+    },
+    "sigterm-drain": {
+      "readyzAfterSignal": {
+        "status": 503,
+        "afterMs": 6
+      },
+      "newConnectionAfterSignal": {
+        "status": 0,
+        "error": "ECONNREFUSED"
+      },
+      "inFlight": [
+        {
+          "status": 200,
+          "ms": 3077,
+          "complete": true
+        },
+        {
+          "status": 200,
+          "ms": 3177,
+          "complete": true
+        },
+        {
+          "status": 200,
+          "ms": 3157,
+          "complete": true
+        },
+        {
+          "status": 200,
+          "ms": 3209,
+          "complete": true
+        },
+        {
+          "status": 200,
+          "ms": 3092,
+          "complete": true
+        },
+        {
+          "status": 200,
+          "ms": 3048,
+          "complete": true
+        }
+      ],
+      "exitMs": 2818,
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "log": [
+        "2026-11-17T04:39:36.473703Z  INFO nextrs_server::serve: shutting down: no new connections; draining connections=7 grace_ms=10000",
+        "2026-11-17T04:39:39.180549Z  INFO nextrs: stopping JavaScript isolates",
+        "2026-11-17T04:39:39.265274Z  INFO nextrs: nextrs stopped"
+      ]
+    },
+    "sigkill-cache": {
+      "warm": {
+        "/ 200": 55,
+        "/destinations/manila 200": 50,
+        "/destinations/seoul 200": 76,
+        "/destinations/tokyo 200": 58,
+        "/flights 200": 137
+      },
+      "killed": {
+        "code": null,
+        "signal": "SIGKILL"
+      },
+      "cacheEntriesBeforeKill": 11,
+      "filesAfterKill": 14,
+      "restarted": true,
+      "afterRestart": [
+        {
+          "path": "/",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "path": "/destinations/manila",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "path": "/destinations/tokyo",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "path": "/destinations/seoul",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "path": "/flights",
+          "status": 200,
+          "ok": true
+        },
+        {
+          "path": "/flights?trip=one-way&from=MNL&to=SIN&depart=2026-12-15&adults=1&cabin=economy",
+          "status": 200,
+          "ok": true
+        }
+      ],
+      "cacheAfterRestart": {
+        "entries": 11,
+        "corrupt": 0,
+        "io_errors": 0,
+        "hits": 8
+      }
+    },
+    "cache-unwritable": {
+      "firstVisit": [
+        {
+          "path": "/destinations/bangkok",
+          "status": 200
+        },
+        {
+          "path": "/destinations/osaka",
+          "status": 200
+        },
+        {
+          "path": "/destinations/taipei",
+          "status": 200
+        },
+        {
+          "path": "/destinations/cebu",
+          "status": 200
+        },
+        {
+          "path": "/about",
+          "status": 200
+        },
+        {
+          "path": "/help",
+          "status": 200
+        }
+      ],
+      "secondVisit": [
+        {
+          "path": "/destinations/bangkok",
+          "status": 200
+        },
+        {
+          "path": "/destinations/osaka",
+          "status": 200
+        },
+        {
+          "path": "/destinations/taipei",
+          "status": 200
+        },
+        {
+          "path": "/destinations/cebu",
+          "status": 200
+        },
+        {
+          "path": "/about",
+          "status": 200
+        },
+        {
+          "path": "/help",
+          "status": 200
+        }
+      ],
+      "cacheErrors": {
+        "before": 0,
+        "after": 16
+      },
+      "entries": {
+        "before": 1,
+        "after": 14
+      },
+      "log": [
+        "2026-11-17T04:39:49.080293Z  WARN nextrs::cache: cannot persist a cache entry error=Permission denied (os error 13)",
+        "2026-11-17T04:39:49.114545Z  WARN nextrs::cache: cannot persist a cache entry error=Permission denied (os error 13)",
+        "2026-11-17T04:39:49.125690Z  WARN nextrs::cache: cannot persist a cache entry error=Permission denied (os error 13)"
+      ]
+    }
+  }
+}

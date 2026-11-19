@@ -1,0 +1,162 @@
+{
+  "config": {
+    "argv": [
+      "/home/dennispaler/.cache/nextrs-phase3a/node-v24.18.0-linux-x64/bin/node",
+      "/home/dennispaler/.cache/nextrs-phase3b/velasia-src/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/playwright.isolation.config.ts",
+      "perf-prepare.spec.ts"
+    ],
+    "configFile": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios/playwright.isolation.config.ts",
+    "rootDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/dennispaler/.cache/nextrs-phase3b/velasia-src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.spec\\.ts$/"
+        ],
+        "timeout": 600000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/dennispaler/.cache/nextrs-phase3b/velasia-src/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios",
+        "snapshotDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/certification/applications/velasia-airways/scenarios",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 600000,
+        "use": {
+          "baseURL": "http://127.0.0.1:3700",
+          "timezoneId": "Asia/Manila",
+          "locale": "en-PH",
+          "trace": "retain-on-failure",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/159.0.8154.6 Safari/537.36",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/results/phase3c/soak-i1/velasia/prepare.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.65.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "perf-prepare.spec.ts",
+      "file": "perf-prepare.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "prepare benchmark state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18903,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T12:40:05.928Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7e7932a67b2254a20366-559d51a1821b252a0c91",
+          "file": "perf-prepare.spec.ts",
+          "line": 31,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-18T12:40:05.150Z",
+    "duration": 27128.15,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

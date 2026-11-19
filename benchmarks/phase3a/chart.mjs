@@ -6,6 +6,7 @@
 //   node benchmarks/phase3a/chart.mjs RESULT_DIR --workload app/ssr
 //     [--configs next-start,nextrs-i1,nextrs-i4] [--cpu-config nextrs-i1]
 //     [--out .github/assets] [--raw-url URL] [--name nextrs-benchmarks] [--path /request/path]
+//     [--version 0.6.0]   (label NextRS by release version; the commit stays in the description)
 //
 // Throughput shows every listed configuration (isolates are parallelism
 // within the same 4 CPUs); latency, memory and CPU compare the first two
@@ -28,6 +29,8 @@ const outDir = opt.out ?? ".github/assets";
 const raw = opt["raw-url"] ?? `benchmarks/results/phase3a/${dir.split("/").pop()}`;
 const commit = (env.nextrs_commit ?? "").slice(0, 7);
 const date = env.date.slice(0, 10);
+const release = opt.version ? `${opt.version} (${commit})` : commit;
+const shown = opt.version ?? commit;
 const path = opt.path ?? W.label?.match(/\(([^)]+)\)/)?.[1] ?? workload;
 const title = opt.path ? W.label : W.label.replace(/\s*\([^)]*\)\s*$/, "");
 
@@ -47,7 +50,7 @@ const panels = [
 for (const p of panels) for (const [c, v] of p.rows) if (v == null) throw new Error(`missing ${p.title} for ${c}`);
 
 const summaryText = panels.map((p) => `${p.title}: ${p.rows.map(([c, v]) => `${name(c)} ${fmt(v, p.unit)}`).join(", ")}`).join(". ");
-const desc = `Measured ${date} on NextRS ${commit}, Next.js ${env.fixtures?.[group]?.next_version ?? "16"}: ${title} (${path}); throughput, CPU and memory in a closed loop with 32 connections, p95 latency in an open loop at an equal offered rate; median of ${W.configs[base].closed.rounds} interleaved rounds on one machine. ${summaryText}.`;
+const desc = `Measured ${date} on NextRS ${release}, Next.js ${env.fixtures?.[group]?.next_version ?? "16"}: ${title} (${path}); throughput, CPU and memory in a closed loop with 32 connections, p95 latency in an open loop at an equal offered rate; median of ${W.configs[base].closed.rounds} interleaved rounds on one machine. ${summaryText}.`;
 
 function panel(x, y, w, h, p, labelW) {
   const max = Math.max(...p.rows.map(([, v]) => v));
@@ -79,7 +82,7 @@ function svg(width, layout) {
   const isolates = configs.filter((c) => c !== base).map((c) => c.split("-i").pop()).join(" and ");
   const foot = [
     `Workload: ${title} — ${path} · ${S.workloads.length} workloads measured, each reported separately.`,
-    `Next.js ${env.fixtures?.[group]?.next_version ?? "16"} on Node ${env.node} · NextRS ${commit} · ${isolates} V8 isolate(s) · ${env.cpu_model}, server on CPUs ${env.server_cpus}, load generator on ${env.load_cpus} (single host)`,
+    `Next.js ${env.fixtures?.[group]?.next_version ?? "16"} on Node ${env.node} · NextRS ${shown} · ${isolates} V8 isolate(s) · ${env.cpu_model}, server on CPUs ${env.server_cpus}, load generator on ${env.load_cpus} (single host)`,
     `${date} · same .next build · closed loop, 32 connections; p95 open loop at an equal offered rate · ${W.configs[base].closed.rounds} interleaved rounds, medians · raw data: ${raw}`,
     `Results are specific to the tested workloads, hardware, and runtime configurations. They are not guarantees of production performance.`,
   ];
@@ -93,7 +96,7 @@ function svg(width, layout) {
   s += `<text x="${narrow ? 32 : 48}" y="70" class="mono" font-size="15" font-weight="600" letter-spacing="2.4" fill="${C.accent}">PHASE 3A · REPRODUCIBLE BENCHMARK · EXPERIMENTAL</text>`;
   s += `<text x="${narrow ? 32 : 48}" y="112" class="sans" font-size="${narrow ? 26 : 32}" font-weight="700" fill="${C.text}">NextRS vs <tspan class="mono">next start</tspan> —${narrow ? `</text><text x="32" y="${112 + dy}" class="sans" font-size="26" font-weight="700" fill="${C.text}">` : " "}Reproducible Benchmark Results</text>`;
   s += `<text x="${narrow ? 32 : 48}" y="${148 + dy}" class="sans" font-size="18" fill="${C.muted}">${esc(title)} · <tspan class="mono" font-size="17">${esc(path)}</tspan></text>`;
-  s += `<text x="${narrow ? 32 : 48}" y="${176 + dy}" class="sans" font-size="16" fill="${C.muted}">Next.js ${esc(env.fixtures?.[group]?.next_version ?? "16")} · NextRS ${esc(commit)} · ${esc(date)} · median of ${W.configs[base].closed.rounds} interleaved rounds</text>`;
+  s += `<text x="${narrow ? 32 : 48}" y="${176 + dy}" class="sans" font-size="16" fill="${C.muted}">Next.js ${esc(env.fixtures?.[group]?.next_version ?? "16")} · NextRS ${esc(shown)} · ${esc(date)} · median of ${W.configs[base].closed.rounds} interleaved rounds</text>`;
   panels.forEach((p, i) => (s += panel(positions[i][0], positions[i][1], pw, ph, p, labelW)));
   footLines.forEach((l, i) => (s += `<text x="${narrow ? 32 : 48}" y="${footY + 24 + i * 24}" class="sans" font-size="${i === footLines.length - 1 ? 15 : 15}" fill="${i >= footLines.length - wrap(foot[3], narrow ? 82 : 150).length ? C.muted : C.soft}">${esc(l)}</text>`));
   return s + "</svg>\n";

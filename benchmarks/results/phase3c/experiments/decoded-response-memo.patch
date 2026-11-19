@@ -1,0 +1,312 @@
+diff --git a/crates/nextrs-runtime/js/03_server.js b/crates/nextrs-runtime/js/03_server.js
+index 587b861..d0c68ab 100644
+--- a/crates/nextrs-runtime/js/03_server.js
++++ b/crates/nextrs-runtime/js/03_server.js
+@@ -992,6 +992,44 @@
+     scope.leases = null;
+   }
+ 
++  // Response entries this isolate has decoded, by key, each with the store
++  // generation it came from. A hit names the generation it holds; while the
++  // store still has it (no set, revalidation by set, or eviction since),
++  // the store answers "unchanged" without copying the value, and the
++  // decoded value is reused, as next start's FileSystemCache serves every
++  // request from the same object in its memory cache. Tags and kinds are
++  // still judged on every request. Bounded by the size of the stored
++  // values (least recently used first out); entries above a quarter of the
++  // budget are not kept.
++  const decodedEntries = (() => {
++    const budget = Math.max(0, Number(boot.cacheDecodedBytes ?? 0));
++    const entries = new Map();
++    let bytes = 0;
++    const forget = (key) => {
++      const entry = entries.get(key);
++      if (entry === undefined) return;
++      entries.delete(key);
++      bytes -= entry.bytes;
++    };
++    return {
++      get: (key) => (budget > 0 ? entries.get(key) : undefined),
++      forget,
++      touch(key, entry) {
++        entries.delete(key);
++        entries.set(key, entry);
++      },
++      keep(key, entry) {
++        if (budget === 0 || entry.bytes > budget / 4) return;
++        entries.set(key, entry);
++        bytes += entry.bytes;
++        for (const [oldest] of entries) {
++          if (bytes <= budget) break;
++          forget(oldest);
++        }
++      },
++    };
++  })();
++
+   let SeedCache;
+   class NextRSCacheHandler {
+     #ctx;
+@@ -1036,7 +1074,7 @@
+     }
+ 
+     async #fetchEntry(key, context) {
+-      const hit = await ops.op_nextrs_cache_get(key);
++      const hit = await ops.op_nextrs_cache_get(key, -1);
+       const tags = syncTags();
+       if (hit === null || hit.value === null) return null;
+       let stored;
+@@ -1055,26 +1093,41 @@
+ 
+     async #responseEntry(key, context) {
+       const kind = context.kind;
+-      const hit = await ops.op_nextrs_cache_get(key);
++      const kept = decodedEntries.get(key);
++      const hit = await ops.op_nextrs_cache_get(key, kept ? kept.generation : -1);
+       const tags = syncTags();
+-      if (hit === null) return this.#readSeed(key, context);
+-      // A response entry that left memory without a disk copy: a miss,
+-      // never the (older) build prerender.
+-      if (hit.value === null) return null;
+-      let stored;
+-      try {
+-        stored = JSON.parse(hit.value);
+-      } catch {
+-        return null;
++      if (hit === null) {
++        decodedEntries.forget(key);
++        return this.#readSeed(key, context);
++      }
++      let value, cacheControl;
++      if (hit.unchanged && kept) {
++        // The store still holds the generation decoded here: the same
++        // value, as next start's memory cache returns the same object.
++        ({ value, cacheControl } = kept);
++        decodedEntries.touch(key, kept);
++      } else {
++        decodedEntries.forget(key);
++        // A response entry that left memory without a disk copy: a miss,
++        // never the (older) build prerender.
++        if (hit.value === null) return null;
++        let stored;
++        try {
++          stored = JSON.parse(hit.value);
++        } catch {
++          return null;
++        }
++        if (stored?.v !== ENVELOPE) return null;
++        value = decodeResponse(stored.value);
++        cacheControl = stored.cacheControl;
++        decodedEntries.keep(key, { generation: hit.generation, value, cacheControl, bytes: hit.value.length });
+       }
+-      if (stored?.v !== ENVELOPE) return null;
+-      const value = decodeResponse(stored.value);
+       // A Pages Router entry is a page or the redirect its getStaticProps
+       // returned.
+       if (value !== null && value.kind !== kind && !(value.kind === "REDIRECT" && kind === "PAGES")) return null;
+       const cacheTags = responseTags(value);
+       if (cacheTags.length > 0 && tags.areTagsExpired(cacheTags, hit.lastModified)) return null;
+-      return { value, lastModified: hit.lastModified, cacheControl: stored.cacheControl };
++      return { value, lastModified: hit.lastModified, cacheControl };
+     }
+ 
+     async set(key, data, context) {
+@@ -1158,7 +1211,7 @@
+     async get(cacheKey) {
+       const pending = pendingUseCacheSets.get(cacheKey);
+       if (pending) await pending;
+-      const hit = await ops.op_nextrs_cache_get(USE_CACHE_PREFIX + cacheKey);
++      const hit = await ops.op_nextrs_cache_get(USE_CACHE_PREFIX + cacheKey, -1);
+       const tags = syncTags();
+       if (hit === null || hit.value === null) return undefined;
+       let stored;
+diff --git a/crates/nextrs-runtime/src/cache.rs b/crates/nextrs-runtime/src/cache.rs
+index 0d51957..820d7c4 100644
+--- a/crates/nextrs-runtime/src/cache.rs
++++ b/crates/nextrs-runtime/src/cache.rs
+@@ -68,6 +68,11 @@ pub struct CacheConfig {
+     /// Larger response-cache values (ISR pages and route handlers) are not
+     /// stored; Next sets no limit of its own for them.
+     pub max_response_bytes: u64,
++    /// Per isolate: decoded response entries kept in JavaScript, reused
++    /// while the store still holds the same generation (next start keeps
++    /// decoded entries in its memory cache the same way). 0 decodes every
++    /// hit again.
++    pub isolate_decoded_bytes: u64,
+ }
+ 
+ impl Default for CacheConfig {
+@@ -78,6 +83,7 @@ impl Default for CacheConfig {
+             max_disk_bytes: 1024 * 1024 * 1024,
+             max_entry_bytes: 2 * 1024 * 1024,
+             max_response_bytes: 16 * 1024 * 1024,
++            isolate_decoded_bytes: 16 * 1024 * 1024,
+         }
+     }
+ }
+@@ -181,10 +187,17 @@ impl State {
+ pub(crate) struct Hit {
+     /// `None` for a response entry that left memory without a disk copy:
+     /// a newer value existed, so the caller must not fall back to the
+-    /// build-time prerender.
++    /// build-time prerender. Also `None` when `unchanged`.
+     pub value: Option<String>,
+     /// Milliseconds since the epoch.
+     pub last_modified: f64,
++    /// Which `set` stored this value (unique per key while the process
++    /// runs): a caller that kept the value decoded can reuse it as long as
++    /// the generation is the same.
++    pub generation: f64,
++    /// The caller named this generation as the one it holds: the value is
++    /// not copied out again.
++    pub unchanged: bool,
+ }
+ 
+ /// What `lookup` found without touching the disk.
+@@ -516,8 +529,10 @@ impl CacheStore {
+         )
+     }
+ 
+-    /// Looks a key up in memory.
+-    pub fn lookup(&self, key: &str) -> Lookup {
++    /// Looks a key up in memory. `known` is the generation the caller
++    /// already holds decoded, if any: when it is still the stored one, the
++    /// hit says so instead of copying the value out.
++    pub fn lookup(&self, key: &str, known: Option<u64>) -> Lookup {
+         if key.len() > MAX_KEY_BYTES {
+             metrics::add(&self.counters.cache_misses, 1);
+             return Lookup::Miss;
+@@ -529,16 +544,35 @@ impl CacheStore {
+             return Lookup::Miss;
+         };
+         let last_modified = entry.last_modified as f64;
++        let generation = entry.generation;
+         match (&entry.value, entry.on_disk) {
+-            (Some(value), _) => {
+-                let hit = Hit {
+-                    value: Some(String::from_utf8_lossy(value).into_owned()),
++            // The caller holds this value already (in memory or, the same
++            // bytes, on disk): nothing to copy or read.
++            (Some(_), _) | (None, true) if known == Some(generation) => {
++                state.touch(key);
++                drop(state);
++                metrics::add(&self.counters.cache_hits, 1);
++                Lookup::Hit(Hit {
++                    value: None,
+                     last_modified,
+-                };
++                    generation: generation as f64,
++                    unchanged: true,
++                })
++            }
++            (Some(value), _) => {
++                // A reference count; the copy into a string is made after
++                // the lock is released (values can be hundreds of KiB, and
++                // every isolate takes this lock).
++                let value = value.clone();
+                 state.touch(key);
+                 drop(state);
+                 metrics::add(&self.counters.cache_hits, 1);
+-                Lookup::Hit(hit)
++                Lookup::Hit(Hit {
++                    value: Some(String::from_utf8_lossy(&value).into_owned()),
++                    last_modified,
++                    generation: generation as f64,
++                    unchanged: false,
++                })
+             }
+             (None, true) => {
+                 let generation = entry.generation;
+@@ -558,6 +592,8 @@ impl CacheStore {
+                 Lookup::Hit(Hit {
+                     value: None,
+                     last_modified,
++                    generation: generation as f64,
++                    unchanged: false,
+                 })
+             }
+         }
+@@ -590,7 +626,7 @@ impl CacheStore {
+         if current != Some(generation) {
+             // A newer set replaced it while we read: ask again.
+             drop(state);
+-            return match self.lookup(key) {
++            return match self.lookup(key, None) {
+                 Lookup::Hit(hit) => Some(hit),
+                 _ => None,
+             };
+@@ -611,6 +647,8 @@ impl CacheStore {
+         Some(Hit {
+             value: Some(String::from_utf8_lossy(&value).into_owned()),
+             last_modified: last_modified as f64,
++            generation: generation as f64,
++            unchanged: false,
+         })
+     }
+ 
+@@ -1031,6 +1069,7 @@ mod tests {
+                 max_disk_bytes: max_disk,
+                 max_entry_bytes: 1024 * 1024,
+                 max_response_bytes: 1024 * 1024,
++                isolate_decoded_bytes: 0,
+             },
+             ns,
+             Arc::new(Counters::default()),
+@@ -1055,7 +1094,7 @@ mod tests {
+     }
+ 
+     fn hit(store: &CacheStore, key: &str) -> Option<Hit> {
+-        match store.lookup(key) {
++        match store.lookup(key, None) {
+             Lookup::Hit(hit) => Some(hit),
+             Lookup::Miss => None,
+             Lookup::OnDisk { path, generation } => store.load(key, &path, generation),
+@@ -1174,6 +1213,7 @@ mod tests {
+                 max_disk_bytes: 1 << 20,
+                 max_entry_bytes: 4,
+                 max_response_bytes: 64,
++                isolate_decoded_bytes: 0,
+             },
+             "ns",
+             Arc::new(Counters::default()),
+diff --git a/crates/nextrs-runtime/src/ops.rs b/crates/nextrs-runtime/src/ops.rs
+index c9f9252..7d9b2fb 100644
+--- a/crates/nextrs-runtime/src/ops.rs
++++ b/crates/nextrs-runtime/src/ops.rs
+@@ -40,6 +40,8 @@ pub(crate) struct BootConfig {
+     pub cache: bool,
+     /// See `ExecutorConfig::build_route_cache`.
+     pub build_route_cache: Vec<String>,
++    /// See `CacheConfig::isolate_decoded_bytes` (0 without a shared cache).
++    pub cache_decoded_bytes: u64,
+ }
+ 
+ pub(crate) struct Inbox(pub Rc<tokio::sync::Mutex<mpsc::UnboundedReceiver<Box<Job>>>>);
+@@ -1057,9 +1059,11 @@ fn blocking_failed(error: tokio::task::JoinError) -> JsErrorBox {
+ async fn op_nextrs_cache_get(
+     state: Rc<RefCell<OpState>>,
+     #[string] key: String,
++    known_generation: f64,
+ ) -> Result<Option<Hit>, JsErrorBox> {
+     let store = cache_store(&state)?;
+-    match store.lookup(&key) {
++    let known = (known_generation >= 0.0).then_some(known_generation as u64);
++    match store.lookup(&key, known) {
+         Lookup::Hit(hit) => Ok(Some(hit)),
+         Lookup::Miss => Ok(None),
+         Lookup::OnDisk { path, generation } => {
+diff --git a/crates/nextrs-runtime/src/worker.rs b/crates/nextrs-runtime/src/worker.rs
+index 0fd90c1..36bcffc 100644
+--- a/crates/nextrs-runtime/src/worker.rs
++++ b/crates/nextrs-runtime/src/worker.rs
+@@ -90,6 +90,10 @@ fn run(
+             fault_injection: cfg!(feature = "fault-injection"),
+             network: services.net.is_some(),
+             cache: services.cache.is_some(),
++            cache_decoded_bytes: config
++                .cache
++                .as_ref()
++                .map_or(0, |cache| cache.isolate_decoded_bytes),
+             build_route_cache: config
+                 .build_route_cache
+                 .iter()

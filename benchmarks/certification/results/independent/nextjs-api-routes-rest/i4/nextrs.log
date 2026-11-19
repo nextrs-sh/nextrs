@@ -1,18 +1,19 @@
-2026-11-16T12:25:45.869138Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
-2026-11-16T12:25:45.870113Z  INFO nextrs: shared data cache enabled persistent=false dir=
-2026-11-16T12:25:45.941015Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:45.941051Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:45.941896Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:45.942078Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:45.952961Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:45.953214Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:45.955846Z  INFO nextrs::executor: isolate ready slot=2 generation=1 boot_ms=85
-2026-11-16T12:25:45.957154Z  INFO nextrs::executor: isolate ready slot=3 generation=1 boot_ms=86
-2026-11-16T12:25:45.959377Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:45.959582Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:45.967245Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=96
-2026-11-16T12:25:45.974507Z  INFO nextrs::executor: isolate ready slot=1 generation=1 boot_ms=104
-2026-11-16T12:25:45.974547Z  INFO nextrs: embedded V8 executor ready ready_ms=105 isolates=4
-2026-11-16T12:25:45.976404Z  INFO nextrs: nextrs ready addr=127.0.0.1:3420 build_id=dYCPvgLjchyVqajKbQtUu ready_ms=107
-2026-11-16T12:25:46.337650Z  INFO nextrs: stopping JavaScript isolates
-2026-11-16T12:25:46.375965Z  INFO nextrs: nextrs stopped
+2026-11-18T03:20:40.248856Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+2026-11-18T03:20:40.249950Z  INFO nextrs: shared data cache enabled persistent=false dir=
+2026-11-18T03:20:40.524660Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:20:40.524683Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:20:40.524687Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:20:40.524701Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:20:40.524715Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:20:40.524732Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:20:40.524839Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:20:40.524857Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:20:40.591823Z  INFO nextrs::executor: isolate ready slot=2 generation=1 boot_ms=341
+2026-11-18T03:20:40.591833Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=341
+2026-11-18T03:20:40.591834Z  INFO nextrs::executor: isolate ready slot=1 generation=1 boot_ms=341
+2026-11-18T03:20:40.592486Z  INFO nextrs::executor: isolate ready slot=3 generation=1 boot_ms=342
+2026-11-18T03:20:40.592522Z  INFO nextrs: embedded V8 executor ready ready_ms=343 isolates=4
+2026-11-18T03:20:40.594322Z  INFO nextrs: nextrs ready addr=127.0.0.1:3420 build_id=dYCPvgLjchyVqajKbQtUu ready_ms=345
+2026-11-18T03:20:41.728387Z  INFO nextrs_server::serve: shutting down: no new connections; draining connections=1 grace_ms=10000
+2026-11-18T03:20:41.728582Z  INFO nextrs: stopping JavaScript isolates
+2026-11-18T03:20:41.745621Z  INFO nextrs: nextrs stopped

@@ -1,0 +1,76 @@
+{
+  "repository": "https://github.com/vercel/next.js.git",
+  "commit": "54b876b6b161b0ecda19562eb264bec637e60d6d",
+  "ref": "v16.4.6",
+  "install": [
+    "npm",
+    "install",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "installNote": "No lockfile; next@latest (16.4.6 when installed, 2026-11-17). Resolved versions in build.json.",
+  "build": [
+    "node",
+    "node_modules/next/dist/bin/next",
+    "build"
+  ],
+  "health": "/en",
+  "mask": [],
+  "name": "nextjs-i18n-routing",
+  "description": "Vercel's i18n-routing example: App Router locale routing in middleware.ts (Negotiator, intl-localematcher) with per-locale dictionaries. Independently maintained by the Next.js team.",
+  "pattern": "App Router i18n via middleware",
+  "subdir": "examples/i18n-routing",
+  "scenarios": [
+    {
+      "name": "root-de",
+      "path": "/",
+      "headers": {
+        "accept-language": "de-DE,de;q=0.9"
+      },
+      "expect": {
+        "status": 307,
+        "location": "/de"
+      }
+    },
+    {
+      "name": "root-default",
+      "path": "/",
+      "expect": {
+        "status": 307,
+        "location": "/en"
+      }
+    },
+    {
+      "name": "en",
+      "path": "/en",
+      "expect": {
+        "status": 200,
+        "contains": [
+          "Current locale: en"
+        ]
+      }
+    },
+    {
+      "name": "cs",
+      "path": "/cs",
+      "expect": {
+        "status": 200,
+        "contains": [
+          "Current locale: cs"
+        ]
+      }
+    },
+    {
+      "name": "nested-missing-locale",
+      "path": "/products",
+      "headers": {
+        "accept-language": "cs"
+      },
+      "expect": {
+        "status": 307,
+        "location": "/cs/products"
+      }
+    }
+  ],
+  "status": "blocked: the official build fails its own type check on Next.js 16.4.6 (app/[lang]/layout.tsx: LayoutProps<'/[lang]'> params are Promise<{lang: string}>, the example declares the Locale union). Not a NextRS outcome."
+}

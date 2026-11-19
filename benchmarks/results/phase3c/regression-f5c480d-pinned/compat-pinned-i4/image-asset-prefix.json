@@ -1,0 +1,1387 @@
+{
+  "summary": {
+    "title": "image-asset-prefix",
+    "total": 47,
+    "match": 46,
+    "pass": 1,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0
+  },
+  "results": [
+    {
+      "name": "page renders the same image URLs",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "src": [
+            "/_next/image?url=%2Fapi%2Fimage%2Fdyn.png&w=640&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fstill.152fpbkytp459.jpg&w=3840&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=3840&q=75",
+            "/_next/image?url=%2Fphotos%2Falpha.png&w=828&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=3840&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=1920&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=640&q=90",
+            "/_next/image?url=%2Fphotos%2Fphoto.webp&w=1200&q=75",
+            "/_next/image?url=%2Fphotos%2Frotated.jpg&w=828&q=75",
+            "/_next/image?url=http%3A%2F%2F127.0.0.1%3A5428%2Fimg%2Fphoto.jpg&w=1920&q=75",
+            "/photos/icon.svg",
+            "/photos/small.png"
+          ],
+          "srcset": [
+            "/_next/image?url=%2Fapi%2Fimage%2Fdyn.png&w=384&q=75",
+            "/_next/image?url=%2Fapi%2Fimage%2Fdyn.png&w=640&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fstill.152fpbkytp459.jpg&w=1200&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fstill.152fpbkytp459.jpg&w=3840&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=1080&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=1200&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=1920&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=2048&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=256&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=384&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=3840&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=640&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=750&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=828&q=75",
+            "/_next/image?url=%2Fphotos%2Falpha.png&w=640&q=75",
+            "/_next/image?url=%2Fphotos%2Falpha.png&w=828&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=1080&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=1200&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=1920&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=2048&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=384&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=3840&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=640&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=750&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=828&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=1080&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=1200&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=1920&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=1920&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=2048&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=384&q=90",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=3840&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=640&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=640&q=90",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=750&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=828&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=828&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.webp&w=1200&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.webp&w=640&q=75",
+            "/_next/image?url=%2Fphotos%2Frotated.jpg&w=640&q=75",
+            "/_next/image?url=%2Fphotos%2Frotated.jpg&w=828&q=75",
+            "/_next/image?url=http%3A%2F%2F127.0.0.1%3A5428%2Fimg%2Fphoto.jpg&w=1920&q=75",
+            "/_next/image?url=http%3A%2F%2F127.0.0.1%3A5428%2Fimg%2Fphoto.jpg&w=640&q=75"
+          ],
+          "preload": [
+            "/_next/image?url=%2Fphotos%2Fphoto.webp&w=1200&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.webp&w=640&q=75"
+          ],
+          "scripts": [
+            "/cdn/_next/static/chunks/092r-mewpaf3q.js",
+            "/cdn/_next/static/chunks/0cz1d0mv5g_q7.js",
+            "/cdn/_next/static/chunks/0iumlkwknlbd6.js",
+            "/cdn/_next/static/chunks/0li7vzj18bfpo.js",
+            "/cdn/_next/static/chunks/1pcw6gskne7pf.js",
+            "/cdn/_next/static/chunks/1y1spto233k5i.js",
+            "/cdn/_next/static/chunks/3qfy96eoyh-ek.js",
+            "/cdn/_next/static/chunks/turbopack-22ouym5xa92fm.js"
+          ]
+        },
+        "candidate": {
+          "status": 200,
+          "src": [
+            "/_next/image?url=%2Fapi%2Fimage%2Fdyn.png&w=640&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fstill.152fpbkytp459.jpg&w=3840&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=3840&q=75",
+            "/_next/image?url=%2Fphotos%2Falpha.png&w=828&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=3840&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=1920&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=640&q=90",
+            "/_next/image?url=%2Fphotos%2Fphoto.webp&w=1200&q=75",
+            "/_next/image?url=%2Fphotos%2Frotated.jpg&w=828&q=75",
+            "/_next/image?url=http%3A%2F%2F127.0.0.1%3A5428%2Fimg%2Fphoto.jpg&w=1920&q=75",
+            "/photos/icon.svg",
+            "/photos/small.png"
+          ],
+          "srcset": [
+            "/_next/image?url=%2Fapi%2Fimage%2Fdyn.png&w=384&q=75",
+            "/_next/image?url=%2Fapi%2Fimage%2Fdyn.png&w=640&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fstill.152fpbkytp459.jpg&w=1200&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fstill.152fpbkytp459.jpg&w=3840&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=1080&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=1200&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=1920&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=2048&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=256&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=384&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=3840&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=640&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=750&q=75",
+            "/_next/image?url=%2Fcdn%2F_next%2Fstatic%2Fmedia%2Fwide.29uv6llrtqer4.png&w=828&q=75",
+            "/_next/image?url=%2Fphotos%2Falpha.png&w=640&q=75",
+            "/_next/image?url=%2Fphotos%2Falpha.png&w=828&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=1080&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=1200&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=1920&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=2048&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=384&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=3840&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=640&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=750&q=75",
+            "/_next/image?url=%2Fphotos%2Fodd.jpg&w=828&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=1080&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=1200&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=1920&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=1920&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=2048&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=384&q=90",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=3840&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=640&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=640&q=90",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=750&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=828&q=50",
+            "/_next/image?url=%2Fphotos%2Fphoto.jpg&w=828&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.webp&w=1200&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.webp&w=640&q=75",
+            "/_next/image?url=%2Fphotos%2Frotated.jpg&w=640&q=75",
+            "/_next/image?url=%2Fphotos%2Frotated.jpg&w=828&q=75",
+            "/_next/image?url=http%3A%2F%2F127.0.0.1%3A5428%2Fimg%2Fphoto.jpg&w=1920&q=75",
+            "/_next/image?url=http%3A%2F%2F127.0.0.1%3A5428%2Fimg%2Fphoto.jpg&w=640&q=75"
+          ],
+          "preload": [
+            "/_next/image?url=%2Fphotos%2Fphoto.webp&w=1200&q=75",
+            "/_next/image?url=%2Fphotos%2Fphoto.webp&w=640&q=75"
+          ],
+          "scripts": [
+            "/cdn/_next/static/chunks/092r-mewpaf3q.js",
+            "/cdn/_next/static/chunks/0cz1d0mv5g_q7.js",
+            "/cdn/_next/static/chunks/0iumlkwknlbd6.js",
+            "/cdn/_next/static/chunks/0li7vzj18bfpo.js",
+            "/cdn/_next/static/chunks/1pcw6gskne7pf.js",
+            "/cdn/_next/static/chunks/1y1spto233k5i.js",
+            "/cdn/_next/static/chunks/3qfy96eoyh-ek.js",
+            "/cdn/_next/static/chunks/turbopack-22ouym5xa92fm.js"
+          ]
+        }
+      }
+    },
+    {
+      "name": "optimizer path is not prefixed",
+      "verdict": "PASS",
+      "detail": {
+        "optimized": 43
+      }
+    },
+    {
+      "name": "image /api/image/dyn.png&w=640&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 320,
+            "height": 240
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 320,
+            "height": 240
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/still.152fpbkytp459.jpg&w=3840&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1200,
+            "height": 900
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1200,
+            "height": 900
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/wide.29uv6llrtqer4.png&w=3840&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1920,
+            "height": 640
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1920,
+            "height": 640
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/alpha.png&w=828&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 800,
+            "height": 600
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 800,
+            "height": 600
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/odd.jpg&w=3840&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1001,
+            "height": 667
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1001,
+            "height": 667
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=1920&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=640&q=90",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.webp&w=1200&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1200,
+            "height": 800
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1200,
+            "height": 800
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/rotated.jpg&w=828&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 400,
+            "height": 600
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 400,
+            "height": 600
+          }
+        }
+      }
+    },
+    {
+      "name": "image http://127.0.0.1:5428/img/photo.jpg&w=1920&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200
+          }
+        }
+      }
+    },
+    {
+      "name": "image /api/image/dyn.png&w=384&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 320,
+            "height": 240
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 320,
+            "height": 240
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/still.152fpbkytp459.jpg&w=1200&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1200,
+            "height": 900
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1200,
+            "height": 900
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/wide.29uv6llrtqer4.png&w=1080&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1080,
+            "height": 360
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1080,
+            "height": 360
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/wide.29uv6llrtqer4.png&w=1200&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1200,
+            "height": 400
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1200,
+            "height": 400
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/wide.29uv6llrtqer4.png&w=1920&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1920,
+            "height": 640
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1920,
+            "height": 640
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/wide.29uv6llrtqer4.png&w=2048&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1920,
+            "height": 640
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1920,
+            "height": 640
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/wide.29uv6llrtqer4.png&w=256&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 85
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 85
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/wide.29uv6llrtqer4.png&w=384&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 128
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 128
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/wide.29uv6llrtqer4.png&w=640&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 213
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 213
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/wide.29uv6llrtqer4.png&w=750&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 750,
+            "height": 250
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 750,
+            "height": 250
+          }
+        }
+      }
+    },
+    {
+      "name": "image /cdn/_next/static/media/wide.29uv6llrtqer4.png&w=828&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 828,
+            "height": 276
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 828,
+            "height": 276
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/alpha.png&w=640&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/odd.jpg&w=1080&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1001,
+            "height": 667
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1001,
+            "height": 667
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/odd.jpg&w=1200&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1001,
+            "height": 667
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1001,
+            "height": 667
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/odd.jpg&w=1920&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1001,
+            "height": 667
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1001,
+            "height": 667
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/odd.jpg&w=2048&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1001,
+            "height": 667
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1001,
+            "height": 667
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/odd.jpg&w=384&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 256
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 256
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/odd.jpg&w=640&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 426
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 426
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/odd.jpg&w=750&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 750,
+            "height": 500
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 750,
+            "height": 500
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/odd.jpg&w=828&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 828,
+            "height": 552
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 828,
+            "height": 552
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=1080&q=50",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1080,
+            "height": 810
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1080,
+            "height": 810
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=1200&q=50",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1200,
+            "height": 900
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1200,
+            "height": 900
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=1920&q=50",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=2048&q=50",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=384&q=90",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=3840&q=50",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=640&q=50",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=750&q=50",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 750,
+            "height": 563
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 750,
+            "height": 563
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=828&q=50",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 828,
+            "height": 621
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 828,
+            "height": 621
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.jpg&w=828&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 828,
+            "height": 621
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 828,
+            "height": 621
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/photo.webp&w=640&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 427
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 427
+          }
+        }
+      }
+    },
+    {
+      "name": "image /photos/rotated.jpg&w=640&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 400,
+            "height": 600
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 400,
+            "height": 600
+          }
+        }
+      }
+    },
+    {
+      "name": "image http://127.0.0.1:5428/img/photo.jpg&w=640&q=75",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480
+          }
+        }
+      }
+    },
+    {
+      "name": "prefixed JavaScript",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "application/javascript; charset=UTF-8"
+        },
+        "candidate": {
+          "status": 200,
+          "type": "application/javascript; charset=UTF-8"
+        }
+      }
+    },
+    {
+      "name": "remote source",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "wrong": null,
+        "wrongB": null,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288
+          }
+        }
+      }
+    }
+  ]
+}

@@ -149,8 +149,8 @@ never enable the feature.
 - `cargo fmt`, `clippy -D warnings` and `cargo test` (Rust 1.98.0)
 - `cargo audit` against the RustSec database
 - The fixture-dependent ignored tests
-- `compat-suite.sh` and `realworld-suite.sh` on the pinned Next.js 16.4.3 with
-  1 and 4 isolates (gating), and on 16.4.4 and 16.4.5 (reported, not gating)
+- `compat-suite.sh` and `realworld-suite.sh` on the pinned Next.js 16.4.6 with
+  1 and 4 isolates (gating), and on 16.4.5 (reported, not gating)
 - Graceful shutdown with proxy work in flight
 
 ## Benchmarks and soaks

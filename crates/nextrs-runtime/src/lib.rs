@@ -44,8 +44,8 @@ pub use crate::internal::{
     InternalBody, InternalDispatch, InternalRequest, InternalResponse, MAX_INTERNAL_REQUESTS,
 };
 pub use crate::metrics::{
-    CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MetricsSnapshot, UpstreamSnapshot,
-    set_malloc_mmap_threshold,
+    CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MallocSnapshot, MemorySnapshot,
+    MetricsSnapshot, UpstreamSnapshot, set_malloc_mmap_threshold,
 };
 pub use crate::net::{
     AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy, Upstream,
@@ -166,9 +166,13 @@ pub struct Limits {
     /// busy on the CPU: that is `stall_timeout`. `None` disables it.
     pub request_timeout: Option<Duration>,
     /// Longest time an isolate's thread may run JavaScript without
-    /// returning to its event loop. Beyond it the **whole isolate** is
-    /// terminated (`TerminateExecution`) and replaced: every request in
-    /// it fails, not only the one that looped. `None` disables it.
+    /// returning to its event loop, measured in the thread's **CPU time**
+    /// (Linux). Beyond it the **whole isolate** is terminated
+    /// (`TerminateExecution`) and replaced: every request in it fails, not
+    /// only the one that looped. A turn that is blocked instead of
+    /// computing (a slow disk, page faults, CPU throttling) is terminated
+    /// only after 6 times this in wall time. Without a per-thread CPU clock,
+    /// wall time decides. `None` disables it.
     pub stall_timeout: Option<Duration>,
     /// Longest an isolate may take to start (create the runtime and run
     /// the bootstrap), wall clock. Bootstrap loads Next's server bundles,

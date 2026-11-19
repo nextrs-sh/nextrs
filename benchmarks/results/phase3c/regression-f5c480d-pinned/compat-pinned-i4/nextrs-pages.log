@@ -1,0 +1,300 @@
+[2m2026-11-18T04:19:53.637576Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T04:19:53.639588Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5426
+[2m2026-11-18T04:19:53.639632Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-18T04:19:53.699397Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:19:53.699451Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:19:53.701684Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:19:53.701733Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:19:53.701949Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:19:53.701973Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:19:53.712567Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m72
+[2m2026-11-18T04:19:53.714530Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m74
+[2m2026-11-18T04:19:53.716253Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m76
+[2m2026-11-18T04:19:53.718849Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:19:53.718879Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:19:53.731446Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m91
+[2m2026-11-18T04:19:53.731484Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m93 [3misolates[0m[2m=[0m4
+[2m2026-11-18T04:19:53.737345Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5425 [3mbuild_id[0m[2m=[0mXAKMld20jZZYXENcDpya9 [3mready_ms[0m[2m=[0m99
+Error: getServerSideProps failure (synthetic)
+    at h (.next/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-18T04:19:54.789701Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/error: Error: getServerSideProps failure (synthetic)
+    at h (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: render failure (synthetic)
+    at <unknown> (.next/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+Error: render failure (synthetic)
+    at <unknown> (.next/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+[2m2026-11-18T04:19:54.807572Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/render-error: Error: render failure (synthetic)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307
+    at renderWithHooks (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:4942:18)
+    at renderElement (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5109:19)
+    at retryNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5937:16)
+    at renderNodeDestructive (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14)
+    at renderChildrenArray (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6081:7)
+    at retryNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5951:9)
+    at renderNodeDestructive (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14) [3mkind[0m[2m=[0m"handler-error"
+Error: getServerSideProps failure (synthetic)
+    at h (.next/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-18T04:19:55.079257Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /_next/data/XAKMld20jZZYXENcDpya9/ssr/error.json: Error: getServerSideProps failure (synthetic)
+    at h (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: API route failure (synthetic)
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: ISR regeneration failure (synthetic)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+Error: ISR regeneration failure (synthetic)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+[2m2026-11-18T04:20:27.135517Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m6 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T04:20:27.136013Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T04:20:27.164961Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-18T04:20:32.778139Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T04:20:32.780153Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5426
+[2m2026-11-18T04:20:32.780215Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-18T04:20:32.840066Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:32.840109Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:32.846026Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:32.846126Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:32.846026Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:32.846252Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:32.848156Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:32.848192Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:32.852574Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m71
+[2m2026-11-18T04:20:32.858241Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m77
+[2m2026-11-18T04:20:32.858671Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m78
+[2m2026-11-18T04:20:32.861869Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m81
+[2m2026-11-18T04:20:32.861910Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m83 [3misolates[0m[2m=[0m4
+[2m2026-11-18T04:20:32.868767Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5425 [3mbuild_id[0m[2m=[0m0puiE3bb3Jx6fvSgdXdhR [3mready_ms[0m[2m=[0m90
+Error: getServerSideProps failure (synthetic)
+    at h (.next-base-path/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-18T04:20:33.973554Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/ssr/error: Error: getServerSideProps failure (synthetic)
+    at h (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: render failure (synthetic)
+    at <unknown> (.next-base-path/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+Error: render failure (synthetic)
+    at <unknown> (.next-base-path/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+[2m2026-11-18T04:20:33.991808Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/ssr/render-error: Error: render failure (synthetic)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307
+    at renderWithHooks (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:4942:18)
+    at renderElement (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5109:19)
+    at retryNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5937:16)
+    at renderNodeDestructive (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14)
+    at renderChildrenArray (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6081:7)
+    at retryNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5951:9)
+    at renderNodeDestructive (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14) [3mkind[0m[2m=[0m"handler-error"
+Error: getServerSideProps failure (synthetic)
+    at h (.next-base-path/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-18T04:20:34.264112Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/_next/data/0puiE3bb3Jx6fvSgdXdhR/ssr/error.json: Error: getServerSideProps failure (synthetic)
+    at h (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: API route failure (synthetic)
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+[2m2026-11-18T04:20:53.676958Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m6 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T04:20:53.677419Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T04:20:53.705815Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-18T04:20:59.075164Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T04:20:59.077055Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5426
+[2m2026-11-18T04:20:59.077084Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-18T04:20:59.137292Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:59.137335Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:59.142070Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:59.142117Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:59.150130Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m72
+[2m2026-11-18T04:20:59.154324Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:59.154367Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:59.155738Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m78
+[2m2026-11-18T04:20:59.158116Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:59.158150Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:20:59.166072Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m88
+[2m2026-11-18T04:20:59.171151Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m93
+[2m2026-11-18T04:20:59.171182Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m95 [3misolates[0m[2m=[0m4
+[2m2026-11-18T04:20:59.178492Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5425 [3mbuild_id[0m[2m=[0mNon-AUKqFLuvYFXj4U2IJ [3mready_ms[0m[2m=[0m103
+Error: getServerSideProps failure (synthetic)
+    at h (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-18T04:21:00.183897Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/error/: Error: getServerSideProps failure (synthetic)
+    at h (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: render failure (synthetic)
+    at <unknown> (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+Error: render failure (synthetic)
+    at <unknown> (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+[2m2026-11-18T04:21:00.202139Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/render-error/: Error: render failure (synthetic)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307
+    at renderWithHooks (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:4942:18)
+    at renderElement (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5109:19)
+    at retryNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5937:16)
+    at renderNodeDestructive (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14)
+    at renderChildrenArray (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6081:7)
+    at retryNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5951:9)
+    at renderNodeDestructive (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14) [3mkind[0m[2m=[0m"handler-error"
+Error: getServerSideProps failure (synthetic)
+    at h (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-18T04:21:00.487308Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /_next/data/Non-AUKqFLuvYFXj4U2IJ/ssr/error.json: Error: getServerSideProps failure (synthetic)
+    at h (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: API route failure (synthetic)
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+[2m2026-11-18T04:21:13.367119Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m2 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T04:21:13.367447Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T04:21:13.399423Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-18T04:21:17.880828Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-18T04:21:17.885739Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5426
+[2m2026-11-18T04:21:17.885772Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-18T04:21:17.952266Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:21:17.952308Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:21:17.952392Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:21:17.952416Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:21:17.953329Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:21:17.953362Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:21:17.956829Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:21:17.956866Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-18T04:21:17.965117Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m79
+[2m2026-11-18T04:21:17.965892Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m79
+[2m2026-11-18T04:21:17.967678Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m81
+[2m2026-11-18T04:21:17.973585Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m87
+[2m2026-11-18T04:21:17.973621Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m92 [3misolates[0m[2m=[0m4
+[2m2026-11-18T04:21:17.979442Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5425 [3mbuild_id[0m[2m=[0mbe9VWn1Uzepdg_CrUQ2Ct [3mready_ms[0m[2m=[0m98
+Error: getServerSideProps failure (synthetic)
+    at h (.next-adapter/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-18T04:21:18.985085Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/error: Error: getServerSideProps failure (synthetic)
+    at h (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: render failure (synthetic)
+    at <unknown> (.next-adapter/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+Error: render failure (synthetic)
+    at <unknown> (.next-adapter/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+[2m2026-11-18T04:21:19.003227Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/render-error: Error: render failure (synthetic)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307
+    at renderWithHooks (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:4942:18)
+    at renderElement (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5109:19)
+    at retryNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5937:16)
+    at renderNodeDestructive (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14)
+    at renderChildrenArray (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6081:7)
+    at retryNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5951:9)
+    at renderNodeDestructive (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14) [3mkind[0m[2m=[0m"handler-error"
+Error: getServerSideProps failure (synthetic)
+    at h (.next-adapter/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-18T04:21:19.265406Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /_next/data/be9VWn1Uzepdg_CrUQ2Ct/ssr/error.json: Error: getServerSideProps failure (synthetic)
+    at h (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: API route failure (synthetic)
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+[2m2026-11-18T04:21:38.646921Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m6 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-18T04:21:38.647292Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-18T04:21:38.666227Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

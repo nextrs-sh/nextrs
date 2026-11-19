@@ -1,0 +1,839 @@
+{
+  "summary": {
+    "title": "intl-proxy (next-intl)",
+    "total": 40,
+    "match": 39,
+    "pass": 1,
+    "knownDiff": 0,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 0,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "root-no-preference",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": "/en"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "root-accept-language-de",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/de"
+          },
+          "setCookie": [],
+          "body": "/de"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "root-accept-language-unsupported",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en"
+          },
+          "setCookie": [],
+          "body": "/en"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "root-accept-language-weighted",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr"
+          },
+          "setCookie": [],
+          "body": "/fr"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "root-cookie-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr"
+          },
+          "setCookie": [],
+          "body": "/fr"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "root-cookie-overrides-header",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/de"
+          },
+          "setCookie": [],
+          "body": "/de"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "root-cookie-unsupported",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": "/en"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "unprefixed-static",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en/about"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": "/en/about"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "unprefixed-static-de",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/de/about"
+          },
+          "setCookie": [],
+          "body": "/de/about"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "unprefixed-dynamic",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en/products/7"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": "/en/products/7"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "unprefixed-query-kept",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en/search?q=caf%C3%A9&page=2&page=3"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": "/en/search?q=caf%C3%A9&page=2&page=3"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "unprefixed-rsc",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en/about"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": "/en/about"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "unprefixed-head",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en/about"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": ""
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Hello",
+            "kind": "en",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-de",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Hallo",
+            "kind": "de",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-fr-static",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/about>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/about>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=fr; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "À propos",
+            "kind": "fr",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-de-dynamic-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/products/42>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/products/42>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/products/42>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/products/42>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Produkt 42",
+            "slug": "42",
+            "kind": "de",
+            "info": "{\"acceptLanguage\":\"*\",\"nextUrl\":null}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-de-dynamic-encoded-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/products/a%20b>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/products/a%20b>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/products/a%20b>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/products/a%20b>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Produkt a%20b",
+            "slug": "a%20b",
+            "kind": "de",
+            "info": "{\"acceptLanguage\":\"*\",\"nextUrl\":null}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-search-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/search>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/search>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/search>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/search>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Suchergebnisse für käse",
+            "query": "{\"q\":\"käse\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-header-ignored",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/about>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/about>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=fr; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "À propos",
+            "kind": "fr",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-sets-no-cookie-on-match",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/about>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/about>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Über uns",
+            "kind": "de",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-switch-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/about>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/about>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=fr; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "À propos",
+            "kind": "fr",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-trailing-slash",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/de/about",
+            "refresh": "0;url=/de/about"
+          },
+          "setCookie": [],
+          "body": "/de/about"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prefixed-upper-case-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/de/about"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": "/de/about"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "unsupported-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en/xx/about"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": "/en/xx/about"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "unsupported-locale-root",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en/xx"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": "/en/xx"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "not-found-under-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/nope>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/nope>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/nope>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/nope>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "rsc-static",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/about>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/about>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "location": "/de/about?_rsc"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": ""
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "rsc-prefetch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "link": "<http://SELF/en>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "location": "/fr?_rsc=HEAvJdHAQJrUAe2K"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=fr; Path=/; SameSite=lax"
+          ],
+          "body": ""
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "rsc-dynamic",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "link": "<http://SELF/en/products/9>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/products/9>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/products/9>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/products/9>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "location": "/de/products/9?_rsc=R05gyUpeQwoIbgF3"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": ""
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "rsc-unprefixed-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en/products/9"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": "/en/products/9"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "api-not-matched",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":true}"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "file-not-matched",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "MISS",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "prerendered-twice",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "first": {
+            "status": 200,
+            "headers": {
+              "cache-control": "s-maxage=31536000",
+              "content-type": "text/html; charset=utf-8",
+              "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/about>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/about>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1",
+              "x-nextjs-stale-time": "300",
+              "x-powered-by": "Next.js"
+            },
+            "setCookie": [
+              "NEXT_LOCALE=de; Path=/; SameSite=lax"
+            ],
+            "body": {
+              "title": "Über uns",
+              "kind": "de",
+              "stamp": "absent"
+            }
+          },
+          "second": {
+            "status": 200,
+            "headers": {
+              "cache-control": "s-maxage=31536000",
+              "content-type": "text/html; charset=utf-8",
+              "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/about>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/about>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1",
+              "x-nextjs-stale-time": "300",
+              "x-powered-by": "Next.js"
+            },
+            "setCookie": [
+              "NEXT_LOCALE=de; Path=/; SameSite=lax"
+            ],
+            "body": {
+              "title": "Über uns",
+              "kind": "de",
+              "stamp": "absent"
+            }
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "action-en",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/x-component",
+            "link": "<http://SELF/en/actions>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/actions>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/actions>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/actions>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-action-revalidated": "1",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "rsc": true,
+            "value": "{\"recorded\":\"Greeted Ada in English\",\"locale\":\"en\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "action-de",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/x-component",
+            "link": "<http://SELF/en/actions>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/actions>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/actions>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/actions>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-action-revalidated": "1",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "rsc": true,
+            "value": "{\"recorded\":\"Ada auf Deutsch begrüßt\",\"locale\":\"de\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "action-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/x-component",
+            "link": "<http://SELF/en/actions>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/actions>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/actions>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/actions>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-action-revalidated": "1",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=fr; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "rsc": true,
+            "value": "{\"recorded\":\"Ada salué en français\",\"locale\":\"fr\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "action-unprefixed",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/de/actions"
+          },
+          "setCookie": [],
+          "body": "/de/actions"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "action-de-expected",
+      "verdict": "PASS",
+      "detail": {
+        "status": 200,
+        "value": "{\"recorded\":\"Ada auf Deutsch begrüßt\",\"locale\":\"de\"}"
+      }
+    },
+    {
+      "name": "concurrent-locales",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "wrong": 0
+        },
+        "asserted": false
+      }
+    }
+  ]
+}

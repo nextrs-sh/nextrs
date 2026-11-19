@@ -1,0 +1,281 @@
+{
+  "app": "nextjs-image-component",
+  "commit": "54b876b6b161b0ecda19562eb264bec637e60d6d",
+  "nextrsCommit": "eb60fe7277797524c77937112ded7fe870359910",
+  "isolates": 4,
+  "startupMs": {
+    "next": 652,
+    "nextrs": 3
+  },
+  "total": 14,
+  "passed": 14,
+  "failed": 0,
+  "results": [
+    {
+      "name": "home",
+      "method": "GET",
+      "path": "/",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 7,
+        "bytes": 14918,
+        "digest": "270f3ba712b83d02"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 14918,
+        "digest": "270f3ba712b83d02"
+      }
+    },
+    {
+      "name": "page-responsive",
+      "method": "GET",
+      "path": "/responsive",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 7,
+        "bytes": 10526,
+        "digest": "d6ba5d9085b71605"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 10526,
+        "digest": "d6ba5d9085b71605"
+      }
+    },
+    {
+      "name": "page-fill",
+      "method": "GET",
+      "path": "/fill",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 7,
+        "bytes": 13672,
+        "digest": "ed88ba9645ce6c91"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 13672,
+        "digest": "ed88ba9645ce6c91"
+      }
+    },
+    {
+      "name": "page-placeholder",
+      "method": "GET",
+      "path": "/placeholder",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 7,
+        "bytes": 11734,
+        "digest": "5914e51a01a14717"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 11734,
+        "digest": "5914e51a01a14717"
+      }
+    },
+    {
+      "name": "page-shimmer",
+      "method": "GET",
+      "path": "/shimmer",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 15,
+        "bytes": 10375,
+        "digest": "836b5c11554dce3e"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 10375,
+        "digest": "836b5c11554dce3e"
+      }
+    },
+    {
+      "name": "page-color",
+      "method": "GET",
+      "path": "/color",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 5,
+        "bytes": 11395,
+        "digest": "32414ce80a838cb5"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 11395,
+        "digest": "32414ce80a838cb5"
+      }
+    },
+    {
+      "name": "page-background",
+      "method": "GET",
+      "path": "/background",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 6,
+        "bytes": 12560,
+        "digest": "634e21673a4f1700"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 12560,
+        "digest": "634e21673a4f1700"
+      }
+    },
+    {
+      "name": "page-theme",
+      "method": "GET",
+      "path": "/theme",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 7,
+        "bytes": 9723,
+        "digest": "983e8a9b1b7b654c"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 2,
+        "bytes": 9723,
+        "digest": "983e8a9b1b7b654c"
+      }
+    },
+    {
+      "name": "optimize-static-import",
+      "method": "GET",
+      "path": "/_next/image?url=%2F_next%2Fstatic%2Fmedia%2F{{media}}&w=640&q=75",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 31,
+        "bytes": 3648,
+        "digest": "9a1819b23ea51bb6"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 38,
+        "bytes": 3574,
+        "digest": "c30497e7523fe1aa"
+      }
+    },
+    {
+      "name": "optimize-public-jpeg",
+      "method": "GET",
+      "path": "/_next/image?url=%2Fmountains.jpg&w=1080&q=75",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 4,
+        "bytes": 10882,
+        "digest": "2e2433476aad313f"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 104,
+        "bytes": 10862,
+        "digest": "9fc523611c522369"
+      }
+    },
+    {
+      "name": "optimize-public-no-webp",
+      "method": "GET",
+      "path": "/_next/image?url=%2Fcat.jpg&w=384&q=75",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 4,
+        "bytes": 24849,
+        "digest": "c7c2b6c38bb10b48"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 172,
+        "bytes": 24914,
+        "digest": "c270a14ac3b28f92"
+      }
+    },
+    {
+      "name": "width-not-allowed",
+      "method": "GET",
+      "path": "/_next/image?url=%2Fdog.jpg&w=123&q=75",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 400,
+        "ms": 1,
+        "bytes": 43,
+        "digest": "1e004d3077529e62"
+      },
+      "nextrs": {
+        "status": 400,
+        "ms": 2,
+        "bytes": 43,
+        "digest": "1e004d3077529e62"
+      }
+    },
+    {
+      "name": "remote-host-not-allowed",
+      "method": "GET",
+      "path": "/_next/image?url=https%3A%2F%2Fevil.example%2Fx.png&w=640&q=75",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 400,
+        "ms": 3,
+        "bytes": 30,
+        "digest": "3a1ccc2882f115bd"
+      },
+      "nextrs": {
+        "status": 400,
+        "ms": 2,
+        "bytes": 30,
+        "digest": "3a1ccc2882f115bd"
+      }
+    },
+    {
+      "name": "missing-url",
+      "method": "GET",
+      "path": "/_next/image?w=640&q=75",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 400,
+        "ms": 2,
+        "bytes": 27,
+        "digest": "c310f7b177a04293"
+      },
+      "nextrs": {
+        "status": 400,
+        "ms": 2,
+        "bytes": 27,
+        "digest": "c310f7b177a04293"
+      }
+    }
+  ]
+}

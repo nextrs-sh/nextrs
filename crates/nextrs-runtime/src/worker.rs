@@ -123,9 +123,22 @@ fn run(
             create_params,
             ..Default::default()
         });
+        // Test hook: a slow isolate creation (a cold machine), so the
+        // supervisor's deadline can expire before the handle exists.
+        #[cfg(feature = "fault-injection")]
+        if let Some(ms) = config
+            .env
+            .get("NEXTRS_FAULT_ISOLATE_CREATE_MS")
+            .and_then(|v| v.parse::<u64>().ok())
+        {
+            std::thread::sleep(std::time::Duration::from_millis(ms));
+        }
         let _ = worker
             .isolate
             .set(runtime.v8_isolate().thread_safe_handle());
+        // A termination requested while the isolate was being created had
+        // no handle to interrupt: apply it now, before any script runs.
+        worker.interrupt();
         {
             let worker = worker.clone();
             runtime.add_near_heap_limit_callback(move |current, _initial| {
@@ -142,6 +155,7 @@ fn run(
             gc_data,
             v8::GCType::kGCTypeMarkSweepCompact,
         );
+        worker.register_cpu_clock();
         worker.beat();
         let heartbeat = {
             let worker = worker.clone();

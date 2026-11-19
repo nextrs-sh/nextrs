@@ -33,6 +33,8 @@ use tokio::task::JoinSet;
 use tokio::time::Sleep;
 use tower::Service;
 
+use crate::http_metrics::HttpMetrics;
+
 /// The connected peer, in each request's extensions.
 #[derive(Debug, Clone, Copy)]
 pub struct ClientAddr(pub SocketAddr);
@@ -48,6 +50,8 @@ pub struct ServeOptions {
     /// hyper's read and write buffer limit per connection.
     pub max_buf_size: usize,
     pub shutdown_grace: Duration,
+    /// Request, response and connection counters (see `http_metrics`).
+    pub metrics: Arc<HttpMetrics>,
 }
 
 impl Default for ServeOptions {
@@ -58,6 +62,7 @@ impl Default for ServeOptions {
             header_read_timeout: Duration::from_secs(30),
             max_buf_size: 64 * 1024,
             shutdown_grace: Duration::from_secs(10),
+            metrics: HttpMetrics::new(),
         }
     }
 }
@@ -103,7 +108,17 @@ pub async fn serve(
     }
 
     // Refuse new connections at once instead of leaving them in the
-    // kernel backlog, unanswered, for the whole grace period.
+    // kernel backlog, unanswered, for the whole grace period. Readiness
+    // reports false from here on.
+    options
+        .metrics
+        .draining
+        .store(true, std::sync::atomic::Ordering::Relaxed);
+    tracing::info!(
+        connections = connections.len(),
+        grace_ms = options.shutdown_grace.as_millis() as u64,
+        "shutting down: no new connections; draining"
+    );
     drop(listener);
     let _ = closing.send(true);
     let drained = tokio::time::timeout(options.shutdown_grace, async {
@@ -128,10 +143,17 @@ async fn serve_connection(
     mut closing: watch::Receiver<bool>,
 ) {
     let io = TokioIo::new(WriteTimeout::new(stream, options.write_timeout));
+    let metrics = options.metrics.clone();
+    metrics.connection_opened();
+    let _open = scopeguard(metrics.clone());
     let service = hyper::service::service_fn(move |mut request: hyper::Request<Incoming>| {
         request.extensions_mut().insert(ClientAddr(peer));
         let mut app = app.clone();
-        async move { app.call(request).await }
+        let timer = metrics.start();
+        async move {
+            let response = app.call(request).await?;
+            Ok::<_, std::convert::Infallible>(timer.respond(response))
+        }
     });
     let connection = http1::Builder::new()
         .timer(TokioTimer::new())
@@ -152,6 +174,19 @@ async fn serve_connection(
     };
     if let Err(error) = result {
         tracing::debug!(%peer, %error, "connection ended with an error");
+    }
+}
+
+/// Counts the connection closed when dropped (however the task ends).
+struct ConnectionGuard(Arc<HttpMetrics>);
+
+fn scopeguard(metrics: Arc<HttpMetrics>) -> ConnectionGuard {
+    ConnectionGuard(metrics)
+}
+
+impl Drop for ConnectionGuard {
+    fn drop(&mut self) {
+        self.0.connection_closed();
     }
 }
 

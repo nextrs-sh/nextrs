@@ -1,0 +1,266 @@
+{
+  "summary": {
+    "title": "intl-variants (next-intl domains)",
+    "total": 10,
+    "match": 10,
+    "pass": 0,
+    "knownDiff": 0,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 10,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "de-domain-root",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://shop.example.de/en>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.com/>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.de/>; rel=\"alternate\"; hreflang=\"de\", <http://shop.example.com/fr>; rel=\"alternate\"; hreflang=\"fr\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/de",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Hallo",
+            "kind": "de",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "de-domain-unprefixed",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://shop.example.de/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.com/about>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.de/about>; rel=\"alternate\"; hreflang=\"de\", <http://shop.example.com/fr/about>; rel=\"alternate\"; hreflang=\"fr\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/de/about",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Über uns",
+            "kind": "de",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "de-domain-other-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://shop.example.de/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.com/about>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.de/about>; rel=\"alternate\"; hreflang=\"de\", <http://shop.example.com/fr/about>; rel=\"alternate\"; hreflang=\"fr\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "About",
+            "kind": "en",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "de-domain-default-prefix-removed",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "http://shop.example.de:PORT/about"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": "http://shop.example.de:PORT/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "com-domain-unprefixed",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://shop.example.de/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.com/about>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.de/about>; rel=\"alternate\"; hreflang=\"de\", <http://shop.example.com/fr/about>; rel=\"alternate\"; hreflang=\"fr\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/en/about",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "About",
+            "kind": "en",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "com-domain-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://shop.example.de/en/products/2>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.com/products/2>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.de/products/2>; rel=\"alternate\"; hreflang=\"de\", <http://shop.example.com/fr/products/2>; rel=\"alternate\"; hreflang=\"fr\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=fr; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Produit 2",
+            "slug": "2",
+            "kind": "fr",
+            "info": "{\"acceptLanguage\":null,\"nextUrl\":null}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "com-domain-foreign-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "http://shop.example.de:PORT/de/about"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": "http://shop.example.de:PORT/de/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "forwarded-host-de",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://shop.example.de/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.com/about>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.de/about>; rel=\"alternate\"; hreflang=\"de\", <http://shop.example.com/fr/about>; rel=\"alternate\"; hreflang=\"fr\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/de/about",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Über uns",
+            "kind": "de",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "unknown-host-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://shop.example.de/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.com/about>; rel=\"alternate\"; hreflang=\"en\", <http://shop.example.de/about>; rel=\"alternate\"; hreflang=\"de\", <http://shop.example.com/fr/about>; rel=\"alternate\"; hreflang=\"fr\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/en/about",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "About",
+            "kind": "en",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "de-domain-detects-en",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "http://shop.example.de:PORT/en"
+          },
+          "setCookie": [],
+          "body": "http://shop.example.de:PORT/en"
+        },
+        "asserted": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 1576ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 4.2s
+  Running TypeScript ...
+  Finished TypeScript in 8.1s ...
+  Collecting page data using 5 workers ...
+  Generating static pages using 5 workers (0/10) ...
+  Generating static pages using 5 workers (2/10) 
+  Generating static pages using 5 workers (4/10) 
+  Generating static pages using 5 workers (7/10) 
+✓ Generating static pages using 5 workers (10/10) in 213ms
+  Finalizing page optimization ...
+
+Route (app)               Revalidate  Expire
+┌ ○ /
+├ ○ /_not-found
+├ ○ /soak/action
+├ ○ /soak/isr                     2s      1y
+├ ƒ /soak/proxied/[slug]
+├ ƒ /soak/spin
+└ ƒ /soak/ssr
+
+Route (pages)             Revalidate  Expire
+┌ ƒ /api/p/echo
+├ ƒ /api/p/mutate
+├ ƒ /api/p/preview
+├ ƒ /api/p/revalidate
+├ ● /p/isr                        3s      1y
+├ ● /p/preview
+├ ƒ /p/secure
+├ ● /p/ssg
+└ ƒ /p/ssr/[id]
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

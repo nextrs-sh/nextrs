@@ -133,6 +133,7 @@ deno_core::extension!(
         op_nextrs_fs_realpath,
         op_nextrs_hash,
         op_nextrs_zlib,
+        op_nextrs_utf8_length,
         op_nextrs_cpu_usage,
         op_nextrs_random_fill,
         op_nextrs_vm_run_in_new_context,
@@ -160,6 +161,7 @@ deno_core::extension!(
         crate::webcrypto::op_nextrs_aes_gcm,
         crate::webcrypto::op_nextrs_aes_cbc,
         crate::webcrypto::op_nextrs_hkdf,
+        crate::webcrypto::op_nextrs_pbkdf2_bits,
         crate::webcrypto::op_nextrs_hkdf_bytes,
         crate::webcrypto::op_nextrs_pbkdf2,
         crate::webcrypto::op_nextrs_node_aes_gcm,
@@ -468,17 +470,23 @@ fn op_nextrs_response_error(state: &mut OpState, #[smi] id: u32, #[string] messa
 
 /// Resolves when the consumer of the response (the HTTP connection) has
 /// dropped it: after the body was delivered, or when the client went away
-/// or the request was cancelled.
+/// or the request was cancelled. Resolves true when the whole declared body
+/// (its Content-Length) had been passed on: the client got the response,
+/// even if JavaScript has not ended it yet.
 #[op2]
-async fn op_nextrs_response_closed(state: Rc<RefCell<OpState>>, #[smi] id: u32) {
+async fn op_nextrs_response_closed(state: Rc<RefCell<OpState>>, #[smi] id: u32) -> bool {
     let flow = state
         .borrow()
         .borrow::<Requests>()
         .open
         .get(&id)
         .map(|open| open.flow.clone());
-    if let Some(flow) = flow {
-        flow.closed().await;
+    match flow {
+        Some(flow) => {
+            flow.closed().await;
+            flow.is_complete()
+        }
+        None => false,
     }
 }
 
@@ -622,6 +630,20 @@ fn op_nextrs_hash(#[string] algorithm: &str, #[buffer] data: &[u8]) -> Result<Ve
             )));
         }
     })
+}
+
+/// The UTF-8 length of a string, as Node's `Buffer.byteLength(string)`
+/// computes it: V8's own count, which flattens a concatenated string once
+/// and counts an unpaired surrogate as 3 bytes (the U+FFFD that
+/// `TextEncoder`, and so `Buffer.from`, writes for it). Next.js calls it on
+/// every whole-page response (Content-Length); in JavaScript it was a
+/// per-character loop.
+#[op2(fast)]
+fn op_nextrs_utf8_length(
+    scope: &mut v8::PinScope<'_, '_>,
+    string: v8::Local<'_, v8::String>,
+) -> f64 {
+    string.utf8_length(scope) as f64
 }
 
 /// node:zlib's one-shot codecs: `deflate`/`inflate` (zlib format),

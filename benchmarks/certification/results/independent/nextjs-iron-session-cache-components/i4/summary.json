@@ -1,0 +1,110 @@
+{
+  "app": "nextjs-iron-session-cache-components",
+  "commit": "54b876b6b161b0ecda19562eb264bec637e60d6d",
+  "nextrsCommit": "eb60fe7277797524c77937112ded7fe870359910",
+  "isolates": 4,
+  "startupMs": {
+    "next": 1846,
+    "nextrs": 2
+  },
+  "total": 5,
+  "passed": 5,
+  "failed": 0,
+  "results": [
+    {
+      "name": "login-page",
+      "method": "GET",
+      "path": "/login",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 8,
+        "bytes": 6754,
+        "digest": "6293011d95ba5d2a"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 3,
+        "bytes": 6754,
+        "digest": "6293011d95ba5d2a"
+      }
+    },
+    {
+      "name": "home-shell-anonymous",
+      "method": "GET",
+      "path": "/",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 124,
+        "bytes": 13301,
+        "digest": "fbfcc0975726e4fb"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 150,
+        "bytes": 13301,
+        "digest": "fbfcc0975726e4fb"
+      }
+    },
+    {
+      "name": "note-anonymous",
+      "method": "GET",
+      "path": "/notes/n1",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 41,
+        "bytes": 12126,
+        "digest": "5d863aa5736653bc"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 40,
+        "bytes": 12126,
+        "digest": "5d863aa5736653bc"
+      }
+    },
+    {
+      "name": "forged-session-cookie",
+      "method": "GET",
+      "path": "/",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 200,
+        "ms": 24,
+        "bytes": 13301,
+        "digest": "fbfcc0975726e4fb"
+      },
+      "nextrs": {
+        "status": 200,
+        "ms": 19,
+        "bytes": 13301,
+        "digest": "fbfcc0975726e4fb"
+      }
+    },
+    {
+      "name": "not-found",
+      "method": "GET",
+      "path": "/no-such-page",
+      "ok": true,
+      "problems": [],
+      "next": {
+        "status": 404,
+        "ms": 26,
+        "bytes": 7793,
+        "digest": "8b29c99606f04b76"
+      },
+      "nextrs": {
+        "status": 404,
+        "ms": 1,
+        "bytes": 7793,
+        "digest": "8b29c99606f04b76"
+      }
+    }
+  ]
+}

@@ -75,7 +75,13 @@ function prepare() {
   mkdirSync(outDir, { recursive: true });
   writeFileSync(join(dirname(outDir), 'build.json'), JSON.stringify(report, null, 2));
   console.log(JSON.stringify(report, null, 2));
-  if (report.trackedChanges) throw new Error('tracked files changed during install/build');
+  // `next build` itself rewrites some files (verifyTypeScriptSetup updates
+  // tsconfig.json). A manifest names those it expects in `buildRewrites`;
+  // any other tracked change fails, since the application must stay as
+  // published.
+  const allowed = new Set(manifest.buildRewrites ?? []);
+  const unexpected = report.trackedChanges.split('\n').filter(Boolean).filter((line) => !allowed.has(line.slice(3)));
+  if (unexpected.length) throw new Error(`tracked files changed during install/build: ${unexpected.join(', ')}`);
 }
 
 function start(name, cmd, cmdArgs, env) {

@@ -1,0 +1,85 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 162  of event 'cycles:u'
+# Event count (approx.): 432159466
+#
+# Overhead  Shared Object     Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+# ........  ................  ...........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+#
+    17.81%  node              [.] v8::internal::ConcurrentMarking::RunMajor(v8::JobDelegate*, v8::base::EnumSet<v8::internal::CodeFlushMode, int>, unsigned int, bool)
+     8.56%  node              [.] void v8::internal::MarkingVisitorBase<v8::internal::ConcurrentMarkingVisitor>::ProcessStrongHeapObject<v8::internal::FullHeapObjectSlot>(v8::internal::Tagged<v8::internal::HeapObject>, v8::internal::FullHeapObjectSlot, v8::internal::Tagged<v8::internal::HeapObject>)
+     5.00%  [JIT] tid 483397  [.] JS:+'ez /home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:15:48469
+     3.77%  node              [.] void v8::internal::BodyDescriptorBase::IteratePointers<v8::internal::ConcurrentMarkingVisitor>(v8::internal::Tagged<v8::internal::HeapObject>, int, int, v8::internal::ConcurrentMarkingVisitor*)
+     3.30%  node              [.] v8::internal::HeapObject::SizeFromMap(v8::internal::Tagged<v8::internal::Map>) const
+     3.12%  node              [.] v8::internal::Sweeper::RawSweep(v8::internal::PageMetadata*, v8::internal::FreeSpaceTreatmentMode, v8::internal::Sweeper::SweepingMode, bool)
+     3.10%  node              [.] v8::internal::JSFunction::NeedsResetDueToFlushedBytecode(v8::internal::Isolate*)
+     2.49%  node              [.] unibrow::Utf8::EncodingResult unibrow::Utf8::Encode<unsigned short>(v8::base::Vector<unsigned short const>, char*, unsigned long, bool, bool)
+     2.26%  node              [.] v8::internal::String::Utf8Length(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::String>)
+     1.98%  node              [.] v8::internal::RelocIteratorBase<v8::internal::RelocInfo>::next()
+     1.55%  node              [.] absl::Mutex::Lock()
+     1.51%  [JIT] tid 483397  [.] JS:+ /home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web/.next/server/chunks/ssr/[root-of-the-server]__1zwu0r35d4wow._.js:12:44207
+     1.19%  [JIT] tid 483397  [.] JS:+r /home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/next-server/app-page-turbo.runtime.prod.js:326:10661
+     1.00%  node              [.] void v8::internal::MarkingVisitorBase<v8::internal::ConcurrentMarkingVisitor>::ProcessWeakHeapObject<v8::internal::FullHeapObjectSlot>(v8::internal::Tagged<v8::internal::HeapObject>, v8::internal::FullHeapObjectSlot, v8::internal::Tagged<v8::internal::HeapObject>)
+     0.93%  node              [.] v8::internal::compiler::DeadCodeElimination::Reduce(v8::internal::compiler::Node*)
+     0.93%  node              [.] v8::internal::compiler::turboshaft::LoopFinder::GetLoopBody(v8::internal::compiler::turboshaft::Block const*)
+     0.92%  node              [.] v8::internal::(anonymous namespace)::RememberedSetUpdatingItem::Process()
+     0.92%  node              [.] v8::internal::compiler::LinearScanAllocator::InactiveToActive(v8::internal::compiler::LiveRange**, v8::internal::compiler::LifetimePosition)
+     0.92%  node              [.] v8::internal::MarkingVisitorBase<v8::internal::ConcurrentMarkingVisitor>::VisitEmbeddedPointer(v8::internal::Tagged<v8::internal::InstructionStream>, v8::internal::RelocInfo*)
+     0.91%  node              [.] v8::internal::MarkingVisitorBase<v8::internal::ConcurrentMarkingVisitor>::VisitMapPointer(v8::internal::Tagged<v8::internal::HeapObject>)
+     0.91%  node              [.] v8::internal::compiler::turboshaft::RequiredOptimizationReducer<v8::internal::compiler::turboshaft::LoopStackCheckElisionReducer<v8::internal::compiler::turboshaft::LoopUnrollingReducer<v8::internal::compiler::turboshaft::MachineOptimizationReducer<v8::internal::compiler::turboshaft::EmitProjectionReducer<v8::internal::compiler::turboshaft::ValueNumberingReducer<v8::internal::compiler::turboshaft::GenericReducerBase<v8::internal::compiler::turboshaft::TSReducerBase<v8::internal::compiler::turboshaft::StackBottom<v8::base::tmp::list1<v8::internal::compiler::turboshaft::GraphVisitor, v8::internal::compiler::turboshaft::LoopStackCheckElisionReducer, v8::internal::compiler::turboshaft::LoopUnrollingReducer, v8::internal::compiler::turboshaft::MachineOptimizationReducer, v8::internal::compiler::turboshaft::ValueNumberingReducer, v8::internal::compiler::turboshaft::TSReducerBase> > > > > > > > > >::ReducePhi(v8::base::Vector<v8::internal::compiler::turboshaft::OpIndex const>, v8::internal::compiler::turboshaft::RegisterRepresentation)
+     0.90%  node              [.] void v8::internal::ConcurrentMarkingVisitor::RecordSlot<v8::internal::FullObjectSlot>(v8::internal::Tagged<v8::internal::HeapObject>, v8::internal::FullObjectSlot, v8::internal::Tagged<v8::internal::HeapObject>) [clone .isra.0]
+     0.88%  node              [.] void v8::internal::MarkCompactCollector::ClearWeakReferences<v8::internal::detail::HeapObjectAndSlotPOD<v8::internal::FullHeapObjectSlot>, v8::internal::FullMaybeObjectSlot>(v8::internal::WeakObjects::WeakObjectWorklist<v8::internal::detail::HeapObjectAndSlotPOD<v8::internal::FullHeapObjectSlot>, (unsigned short)64>::Local&, v8::internal::Tagged<v8::internal::MaybeWeak<v8::internal::HeapObject> >)
+     0.87%  node              [.] bool v8::internal::MarkBit::Set<(v8::internal::AccessMode)0>() [clone .isra.0]
+     0.86%  node              [.] void v8::internal::LiveObjectVisitor::VisitMarkedObjectsNoFail<v8::internal::EvacuateNewSpaceVisitor>(v8::internal::PageMetadata*, v8::internal::EvacuateNewSpaceVisitor*)
+     0.86%  node              [.] v8::internal::MarkBit::From(v8::internal::Tagged<v8::internal::HeapObject>)
+     0.85%  node              [.] v8::internal::MarkingWorklists::Local::Push(v8::internal::Tagged<v8::internal::HeapObject>) [clone .isra.0]
+     0.85%  node              [.] v8::internal::compiler::OperandAssigner::AssignSpillSlots()
+     0.85%  node              [.] v8::internal::compiler::turboshaft::MachineOptimizationReducer<v8::internal::compiler::turboshaft::BranchEliminationReducer<v8::internal::compiler::turboshaft::EmitProjectionReducer<v8::internal::compiler::turboshaft::ValueNumberingReducer<v8::internal::compiler::turboshaft::GenericReducerBase<v8::internal::compiler::turboshaft::TSReducerBase<v8::internal::compiler::turboshaft::StackBottom<v8::base::tmp::list1<v8::internal::compiler::turboshaft::GraphVisitor, v8::internal::compiler::turboshaft::LoopStackCheckElisionReducer, v8::internal::compiler::turboshaft::StoreStoreEliminationReducer, v8::internal::compiler::turboshaft::LateLoadEliminationReducer, v8::internal::compiler::turboshaft::MachineOptimizationReducer, v8::internal::compiler::turboshaft::BranchEliminationReducer, v8::internal::compiler::turboshaft::ValueNumberingReducer, v8::internal::compiler::turboshaft::TSReducerBase> > > > > > > >::ReduceChange(v8::internal::compiler::turboshaft::V<v8::internal::compiler::turboshaft::UntaggedUnion<v8::internal::compiler::turboshaft::UntaggedUnion<v8::internal::compiler::turboshaft::WordWithBits<32ul>, v8::internal::compiler::turboshaft::WordWithBits<64ul> >, v8::internal::compiler::turboshaft::UntaggedUnion<v8::internal::compiler::turboshaft::FloatWithBits<32ul>, v8::internal::compiler::turboshaft::FloatWithBits<64ul> > > >, v8::internal::compiler::turboshaft::ChangeOp::Kind, v8::internal::compiler::turboshaft::ChangeOp::Assumption, v8::internal::compiler::turboshaft::RegisterRepresentation, v8::internal::compiler::turboshaft::RegisterRepresentation)
+     0.85%  node              [.] v8::internal::MutablePageMetadata::CommittedPhysicalMemory() const
+     0.84%  [unknown]         [k] 0000000000000000
+     0.84%  node              [.] v8::internal::Heap::OnMoveEvent(v8::internal::Tagged<v8::internal::HeapObject>, v8::internal::Tagged<v8::internal::HeapObject>, int)
+     0.83%  node              [.] v8::internal::compiler::turboshaft::TurboshaftSpecialRPONumberer::ComputeSpecialRPO()
+     0.82%  node              [.] v8::internal::HeapAllocator::AllocateRawWithLightRetrySlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment)
+     0.79%  node              [.] v8::internal::Heap::CreateFillerObjectAtBackground(v8::internal::WritableFreeSpace const&)
+     0.79%  [JIT] tid 483397  [.] Builtin:RunMicrotasks
+     0.79%  node              [.] v8::internal::SemiSpaceNewSpace::SizeOfObjects() const
+     0.79%  node              [.] heap::base::ActiveSystemPages::Add(unsigned long, unsigned long, unsigned long)
+     0.79%  libc.so.6         [.] _int_malloc
+     0.78%  node              [.] v8::internal::String::ComputeAndSetRawHash(v8::internal::SharedStringAccessGuardIfNeeded const&)
+     0.77%  [JIT] tid 483397  [.] RegExp.> src: '(?:\/index)?\/?$' flags: ''
+     0.77%  node              [.] void v8::internal::String::WriteToFlat<unsigned char>(v8::internal::Tagged<v8::internal::String>, unsigned char*, unsigned int, unsigned int, v8::internal::SharedStringAccessGuardIfNeeded const&)
+     0.77%  node              [.] v8::internal::interpreter::ConstantArrayBuilder::AllocateIndexArray(v8::internal::interpreter::ConstantArrayBuilder::Entry, unsigned long) [clone .constprop.0]
+     0.77%  [JIT] tid 483397  [.] Builtin:CreateDataProperty
+     0.77%  node              [.] v8::internal::MarkCompactCollector::UpdatePointersInPointerTables()
+     0.77%  node              [.] v8::internal::MarkCompactCollector::ClearNonLiveReferences()
+     0.77%  [JIT] tid 483397  [.] JS:+'getNextPathnameInfo /home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/shared/lib/router/utils/get-next-pathname-info.js:14:29
+     0.76%  [JIT] tid 483397  [.] Builtin:LoadIC_Megamorphic
+     0.76%  [JIT] tid 483397  [.] Builtin:LoadGlobalIC
+     0.76%  [JIT] tid 483397  [.] Builtin:KeyedLoadIC_Megamorphic
+     0.76%  node              [.] v8::internal::FreeListManyCached::Free(v8::internal::WritableFreeSpace const&, v8::internal::FreeMode)
+     0.76%  node              [.] non-virtual thunk to v8::internal::PointersUpdatingVisitor::VisitRootPointer(v8::internal::Root, char const*, v8::internal::FullObjectSlot)
+     0.76%  node              [.] v8::internal::DirectHandle<v8::internal::String> v8::internal::StringTable::LookupKey<v8::internal::InternalizedStringKey, v8::internal::Isolate>(v8::internal::Isolate*, v8::internal::InternalizedStringKey*)
+     0.75%  [JIT] tid 483397  [.] Builtin:ArrayMap
+     0.75%  node              [.] v8::internal::Heap::CreateFillerObjectAt(unsigned long, int, v8::internal::ClearFreedMemoryMode)
+     0.75%  libc.so.6         [.] __memmove_avx_unaligned_erms
+     0.73%  [JIT] tid 483397  [.] JS:*'append /home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules/.pnpm/next@16.4.6_@babel+core@7.29.13_@playwright+test@1.65.1_@types+node@22.20.5_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/next/dist/compiled/compression/index.js:58:97
+     0.73%  libgcc_s.so.1     [.] __popcountdi2
+     0.72%  node              [.] v8::internal::HashTable<v8::internal::NameDictionary, v8::internal::NameDictionaryShape>::Rehash(v8::internal::PtrComprCageBase, v8::internal::Tagged<v8::internal::NameDictionary>)
+     0.69%  [JIT] tid 483397  [.] Builtin:KeyedStoreIC
+     0.68%  node              [.] v8::internal::WriteBarrier::MarkingFromCode(unsigned long, unsigned long)
+     0.66%  [JIT] tid 483397  [.] Builtin:LoadIC_NoFeedback
+     0.66%  node              [.] void v8::internal::FixedRangeBodyDescriptor<16, 32>::IterateBody<v8::internal::ConcurrentMarkingVisitor>(v8::internal::Tagged<v8::internal::Map>, v8::internal::Tagged<v8::internal::HeapObject>, int, v8::internal::ConcurrentMarkingVisitor*) [clone .constprop.0]
+     0.58%  [JIT] tid 483397  [.] JS:+'resume_ node:internal/streams/readable:1261:17
+     0.51%  node              [.] v8::internal::compiler::LinearScanAllocator::PickRegisterThatIsAvailableLongest(v8::internal::compiler::LiveRange*, int, v8::base::Vector<v8::internal::compiler::LifetimePosition const>)
+     0.42%  [JIT] tid 483397  [.] Builtin:Add_Baseline
+     0.37%  node              [.] v8::internal::compiler::turboshaft::MemoryOptimizationReducer<v8::internal::compiler::turboshaft::MachineOptimizationReducer<v8::internal::compiler::turboshaft::EmitProjectionReducer<v8::internal::compiler::turboshaft::ValueNumberingReducer<v8::internal::compiler::turboshaft::GenericReducerBase<v8::internal::compiler::turboshaft::TSReducerBase<v8::internal::compiler::turboshaft::StackBottom<v8::base::tmp::list1<v8::internal::compiler::turboshaft::GraphVisitor, v8::internal::compiler::turboshaft::StructuralOptimizationReducer, v8::internal::compiler::turboshaft::LateEscapeAnalysisReducer, v8::internal::compiler::turboshaft::PretenuringPropagationReducer, v8::internal::compiler::turboshaft::MemoryOptimizationReducer, v8::internal::compiler::turboshaft::MachineOptimizationReducer, v8::internal::compiler::turboshaft::ValueNumberingReducer, v8::internal::compiler::turboshaft::TSReducerBase> > > > > > > >::ReduceInputGraphStore(v8::internal::compiler::turboshaft::V<v8::internal::compiler::turboshaft::None>, v8::internal::compiler::turboshaft::StoreOp const&)
+     0.32%  [JIT] tid 483397  [.] JS:*' node:internal/modules/cjs/loader:1609:36
+     0.25%  [JIT] tid 483397  [.] Builtin:LoadIC
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

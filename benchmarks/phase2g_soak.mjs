@@ -37,6 +37,10 @@ const upstreamPort = Number(args["upstream-port"] ?? 4317);
 const injectEvery = Number(args["inject-every"] ?? 0);
 const injectMs = Number(args["inject-ms"] ?? 3000);
 const sampleEvery = Number(args["sample-every"] ?? 30);
+// Phase 3C: keep sampling memory this long after the load stops (post-load
+// idle), with the servers still up.
+const idleMinutes = Number(args["idle-minutes"] ?? 0);
+let phase = "load";
 const pidOf = (port) => Number(/pid=(\d+)/.exec(execSync(`ss -ltnpH 'sport = :${port}'`).toString())[1]);
 // --pid / --i18n-pid when given (the wrapper knows them), else the
 // listening process (ss).
@@ -208,6 +212,12 @@ const metricsOf = async (url) => {
   return {
     malloc: m.memory?.malloc,
     heapAfterGcMiB: m.executors?.map((e) => +(e.heap_used_after_gc_bytes / 1048576).toFixed(1)),
+    heapUsedMiB: m.executors?.map((e) => +(e.heap_used_bytes / 1048576).toFixed(1)),
+    heapTotalMiB: m.executors?.map((e) => +(e.heap_total_bytes / 1048576).toFixed(1)),
+    http: m.http && { inFlight: m.http.in_flight, connectionsOpen: m.http.connections_open, bodies: m.http.bodies },
+    openFds: m.process?.open_fds,
+    queued: m.queued,
+    active: m.executors?.reduce((a, e) => a + e.active, 0),
     restarts: m.executors?.reduce((a, e) => a + e.restarts, 0),
     cache: m.cache,
     images: m.images && Object.fromEntries(["transforms", "fallbacks", "overloaded", "cancelled", "memory_waits", "memory_rejected", "memory_reserved_bytes", "source_held_bytes", "queued", "in_flight", "cache_memory_bytes", "cache_disk_bytes", "cache_corrupt", "cache_write_errors"].map((k) => [k, m.images[k]])),
@@ -217,6 +227,7 @@ const samples = [];
 async function sample(t0) {
   samples.push({
     t: Math.round((Date.now() - t0) / 1000),
+    phase,
     load: Number(readFileSync("/proc/loadavg", "utf8").split(" ")[0]),
     requests: totals.requests,
     main: { ...proc(pid), ...(await metricsOf(args.metrics)) },
@@ -243,6 +254,15 @@ clearInterval(sampler);
 clearInterval(invalidator);
 if (injector) clearInterval(injector);
 await sample(t0);
+const loadSeconds = (Date.now() - t0) / 1000;
+if (idleMinutes > 0) {
+  phase = "idle";
+  const idleUntil = Date.now() + idleMinutes * 60_000;
+  while (Date.now() < idleUntil) {
+    await new Promise((r) => setTimeout(r, sampleEvery * 1000));
+    await sample(t0);
+  }
+}
 await up.close();
 
 // Mutation accounting: every acknowledged mutation exactly once, a lost
@@ -274,7 +294,9 @@ const out = {
   totals,
   accountedExactlyOnce: accounted === totals.requests,
   mutations: mutationReport,
-  throughput: +(totals.requests / ((Date.now() - t0) / 1000)).toFixed(1),
+  loadSeconds,
+  idleMinutes,
+  throughput: +(totals.requests / loadSeconds).toFixed(1),
   latency: { p50: pct(all, 50), p95: pct(all, 95), p99: pct(all, 99) },
   kinds: kindsOut,
   errors,

@@ -1,14 +1,14 @@
-2026-11-16T12:25:11.597354Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
-2026-11-16T12:25:11.598314Z  INFO nextrs: shared data cache enabled persistent=false dir=
-2026-11-16T12:25:11.658177Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:11.658215Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
-2026-11-16T12:25:11.733718Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=135
-2026-11-16T12:25:11.733750Z  INFO nextrs: embedded V8 executor ready ready_ms=136 isolates=1
-2026-11-16T12:25:12.296872Z  INFO nextrs: nextrs ready addr=127.0.0.1:3420 build_id=1-gaQdPlKi6o960cX61Do ready_ms=699
+2026-11-18T03:13:09.163357Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+2026-11-18T03:13:09.378094Z  INFO nextrs: shared data cache enabled persistent=false dir=
+2026-11-18T03:13:10.297654Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:13:10.297681Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-18T03:13:11.228889Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=1850
+2026-11-18T03:13:11.228923Z  INFO nextrs: embedded V8 executor ready ready_ms=2065 isolates=1
+2026-11-18T03:13:11.500122Z  INFO nextrs: nextrs ready addr=127.0.0.1:3420 build_id=1-gaQdPlKi6o960cX61Do ready_ms=2336
 Error: EACCES: permission denied (outside NextRS read roots), open '/home/dennispaler/.cache/nextrs-phase3b/independent/nextjs-blog-starter/examples/blog-starter/_posts/does-not-exist.md'
-[90m    at translateFsError (ext:nextrs/02_node.js:404:12)[39m
-[90m    at readBytes (ext:nextrs/02_node.js:437:13)[39m
-[90m    at Proxy.readFileSync (ext:nextrs/02_node.js:497:33)[39m
+[90m    at translateFsError (ext:nextrs/02_node.js:385:12)[39m
+[90m    at readBytes (ext:nextrs/02_node.js:418:13)[39m
+[90m    at Proxy.readFileSync (ext:nextrs/02_node.js:478:33)[39m
     at i (.next/server/chunks/ssr/[root-of-the-server]__0bbozw9utaek0._.js:1:207069)
     at ed (.next/server/chunks/ssr/[root-of-the-server]__1gpg6x85mveia._.js:30:179878)
 [90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
@@ -17,12 +17,12 @@ Error: EACCES: permission denied (outside NextRS read roots), open '/home/dennis
   errno: [33m-13[39m,
   syscall: [32m"open"[39m,
   path: [32m"/home/dennispaler/.cache/nextrs-phase3b/independent/nextjs-blog-starter/examples/blog-starter/_posts/does-not-exist.md"[39m,
-  digest: [32m"2889308305"[39m
+  digest: [32m"1549390963"[39m
 }
 Error: EACCES: permission denied (outside NextRS read roots), open '/home/dennispaler/.cache/nextrs-phase3b/independent/nextjs-blog-starter/examples/blog-starter/_posts/does-not-exist.md'
-[90m    at translateFsError (ext:nextrs/02_node.js:404:12)[39m
-[90m    at readBytes (ext:nextrs/02_node.js:437:13)[39m
-[90m    at Proxy.readFileSync (ext:nextrs/02_node.js:497:33)[39m
+[90m    at translateFsError (ext:nextrs/02_node.js:385:12)[39m
+[90m    at readBytes (ext:nextrs/02_node.js:418:13)[39m
+[90m    at Proxy.readFileSync (ext:nextrs/02_node.js:478:33)[39m
     at i (.next/server/chunks/ssr/[root-of-the-server]__0bbozw9utaek0._.js:1:207069)
     at Module.ee [as generateMetadata] (.next/server/chunks/ssr/[root-of-the-server]__1gpg6x85mveia._.js:30:180277)
 [90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
@@ -31,12 +31,12 @@ Error: EACCES: permission denied (outside NextRS read roots), open '/home/dennis
   errno: [33m-13[39m,
   syscall: [32m"open"[39m,
   path: [32m"/home/dennispaler/.cache/nextrs-phase3b/independent/nextjs-blog-starter/examples/blog-starter/_posts/does-not-exist.md"[39m,
-  digest: [32m"2250484085"[39m
+  digest: [32m"3297730007"[39m
 }
 Error: EACCES: permission denied (outside NextRS read roots), open '/home/dennispaler/.cache/nextrs-phase3b/independent/nextjs-blog-starter/examples/blog-starter/_posts/does-not-exist.md'
-[90m    at translateFsError (ext:nextrs/02_node.js:404:12)[39m
-[90m    at readBytes (ext:nextrs/02_node.js:437:13)[39m
-[90m    at Proxy.readFileSync (ext:nextrs/02_node.js:497:33)[39m
+[90m    at translateFsError (ext:nextrs/02_node.js:385:12)[39m
+[90m    at readBytes (ext:nextrs/02_node.js:418:13)[39m
+[90m    at Proxy.readFileSync (ext:nextrs/02_node.js:478:33)[39m
     at i (.next/server/chunks/ssr/[root-of-the-server]__0bbozw9utaek0._.js:1:207069)
     at ed (.next/server/chunks/ssr/[root-of-the-server]__1gpg6x85mveia._.js:30:179878)
 [90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
@@ -45,7 +45,8 @@ Error: EACCES: permission denied (outside NextRS read roots), open '/home/dennis
   errno: [33m-13[39m,
   syscall: [32m"open"[39m,
   path: [32m"/home/dennispaler/.cache/nextrs-phase3b/independent/nextjs-blog-starter/examples/blog-starter/_posts/does-not-exist.md"[39m,
-  digest: [32m"2889308305"[39m
+  digest: [32m"1549390963"[39m
 }
-2026-11-16T12:25:13.715063Z  INFO nextrs: stopping JavaScript isolates
-2026-11-16T12:25:13.738365Z  INFO nextrs: nextrs stopped
+2026-11-18T03:13:14.049622Z  INFO nextrs_server::serve: shutting down: no new connections; draining connections=1 grace_ms=10000
+2026-11-18T03:13:14.049860Z  INFO nextrs: stopping JavaScript isolates
+2026-11-18T03:13:14.086094Z  INFO nextrs: nextrs stopped

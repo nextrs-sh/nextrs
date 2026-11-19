@@ -1,0 +1,154 @@
+{
+  "results": [
+    {
+      "name": "hydrate-server-app-props",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/",
+          "app": {
+            "user": "-",
+            "theme": "dark",
+            "side": "server",
+            "path": "/"
+          },
+          "title": "Home",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/",
+          "app": {
+            "user": "-",
+            "theme": "dark",
+            "side": "server",
+            "path": "/"
+          },
+          "title": "Home",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-nav-runs-gip-in-browser",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/gip?q=nav",
+          "app": {
+            "user": "client",
+            "theme": "client",
+            "side": "client",
+            "path": "/gip?q=nav"
+          },
+          "query": "{\"q\":\"nav\"}",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/gip?q=nav",
+          "app": {
+            "user": "client",
+            "theme": "client",
+            "side": "client",
+            "path": "/gip?q=nav"
+          },
+          "query": "{\"q\":\"nav\"}",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-nav-ssr-data",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/ssr",
+          "app": {
+            "user": "-",
+            "theme": "green",
+            "side": "server",
+            "path": "/ssr"
+          },
+          "theme": "green",
+          "data": [
+            200
+          ],
+          "errors": []
+        },
+        "candidate": {
+          "url": "/ssr",
+          "app": {
+            "user": "-",
+            "theme": "green",
+            "side": "server",
+            "path": "/ssr"
+          },
+          "theme": "green",
+          "data": [
+            200
+          ],
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-redirect",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/gip?from=redirect",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/gip?from=redirect",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "back-forward",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "back": "/ssg",
+          "forward": "/gip?q=nav",
+          "errors": []
+        },
+        "candidate": {
+          "back": "/ssg",
+          "forward": "/gip?q=nav",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "error-page",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "status": 500,
+          "title": "Error 500",
+          "side": "server",
+          "errors": []
+        },
+        "candidate": {
+          "status": 500,
+          "title": "Error 500",
+          "side": "server",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    }
+  ]
+}

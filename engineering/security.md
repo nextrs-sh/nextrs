@@ -104,6 +104,20 @@ NextRS passes these headers through from every client, as `next start` does.
 it only decides whose forwarded headers Next sees. Next's internal headers
 are removed from every client request regardless.
 
+What the default allows: with it, a client that sends `Origin:
+https://evil.example` together with `X-Forwarded-Host: evil.example` passes
+Next's Server Action origin check, on `next start` and on NextRS alike.
+- A browser cannot add that header to a cross-site request without a CORS
+  preflight. Other clients can, but they do not carry a victim's cookies.
+- Either option closes the case. Phase 3C verified this on a real
+  application for all five configurations: the default, strip, a trusted
+  proxy, an untrusted proxy, and `next start`.
+- Startup warns when the default is used on a non-loopback `--host`.
+
+Client-visible errors: NextRS's own error responses are fixed texts with an
+`x-nextrs-error` code. JavaScript error messages are logged, never sent to
+the client.
+
 ## Proxies are not authorization
 
 NextRS runs `proxy.ts` exactly where and as `next start` does, including
@@ -112,10 +126,12 @@ too. Check the session in Server Actions and route handlers as well.
 
 ## Metrics endpoint
 
-`--metrics-addr` exposes counters, per-isolate state and the first line of
-the last isolate failure (which can contain application error text). No
-request paths, headers, URLs or cache keys are used as labels. Keep it on
-loopback.
+`--metrics-addr` exposes counters, per-isolate state, process memory and the
+first line of the last isolate failure (which can contain application error
+text, in `/metrics.json`). No request paths, headers, URLs or cache keys are
+used as labels: every label comes from a fixed set. Keep it on loopback or a
+private network; `/readyz` and `/healthz` are meant for the orchestrator, not
+the public.
 
 ## Unsupported-feature bypass
 

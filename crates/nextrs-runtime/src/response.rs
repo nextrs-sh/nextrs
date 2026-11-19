@@ -59,6 +59,11 @@ struct Flow {
     delivered: AtomicBool,
     /// `End` or `Error` was sent.
     finished: AtomicBool,
+    /// The consumer passed on every body byte the response declared (its
+    /// Content-Length). HTTP stops reading such a body at its last byte,
+    /// often before JavaScript has ended the response: dropping it then is
+    /// not a cancellation.
+    complete: AtomicBool,
     /// A waiting writer: woken when bytes are released or the stream closes.
     drained: Notify,
     /// Woken (all waiters) when the stream closes.
@@ -102,6 +107,7 @@ pub(crate) fn channel(budget: usize, counters: Arc<Counters>) -> (ResponseSender
         closed: AtomicBool::new(false),
         delivered: AtomicBool::new(false),
         finished: AtomicBool::new(false),
+        complete: AtomicBool::new(false),
         drained: Notify::new(),
         closing: Notify::new(),
         counters,
@@ -215,6 +221,12 @@ impl FlowHandle {
         }
         closing.await;
     }
+
+    /// Whether every declared body byte was passed on before the consumer
+    /// went away (see `ResponseStream::mark_complete`).
+    pub fn is_complete(&self) -> bool {
+        self.0.complete.load(Ordering::Acquire)
+    }
 }
 
 /// The HTTP side of one response. Events arrive in order: one `Head`, any
@@ -259,6 +271,12 @@ impl ResponseStream {
     pub fn budget(&self) -> usize {
         self.flow.budget
     }
+
+    /// The HTTP layer has passed on the whole declared body: when it drops
+    /// this stream next, the client got the complete response.
+    pub fn mark_complete(&self) {
+        self.flow.complete.store(true, Ordering::Release);
+    }
 }
 
 impl std::fmt::Debug for ResponseStream {
@@ -274,7 +292,10 @@ impl Drop for ResponseStream {
     fn drop(&mut self) {
         let flow = &self.flow;
         flow.closed.store(true, Ordering::Release);
-        if flow.delivered.load(Ordering::Acquire) && !flow.finished.load(Ordering::Acquire) {
+        if flow.delivered.load(Ordering::Acquire)
+            && !flow.finished.load(Ordering::Acquire)
+            && !flow.complete.load(Ordering::Acquire)
+        {
             metrics::add(&flow.counters.responses_cancelled, 1);
         }
         flow.drained.notify_one();
