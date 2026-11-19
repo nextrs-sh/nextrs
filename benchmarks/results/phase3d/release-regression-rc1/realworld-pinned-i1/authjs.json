@@ -1,0 +1,1426 @@
+{
+  "summary": {
+    "title": "authjs (next-auth 5)",
+    "total": 58,
+    "match": 58,
+    "pass": 0,
+    "knownDiff": 0,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 58,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "providers",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"credentials\":{\"id\":\"credentials\",\"name\":\"Credentials\",\"type\":\"credentials\",\"signinUrl\":\"http://SELF/api/auth/signin/credentials\",\"callbackUrl\":\"http://SELF/api/auth/callback/credentials\"},\"local-oidc\":{\"id\":\"local-oidc\",\"name\":\"Local OpenID provider\",\"type\":\"oidc\",\"signinUrl\":\"http://SELF/api/auth/signin/local-oidc\",\"callbackUrl\":\"http://SELF/api/auth/callback/local-oidc\"}}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "csrf-token",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "tokenShape": true,
+          "cookieMatches": true,
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-anonymous",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store",
+            "content-type": "application/json",
+            "expires": "0",
+            "pragma": "no-cache",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "null"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "signin-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "credentials-sign-in",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 302,
+          "location": "http://SELF/dashboard",
+          "setCookie": [
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+          ],
+          "session": {
+            "sub": "u-alice",
+            "name": "Alice",
+            "email": "alice@example.test"
+          },
+          "api": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax",
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{\"userId\":\"u-alice\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "credentials-sign-in-bob",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 302,
+          "location": "http://SELF/reports",
+          "setCookie": [
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+          ],
+          "session": {
+            "sub": "u-bob",
+            "name": "Bob",
+            "email": "bob@example.test"
+          },
+          "api": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax",
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{\"userId\":\"u-bob\",\"name\":\"Bob\",\"email\":\"bob@example.test\"}"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "credentials-wrong-password",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 302,
+          "location": "http://SELF/api/auth/signin?error=CredentialsSignin&code=credentials",
+          "setCookie": [],
+          "session": null,
+          "api": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "credentials-unknown-user",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 302,
+          "location": "http://SELF/api/auth/signin?error=CredentialsSignin&code=credentials",
+          "setCookie": [],
+          "session": null,
+          "api": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "credentials-missing-csrf",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 302,
+          "location": "http://SELF/api/auth/signin?error=MissingCSRF",
+          "setCookie": [],
+          "session": null,
+          "api": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "credentials-foreign-csrf",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 302,
+          "location": "http://SELF/api/auth/signin?error=MissingCSRF",
+          "setCookie": [],
+          "session": null,
+          "api": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "credentials-open-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 302,
+          "location": "http://SELF",
+          "setCookie": [
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+          ],
+          "session": {
+            "sub": "u-alice",
+            "name": "Alice",
+            "email": "alice@example.test"
+          },
+          "api": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax",
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{\"userId\":\"u-alice\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "sign-out",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 302,
+          "location": "http://SELF/",
+          "cleared": true,
+          "sessionAfter": "null"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-alice-api",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax",
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"userId\":\"u-alice\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-bob-api",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax",
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"userId\":\"u-bob\",\"name\":\"Bob\",\"email\":\"bob@example.test\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-endpoint",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store",
+            "content-type": "application/json",
+            "expires": "0",
+            "pragma": "no-cache",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"user\":{\"name\":\"Bob\",\"email\":\"bob@example.test\",\"id\":\"u-bob\"},\"expires\":\"<DATE>\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-dashboard",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+          ],
+          "body": {
+            "title": "Dashboard",
+            "secret": "dashboard of Alice",
+            "info": "{\"userId\":\"u-alice\",\"email\":\"alice@example.test\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-isr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=30, stale-while-revalidate=31535970",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+          ],
+          "body": {
+            "title": "Reports",
+            "secret": "quarterly reports (ISR, proxy-protected)",
+            "stamp": "present"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-home",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+          ],
+          "body": {
+            "title": "Home",
+            "info": "{\"user\":\"u-bob\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-dashboard",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Fdashboard"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "/api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-isr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Freports"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "/api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Freports"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-action-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Factions%2Fprotected"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "/api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Factions%2Fprotected"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-api",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-home",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": {
+            "title": "Home",
+            "info": "{\"user\":null}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-wrong-secret",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-wrong-secret-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Fdashboard"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "/api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-wrong-salt",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-expired",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-expired-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Fdashboard"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "/api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-tampered",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-tampered-tag",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-not-a-jwe",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-signed-jwt-not-jwe",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": "{\"error\":\"unauthorized\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-rolled",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "rolled": {
+            "sub": "u-alice",
+            "name": "Alice",
+            "email": "alice@example.test"
+          },
+          "setCookie": [
+            "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+            "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-expires",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "before": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax",
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{\"userId\":\"u-alice\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+          },
+          "after": {
+            "status": 401,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{\"error\":\"unauthorized\"}"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-sign-in-alice",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/dashboard",
+          "session": {
+            "sub": "u-alice",
+            "name": "Alice",
+            "email": "alice@example.test"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-sign-in-bob",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/reports",
+          "session": {
+            "sub": "u-bob",
+            "name": "Bob",
+            "email": "bob@example.test"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-wrong-state",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-no-state-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-no-pkce-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-no-nonce-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-forged-code",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-missing-code",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-wrong-iss-parameter",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-id-token-wrong-iss",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-id-token-wrong-aud",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-id-token-wrong-nonce",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-id-token-expired",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/api/auth/error?error=Configuration",
+          "session": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-id-token-bad-signature-not-verified",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/dashboard",
+          "session": {
+            "sub": "u-alice",
+            "name": "Alice",
+            "email": "alice@example.test"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-id-token-unknown-kid-not-verified",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/dashboard",
+          "session": {
+            "sub": "u-alice",
+            "name": "Alice",
+            "email": "alice@example.test"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-key-rotation",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "start": 302,
+          "authorizeOrigin": true,
+          "request": {
+            "response_type": "code",
+            "client_id": "nextrs-test-client",
+            "scope": "openid profile email",
+            "code_challenge_method": "S256",
+            "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+            "has": [
+              "state",
+              "nonce",
+              "code_challenge"
+            ]
+          },
+          "callback": 302,
+          "location": "http://SELF/dashboard",
+          "session": {
+            "sub": "u-alice",
+            "name": "Alice",
+            "email": "alice@example.test"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "oidc-callback-replay",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "first": {
+            "start": 302,
+            "authorizeOrigin": true,
+            "request": {
+              "response_type": "code",
+              "client_id": "nextrs-test-client",
+              "scope": "openid profile email",
+              "code_challenge_method": "S256",
+              "redirect_uri": "http://SELF/api/auth/callback/local-oidc",
+              "has": [
+                "state",
+                "nonce",
+                "code_challenge"
+              ]
+            },
+            "callback": 302,
+            "location": "http://SELF/dashboard",
+            "session": {
+              "sub": "u-alice",
+              "name": "Alice",
+              "email": "alice@example.test"
+            }
+          },
+          "replay": {
+            "status": 302,
+            "location": "http://SELF/api/auth/error?error=Configuration",
+            "session": null
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-anon",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{}"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-alice",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+            ],
+            "body": {
+              "rsc": true,
+              "value": "{\"recorded\":\"u-alice:1\",\"user\":\"u-alice\"}",
+              "stamp": "absent"
+            }
+          },
+          "ledger": [
+            "u-alice:1"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-bob-public-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+            ],
+            "body": {
+              "rsc": true,
+              "value": "{\"recorded\":\"u-bob:1\",\"user\":\"u-bob\"}",
+              "stamp": "absent"
+            }
+          },
+          "ledger": [
+            "u-bob:1"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-expired",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{}"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-wrong-secret",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{}"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "concurrent-users",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "total": 300,
+          "wrong": 0,
+          "failed": 0,
+          "sample": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-after-executor-restart",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "alice": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax",
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{\"userId\":\"u-alice\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+          },
+          "forged": {
+            "status": 401,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{\"error\":\"unauthorized\"}"
+          },
+          "bob": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax",
+              "authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax",
+              "authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"
+            ],
+            "body": "{\"userId\":\"u-bob\",\"name\":\"Bob\",\"email\":\"bob@example.test\"}"
+          }
+        },
+        "asserted": true
+      }
+    }
+  ]
+}

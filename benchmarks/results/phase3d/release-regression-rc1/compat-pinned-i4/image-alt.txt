@@ -1,0 +1,114 @@
+MATCH      validate: url required
+MATCH      validate: url array
+MATCH      validate: url too long
+MATCH      validate: protocol-relative
+MATCH      validate: recursive
+MATCH      validate: recursive encoded
+MATCH      validate: invalid absolute
+MATCH      validate: non-http scheme
+MATCH      validate: file scheme
+MATCH      validate: width required
+MATCH      validate: width array
+MATCH      validate: width not a number
+MATCH      validate: width negative
+MATCH      validate: width zero
+MATCH      validate: width not allowed
+MATCH      validate: width huge
+MATCH      validate: quality required
+MATCH      validate: quality not a number
+MATCH      validate: quality zero
+MATCH      validate: quality above 100
+MATCH      validate: quality not allowed
+MATCH      validate: leading zeros accepted [direct mae 0.3 ssim 0.999; vs reference next 0.875 nextrs 0.8753]
+MATCH      validate: accept parameter without value
+MATCH      access: double-encoded traversal
+MATCH      access: encoded slash traversal
+MATCH      access: missing file
+MATCH      access: source without basePath
+MATCH      access: source file
+MATCH      access: source file outside basePath
+MATCH      access: build id
+MATCH      access: server bundle
+MATCH      access: node_modules
+MATCH      access: package.json
+MATCH      access: page HTML is not an image
+MATCH      access: dot-segment normalization [direct mae 0.64 ssim 0.9906]
+MATCH      local: jpeg to webp [direct mae 0.64 ssim 0.9906; vs reference next 0.9059 nextrs 0.9058]
+MATCH      local: jpeg to avif [direct mae 1.23 ssim 0.9857; vs reference next 0.9091 nextrs 0.9047]
+MATCH      local: jpeg kept for */* [direct mae 0.26 ssim 0.9969; vs reference next 0.913 nextrs 0.913]
+MATCH      local: chrome accept [direct mae 1.35 ssim 0.9856; vs reference next 0.9625 nextrs 0.9571]
+MATCH      local: no enlargement [direct mae 0.74 ssim 0.9845; vs reference next 0.8626 nextrs 0.8625]
+MATCH      local: aspect rounding [direct mae 1.41 ssim 0.9448; vs reference next 0.8255 nextrs 0.8296]
+MATCH      local: aspect rounding 2 [direct mae 4.58 ssim 0.8999; vs reference next 0.9496 nextrs 0.9302]
+MATCH      local: small png kept size [direct mae 1.44 ssim 0.9774; vs reference next 0.9774 nextrs 1]
+MATCH      local: quality 50 [direct mae 0.7 ssim 0.9926; vs reference next 0.8759 nextrs 0.8758]
+MATCH      local: quality 90 [direct mae 1.57 ssim 0.9448; vs reference next 0.9462 nextrs 0.9497]
+MATCH      local: alpha png to webp [direct mae 0.47 ssim 0.9952; vs reference next 0.9677 nextrs 0.9675]
+MATCH      local: alpha png kept png [direct mae 0.75 ssim 0.9862; vs reference next 0.9866 nextrs 0.999]
+MATCH      local: webp to jpeg for */* [direct mae 0.7 ssim 0.9846; vs reference next 0.8679 nextrs 0.8718]
+MATCH      local: alpha webp to jpeg [direct mae 0.53 ssim 0.9931; vs reference next 0.972 nextrs 0.9743]
+MATCH      local: webp to avif [direct mae 1.4 ssim 0.9799; vs reference next 0.8581 nextrs 0.8518]
+MATCH      local: static gif to webp [direct mae 2.13 ssim 0.9144; vs reference next 0.8305 nextrs 0.8348]
+KNOWN-DIFF local: static gif kept gif [direct mae 1.02 ssim 0.9869; vs reference next 0.9889 nextrs 0.9958]
+    (sharp's GIF writer declares a transparency index on an opaque image (decodes with an alpha channel); NextRS writes none; the pixels are opaque in both)
+MATCH      local: lzw tiff to webp [direct mae 0.74 ssim 0.9784; vs reference next 0.8399 nextrs 0.8376]
+KNOWN-DIFF local: jpeg-compressed tiff
+    (the tiff decoder has no YCbCr (JPEG-in-TIFF): the source is served unchanged, next start converts it)
+MATCH      local: exif orientation [direct mae 1.36 ssim 0.9539; vs reference next 0.8267 nextrs 0.8233]
+MATCH      local: display p3 to srgb [direct mae 1.34 ssim 0.9615; vs reference next 0.8249 nextrs 0.8252]
+MATCH      local: large photo [direct mae 1.12 ssim 0.9806; vs reference next 0.9688 nextrs 0.9695]
+MATCH      local: animated gif unchanged [direct mae 0 ssim 1]
+MATCH      local: animated webp unchanged [direct mae 0 ssim 1]
+MATCH      local: corrupt served unchanged
+MATCH      local: truncated served unchanged
+MATCH      local: bomb served unchanged [direct mae 0 ssim 1]
+MATCH      local: not an image
+MATCH      local: pdf refused
+MATCH      local: svg allowed unchanged
+KNOWN-DIFF local: avif source
+    (NextRS has no AVIF decoder: the source is served unchanged (next start's fallback when sharp fails), next start converts it)
+MATCH      local: dynamic route source [direct mae 1.52 ssim 0.9467; vs reference next 0.8239 nextrs 0.8234]
+MATCH      local: static import [direct mae 0.7 ssim 0.985]
+MATCH      local: head request
+MATCH      cache: hit returns the same image
+MATCH      cache: widths do not share entries
+MATCH      cache: formats do not share entries
+MATCH      cache: conditional request
+MATCH      cache: stale entry is served, then revalidated
+MATCH      remote: jpeg to webp [direct mae 0.64 ssim 0.9906; vs reference next 0.9059 nextrs 0.9058]
+MATCH      remote: alpha png [direct mae 0.47 ssim 0.9952; vs reference next 0.9677 nextrs 0.9675]
+MATCH      remote: no cache headers [direct mae 1.47 ssim 0.9724; vs reference next 0.9552 nextrs 0.9522]
+MATCH      remote: s-maxage wins [direct mae 1.47 ssim 0.9724; vs reference next 0.9552 nextrs 0.9522]
+MATCH      remote: redirect followed [direct mae 0.96 ssim 0.9863; vs reference next 0.9504 nextrs 0.9509]
+MATCH      remote: three redirects [direct mae 0.96 ssim 0.9863; vs reference next 0.9504 nextrs 0.9509]
+MATCH      remote: four redirects
+MATCH      remote: redirect loop
+MATCH      remote: missing
+MATCH      remote: upstream 503
+MATCH      remote: text body
+MATCH      remote: html body
+MATCH      remote: empty body
+MATCH      remote: corrupt served unchanged
+MATCH      remote: content type is sniffed [direct mae 0.96 ssim 0.9863; vs reference next 0.9504 nextrs 0.9509]
+MATCH      remote: oversized body
+MATCH      remote: gzip body [direct mae 0.96 ssim 0.9863; vs reference next 0.9504 nextrs 0.9509]
+ORACLE-FAIL remote: brotli body
+    next start: status: 504, want 200
+MATCH      remote: animated unchanged [direct mae 0 ssim 1]
+MATCH      remote: connection reset
+MATCH      remote: slow head times out
+MATCH      remote: slow body times out
+MATCH      remote: path outside remotePatterns
+MATCH      remote: port outside remotePatterns
+MATCH      remote: host outside remotePatterns
+MATCH      remote: https outside remotePatterns
+KNOWN-DIFF remote: credentials in url
+    (next start fetches URLs with credentials; NextRS's network policy refuses them)
+KNOWN-DIFF remote: redirect to another address
+    (next start (dangerouslyAllowLocalIP) follows a redirect to 127.0.0.2; NextRS's --net-allow-addr covers 127.0.0.1 only)
+KNOWN-DIFF remote: redirect to another host
+    (next start follows a redirect to localhost; --net-allow allows only http://127.0.0.1:<port>)
+PASS       remote: redirect to cloud metadata
+MATCH      remote: one fetch for concurrent requests
+MATCH      remote: changed source after revalidation
+image (alt): 98 MATCH (97 asserted), 1 PASS, 6 KNOWN-DIFF, 0 DIFF, 0 FAIL, 1 ORACLE-FAIL, 0 ERROR

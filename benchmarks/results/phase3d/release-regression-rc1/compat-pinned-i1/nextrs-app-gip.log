@@ -1,0 +1,47 @@
+[2m2026-11-19T01:42:49.424028Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-19T01:42:49.424496Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5567
+[2m2026-11-19T01:42:49.424531Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-19T01:42:49.480641Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T01:42:49.480678Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T01:42:49.492391Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m67
+[2m2026-11-19T01:42:49.492417Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m68 [3misolates[0m[2m=[0m1
+[2m2026-11-19T01:42:49.493878Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5566 [3mbuild_id[0m[2m=[0mwG5tIzxw1q9wg6EvdSEt_ [3mready_ms[0m[2m=[0m69
+Error: page getInitialProps failure (synthetic)
+    at o (.next/server/chunks/ssr/[root-of-the-server]__0gfjpjbfoe4cr._.js:1:10500)
+    at i.h (.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:25034)
+    at g.getInitialProps (.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:44327)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:34039)
+    at async as (.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:36984)
+    at async i (.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:40322)
+[2m2026-11-19T01:42:50.370657Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /throws: Error: page getInitialProps failure (synthetic)
+    at h.getInitialProps (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/node_modules_next_dist_esm_build_templates_pages_1u4nyv1_wirw0.js:1:214)
+    at o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0gfjpjbfoe4cr._.js:1:10500)
+    at i.h (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:25034)
+    at g.getInitialProps (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:44327)
+    at V (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:38839)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:13:2692)
+    at async o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:34039)
+    at async rj.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:36984)
+    at async i (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:40322) [3mkind[0m[2m=[0m"handler-error"
+Error: page getInitialProps failure (synthetic)
+    at o (.next/server/chunks/ssr/[root-of-the-server]__0gfjpjbfoe4cr._.js:1:10500)
+    at i.h (.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:25034)
+    at g.getInitialProps (.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:44327)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:34039)
+    at async as (.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:36984)
+    at async i (.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:40322)
+[2m2026-11-19T01:42:53.257991Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /throws: Error: page getInitialProps failure (synthetic)
+    at h.getInitialProps (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/node_modules_next_dist_esm_build_templates_pages_1u4nyv1_wirw0.js:1:214)
+    at o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0gfjpjbfoe4cr._.js:1:10500)
+    at i.h (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:25034)
+    at g.getInitialProps (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:44327)
+    at V (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:38839)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:13:2692)
+    at async o (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:34039)
+    at async rj.handleResponse (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:36984)
+    at async i (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:40322) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-19T01:42:53.388043Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m6 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-19T01:42:53.388105Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-19T01:42:53.402634Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

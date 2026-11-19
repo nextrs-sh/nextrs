@@ -1,0 +1,27 @@
+[2m2026-11-19T02:56:02.005354Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-19T02:56:02.006394Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5592, http://127.0.0.1:5588, http://127.0.0.1:5589, http://127.0.0.1:5591
+[2m2026-11-19T02:56:02.006460Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-19T02:56:02.062910Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T02:56:02.062952Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T02:56:02.136344Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m130 [3misolates[0m[2m=[0m1
+[2m2026-11-19T02:56:02.136341Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m129
+[2m2026-11-19T02:56:02.136670Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m3 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-19T02:56:02.138838Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5587 [3mbuild_id[0m[2m=[0m8Td-KBV-QeiI-KXKGXoEK [3mready_ms[0m[2m=[0m133
+`x-forwarded-host` header with value `127.0.0.1:5587` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+  digest: [32m"2386839442"[39m
+}
+`x-forwarded-host` header with value `127.0.0.1:5587` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+  digest: [32m"2386839442"[39m
+}
+`x-forwarded-host` header with value `127.0.0.1:5587` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+  digest: [32m"2386839442"[39m
+}
+[2m2026-11-19T02:56:07.646496Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m53 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-19T02:56:07.646654Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-19T02:56:07.653250Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

@@ -1,0 +1,68 @@
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 22ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 3.1s
+  Running TypeScript ...
+  Finished TypeScript in 2.3s ...
+  Collecting page data using 5 workers ...
+  Generating static pages using 5 workers (0/41) ...
+  Generating static pages using 5 workers (10/41) 
+  Generating static pages using 5 workers (20/41) 
+  Generating static pages using 5 workers (30/41) 
+✓ Generating static pages using 5 workers (41/41) in 358ms
+  Finalizing page optimization ...
+
+Route (app)                 Revalidate  Expire
+┌ ○ /
+├ ○ /_not-found
+├ ○ /actions/bound
+├ ƒ /actions/bound-dynamic
+├ ○ /actions/client
+├ ○ /actions/concurrent
+├ ƒ /actions/cookies
+├ ○ /actions/error
+├ ○ /actions/form
+├ ○ /actions/mutation
+├ ○ /actions/redirect
+├ ○ /actions/redirect/done
+├ ƒ /actions/revalidate
+├ ○ /actions/simple
+├ ○ /actions/static-time
+├ ○ /actions/upload
+├ ƒ /api/after
+├ ƒ /api/data
+├ ƒ /api/echo
+├ ƒ /api/faults
+├ ƒ /api/health
+├ ƒ /api/isr-private
+├ ○ /api/isr-route                  2s      1y
+├ ƒ /api/revalidate
+├ ƒ /api/spin
+├ ƒ /api/stream
+├ ƒ /books/[id]
+├ ƒ /data-cache
+├ ƒ /data-concurrent
+├ ƒ /data-fetch
+├ ƒ /dynamic
+├   /gsp/[slug]
+│ ├ ● /gsp/alpha
+│ └ ● /gsp/beta
+├ ƒ /isolation/boundary
+├ ƒ /isolation/cache
+├ ƒ /isolation/persistent
+├   /isr/[slug]
+│ ├ ● /isr/one                      1h      1y
+│ └ ● /isr/two                      1h      1y
+├ ○ /isr/flaky                      1s      1y
+├ ƒ /isr/private
+├ ○ /isr/tagged                     1h      1y
+├ ○ /isr/timed                      2s      1y
+└ ƒ /request-info
+
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

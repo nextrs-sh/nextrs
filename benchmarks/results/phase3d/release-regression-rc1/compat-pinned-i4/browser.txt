@@ -1,0 +1,22 @@
+PASS            simple-js
+PASS            simple-nojs
+PASS            form
+PASS            form-nojs
+PASS            upload
+PASS            upload-nojs
+PASS            bound
+PASS            bound-nojs
+PASS            bound-dynamic
+PASS            redirect
+PASS            redirect-nojs
+PASS            error
+PASS            error-nojs
+PASS            cookies
+PASS            client
+PASS            concurrent
+BASELINE-FAILED revalidate
+  baseline:  {"failed":"page.waitForResponse: Timeout 15000ms exceeded while waiting for event \"response\"","errors":[]}
+  candidate: {"observed":{"updateTag":{"visibleRefetch":true},"revalidatePath":{"visibleRefetch":true},"refresh":{"visibleRefetch":false},"revalidateTag":{"visibleRefetch":false},"staticPage":{"rerendered":true},"actions":[{"status":200,"revalidated":"1"},{"status":200,"revalidated":"1"},{"status":200,"revalidated":"2"},{"status":200,"revalidated":null},{"status":200,"revalidated":"1"}]},"errors":[]}
+PASS            isr-actions
+PASS            isr-actions-nojs
+18/19 scenarios equal

@@ -1,0 +1,49 @@
+MATCH     invalid-origin-fetch             {"status":500,"type":"text/x-component","notFound":null,"redirect":null,"cacheControl":null,"setCookie":null,"body":"0:{\"a\":\"$@1\",\"q\":
+MATCH     invalid-origin-mpa               {"status":500,"type":"text/plain","notFound":null,"redirect":null,"cacheControl":null,"setCookie":null,"body":"Internal Server Error"}
+MATCH     origin-null                      {"status":500,"type":"text/x-component","notFound":null,"redirect":null,"cacheControl":null,"setCookie":null,"body":"0:{\"a\":\"$@1\",\"q\":
+MATCH     forwarded-host-matching-origin   {"status":200,"recorded":1}
+MATCH     missing-origin                   {"status":200,"recorded":1}
+MATCH     get-does-not-run-actions         {"status":200,"type":"text/html","recorded":0}
+MATCH     put-and-delete-refused           {"statuses":[405,405,405],"recorded":0}
+MATCH     unknown-action-id                {"status":409,"type":"text/plain","notFound":"1","redirect":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","setCookie"
+MATCH     malformed-action-id              {"status":400,"type":"text/plain","notFound":"1","redirect":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","setCookie"
+MATCH     prototype-action-id              {"status":400,"type":"text/plain","notFound":"1","redirect":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","setCookie"
+MATCH     action-id-from-another-build     {"status":409,"type":"text/plain","notFound":"1","redirect":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","setCookie"
+MATCH     forwarded-to-another-worker      {"status":200,"type":"text/x-component","body":"0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"FX51pP4mSMLbucMwlOwV7\"}\n1:{\"key\":\"mwmvl
+MATCH     unmatched-path                   {"status":404,"type":"text/x-component","notFound":null,"redirect":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","set
+MATCH     args-limit                       {"status":500,"type":"text/x-component","notFound":null,"redirect":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","set
+MATCH     closure-mpa                      {"status":200,"type":"text/html"}
+MATCH     closure-tampered                 {"status":500,"type":"text/plain","leaked":false}
+MATCH     closure-foreign-key              {"status":500,"type":"text/plain"}
+MATCH     closure-not-base64               {"status":500,"type":"text/plain"}
+MATCH     body-over-next-limit             {"status":500,"type":"text/x-component","body":"0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"FX51pP4mSMLbucMwlOwV7\"}\n1:E{\"digest\":\"<
+MATCH     body-under-next-limit            {"status":200,"type":"text/x-component","hasTag":true}
+MATCH     multipart-bad-boundary           {"status":500,"type":"text/x-component","notFound":null,"redirect":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","set
+MATCH     multipart-truncated              {"status":500,"type":"text/x-component","notFound":null,"redirect":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","set
+MATCH     mpa-multipart-truncated          {"status":500,"type":"text/plain"}
+MATCH     urlencoded-post                  {"status":405,"type":""}
+MATCH     large-result                     {"status":200,"type":"text/x-component"}
+MATCH     flight-proto-then                {"status":500,"type":"text/x-component","notFound":null,"sourceLeak":false}
+MATCH     flight-constructor-chain         {"status":500,"type":"text/x-component","notFound":null,"sourceLeak":false}
+MATCH     flight-self-reference            {"status":200,"type":"text/x-component","notFound":null,"sourceLeak":false}
+MATCH     flight-cyclic-promise            {"status":200,"type":"text/x-component","notFound":null,"sourceLeak":false}
+MATCH     flight-server-ref-to-source      {"status":500,"type":"text/x-component","notFound":null,"sourceLeak":false}
+MATCH     flight-deep-nesting              {"status":500,"type":"text/x-component","notFound":null,"sourceLeak":false}
+MATCH     flight-nesting-3000              {"status":200,"type":"text/x-component","notFound":null,"sourceLeak":false}
+MATCH     invalidate-updateTag             {"status":200,"revalidated":"1","refetched":true}
+MATCH     invalidate-revalidatePath        {"status":200,"revalidated":"1","refetched":true}
+MATCH     invalidate-refresh               {"status":200,"revalidated":"2","refetched":false}
+MATCH     invalidate-revalidateTag-max     {"status":200,"revalidated":null,"firstReadRefetched":false}
+OBSERVED  revalidateTag-max-refresh-timing {"candidate":{"firstRead":0,"secondRead":1}}
+MATCH     invalidate-static-path           {"status":200,"revalidated":"1","htmlRerendered":true,"rscRerendered":true}
+MATCH     mutation-once                    {"status":200,"body":true,"ledger":["only"]}
+MATCH     concurrent-mutations             {"answered":64,"recorded":64,"distinct":64}
+MATCH     concurrent-identity              {"n":48,"leaks":0}
+MATCH     disconnect-after-commit          {"outcome":"AbortError","ledger":["a"]}
+MATCH     disconnect-before-commit         {"outcome":"AbortError","ledger":["b"]}
+OBSERVED  body-over-nextrs-limit           {"candidate":{"error":"EPIPE","healthy":true}}
+OBSERVED  mpa-too-many-parts               {"candidate":{"status":500,"healthy":true}}
+OBSERVED  stall-after-commit               {"candidate":{"status":502,"nextrsError":"executor-failed","ledger":["s"],"recovered":true}}
+OBSERVED  never-resolving-action           {"candidate":{"status":504,"nextrsError":"request-timeout","withinDeadline":true,"healthy":true}}
+OBSERVED  closures-across-isolates         {"candidate":{"n":24,"ok":24}}
+42 match (21 asserted), 0 known divergences, 6 observed, 0 failing

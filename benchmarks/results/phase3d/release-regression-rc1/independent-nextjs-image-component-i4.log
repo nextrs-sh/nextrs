@@ -1,0 +1,15 @@
+[nextjs-image-component] PASS home GET / 200/200 
+[nextjs-image-component] PASS page-responsive GET /responsive 200/200 
+[nextjs-image-component] PASS page-fill GET /fill 200/200 
+[nextjs-image-component] PASS page-placeholder GET /placeholder 200/200 
+[nextjs-image-component] PASS page-shimmer GET /shimmer 200/200 
+[nextjs-image-component] PASS page-color GET /color 200/200 
+[nextjs-image-component] PASS page-background GET /background 200/200 
+[nextjs-image-component] PASS page-theme GET /theme 200/200 
+[nextjs-image-component] PASS optimize-static-import GET /_next/image?url=%2F_next%2Fstatic%2Fmedia%2F{{media}}&w=640&q=75 200/200 
+[nextjs-image-component] PASS optimize-public-jpeg GET /_next/image?url=%2Fmountains.jpg&w=1080&q=75 200/200 
+[nextjs-image-component] PASS optimize-public-no-webp GET /_next/image?url=%2Fcat.jpg&w=384&q=75 200/200 
+[nextjs-image-component] PASS width-not-allowed GET /_next/image?url=%2Fdog.jpg&w=123&q=75 400/400 
+[nextjs-image-component] PASS remote-host-not-allowed GET /_next/image?url=https%3A%2F%2Fevil.example%2Fx.png&w=640&q=75 400/400 
+[nextjs-image-component] PASS missing-url GET /_next/image?w=640&q=75 400/400 
+[nextjs-image-component] 14/14 scenarios passed

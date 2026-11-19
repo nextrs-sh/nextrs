@@ -1,0 +1,6 @@
+[certify] start api: pnpm --filter @velasia/retailing-api start
+[certify] start web (nextrs): /home/dennispaler/Documents/OpenSource/nextrs/target/phase3d-soak/nextrs-621da2042201 start /home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/apps/web --js-runtime embedded-v8 --port 3200 --isolates 1 --net-allow http://127.0.0.1:4210 --net-allow-addr 127.0.0.1 --metrics-addr 127.0.0.1:4200 --js-env VELASIA_TODAY --js-env RETAILING_API_FORWARD_FAULTS --js-env VELASIA_ALLOW_TEST_CONTROLS --js-env RETAILING_API_TIMEOUT_MS --js-env SITE_URL --js-env RETAILING_API_URL
+[certify] ready: nextrs on http://127.0.0.1:3200 (startup 868 ms), api on http://127.0.0.1:4210, db /tmp/velasia-cert-db-IYUV6I
+[certify] $ pnpm exec playwright test --retries=0 --reporter=list,json --workers=2
+[certify] phase3d-rc1-nextrs-i1: 100/111 passed, 1 failed, 0 flaky, 10 skipped
+[certify]   FAIL production.spec.ts › internal endpoints › liveness, readiness, and metrics answer (the proxy hides them publicly) [desktop]

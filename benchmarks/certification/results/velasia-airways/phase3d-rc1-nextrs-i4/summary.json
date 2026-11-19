@@ -1,0 +1,927 @@
+{
+  "meta": {
+    "app": "velasia-airways",
+    "commit": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+    "runtime": "nextrs",
+    "isolates": 4,
+    "nextrsCommit": "5cd33e92660726a21243d2f2b326354c1a372fa3",
+    "nextrsDirty": true,
+    "node": "v24.18.0",
+    "startupMs": 484,
+    "wallMs": 183121,
+    "exitCode": 0,
+    "integrity": {
+      "head": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+      "pinned": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+      "headMatchesPin": true,
+      "modifiedTrackedFiles": [],
+      "diffAgainstPin": "",
+      "untrackedNotIgnored": [],
+      "clean": true
+    }
+  },
+  "stats": {
+    "startTime": "2026-11-19T01:28:36.571Z",
+    "duration": 182252.252,
+    "expected": 101,
+    "skipped": 10,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "total": 111,
+  "passed": 101,
+  "failed": 0,
+  "flaky": 0,
+  "skipped": 10,
+  "failures": [],
+  "tests": [
+    {
+      "file": "booking.spec.ts",
+      "title": "booking: travellers, seats, extras, review › books two travellers from search to a validated review, with nothing ordered",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 15321
+    },
+    {
+      "file": "booking.spec.ts",
+      "title": "booking: travellers, seats, extras, review › shows fare-family benefits as included and never charges for them",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 3972
+    },
+    {
+      "file": "booking.spec.ts",
+      "title": "booking: travellers, seats, extras, review › refreshes an expired offer at the same price and stays ready",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 3998
+    },
+    {
+      "file": "booking.spec.ts",
+      "title": "booking: travellers, seats, extras, review › asks before accepting a higher price, then keeps seats and extras",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 4415
+    },
+    {
+      "file": "booking.spec.ts",
+      "title": "booking: travellers, seats, extras, review › sends the traveller back when their seat was taken meanwhile",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 24052
+    },
+    {
+      "file": "booking.spec.ts",
+      "title": "booking: travellers, seats, extras, review › never resends a change whose answer timed out, and shows what was saved",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 5029
+    },
+    {
+      "file": "booking.spec.ts",
+      "title": "booking: travellers, seats, extras, review › works with the keyboard alone on the seat map",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 2504
+    },
+    {
+      "file": "booking.spec.ts",
+      "title": "booking: travellers, seats, extras, review › shows a recovery path for deep links without a session or with steps missing",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 2942
+    },
+    {
+      "file": "booking.spec.ts",
+      "title": "booking: travellers, seats, extras, review › redirects the US spelling of the first step",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 300
+    },
+    {
+      "file": "booking.spec.ts",
+      "title": "booking on phones @mobile › fills traveller details and chooses seats without page overflow @mobile",
+      "project": "desktop",
+      "status": "skipped",
+      "outcome": "skipped",
+      "durationMs": 75
+    },
+    {
+      "file": "booking.spec.ts",
+      "title": "booking on phones @mobile › fills traveller details and chooses seats without page overflow @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 7062
+    },
+    {
+      "file": "branding.spec.ts",
+      "title": "Velasia Airways branding › shows the Velasia logo in the header and footer",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 854
+    },
+    {
+      "file": "branding.spec.ts",
+      "title": "Velasia Airways branding › shows the Velasia logo and menu on mobile @mobile",
+      "project": "desktop",
+      "status": "skipped",
+      "outcome": "skipped",
+      "durationMs": 76
+    },
+    {
+      "file": "branding.spec.ts",
+      "title": "Velasia Airways branding › shows the Velasia logo and menu on mobile @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1311
+    },
+    {
+      "file": "branding.spec.ts",
+      "title": "Velasia Airways branding › publishes Velasia metadata, icons, manifest, and a valid social card",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 788
+    },
+    {
+      "file": "branding.spec.ts",
+      "title": "Velasia Airways branding › keeps page-specific social titles",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 533
+    },
+    {
+      "file": "branding.spec.ts",
+      "title": "Velasia Airways branding › never shows the retired brand on any page, in metadata, or in error states",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 2042
+    },
+    {
+      "file": "branding.spec.ts",
+      "title": "Velasia Airways branding › labels flights with the Velasia display flight numbers",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 390
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › books a trip end to end: checkout, demo payment, durable confirmation",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 9603
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › a declined payment keeps the seats held and can be retried",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 6712
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › a timed-out payment is recovered by checking the status, never paid twice",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 6959
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › a pending payment is shown as pending until the provider decides",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 7545
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › a double submission pays once",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 24061
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › an answer lost after the order was confirmed: the page finds the confirmed order",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 7315
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › an expired hold releases the seats and can be held again",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 4526
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › an expired offer is refreshed at the same price at checkout",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 4055
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › a higher price stops checkout until the traveller accepts it",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 31119
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › a booking is private to the browser that made it",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 6390
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › checkout works with the keyboard alone",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 4070
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout and payment › the short /checkout URL goes to checkout",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 308
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout on phones @mobile › pays and shows the confirmation without page overflow @mobile",
+      "project": "desktop",
+      "status": "skipped",
+      "outcome": "skipped",
+      "durationMs": 67
+    },
+    {
+      "file": "checkout.spec.ts",
+      "title": "checkout on phones @mobile › pays and shows the confirmation without page overflow @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 9269
+    },
+    {
+      "file": "destinations.spec.ts",
+      "title": "destinations › lists, searches, and filters destinations",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1168
+    },
+    {
+      "file": "destinations.spec.ts",
+      "title": "destinations › a destination page shows guide content and a preset search",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1171
+    },
+    {
+      "file": "destinations.spec.ts",
+      "title": "destinations › unknown destinations return a real 404",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 337
+    },
+    {
+      "file": "destinations.spec.ts",
+      "title": "destinations › destination pages have no serious accessibility violations",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 2470
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "flight results › searches Manila to Singapore and shows real results",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1095
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "flight results › changes the departure date from the date strip",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 481
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "flight results › filters to direct flights and sorts by lowest price",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 752
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "flight results › opens flight details with itinerary and cabin availability",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 644
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "round trips › selects outbound and return flights, then reviews the total",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 4283
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "round trips › browser back and forward keep the search and selections",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 3350
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "invalid searches and empty results › explains invalid search links without calling for results",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 518
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "invalid searches and empty results › resets unknown filter values and says so",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 474
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "invalid searches and empty results › explains a route Velasia does not fly, with alternatives",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 687
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "invalid searches and empty results › explains sold-out flights, missing cabins, and unpublished dates",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 955
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "invalid searches and empty results › clears filters that match nothing",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 592
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "retailing API failures › shows a recoverable error and never invents flights",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 998
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "retailing API failures › times out slow responses and rejects malformed ones",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 3216
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "retailing API failures › shows a loading skeleton while results stream",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 2762
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "accessibility › core interactions work with the keyboard",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 950
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "accessibility › results and details have no serious axe violations",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 2388
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "mobile › filters and sorts in a bottom sheet @mobile",
+      "project": "desktop",
+      "status": "skipped",
+      "outcome": "skipped",
+      "durationMs": 83
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "mobile › filters and sorts in a bottom sheet @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1203
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "mobile › edits the search and opens details on a phone @mobile",
+      "project": "desktop",
+      "status": "skipped",
+      "outcome": "skipped",
+      "durationMs": 73
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "mobile › edits the search and opens details on a phone @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1312
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "mobile › results pages do not overflow horizontally @mobile",
+      "project": "desktop",
+      "status": "skipped",
+      "outcome": "skipped",
+      "durationMs": 73
+    },
+    {
+      "file": "flights.spec.ts",
+      "title": "mobile › results pages do not overflow horizontally @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1050
+    },
+    {
+      "file": "home.spec.ts",
+      "title": "homepage › loads without errors, broken images, or hydration warnings",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1908
+    },
+    {
+      "file": "home.spec.ts",
+      "title": "homepage › has no serious accessibility violations",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 2110
+    },
+    {
+      "file": "home.spec.ts",
+      "title": "homepage › offers a working skip link for keyboard users",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1141
+    },
+    {
+      "file": "home.spec.ts",
+      "title": "homepage › respects reduced-motion preferences",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 812
+    },
+    {
+      "file": "home.spec.ts",
+      "title": "homepage › animates the hero when motion is allowed",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 878
+    },
+    {
+      "file": "manage.spec.ts",
+      "title": "manage booking and accounts › the whole post-booking journey: change, seat, bag, account, link, sign out and in, cancel",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 20502
+    },
+    {
+      "file": "manage.spec.ts",
+      "title": "manage booking and accounts › a booking can’t be opened or found from another browser, by id or by reference",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 9083
+    },
+    {
+      "file": "manage.spec.ts",
+      "title": "manage booking and accounts › a declined change payment leaves the booking unchanged and can be discarded",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 5934
+    },
+    {
+      "file": "manage.spec.ts",
+      "title": "manage booking and accounts › Manage Booking works with the keyboard alone",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 6744
+    },
+    {
+      "file": "manage.spec.ts",
+      "title": "manage booking on phones @mobile › overview, change search, and cancellation fit the screen @mobile",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 9313
+    },
+    {
+      "file": "manage.spec.ts",
+      "title": "manage booking on phones @mobile › overview, change search, and cancellation fit the screen @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 9503
+    },
+    {
+      "file": "navigation.spec.ts",
+      "title": "site navigation › primary navigation reaches every section",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1921
+    },
+    {
+      "file": "navigation.spec.ts",
+      "title": "site navigation › footer links resolve without dead ends",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 944
+    },
+    {
+      "file": "navigation.spec.ts",
+      "title": "site navigation › unknown pages return a real 404 with a friendly page",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 299
+    },
+    {
+      "file": "navigation.spec.ts",
+      "title": "site navigation › mobile navigation opens, navigates, and closes @mobile",
+      "project": "desktop",
+      "status": "skipped",
+      "outcome": "skipped",
+      "durationMs": 66
+    },
+    {
+      "file": "navigation.spec.ts",
+      "title": "site navigation › mobile navigation opens, navigates, and closes @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1559
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "fare families and offers › compares fares, selects Classic, then changes to Flex",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 4763
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "fare families and offers › round trip with different families, a combined total, and refresh",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 3965
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "fare families and offers › explains families that are not offered on a flight",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 602
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "offer lifecycle › recovers from an expired offer at the same price",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1684
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "offer lifecycle › requires explicit acceptance of a changed price",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1260
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "offer lifecycle › marks a sold-out flight and keeps the other leg",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 2393
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "offer lifecycle › offers a way back when the shopping session has expired",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1438
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "offer lifecycle › keeps each guest’s selection private",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1275
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "failures and accessibility › explains an unavailable offer service and recovers on retry",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1478
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "failures and accessibility › reports a failed selection without losing the page",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 524
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "failures and accessibility › times out gracefully",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 3334
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "failures and accessibility › fare pages and the trip summary have no serious axe violations",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 3493
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "failures and accessibility › compares and chooses fares with the keyboard alone",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 966
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "mobile › compares and selects fares on a phone @mobile",
+      "project": "desktop",
+      "status": "skipped",
+      "outcome": "skipped",
+      "durationMs": 121
+    },
+    {
+      "file": "offers.spec.ts",
+      "title": "mobile › compares and selects fares on a phone @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1226
+    },
+    {
+      "file": "production.spec.ts",
+      "title": "a full booking runs under the Content Security Policy with no violations",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 6058
+    },
+    {
+      "file": "production.spec.ts",
+      "title": "requests that try to reach files or internals get nothing",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 73
+    },
+    {
+      "file": "production.spec.ts",
+      "title": "security headers › are sent on a static page",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 18
+    },
+    {
+      "file": "production.spec.ts",
+      "title": "security headers › are sent on a partial prerender",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 32
+    },
+    {
+      "file": "production.spec.ts",
+      "title": "security headers › are sent on a request-time search",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 37
+    },
+    {
+      "file": "production.spec.ts",
+      "title": "security headers › are sent on a route handler",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 62
+    },
+    {
+      "file": "production.spec.ts",
+      "title": "security headers › keep personal pages out of shared caches and let static pages be cached",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 145
+    },
+    {
+      "file": "production.spec.ts",
+      "title": "Server Actions › refuse a cross-site request and accept the same request from the site",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 610
+    },
+    {
+      "file": "production.spec.ts",
+      "title": "Server Actions › refuse oversized request bodies",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 560
+    },
+    {
+      "file": "production.spec.ts",
+      "title": "internal endpoints › liveness, readiness, and metrics answer (the proxy hides them publicly)",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 81
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "flight search › airport autocomplete filters and supports the keyboard",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1201
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "flight search › rejects an incomplete search with accessible messages",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1161
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "flight search › rejects returning before departing",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1485
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "flight search › a valid search navigates to /flights with serialized parameters",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 2751
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "flight search › one-way trips hide the return date and swap works",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1708
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "flight search › selections are preserved while navigating",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1754
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "flight search › invalid URL parameters are validated and explained",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 926
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "flight search › date inputs restrict the bookable window",
+      "project": "desktop",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1098
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "flight search › works on a phone @mobile",
+      "project": "desktop",
+      "status": "skipped",
+      "outcome": "skipped",
+      "durationMs": 134
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "flight search › works on a phone @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1289
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "mobile layout › no page overflows horizontally @mobile",
+      "project": "desktop",
+      "status": "skipped",
+      "outcome": "skipped",
+      "durationMs": 95
+    },
+    {
+      "file": "search.spec.ts",
+      "title": "mobile layout › no page overflows horizontally @mobile",
+      "project": "mobile",
+      "status": "expected",
+      "outcome": "passed",
+      "durationMs": 1276
+    }
+  ]
+}

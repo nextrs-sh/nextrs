@@ -1,0 +1,21 @@
+[2m2026-11-19T03:00:32.392822Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-19T03:00:32.393360Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5592, http://127.0.0.1:5588, http://127.0.0.1:5589, http://127.0.0.1:5591
+[2m2026-11-19T03:00:32.393397Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-19T03:00:32.448183Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T03:00:32.448227Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T03:00:32.566475Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:os.homedir is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T03:00:32.582987Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:buffer.length is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T03:00:32.593262Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m199
+[2m2026-11-19T03:00:32.593294Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m200 [3misolates[0m[2m=[0m1
+[2m2026-11-19T03:00:32.596037Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5587 [3mbuild_id[0m[2m=[0mVz6W6Fp0d3ppM5Whw5jRq [3mready_ms[0m[2m=[0m203
+[2m2026-11-19T03:01:10.176875Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m JavaScript exceeded the stall timeout; terminating the isolate [3mslot[0m[2m=[0m0 [3mbusy_ms[0m[2m=[0m3024 [3mcpu_ms[0m[2m=[0m3005 [3mactive[0m[2m=[0m1
+[2m2026-11-19T03:01:10.178379Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m isolate failed: terminated [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mreason[0m[2m=[0m"cpu_stall" [3muptime_ms[0m[2m=[0m37784
+[2m2026-11-19T03:01:10.178397Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m restarting isolate [3mslot[0m[2m=[0m0 [3mdelay_ms[0m[2m=[0m100 [3mrecent_failures[0m[2m=[0m1
+[2m2026-11-19T03:01:10.326148Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T03:01:10.326179Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T03:01:10.435124Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:os.homedir is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T03:01:10.443377Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:buffer.length is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T03:01:10.453089Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m2 [3mboot_ms[0m[2m=[0m174
+[2m2026-11-19T03:01:11.596410Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m2 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-19T03:01:11.596516Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-19T03:01:11.607289Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

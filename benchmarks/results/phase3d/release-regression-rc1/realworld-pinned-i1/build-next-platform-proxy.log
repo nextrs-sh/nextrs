@@ -1,0 +1,43 @@
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 25ms
+- Experiments (use with caution):
+  · proxyTimeout: 5000
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.8s
+  Running TypeScript ...
+  Finished TypeScript in 1885ms ...
+  Collecting page data using 5 workers ...
+  Generating static pages using 5 workers (0/9) ...
+  Generating static pages using 5 workers (2/9) 
+  Generating static pages using 5 workers (4/9) 
+  Generating static pages using 5 workers (6/9) 
+✓ Generating static pages using 5 workers (9/9) in 166ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/boom
+├ ƒ /api/draft
+├ ƒ /api/draft/disable
+├ ƒ /api/health
+├ ƒ /api/instrumentation
+├ ƒ /denied
+├ ƒ /gate/[name]
+├   /isr-posts/[slug]
+│ └ ● /isr-posts/x
+├   /posts/[slug]
+│ ├ ● /posts/a
+│ └ ● /posts/b
+└ ƒ /variant/[v]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+✓ Finished writing to filesystem cache in 17.3s

@@ -1,0 +1,350 @@
+2026-11-19T03:13:53.826936Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+2026-11-19T03:13:53.831099Z  INFO nextrs: monorepo build: the workspace root's packages are readable packages=/home/dennispaler/.cache/nextrs-phase3b/velasia-src/apps/web/.next/standalone/node_modules
+2026-11-19T03:13:53.831131Z  INFO nextrs: outbound fetch enabled allow=http://127.0.0.1:3950
+2026-11-19T03:13:53.831175Z  INFO nextrs: shared data cache enabled persistent=false dir=
+2026-11-19T03:13:53.889080Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-19T03:13:53.889122Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-19T03:13:53.992925Z  INFO nextrs: embedded V8 executor ready ready_ms=165 isolates=1
+2026-11-19T03:13:53.992922Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=161
+2026-11-19T03:13:53.993175Z  INFO nextrs: Server Actions enabled actions=45 next_body_limit=131072 nextrs_body_limit=10485760 effective=131072
+2026-11-19T03:13:53.996881Z  INFO nextrs: metrics listening metrics_addr=127.0.0.1:3941
+2026-11-19T03:13:53.999022Z  INFO nextrs: nextrs ready addr=127.0.0.1:3940 build_id=HcU2kj-oE0Dq49qDuzYn4 ready_ms=172
+⨯ Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+⨯ Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+⨯ Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+{"level":50,"time":1795058036025,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+{"level":50,"time":1795058036026,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+{"level":50,"time":1795058036033,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+{"level":50,"time":1795058036033,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+{"level":50,"time":1795058036041,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+{"level":50,"time":1795058036041,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+⨯ Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+⨯ Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+⨯ Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+{"level":50,"time":1795058036138,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+{"level":50,"time":1795058036138,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+{"level":50,"time":1795058036146,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+{"level":50,"time":1795058036146,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+{"level":50,"time":1795058036146,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+Error [RetailingApiError]: Retailing API unreachable at http://127.0.0.1:3950
+    at J (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:1742)
+    at async Object.getDestination (.next/server/chunks/ssr/_14-fc6wdcxxpj._.js:4:3060) {
+  kind: [32m"unavailable"[39m,
+  status: [90mundefined[39m,
+  issues: [90mundefined[39m,
+  code: [90mundefined[39m,
+  digest: [32m"3784475712"[39m,
+  [cause]: TypeError: fetch failed
+  [90m    at fetchFailed (ext:nextrs/01_fetch.js:617:12)[39m
+  [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+    [cause]: Error: connection refused
+    [90m    at fetchFailed (ext:nextrs/01_fetch.js:615:19)[39m
+    [90m    at <unknown> (ext:nextrs/01_fetch.js:838:18)[39m {
+      code: [32m"ECONNREFUSED"[39m
+    }
+  }
+}
+{"level":50,"time":1795058036153,"service":"velasia-web","msg":"request error","method":"GET","route":"/destinations/[slug]/page","routeType":"render","renderSource":null,"errorName":"RetailingApiError","digest":"3784475712","requestId":null}
+2026-11-19T03:14:05.925384Z  INFO nextrs_server::serve: shutting down: no new connections; draining connections=6 grace_ms=10000
+2026-11-19T03:14:05.925604Z  INFO nextrs: stopping JavaScript isolates
+2026-11-19T03:14:05.977258Z  INFO nextrs: nextrs stopped

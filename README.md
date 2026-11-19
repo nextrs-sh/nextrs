@@ -130,6 +130,13 @@ chart shows one of them, measured on a pre-release build of NextRS
 Build NextRS from source and serve the example app in
 [`fixtures/next-app`](fixtures/next-app/).
 
+> [!NOTE]
+> Release binaries (Linux x86_64) will be published as GitHub releases,
+> starting with the v0.1.0 release candidates. The installation and
+> operations guide is [`release/README.md`](release/README.md). NextRS is
+> not published on crates.io: the crate named `nextrs` there is an
+> unrelated project, so `cargo install nextrs` does not install this one.
+
 **You need:** Rust 1.88 or later, Node.js 20.9 or later (only for
 `next build`), and network access for the first build, which downloads a
 prebuilt V8 library. CI builds and tests on Linux.
