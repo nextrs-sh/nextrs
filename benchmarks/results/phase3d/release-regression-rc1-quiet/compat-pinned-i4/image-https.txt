@@ -1,0 +1,13 @@
+MATCH      https: authorized https image
+MATCH      https: invalid certificate (untrusted CA)
+MATCH      https: hostname mismatch
+MATCH      https: redirect from https to https
+MATCH      https: redirect from https to an allowed http origin
+KNOWN-DIFF https: redirect to an unauthorized destination
+    (next start (dangerouslyAllowLocalIP) follows a redirect to 127.0.0.2 (whose TLS name check then fails); NextRS (--net-allow-addr 127.0.0.1 and ::1) never connects)
+MATCH      https: body above maximumResponseBody
+MATCH      https: slow head times out
+MATCH      https: slow streaming body within the limits
+PASS       https: client abort
+MATCH      https: concurrent downloads
+image-https: 9 MATCH, 1 PASS, 1 KNOWN-DIFF, 0 DIFF, 0 FAIL, 0 ORACLE-FAIL, 0 ERROR
