@@ -436,16 +436,25 @@ through GitHub's private vulnerability reporting on the repository
 
 ## 20. Verifying a release
 
-`BUILD-INFO.json` records the commit, compiler and profile the binary was
-built from.
+Verify the download against the published checksum:
 
-To rebuild the binary from source:
+```bash
+sha256sum -c nextrs-v0.1.0-rc.1-linux-x86_64.tar.gz.sha256
+```
+
+`BUILD-INFO.json` records the commit, compiler and profile the binary was
+built from, and the binary's own SHA-256. To build the same source
+yourself:
 
 ```bash
 git checkout v0.1.0-rc.1
 cargo +1.98.0 build --locked --profile dist -p nextrs-cli
-sha256sum target/dist/nextrs
 ```
+
+**A rebuild is not bit-identical to the published binary.** Builds are
+not yet reproducible bit for bit. Two builds of the same commit with the
+same toolchain differ in a few kilobytes of code. Compare the version and
+commit, not the checksum.
 
 The `dist` profile is `release` with fat LTO and one codegen unit. It sets
 no CPU-specific flags, so the binary runs on any x86_64 CPU.
