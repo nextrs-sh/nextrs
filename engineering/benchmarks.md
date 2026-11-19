@@ -7,7 +7,7 @@ with their method, conditions and raw data.
 > Results are specific to the tested workloads, hardware, and runtime
 > configurations. They are not guarantees of production performance.
 
-- [README chart (NextRS 0.6.0, 2026-11-18)](#readme-chart-nextrs-060-2026-11-18)
+- [README chart (NextRS f5c480d, 2026-11-18)](#readme-chart-nextrs-f5c480d-2026-11-18)
 - [Full matrix (Phase 3A, 2026-11-16)](#full-matrix-phase-3a-2026-11-16)
   - [Environment](#environment)
   - [Method](#method)
@@ -16,10 +16,11 @@ with their method, conditions and raw data.
   - [Reproducing](#reproducing)
 - [Historical results (Phase 1A, 2026-11-03)](#historical-results-phase-1a-2026-11-03)
 
-## README chart (NextRS 0.6.0, 2026-11-18)
+## README chart (NextRS f5c480d, 2026-11-18)
 
 The README chart comes from the Phase 3C final run: dynamic App Router SSR
-(`/books/[id]`). It compares `next start` with NextRS 0.6.0 (`f5c480d`) at 1
+(`/books/[id]`). It compares `next start` with NextRS at `f5c480d` (a pre-release build that
+reported version 0.0.0; the first release candidate is v0.1.0-rc.1) at 1
 and 4 isolates. Next.js is 16.4.6; the environment and method are those of
 the full matrix below. Each figure is the median of 3 interleaved rounds.
 
@@ -40,7 +41,7 @@ The chart was drawn with:
 ```sh
 node benchmarks/phase3a/chart.mjs benchmarks/results/phase3c/final-bench-f5c480d/readme \
   --workload app/ssr --configs next-start,nextrs-i1,nextrs-i4 \
-  --raw-url benchmarks/results/phase3c/final-bench-f5c480d/readme --version 0.6.0
+  --raw-url benchmarks/results/phase3c/final-bench-f5c480d/readme
 ```
 
 ## Full matrix (Phase 3A, 2026-11-16)

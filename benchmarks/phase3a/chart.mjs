@@ -6,7 +6,8 @@
 //   node benchmarks/phase3a/chart.mjs RESULT_DIR --workload app/ssr
 //     [--configs next-start,nextrs-i1,nextrs-i4] [--cpu-config nextrs-i1]
 //     [--out .github/assets] [--raw-url URL] [--name nextrs-benchmarks] [--path /request/path]
-//     [--version 0.6.0]   (label NextRS by release version; the commit stays in the description)
+//     [--version 0.1.0]   (label NextRS by release version; the commit stays in the description.
+//                          Use it only when the measured binary reported that version.)
 //
 // Throughput shows every listed configuration (isolates are parallelism
 // within the same 4 CPUs); latency, memory and CPU compare the first two
