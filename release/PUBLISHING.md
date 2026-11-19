@@ -25,6 +25,26 @@ is in the gate record:
 Do not substitute a rebuild, including the release workflow's own
 artifact. Use that artifact to verify the pipeline and clean installs.
 
+## The tested archive's records
+
+These files record the archive that passed the gates:
+
+- `release/checksums/`: its SHA-256, and the binary's;
+- `release/manifests/`: its manifest.
+
+**Which commit they refer to.** The archive was packaged at commit
+`b06745d`, the manifest's `commit`. The commit that adds these records
+changes nothing else.
+
+**Repackaging is safe.** The archive is deterministic, so repackaging the
+same binary at `b06745d` gives the same SHA-256. Repackaging at a later
+commit changes `BUILD-INFO.json` and the archive's checksum, but not the
+binary's. Either way:
+
+- `binary_sha256` must stay `621da204…`;
+- whatever is published must be checked against these records, or against
+  a new manifest made the same way.
+
 ## Steps for v0.1.0-rc.1
 
 1. **Close every blocking gate.** The release-readiness checklist must
