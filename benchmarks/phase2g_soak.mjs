@@ -19,12 +19,21 @@
 // restart (status 0/500/502 for a dynamic request inside a restart window);
 // shed during a restart (503); or unexpected. Identity checks (a token or a
 // user the request carried must come back, and only it) count leaks.
+//
+// Phase 3D: the HTTP client is benchmarks/phase3d/soak-http.mjs. Idle
+// pooled sockets are retired before the server's 30 s keep-alive limit; an
+// idempotent GET is retried once only after a reset of a reused socket
+// before any response byte (each retry counted and kept); a mutation is
+// never retried: a transport failure on one is "ambiguous" and reconciled
+// against the ledger. Every unexpected response is kept with its full body
+// (bounded) and connection state in <json>.unexpected.jsonl.
 import http from "node:http";
 import { randomUUID } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { join } from "node:path";
 import { startUpstream } from "../tests/compat/image-upstream.mjs";
+import { createAgent, createCapture, send as sendHttp, IDLE_RETIRE_MS } from "./phase3d/soak-http.mjs";
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((p, a, i, all) => (a.startsWith("--") && p.push([a.slice(2), all[i + 1]]), p), []));
 const target = new URL(args.target);
@@ -46,7 +55,9 @@ const pidOf = (port) => Number(/pid=(\d+)/.exec(execSync(`ss -ltnpH 'sport = :${
 // listening process (ss).
 const pid = Number(args.pid ?? 0) || pidOf(target.port);
 const i18nPid = i18nTarget ? Number(args["i18n-pid"] ?? 0) || pidOf(i18nTarget.port) : null;
-const agent = new http.Agent({ keepAlive: true, maxSockets: concurrency * 2 });
+const agent = createAgent({ maxSockets: concurrency * 2 });
+const retries = [];
+const capture = createCapture(`${args.json ?? "phase2g-soak"}.unexpected.jsonl`);
 
 const dist = join(project, ".next");
 const buildId = readFileSync(join(dist, "BUILD_ID"), "utf8").trim();
@@ -56,20 +67,7 @@ const echoId = Object.entries(manifest.node).find(([, v]) => v.exportedName === 
 if (!echoId) throw new Error("soakEcho action not found in the build");
 
 function send({ method = "GET", path, headers = {}, body, abortAfterMs, to = target }) {
-  return new Promise((resolve) => {
-    const t0 = process.hrtime.bigint();
-    const ms = () => Number(process.hrtime.bigint() - t0) / 1e6;
-    const req = http.request({ host: to.hostname, port: to.port, method, path, headers, agent: abortAfterMs ? false : agent }, (res) => {
-      const chunks = [];
-      res.on("data", (c) => chunks.push(c));
-      res.on("end", () => resolve({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks), ms: ms() }));
-      res.on("error", () => resolve({ status: 0, error: "body", ms: ms() }));
-    });
-    req.setTimeout(30000, () => req.destroy(new Error("timeout")));
-    req.on("error", (e) => resolve({ status: 0, error: e.code ?? e.message, ms: ms() }));
-    if (abortAfterMs) setTimeout(() => req.destroy(new Error("aborted by client")), abortAfterMs);
-    req.end(body);
-  });
+  return sendHttp({ host: to.hostname, port: to.port, method, path, headers, body, abortAfterMs, agent, retries });
 }
 
 // Preview Mode cookies, minted once by the application itself.
@@ -134,7 +132,7 @@ if (i18nTarget) {
 const table = Object.entries(kinds).flatMap(([name, k]) => Array(k.weight).fill(name));
 
 const stats = Object.fromEntries(Object.keys(kinds).map((k) => [k, { count: 0, errors: 0, statuses: {}, ms: [], cache: {} }]));
-const totals = { requests: 0, ok: 0, unexpected: 0, rejected503: 0, lostToRestart: 0, rejectedDuringRestart: 0, identityLeaks: 0, wrongContent: 0, aborted: 0, injections: 0 };
+const totals = { requests: 0, ok: 0, retriedTransport: 0, ambiguousMutations: 0, unexpected: 0, rejected503: 0, lostToRestart: 0, rejectedDuringRestart: 0, identityLeaks: 0, wrongContent: 0, aborted: 0, injections: 0 };
 const errors = [];
 let restartWindowUntil = 0;
 const note = (entry) => errors.length < 80 && errors.push({ at: new Date().toISOString(), ...entry });
@@ -145,6 +143,7 @@ async function worker(deadline) {
     const k = kinds[name];
     const r = k.make();
     const res = await send(r);
+    if (res.retried) totals.retriedTransport++;
     const s = stats[name];
     s.count++;
     totals.requests++;
@@ -170,24 +169,32 @@ async function worker(deadline) {
       }
       s.errors++;
       totals.unexpected++;
-      if (r.mutation) mutations.set(r.mutation, "lost");
-      note({ kind: name, path: r.path, status: res.status, error: res.error, body: res.body?.toString().slice(0, 200) });
+      // A transport failure on a mutation outside a restart window: the
+      // request may have been applied. Never retried; reconciled against
+      // the ledger below.
+      if (r.mutation) mutations.set(r.mutation, res.ambiguous ? "ambiguous" : "lost");
+      if (res.ambiguous) totals.ambiguousMutations++;
+      note({ kind: name, path: r.path, status: res.status, error: res.error, ambiguous: res.ambiguous ?? false, conn: res.conn, body: res.body?.toString().slice(0, 200) });
+      await capture.write({ kind: name, classification: "unexpected", restartWindow: false }, res, r);
       continue;
     }
     const body = res.body?.toString() ?? "";
     if (k.identity && res.status === 200 && !body.includes(r.token)) {
       totals.identityLeaks++;
       note({ kind: name, leak: true, body: body.slice(0, 300) });
+      await capture.write({ kind: name, classification: "identity-leak" }, res, r);
       continue;
     }
     if (r.locale && res.status === 200 && !body.includes(`"locale":"${r.locale}"`) && !body.includes(`id="locale">${r.locale}<`)) {
       totals.identityLeaks++;
       note({ kind: name, wrongLocale: r.locale, body: body.slice(0, 300) });
+      await capture.write({ kind: name, classification: "wrong-locale", expected: r.locale }, res, r);
       continue;
     }
     if ((k.expectText && !body.includes(k.expectText)) || (k.forbidText && body.includes(k.forbidText))) {
       totals.wrongContent++;
       note({ kind: name, wrongContent: true, status: res.status, body: body.slice(0, 300) });
+      await capture.write({ kind: name, classification: "wrong-content" }, res, r);
       continue;
     }
     if (r.mutation) mutations.set(r.mutation, "done");
@@ -270,13 +277,16 @@ await up.close();
 const recorded = await json(`${ledger}/mutations?key=soak`);
 const counts = new Map();
 for (const id of recorded?.ids ?? []) counts.set(id, (counts.get(id) ?? 0) + 1);
-const mutationReport = { sent: mutations.size, acknowledged: 0, acknowledgedMissing: 0, lost: 0, lostApplied: 0, duplicates: 0 };
+const mutationReport = { sent: mutations.size, acknowledged: 0, acknowledgedMissing: 0, lost: 0, lostApplied: 0, ambiguous: 0, ambiguousApplied: 0, duplicates: 0 };
 for (const [id, state] of mutations) {
   const n = counts.get(id) ?? 0;
   if (n > 1) mutationReport.duplicates++;
   if (state === "done") {
     mutationReport.acknowledged++;
     if (n === 0) mutationReport.acknowledgedMissing++;
+  } else if (state === "ambiguous") {
+    mutationReport.ambiguous++;
+    if (n === 1) mutationReport.ambiguousApplied++;
   } else {
     mutationReport.lost++;
     if (n === 1) mutationReport.lostApplied++;
@@ -294,6 +304,7 @@ const out = {
   totals,
   accountedExactlyOnce: accounted === totals.requests,
   mutations: mutationReport,
+  client: { idleRetireMs: IDLE_RETIRE_MS, retries: retries.length, retryLog: retries.slice(0, 200), captured: capture.count },
   loadSeconds,
   idleMinutes,
   throughput: +(totals.requests / loadSeconds).toFixed(1),

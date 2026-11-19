@@ -1,0 +1,923 @@
+{
+ "runtime": "next",
+ "started": "2026-11-19T00:52:03.265Z",
+ "scenarios": {
+  "basic-none": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 30
+   },
+   "byFault": {
+    "none": {
+     "n": 30,
+     "outcomes": {
+      "results": 30
+     },
+     "msMax": 147,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 96,
+   "msP99": 147,
+   "msMax": 147
+  },
+  "basic-unavailable": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:unavailable": 30
+   },
+   "byFault": {
+    "unavailable": {
+     "n": 30,
+     "outcomes": {
+      "error:unavailable": 30
+     },
+     "msMax": 75,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 56,
+   "msP99": 75,
+   "msMax": 75
+  },
+  "basic-timeout": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 30
+   },
+   "byFault": {
+    "timeout": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 30
+     },
+     "msMax": 2560,
+     "over2500": 30
+    }
+   },
+   "mismatches": [],
+   "msP50": 2520,
+   "msP99": 2560,
+   "msMax": 2560
+  },
+  "basic-malformed": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 30
+   },
+   "byFault": {
+    "malformed": {
+     "n": 30,
+     "outcomes": {
+      "error:bad-response": 30
+     },
+     "msMax": 87,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 63,
+   "msP99": 87,
+   "msMax": 87
+  },
+  "basic-empty": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "empty": 30
+   },
+   "byFault": {
+    "empty": {
+     "n": 30,
+     "outcomes": {
+      "empty": 30
+     },
+     "msMax": 89,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 64,
+   "msP99": 89,
+   "msMax": 89
+  },
+  "basic-delay=1000": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 30
+   },
+   "byFault": {
+    "delay=1000": {
+     "n": 30,
+     "outcomes": {
+      "results": 30
+     },
+     "msMax": 1109,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 1044,
+   "msP99": 1109,
+   "msMax": 1109
+  },
+  "basic-delay=2000": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 30
+   },
+   "byFault": {
+    "delay=2000": {
+     "n": 30,
+     "outcomes": {
+      "results": 30
+     },
+     "msMax": 2091,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 2038,
+   "msP99": 2091,
+   "msMax": 2091
+  },
+  "basic-delay=3000": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 30
+   },
+   "byFault": {
+    "delay=3000": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 30
+     },
+     "msMax": 2564,
+     "over2500": 30
+    }
+   },
+   "mismatches": [],
+   "msP50": 2517,
+   "msP99": 2564,
+   "msMax": 2564
+  },
+  "basic-delay=4000": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 30
+   },
+   "byFault": {
+    "delay=4000": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 30
+     },
+     "msMax": 2561,
+     "over2500": 30
+    }
+   },
+   "mismatches": [],
+   "msP50": 2517,
+   "msP99": 2561,
+   "msMax": 2561
+  },
+  "concurrent": {
+   "n": 240,
+   "matched": 240,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 30,
+    "results": 120,
+    "error:unavailable": 30,
+    "empty": 30,
+    "error:timeout": 30
+   },
+   "byFault": {
+    "malformed": {
+     "n": 30,
+     "outcomes": {
+      "error:bad-response": 30
+     },
+     "msMax": 681,
+     "over2500": 0
+    },
+    "none": {
+     "n": 120,
+     "outcomes": {
+      "results": 120
+     },
+     "msMax": 950,
+     "over2500": 0
+    },
+    "unavailable": {
+     "n": 30,
+     "outcomes": {
+      "error:unavailable": 30
+     },
+     "msMax": 721,
+     "over2500": 0
+    },
+    "empty": {
+     "n": 30,
+     "outcomes": {
+      "empty": 30
+     },
+     "msMax": 952,
+     "over2500": 0
+    },
+    "timeout": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 30
+     },
+     "msMax": 3174,
+     "over2500": 30
+    }
+   },
+   "mismatches": [],
+   "msP50": 171,
+   "msP99": 2630,
+   "msMax": 3174
+  },
+  "rsc-from-home-none": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 15
+   },
+   "byFault": {
+    "none": {
+     "n": 15,
+     "outcomes": {
+      "results": 15
+     },
+     "msMax": 46,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 38,
+   "msP99": 46,
+   "msMax": 46
+  },
+  "rsc-from-home-malformed": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 15
+   },
+   "byFault": {
+    "malformed": {
+     "n": 15,
+     "outcomes": {
+      "error:bad-response": 15
+     },
+     "msMax": 37,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 26,
+   "msP99": 37,
+   "msMax": 37
+  },
+  "rsc-from-home-unavailable": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:unavailable": 15
+   },
+   "byFault": {
+    "unavailable": {
+     "n": 15,
+     "outcomes": {
+      "error:unavailable": 15
+     },
+     "msMax": 30,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 25,
+   "msP99": 30,
+   "msMax": 30
+  },
+  "rsc-from-home-timeout": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 15
+   },
+   "byFault": {
+    "timeout": {
+     "n": 15,
+     "outcomes": {
+      "error:timeout": 15
+     },
+     "msMax": 2537,
+     "over2500": 15
+    }
+   },
+   "mismatches": [],
+   "msP50": 2521,
+   "msP99": 2537,
+   "msMax": 2537
+  },
+  "rsc-from-flights-none": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 15
+   },
+   "byFault": {
+    "none": {
+     "n": 15,
+     "outcomes": {
+      "results": 15
+     },
+     "msMax": 38,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 33,
+   "msP99": 38,
+   "msMax": 38
+  },
+  "rsc-from-flights-malformed": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 15
+   },
+   "byFault": {
+    "malformed": {
+     "n": 15,
+     "outcomes": {
+      "error:bad-response": 15
+     },
+     "msMax": 37,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 27,
+   "msP99": 37,
+   "msMax": 37
+  },
+  "rsc-from-flights-unavailable": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:unavailable": 15
+   },
+   "byFault": {
+    "unavailable": {
+     "n": 15,
+     "outcomes": {
+      "error:unavailable": 15
+     },
+     "msMax": 36,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 25,
+   "msP99": 36,
+   "msMax": 36
+  },
+  "rsc-from-flights-timeout": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 15
+   },
+   "byFault": {
+    "timeout": {
+     "n": 15,
+     "outcomes": {
+      "error:timeout": 15
+     },
+     "msMax": 2528,
+     "over2500": 15
+    }
+   },
+   "mismatches": [],
+   "msP50": 2518,
+   "msP99": 2528,
+   "msMax": 2528
+  },
+  "cancel-after": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 8,
+    "error:bad-response": 8,
+    "error:unavailable": 7,
+    "error:timeout": 7
+   },
+   "byFault": {
+    "none": {
+     "n": 8,
+     "outcomes": {
+      "results": 8
+     },
+     "msMax": 26,
+     "over2500": 0
+    },
+    "malformed": {
+     "n": 8,
+     "outcomes": {
+      "error:bad-response": 8
+     },
+     "msMax": 32,
+     "over2500": 0
+    },
+    "unavailable": {
+     "n": 7,
+     "outcomes": {
+      "error:unavailable": 7
+     },
+     "msMax": 23,
+     "over2500": 0
+    },
+    "timeout": {
+     "n": 7,
+     "outcomes": {
+      "error:timeout": 7
+     },
+     "msMax": 2519,
+     "over2500": 7
+    }
+   },
+   "mismatches": [],
+   "msP50": 23,
+   "msP99": 2519,
+   "msMax": 2519
+  },
+  "api-paused-1200ms": {
+   "n": 40,
+   "matched": 40,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 30,
+    "results": 10
+   },
+   "byFault": {
+    "malformed": {
+     "n": 30,
+     "outcomes": {
+      "error:bad-response": 30
+     },
+     "msMax": 1245,
+     "over2500": 0
+    },
+    "none": {
+     "n": 10,
+     "outcomes": {
+      "results": 10
+     },
+     "msMax": 1253,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 1236,
+   "msP99": 1253,
+   "msMax": 1253
+  },
+  "api-paused-2500ms": {
+   "n": 40,
+   "matched": 40,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 18,
+    "error:bad-response": 16,
+    "results": 6
+   },
+   "byFault": {
+    "malformed": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 14,
+      "error:bad-response": 16
+     },
+     "msMax": 2556,
+     "over2500": 28
+    },
+    "none": {
+     "n": 10,
+     "outcomes": {
+      "results": 6,
+      "error:timeout": 4
+     },
+     "msMax": 2555,
+     "over2500": 10
+    }
+   },
+   "mismatches": [],
+   "msP50": 2534,
+   "msP99": 2556,
+   "msMax": 2556
+  },
+  "api-paused-4000ms": {
+   "n": 40,
+   "matched": 40,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 36,
+    "error:bad-response": 4
+   },
+   "byFault": {
+    "malformed": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 26,
+      "error:bad-response": 4
+     },
+     "msMax": 2537,
+     "over2500": 27
+    },
+    "none": {
+     "n": 10,
+     "outcomes": {
+      "error:timeout": 10
+     },
+     "msMax": 2537,
+     "over2500": 10
+    }
+   },
+   "mismatches": [],
+   "msP50": 2528,
+   "msP99": 2537,
+   "msMax": 2537
+  },
+  "api-latency-1500ms": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 20,
+    "results": 10
+   },
+   "byFault": {
+    "malformed": {
+     "n": 20,
+     "outcomes": {
+      "error:bad-response": 20
+     },
+     "msMax": 1591,
+     "over2500": 0
+    },
+    "none": {
+     "n": 10,
+     "outcomes": {
+      "results": 10
+     },
+     "msMax": 1593,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 1529,
+   "msP99": 1593,
+   "msMax": 1593
+  },
+  "api-latency-3500ms": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 30
+   },
+   "byFault": {
+    "malformed": {
+     "n": 20,
+     "outcomes": {
+      "error:timeout": 20
+     },
+     "msMax": 2553,
+     "over2500": 20
+    },
+    "none": {
+     "n": 10,
+     "outcomes": {
+      "error:timeout": 10
+     },
+     "msMax": 2545,
+     "over2500": 10
+    }
+   },
+   "mismatches": [],
+   "msP50": 2515,
+   "msP99": 2553,
+   "msMax": 2553
+  },
+  "api-killed": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:unavailable": 30
+   },
+   "byFault": {
+    "none": {
+     "n": 8,
+     "outcomes": {
+      "error:unavailable": 8
+     },
+     "msMax": 25,
+     "over2500": 0
+    },
+    "malformed": {
+     "n": 8,
+     "outcomes": {
+      "error:unavailable": 8
+     },
+     "msMax": 17,
+     "over2500": 0
+    },
+    "unavailable": {
+     "n": 7,
+     "outcomes": {
+      "error:unavailable": 7
+     },
+     "msMax": 23,
+     "over2500": 0
+    },
+    "timeout": {
+     "n": 7,
+     "outcomes": {
+      "error:unavailable": 7
+     },
+     "msMax": 17,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 16,
+   "msP99": 25,
+   "msMax": 25
+  },
+  "api-killed-recovered": {
+   "n": 8,
+   "matched": 8,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 4,
+    "error:bad-response": 4
+   },
+   "byFault": {
+    "none": {
+     "n": 4,
+     "outcomes": {
+      "results": 4
+     },
+     "msMax": 28,
+     "over2500": 0
+    },
+    "malformed": {
+     "n": 4,
+     "outcomes": {
+      "error:bad-response": 4
+     },
+     "msMax": 22,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 24,
+   "msP99": 28,
+   "msMax": 28
+  },
+  "mixed-unfaulted-search": {
+   "n": 3476,
+   "matched": 3476,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 3476
+   },
+   "byFault": {
+    "none": {
+     "n": 3476,
+     "outcomes": {
+      "results": 3476
+     },
+     "msMax": 3113,
+     "over2500": 1
+    }
+   },
+   "mismatches": [],
+   "msP50": 40,
+   "msP99": 131,
+   "msMax": 3113
+  },
+  "mixed-faulted": {
+   "n": 2515,
+   "matched": 2515,
+   "mismatched": 0,
+   "outcomes": {
+    "error:unavailable": 829,
+    "error:bad-response": 863,
+    "error:timeout": 823
+   },
+   "byFault": {
+    "unavailable": {
+     "n": 829,
+     "outcomes": {
+      "error:unavailable": 829
+     },
+     "msMax": 3138,
+     "over2500": 1
+    },
+    "malformed": {
+     "n": 863,
+     "outcomes": {
+      "error:bad-response": 863
+     },
+     "msMax": 246,
+     "over2500": 0
+    },
+    "timeout": {
+     "n": 823,
+     "outcomes": {
+      "error:timeout": 823
+     },
+     "msMax": 4973,
+     "over2500": 823
+    }
+   },
+   "mismatches": [],
+   "msP50": 42,
+   "msP99": 2580,
+   "msMax": 4973
+  }
+ },
+ "executorsAtStart": {
+  "healthStatus": 200
+ },
+ "rsc": {
+  "redirects": {
+   "home": {
+    "expectedHash": "_YfTnOtw-Fvq5Ybl",
+    "n": 60,
+    "locationMatchesHash": 60,
+    "other": []
+   },
+   "flights": {
+    "expectedHash": "XPwbbJKtdGhqaQ9I",
+    "n": 60,
+    "locationMatchesHash": 60,
+    "other": []
+   }
+  }
+ },
+ "cancel": {
+  "aborted": {
+   "n": 120,
+   "completedBeforeAbort": 0
+  },
+  "before": {
+   "healthStatus": 200
+  },
+  "after": {
+   "healthStatus": 200
+  }
+ },
+ "pausedDetail": {
+  "1200ms/malformed/error:bad-response": 30,
+  "1200ms/none/results": 10,
+  "2500ms/malformed/error:timeout": 14,
+  "2500ms/malformed/error:bad-response": 16,
+  "2500ms/none/results": 6,
+  "2500ms/none/error:timeout": 4,
+  "4000ms/malformed/error:timeout": 26,
+  "4000ms/none/error:timeout": 10,
+  "4000ms/malformed/error:bad-response": 4
+ },
+ "mixedOther": {
+  "requests": 26687,
+  "ok": 19843,
+  "aborted": 853,
+  "overload503": 0,
+  "unexpected": 0,
+  "samples": [],
+  "kinds": {
+   "api-route": {
+    "n": 2194,
+    "msMax": 165,
+    "over2500": 0
+   },
+   "flight-results": {
+    "n": 3387,
+    "msMax": 3113,
+    "over2500": 1
+   },
+   "static-page": {
+    "n": 1125,
+    "msMax": 559,
+    "over2500": 0
+   },
+   "flight-search-shell": {
+    "n": 1565,
+    "msMax": 3070,
+    "over2500": 1
+   },
+   "image-transform": {
+    "n": 1474,
+    "msMax": 676,
+    "over2500": 0
+   },
+   "ppr-home": {
+    "n": 3795,
+    "msMax": 712,
+    "over2500": 0
+   },
+   "ppr-destination": {
+    "n": 2970,
+    "msMax": 840,
+    "over2500": 0
+   },
+   "abort-results": {
+    "n": 725,
+    "msMax": 42,
+    "over2500": 0
+   },
+   "account-anon": {
+    "n": 679,
+    "msMax": 129,
+    "over2500": 0
+   },
+   "api-fault": {
+    "n": 2515,
+    "msMax": 4973,
+    "over2500": 824
+   },
+   "fare-offers": {
+    "n": 1460,
+    "msMax": 3140,
+    "over2500": 1
+   },
+   "rsc-destination": {
+    "n": 1112,
+    "msMax": 52,
+    "over2500": 0
+   },
+   "image-hit": {
+    "n": 2976,
+    "msMax": 319,
+    "over2500": 0
+   },
+   "abort-home": {
+    "n": 358,
+    "msMax": 13,
+    "over2500": 0
+   },
+   "not-found": {
+    "n": 352,
+    "msMax": 63,
+    "over2500": 0
+   }
+  }
+ },
+ "mixedExecutors": {
+  "before": {
+   "healthStatus": 200
+  },
+  "after": {
+   "healthStatus": 200
+  }
+ },
+ "executorsAtEnd": {
+  "healthStatus": 200
+ },
+ "finished": "2026-11-19T01:02:28.883Z"
+}

@@ -1,0 +1,1427 @@
+{
+  "summary": {
+    "title": "routing-config (default)",
+    "total": 60,
+    "match": 59,
+    "pass": 0,
+    "knownDiff": 1,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 0,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "header-all-paths",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-missing-header": "absent",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "target",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-blog-slug": "hello",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "blog",
+            "slug": "hello",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-param-on-demand",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-blog-slug": "zz-config",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "MISS",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "blog",
+            "slug": "zz-config",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-has-query-absent",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "static",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-has-query-present",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-has-query": "yes",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "static",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-missing-header-present",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "target",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-set-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-missing-header": "absent",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "target",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-cookie-capture",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1",
+            "x-theme": "dark"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-cookie-capture-nomatch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-vs-proxy-conflict",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 201,
+          "headers": {
+            "content-type": "application/json",
+            "x-config-all": "1",
+            "x-config-proxy": "from-config",
+            "x-conflict": "config",
+            "x-direct": "1"
+          },
+          "setCookie": [],
+          "body": "{\"proxied\":true,\"pathname\":\"/proxy/json\",\"query\":{},\"protocol\":\"http:\"}"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-on-404",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-on-public-file",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "public, max-age=0",
+            "content-type": "text/plain; charset=UTF-8",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": "public asset\n"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-on-static-asset-miss",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/plain; charset=utf-8",
+            "x-config-all": "1"
+          },
+          "setCookie": [],
+          "body": "Not Found"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-permanent-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/blog/x",
+            "refresh": "0;url=/blog/x"
+          },
+          "setCookie": [],
+          "body": "/blog/x"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-temporary",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-case-insensitive",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-status-301",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 301,
+          "headers": {
+            "location": "/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-has-query-capture",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/blog/abc?to=abc"
+          },
+          "setCookie": [],
+          "body": "/blog/abc?to=abc"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-has-query-nomatch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-keeps-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/target?a=1&a=2&b=%20&fixed=1"
+          },
+          "setCookie": [],
+          "body": "/target?a=1&a=2&b=%20&fixed=1"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-external",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "https://example.com/x/y?q=1"
+          },
+          "setCookie": [],
+          "body": "https://example.com/x/y?q=1"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-before-proxy",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-cookie-present",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-cookie-absent",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-host",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-host-other",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-wildcard",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/blog/a/b/c"
+          },
+          "setCookie": [],
+          "body": "/blog/a/b/c"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-wildcard-empty",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/blog"
+          },
+          "setCookie": [],
+          "body": "/blog"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-regex-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/blog/num-42"
+          },
+          "setCookie": [],
+          "body": "/blog/num-42"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-regex-nomatch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-missing",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-missing-present",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-post",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-head",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/blog/x",
+            "refresh": "0;url=/blog/x"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-encoded-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/blog/a%20b",
+            "refresh": "0;url=/blog/a%20b"
+          },
+          "setCookie": [],
+          "body": "/blog/a%20b"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "before-files",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "target",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "before-files-overrides-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "target",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-does-not-override-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "static",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "blog",
+            "slug": "hello",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-on-demand",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "MISS",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "blog",
+            "slug": "zz-af",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-chain",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "MISS",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "blog",
+            "slug": "chained",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-isr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=3600, stale-while-revalidate=31532400",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "isr",
+            "stamp": "present"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-route-handler",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": "{\"method\":\"GET\",\"pathname\":\"/af-api/a/b\",\"query\":[[\"z\",\"1\"]],\"proxyRequest\":\"set-by-proxy\",\"proxyPathname\":\"/af-api/a/b\",\"removeMe\":null,\"middlewareHeaders\":[\"x-middleware-set-cookie\"],\"headerNames\":[\"cookie\",\"set-cookie\",\"x-conflict\",\"x-middleware-set-cookie\",\"x-proxy-pathname\",\"x-proxy-request\",\"x-proxy-response\"],\"cookies\":[[\"proxy-request-cookie\",\"injected\"]],\"body\":null}"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-fixed-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "rewritten",
+            "slug": "q",
+            "query": "[[\"fixed\",\"1\"],[\"x\",\"1\"]]",
+            "info": "{\"proxyRequest\":\"set-by-proxy\",\"proxyPathname\":\"/af-query\",\"removeMe\":null,\"user\":null,\"middlewareHeaders\":[\"x-middleware-set-cookie\"],\"headerNames\":[\"cookie\",\"set-cookie\",\"x-conflict\",\"x-middleware-set-cookie\",\"x-proxy-pathname\",\"x-proxy-request\",\"x-proxy-response\"],\"proxyVisit\":\"1\",\"proxyRequestCookie\":\"injected\",\"proxyCustom\":null,\"cookieNames\":[\"proxy-request-cookie\",\"proxy-visit\"]}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-to-protected",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "protected",
+            "secret": "synthetic protected content",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-rsc",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/af/hello?_rsc",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-rewritten-path": "/blog/hello",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": ""
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-head",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "fallback-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "fallback-not-before-dynamic",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-blog-slug": "zz-fb",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "MISS",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "blog",
+            "slug": "zz-fb",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "no-rule-404",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "external-rewrite",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "reason": "the destination (a closed port) is outside this run's --net-allow: NextRS answers 502 external-rewrite-denied and sends nothing, next start proxies (connection refused: 500). Allowed destinations are compared in tests/compat/platform-proxy.mjs",
+        "diffs": [
+          "$.status: 500 | 502",
+          "$.headers.cache-control: undefined | \"no-store\"",
+          "$.headers.content-type: undefined | \"text/plain; charset=utf-8\"",
+          "$.headers.x-nextrs-error: undefined | \"external-rewrite-denied\"",
+          "$.body: \"Internal Server Error\" | \"NextRS: the external rewrite destination is not allowed by the network policy (http://SELF is not allowed by the NextRS network policy)\\n\""
+        ],
+        "candidateWrong": null,
+        "baseline": {
+          "status": 500,
+          "headers": {},
+          "setCookie": [],
+          "body": "Internal Server Error"
+        },
+        "candidate": {
+          "status": 502,
+          "headers": {
+            "cache-control": "no-store",
+            "content-type": "text/plain; charset=utf-8",
+            "x-nextrs-error": "external-rewrite-denied"
+          },
+          "setCookie": [],
+          "body": "NextRS: the external rewrite destination is not allowed by the network policy (http://SELF is not allowed by the NextRS network policy)\n"
+        }
+      }
+    },
+    {
+      "name": "trailing-slash-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/target",
+            "refresh": "0;url=/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "trailing-slash-dynamic",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/blog/hello",
+            "refresh": "0;url=/blog/hello"
+          },
+          "setCookie": [],
+          "body": "/blog/hello"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "no-trailing-slash-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-missing-header": "absent",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "target",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "trailing-slash-file",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/asset.txt",
+            "refresh": "0;url=/asset.txt"
+          },
+          "setCookie": [],
+          "body": "/asset.txt"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "well-known",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "double-slash",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/target",
+            "refresh": "0;url=/target"
+          },
+          "setCookie": [],
+          "body": "/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "dot-segment",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-missing-header": "absent",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "target",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "root",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "home",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "root-slash",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "home",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    }
+  ]
+}

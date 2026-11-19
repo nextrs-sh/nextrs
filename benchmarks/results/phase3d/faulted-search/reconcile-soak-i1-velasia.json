@@ -1,0 +1,156 @@
+{
+ "soakDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/results/phase3c/soak-i1/velasia",
+ "soakJson": "velasia-soak-i1.json",
+ "log": "nextrs-i1.log.gz",
+ "soakStarted": "2026-11-18T12:39:51.464Z",
+ "config": {
+  "isolates": 1,
+  "minutes": 360,
+  "idleMinutes": 10,
+  "concurrency": 8,
+  "stormEvery": 30,
+  "stormMinutes": 3,
+  "seed": 7,
+  "nextrsBin": "/home/dennispaler/Documents/OpenSource/nextrs/target/phase3c-soak/nextrs-f5c480d",
+  "velasiaCommit": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066"
+ },
+ "totals": {
+  "requests": 2434831,
+  "ok": 2279141,
+  "degradedExpected": 67419,
+  "aborted": 88271,
+  "overload503": 0,
+  "clientTimeouts": 0,
+  "unexpected": 0,
+  "identityLeaks": 0,
+  "wrongContent": 0,
+  "cancelledByServer": 0
+ },
+ "apiFault": {
+  "count": 67419,
+  "statuses": {
+   "200": 67419
+  },
+  "msTotal": 59325779.097591326,
+  "msMax": 2740.702719,
+  "slow": 0
+ },
+ "slowestKinds": {
+  "ppr-home": {
+   "count": 300996,
+   "msMax": 833,
+   "over5s": 0
+  },
+  "ppr-destination": {
+   "count": 240839,
+   "msMax": 844,
+   "over5s": 0
+  },
+  "rsc-destination": {
+   "count": 90183,
+   "msMax": 54,
+   "over5s": 0
+  },
+  "static-page": {
+   "count": 90604,
+   "msMax": 191,
+   "over5s": 0
+  },
+  "flight-search-shell": {
+   "count": 120951,
+   "msMax": 285,
+   "over5s": 0
+  },
+  "flight-results": {
+   "count": 293362,
+   "msMax": 910,
+   "over5s": 0
+  },
+  "fare-offers": {
+   "count": 120169,
+   "msMax": 540,
+   "over5s": 0
+  },
+  "api-route": {
+   "count": 179639,
+   "msMax": 314,
+   "over5s": 0
+  },
+  "booking-ssr": {
+   "count": 90243,
+   "msMax": 401,
+   "over5s": 0
+  },
+  "account-trips": {
+   "count": 89627,
+   "msMax": 580,
+   "over5s": 0
+  },
+  "account-anon": {
+   "count": 60167,
+   "msMax": 362,
+   "over5s": 0
+  },
+  "manage-booking": {
+   "count": 60286,
+   "msMax": 475,
+   "over5s": 0
+  },
+  "manage-anon": {
+   "count": 29906,
+   "msMax": 184,
+   "over5s": 0
+  },
+  "server-action": {
+   "count": 120114,
+   "msMax": 545,
+   "over5s": 0
+  },
+  "image-hit": {
+   "count": 239898,
+   "msMax": 334,
+   "over5s": 0
+  },
+  "image-transform": {
+   "count": 120115,
+   "msMax": 649,
+   "over5s": 0
+  },
+  "not-found": {
+   "count": 30092,
+   "msMax": 89,
+   "over5s": 0
+  },
+  "api-fault": {
+   "count": 67419,
+   "msMax": 2741,
+   "over5s": 0
+  },
+  "abort-results": {
+   "count": 60360,
+   "msMax": 87,
+   "over5s": 0
+  },
+  "abort-home": {
+   "count": 29861,
+   "msMax": 33,
+   "over5s": 0
+  }
+ },
+ "logLines": 134838,
+ "counts": {
+  "calendar outbound/unavailable": 22680,
+  "search outbound/unavailable": 22680,
+  "calendar outbound/bad-response": 22597,
+  "search outbound/bad-response": 22597,
+  "calendar outbound/timeout": 22142,
+  "search outbound/timeout": 22142
+ },
+ "searchMinusCalendar": {
+  "unavailable": 0,
+  "bad-response": 0,
+  "timeout": 0
+ },
+ "burstsOf8LinesIn5ms": [],
+ "records": []
+}

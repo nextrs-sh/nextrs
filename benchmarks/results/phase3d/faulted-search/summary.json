@@ -1,0 +1,760 @@
+{
+ "started": "2026-11-19T00:52:01.703Z",
+ "config": {
+  "runtimes": [
+   "next",
+   "nextrs-i1",
+   "nextrs-i4"
+  ],
+  "rounds": 30,
+  "mixedMinutes": 6,
+  "seed": 11,
+  "nextrsBin": "/home/dennispaler/Documents/OpenSource/nextrs/target/release/nextrs",
+  "velasiaCommit": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066",
+  "clientTimeoutMs": 2500,
+  "webEnv": {
+   "VELASIA_TODAY": "2026-12-01",
+   "RETAILING_API_FORWARD_FAULTS": "enabled",
+   "VELASIA_ALLOW_TEST_CONTROLS": "enabled",
+   "RETAILING_API_TIMEOUT_MS": "2500"
+  },
+  "apiEnv": {
+   "RETAILING_API_HOST": "127.0.0.1",
+   "LOG_LEVEL": "warn",
+   "RETAILING_API_FAULTS": "enabled",
+   "RETAILING_API_FAULT_TIMEOUT_MS": "10000",
+   "PAYMENT_OUTCOME_CONTROLS": "enabled",
+   "PAYMENT_PROVIDER_DELAY_MS": "150",
+   "PAYMENT_PROVIDER_TIMEOUT_MS": "1500",
+   "PAYMENT_PENDING_RESOLVE_MS": "1500",
+   "ORDER_SWEEP_INTERVAL_MS": "600000"
+  }
+ },
+ "runs": {
+  "next": {
+   "basic-none": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 30
+    }
+   },
+   "basic-unavailable": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 30
+    }
+   },
+   "basic-timeout": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "basic-malformed": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 30
+    }
+   },
+   "basic-empty": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "empty": 30
+    }
+   },
+   "basic-delay=1000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 30
+    }
+   },
+   "basic-delay=2000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 30
+    }
+   },
+   "basic-delay=3000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "basic-delay=4000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "concurrent": {
+    "n": 240,
+    "matched": 240,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 30,
+     "results": 120,
+     "error:unavailable": 30,
+     "empty": 30,
+     "error:timeout": 30
+    }
+   },
+   "rsc-from-home-none": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 15
+    }
+   },
+   "rsc-from-home-malformed": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 15
+    }
+   },
+   "rsc-from-home-unavailable": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 15
+    }
+   },
+   "rsc-from-home-timeout": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 15
+    }
+   },
+   "rsc-from-flights-none": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 15
+    }
+   },
+   "rsc-from-flights-malformed": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 15
+    }
+   },
+   "rsc-from-flights-unavailable": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 15
+    }
+   },
+   "rsc-from-flights-timeout": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 15
+    }
+   },
+   "cancel-after": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 8,
+     "error:bad-response": 8,
+     "error:unavailable": 7,
+     "error:timeout": 7
+    }
+   },
+   "api-paused-1200ms": {
+    "n": 40,
+    "matched": 40,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 30,
+     "results": 10
+    }
+   },
+   "api-paused-2500ms": {
+    "n": 40,
+    "matched": 40,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 18,
+     "error:bad-response": 16,
+     "results": 6
+    }
+   },
+   "api-paused-4000ms": {
+    "n": 40,
+    "matched": 40,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 36,
+     "error:bad-response": 4
+    }
+   },
+   "api-latency-1500ms": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 20,
+     "results": 10
+    }
+   },
+   "api-latency-3500ms": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "api-killed": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 30
+    }
+   },
+   "api-killed-recovered": {
+    "n": 8,
+    "matched": 8,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 4,
+     "error:bad-response": 4
+    }
+   },
+   "mixed-unfaulted-search": {
+    "n": 3476,
+    "matched": 3476,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 3476
+    }
+   },
+   "mixed-faulted": {
+    "n": 2515,
+    "matched": 2515,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 829,
+     "error:bad-response": 863,
+     "error:timeout": 823
+    }
+   }
+  },
+  "nextrs-i1": {
+   "basic-none": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 30
+    }
+   },
+   "basic-unavailable": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 30
+    }
+   },
+   "basic-timeout": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "basic-malformed": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 30
+    }
+   },
+   "basic-empty": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "empty": 30
+    }
+   },
+   "basic-delay=1000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 30
+    }
+   },
+   "basic-delay=2000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 30
+    }
+   },
+   "basic-delay=3000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "basic-delay=4000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "concurrent": {
+    "n": 240,
+    "matched": 240,
+    "mismatched": 0,
+    "outcomes": {
+     "empty": 30,
+     "error:unavailable": 30,
+     "results": 120,
+     "error:bad-response": 30,
+     "error:timeout": 30
+    }
+   },
+   "rsc-from-home-none": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 15
+    }
+   },
+   "rsc-from-home-malformed": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 15
+    }
+   },
+   "rsc-from-home-unavailable": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 15
+    }
+   },
+   "rsc-from-home-timeout": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 15
+    }
+   },
+   "rsc-from-flights-none": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 15
+    }
+   },
+   "rsc-from-flights-malformed": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 15
+    }
+   },
+   "rsc-from-flights-unavailable": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 15
+    }
+   },
+   "rsc-from-flights-timeout": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 15
+    }
+   },
+   "cancel-after": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 8,
+     "error:bad-response": 8,
+     "error:unavailable": 7,
+     "error:timeout": 7
+    }
+   },
+   "api-paused-1200ms": {
+    "n": 40,
+    "matched": 40,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 30,
+     "results": 10
+    }
+   },
+   "api-paused-2500ms": {
+    "n": 40,
+    "matched": 40,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 16,
+     "error:timeout": 21,
+     "results": 3
+    }
+   },
+   "api-paused-4000ms": {
+    "n": 40,
+    "matched": 40,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 33,
+     "error:bad-response": 7
+    }
+   },
+   "api-latency-1500ms": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 20,
+     "results": 10
+    }
+   },
+   "api-latency-3500ms": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "api-killed": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 30
+    }
+   },
+   "api-killed-recovered": {
+    "n": 8,
+    "matched": 8,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 4,
+     "error:bad-response": 4
+    }
+   },
+   "mixed-unfaulted-search": {
+    "n": 3955,
+    "matched": 3955,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 3955
+    }
+   },
+   "mixed-faulted": {
+    "n": 2748,
+    "matched": 2748,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 927,
+     "error:bad-response": 937,
+     "error:timeout": 884
+    }
+   }
+  },
+  "nextrs-i4": {
+   "basic-none": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 30
+    }
+   },
+   "basic-unavailable": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 30
+    }
+   },
+   "basic-timeout": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "basic-malformed": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 30
+    }
+   },
+   "basic-empty": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "empty": 30
+    }
+   },
+   "basic-delay=1000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 30
+    }
+   },
+   "basic-delay=2000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 30
+    }
+   },
+   "basic-delay=3000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "basic-delay=4000": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "concurrent": {
+    "n": 240,
+    "matched": 240,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 30,
+     "empty": 30,
+     "error:unavailable": 30,
+     "results": 120,
+     "error:timeout": 30
+    }
+   },
+   "rsc-from-home-none": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 15
+    }
+   },
+   "rsc-from-home-malformed": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 15
+    }
+   },
+   "rsc-from-home-unavailable": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 15
+    }
+   },
+   "rsc-from-home-timeout": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 15
+    }
+   },
+   "rsc-from-flights-none": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 15
+    }
+   },
+   "rsc-from-flights-malformed": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 15
+    }
+   },
+   "rsc-from-flights-unavailable": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 15
+    }
+   },
+   "rsc-from-flights-timeout": {
+    "n": 15,
+    "matched": 15,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 15
+    }
+   },
+   "cancel-after": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 8,
+     "error:bad-response": 8,
+     "error:unavailable": 7,
+     "error:timeout": 7
+    }
+   },
+   "api-paused-1200ms": {
+    "n": 40,
+    "matched": 40,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 30,
+     "results": 10
+    }
+   },
+   "api-paused-2500ms": {
+    "n": 40,
+    "matched": 40,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 28,
+     "error:bad-response": 10,
+     "results": 2
+    }
+   },
+   "api-paused-4000ms": {
+    "n": 40,
+    "matched": 40,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 37,
+     "error:bad-response": 1,
+     "results": 2
+    }
+   },
+   "api-latency-1500ms": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:bad-response": 20,
+     "results": 10
+    }
+   },
+   "api-latency-3500ms": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:timeout": 30
+    }
+   },
+   "api-killed": {
+    "n": 30,
+    "matched": 30,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 30
+    }
+   },
+   "api-killed-recovered": {
+    "n": 8,
+    "matched": 8,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 4,
+     "error:bad-response": 4
+    }
+   },
+   "mixed-unfaulted-search": {
+    "n": 4218,
+    "matched": 4218,
+    "mismatched": 0,
+    "outcomes": {
+     "results": 4218
+    }
+   },
+   "mixed-faulted": {
+    "n": 2824,
+    "matched": 2824,
+    "mismatched": 0,
+    "outcomes": {
+     "error:unavailable": 939,
+     "error:bad-response": 970,
+     "error:timeout": 915
+    }
+   }
+  }
+ },
+ "finished": "2026-11-19T01:23:35.444Z"
+}

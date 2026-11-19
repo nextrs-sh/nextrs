@@ -1,0 +1,986 @@
+{
+ "runtime": "nextrs-i4",
+ "started": "2026-11-19T01:13:11.313Z",
+ "scenarios": {
+  "basic-none": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 30
+   },
+   "byFault": {
+    "none": {
+     "n": 30,
+     "outcomes": {
+      "results": 30
+     },
+     "msMax": 398,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 44,
+   "msP99": 398,
+   "msMax": 398
+  },
+  "basic-unavailable": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:unavailable": 30
+   },
+   "byFault": {
+    "unavailable": {
+     "n": 30,
+     "outcomes": {
+      "error:unavailable": 30
+     },
+     "msMax": 38,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 27,
+   "msP99": 38,
+   "msMax": 38
+  },
+  "basic-timeout": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 30
+   },
+   "byFault": {
+    "timeout": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 30
+     },
+     "msMax": 2528,
+     "over2500": 30
+    }
+   },
+   "mismatches": [],
+   "msP50": 2522,
+   "msP99": 2528,
+   "msMax": 2528
+  },
+  "basic-malformed": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 30
+   },
+   "byFault": {
+    "malformed": {
+     "n": 30,
+     "outcomes": {
+      "error:bad-response": 30
+     },
+     "msMax": 36,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 28,
+   "msP99": 36,
+   "msMax": 36
+  },
+  "basic-empty": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "empty": 30
+   },
+   "byFault": {
+    "empty": {
+     "n": 30,
+     "outcomes": {
+      "empty": 30
+     },
+     "msMax": 36,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 28,
+   "msP99": 36,
+   "msMax": 36
+  },
+  "basic-delay=1000": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 30
+   },
+   "byFault": {
+    "delay=1000": {
+     "n": 30,
+     "outcomes": {
+      "results": 30
+     },
+     "msMax": 1051,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 1032,
+   "msP99": 1051,
+   "msMax": 1051
+  },
+  "basic-delay=2000": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 30
+   },
+   "byFault": {
+    "delay=2000": {
+     "n": 30,
+     "outcomes": {
+      "results": 30
+     },
+     "msMax": 2042,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 2031,
+   "msP99": 2042,
+   "msMax": 2042
+  },
+  "basic-delay=3000": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 30
+   },
+   "byFault": {
+    "delay=3000": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 30
+     },
+     "msMax": 2527,
+     "over2500": 30
+    }
+   },
+   "mismatches": [],
+   "msP50": 2522,
+   "msP99": 2527,
+   "msMax": 2527
+  },
+  "basic-delay=4000": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 30
+   },
+   "byFault": {
+    "delay=4000": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 30
+     },
+     "msMax": 2530,
+     "over2500": 30
+    }
+   },
+   "mismatches": [],
+   "msP50": 2521,
+   "msP99": 2530,
+   "msMax": 2530
+  },
+  "concurrent": {
+   "n": 240,
+   "matched": 240,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 30,
+    "empty": 30,
+    "error:unavailable": 30,
+    "results": 120,
+    "error:timeout": 30
+   },
+   "byFault": {
+    "malformed": {
+     "n": 30,
+     "outcomes": {
+      "error:bad-response": 30
+     },
+     "msMax": 198,
+     "over2500": 0
+    },
+    "empty": {
+     "n": 30,
+     "outcomes": {
+      "empty": 30
+     },
+     "msMax": 183,
+     "over2500": 0
+    },
+    "unavailable": {
+     "n": 30,
+     "outcomes": {
+      "error:unavailable": 30
+     },
+     "msMax": 185,
+     "over2500": 0
+    },
+    "none": {
+     "n": 120,
+     "outcomes": {
+      "results": 120
+     },
+     "msMax": 239,
+     "over2500": 0
+    },
+    "timeout": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 30
+     },
+     "msMax": 2564,
+     "over2500": 30
+    }
+   },
+   "mismatches": [],
+   "msP50": 77,
+   "msP99": 2554,
+   "msMax": 2564
+  },
+  "rsc-from-home-none": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 15
+   },
+   "byFault": {
+    "none": {
+     "n": 15,
+     "outcomes": {
+      "results": 15
+     },
+     "msMax": 30,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 24,
+   "msP99": 30,
+   "msMax": 30
+  },
+  "rsc-from-home-malformed": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 15
+   },
+   "byFault": {
+    "malformed": {
+     "n": 15,
+     "outcomes": {
+      "error:bad-response": 15
+     },
+     "msMax": 24,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 18,
+   "msP99": 24,
+   "msMax": 24
+  },
+  "rsc-from-home-unavailable": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:unavailable": 15
+   },
+   "byFault": {
+    "unavailable": {
+     "n": 15,
+     "outcomes": {
+      "error:unavailable": 15
+     },
+     "msMax": 22,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 17,
+   "msP99": 22,
+   "msMax": 22
+  },
+  "rsc-from-home-timeout": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 15
+   },
+   "byFault": {
+    "timeout": {
+     "n": 15,
+     "outcomes": {
+      "error:timeout": 15
+     },
+     "msMax": 2521,
+     "over2500": 15
+    }
+   },
+   "mismatches": [],
+   "msP50": 2517,
+   "msP99": 2521,
+   "msMax": 2521
+  },
+  "rsc-from-flights-none": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 15
+   },
+   "byFault": {
+    "none": {
+     "n": 15,
+     "outcomes": {
+      "results": 15
+     },
+     "msMax": 43,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 26,
+   "msP99": 43,
+   "msMax": 43
+  },
+  "rsc-from-flights-malformed": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 15
+   },
+   "byFault": {
+    "malformed": {
+     "n": 15,
+     "outcomes": {
+      "error:bad-response": 15
+     },
+     "msMax": 24,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 18,
+   "msP99": 24,
+   "msMax": 24
+  },
+  "rsc-from-flights-unavailable": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:unavailable": 15
+   },
+   "byFault": {
+    "unavailable": {
+     "n": 15,
+     "outcomes": {
+      "error:unavailable": 15
+     },
+     "msMax": 18,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 16,
+   "msP99": 18,
+   "msMax": 18
+  },
+  "rsc-from-flights-timeout": {
+   "n": 15,
+   "matched": 15,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 15
+   },
+   "byFault": {
+    "timeout": {
+     "n": 15,
+     "outcomes": {
+      "error:timeout": 15
+     },
+     "msMax": 2523,
+     "over2500": 15
+    }
+   },
+   "mismatches": [],
+   "msP50": 2518,
+   "msP99": 2523,
+   "msMax": 2523
+  },
+  "cancel-after": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 8,
+    "error:bad-response": 8,
+    "error:unavailable": 7,
+    "error:timeout": 7
+   },
+   "byFault": {
+    "none": {
+     "n": 8,
+     "outcomes": {
+      "results": 8
+     },
+     "msMax": 34,
+     "over2500": 0
+    },
+    "malformed": {
+     "n": 8,
+     "outcomes": {
+      "error:bad-response": 8
+     },
+     "msMax": 22,
+     "over2500": 0
+    },
+    "unavailable": {
+     "n": 7,
+     "outcomes": {
+      "error:unavailable": 7
+     },
+     "msMax": 22,
+     "over2500": 0
+    },
+    "timeout": {
+     "n": 7,
+     "outcomes": {
+      "error:timeout": 7
+     },
+     "msMax": 2520,
+     "over2500": 7
+    }
+   },
+   "mismatches": [],
+   "msP50": 25,
+   "msP99": 2520,
+   "msMax": 2520
+  },
+  "api-paused-1200ms": {
+   "n": 40,
+   "matched": 40,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 30,
+    "results": 10
+   },
+   "byFault": {
+    "malformed": {
+     "n": 30,
+     "outcomes": {
+      "error:bad-response": 30
+     },
+     "msMax": 1234,
+     "over2500": 0
+    },
+    "none": {
+     "n": 10,
+     "outcomes": {
+      "results": 10
+     },
+     "msMax": 1245,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 1229,
+   "msP99": 1245,
+   "msMax": 1245
+  },
+  "api-paused-2500ms": {
+   "n": 40,
+   "matched": 40,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 28,
+    "error:bad-response": 10,
+    "results": 2
+   },
+   "byFault": {
+    "malformed": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 20,
+      "error:bad-response": 10
+     },
+     "msMax": 2524,
+     "over2500": 23
+    },
+    "none": {
+     "n": 10,
+     "outcomes": {
+      "error:timeout": 8,
+      "results": 2
+     },
+     "msMax": 2524,
+     "over2500": 8
+    }
+   },
+   "mismatches": [],
+   "msP50": 2521,
+   "msP99": 2524,
+   "msMax": 2524
+  },
+  "api-paused-4000ms": {
+   "n": 40,
+   "matched": 40,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 37,
+    "error:bad-response": 1,
+    "results": 2
+   },
+   "byFault": {
+    "malformed": {
+     "n": 30,
+     "outcomes": {
+      "error:timeout": 29,
+      "error:bad-response": 1
+     },
+     "msMax": 2530,
+     "over2500": 29
+    },
+    "none": {
+     "n": 10,
+     "outcomes": {
+      "error:timeout": 8,
+      "results": 2
+     },
+     "msMax": 2524,
+     "over2500": 8
+    }
+   },
+   "mismatches": [],
+   "msP50": 2520,
+   "msP99": 2530,
+   "msMax": 2530
+  },
+  "api-latency-1500ms": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:bad-response": 20,
+    "results": 10
+   },
+   "byFault": {
+    "malformed": {
+     "n": 20,
+     "outcomes": {
+      "error:bad-response": 20
+     },
+     "msMax": 1547,
+     "over2500": 0
+    },
+    "none": {
+     "n": 10,
+     "outcomes": {
+      "results": 10
+     },
+     "msMax": 1561,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 1529,
+   "msP99": 1561,
+   "msMax": 1561
+  },
+  "api-latency-3500ms": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:timeout": 30
+   },
+   "byFault": {
+    "malformed": {
+     "n": 20,
+     "outcomes": {
+      "error:timeout": 20
+     },
+     "msMax": 2527,
+     "over2500": 20
+    },
+    "none": {
+     "n": 10,
+     "outcomes": {
+      "error:timeout": 10
+     },
+     "msMax": 2525,
+     "over2500": 10
+    }
+   },
+   "mismatches": [],
+   "msP50": 2522,
+   "msP99": 2527,
+   "msMax": 2527
+  },
+  "api-killed": {
+   "n": 30,
+   "matched": 30,
+   "mismatched": 0,
+   "outcomes": {
+    "error:unavailable": 30
+   },
+   "byFault": {
+    "none": {
+     "n": 8,
+     "outcomes": {
+      "error:unavailable": 8
+     },
+     "msMax": 23,
+     "over2500": 0
+    },
+    "malformed": {
+     "n": 8,
+     "outcomes": {
+      "error:unavailable": 8
+     },
+     "msMax": 22,
+     "over2500": 0
+    },
+    "unavailable": {
+     "n": 7,
+     "outcomes": {
+      "error:unavailable": 7
+     },
+     "msMax": 23,
+     "over2500": 0
+    },
+    "timeout": {
+     "n": 7,
+     "outcomes": {
+      "error:unavailable": 7
+     },
+     "msMax": 22,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 20,
+   "msP99": 23,
+   "msMax": 23
+  },
+  "api-killed-recovered": {
+   "n": 8,
+   "matched": 8,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 4,
+    "error:bad-response": 4
+   },
+   "byFault": {
+    "none": {
+     "n": 4,
+     "outcomes": {
+      "results": 4
+     },
+     "msMax": 36,
+     "over2500": 0
+    },
+    "malformed": {
+     "n": 4,
+     "outcomes": {
+      "error:bad-response": 4
+     },
+     "msMax": 23,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 26,
+   "msP99": 36,
+   "msMax": 36
+  },
+  "mixed-unfaulted-search": {
+   "n": 4218,
+   "matched": 4218,
+   "mismatched": 0,
+   "outcomes": {
+    "results": 4218
+   },
+   "byFault": {
+    "none": {
+     "n": 4218,
+     "outcomes": {
+      "results": 4218
+     },
+     "msMax": 221,
+     "over2500": 0
+    }
+   },
+   "mismatches": [],
+   "msP50": 26,
+   "msP99": 52,
+   "msMax": 221
+  },
+  "mixed-faulted": {
+   "n": 2824,
+   "matched": 2824,
+   "mismatched": 0,
+   "outcomes": {
+    "error:unavailable": 939,
+    "error:bad-response": 970,
+    "error:timeout": 915
+   },
+   "byFault": {
+    "unavailable": {
+     "n": 939,
+     "outcomes": {
+      "error:unavailable": 939
+     },
+     "msMax": 49,
+     "over2500": 0
+    },
+    "malformed": {
+     "n": 970,
+     "outcomes": {
+      "error:bad-response": 970
+     },
+     "msMax": 60,
+     "over2500": 0
+    },
+    "timeout": {
+     "n": 915,
+     "outcomes": {
+      "error:timeout": 915
+     },
+     "msMax": 2535,
+     "over2500": 915
+    }
+   },
+   "mismatches": [],
+   "msP50": 21,
+   "msP99": 2526,
+   "msMax": 2535
+  }
+ },
+ "executorsAtStart": {
+  "executors": 4,
+  "ready": 4,
+  "restarts": 0,
+  "active": 1,
+  "queued": 0,
+  "handlerErrors": 0,
+  "requestTimeouts": 0,
+  "responsesCancelled": 0,
+  "rejectedOverloaded": 0,
+  "rejectedUnavailable": 0,
+  "completed": 0
+ },
+ "rsc": {
+  "redirects": {
+   "home": {
+    "expectedHash": "_YfTnOtw-Fvq5Ybl",
+    "n": 60,
+    "locationMatchesHash": 60,
+    "other": []
+   },
+   "flights": {
+    "expectedHash": "XPwbbJKtdGhqaQ9I",
+    "n": 60,
+    "locationMatchesHash": 60,
+    "other": []
+   }
+  }
+ },
+ "cancel": {
+  "aborted": {
+   "n": 120,
+   "completedBeforeAbort": 0
+  },
+  "before": {
+   "executors": 4,
+   "ready": 4,
+   "restarts": 0,
+   "active": 0,
+   "queued": 0,
+   "handlerErrors": 0,
+   "requestTimeouts": 0,
+   "responsesCancelled": 0,
+   "rejectedOverloaded": 0,
+   "rejectedUnavailable": 0,
+   "completed": 637
+  },
+  "after": {
+   "executors": 4,
+   "ready": 4,
+   "restarts": 0,
+   "active": 0,
+   "queued": 0,
+   "handlerErrors": 0,
+   "requestTimeouts": 0,
+   "responsesCancelled": 49,
+   "rejectedOverloaded": 0,
+   "rejectedUnavailable": 0,
+   "completed": 786
+  }
+ },
+ "pausedDetail": {
+  "1200ms/malformed/error:bad-response": 30,
+  "1200ms/none/results": 10,
+  "2500ms/malformed/error:timeout": 20,
+  "2500ms/malformed/error:bad-response": 10,
+  "2500ms/none/error:timeout": 8,
+  "2500ms/none/results": 2,
+  "4000ms/malformed/error:timeout": 29,
+  "4000ms/none/error:timeout": 8,
+  "4000ms/malformed/error:bad-response": 1,
+  "4000ms/none/results": 2
+ },
+ "mixedOther": {
+  "requests": 30462,
+  "ok": 22591,
+  "aborted": 829,
+  "overload503": 0,
+  "unexpected": 0,
+  "samples": [],
+  "kinds": {
+   "flight-results": {
+    "n": 3943,
+    "msMax": 221,
+    "over2500": 0
+   },
+   "flight-search-shell": {
+    "n": 1788,
+    "msMax": 51,
+    "over2500": 0
+   },
+   "image-transform": {
+    "n": 1709,
+    "msMax": 293,
+    "over2500": 0
+   },
+   "api-route": {
+    "n": 2502,
+    "msMax": 143,
+    "over2500": 0
+   },
+   "static-page": {
+    "n": 1253,
+    "msMax": 133,
+    "over2500": 0
+   },
+   "ppr-home": {
+    "n": 4242,
+    "msMax": 213,
+    "over2500": 0
+   },
+   "ppr-destination": {
+    "n": 3381,
+    "msMax": 214,
+    "over2500": 0
+   },
+   "abort-results": {
+    "n": 828,
+    "msMax": 40,
+    "over2500": 0
+   },
+   "account-anon": {
+    "n": 776,
+    "msMax": 60,
+    "over2500": 0
+   },
+   "rsc-destination": {
+    "n": 1277,
+    "msMax": 8,
+    "over2500": 0
+   },
+   "fare-offers": {
+    "n": 1661,
+    "msMax": 61,
+    "over2500": 0
+   },
+   "api-fault": {
+    "n": 2824,
+    "msMax": 2535,
+    "over2500": 915
+   },
+   "image-hit": {
+    "n": 3464,
+    "msMax": 194,
+    "over2500": 0
+   },
+   "abort-home": {
+    "n": 412,
+    "msMax": 8,
+    "over2500": 0
+   },
+   "not-found": {
+    "n": 402,
+    "msMax": 14,
+    "over2500": 0
+   }
+  }
+ },
+ "mixedExecutors": {
+  "before": {
+   "executors": 4,
+   "ready": 4,
+   "restarts": 0,
+   "active": 0,
+   "queued": 0,
+   "handlerErrors": 0,
+   "requestTimeouts": 0,
+   "responsesCancelled": 49,
+   "rejectedOverloaded": 0,
+   "rejectedUnavailable": 0,
+   "completed": 1004
+  },
+  "after": {
+   "executors": 4,
+   "ready": 4,
+   "restarts": 0,
+   "active": 0,
+   "queued": 0,
+   "handlerErrors": 0,
+   "requestTimeouts": 0,
+   "responsesCancelled": 791,
+   "rejectedOverloaded": 0,
+   "rejectedUnavailable": 0,
+   "completed": 24996
+  }
+ },
+ "executorsAtEnd": {
+  "executors": 4,
+  "ready": 4,
+  "restarts": 0,
+  "active": 0,
+  "queued": 0,
+  "handlerErrors": 0,
+  "requestTimeouts": 0,
+  "responsesCancelled": 791,
+  "rejectedOverloaded": 0,
+  "rejectedUnavailable": 0,
+  "completed": 24996
+ },
+ "finished": "2026-11-19T01:23:35.225Z"
+}

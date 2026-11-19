@@ -1,0 +1,70 @@
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 24ms
+
+  Running TypeScript ...
+  Finished TypeScript in 1925ms ...
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.1s
+  Collecting page data using 5 workers ...
+  Generating static pages using 5 workers (0/16) ...
+  Generating static pages using 5 workers (4/16) 
+  Generating static pages using 5 workers (8/16) 
+  Generating static pages using 5 workers (12/16) 
+✓ Generating static pages using 5 workers (16/16) in 89ms
+  Finalizing page optimization ...
+
+Route (pages)                   Revalidate  Expire
+┌ ○ /
+├   /_app
+├ ○ /404
+├ ○ /500
+├ ○ /about
+├ ƒ /api/clear-preview
+├ ƒ /api/cookies
+├ ƒ /api/echo
+├ ƒ /api/error
+├ ƒ /api/health
+├ ƒ /api/heap
+├ ƒ /api/items/[id]
+├ ƒ /api/limit
+├ ƒ /api/mutate
+├ ƒ /api/preview
+├ ƒ /api/raw
+├ ƒ /api/redirect
+├ ƒ /api/revalidate
+├ ƒ /api/spin
+├ ƒ /api/stream
+├ ƒ /books/[id]
+├   /fallback-blocking/[slug]           1m      1y
+│ └ ● /fallback-blocking/known
+├   /fallback-true/[slug]
+│ └ ● /fallback-true/known
+├ ƒ /gip
+├ ● /isr                                2s      1y
+├ ○ /nested/deep
+├ ● /on-demand
+├   /posts/[slug]
+│ ├ ● /posts/alpha
+│ └ ● /posts/beta
+├ ● /preview
+├ ƒ /protected/secret
+├ ● /protected/static-secret
+├ ● /ssg/not-found
+├ ● /ssg/static
+├ ƒ /ssr/error
+├ ƒ /ssr/fetch
+├ ƒ /ssr/headers
+├ ƒ /ssr/not-found
+├ ƒ /ssr/redirect
+├ ƒ /ssr/render-error
+├ ƒ /ssr/slow
+└ ƒ /ssr/whoami
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses getStaticProps)
+ƒ  (Dynamic)  server-rendered on demand
+
+✓ Finished writing to filesystem cache in 24.3s

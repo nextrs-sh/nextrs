@@ -1,0 +1,4894 @@
+{
+  "summary": {
+    "title": "pages-i18n-domains",
+    "total": 108,
+    "match": 108,
+    "pass": 0,
+    "knownDiff": 0,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 108,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "domain-root-own-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"163js3r1zuv1q7\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Bonjour",
+            "kind": "ssg-index",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "greeting": "Bonjour"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-root-other-domain",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "https://example.fr/"
+          },
+          "setCookie": [],
+          "body": "https://example.fr/"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-root-http-domain",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "http://example.jp/"
+          },
+          "setCookie": [],
+          "body": "http://example.jp/"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-root-cookie-ignored",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"163js3r1zuv1q7\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Bonjour",
+            "kind": "ssg-index",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "greeting": "Bonjour"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-root-unknown-host",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr"
+          },
+          "setCookie": [],
+          "body": "/fr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-page-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-config-about": "1",
+            "x-config-fr-about": "1",
+            "x-powered-by": "Next.js",
+            "etag": "\"do2s59uo8c1oh\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-page-prefixed",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-config-about": "1",
+            "x-powered-by": "Next.js",
+            "etag": "\"jhurogksem1of\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "locale": "ja",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-ssr-own-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "fr:/ssr",
+            "x-proxy-url": "/ssr",
+            "x-ssr-locale": "fr",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR fr",
+            "kind": "ssr",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "fr",
+            "secret": "user=-",
+            "query": "{}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "fr",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "fr",
+                  "query": {},
+                  "user": null,
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-ssr-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "ja:/ssr",
+            "x-proxy-url": "/ssr",
+            "x-ssr-locale": "ja",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR ja",
+            "kind": "ssr",
+            "locale": "ja",
+            "locales": "en,fr,ja",
+            "default-locale": "ja",
+            "secret": "user=-",
+            "query": "{}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "ja",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "ja",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "ja",
+                  "query": {},
+                  "user": null,
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-data-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "fr:/ssr",
+            "x-proxy-url": "/ssr",
+            "x-nextjs-matched-path": "/fr/ssr",
+            "x-ssr-locale": "fr",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "fr",
+              "query": {},
+              "user": null,
+              "resolvedUrl": "/ssr",
+              "stamp": 0
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-404",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"10s0fidgodo1eo\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Introuvable",
+            "kind": "404",
+            "locale": "fr",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Introuvable",
+                  "locale": "fr"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "domain-forwarded-host-ignored",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "en:/ssr",
+            "x-proxy-url": "/ssr",
+            "x-ssr-locale": "en",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR en",
+            "kind": "ssr",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=-",
+            "query": "{}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "en",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {},
+                  "user": null,
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-accept-language",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr"
+          },
+          "setCookie": [],
+          "body": "/fr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-accept-language-q",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/ja"
+          },
+          "setCookie": [],
+          "body": "/ja"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-accept-language-q0",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr"
+          },
+          "setCookie": [],
+          "body": "/fr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-accept-language-region",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"9ppi91vg661q5\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Hello",
+            "kind": "ssg-index",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "en",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "greeting": "Hello"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-accept-language-malformed",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"9ppi91vg661q5\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Hello",
+            "kind": "ssg-index",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "en",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "greeting": "Hello"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-accept-language-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"9ppi91vg661q5\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Hello",
+            "kind": "ssg-index",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "en",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "greeting": "Hello"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/ja"
+          },
+          "setCookie": [],
+          "body": "/ja"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-cookie-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"9ppi91vg661q5\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Hello",
+            "kind": "ssg-index",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "en",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "greeting": "Hello"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-cookie-invalid",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr"
+          },
+          "setCookie": [],
+          "body": "/fr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-query-kept",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr?a=1&b=%20x&c"
+          },
+          "setCookie": [],
+          "body": "/fr?a=1&b=%20x&c"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-index",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr"
+          },
+          "setCookie": [],
+          "body": "/fr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-not-for-pages",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-config-about": "1",
+            "x-powered-by": "Next.js",
+            "etag": "\"s3a361375z1oj\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-locale-path",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"163js3r1zuv1q7\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Bonjour",
+            "kind": "ssg-index",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "greeting": "Bonjour"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-post",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr"
+          },
+          "setCookie": [],
+          "body": "/fr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefix-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"9ppi91vg661q5\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Hello",
+            "kind": "ssg-index",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "en",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "greeting": "Hello"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefix-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"163js3r1zuv1q7\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Bonjour",
+            "kind": "ssg-index",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "greeting": "Bonjour"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefix-ja",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"16apoupastn1q1\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "こんにちは",
+            "kind": "ssg-index",
+            "locale": "ja",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "ja",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "greeting": "こんにちは"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefix-case",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-config-about": "1",
+            "x-config-fr-about": "1",
+            "x-powered-by": "Next.js",
+            "etag": "\"do2s59uo8c1oh\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefix-encoded",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"12eo5y5wlgs1ek\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Not found",
+            "kind": "404",
+            "locale": "en",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Not found",
+                  "locale": "en"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefix-unknown",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"12eo5y5wlgs1ek\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Not found",
+            "kind": "404",
+            "locale": "en",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Not found",
+                  "locale": "en"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "trailing-slash-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/fr",
+            "refresh": "0;url=/fr"
+          },
+          "setCookie": [],
+          "body": "/fr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "trailing-slash-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/about",
+            "refresh": "0;url=/about"
+          },
+          "setCookie": [],
+          "body": "/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "trailing-slash-other",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/fr/about",
+            "refresh": "0;url=/fr/about"
+          },
+          "setCookie": [],
+          "body": "/fr/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "static-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-config-about": "1",
+            "x-powered-by": "Next.js",
+            "etag": "\"s3a361375z1oj\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "static-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-config-about": "1",
+            "x-config-fr-about": "1",
+            "x-powered-by": "Next.js",
+            "etag": "\"do2s59uo8c1oh\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "static-ja-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-config-about": "1",
+            "x-powered-by": "Next.js",
+            "etag": "\"jhurogksem1of\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "locale": "ja",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "static-post-405",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 405,
+          "headers": {
+            "x-config-about": "1",
+            "x-config-fr-about": "1",
+            "allow": "GET, HEAD"
+          },
+          "setCookie": [],
+          "body": "Method Not Allowed"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "en:/ssr",
+            "x-proxy-url": "/ssr",
+            "x-ssr-locale": "en",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR en",
+            "kind": "ssr",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=-",
+            "query": "{\"x\":\"1\"}",
+            "resolved": "/ssr?x=1",
+            "next": {
+              "page": "/ssr",
+              "query": {
+                "x": "1"
+              },
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "en",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {
+                    "x": "1"
+                  },
+                  "user": null,
+                  "resolvedUrl": "/ssr?x=1",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "fr:/ssr",
+            "x-proxy-url": "/fr/ssr",
+            "x-ssr-locale": "fr",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR fr",
+            "kind": "ssr",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=-",
+            "query": "{\"x\":[\"1\",\"2\"]}",
+            "resolved": "/ssr?x=1&x=2",
+            "next": {
+              "page": "/ssr",
+              "query": {
+                "x": [
+                  "1",
+                  "2"
+                ]
+              },
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {
+                    "x": [
+                      "1",
+                      "2"
+                    ]
+                  },
+                  "user": null,
+                  "resolvedUrl": "/ssr?x=1&x=2",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "ja:/ssr",
+            "x-proxy-url": "/ja/ssr",
+            "x-ssr-locale": "ja",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR ja",
+            "kind": "ssr",
+            "locale": "ja",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=alice",
+            "query": "{}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "ja",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {},
+                  "user": "alice",
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-dynamic",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Item a b",
+            "kind": "ssr-dynamic",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "slug": "a b",
+            "next": {
+              "page": "/items/[id]",
+              "query": {
+                "id": "a b"
+              },
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "id": "a b",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-not-found",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"vtqi5yyshr1eg\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "見つかりません",
+            "kind": "404",
+            "locale": "ja",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "見つかりません",
+                  "locale": "ja"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "location": "/about"
+          },
+          "setCookie": [],
+          "body": "/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-paths-listed",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Post hello",
+            "kind": "ssg-dynamic",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "slug": "hello",
+            "fallback": "false",
+            "next": {
+              "page": "/posts/[slug]",
+              "query": {
+                "slug": "hello"
+              },
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "slug": "hello",
+                  "built": 0
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-paths-default-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Post bonjour",
+            "kind": "ssg-dynamic",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "slug": "bonjour",
+            "fallback": "false",
+            "next": {
+              "page": "/posts/[slug]",
+              "query": {
+                "slug": "bonjour"
+              },
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "en",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "slug": "bonjour",
+                  "built": 0
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-paths-unlisted",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "MISS",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Post hello",
+            "kind": "ssg-dynamic",
+            "locale": "ja",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "slug": "hello",
+            "fallback": "false",
+            "next": {
+              "page": "/posts/[slug]",
+              "query": {
+                "slug": "hello"
+              },
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "ja",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "slug": "hello",
+                  "built": 0
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-paths-not-found",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "etag": "\"10s0fidgodo1eo\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Introuvable",
+            "kind": "404",
+            "locale": "fr",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Introuvable",
+                  "locale": "fr"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-paths-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "x-nextjs-cache": "MISS",
+            "cache-control": "s-maxage=31536000",
+            "location": "/about"
+          },
+          "setCookie": [],
+          "body": "/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-index-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-matched-path": "/fr",
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "etag": "\"lfnfvrapb735\"",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "greeting": "Bonjour"
+            },
+            "__N_SSG": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-ssr-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "fr:/ssr",
+            "x-proxy-url": "/fr/ssr",
+            "x-nextjs-matched-path": "/fr/ssr",
+            "x-ssr-locale": "fr",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "query": {},
+              "user": null,
+              "resolvedUrl": "/ssr",
+              "stamp": 0
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-ssg-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-matched-path": "/fr/posts/[slug]",
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "slug": "hello",
+              "built": 0
+            },
+            "__N_SSG": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-ssg-ja-unlisted",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-matched-path": "/ja/posts/[slug]",
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "slug": "hello",
+              "built": 0
+            },
+            "__N_SSG": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-dynamic-ssr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-matched-path": "/ja/items/[id]",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "id": "7",
+              "stamp": 0
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-unknown-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-matched-path": "/en/de/ssr",
+            "content-type": "application/json"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-wrong-build",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "x-proxy-seen": "fr:/_next/data/not-this-build/fr/ssr.json",
+            "x-proxy-url": "/fr/_next/data/not-this-build/fr/ssr.json",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-matched-path": "/_next/data/not-this-build/fr/ssr.json",
+            "content-type": "application/json"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-no-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "en:/ssr",
+            "x-proxy-url": "/ssr",
+            "x-nextjs-matched-path": "/en/ssr",
+            "x-ssr-locale": "en",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "query": {},
+              "user": null,
+              "resolvedUrl": "/ssr",
+              "stamp": 0
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-index-no-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-matched-path": "/en",
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "etag": "\"gdl378hasw33\"",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "greeting": "Hello"
+            },
+            "__N_SSG": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "not-found-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"12eo5y5wlgs1ek\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Not found",
+            "kind": "404",
+            "locale": "en",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Not found",
+                  "locale": "en"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "not-found-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"10s0fidgodo1eo\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Introuvable",
+            "kind": "404",
+            "locale": "fr",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Introuvable",
+                  "locale": "fr"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "not-found-ja-deep",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"vtqi5yyshr1eg\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "見つかりません",
+            "kind": "404",
+            "locale": "ja",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "見つかりません",
+                  "locale": "ja"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "not-found-unknown-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"12eo5y5wlgs1ek\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Not found",
+            "kind": "404",
+            "locale": "en",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Not found",
+                  "locale": "en"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "en:/api/whoami",
+            "x-proxy-url": "/api/whoami",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"rgquv8kp6x2n\""
+          },
+          "setCookie": [],
+          "body": {
+            "method": "GET",
+            "url": "/api/whoami?q=1",
+            "query": {
+              "q": "1"
+            },
+            "user": null,
+            "proxy": "en:/api/whoami"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-under-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "x-proxy-seen": "fr:/api/whoami",
+            "x-proxy-url": "/api/whoami",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"10s0fidgodo1eo\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Introuvable",
+            "kind": "404",
+            "locale": "fr",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Introuvable",
+                  "locale": "fr"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-under-default-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "x-proxy-seen": "en:/api/whoami",
+            "x-proxy-url": "/api/whoami",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"12eo5y5wlgs1ek\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Not found",
+            "kind": "404",
+            "locale": "en",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Not found",
+                  "locale": "en"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-private-unauthorized",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"t4z1rka5rzo\""
+          },
+          "setCookie": [],
+          "body": {
+            "error": "unauthorized"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-private-under-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"10s0fidgodo1eo\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Introuvable",
+            "kind": "404",
+            "locale": "fr",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Introuvable",
+                  "locale": "fr"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-mutation-once",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "count": 1,
+          "under": 404,
+          "ids": [
+            "1"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-header",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-config-about": "1",
+            "x-config-fr-about": "1",
+            "x-powered-by": "Next.js",
+            "etag": "\"do2s59uo8c1oh\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-header-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-config-about": "1",
+            "x-powered-by": "Next.js",
+            "etag": "\"s3a361375z1oj\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-redirect-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "https://example.com/about"
+          },
+          "setCookie": [],
+          "body": "https://example.com/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-redirect-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "https://example.fr/about"
+          },
+          "setCookie": [],
+          "body": "https://example.fr/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-redirect-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "http://example.jp/posts/hello",
+            "refresh": "0;url=http://example.jp/posts/hello"
+          },
+          "setCookie": [],
+          "body": "http://example.jp/posts/hello"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-redirect-no-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr/about"
+          },
+          "setCookie": [],
+          "body": "/fr/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-redirect-no-locale-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"12eo5y5wlgs1ek\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Not found",
+            "kind": "404",
+            "locale": "en",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Not found",
+                  "locale": "en"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-rewrite-before",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-powered-by": "Next.js",
+            "etag": "\"do2s59uo8c1oh\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-rewrite-after",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-ssr-locale": "ja",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR ja",
+            "kind": "ssr",
+            "locale": "ja",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=-",
+            "query": "{\"from\":\"rewrite\"}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {
+                "from": "rewrite"
+              },
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "ja",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {
+                    "from": "rewrite"
+                  },
+                  "user": null,
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-rewrite-ssg",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Post hello",
+            "kind": "ssg-dynamic",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "slug": "hello",
+            "fallback": "false",
+            "next": {
+              "page": "/posts/[slug]",
+              "query": {
+                "slug": "hello"
+              },
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "slug": "hello",
+                  "built": 0
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-rewrite-fallback",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Post hello",
+            "kind": "ssg-dynamic",
+            "locale": "ja",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "slug": "hello",
+            "fallback": "false",
+            "next": {
+              "page": "/posts/[slug]",
+              "query": {
+                "slug": "hello"
+              },
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "ja",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "slug": "hello",
+                  "built": 0
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-rewrite-changes-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-ssr-locale": "fr",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR fr",
+            "kind": "ssr",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=-",
+            "query": "{}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {},
+                  "user": null,
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-rewrite-changes-locale-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-ssr-locale": "fr",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR fr",
+            "kind": "ssr",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=-",
+            "query": "{}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {},
+                  "user": null,
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-locale-seen",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "fr:/ssr",
+            "x-proxy-url": "/fr/ssr",
+            "x-ssr-locale": "fr",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR fr",
+            "kind": "ssr",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=-",
+            "query": "{}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {},
+                  "user": null,
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-default-seen",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "en:/ssr",
+            "x-proxy-url": "/ssr",
+            "x-ssr-locale": "en",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR en",
+            "kind": "ssr",
+            "locale": "en",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=-",
+            "query": "{}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "en",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {},
+                  "user": null,
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-api-locale-seen",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "x-proxy-seen": "fr:/api/whoami",
+            "x-proxy-url": "/api/whoami",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"10s0fidgodo1eo\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Introuvable",
+            "kind": "404",
+            "locale": "fr",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Introuvable",
+                  "locale": "fr"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-data-seen",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "ja:/ssr",
+            "x-proxy-url": "/ja/ssr",
+            "x-nextjs-matched-path": "/ja/ssr",
+            "x-ssr-locale": "ja",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "query": {},
+              "user": null,
+              "resolvedUrl": "/ssr",
+              "stamp": 0
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr/about?login=required"
+          },
+          "setCookie": [],
+          "body": "/fr/about?login=required"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-case",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr/about?login=required"
+          },
+          "setCookie": [],
+          "body": "/fr/about?login=required"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "etag": "\"drmpu4oksg1j7\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Secret",
+            "kind": "protected",
+            "locale": "ja",
+            "secret": "secret-for-ja proxy=verified",
+            "next": {
+              "page": "/protected/secret",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "ja",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "secret": "secret-for-ja",
+                  "proxy": "verified"
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-data",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "x-nextjs-redirect": "/fr/about?login=required"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-data-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-matched-path": "/fr/protected/secret",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "etag": "\"ew71hz20qm3s\"",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "secret": "secret-for-fr",
+              "proxy": "verified"
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-rewrite-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-middleware-rewrite": "/fr/ssr?from=proxy",
+            "x-ssr-locale": "fr",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR fr",
+            "kind": "ssr",
+            "locale": "fr",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=-",
+            "query": "{\"from\":\"proxy\"}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {
+                "from": "proxy"
+              },
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {
+                    "from": "proxy"
+                  },
+                  "user": null,
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-rewrite-to-ja",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-middleware-rewrite": "/ja/ssr",
+            "x-ssr-locale": "ja",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSR ja",
+            "kind": "ssr",
+            "locale": "ja",
+            "locales": "en,fr,ja",
+            "default-locale": "en",
+            "secret": "user=-",
+            "query": "{}",
+            "resolved": "/ssr",
+            "next": {
+              "page": "/ssr",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "ja",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "ja",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "query": {},
+                  "user": null,
+                  "resolvedUrl": "/ssr",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefetch-ssr-skipped",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "fr:/ssr",
+            "x-proxy-url": "/fr/ssr",
+            "x-matched-path": "/ssr",
+            "x-middleware-skip": "1",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefetch-static-skipped",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-config-about": "1",
+            "x-matched-path": "/about",
+            "x-middleware-skip": "1",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefetch-ssg-served",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-nextjs-matched-path": "/fr/posts/[slug]",
+            "x-nextjs-cache": "HIT",
+            "cache-control": "s-maxage=31536000",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "slug": "hello",
+              "built": 0
+            },
+            "__N_SSG": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-encoded",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "x-proxy-seen": "fr:/%70rotected/secret",
+            "x-proxy-url": "/fr/%70rotected/secret",
+            "x-nextjs-cache": "HIT",
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "etag": "\"10s0fidgodo1eo\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Introuvable",
+            "kind": "404",
+            "locale": "fr",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Introuvable",
+                  "locale": "fr"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-unknown-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js",
+            "etag": "\"12eo5y5wlgs1ek\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Not found",
+            "kind": "404",
+            "locale": "en",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "en",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "text": "Not found",
+                  "locale": "en"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-data-encoded",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "x-proxy-seen": "fr:/%70rotected/secret",
+            "x-proxy-url": "/fr/%70rotected/secret",
+            "x-nextjs-matched-path": "/fr/%70rotected/secret",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-config-rewrite",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "location": "/about?login=page"
+          },
+          "setCookie": [],
+          "body": "/about?login=page"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-config-rewrite-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-powered-by": "Next.js",
+            "etag": "\"py3g6nwih51iu\"",
+            "content-type": "text/html; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Secret",
+            "kind": "protected",
+            "locale": "fr",
+            "secret": "secret-for-fr proxy=-",
+            "next": {
+              "page": "/protected/secret",
+              "query": {},
+              "buildId": "BUILD",
+              "locale": "fr",
+              "locales": [
+                "en",
+                "fr",
+                "ja"
+              ],
+              "defaultLocale": "en",
+              "domainLocales": [
+                {
+                  "domain": "example.com",
+                  "defaultLocale": "en"
+                },
+                {
+                  "domain": "example.fr",
+                  "defaultLocale": "fr"
+                },
+                {
+                  "domain": "example.jp",
+                  "defaultLocale": "ja",
+                  "http": true
+                }
+              ],
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "isPreview": false,
+              "props": {
+                "pageProps": {
+                  "locale": "fr",
+                  "locales": [
+                    "en",
+                    "fr",
+                    "ja"
+                  ],
+                  "defaultLocale": "en",
+                  "secret": "secret-for-fr",
+                  "proxy": null
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "bypass-internal-header",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr/about?login=required"
+          },
+          "setCookie": [],
+          "body": "/fr/about?login=required"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "isr-per-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "stale": "STALE",
+          "frStable": true,
+          "frNumber": true,
+          "jaNumber": true,
+          "jaTitle": "ISR ja",
+          "frLocale": "fr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "isr-on-demand-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "revalidated": "/fr/on-demand",
+          "frAdvanced": true,
+          "jaSame": true,
+          "dataLocale": "fr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "isr-on-demand-default",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "revalidated": "/on-demand",
+          "enAdvanced": true,
+          "frSame": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "preview-per-locale",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "cookies": true,
+          "fr": "preview=true data={\"who\":\"editor\"}",
+          "frLocale": "fr",
+          "ja": "preview=true data={\"who\":\"editor\"}",
+          "plain": "preview=false data=-",
+          "plainCache": "HIT",
+          "forged": "preview=false data=-",
+          "data": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "concurrent-locales",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "total": 90,
+          "wrong": 0
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "cache-no-locale-leak",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "en": "en",
+          "en-post": "en",
+          "fr": "fr",
+          "fr-post": "fr",
+          "ja": "ja",
+          "ja-post": "ja"
+        },
+        "asserted": true
+      }
+    }
+  ]
+}

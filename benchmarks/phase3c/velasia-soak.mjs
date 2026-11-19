@@ -22,7 +22,18 @@
 // reference, and anonymous requests for the same pages must never contain
 // it. Traffic is drawn from a seeded generator (deterministic sequence per
 // worker; timing still varies).
-import http from 'node:http';
+//
+// Phase 3D: the HTTP client is benchmarks/phase3d/soak-http.mjs (idle
+// sockets retired before the server's 30 s keep-alive limit; a GET retried
+// once only after a reset of a reused socket before any response byte; the
+// Server Action never retried). Every unexpected response is kept in full
+// (bounded) with its connection state in unexpected.jsonl. A faulted search
+// is classified by which of Velasia's error panels it rendered: the one its
+// fault asks for (degradedExpected); the timeout panel after the app's own
+// API deadline has passed (degradedTimeout: the API answered too late, which
+// Velasia reports as a timeout whatever the fault); anything else is
+// unexpected.
+import { createAgent, createCapture, send as sendHttp, IDLE_RETIRE_MS } from '../phase3d/soak-http.mjs';
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -76,25 +87,11 @@ async function waitReady(port, path, ms) {
   throw new Error(`port ${port}${path} not ready`);
 }
 
-const agent = new http.Agent({ keepAlive: true, maxSockets: concurrency * 2 });
+const agent = createAgent({ maxSockets: concurrency * 2 });
+const retries = [];
+const capture = createCapture(join(out, 'unexpected.jsonl'));
 function send({ port = WEB_PORT, method = 'GET', path, headers = {}, body, abortAfterMs, timeoutMs = 30000 }) {
-  return new Promise((resolveP) => {
-    const t0 = process.hrtime.bigint();
-    const ms = () => Number(process.hrtime.bigint() - t0) / 1e6;
-    let done = false;
-    const finish = (r) => { if (!done) { done = true; resolveP({ ms: ms(), ...r }); } };
-    const req = http.request({ host: '127.0.0.1', port, method, path, headers, agent: abortAfterMs ? false : agent }, (res) => {
-      const chunks = [];
-      res.on('data', (c) => chunks.push(c));
-      res.on('end', () => finish({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks) }));
-      res.on('error', () => finish({ status: 0, error: 'body' }));
-      res.on('aborted', () => finish({ status: 0, error: 'aborted' }));
-    });
-    req.setTimeout(timeoutMs, () => { req.destroy(new Error('timeout')); finish({ status: 0, error: 'timeout' }); });
-    req.on('error', (e) => finish({ status: 0, error: e.code ?? e.message }));
-    if (abortAfterMs) setTimeout(() => { req.destroy(new Error('aborted by client')); finish({ status: 0, error: 'client-abort' }); }, abortAfterMs);
-    req.end(body);
-  });
+  return sendHttp({ host: '127.0.0.1', port, method, path, headers, body, abortAfterMs, timeoutMs, agent, retries });
 }
 
 function procMem(pid) {
@@ -154,6 +151,15 @@ try {
   const day = (r) => `2026-12-${String(5 + Math.floor(r() * 20)).padStart(2, '0')}`;
   const search = (r) => `/flights?trip=one-way&from=MNL&to=SIN&depart=${day(r)}&adults=1&cabin=economy`;
   const faultText = { unavailable: 'load flights right now', timeout: 'taking too long', malformed: 'Something went wrong loading flights' };
+  // Every error panel title Velasia's search can render (results-states.tsx).
+  const panelText = { ...faultText, rejected: 'run this search', 'not-found': 'no longer available' };
+  const apiDeadlineMs = Number(webEnv.RETAILING_API_TIMEOUT_MS ?? 5000);
+  const classifySearch = (body) => ({
+    panels: Object.entries(panelText).filter(([, t]) => body.includes(t)).map(([k]) => k),
+    errorPanel: body.includes('data-testid="results-error"'),
+    flights: body.includes('data-testid="flight-card"'),
+    complete: body.includes('</html>'),
+  });
   const kinds = {
     'ppr-home': { w: 10, make: () => ({ path: '/' }), expect: 'Beyond every horizon' },
     'ppr-destination': { w: 8, make: (r) => ({ path: `/destinations/${DEST[Math.floor(r() * DEST.length)]}` }), expect: '</html>' },
@@ -179,7 +185,7 @@ try {
     'abort-home': { w: 1, make: (r) => ({ path: '/', abortAfterMs: 1 + Math.floor(r() * 5) }), abort: true },
   };
   const table = Object.entries(kinds).flatMap(([name, k]) => Array(k.w).fill(name));
-  const totals = { requests: 0, ok: 0, degradedExpected: 0, aborted: 0, overload503: 0, clientTimeouts: 0, unexpected: 0, identityLeaks: 0, wrongContent: 0, cancelledByServer: 0 };
+  const totals = { requests: 0, ok: 0, degradedExpected: 0, degradedTimeout: 0, retriedTransport: 0, aborted: 0, overload503: 0, clientTimeouts: 0, unexpected: 0, identityLeaks: 0, wrongContent: 0, cancelledByServer: 0 };
   result.totals = totals;
   const stats = Object.fromEntries(Object.keys(kinds).map((k) => [k, { count: 0, statuses: {}, msTotal: 0, msMax: 0, slow: 0 }]));
   result.kinds = stats;
@@ -199,6 +205,7 @@ try {
       const k = kinds[name];
       const req = k.make(r);
       const res = await send(req);
+      if (res.retried) totals.retriedTransport++;
       const s = stats[name];
       s.count++;
       totals.requests++;
@@ -213,31 +220,46 @@ try {
       if (res.status === 0) {
         if (res.error === 'timeout') totals.clientTimeouts++;
         else totals.unexpected++;
-        note({ kind: name, path: req.path, error: res.error });
+        note({ kind: name, path: req.path, error: res.error, ambiguous: res.ambiguous ?? false, conn: res.conn });
+        await capture.write({ kind: name, classification: res.error === 'timeout' ? 'client-timeout' : 'unexpected' }, res, req);
         continue;
       }
       if (res.status === 503 && res.headers['x-nextrs-error']) { totals.overload503++; continue; }
       const body = res.body.toString('utf8');
       if (req.fault) {
+        const c = classifySearch(body);
         if (res.status === 200 && body.includes(faultText[req.fault])) { totals.degradedExpected++; continue; }
+        // Velasia aborts its API call at RETAILING_API_TIMEOUT_MS and shows
+        // the timeout panel, whatever fault was asked for. Accepted only
+        // with that panel alone, no flights, a complete document, and a
+        // response that took at least the deadline.
+        if (res.status === 200 && c.errorPanel && c.panels.length === 1 && c.panels[0] === 'timeout' && !c.flights && c.complete && res.ms >= apiDeadlineMs) {
+          totals.degradedTimeout++;
+          await capture.write({ kind: name, classification: 'degraded-timeout', fault: req.fault, search: c, apiDeadlineMs }, res, req);
+          continue;
+        }
         totals.unexpected++;
-        note({ kind: name, fault: req.fault, status: res.status, body: body.slice(0, 200) });
+        note({ kind: name, fault: req.fault, status: res.status, search: c, ms: +res.ms.toFixed(1), body: body.slice(0, 200) });
+        await capture.write({ kind: name, classification: 'unexpected', fault: req.fault, search: c }, res, req);
         continue;
       }
       const okStatuses = k.ok ?? [200];
       if (!okStatuses.includes(res.status)) {
         totals.unexpected++;
         note({ kind: name, path: req.path, status: res.status, nextrsError: res.headers['x-nextrs-error'], body: body.slice(0, 200) });
+        await capture.write({ kind: name, classification: 'unexpected-status' }, res, req);
         continue;
       }
       if (k.forbid && body.includes(k.forbid)) {
         if (k.forbid === ref) totals.identityLeaks++; else totals.wrongContent++;
         note({ kind: name, forbidden: true, status: res.status });
+        await capture.write({ kind: name, classification: k.forbid === ref ? 'identity-leak' : 'wrong-content' }, res, req);
         continue;
       }
       if (res.status === 200 && k.expect && !body.includes(k.expect)) {
         if (k.identity) totals.identityLeaks++; else totals.wrongContent++;
         note({ kind: name, missing: k.expect.slice(0, 40), status: res.status, body: body.slice(0, 200) });
+        await capture.write({ kind: name, classification: k.identity ? 'identity-leak' : 'wrong-content', missing: k.expect.slice(0, 40) }, res, req);
         continue;
       }
       totals.ok++;
@@ -292,8 +314,10 @@ try {
   }
   while (existsSync(`/proc/${web.pid}`) && !readFileSync(`/proc/${web.pid}/stat`, 'utf8').includes(') Z ') && Date.now() - t0 < 30000) await sleep(50);
   result.shutdown = { ms: Date.now() - t0, readyzDuringDrain: readyDuringDrain, exited: !existsSync(`/proc/${web.pid}`) || readFileSync(`/proc/${web.pid}/stat`, 'utf8').includes(') Z ') };
+  result.client = { idleRetireMs: IDLE_RETIRE_MS, retries: retries.length, retryLog: retries.slice(0, 200), captured: capture.count };
   result.finished = new Date().toISOString();
   save();
+  if (totals.unexpected || totals.identityLeaks || totals.wrongContent) process.exitCode = 1;
   log('done', JSON.stringify(totals), JSON.stringify(result.shutdown));
 } catch (error) {
   result.fatal = String(error?.stack ?? error);

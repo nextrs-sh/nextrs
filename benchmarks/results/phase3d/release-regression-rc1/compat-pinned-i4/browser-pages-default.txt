@@ -1,0 +1,15 @@
+MATCH      hydration-and-global-css
+MATCH      client-nav-ssr-data
+MATCH      client-nav-ssg-and-isr
+MATCH      back-forward-reload
+MATCH      client-nav-ssr-redirect
+MATCH      client-nav-ssr-not-found
+ERROR      client-nav-unknown-static-path
+    page.evaluate: Execution context was destroyed, most likely because of a navigation.
+MATCH      direct-fallback-true
+MATCH      client-nav-fallback-blocking
+MATCH      preview-mode
+MATCH      protected-client-nav-anonymous
+MATCH      protected-client-nav-session
+MATCH      api-from-the-page
+browser-pages: 12 MATCH, 0 DIFF, 0 FAIL, 0 ORACLE-FAIL, 1 ERROR

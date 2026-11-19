@@ -1,0 +1,1186 @@
+{
+ "soakDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/results/phase3c/soak-i4-runA-3f42fc5/velasia",
+ "soakJson": "velasia-soak-i4.json",
+ "log": "nextrs-i4.log.gz",
+ "soakStarted": "2026-11-17T04:32:08.167Z",
+ "config": {
+  "isolates": 4,
+  "minutes": 360,
+  "idleMinutes": 10,
+  "concurrency": 8,
+  "stormEvery": 30,
+  "stormMinutes": 3,
+  "seed": 7,
+  "nextrsBin": "/home/dennispaler/Documents/OpenSource/nextrs/target/phase3c-soak/nextrs-3f42fc5",
+  "velasiaCommit": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066"
+ },
+ "totals": {
+  "requests": 377554,
+  "ok": 353970,
+  "degradedExpected": 9965,
+  "aborted": 13553,
+  "overload503": 4,
+  "clientTimeouts": 21,
+  "unexpected": 41,
+  "identityLeaks": 0,
+  "wrongContent": 0,
+  "cancelledByServer": 0
+ },
+ "apiFault": {
+  "count": 9999,
+  "statuses": {
+   "0": 29,
+   "200": 9969,
+   "503": 1
+  },
+  "msTotal": 9661169.650184967,
+  "msMax": 30059.988861,
+  "slow": 43
+ },
+ "slowestKinds": {
+  "ppr-home": {
+   "count": 46612,
+   "msMax": 25818,
+   "over5s": 5
+  },
+  "ppr-destination": {
+   "count": 37318,
+   "msMax": 57036,
+   "over5s": 5
+  },
+  "rsc-destination": {
+   "count": 14175,
+   "msMax": 33,
+   "over5s": 0
+  },
+  "static-page": {
+   "count": 13982,
+   "msMax": 59527,
+   "over5s": 1
+  },
+  "flight-search-shell": {
+   "count": 18604,
+   "msMax": 58599,
+   "over5s": 2
+  },
+  "flight-results": {
+   "count": 46203,
+   "msMax": 58975,
+   "over5s": 3
+  },
+  "fare-offers": {
+   "count": 18561,
+   "msMax": 30002,
+   "over5s": 1
+  },
+  "api-route": {
+   "count": 27899,
+   "msMax": 59638,
+   "over5s": 3
+  },
+  "booking-ssr": {
+   "count": 13758,
+   "msMax": 2112,
+   "over5s": 0
+  },
+  "account-trips": {
+   "count": 13629,
+   "msMax": 27522,
+   "over5s": 1
+  },
+  "account-anon": {
+   "count": 9314,
+   "msMax": 3961,
+   "over5s": 0
+  },
+  "manage-booking": {
+   "count": 9389,
+   "msMax": 59059,
+   "over5s": 2
+  },
+  "manage-anon": {
+   "count": 4630,
+   "msMax": 3951,
+   "over5s": 0
+  },
+  "server-action": {
+   "count": 18610,
+   "msMax": 59124,
+   "over5s": 12
+  },
+  "image-hit": {
+   "count": 37267,
+   "msMax": 27549,
+   "over5s": 3
+  },
+  "image-transform": {
+   "count": 18746,
+   "msMax": 27583,
+   "over5s": 1
+  },
+  "not-found": {
+   "count": 4793,
+   "msMax": 316,
+   "over5s": 0
+  },
+  "api-fault": {
+   "count": 9999,
+   "msMax": 30060,
+   "over5s": 43
+  },
+  "abort-results": {
+   "count": 9434,
+   "msMax": 65,
+   "over5s": 0
+  },
+  "abort-home": {
+   "count": 4631,
+   "msMax": 53,
+   "over5s": 0
+  }
+ },
+ "logLines": 20042,
+ "counts": {
+  "calendar outbound/unavailable": 3317,
+  "search outbound/unavailable": 3317,
+  "calendar outbound/bad-response": 3389,
+  "search outbound/bad-response": 3386,
+  "calendar outbound/timeout": 3315,
+  "search outbound/timeout": 3318
+ },
+ "searchMinusCalendar": {
+  "unavailable": 0,
+  "bad-response": -3,
+  "timeout": 3
+ },
+ "burstsOf8LinesIn5ms": [
+  {
+   "at": "2026-11-17T04:52:28.573Z",
+   "lines": 9,
+   "msSincePreviousLine": 671
+  },
+  {
+   "at": "2026-11-17T04:52:32.127Z",
+   "lines": 8,
+   "msSincePreviousLine": 1222
+  },
+  {
+   "at": "2026-11-17T04:54:12.472Z",
+   "lines": 11,
+   "msSincePreviousLine": 560
+  },
+  {
+   "at": "2026-11-17T05:21:37.908Z",
+   "lines": 8,
+   "msSincePreviousLine": 867
+  }
+ ],
+ "records": [
+  {
+   "record": {
+    "at": "2026-11-17T04:42:49.177Z",
+    "kind": "api-fault",
+    "fault": "malformed",
+    "status": 200,
+    "body": "<!DOCTYPE html><html lang=\"en\" class=\"mOU60a_variable qqtqVG_variable\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_"
+   },
+   "prefixClassification": {
+    "status": 200,
+    "bytes": 200,
+    "contentType": "text/html",
+    "rsc": false,
+    "titles": [],
+    "resultsErrorMarkup": 0,
+    "resultsErrorAny": 0,
+    "flightCardMarkup": 0,
+    "flightCardAny": 0,
+    "flightResultsAny": 0,
+    "flightNumbers": 0,
+    "empty": [],
+    "digest": false,
+    "errorBoundary": false,
+    "complete": false,
+    "pendingBoundaries": 0,
+    "completedBoundaries": 0,
+    "location": null,
+    "nextrsError": null,
+    "outcome": "incomplete-document"
+   },
+   "prefixVerdict": "The stored 200-byte prefix is only the start of <head>: no ERROR_COPY title, no results, no completion marker can appear in it, so the body itself cannot be classified.",
+   "logWindow": [
+    {
+     "at": "2026-11-17T04:42:41.332Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:41.338Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:41.448Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:41.448Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:41.707Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:41.707Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:41.917Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:41.928Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:42.384Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:42.387Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:42.404Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:42.404Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:42.886Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:42.886Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:42.901Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:42.915Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:43.658Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:43.658Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:43.687Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:43.687Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:43.723Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:43.723Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.247Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.247Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.300Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.302Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.551Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.554Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.752Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.756Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.798Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.798Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.817Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.819Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.949Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:44.949Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:45.125Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:45.126Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:45.945Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:45.945Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:45.983Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:45.985Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:46.298Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:46.302Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:46.527Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:46.529Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:46.558Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:42:47.145Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:42:47.434Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:42:48.334Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:42:49.147Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:42:49.147Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:49.147Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:49.147Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:42:49.150Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:49.150Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:42:49.178Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:49.178Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:42:49.234Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:49.234Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:49.552Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:49.552Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:49.808Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:49.808Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:50.014Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:50.027Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:50.050Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:50.050Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:50.170Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:42:50.174Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    }
+   ]
+  },
+  {
+   "record": {
+    "at": "2026-11-17T04:52:32.146Z",
+    "kind": "api-fault",
+    "fault": "malformed",
+    "status": 200,
+    "body": "<!DOCTYPE html><html lang=\"en\" class=\"mOU60a_variable qqtqVG_variable\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_"
+   },
+   "prefixClassification": {
+    "status": 200,
+    "bytes": 200,
+    "contentType": "text/html",
+    "rsc": false,
+    "titles": [],
+    "resultsErrorMarkup": 0,
+    "resultsErrorAny": 0,
+    "flightCardMarkup": 0,
+    "flightCardAny": 0,
+    "flightResultsAny": 0,
+    "flightNumbers": 0,
+    "empty": [],
+    "digest": false,
+    "errorBoundary": false,
+    "complete": false,
+    "pendingBoundaries": 0,
+    "completedBoundaries": 0,
+    "location": null,
+    "nextrsError": null,
+    "outcome": "incomplete-document"
+   },
+   "prefixVerdict": "The stored 200-byte prefix is only the start of <head>: no ERROR_COPY title, no results, no completion marker can appear in it, so the body itself cannot be classified.",
+   "logWindow": [
+    {
+     "at": "2026-11-17T04:52:24.330Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:24.333Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:24.778Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:24.778Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:25.271Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:25.271Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:25.825Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:25.848Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:25.965Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:26.027Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:26.179Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:26.181Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:26.420Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:26.421Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:27.082Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:27.902Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:28.573Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:28.573Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.574Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.574Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.575Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.575Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.576Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.576Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:28.578Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:28.579Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:28.720Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:28.826Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:28.922Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.922Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.952Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.952Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.977Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:28.977Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:29.119Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:29.119Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:29.241Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:30.202Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:30.381Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:30.905Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:32.127Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:32.129Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:32.129Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:32.129Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:32.129Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:32.130Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:32.131Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:32.131Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T04:52:32.935Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:32.935Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:33.081Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T04:52:33.081Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    }
+   ]
+  },
+  {
+   "record": {
+    "at": "2026-11-17T05:21:59.171Z",
+    "kind": "api-fault",
+    "fault": "malformed",
+    "status": 200,
+    "body": "<!DOCTYPE html><html lang=\"en\" class=\"mOU60a_variable qqtqVG_variable\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_"
+   },
+   "prefixClassification": {
+    "status": 200,
+    "bytes": 200,
+    "contentType": "text/html",
+    "rsc": false,
+    "titles": [],
+    "resultsErrorMarkup": 0,
+    "resultsErrorAny": 0,
+    "flightCardMarkup": 0,
+    "flightCardAny": 0,
+    "flightResultsAny": 0,
+    "flightNumbers": 0,
+    "empty": [],
+    "digest": false,
+    "errorBoundary": false,
+    "complete": false,
+    "pendingBoundaries": 0,
+    "completedBoundaries": 0,
+    "location": null,
+    "nextrsError": null,
+    "outcome": "incomplete-document"
+   },
+   "prefixVerdict": "The stored 200-byte prefix is only the start of <head>: no ERROR_COPY title, no results, no completion marker can appear in it, so the body itself cannot be classified.",
+   "logWindow": [
+    {
+     "at": "2026-11-17T05:21:51.322Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:21:52.710Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:21:53.229Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:21:59.148Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T05:21:59.148Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T05:21:59.148Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T05:21:59.148Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:21:59.149Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:21:59.150Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:21:59.155Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T05:21:59.155Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:21:59.496Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T05:21:59.497Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T05:21:59.501Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T05:21:59.513Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    }
+   ]
+  },
+  {
+   "record": {
+    "at": "2026-11-17T05:23:37.444Z",
+    "kind": "api-fault",
+    "fault": "timeout",
+    "status": 200,
+    "body": "<!DOCTYPE html><html lang=\"en\" class=\"mOU60a_variable qqtqVG_variable\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_"
+   },
+   "prefixClassification": {
+    "status": 200,
+    "bytes": 200,
+    "contentType": "text/html",
+    "rsc": false,
+    "titles": [],
+    "resultsErrorMarkup": 0,
+    "resultsErrorAny": 0,
+    "flightCardMarkup": 0,
+    "flightCardAny": 0,
+    "flightResultsAny": 0,
+    "flightNumbers": 0,
+    "empty": [],
+    "digest": false,
+    "errorBoundary": false,
+    "complete": false,
+    "pendingBoundaries": 0,
+    "completedBoundaries": 0,
+    "location": null,
+    "nextrsError": null,
+    "outcome": "incomplete-document"
+   },
+   "prefixVerdict": "The stored 200-byte prefix is only the start of <head>: no ERROR_COPY title, no results, no completion marker can appear in it, so the body itself cannot be classified.",
+   "logWindow": [
+    {
+     "at": "2026-11-17T05:23:37.407Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:23:37.408Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:23:37.408Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:23:37.411Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T05:23:37.411Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T05:23:37.428Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-17T05:23:38.429Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-17T05:23:38.429Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    }
+   ]
+  }
+ ]
+}

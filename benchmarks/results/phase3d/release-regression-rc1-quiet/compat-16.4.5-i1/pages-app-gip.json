@@ -1,0 +1,496 @@
+{
+  "summary": {
+    "title": "pages-app-gip",
+    "total": 13,
+    "match": 13,
+    "pass": 0,
+    "knownDiff": 0,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 13,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "home",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-powered-by": "Next.js"
+          },
+          "body": {
+            "title": "Home",
+            "app-user": "-",
+            "app-theme": "-",
+            "app-data": "data-ok",
+            "app-side": "server",
+            "app-path": "/",
+            "next": {
+              "page": "/",
+              "query": {},
+              "appGip": true,
+              "gip": false,
+              "gssp": false,
+              "gsp": false,
+              "err": null,
+              "props": {
+                "pageProps": {},
+                "app": {
+                  "user": null,
+                  "theme": null,
+                  "data": 0,
+                  "side": "server",
+                  "path": "/"
+                }
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "home-identity",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-powered-by": "Next.js"
+          },
+          "body": {
+            "title": "Home",
+            "app-user": "alice",
+            "app-theme": "dark",
+            "app-data": "data-ok",
+            "app-side": "server",
+            "app-path": "/",
+            "next": {
+              "page": "/",
+              "query": {},
+              "appGip": true,
+              "gip": false,
+              "gssp": false,
+              "gsp": false,
+              "err": null,
+              "props": {
+                "pageProps": {},
+                "app": {
+                  "user": "alice",
+                  "theme": "dark",
+                  "data": 0,
+                  "side": "server",
+                  "path": "/"
+                }
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "page-gip",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-powered-by": "Next.js"
+          },
+          "body": {
+            "title": "Page getInitialProps",
+            "app-user": "-",
+            "app-theme": "-",
+            "app-data": "data-ok",
+            "app-side": "server",
+            "app-path": "/gip?q=1&q=2",
+            "page-query": "{\"q\":[\"1\",\"2\"]}",
+            "page-side": "server",
+            "next": {
+              "page": "/gip",
+              "query": {
+                "q": [
+                  "1",
+                  "2"
+                ]
+              },
+              "appGip": true,
+              "gip": true,
+              "gssp": false,
+              "gsp": false,
+              "err": null,
+              "props": {
+                "pageProps": {
+                  "query": "{\"q\":[\"1\",\"2\"]}",
+                  "fromServer": true,
+                  "stamp": 0
+                },
+                "app": {
+                  "user": null,
+                  "theme": null,
+                  "data": 0,
+                  "side": "server",
+                  "path": "/gip?q=1&q=2"
+                }
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-with-app-gip",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-powered-by": "Next.js"
+          },
+          "body": {
+            "title": "SSR",
+            "app-user": "-",
+            "app-theme": "light",
+            "app-data": "data-ok",
+            "app-side": "server",
+            "app-path": "/ssr",
+            "page-theme": "light",
+            "next": {
+              "page": "/ssr",
+              "query": {},
+              "appGip": true,
+              "gip": false,
+              "gssp": true,
+              "gsp": false,
+              "err": null,
+              "props": {
+                "pageProps": {
+                  "theme": "light",
+                  "stamp": 0
+                },
+                "app": {
+                  "user": null,
+                  "theme": "light",
+                  "data": 0,
+                  "side": "server",
+                  "path": "/ssr"
+                },
+                "__N_SSP": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-with-app-gip",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "body": {
+            "title": "SSG",
+            "app-user": "-",
+            "app-theme": "-",
+            "app-data": "data-ok",
+            "app-side": "server",
+            "app-path": "/ssg",
+            "page-when": "build",
+            "next": {
+              "page": "/ssg",
+              "query": {},
+              "appGip": true,
+              "gip": false,
+              "gssp": false,
+              "gsp": true,
+              "err": null,
+              "props": {
+                "pageProps": {
+                  "when": "build"
+                },
+                "app": {
+                  "user": null,
+                  "theme": null,
+                  "data": 0,
+                  "side": "server",
+                  "path": "/ssg"
+                },
+                "__N_SSG": true
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-ssr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8"
+          },
+          "body": {
+            "pageProps": {
+              "theme": "blue",
+              "stamp": 0
+            },
+            "app": {
+              "user": "bob",
+              "theme": "blue",
+              "data": 0,
+              "side": "server",
+              "path": "/ssr"
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-ssg",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "application/json; charset=utf-8",
+            "x-nextjs-cache": "HIT"
+          },
+          "body": {
+            "pageProps": {
+              "when": "build"
+            },
+            "app": {
+              "user": null,
+              "theme": null,
+              "data": 0,
+              "side": "server",
+              "path": "/ssg"
+            },
+            "__N_SSG": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/gip?from=redirect"
+          },
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "page-throws",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 500,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-powered-by": "Next.js"
+          },
+          "body": {
+            "title": "Error 500",
+            "app-user": "-",
+            "app-theme": "-",
+            "app-data": "data-ok",
+            "app-side": "server",
+            "app-path": "/throws",
+            "error-side": "server",
+            "next": {
+              "page": "/_error",
+              "query": {},
+              "appGip": true,
+              "gip": true,
+              "gssp": false,
+              "gsp": false,
+              "err": {
+                "name": "Internal Server Error.",
+                "statusCode": 500
+              },
+              "props": {
+                "pageProps": {
+                  "statusCode": 500,
+                  "fromServer": true
+                },
+                "app": {
+                  "user": null,
+                  "theme": null,
+                  "data": 0,
+                  "side": "server",
+                  "path": "/throws"
+                }
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "not-found",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-powered-by": "Next.js"
+          },
+          "body": {
+            "title": "Error 404",
+            "app-user": "-",
+            "app-theme": "-",
+            "app-data": "data-ok",
+            "app-side": "server",
+            "app-path": "/missing",
+            "error-side": "server",
+            "next": {
+              "page": "/_error",
+              "query": {},
+              "appGip": true,
+              "gip": true,
+              "gssp": false,
+              "gsp": false,
+              "err": null,
+              "props": {
+                "pageProps": {
+                  "statusCode": 404,
+                  "fromServer": true
+                },
+                "app": {
+                  "user": null,
+                  "theme": null,
+                  "data": 0,
+                  "side": "server",
+                  "path": "/missing"
+                }
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8"
+          },
+          "body": {
+            "ok": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "post-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-powered-by": "Next.js"
+          },
+          "body": {
+            "title": "Page getInitialProps",
+            "app-user": "-",
+            "app-theme": "-",
+            "app-data": "data-ok",
+            "app-side": "server",
+            "app-path": "/gip",
+            "page-query": "{}",
+            "page-side": "server",
+            "next": {
+              "page": "/gip",
+              "query": {},
+              "appGip": true,
+              "gip": true,
+              "gssp": false,
+              "gsp": false,
+              "err": null,
+              "props": {
+                "pageProps": {
+                  "query": "{}",
+                  "fromServer": true,
+                  "stamp": 0
+                },
+                "app": {
+                  "user": null,
+                  "theme": null,
+                  "data": 0,
+                  "side": "server",
+                  "path": "/gip"
+                }
+              }
+            },
+            "app": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "concurrent-identities",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "total": 80,
+          "wrong": 0
+        },
+        "asserted": true
+      }
+    }
+  ]
+}

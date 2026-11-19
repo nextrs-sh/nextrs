@@ -29,9 +29,19 @@ import { groups as allGroups } from "./workloads.mjs";
 
 const argv = process.argv.slice(2);
 const args = {};
+// Options whose value is itself `nextrs start` arguments, so it starts
+// with "--" (e.g. --args "--image-concurrency 2"): always take the next
+// argument. Before Phase 3D the generic rule below read such a value as a
+// separate flag, and the extra arguments were silently dropped.
+const RAW_VALUE = new Set(["args", "args-b", "args-c"]);
 for (let i = 0; i < argv.length; i++) {
   if (!argv[i].startsWith("--")) continue;
   const k = argv[i].slice(2);
+  if (RAW_VALUE.has(k)) {
+    if (argv[i + 1] === undefined) throw new Error(`--${k} needs a value`);
+    args[k] = argv[++i];
+    continue;
+  }
   args[k] = argv[i + 1] && !argv[i + 1].startsWith("--") ? argv[++i] : true;
 }
 const ROOT = resolve(new URL("../..", import.meta.url).pathname);

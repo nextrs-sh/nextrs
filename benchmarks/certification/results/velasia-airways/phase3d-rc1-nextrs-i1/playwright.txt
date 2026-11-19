@@ -1,0 +1,1189 @@
+
+Running 111 tests using 2 workers
+
+  ✓    2 [desktop] › tests/e2e/booking.spec.ts:201:3 › booking: travellers, seats, extras, review › shows fare-family benefits as included and never charges for them (6.3s)
+  ✓    3 [desktop] › tests/e2e/booking.spec.ts:220:3 › booking: travellers, seats, extras, review › refreshes an expired offer at the same price and stays ready (4.5s)
+  ✓    4 [desktop] › tests/e2e/booking.spec.ts:230:3 › booking: travellers, seats, extras, review › asks before accepting a higher price, then keeps seats and extras (4.4s)
+  ✓    1 [desktop] › tests/e2e/booking.spec.ts:39:3 › booking: travellers, seats, extras, review › books two travellers from search to a validated review, with nothing ordered (15.8s)
+  ✓    5 [desktop] › tests/e2e/booking.spec.ts:248:3 › booking: travellers, seats, extras, review › sends the traveller back when their seat was taken meanwhile (3.9s)
+  ✓    6 [desktop] › tests/e2e/booking.spec.ts:262:3 › booking: travellers, seats, extras, review › never resends a change whose answer timed out, and shows what was saved (5.9s)
+  ✓    7 [desktop] › tests/e2e/booking.spec.ts:280:3 › booking: travellers, seats, extras, review › works with the keyboard alone on the seat map (2.8s)
+  ✓    9 [desktop] › tests/e2e/booking.spec.ts:330:3 › booking: travellers, seats, extras, review › redirects the US spelling of the first step (432ms)
+  -   10 [desktop] › tests/e2e/booking.spec.ts:339:3 › booking on phones @mobile › fills traveller details and chooses seats without page overflow @mobile
+  ✓   11 [desktop] › tests/e2e/branding.spec.ts:18:3 › Velasia Airways branding › shows the Velasia logo in the header and footer (1.1s)
+  -   12 [desktop] › tests/e2e/branding.spec.ts:32:3 › Velasia Airways branding › shows the Velasia logo and menu on mobile @mobile
+  ✓   13 [desktop] › tests/e2e/branding.spec.ts:42:3 › Velasia Airways branding › publishes Velasia metadata, icons, manifest, and a valid social card (1.1s)
+  ✓    8 [desktop] › tests/e2e/booking.spec.ts:307:3 › booking: travellers, seats, extras, review › shows a recovery path for deep links without a session or with steps missing (3.2s)
+  ✓   14 [desktop] › tests/e2e/branding.spec.ts:85:3 › Velasia Airways branding › keeps page-specific social titles (835ms)
+  ✓   16 [desktop] › tests/e2e/branding.spec.ts:123:3 › Velasia Airways branding › labels flights with the Velasia display flight numbers (582ms)
+  ✓   15 [desktop] › tests/e2e/branding.spec.ts:102:3 › Velasia Airways branding › never shows the retired brand on any page, in metadata, or in error states (2.6s)
+  ✓   17 [desktop] › tests/e2e/checkout.spec.ts:44:3 › checkout and payment › books a trip end to end: checkout, demo payment, durable confirmation (7.3s)
+  ✓   18 [desktop] › tests/e2e/checkout.spec.ts:118:3 › checkout and payment › a declined payment keeps the seats held and can be retried (7.4s)
+  ✓   19 [desktop] › tests/e2e/checkout.spec.ts:138:3 › checkout and payment › a timed-out payment is recovered by checking the status, never paid twice (7.1s)
+  ✓   20 [desktop] › tests/e2e/checkout.spec.ts:158:3 › checkout and payment › a pending payment is shown as pending until the provider decides (7.9s)
+  ✓   21 [desktop] › tests/e2e/checkout.spec.ts:173:3 › checkout and payment › a double submission pays once (4.8s)
+  ✓   23 [desktop] › tests/e2e/checkout.spec.ts:201:3 › checkout and payment › an expired hold releases the seats and can be held again (5.1s)
+  ✓   22 [desktop] › tests/e2e/checkout.spec.ts:186:3 › checkout and payment › an answer lost after the order was confirmed: the page finds the confirmed order (8.1s)
+  ✓   24 [desktop] › tests/e2e/checkout.spec.ts:219:3 › checkout and payment › an expired offer is refreshed at the same price at checkout (3.8s)
+  ✓   26 [desktop] › tests/e2e/checkout.spec.ts:250:3 › checkout and payment › a booking is private to the browser that made it (6.0s)
+  ✓   27 [desktop] › tests/e2e/checkout.spec.ts:268:3 › checkout and payment › checkout works with the keyboard alone (4.7s)
+  ✓   28 [desktop] › tests/e2e/checkout.spec.ts:287:3 › checkout and payment › the short /checkout URL goes to checkout (296ms)
+  -   29 [desktop] › tests/e2e/checkout.spec.ts:297:3 › checkout on phones @mobile › pays and shows the confirmation without page overflow @mobile
+  ✓   30 [desktop] › tests/e2e/destinations.spec.ts:5:3 › destinations › lists, searches, and filters destinations (1.2s)
+  ✓   31 [desktop] › tests/e2e/destinations.spec.ts:36:3 › destinations › a destination page shows guide content and a preset search (1.2s)
+  ✓   32 [desktop] › tests/e2e/destinations.spec.ts:56:3 › destinations › unknown destinations return a real 404 (347ms)
+  ✓   33 [desktop] › tests/e2e/destinations.spec.ts:64:3 › destinations › destination pages have no serious accessibility violations (2.5s)
+  ✓   34 [desktop] › tests/e2e/flights.spec.ts:40:3 › flight results › searches Manila to Singapore and shows real results (1.4s)
+  ✓   35 [desktop] › tests/e2e/flights.spec.ts:69:3 › flight results › changes the departure date from the date strip (497ms)
+  ✓   36 [desktop] › tests/e2e/flights.spec.ts:81:3 › flight results › filters to direct flights and sorts by lowest price (754ms)
+  ✓   37 [desktop] › tests/e2e/flights.spec.ts:105:3 › flight results › opens flight details with itinerary and cabin availability (576ms)
+  ✓   38 [desktop] › tests/e2e/flights.spec.ts:124:3 › round trips › selects outbound and return flights, then reviews the total (3.6s)
+  ✓   39 [desktop] › tests/e2e/flights.spec.ts:177:3 › round trips › browser back and forward keep the search and selections (2.7s)
+  ✓   40 [desktop] › tests/e2e/flights.spec.ts:206:3 › invalid searches and empty results › explains invalid search links without calling for results (468ms)
+  ✓   41 [desktop] › tests/e2e/flights.spec.ts:215:3 › invalid searches and empty results › resets unknown filter values and says so (370ms)
+  ✓   42 [desktop] › tests/e2e/flights.spec.ts:223:3 › invalid searches and empty results › explains a route Velasia does not fly, with alternatives (632ms)
+  ✓   25 [desktop] › tests/e2e/checkout.spec.ts:229:3 › checkout and payment › a higher price stops checkout until the traveller accepts it (31.1s)
+  ✓   44 [desktop] › tests/e2e/flights.spec.ts:264:3 › invalid searches and empty results › clears filters that match nothing (645ms)
+  ✓   43 [desktop] › tests/e2e/flights.spec.ts:241:3 › invalid searches and empty results › explains sold-out flights, missing cabins, and unpublished dates (839ms)
+  ✓   45 [desktop] › tests/e2e/flights.spec.ts:274:3 › retailing API failures › shows a recoverable error and never invents flights (1.0s)
+  ✓   46 [desktop] › tests/e2e/flights.spec.ts:293:3 › retailing API failures › times out slow responses and rejects malformed ones (3.2s)
+  ✓   47 [desktop] › tests/e2e/flights.spec.ts:309:3 › retailing API failures › shows a loading skeleton while results stream (2.8s)
+  ✓   48 [desktop] › tests/e2e/flights.spec.ts:322:3 › accessibility › core interactions work with the keyboard (1.1s)
+  -   50 [desktop] › tests/e2e/flights.spec.ts:383:3 › mobile › filters and sorts in a bottom sheet @mobile
+  -   51 [desktop] › tests/e2e/flights.spec.ts:401:3 › mobile › edits the search and opens details on a phone @mobile
+  -   52 [desktop] › tests/e2e/flights.spec.ts:423:3 › mobile › results pages do not overflow horizontally @mobile
+  ✓   49 [desktop] › tests/e2e/flights.spec.ts:361:3 › accessibility › results and details have no serious axe violations (2.5s)
+  ✓   53 [desktop] › tests/e2e/home.spec.ts:5:3 › homepage › loads without errors, broken images, or hydration warnings (1.8s)
+  ✓   55 [desktop] › tests/e2e/home.spec.ts:41:3 › homepage › offers a working skip link for keyboard users (1.1s)
+  ✓   56 [desktop] › tests/e2e/home.spec.ts:51:3 › homepage › respects reduced-motion preferences (745ms)
+  ✓   54 [desktop] › tests/e2e/home.spec.ts:30:3 › homepage › has no serious accessibility violations (2.1s)
+  ✓   57 [desktop] › tests/e2e/home.spec.ts:63:3 › homepage › animates the hero when motion is allowed (862ms)
+  ✓   59 [desktop] › tests/e2e/manage.spec.ts:216:3 › manage booking and accounts › a booking can’t be opened or found from another browser, by id or by reference (8.3s)
+  ✓   60 [desktop] › tests/e2e/manage.spec.ts:250:3 › manage booking and accounts › a declined change payment leaves the booking unchanged and can be discarded (6.5s)
+  ✓   58 [desktop] › tests/e2e/manage.spec.ts:75:3 › manage booking and accounts › the whole post-booking journey: change, seat, bag, account, link, sign out and in, cancel (18.3s)
+  ✓   61 [desktop] › tests/e2e/manage.spec.ts:266:3 › manage booking and accounts › Manage Booking works with the keyboard alone (6.9s)
+  ✓   63 [desktop] › tests/e2e/navigation.spec.ts:3:3 › site navigation › primary navigation reaches every section (1.7s)
+  ✓   64 [desktop] › tests/e2e/navigation.spec.ts:24:3 › site navigation › footer links resolve without dead ends (930ms)
+  ✓   65 [desktop] › tests/e2e/navigation.spec.ts:39:3 › site navigation › unknown pages return a real 404 with a friendly page (329ms)
+  -   66 [desktop] › tests/e2e/navigation.spec.ts:47:3 › site navigation › mobile navigation opens, navigates, and closes @mobile
+  ✓   62 [desktop] › tests/e2e/manage.spec.ts:289:3 › manage booking on phones @mobile › overview, change search, and cancellation fit the screen @mobile (9.4s)
+  ✓   67 [desktop] › tests/e2e/offers.spec.ts:51:3 › fare families and offers › compares fares, selects Classic, then changes to Flex (3.9s)
+  ✓   69 [desktop] › tests/e2e/offers.spec.ts:182:3 › fare families and offers › explains families that are not offered on a flight (630ms)
+  ✓   68 [desktop] › tests/e2e/offers.spec.ts:140:3 › fare families and offers › round trip with different families, a combined total, and refresh (4.3s)
+  ✓   70 [desktop] › tests/e2e/offers.spec.ts:200:3 › offer lifecycle › recovers from an expired offer at the same price (1.9s)
+  ✓   71 [desktop] › tests/e2e/offers.spec.ts:221:3 › offer lifecycle › requires explicit acceptance of a changed price (1.5s)
+  ✓   72 [desktop] › tests/e2e/offers.spec.ts:242:3 › offer lifecycle › marks a sold-out flight and keeps the other leg (2.5s)
+  ✓   73 [desktop] › tests/e2e/offers.spec.ts:263:3 › offer lifecycle › offers a way back when the shopping session has expired (1.8s)
+  ✓   74 [desktop] › tests/e2e/offers.spec.ts:276:3 › offer lifecycle › keeps each guest’s selection private (1.5s)
+  ✓   76 [desktop] › tests/e2e/offers.spec.ts:307:3 › failures and accessibility › reports a failed selection without losing the page (527ms)
+  ✓   75 [desktop] › tests/e2e/offers.spec.ts:289:3 › failures and accessibility › explains an unavailable offer service and recovers on retry (1.4s)
+  ✓   77 [desktop] › tests/e2e/offers.spec.ts:318:3 › failures and accessibility › times out gracefully (3.3s)
+  ✓   78 [desktop] › tests/e2e/offers.spec.ts:330:3 › failures and accessibility › fare pages and the trip summary have no serious axe violations (3.2s)
+  -   80 [desktop] › tests/e2e/offers.spec.ts:374:3 › mobile › compares and selects fares on a phone @mobile
+  ✓   81 [desktop] › tests/e2e/production.spec.ts:31:5 › security headers › are sent on a static page (14ms)
+  ✓   82 [desktop] › tests/e2e/production.spec.ts:31:5 › security headers › are sent on a partial prerender (21ms)
+  ✓   83 [desktop] › tests/e2e/production.spec.ts:31:5 › security headers › are sent on a request-time search (33ms)
+  ✓   84 [desktop] › tests/e2e/production.spec.ts:31:5 › security headers › are sent on a route handler (45ms)
+  ✓   85 [desktop] › tests/e2e/production.spec.ts:46:3 › security headers › keep personal pages out of shared caches and let static pages be cached (85ms)
+  ✓   79 [desktop] › tests/e2e/offers.spec.ts:346:3 › failures and accessibility › compares and chooses fares with the keyboard alone (1.2s)
+  ✓   87 [desktop] › tests/e2e/production.spec.ts:87:3 › Server Actions › refuse a cross-site request and accept the same request from the site (442ms)
+  ✓   88 [desktop] › tests/e2e/production.spec.ts:107:3 › Server Actions › refuse oversized request bodies (380ms)
+  ✘   89 [desktop] › tests/e2e/production.spec.ts:123:3 › internal endpoints › liveness, readiness, and metrics answer (the proxy hides them publicly) (70ms)
+  ✓   90 [desktop] › tests/e2e/production.spec.ts:144:1 › requests that try to reach files or internals get nothing (105ms)
+  ✓   91 [desktop] › tests/e2e/search.spec.ts:4:3 › flight search › airport autocomplete filters and supports the keyboard (1.2s)
+  ✓   92 [desktop] › tests/e2e/search.spec.ts:26:3 › flight search › rejects an incomplete search with accessible messages (1.0s)
+  ✓   86 [desktop] › tests/e2e/production.spec.ts:62:1 › a full booking runs under the Content Security Policy with no violations (5.7s)
+  ✓   93 [desktop] › tests/e2e/search.spec.ts:45:3 › flight search › rejects returning before departing (1.5s)
+  ✓   95 [desktop] › tests/e2e/search.spec.ts:96:3 › flight search › one-way trips hide the return date and swap works (1.4s)
+  ✓   94 [desktop] › tests/e2e/search.spec.ts:58:3 › flight search › a valid search navigates to /flights with serialized parameters (2.1s)
+  ✓   97 [desktop] › tests/e2e/search.spec.ts:128:3 › flight search › invalid URL parameters are validated and explained (696ms)
+  ✓   96 [desktop] › tests/e2e/search.spec.ts:116:3 › flight search › selections are preserved while navigating (1.4s)
+  -   99 [desktop] › tests/e2e/search.spec.ts:150:3 › flight search › works on a phone @mobile
+  -  100 [desktop] › tests/e2e/search.spec.ts:163:3 › mobile layout › no page overflows horizontally @mobile
+  ✓   98 [desktop] › tests/e2e/search.spec.ts:140:3 › flight search › date inputs restrict the bookable window (915ms)
+  ✓  102 [mobile] › tests/e2e/branding.spec.ts:32:3 › Velasia Airways branding › shows the Velasia logo and menu on mobile @mobile (1.3s)
+  ✓  101 [mobile] › tests/e2e/booking.spec.ts:339:3 › booking on phones @mobile › fills traveller details and chooses seats without page overflow @mobile (6.7s)
+  ✓  104 [mobile] › tests/e2e/flights.spec.ts:383:3 › mobile › filters and sorts in a bottom sheet @mobile (1.1s)
+  ✓  105 [mobile] › tests/e2e/flights.spec.ts:401:3 › mobile › edits the search and opens details on a phone @mobile (1.2s)
+  ✓  106 [mobile] › tests/e2e/flights.spec.ts:423:3 › mobile › results pages do not overflow horizontally @mobile (1.0s)
+  ✓  103 [mobile] › tests/e2e/checkout.spec.ts:297:3 › checkout on phones @mobile › pays and shows the confirmation without page overflow @mobile (9.0s)
+  ✓  108 [mobile] › tests/e2e/navigation.spec.ts:47:3 › site navigation › mobile navigation opens, navigates, and closes @mobile (1.4s)
+  ✓  109 [mobile] › tests/e2e/offers.spec.ts:374:3 › mobile › compares and selects fares on a phone @mobile (1.3s)
+  ✓  110 [mobile] › tests/e2e/search.spec.ts:150:3 › flight search › works on a phone @mobile (1.1s)
+  ✓  111 [mobile] › tests/e2e/search.spec.ts:163:3 › mobile layout › no page overflows horizontally @mobile (1.2s)
+  ✓  107 [mobile] › tests/e2e/manage.spec.ts:289:3 › manage booking on phones @mobile › overview, change search, and cancellation fit the screen @mobile (9.2s)
+
+
+  1) [desktop] › tests/e2e/production.spec.ts:123:3 › internal endpoints › liveness, readiness, and metrics answer (the proxy hides them publicly) 
+
+    Error: expect(received).not.toMatch(expected)
+
+    Expected pattern: not /ord_|ses_|VEL-/
+    Received string:      "# HELP process_resident_memory_bytes Resident set size.
+    # TYPE process_resident_memory_bytes gauge
+    process_resident_memory_bytes{service=\"web\"} 181673984
+    # HELP nodejs_heap_bytes V8 heap, used and total.
+    # TYPE nodejs_heap_bytes gauge
+    nodejs_heap_bytes{service=\"web\",kind=\"used\"} 123149976
+    nodejs_heap_bytes{service=\"web\",kind=\"total\"} 181673984
+    nodejs_heap_bytes{service=\"web\",kind=\"external\"} 27067640
+    nodejs_heap_bytes{service=\"web\",kind=\"array_buffers\"} 0
+    # HELP process_cpu_seconds_total User and system CPU time spent (a counter, exposed as a gauge for simplicity).
+    # TYPE process_cpu_seconds_total gauge
+    process_cpu_seconds_total{service=\"web\",mode=\"user\"} 34.248373
+    process_cpu_seconds_total{service=\"web\",mode=\"system\"} 2.782194
+    # HELP nodejs_eventloop_delay_seconds Event-loop delay since the previous scrape (p50, p99, max).
+    # TYPE nodejs_eventloop_delay_seconds gauge
+    nodejs_eventloop_delay_seconds{service=\"web\",quantile=\"0.5\"} 0.010191343
+    nodejs_eventloop_delay_seconds{service=\"web\",quantile=\"0.99\"} 0.020344185
+    nodejs_eventloop_delay_seconds{service=\"web\",quantile=\"1\"} 0.238572018
+    # HELP process_start_time_seconds When the process started (Unix seconds).
+    # TYPE process_start_time_seconds gauge
+    process_start_time_seconds{service=\"web\"} 1795051547.111
+    # HELP velasia_web_upstream_requests_total Retailing API calls from the storefront, by operation, method, and outcome.
+    # TYPE velasia_web_upstream_requests_total counter
+    velasia_web_upstream_requests_total{operation=\"/v1/destinations\",method=\"GET\",outcome=\"ok\"} 6
+    velasia_web_upstream_requests_total{operation=\"/v1/airports\",method=\"GET\",outcome=\"ok\"} 24
+    velasia_web_upstream_requests_total{operation=\"/v1/offers\",method=\"GET\",outcome=\"ok\"} 48
+    velasia_web_upstream_requests_total{operation=\"/v1/fare-families\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/flights\",method=\"GET\",outcome=\"ok\"} 50
+    velasia_web_upstream_requests_total{operation=\"/v1/flights/calendar\",method=\"GET\",outcome=\"ok\"} 47
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions\",method=\"POST\",outcome=\"ok\"} 36
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",outcome=\"ok\"} 46
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",outcome=\"ok\"} 231
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",outcome=\"ok\"} 33
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",outcome=\"ok\"} 23
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",outcome=\"ok\"} 52
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",outcome=\"ok\"} 25
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",outcome=\"ok\"} 43
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",outcome=\"ok\"} 28
+    velasia_web_upstream_requests_total{operation=\"/v1/ancillaries\",method=\"GET\",outcome=\"ok\"} 4
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",outcome=\"ok\"} 26
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",outcome=\"ok\"} 28
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",outcome=\"ok\"} 6
+    velasia_web_upstream_requests_total{operation=\"/v1/checkout/prepare\",method=\"POST\",outcome=\"ok\"} 18
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id\",method=\"GET\",outcome=\"ok\"} 41
+    velasia_web_upstream_requests_total{operation=\"/v1/payments/options\",method=\"GET\",outcome=\"ok\"} 47
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",outcome=\"timeout\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/destinations/cebu\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/destinations/singapore\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",outcome=\"4xx\"} 2
+    velasia_web_upstream_requests_total{operation=\"/v1/destinations/manila\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/destinations/davao\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/destinations/tokyo\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/flights/calendar\",method=\"GET\",outcome=\"5xx\"} 2
+    velasia_web_upstream_requests_total{operation=\"/v1/flights\",method=\"GET\",outcome=\"5xx\"} 2
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",outcome=\"ok\"} 14
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",outcome=\"ok\"} 3
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",outcome=\"timeout\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/checkout/prepare\",method=\"POST\",outcome=\"4xx\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/destinations/osaka\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/destinations/atlantis\",method=\"GET\",outcome=\"4xx\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/flights/:id/availability\",method=\"GET\",outcome=\"ok\"} 3
+    velasia_web_upstream_requests_total{operation=\"/v1/flights/:id\",method=\"GET\",outcome=\"ok\"} 3
+    velasia_web_upstream_requests_total{operation=\"/v1/routes\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/flights/calendar\",method=\"GET\",outcome=\"timeout\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/flights\",method=\"GET\",outcome=\"timeout\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/guest/orders\",method=\"GET\",outcome=\"ok\"} 6
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/servicing\",method=\"GET\",outcome=\"ok\"} 24
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/events\",method=\"GET\",outcome=\"ok\"} 14
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",outcome=\"ok\"} 4
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/changes\",method=\"POST\",outcome=\"ok\"} 2
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",outcome=\"ok\"} 3
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",outcome=\"ok\"} 2
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",outcome=\"ok\"} 2
+    velasia_web_upstream_requests_total{operation=\"/v1/accounts\",method=\"POST\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/me\",method=\"GET\",outcome=\"ok\"} 6
+    velasia_web_upstream_requests_total{operation=\"/v1/me/orders\",method=\"GET\",outcome=\"ok\"} 4
+    velasia_web_upstream_requests_total{operation=\"/v1/me/travellers\",method=\"GET\",outcome=\"ok\"} 3
+    velasia_web_upstream_requests_total{operation=\"/v1/me/orders/link\",method=\"POST\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/me/travellers\",method=\"POST\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/sessions/current\",method=\"DELETE\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/servicing\",method=\"GET\",outcome=\"4xx\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/sessions\",method=\"POST\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",outcome=\"ok\"} 2
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",outcome=\"ok\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/offers\",method=\"GET\",outcome=\"5xx\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/shopping-sessions\",method=\"POST\",outcome=\"5xx\"} 1
+    velasia_web_upstream_requests_total{operation=\"/v1/offers\",method=\"GET\",outcome=\"timeout\"} 1
+    # HELP velasia_web_upstream_request_duration_seconds Retailing API call latency as the storefront sees it, by operation.
+    # TYPE velasia_web_upstream_request_duration_seconds histogram
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"0.005\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"0.01\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"0.025\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"0.05\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"0.1\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"0.25\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"0.5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"1\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"2.5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"10\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations\",method=\"GET\",le=\"+Inf\"} 6
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/destinations\",method=\"GET\"} 0.049804638
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/destinations\",method=\"GET\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"0.001\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"0.0025\"} 13
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"0.005\"} 19
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"0.01\"} 21
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"0.025\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"0.05\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"0.1\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"0.25\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"0.5\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"1\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"2.5\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"5\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"10\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/airports\",method=\"GET\",le=\"+Inf\"} 24
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/airports\",method=\"GET\"} 0.106668176
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/airports\",method=\"GET\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"0.0025\"} 12
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"0.005\"} 36
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"0.01\"} 44
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"0.025\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"0.05\"} 49
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"0.1\"} 49
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"0.25\"} 49
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"0.5\"} 49
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"1\"} 49
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"2.5\"} 49
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"5\"} 50
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"10\"} 50
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/offers\",method=\"GET\",le=\"+Inf\"} 50
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/offers\",method=\"GET\"} 2.7612324470000003
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/offers\",method=\"GET\"} 50
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"0.025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/fare-families\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/fare-families\",method=\"GET\"} 0.027380253
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/fare-families\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"0.0025\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"0.005\"} 16
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"0.01\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"0.025\"} 51
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"0.05\"} 51
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"0.1\"} 51
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"0.25\"} 51
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"0.5\"} 51
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"1\"} 51
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"2.5\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"5\"} 53
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"10\"} 53
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights\",method=\"GET\",le=\"+Inf\"} 53
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/flights\",method=\"GET\"} 4.352746202000001
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/flights\",method=\"GET\"} 53
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"0.0025\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"0.005\"} 21
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"0.01\"} 45
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"0.025\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"0.05\"} 48
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"0.1\"} 48
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"0.25\"} 48
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"0.5\"} 48
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"1\"} 48
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"2.5\"} 49
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"5\"} 50
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"10\"} 50
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/calendar\",method=\"GET\",le=\"+Inf\"} 50
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/flights/calendar\",method=\"GET\"} 4.320732613000003
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/flights/calendar\",method=\"GET\"} 50
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"0.001\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"0.0025\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"0.005\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"0.01\"} 36
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"0.025\"} 36
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"0.05\"} 37
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"0.1\"} 37
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"0.25\"} 37
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"0.5\"} 37
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"1\"} 37
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"2.5\"} 37
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"5\"} 37
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"10\"} 37
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions\",method=\"POST\",le=\"+Inf\"} 37
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions\",method=\"POST\"} 0.133499586
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions\",method=\"POST\"} 37
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"0.001\"} 7
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"0.0025\"} 39
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"0.005\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"0.01\"} 45
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"0.025\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"0.05\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"0.1\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"0.25\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"0.5\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"1\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"2.5\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"5\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"10\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\",le=\"+Inf\"} 46
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\"} 0.11326800200000003
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id/select\",method=\"POST\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"0.001\"} 8
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"0.0025\"} 142
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"0.005\"} 192
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"0.01\"} 220
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"0.025\"} 231
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"0.05\"} 233
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"0.1\"} 233
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"0.25\"} 233
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"0.5\"} 233
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"1\"} 233
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"2.5\"} 233
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"5\"} 233
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"10\"} 233
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id\",method=\"GET\",le=\"+Inf\"} 233
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id\",method=\"GET\"} 0.8299687290000001
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id\",method=\"GET\"} 233
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"0.0025\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"0.005\"} 31
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"0.01\"} 32
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"0.025\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"0.05\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"0.1\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"0.25\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"0.5\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"1\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"2.5\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"5\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"10\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\",le=\"+Inf\"} 33
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\"} 0.073006454
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id/reprice\",method=\"POST\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"0.0025\"} 13
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"0.005\"} 21
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"0.01\"} 22
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"0.025\"} 23
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"0.05\"} 23
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"0.1\"} 23
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"0.25\"} 23
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"0.5\"} 23
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"1\"} 23
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"2.5\"} 23
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"5\"} 23
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"10\"} 23
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\",le=\"+Inf\"} 23
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\"} 0.07668421699999999
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id/passengers\",method=\"PUT\"} 23
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"0.0025\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"0.005\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"0.01\"} 50
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"0.025\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"0.05\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"0.1\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"0.25\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"0.5\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"1\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"2.5\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"5\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"10\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\",le=\"+Inf\"} 52
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\"} 0.18279490199999998
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id/seatmaps/:id\",method=\"GET\"} 52
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"0.0025\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"0.005\"} 22
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"0.01\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"0.025\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"0.05\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"0.1\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"0.25\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"0.5\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"1\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"2.5\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"5\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"10\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\",le=\"+Inf\"} 26
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\"} 2.5719225199999993
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id/seats\",method=\"PUT\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"0.001\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"0.0025\"} 30
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"0.005\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"0.01\"} 42
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"0.025\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"0.05\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"0.1\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"0.25\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"0.5\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"1\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"2.5\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"5\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"10\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\",le=\"+Inf\"} 43
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\"} 0.09533596100000002
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id/steps\",method=\"POST\"} 43
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"0.001\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"0.0025\"} 17
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"0.005\"} 24
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"0.01\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"0.025\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"0.05\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"0.1\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"0.25\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"0.5\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"1\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"2.5\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"5\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"10\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\",le=\"+Inf\"} 28
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\"} 0.08001787999999999
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"GET\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"0.001\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"0.0025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"0.005\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"0.01\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"0.025\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"0.05\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"0.1\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"0.25\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"0.5\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"1\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"2.5\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"5\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"10\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/ancillaries\",method=\"GET\",le=\"+Inf\"} 4
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/ancillaries\",method=\"GET\"} 0.016876718000000002
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/ancillaries\",method=\"GET\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"0.0025\"} 16
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"0.005\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"0.01\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"0.025\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"0.05\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"0.1\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"0.25\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"0.5\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"1\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"2.5\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"5\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"10\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\",le=\"+Inf\"} 26
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\"} 0.068316031
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id/validate\",method=\"POST\"} 26
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"0.0025\"} 18
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"0.005\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"0.01\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"0.025\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"0.05\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"0.1\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"0.25\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"0.5\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"1\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"2.5\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"5\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"10\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\",le=\"+Inf\"} 28
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\"} 0.07820064900000002
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id/review\",method=\"GET\"} 28
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"0.0025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"0.005\"} 5
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"0.01\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"0.025\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"0.05\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"0.1\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"0.25\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"0.5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"1\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"2.5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"10\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\",le=\"+Inf\"} 6
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\"} 0.025673721
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/shopping-sessions/:id/ancillaries\",method=\"PUT\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"0.005\"} 12
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"0.01\"} 17
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"0.025\"} 18
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"0.05\"} 19
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"0.1\"} 19
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"0.25\"} 19
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"0.5\"} 19
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"1\"} 19
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"2.5\"} 19
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"5\"} 19
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"10\"} 19
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/checkout/prepare\",method=\"POST\",le=\"+Inf\"} 19
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/checkout/prepare\",method=\"POST\"} 0.130228665
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/checkout/prepare\",method=\"POST\"} 19
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"0.0025\"} 9
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"0.005\"} 33
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"0.01\"} 39
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"0.025\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"0.05\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"0.1\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"0.25\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"0.5\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"1\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"2.5\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"5\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"10\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id\",method=\"GET\",le=\"+Inf\"} 41
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id\",method=\"GET\"} 0.15715261699999997
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id\",method=\"GET\"} 41
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"0.001\"} 12
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"0.0025\"} 30
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"0.005\"} 42
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"0.01\"} 46
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"0.025\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"0.05\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"0.1\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"0.25\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"0.5\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"1\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"2.5\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"5\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"10\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/payments/options\",method=\"GET\",le=\"+Inf\"} 47
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/payments/options\",method=\"GET\"} 0.13411124500000005
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/payments/options\",method=\"GET\"} 47
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/cebu\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/destinations/cebu\",method=\"GET\"} 0.018768421
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/destinations/cebu\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/singapore\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/destinations/singapore\",method=\"GET\"} 0.009801048
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/destinations/singapore\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/manila\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/destinations/manila\",method=\"GET\"} 0.022621788
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/destinations/manila\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/davao\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/destinations/davao\",method=\"GET\"} 0.002689663
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/destinations/davao\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"0.0025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/tokyo\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/destinations/tokyo\",method=\"GET\"} 0.002130888
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/destinations/tokyo\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"0.025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"0.05\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"0.1\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"0.25\"} 13
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"0.5\"} 13
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"1\"} 13
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"2.5\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"5\"} 15
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"10\"} 15
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\",le=\"+Inf\"} 15
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\"} 6.116113246
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/payment-attempts\",method=\"POST\"} 15
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"0.0025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"0.01\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"0.025\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"0.05\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"0.1\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"0.25\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"0.5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"1\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"2.5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"10\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/payment-status\",method=\"GET\",le=\"+Inf\"} 3
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/payment-status\",method=\"GET\"} 0.016270378000000002
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/payment-status\",method=\"GET\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/osaka\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/destinations/osaka\",method=\"GET\"} 0.009503289
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/destinations/osaka\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"0.0025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\"} 0.001339287
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/destinations/kuala-lumpur\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"0.001\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"0.0025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/destinations/atlantis\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/destinations/atlantis\",method=\"GET\"} 0.000786258
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/destinations/atlantis\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"0.0025\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"0.005\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"0.01\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"0.025\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"0.05\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"0.1\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"0.25\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"0.5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"1\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"2.5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"10\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id/availability\",method=\"GET\",le=\"+Inf\"} 3
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/flights/:id/availability\",method=\"GET\"} 0.007809897
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/flights/:id/availability\",method=\"GET\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"0.0025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"0.005\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"0.01\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"0.025\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"0.05\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"0.1\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"0.25\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"0.5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"1\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"2.5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"10\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/flights/:id\",method=\"GET\",le=\"+Inf\"} 3
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/flights/:id\",method=\"GET\"} 0.008913631
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/flights/:id\",method=\"GET\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/routes\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/routes\",method=\"GET\"} 0.005117557
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/routes\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"0.0025\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"0.005\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"0.01\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"0.025\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"0.05\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"0.1\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"0.25\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"0.5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"1\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"2.5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"10\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/guest/orders\",method=\"GET\",le=\"+Inf\"} 6
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/guest/orders\",method=\"GET\"} 0.025703373999999998
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/guest/orders\",method=\"GET\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"0.0025\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"0.005\"} 17
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"0.01\"} 21
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"0.025\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"0.05\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"0.1\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"0.25\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"0.5\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"1\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"2.5\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"5\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"10\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing\",method=\"GET\",le=\"+Inf\"} 25
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/servicing\",method=\"GET\"} 0.13979791000000003
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/servicing\",method=\"GET\"} 25
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"0.005\"} 8
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"0.01\"} 11
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"0.025\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"0.05\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"0.1\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"0.25\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"0.5\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"1\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"2.5\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"5\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"10\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/events\",method=\"GET\",le=\"+Inf\"} 14
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/events\",method=\"GET\"} 0.08838352299999998
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/events\",method=\"GET\"} 14
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"0.005\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"0.01\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"0.025\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"0.05\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"0.1\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"0.25\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"0.5\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"1\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"2.5\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"5\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"10\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\",le=\"+Inf\"} 4
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\"} 0.02007437
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/change-quotes\",method=\"POST\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"0.025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"0.05\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"0.1\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"0.25\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"0.5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"1\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"2.5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"10\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/changes\",method=\"POST\",le=\"+Inf\"} 2
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/changes\",method=\"POST\"} 0.365576106
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/changes\",method=\"POST\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\"} 0.014218025
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/seatmaps/:id\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\"} 0.004862356
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/seat-quotes\",method=\"POST\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"0.025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"0.05\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"0.1\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\"} 0.164700209
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/seat-changes\",method=\"POST\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\"} 0.011880974
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/reference/VEL-FFDKEK\",method=\"GET\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"0.01\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"0.025\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"0.05\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"0.1\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"0.25\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"0.5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"1\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"2.5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"10\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\",le=\"+Inf\"} 3
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\"} 0.019561188
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/ancillaries\",method=\"GET\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"0.005\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"0.01\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"0.025\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"0.05\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"0.1\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"0.25\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"0.5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"1\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"2.5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"10\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\",le=\"+Inf\"} 2
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\"} 0.007212141
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/ancillary-quotes\",method=\"POST\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"0.025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"0.05\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"0.1\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"0.25\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"0.5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"1\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"2.5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"10\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\",le=\"+Inf\"} 2
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\"} 0.324428241
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/ancillary-purchases\",method=\"POST\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"0.025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"0.05\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/accounts\",method=\"POST\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/accounts\",method=\"POST\"} 0.06612188
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/accounts\",method=\"POST\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"0.001\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"0.0025\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"0.005\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"0.01\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"0.025\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"0.05\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"0.1\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"0.25\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"0.5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"1\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"2.5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"5\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"10\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me\",method=\"GET\",le=\"+Inf\"} 6
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/me\",method=\"GET\"} 0.012970159
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/me\",method=\"GET\"} 6
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"0.0025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"0.005\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"0.01\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"0.025\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"0.05\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"0.1\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"0.25\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"0.5\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"1\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"2.5\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"5\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"10\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders\",method=\"GET\",le=\"+Inf\"} 4
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/me/orders\",method=\"GET\"} 0.020637212
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/me/orders\",method=\"GET\"} 4
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"0.0025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"0.005\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"0.01\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"0.025\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"0.05\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"0.1\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"0.25\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"0.5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"1\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"2.5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"5\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"10\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"GET\",le=\"+Inf\"} 3
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/me/travellers\",method=\"GET\"} 0.013267761
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/me/travellers\",method=\"GET\"} 3
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/orders/link\",method=\"POST\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/me/orders/link\",method=\"POST\"} 0.004976469
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/me/orders/link\",method=\"POST\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/me/travellers\",method=\"POST\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/me/travellers\",method=\"POST\"} 0.00379029
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/me/travellers\",method=\"POST\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"0.0025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions/current\",method=\"DELETE\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/sessions/current\",method=\"DELETE\"} 0.001802303
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/sessions/current\",method=\"DELETE\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"0.025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/sessions\",method=\"POST\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/sessions\",method=\"POST\"} 0.038699104
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/sessions\",method=\"POST\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"0.005\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"0.01\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"0.025\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"0.05\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"0.1\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"0.25\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"0.5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"1\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"2.5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"5\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"10\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\",le=\"+Inf\"} 2
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\"} 0.010106466
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/cancellation-quotes\",method=\"POST\"} 2
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\"} 0.005613381
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/servicing/:id/abandon\",method=\"POST\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"0.01\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"0.025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"0.05\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"0.1\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/cancellations\",method=\"POST\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/cancellations\",method=\"POST\"} 0.171411926
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/cancellations\",method=\"POST\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"0.001\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"0.0025\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"0.005\"} 0
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"0.01\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"0.025\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"0.05\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"0.1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"0.25\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"0.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"1\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"2.5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"5\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"10\"} 1
+    velasia_web_upstream_request_duration_seconds_bucket{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\",le=\"+Inf\"} 1
+    velasia_web_upstream_request_duration_seconds_sum{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\"} 0.006652126
+    velasia_web_upstream_request_duration_seconds_count{operation=\"/v1/orders/:id/servicing-status\",method=\"GET\"} 1
+    # HELP velasia_web_request_errors_total Server errors reported by Next.js (onRequestError), by route type.
+    # TYPE velasia_web_request_errors_total counter
+    velasia_web_request_errors_total{route_type=\"action\",render_source=\"react-server-components-payload\"} 2
+    "
+
+      138 |     );
+      139 |     expect(text).toMatch(/process_resident_memory_bytes\{service="web"\}/);
+    > 140 |     expect(text).not.toMatch(/ord_|ses_|VEL-/);
+          |                      ^
+      141 |   });
+      142 | });
+      143 |
+        at /home/dennispaler/.cache/nextrs-phase3b/velasia-src/tests/e2e/production.spec.ts:140:22
+
+    Error Context: test-results/production-internal-endpoi-00f20--proxy-hides-them-publicly--desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/production-internal-endpoi-00f20--proxy-hides-them-publicly--desktop/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/production-internal-endpoi-00f20--proxy-hides-them-publicly--desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [desktop] › tests/e2e/production.spec.ts:123:3 › internal endpoints › liveness, readiness, and metrics answer (the proxy hides them publicly) 
+  10 skipped
+  100 passed (2.8m)

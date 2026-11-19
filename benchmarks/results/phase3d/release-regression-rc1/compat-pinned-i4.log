@@ -1,0 +1,174 @@
+
+added 30 packages in 12s
+Next.js 16.4.6 built (7CBiCh4jUQvmBlH-462Jj)
+PASS  compare
+PASS  semantic
+PASS  streaming
+PASS  isolation
+PASS  features
+PASS  data
+PASS  actions
+FAIL  isr
+MATCH  fresh-prerender                              {"observed":{"statuses":[200,200],"cache":["HIT","HIT"],"cacheControl":"s-maxage=3600, stale-while-revalidate=31532400","sameGeneration":true,"renders":0},"asserted":true}
+MATCH  expired-regenerates-in-background            {"observed":{"cache":["STALE","HIT","HIT"],"generations":[0,1,1],"cacheControl":"s-maxage=2, stale-while-revalidate=31535998","renders":1},"asserted":true}
+MATCH  expired-rsc-request                          {"status":307,"location":true}
+MATCH  on-demand-params-cached                      {"observed":{"statuses":[200,200,200],"cache":["MISS","HIT","HIT"],"generations":[0,0,0],"renders":1},"asserted":true}
+MATCH  route-handler-isr                            {"type":"application/json","cache":["STALE","HIT","HIT"],"generations":[0,1,1],"cacheControl":"s-maxage=2, stale-while-revalidate=31535998","renders":1}
+DIFF   concurrent-requests-on-stale-page            {"baseline":{"allOk":true,"staleServed":true,"rendersWithinIsolates":true,"distinctGenerationsServed":true,"settledHit":"STALE"},"candidate":{"allOk":true,"staleServed":true,"rendersWithinIsolates":true,"distinctGenerationsServed":true,"settledHit":"HIT"}}
+DIFF   failed-regeneration-keeps-last-good-page     {"baseline":{"statuses":[200,200,200,200,200],"generations":[0,0,0,1,1,2],"recovered":true},"candidate":{"statuses":[200,200,200,200,200],"generations":[0,0,0,0,0,1],"recovered":true}}
+MATCH  action-revalidatePath-on-isr-page            {"observed":{"action":{"status":200,"type":"text/x-component","revalidated":"1","cacheControl":"no-cache, no-store, max-age=0, must-revalidate","rendered":true},"cache":["HIT","MISS","HIT","HIT"],"generations":[0,1,1,1],"renders":2,"mutations":1},"asserted":true}
+MATCH  action-updateTag-on-isr-page                 {"action":{"status":200,"type":"text/x-component","revalidated":"1","cacheControl":"no-cache, no-store, max-age=0, must-revalidate","rendered":true},"cache":["HIT","MISS","HIT","HIT"],"generations":[0,1,1,1],"renders":2,"mutations":1}
+MATCH  action-revalidateTag-on-isr-page             {"action":{"status":200,"type":"text/x-component","revalidated":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","rendered":false},"cache":["HIT","STALE","HIT","HIT"],"generations":[0,0,1,1],"renders":1,"mutations":1}
+MATCH  action-none-on-isr-page                      {"observed":{"action":{"status":200,"type":"text/x-component","revalidated":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","rendered":false},"cache":["HIT","HIT","HIT","HIT"],"generations":[0,0,0,0],"renders":0,"mutations":1},"asserted":true}
+MATCH  mpa-form-on-isr-page                         {"status":200,"type":"text/html","location":null,"rendered":true,"regenerated":true,"mutations":1}
+MATCH  bound-action-on-isr-page                     {"status":200,"type":"text/html","location":null,"rendered":true,"regenerated":true,"mutations":1}
+MATCH  concurrent-mutations-on-isr-page             {"observed":{"statuses":[200],"eachRecordedOnce":true,"afterwardOneGeneration":true},"asserted":true}
+PASS   revalidation-visible-in-every-isolate        {"pass":true,"distinct":1}
+PASS   on-demand-page-shared-by-isolates            {"pass":true,"renders":1}
+MATCH  cookie-dependent-page-not-shared             {"observed":{"cacheControl":"private, no-cache, no-store, max-age=0, must-revalidate","cache":null,"eachOwn":true,"anonymous":true},"asserted":true}
+MATCH  authorization-dependent-route-not-shared     {"observed":{"cacheControl":null,"eachOwn":true},"asserted":true}
+MATCH  poisoning-query-and-headers                  {"observed":{"attempts":[{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false},{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false},{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false},{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false},{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false},{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false}],"renders":0,"unchanged":true},"asserted":true}
+MATCH  rsc-and-html-entries-not-confused            {"observed":{"htmlType":"text/html","flightType":"text/x-component","vary":"rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch","afterType":"text/html","afterIsHtml":true},"asserted":true}
+18/20 pass (10 asserted), 0 ORACLE-FAIL, 2 failing (isolates=4)
+FAIL  browser
+PASS            simple-js
+PASS            simple-nojs
+PASS            form
+PASS            form-nojs
+PASS            upload
+PASS            upload-nojs
+PASS            bound
+PASS            bound-nojs
+PASS            bound-dynamic
+PASS            redirect
+PASS            redirect-nojs
+PASS            error
+PASS            error-nojs
+PASS            cookies
+PASS            client
+PASS            concurrent
+BASELINE-FAILED revalidate
+  baseline:  {"failed":"page.waitForResponse: Timeout 15000ms exceeded while waiting for event \"response\"","errors":[]}
+  candidate: {"observed":{"updateTag":{"visibleRefetch":true},"revalidatePath":{"visibleRefetch":true},"refresh":{"visibleRefetch":false},"revalidateTag":{"visibleRefetch":false},"staticPage":{"rerendered":true},"actions":[{"status":200,"revalidated":"1"},{"status":200,"revalidated":"1"},{"status":200,"revalidated":"2"},{"status":200,"revalidated":null},{"status":200,"revalidated":"1"}]},"errors":[]}
+PASS            isr-actions
+PASS            isr-actions-nojs
+18/19 scenarios equal
+PASS  features-next-start
+PASS  restart
+
+added 30 packages in 15s
+PASS  cache-components
+REPORT use-cache entry across restart: next start kept=false nextrs kept=true (next start's default handler is memory-only; NextRS keeps it with --cache-dir)
+
+added 30 packages in 6s
+PASS  proxy-default
+PASS  routing-config-default
+PASS  browser-proxy-default
+PASS  proxy-base-path
+PASS  routing-config-base-path
+PASS  browser-proxy-base-path
+PASS  proxy-trailing-slash
+PASS  routing-config-trailing-slash
+PASS  proxy-base-path-trailing-slash
+PASS  routing-config-base-path-trailing-slash
+PASS  proxy-asset-prefix
+PASS  routing-config-asset-prefix
+PASS  config-flags-asset-prefix
+PASS  proxy-case-sensitive
+PASS  routing-config-case-sensitive
+PASS  config-flags-case-sensitive
+
+added 30 packages in 29s
+PASS  pages-default
+PASS  pages-isolation
+PASS  pages-isolation-next-start
+PASS  pages-reliability
+FAIL  browser-pages-default
+MATCH      hydration-and-global-css
+MATCH      client-nav-ssr-data
+MATCH      client-nav-ssg-and-isr
+MATCH      back-forward-reload
+MATCH      client-nav-ssr-redirect
+MATCH      client-nav-ssr-not-found
+ERROR      client-nav-unknown-static-path
+    page.evaluate: Execution context was destroyed, most likely because of a navigation.
+MATCH      direct-fallback-true
+MATCH      client-nav-fallback-blocking
+MATCH      preview-mode
+MATCH      protected-client-nav-anonymous
+MATCH      protected-client-nav-session
+MATCH      api-from-the-page
+browser-pages: 12 MATCH, 0 DIFF, 0 FAIL, 0 ORACLE-FAIL, 1 ERROR
+PASS  pages-base-path
+FAIL  browser-pages-base-path
+MATCH      hydration-and-global-css
+MATCH      client-nav-ssr-data
+MATCH      client-nav-ssg-and-isr
+MATCH      back-forward-reload
+MATCH      client-nav-ssr-redirect
+MATCH      client-nav-ssr-not-found
+ERROR      client-nav-unknown-static-path
+    page.evaluate: Execution context was destroyed, most likely because of a navigation.
+MATCH      direct-fallback-true
+MATCH      client-nav-fallback-blocking
+MATCH      preview-mode
+MATCH      protected-client-nav-anonymous
+MATCH      protected-client-nav-session
+MATCH      api-from-the-page
+browser-pages: 12 MATCH, 0 DIFF, 0 FAIL, 0 ORACLE-FAIL, 1 ERROR
+PASS  pages-trailing-slash
+PASS  pages-adapter
+PASS  browser-pages-adapter
+
+added 30 packages in 14s
+PASS  hybrid
+PASS  browser-hybrid
+PASS  hybrid-adapter
+PASS  browser-hybrid-adapter
+
+added 30 packages in 1m
+PASS  pages-app-gip
+PASS  browser-pages-app-gip
+
+added 30 packages in 1m
+PASS  pages-i18n-default
+PASS  browser-pages-i18n
+PASS  pages-i18n-no-detect
+PASS  pages-i18n-base-path
+PASS  pages-i18n-domains
+PASS  pages-i18n-adapter
+
+added 30 packages in 23s
+PASS  image-default
+PASS  image-https
+PASS  browser-image-default
+FAIL  image-alt
+MATCH      remote: empty body
+MATCH      remote: corrupt served unchanged
+MATCH      remote: content type is sniffed [direct mae 0.96 ssim 0.9863; vs reference next 0.9504 nextrs 0.9509]
+MATCH      remote: oversized body
+MATCH      remote: gzip body [direct mae 0.96 ssim 0.9863; vs reference next 0.9504 nextrs 0.9509]
+ORACLE-FAIL remote: brotli body
+    next start: status: 504, want 200
+MATCH      remote: animated unchanged [direct mae 0 ssim 1]
+MATCH      remote: connection reset
+MATCH      remote: slow head times out
+MATCH      remote: slow body times out
+MATCH      remote: path outside remotePatterns
+MATCH      remote: port outside remotePatterns
+MATCH      remote: host outside remotePatterns
+MATCH      remote: https outside remotePatterns
+KNOWN-DIFF remote: credentials in url
+    (next start fetches URLs with credentials; NextRS's network policy refuses them)
+KNOWN-DIFF remote: redirect to another address
+    (next start (dangerouslyAllowLocalIP) follows a redirect to 127.0.0.2; NextRS's --net-allow-addr covers 127.0.0.1 only)
+KNOWN-DIFF remote: redirect to another host
+    (next start follows a redirect to localhost; --net-allow allows only http://127.0.0.1:<port>)
+PASS       remote: redirect to cloud metadata
+MATCH      remote: one fetch for concurrent requests
+MATCH      remote: changed source after revalidation
+image (alt): 98 MATCH (97 asserted), 1 PASS, 6 KNOWN-DIFF, 0 DIFF, 0 FAIL, 1 ORACLE-FAIL, 0 ERROR
+PASS  browser-image-alt
+PASS  image-asset-prefix
+PASS  image-asset-prefix-url
+compare: {"MATCH":41,"MATCH (header diffs)":1,"MATCH (normalized)":1}

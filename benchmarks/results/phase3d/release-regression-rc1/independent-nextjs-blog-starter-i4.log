@@ -1,0 +1,14 @@
+[nextjs-blog-starter] PASS home GET / 200/200 
+[nextjs-blog-starter] PASS post-hello-world GET /posts/hello-world 200/200 
+[nextjs-blog-starter] PASS post-dynamic-routing GET /posts/dynamic-routing 200/200 
+[nextjs-blog-starter] PASS post-preview GET /posts/preview 200/200 
+[nextjs-blog-starter] PASS post-rsc GET /posts/preview 307/307 
+[nextjs-blog-starter] PASS missing-post GET /posts/does-not-exist 500/500 
+[nextjs-blog-starter] PASS unknown-path GET /nope 404/404 
+[nextjs-blog-starter] PASS cover-image GET /assets/blog/hello-world/cover.jpg 200/200 
+[nextjs-blog-starter] PASS image-optimizer GET /_next/image?url=%2Fassets%2Fblog%2Fhello-world%2Fcover.jpg&w=640&q=75 200/200 
+[nextjs-blog-starter] PASS image-bad-width GET /_next/image?url=%2Fassets%2Fblog%2Fhello-world%2Fcover.jpg&w=641&q=75 400/400 
+[nextjs-blog-starter] PASS post-to-prerendered-dynamic-route POST /posts/hello-world 200/200 
+[nextjs-blog-starter] PASS head-home HEAD / 200/200 
+[nextjs-blog-starter] PASS post-to-static-route POST / 405/405 
+[nextjs-blog-starter] 13/13 scenarios passed

@@ -1,0 +1,49 @@
+[2m2026-11-19T02:37:33.401455Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-19T02:37:33.403211Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5439, http://127.0.0.1:5435, http://127.0.0.1:5436, http://127.0.0.1:5438
+[2m2026-11-19T02:37:33.403249Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-19T02:37:33.466718Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T02:37:33.466778Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T02:37:33.472106Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T02:37:33.472220Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T02:37:33.478922Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T02:37:33.478965Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T02:37:33.482215Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T02:37:33.482253Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-19T02:37:33.550318Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m146
+[2m2026-11-19T02:37:33.563508Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m159
+[2m2026-11-19T02:37:33.569266Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m165
+[2m2026-11-19T02:37:33.572280Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m168
+[2m2026-11-19T02:37:33.572289Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m170 [3misolates[0m[2m=[0m4
+[2m2026-11-19T02:37:33.579304Z[0m [33m WARN[0m [2mnextrs_server[0m[2m:[0m external rewrite will answer 502: its destination is not allowed [3msource[0m[2m=[0m/ext-unlisted/:path* [3mdestination[0m[2m=[0m"http://127.0.0.1:5437/echo/:path*" [3mreason[0m[2m=[0mhttp://127.0.0.1:5437 is not allowed by the NextRS network policy
+[2m2026-11-19T02:37:33.579398Z[0m [33m WARN[0m [2mnextrs_server[0m[2m:[0m external rewrite will answer 502: its destination is not allowed [3msource[0m[2m=[0m/ext-metadata [3mdestination[0m[2m=[0m"http://169.254.169.254/latest/meta-data/" [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-19T02:37:33.579489Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5434 [3mbuild_id[0m[2m=[0mepeWjLg0gxWRL04VDX2V8 [3mready_ms[0m[2m=[0m177
+[2m2026-11-19T02:37:41.100043Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76778)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78376)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:38077)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78265) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:70)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-19T02:37:41.428452Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-19T02:37:51.554734Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-19T02:37:56.104840Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-19T02:38:01.572556Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-19T02:38:06.890467Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5437/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5437 is not allowed by the NextRS network policy
+[2m2026-11-19T02:38:06.900858Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-19T02:38:06.906713Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5435/echo/host
+[2m2026-11-19T02:38:06.915389Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-19T02:38:06.921160Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-19T02:38:06.953394Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5437/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5437 is not allowed by the NextRS network policy
+[2m2026-11-19T02:38:07.329564Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m64 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-19T02:38:07.329852Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-19T02:38:07.362504Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

@@ -1,0 +1,201 @@
+name: Release build
+
+# Builds, tests and packages a release candidate or release. It publishes
+# nothing: no tag is pushed, no GitHub release is created, nothing goes to
+# crates.io or a container registry. The archive, its checksum and manifest
+# are uploaded as workflow artifacts, to verify the pipeline and clean
+# installs. Builds are not bit-for-bit reproducible, so the archive that is
+# published is the one whose binary passed the release gates, packaged by a
+# maintainer with authorization: see release/PUBLISHING.md.
+#
+# Run it from the Actions tab (workflow_dispatch) with the version, e.g.
+# 0.1.0-rc.1, on the commit to be tagged; or it runs when a maintainer
+# pushes a v* tag. It also runs on pull requests that change the release
+# tooling, packaging the workspace version, so the pipeline (and the
+# clean-install containers) are exercised before a release is cut.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without the v prefix, e.g. 0.1.0-rc.1 (must equal the Cargo workspace version)"
+        required: true
+  push:
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - ".github/workflows/release.yml"
+      - "release/**"
+      - "scripts/package-release.sh"
+      - "scripts/release-smoke.sh"
+      - "Cargo.toml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  NEXT_TELEMETRY_DISABLED: "1"
+  # The CI toolchain; the release binary is built with the same one.
+  RUST_TOOLCHAIN: "1.98.0"
+
+jobs:
+  version:
+    name: version consistency
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        name: Tag, input and Cargo workspace agree
+        env:
+          # Through the environment, never interpolated into the script.
+          INPUT_VERSION: ${{ inputs.version }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          ws=$(sed -n '/^\[workspace.package\]/,/^\[/{s/^version = "\(.*\)"/\1/p}' Cargo.toml)
+          case "$EVENT" in
+            push) v="${GITHUB_REF_NAME#v}" ;;
+            workflow_dispatch) v="$INPUT_VERSION" ;;
+            *) v="$ws" ;;
+          esac
+          echo "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.[0-9]+)?$' || { echo "not a release version: $v"; exit 1; }
+          [ "$ws" = "$v" ] || { echo "Cargo workspace version is $ws, release is $v"; exit 1; }
+          for crate in nextrs-adapter nextrs-cli nextrs-image nextrs-runtime nextrs-server; do
+            lv=$(awk -v n="$crate" '$0=="name = \""n"\"" {getline; gsub(/version = |"/,""); print; exit}' Cargo.lock)
+            [ "$lv" = "$v" ] || { echo "Cargo.lock: $crate is $lv"; exit 1; }
+          done
+          [ -f "release/v$v-release-notes.md" ] || { echo "missing release/v$v-release-notes.md"; exit 1; }
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: fmt, clippy, tests, audit
+    needs: version
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          components: rustfmt, clippy
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --locked --workspace --all-targets -- -D warnings
+      - run: cargo test --locked --workspace
+      - run: cargo audit
+
+  build:
+    name: build and package (linux x86_64)
+    needs: version
+    # The oldest supported runner: the binary's glibc floor follows it.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.20.0"
+      # No cache: a release is built from a clean target directory.
+      - name: Build (dist profile, portable, no target-cpu)
+        run: cargo build --locked --profile dist -p nextrs-cli
+      - name: Package
+        run: scripts/package-release.sh --binary target/dist/nextrs --version "${{ needs.version.outputs.version }}" --out dist --toolchain "${{ env.RUST_TOOLCHAIN }}"
+      - name: Build the smoke-test application with Next.js
+        working-directory: fixtures/next-app
+        run: npm ci --no-audit --no-fund && npx next build
+      - name: Bundle the built application (no Node.js needed to serve it)
+        run: tar -czf smoke-app.tar.gz -C fixtures next-app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
+          path: |
+            dist/*.tar.gz
+            dist/*.sha256
+            dist/*.manifest.json
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smoke-app
+          path: smoke-app.tar.gz
+          retention-days: 7
+
+  compat:
+    name: compatibility suites on the release binary (pinned, ${{ matrix.isolates }} isolate(s))
+    needs: [version, build]
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        isolates: [1, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.20.0"
+      - uses: actions/download-artifact@v4
+        with:
+          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
+          path: dist
+      - name: Verify and unpack the release archive
+        run: |
+          cd dist && sha256sum -c *.tar.gz.sha256 && tar -xzf *.tar.gz
+          echo "NEXTRS_BIN=$PWD/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64/nextrs" >> "$GITHUB_ENV"
+      - name: HTTP comparison against next start
+        run: scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --cache-components --proxy --images --pages --adapter
+      - name: Real-world proxy applications against next start
+        run: scripts/realworld-suite.sh --isolates ${{ matrix.isolates }} --out realworld-out
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-compat-i${{ matrix.isolates }}
+          path: |
+            compat-out
+            realworld-out
+          if-no-files-found: ignore
+
+  clean-install:
+    name: clean install on ${{ matrix.image }}
+    needs: [version, build]
+    runs-on: ubuntu-24.04
+    # A bare distribution image: no Rust, no Node.js, no CA bundle. Only
+    # curl is installed, without recommended packages (so no
+    # ca-certificates): TLS must work from NextRS's bundled roots.
+    container: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["ubuntu:22.04", "ubuntu:24.04", "debian:12-slim"]
+    steps:
+      - name: Install curl only
+        run: apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends curl > /dev/null
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: smoke-app
+          path: .
+      - name: Smoke test as an unprivileged user
+        run: |
+          tar -xzf smoke-app.tar.gz
+          useradd --create-home smoke
+          chown -R smoke "$PWD"
+          for t in cargo rustc node deno; do command -v "$t" && echo "unexpected: $t is installed" && exit 1; done
+          su smoke -s /bin/bash -c "scripts/release-smoke.sh --archive dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz --app next-app --json smoke-${{ strategy.job-index }}.json"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-install-${{ strategy.job-index }}
+          path: smoke-*.json
+          if-no-files-found: ignore

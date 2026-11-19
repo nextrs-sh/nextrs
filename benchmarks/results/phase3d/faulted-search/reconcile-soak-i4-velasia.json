@@ -1,0 +1,437 @@
+{
+ "soakDir": "/home/dennispaler/Documents/OpenSource/nextrs/benchmarks/results/phase3c/soak-i4/velasia",
+ "soakJson": "velasia-soak-i4.json",
+ "log": "nextrs-i4.log.gz",
+ "soakStarted": "2026-11-18T06:28:23.541Z",
+ "config": {
+  "isolates": 4,
+  "minutes": 360,
+  "idleMinutes": 10,
+  "concurrency": 8,
+  "stormEvery": 30,
+  "stormMinutes": 3,
+  "seed": 7,
+  "nextrsBin": "/home/dennispaler/Documents/OpenSource/nextrs/target/phase3c-soak/nextrs-f5c480d",
+  "velasiaCommit": "f03de91fcb2303deb38c2b0602f69e2c6ffb1066"
+ },
+ "totals": {
+  "requests": 2299599,
+  "ok": 2152467,
+  "degradedExpected": 63468,
+  "aborted": 83662,
+  "overload503": 0,
+  "clientTimeouts": 0,
+  "unexpected": 2,
+  "identityLeaks": 0,
+  "wrongContent": 0,
+  "cancelledByServer": 0
+ },
+ "apiFault": {
+  "count": 63469,
+  "statuses": {
+   "200": 63469
+  },
+  "msTotal": 55873481.970764816,
+  "msMax": 6266.591781,
+  "slow": 2
+ },
+ "slowestKinds": {
+  "ppr-home": {
+   "count": 284311,
+   "msMax": 537,
+   "over5s": 0
+  },
+  "ppr-destination": {
+   "count": 227273,
+   "msMax": 1116,
+   "over5s": 0
+  },
+  "rsc-destination": {
+   "count": 85286,
+   "msMax": 65,
+   "over5s": 0
+  },
+  "static-page": {
+   "count": 85504,
+   "msMax": 163,
+   "over5s": 0
+  },
+  "flight-search-shell": {
+   "count": 114213,
+   "msMax": 2460,
+   "over5s": 0
+  },
+  "flight-results": {
+   "count": 277287,
+   "msMax": 1365,
+   "over5s": 0
+  },
+  "fare-offers": {
+   "count": 113643,
+   "msMax": 1030,
+   "over5s": 0
+  },
+  "api-route": {
+   "count": 169582,
+   "msMax": 601,
+   "over5s": 0
+  },
+  "booking-ssr": {
+   "count": 85254,
+   "msMax": 2259,
+   "over5s": 0
+  },
+  "account-trips": {
+   "count": 84646,
+   "msMax": 4590,
+   "over5s": 0
+  },
+  "account-anon": {
+   "count": 56882,
+   "msMax": 313,
+   "over5s": 0
+  },
+  "manage-booking": {
+   "count": 56901,
+   "msMax": 2560,
+   "over5s": 0
+  },
+  "manage-anon": {
+   "count": 28211,
+   "msMax": 299,
+   "over5s": 0
+  },
+  "server-action": {
+   "count": 113424,
+   "msMax": 2524,
+   "over5s": 0
+  },
+  "image-hit": {
+   "count": 226580,
+   "msMax": 579,
+   "over5s": 0
+  },
+  "image-transform": {
+   "count": 113361,
+   "msMax": 1116,
+   "over5s": 0
+  },
+  "not-found": {
+   "count": 28484,
+   "msMax": 2243,
+   "over5s": 0
+  },
+  "api-fault": {
+   "count": 63469,
+   "msMax": 6267,
+   "over5s": 2
+  },
+  "abort-results": {
+   "count": 57015,
+   "msMax": 84,
+   "over5s": 0
+  },
+  "abort-home": {
+   "count": 28273,
+   "msMax": 74,
+   "over5s": 0
+  }
+ },
+ "logLines": 126938,
+ "counts": {
+  "calendar outbound/unavailable": 21334,
+  "search outbound/unavailable": 21334,
+  "calendar outbound/bad-response": 21229,
+  "search outbound/bad-response": 21228,
+  "calendar outbound/timeout": 20906,
+  "search outbound/timeout": 20907
+ },
+ "searchMinusCalendar": {
+  "unavailable": 0,
+  "bad-response": -1,
+  "timeout": 1
+ },
+ "burstsOf8LinesIn5ms": [
+  {
+   "at": "2026-11-18T08:20:02.738Z",
+   "lines": 10,
+   "msSincePreviousLine": 1770
+  }
+ ],
+ "records": [
+  {
+   "record": {
+    "at": "2026-11-18T08:20:02.756Z",
+    "kind": "api-fault",
+    "fault": "malformed",
+    "status": 200,
+    "body": "<!DOCTYPE html><html lang=\"en\" class=\"mOU60a_variable qqtqVG_variable\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_"
+   },
+   "prefixClassification": {
+    "status": 200,
+    "bytes": 200,
+    "contentType": "text/html",
+    "rsc": false,
+    "titles": [],
+    "resultsErrorMarkup": 0,
+    "resultsErrorAny": 0,
+    "flightCardMarkup": 0,
+    "flightCardAny": 0,
+    "flightResultsAny": 0,
+    "flightNumbers": 0,
+    "empty": [],
+    "digest": false,
+    "errorBoundary": false,
+    "complete": false,
+    "pendingBoundaries": 0,
+    "completedBoundaries": 0,
+    "location": null,
+    "nextrsError": null,
+    "outcome": "incomplete-document"
+   },
+   "prefixVerdict": "The stored 200-byte prefix is only the start of <head>: no ERROR_COPY title, no results, no completion marker can appear in it, so the body itself cannot be classified.",
+   "logWindow": [
+    {
+     "at": "2026-11-18T08:19:55.089Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:55.089Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:55.124Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:55.131Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:55.435Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:55.437Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:55.846Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:55.849Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:56.138Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:56.152Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:56.217Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:56.217Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:56.250Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:56.250Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:56.339Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:56.344Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:56.851Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:56.851Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:57.156Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:57.164Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:57.223Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:57.223Z",
+     "action": "search outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:19:58.084Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-18T08:19:58.190Z",
+     "action": "calendar outbound",
+     "kind": "bad-response",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-18T08:19:58.994Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-18T08:20:00.968Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-18T08:20:02.738Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:20:02.738Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:20:02.738Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:20:02.738Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:20:02.739Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:20:02.739Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-18T08:20:02.739Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-18T08:20:02.740Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-18T08:20:02.741Z",
+     "action": "calendar outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:20:02.741Z",
+     "action": "search outbound",
+     "kind": "timeout",
+     "pairedWithin50ms": false
+    },
+    {
+     "at": "2026-11-18T08:20:02.830Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:20:02.830Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:20:03.309Z",
+     "action": "calendar outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    },
+    {
+     "at": "2026-11-18T08:20:03.311Z",
+     "action": "search outbound",
+     "kind": "unavailable",
+     "pairedWithin50ms": true
+    }
+   ]
+  }
+ ]
+}

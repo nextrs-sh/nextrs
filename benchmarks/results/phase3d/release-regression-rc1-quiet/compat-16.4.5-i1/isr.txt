@@ -1,0 +1,21 @@
+MATCH  fresh-prerender                              {"observed":{"statuses":[200,200],"cache":["HIT","HIT"],"cacheControl":"s-maxage=3600, stale-while-revalidate=31532400","sameGeneration":true,"renders":0},"asserted":true}
+MATCH  expired-regenerates-in-background            {"observed":{"cache":["STALE","HIT","HIT"],"generations":[0,1,1],"cacheControl":"s-maxage=2, stale-while-revalidate=31535998","renders":1},"asserted":true}
+MATCH  expired-rsc-request                          {"status":307,"location":true}
+MATCH  on-demand-params-cached                      {"observed":{"statuses":[200,200,200],"cache":["MISS","HIT","HIT"],"generations":[0,0,0],"renders":1},"asserted":true}
+MATCH  route-handler-isr                            {"type":"application/json","cache":["STALE","HIT","HIT"],"generations":[0,1,1],"cacheControl":"s-maxage=2, stale-while-revalidate=31535998","renders":1}
+MATCH  concurrent-requests-on-stale-page            {"allOk":true,"staleServed":true,"rendersWithinIsolates":true,"distinctGenerationsServed":true,"settledHit":"HIT"}
+MATCH  failed-regeneration-keeps-last-good-page     {"observed":{"statuses":[200,200,200,200,200],"generations":[0,0,0,0,0,1],"recovered":true},"asserted":true}
+MATCH  action-revalidatePath-on-isr-page            {"observed":{"action":{"status":200,"type":"text/x-component","revalidated":"1","cacheControl":"no-cache, no-store, max-age=0, must-revalidate","rendered":true},"cache":["HIT","MISS","HIT","HIT"],"generations":[0,1,1,1],"renders":2,"mutations":1},"asserted":true}
+MATCH  action-updateTag-on-isr-page                 {"action":{"status":200,"type":"text/x-component","revalidated":"1","cacheControl":"no-cache, no-store, max-age=0, must-revalidate","rendered":true},"cache":["HIT","MISS","HIT","HIT"],"generations":[0,1,1,1],"renders":2,"mutations":1}
+MATCH  action-revalidateTag-on-isr-page             {"action":{"status":200,"type":"text/x-component","revalidated":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","rendered":false},"cache":["HIT","STALE","HIT","HIT"],"generations":[0,0,1,1],"renders":1,"mutations":1}
+MATCH  action-none-on-isr-page                      {"observed":{"action":{"status":200,"type":"text/x-component","revalidated":null,"cacheControl":"no-cache, no-store, max-age=0, must-revalidate","rendered":false},"cache":["HIT","HIT","HIT","HIT"],"generations":[0,0,0,0],"renders":0,"mutations":1},"asserted":true}
+MATCH  mpa-form-on-isr-page                         {"status":200,"type":"text/html","location":null,"rendered":true,"regenerated":true,"mutations":1}
+MATCH  bound-action-on-isr-page                     {"status":200,"type":"text/html","location":null,"rendered":true,"regenerated":true,"mutations":1}
+MATCH  concurrent-mutations-on-isr-page             {"observed":{"statuses":[200],"eachRecordedOnce":true,"afterwardOneGeneration":true},"asserted":true}
+PASS   revalidation-visible-in-every-isolate        {"pass":true,"distinct":1}
+PASS   on-demand-page-shared-by-isolates            {"pass":true,"renders":1}
+MATCH  cookie-dependent-page-not-shared             {"observed":{"cacheControl":"private, no-cache, no-store, max-age=0, must-revalidate","cache":null,"eachOwn":true,"anonymous":true},"asserted":true}
+MATCH  authorization-dependent-route-not-shared     {"observed":{"cacheControl":null,"eachOwn":true},"asserted":true}
+MATCH  poisoning-query-and-headers                  {"observed":{"attempts":[{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false},{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false},{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false},{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false},{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false},{"status":200,"cache":"HIT","sameGeneration":true,"setCookie":false}],"renders":0,"unchanged":true},"asserted":true}
+MATCH  rsc-and-html-entries-not-confused            {"observed":{"htmlType":"text/html","flightType":"text/x-component","vary":"rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch","afterType":"text/html","afterIsHtml":true},"asserted":true}
+20/20 pass (11 asserted), 0 ORACLE-FAIL, 0 failing (isolates=1)

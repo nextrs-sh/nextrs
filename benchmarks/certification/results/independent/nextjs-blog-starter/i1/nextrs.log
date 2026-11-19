@@ -1,10 +1,10 @@
-2026-11-18T03:13:09.163357Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
-2026-11-18T03:13:09.378094Z  INFO nextrs: shared data cache enabled persistent=false dir=
-2026-11-18T03:13:10.297654Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
-2026-11-18T03:13:10.297681Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
-2026-11-18T03:13:11.228889Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=1850
-2026-11-18T03:13:11.228923Z  INFO nextrs: embedded V8 executor ready ready_ms=2065 isolates=1
-2026-11-18T03:13:11.500122Z  INFO nextrs: nextrs ready addr=127.0.0.1:3420 build_id=1-gaQdPlKi6o960cX61Do ready_ms=2336
+2026-11-19T03:01:13.656357Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+2026-11-19T03:01:13.776290Z  INFO nextrs: shared data cache enabled persistent=false dir=
+2026-11-19T03:01:14.683774Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-19T03:01:14.683820Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-19T03:01:15.867408Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=2090
+2026-11-19T03:01:15.867447Z  INFO nextrs: embedded V8 executor ready ready_ms=2211 isolates=1
+2026-11-19T03:01:16.285806Z  INFO nextrs: nextrs ready addr=127.0.0.1:3420 build_id=1-gaQdPlKi6o960cX61Do ready_ms=2629
 Error: EACCES: permission denied (outside NextRS read roots), open '/home/dennispaler/.cache/nextrs-phase3b/independent/nextjs-blog-starter/examples/blog-starter/_posts/does-not-exist.md'
 [90m    at translateFsError (ext:nextrs/02_node.js:385:12)[39m
 [90m    at readBytes (ext:nextrs/02_node.js:418:13)[39m
@@ -47,6 +47,6 @@ Error: EACCES: permission denied (outside NextRS read roots), open '/home/dennis
   path: [32m"/home/dennispaler/.cache/nextrs-phase3b/independent/nextjs-blog-starter/examples/blog-starter/_posts/does-not-exist.md"[39m,
   digest: [32m"1549390963"[39m
 }
-2026-11-18T03:13:14.049622Z  INFO nextrs_server::serve: shutting down: no new connections; draining connections=1 grace_ms=10000
-2026-11-18T03:13:14.049860Z  INFO nextrs: stopping JavaScript isolates
-2026-11-18T03:13:14.086094Z  INFO nextrs: nextrs stopped
+2026-11-19T03:01:23.531314Z  INFO nextrs_server::serve: shutting down: no new connections; draining connections=1 grace_ms=10000
+2026-11-19T03:01:23.531566Z  INFO nextrs: stopping JavaScript isolates
+2026-11-19T03:01:23.534996Z  INFO nextrs: nextrs stopped

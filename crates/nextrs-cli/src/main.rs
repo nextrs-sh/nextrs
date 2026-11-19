@@ -317,7 +317,7 @@ impl CacheArgs {
                     )
                     .into());
                 }
-                std::fs::create_dir_all(&resolved)?;
+                create_private_dir(&resolved)?;
                 Some(resolved)
             }
         };
@@ -330,6 +330,18 @@ impl CacheArgs {
             max_response_bytes: mib(self.cache_max_response),
         }))
     }
+}
+
+/// Creates a cache directory (and any missing ancestors) with mode 0700, as
+/// `--help` promises. An existing directory keeps its mode: the operator chose
+/// it. (`create_dir_all` here used the umask, 0755 by default, and the
+/// runtime's own 0700 creation then found the directory already present.)
+fn create_private_dir(path: &std::path::Path) -> std::io::Result<()> {
+    use std::os::unix::fs::DirBuilderExt;
+    std::fs::DirBuilder::new()
+        .recursive(true)
+        .mode(0o700)
+        .create(path)
 }
 
 /// Outbound `fetch`. Denied entirely unless `--net-allow` is given.
@@ -997,4 +1009,30 @@ fn render_report(info: &BuildInfo) -> String {
         let _ = writeln!(out, "  [{level}] {}: {}", d.code, d.message);
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::create_private_dir;
+    use std::os::unix::fs::PermissionsExt;
+
+    fn mode(path: &std::path::Path) -> u32 {
+        std::fs::metadata(path).unwrap().permissions().mode() & 0o777
+    }
+
+    #[test]
+    fn cache_directories_are_created_private() {
+        let base = std::env::temp_dir().join(format!("nextrs-cli-dir-{}", std::process::id()));
+        let dir = base.join("a/b/cache");
+        create_private_dir(&dir).unwrap();
+        assert_eq!(mode(&dir), 0o700);
+        assert_eq!(mode(&base.join("a")), 0o700);
+        // An existing directory is left as the operator made it.
+        let existing = base.join("existing");
+        std::fs::create_dir(&existing).unwrap();
+        std::fs::set_permissions(&existing, std::fs::Permissions::from_mode(0o750)).unwrap();
+        create_private_dir(&existing).unwrap();
+        assert_eq!(mode(&existing), 0o750);
+        std::fs::remove_dir_all(&base).unwrap();
+    }
 }

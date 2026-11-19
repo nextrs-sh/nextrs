@@ -94,12 +94,13 @@ Rust store shared by every isolate.
 
 NextRS compared with the official Next.js server (`next start`), both
 serving the same `.next` build. The measurements cover 24 workloads; this
-chart shows one of them, measured on NextRS 0.6.0.
+chart shows one of them, measured on a pre-release build of NextRS
+(`f5c480d`), before the first release candidate, v0.1.0-rc.1.
 
 <p align="center">
   <picture>
     <source media="(max-width: 600px)" srcset=".github/assets/nextrs-benchmarks-mobile.svg">
-    <img src=".github/assets/nextrs-benchmarks.svg" width="100%" alt="Measured 2026-11-18 on NextRS 0.6.0 (f5c480d), Next.js 16.4.6: Dynamic App Router SSR (/books/[id]); throughput, CPU and memory in a closed loop with 32 connections, p95 latency in an open loop at an equal offered rate; median of 3 interleaved rounds on one machine. Throughput: next start 611 req/s, NextRS · 1 isolate 736 req/s, NextRS · 4 isolates 1,898 req/s. p95 latency: next start 6.26 ms, NextRS · 1 isolate 3.30 ms. Anonymous memory: next start 376 MiB, NextRS · 1 isolate 141 MiB. CPU per request: next start 1.92 ms, NextRS · 1 isolate 1.75 ms.">
+    <img src=".github/assets/nextrs-benchmarks.svg" width="100%" alt="Measured 2026-11-18 on NextRS f5c480d, Next.js 16.4.6: Dynamic App Router SSR (/books/[id]); throughput, CPU and memory in a closed loop with 32 connections, p95 latency in an open loop at an equal offered rate; median of 3 interleaved rounds on one machine. Throughput: next start 611 req/s, NextRS · 1 isolate 736 req/s, NextRS · 4 isolates 1,898 req/s. p95 latency: next start 6.26 ms, NextRS · 1 isolate 3.30 ms. Anonymous memory: next start 376 MiB, NextRS · 1 isolate 141 MiB. CPU per request: next start 1.92 ms, NextRS · 1 isolate 1.75 ms.">
   </picture>
 </p>
 
@@ -107,7 +108,7 @@ chart shows one of them, measured on NextRS 0.6.0.
 > **Benchmark notice.**
 > - **When and what:**
 >   - Measured on 2026-11-18.
->   - NextRS 0.6.0 (`f5c480d`), Next.js 16.4.6, Node.js 24.18.0.
+>   - NextRS pre-release build `f5c480d`, Next.js 16.4.6, Node.js 24.18.0.
 >   - One Intel Core i5-9400F host: the server on 4 CPUs, the load
 >     generator on 2 others.
 > - **How:**
@@ -128,6 +129,13 @@ chart shows one of them, measured on NextRS 0.6.0.
 
 Build NextRS from source and serve the example app in
 [`fixtures/next-app`](fixtures/next-app/).
+
+> [!NOTE]
+> Release binaries (Linux x86_64) will be published as GitHub releases,
+> starting with the v0.1.0 release candidates. The installation and
+> operations guide is [`release/README.md`](release/README.md). NextRS is
+> not published on crates.io: the crate named `nextrs` there is an
+> unrelated project, so `cargo install nextrs` does not install this one.
 
 **You need:** Rust 1.88 or later, Node.js 20.9 or later (only for
 `next build`), and network access for the first build, which downloads a
