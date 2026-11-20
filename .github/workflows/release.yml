@@ -121,6 +121,12 @@ jobs:
         run: cargo build --locked --profile dist -p nextrs-cli
       - name: Package
         run: scripts/package-release.sh --binary target/dist/nextrs --version "${{ needs.version.outputs.version }}" --out dist --toolchain "${{ env.RUST_TOOLCHAIN }}"
+      # The bundle step runs `next build` on the fixtures (in place), which the
+      # audit below needs: it serves fixtures/next-app.
+      - name: Clean-install bundle (official next build outputs; Node.js builds them, nothing serves them with it)
+        run: |
+          scripts/clean-install-bundle.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --out bundle
+          tar -czf clean-install-bundle.tar.gz bundle
       # The build machine still has the Cargo registry and this checkout, so
       # every read below would succeed: the audit fails on any attempt.
       - name: Runtime file audit (no build-machine path is touched at run time)
@@ -128,10 +134,6 @@ jobs:
           sudo apt-get install -y -qq strace > /dev/null
           scripts/runtime-file-audit.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" \
             --app fixtures/next-app --isolates 2 --out audit
-      - name: Clean-install bundle (official next build outputs; Node.js builds them, nothing serves them with it)
-        run: |
-          scripts/clean-install-bundle.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --out bundle
-          tar -czf clean-install-bundle.tar.gz bundle
       - uses: actions/upload-artifact@v4
         with:
           name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
