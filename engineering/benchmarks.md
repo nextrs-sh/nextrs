@@ -8,6 +8,7 @@ with their method, conditions and raw data.
 > configurations. They are not guarantees of production performance.
 
 - [README chart (NextRS f5c480d, 2026-11-18)](#readme-chart-nextrs-f5c480d-2026-11-18)
+- [Image capacity (Phase 3D, 2026-11-19)](#image-capacity-phase-3d-2026-11-19)
 - [Full matrix (Phase 3A, 2026-11-16)](#full-matrix-phase-3a-2026-11-16)
   - [Environment](#environment)
   - [Method](#method)
@@ -18,36 +19,110 @@ with their method, conditions and raw data.
 
 ## README chart (NextRS f5c480d, 2026-11-18)
 
-The README chart comes from the Phase 3C final run: dynamic App Router SSR
-(`/books/[id]`). It compares `next start` with NextRS at `f5c480d` (a pre-release build that
-reported version 0.0.0; the first release candidate is v0.1.0-rc.1) at 1
-and 4 isolates. Next.js is 16.4.6; the environment and method are those of
-the full matrix below. Each figure is the median of 3 interleaved rounds.
+The README chart comes from the Phase 3C final run on 2026-11-18: dynamic
+App Router SSR (`/books/[id]`), `next start` against NextRS at 1 and 4
+isolates, Next.js 16.4.6, Node.js 24.18.0. The environment and method are
+those of the [full matrix](#full-matrix-phase-3a-2026-11-16) below: server
+on CPUs 0–3 and load generator on CPUs 4–5 of one Intel Core i5-9400F,
+3 interleaved rounds, medians reported.
 
 | | `next start` | NextRS · 1 isolate | NextRS · 4 isolates |
 |---|---:|---:|---:|
-| Throughput, closed loop | 611 req/s | 736 req/s | 1,898 req/s |
+| Throughput, closed loop, 32 connections | 611 req/s | 736 req/s | 1,898 req/s |
 | p95, open loop at 305 req/s | 6.26 ms | 3.30 ms | |
 | Anonymous memory after load | 376 MiB | 141 MiB | |
 | CPU per request | 1.92 ms | 1.75 ms | |
+
+The chart's headline figures compare NextRS with one isolate (one
+JavaScript thread, as `next start` has) against `next start`. Each is
+computed from the medians in `summary.json`
+(`workloads[0].configs.<config>.<mode>.<field>`) and rounded to a whole
+percent:
+
+| Headline | Field | Computation | Exact |
+|---|---|---|---|
+| +20% throughput | `closed.rps` | 735.88 / 611.12 − 1 | +20.4 % |
+| 47% lower p95 latency | `open.p95_ms` | 1 − 3.297 / 6.263 | 47.4 % |
+| 63% less anonymous memory | `closed.anon_end_mib` | 1 − 140.7 / 375.6 | 62.5 % |
+| 9% less CPU per request | `closed.cpu_ms_per_req` | 1 − 1.7458 / 1.9224 | 9.2 % |
+| 3.11× throughput at 4 isolates | `closed.rps` | 1,898.45 / 611.12 | 3.107× |
+
+The ratios equal the `ratios` entries of the same file, whose 95 %
+bootstrap intervals all exclude 1. The four-isolate figure is not an
+equal-worker comparison: the four isolates are extra parallel JavaScript
+within the same four server CPUs, against one `next start` process. They
+use more memory than one isolate (509 MiB of anonymous memory after load).
+
+**Provenance.** The measured binary is identified by its SHA-256,
+`3597a25176abfe8a6d0bc11ba30084919ec451ab000000ef4f17b176f70d897c`
+(`environment.json`, `nextrs_binary_sha256`). The Phase 3C records give it
+as built at `f5c480d`, whose runtime code is that of `1b25c3c`; the
+workspace version at that commit was 0.0.0. `environment.json` also records
+`nextrs_dirty: true`: tracked files had uncommitted changes when the run
+started, and which ones is not recorded, so the commit alone does not
+identify the measured bytes. It is a pre-release build, not the
+v0.1.0-rc.1 release-candidate binary, and its results do not transfer to
+that binary without a new measurement.
 
 Raw data: [`benchmarks/results/phase3c/final-bench-f5c480d/readme/`](../benchmarks/results/phase3c/final-bench-f5c480d/readme/).
 The same run also re-measured ten of the matrix workloads against the
 Phase 3A and 3B builds: [`fixtures/`](../benchmarks/results/phase3c/final-bench-f5c480d/fixtures/)
 (`compare-*.md`).
 
-The chart was drawn with:
+The two SVGs ([desktop](../.github/assets/nextrs-benchmarks.svg),
+[narrow screens](../.github/assets/nextrs-benchmarks-mobile.svg)) are
+generated, not edited by hand:
 
 ```sh
 node benchmarks/phase3a/chart.mjs benchmarks/results/phase3c/final-bench-f5c480d/readme \
-  --workload app/ssr --configs next-start,nextrs-i1,nextrs-i4 \
-  --raw-url benchmarks/results/phase3c/final-bench-f5c480d/readme
+  --workload app/ssr --configs next-start,nextrs-i1,nextrs-i4
+node --test benchmarks/phase3a/chart.test.mjs
 ```
+
+`chart.mjs` reads every figure, the date, versions, hardware and the
+connection count from the result directory, and computes the percentages.
+The test checks the calculations, the labels and the SVG markup, and that
+the committed SVGs are exactly what the generator produces from this run.
+
+## Image capacity (Phase 3D, 2026-11-19)
+
+In the full matrix, `next start` transforms more images per second than
+NextRS with its defaults (`image/image-transform`: 85 against 56). Phase 3D
+measured how that depends on NextRS's number of image
+workers (`--image-concurrency`), on the same four server CPUs, closed loop,
+32 connections, medians of 3 interleaved rounds:
+
+| Server | Image workers | Images/s | CPU per image |
+|---|---|---:|---:|
+| NextRS | 2 (the default: half the CPUs) | 56 | 36.3 ms |
+| NextRS | 4 | **108** | 36.6 ms |
+| `next start` (`sharp`) | | 81–84 (median 83.5) | 46.3 ms |
+
+NextRS's workers transform images with about 20 % less CPU each than
+`sharp`; at the default two workers it completes fewer per second. More
+workers leave less CPU for rendering on a server that does both.
+
+A Phase 3C comparison of 2, 3 and 6 workers had reported no scaling. Its
+harness dropped `--args` values that begin with `--`, so every
+configuration ran the default; the bug is fixed in `run.mjs`.
+
+Binary: SHA-256 `621da204…e34bfc`, an earlier v0.1.0-rc.1 build that was
+later withdrawn (it read Deno's JavaScript from the build machine's Cargo
+registry at isolate start; see `release/WITHDRAWN.txt`). The fix changed
+only how the JavaScript runtime loads that code, not the image code, but
+these figures are not a measurement of the current release-candidate
+binary. Medians are computed from `rows.jsonl` (`rps`, `cpu_ms_per_req`).
+Raw data: [`benchmarks/results/phase3d/image-capacity/`](../benchmarks/results/phase3d/image-capacity/).
 
 ## Full matrix (Phase 3A, 2026-11-16)
 
-All 24 workloads, measured at Phase 3A (`6c1101d`, Next.js 16.4.3). The
-earlier README charts came from this run.
+All 24 workloads, measured on 2026-11-16 at Phase 3A (`6c1101d`, Next.js
+16.4.3). The earlier README charts came from this run. It is a separate
+dataset from the README chart: the 24 workloads were not re-run on
+`f5c480d` (the Phase 3C run re-measured ten of them, see above). Next.js
+16.4.3 is the version measured then, not a recommended deployment version:
+`next build` now refuses it because of security advisories
+([compatibility](compatibility.md#tested-versions-and-fixtures)).
 
 Raw data: [`benchmarks/results/phase3a/matrix-final-6c1101d/`](../benchmarks/results/phase3a/matrix-final-6c1101d/)
 (`rows.jsonl` holds one row per cell, with every round;
@@ -168,19 +243,9 @@ and the `-open` variant.
   396 MiB. At an equal offered rate, NextRS has the lower p95 (36.6 vs
   50.5 ms).
 
-  **The gap is the default worker count, not the transform.** Phase 3D
-  re-measured on the same 4 server CPUs, with the RC binary
-  ([`benchmarks/results/phase3d/image-capacity`](../benchmarks/results/phase3d/image-capacity)).
-
-  | Server | `--image-concurrency` | Images/s | CPU per image |
-  |---|---|---|---|
-  | NextRS | 2 (the default, half the CPUs) | 56 | 36.3 ms |
-  | NextRS | 4 | **108** | 36.6 ms |
-  | `next start` | — | 81–84 | 46.0 ms |
-
-  A Phase 3C comparison of 2, 3 and 6 workers had reported no scaling. Its
-  harness dropped the `--args` value, so every configuration ran the
-  default; the bug is fixed in `run.mjs`.
+  **The gap is the default worker count, not the transform:** with four
+  workers NextRS transformed 108 images/s against `next start`'s 81–84.
+  See [Image capacity](#image-capacity-phase-3d-2026-11-19).
 - **Pages SSR latency at low load.** `/ssr/whoami` awaits
   `setTimeout(resolve, 0)` in `getServerSideProps`. At 708 req/s, NextRS's
   p50 is about 1 ms higher (3.5 vs 2.5 ms), and its p95 is 5.1 vs 3.1 ms,
@@ -249,8 +314,8 @@ otherwise idle.
 
 ### Summary
 
-The README chart shows one workload: dynamic server-side rendering of
-`/books/42` (an App Router page with a route parameter) at 32 concurrent
+The README chart of that time showed one workload: dynamic server-side
+rendering of `/books/42` (an App Router page with a route parameter) at 32 concurrent
 keep-alive requests, median of 3 runs.
 
 | Metric | `next start` | NextRS | Source field |
@@ -261,10 +326,9 @@ keep-alive requests, median of 3 runs.
 | Server CPU per request | 2.38 ms | 1.88 ms | `median.server_cpu_ms_per_request` |
 
 Source: [`benchmarks/results/dynamic-20261103T233743.json`](../benchmarks/results/dynamic-20261103T233743.json),
-entries with `"path": "/books/42"` and `"concurrency": 32`. The charts
-([`nextrs-benchmarks.svg`](../.github/assets/nextrs-benchmarks.svg), and
-[`nextrs-benchmarks-mobile.svg`](../.github/assets/nextrs-benchmarks-mobile.svg)
-for narrow screens) are drawn from these values, with bars starting at zero.
+entries with `"path": "/books/42"` and `"concurrency": 32`. The charts drawn
+from these values have since been replaced; the current README chart shows
+the [2026-11-18 run](#readme-chart-nextrs-f5c480d-2026-11-18).
 
 ### Environment
 
