@@ -81,7 +81,9 @@ check dockerfile-diff "$([[ $(grep -c '^[<>]' "$OUT/Dockerfile.diff") == 1 ]] &&
 
 # 2. Build.
 t0=$(date +%s)
-$ENGINE build --pull=missing -t "$IMAGE" -f "$ctx/Dockerfile" "$ctx" > "$OUT/build.log" 2>&1
+# No --pull flag: docker build takes only true/false there (podman also
+# accepts "missing"); both pull a base image only when it is missing.
+$ENGINE build -t "$IMAGE" -f "$ctx/Dockerfile" "$ctx" > "$OUT/build.log" 2>&1
 rc=$?
 check image-build "$rc" "exit $rc in $(( $(date +%s) - t0 )) s; $(grep -E 'nextrs [0-9]|: OK$' "$OUT/build.log" | tr '\n' ' ' | head -c 200)"
 [[ $rc == 0 ]] || { tail -40 "$OUT/build.log"; exit 1; }
