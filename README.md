@@ -209,8 +209,11 @@ behavior should pass the comparison against `next start`; see
 
 ## License
 
-The workspace manifest ([`Cargo.toml`](Cargo.toml)) declares
-`MIT OR Apache-2.0`, but the repository does not include license files yet.
+Licensed under either of [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE),
+at your option, as the workspace manifest ([`Cargo.toml`](Cargo.toml))
+declares. The release archives also carry the license and notice texts of
+every bundled third-party component (`THIRD-PARTY-LICENSES.txt`), including
+V8 and the Deno JavaScript compiled into the binary.
 
 NextRS is an independent project. It is not affiliated with, endorsed by or
 supported by Vercel or the Next.js team. "Next.js" is a trademark of
