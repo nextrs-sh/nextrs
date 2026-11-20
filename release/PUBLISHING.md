@@ -27,23 +27,21 @@ artifact. Use that artifact to verify the pipeline and clean installs.
 
 ## The tested archive's records
 
-These files record the archive that passed the gates:
+**None are current.** The archive that passed the Phase 3D gates
+(`7b8746d4…`, binary `621da204…`) is **withdrawn and must not be
+published**. Its binary read deno_web's and deno_webidl's JavaScript from
+the build machine's Cargo registry at run time, so it failed on every
+other machine. The `release.yml` clean-install jobs on PR #26 found it.
+Its records were removed from `release/checksums/` and `release/manifests/`.
 
-- `release/checksums/`: its SHA-256, and the binary's;
-- `release/manifests/`: its manifest.
+**When to recreate them.** Once the fixed binary has passed the gates,
+package it with `scripts/package-release.sh`. Then commit its checksums to
+`release/checksums/` and its manifest to `release/manifests/`. Whatever is
+published must match those records.
 
-**Which commit they refer to.** The archive was packaged at commit
-`b06745d`, the manifest's `commit`. The commit that adds these records
-changes nothing else.
-
-**Repackaging is safe.** The archive is deterministic, so repackaging the
-same binary at `b06745d` gives the same SHA-256. Repackaging at a later
-commit changes `BUILD-INFO.json` and the archive's checksum, but not the
-binary's. Either way:
-
-- `binary_sha256` must stay `621da204…`;
-- whatever is published must be checked against these records, or against
-  a new manifest made the same way.
+**Test hermeticity.** A local smoke test run on the build machine cannot
+detect this class of defect. The `release.yml` clean-install jobs can.
+Alternatively, hide `~/.cargo/registry/src` while the smoke test runs.
 
 ## Steps for v0.1.0-rc.1
 
