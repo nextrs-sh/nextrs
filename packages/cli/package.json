@@ -1,0 +1,50 @@
+{
+  "name": "@nextrs/cli",
+  "version": "0.1.0-rc.1",
+  "private": true,
+  "description": "NextRS: serve an official Next.js production build from a native Rust server with embedded V8. Precompiled binary for Linux x64 (glibc 2.35+); no Rust toolchain needed.",
+  "keywords": [
+    "nextjs",
+    "next",
+    "server",
+    "ssr",
+    "rust",
+    "v8"
+  ],
+  "license": "MIT OR Apache-2.0",
+  "homepage": "https://github.com/nextrs-sh/nextrs#readme",
+  "bugs": {
+    "url": "https://github.com/nextrs-sh/nextrs/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nextrs-sh/nextrs.git",
+    "directory": "packages/cli"
+  },
+  "bin": {
+    "nextrs": "bin/nextrs"
+  },
+  "files": [
+    "bin/nextrs",
+    "native/nextrs",
+    "BUILD-INFO.json",
+    "LICENSE-MIT",
+    "LICENSE-APACHE",
+    "THIRD-PARTY.md",
+    "THIRD-PARTY-LICENSES.txt"
+  ],
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "libc": [
+    "glibc"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "tag": "next",
+    "provenance": true
+  }
+}

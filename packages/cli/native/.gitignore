@@ -1,0 +1,5 @@
+# native/nextrs is the release binary. It is never committed: it is copied,
+# byte for byte, from a verified release archive by scripts/package-npm.sh
+# into a staging directory, and packed from there.
+*
+!.gitignore
