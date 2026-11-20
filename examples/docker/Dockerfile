@@ -3,13 +3,13 @@
 # NextRS production image for a Next.js application.
 #
 # Build stage: Node.js installs the application's dependencies, including
-# @nextrs-sh/cli (a devDependency), and runs the official `next build`.
+# @nextrs/cli (a devDependency), and runs the official `next build`.
 # Runtime stage: a plain Debian image with the native NextRS binary, the
 # standalone build output and the static assets. It has no Node.js, no npm,
 # no Rust and no source code, and nothing but NextRS serves requests.
 #
 # Requirements: next.config sets `output: "standalone"`, and package.json has
-# "@nextrs-sh/cli" in devDependencies (with package-lock.json committed).
+# "@nextrs/cli" in devDependencies (with package-lock.json committed).
 # Copy this file and .dockerignore next to package.json.
 #
 #   docker build -t my-app .
@@ -31,7 +31,7 @@ COPY . .
 RUN npx next build
 # Check the installed binary against the checksum recorded in its package,
 # run it once, and stage it with its license files for the runtime image.
-RUN set -eu; pkg=node_modules/@nextrs-sh/cli; \
+RUN set -eu; pkg=node_modules/@nextrs/cli; \
     echo "$(node -p "require('./$pkg/BUILD-INFO.json').binary_sha256")  $pkg/native/nextrs" | sha256sum -c -; \
     ./node_modules/.bin/nextrs --version; \
     mkdir -p /out/doc; \

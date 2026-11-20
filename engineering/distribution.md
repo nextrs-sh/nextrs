@@ -6,7 +6,7 @@ through two channels:
 | Channel | What the user gets | Needs |
 |---|---|---|
 | GitHub release archive `nextrs-v<version>-linux-x86_64.tar.gz` | the binary, `BUILD-INFO.json`, licenses, notices, install guide | curl, tar, sha256sum |
-| npm package `@nextrs-sh/cli` | the same binary, plus a POSIX launcher for `node_modules/.bin` | Node.js and npm or pnpm (already there to run `next build`) |
+| npm package `@nextrs/cli` | the same binary, plus a POSIX launcher for `node_modules/.bin` | Node.js and npm or pnpm (already there to run `next build`) |
 
 **npm is only a way to install the binary.** The server never runs on
 Node.js, and it does not need npm at run time.
@@ -37,7 +37,7 @@ cargo build (once) ──► binary 44f04e58…  ──► gates
               nextrs-v<v>-linux-x86_64.tar.gz ──────────► GitHub release
                             │ (extract, copy bytes)
               package-npm.sh▼
-              nextrs-sh-cli-<v>.tgz ── verify (cmp) ────► npm registry (dist-tag next)
+              nextrs-cli-<v>.tgz ── verify (cmp) ────► npm registry (dist-tag next)
 ```
 
 **The tarball is deterministic.** `npm pack` writes fixed timestamps and
@@ -141,7 +141,7 @@ path itself. In a container, the native binary is copied out of the package
     or pnpm with `ERR_PNPM_TARBALL_INTEGRITY`.
   - With a warm cache, npm installed the original bytes it had verified
     before.
-- **Binary identity:** `sha256sum node_modules/@nextrs-sh/cli/native/nextrs`
+- **Binary identity:** `sha256sum node_modules/@nextrs/cli/native/nextrs`
   must equal `BUILD-INFO.json` → `binary_sha256` and the GitHub release
   manifest's `binary_sha256`.
 - **Provenance:** published from `npm-publish.yml` with `--provenance`, so
@@ -161,14 +161,14 @@ All of them run in `release.yml`, which publishes nothing.
 ## More platforms later
 
 Once more targets are built and tested, the package becomes a small
-`@nextrs-sh/cli` with one optional dependency per platform. Each platform
+`@nextrs/cli` with one optional dependency per platform. Each platform
 package carries one binary and its own `os`, `cpu` and `libc`. For example:
 
 ```text
-@nextrs-sh/cli               launcher, resolves the platform package
-@nextrs-sh/linux-x64-gnu     this release's binary
-@nextrs-sh/linux-arm64-gnu   (not built)
-@nextrs-sh/darwin-arm64      (not built)
+@nextrs/cli               launcher, resolves the platform package
+@nextrs/linux-x64-gnu     this release's binary
+@nextrs/linux-arm64-gnu   (not built)
+@nextrs/darwin-arm64      (not built)
 ```
 
 These names are an architecture sketch: nothing is reserved, and no such

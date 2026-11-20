@@ -26,7 +26,7 @@ B=/bundle R=/results
 image=$(. /etc/os-release; echo "${ID}-${VERSION_ID}")
 mkdir -p "$R"
 exec > >(tee -a "$R/$image.$MODE.log") 2>&1
-TGZ=$(ls $B/pkg/nextrs-sh-cli-*.tgz)
+TGZ=$(ls $B/pkg/nextrs-cli-*.tgz)
 EXPECT=$(sed -n 's/.*"binary_sha256": *"\([0-9a-f]*\)".*/\1/p' $B/pkg/release.manifest.json)
 VERSION=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' $B/pkg/release.manifest.json | head -1)
 export NEXT_TELEMETRY_DISABLED=1 npm_config_update_notifier=false npm_config_fund=false npm_config_audit=false
@@ -109,9 +109,9 @@ install)
   as "mkdir -p /tmp/trunc && cd /tmp/trunc && head -c 4000000 $TGZ > pkg.tgz && npm init -y > /dev/null && npm install --offline -D ./pkg.tgz > i.log 2>&1; echo exit=\$?" > /tmp/o 2>&1
   rec corrupt:truncated-npm "$(! grep -q 'exit=0' /tmp/o && grep -qiE 'TAR_BAD_ARCHIVE|zlib|unexpected end|Z_BUF_ERROR|EINTEGRITY|TAR_' /tmp/trunc/i.log; echo $?)" "npm install of a truncated tarball: $(grep -m1 -E 'npm error (code|zlib|TAR)|ERR' /tmp/trunc/i.log | head -c 200)"
   # The binary loses its executable bit, or disappears: the launcher says what to do.
-  as "mkdir -p /tmp/perm && cd /tmp/perm && npm init -y > /dev/null && npm install --offline -D $TGZ > /dev/null 2>&1 && chmod a-x node_modules/@nextrs-sh/cli/native/nextrs && ./node_modules/.bin/nextrs --version; echo exit=\$?" > /tmp/o 2>&1
+  as "mkdir -p /tmp/perm && cd /tmp/perm && npm init -y > /dev/null && npm install --offline -D $TGZ > /dev/null 2>&1 && chmod a-x node_modules/@nextrs/cli/native/nextrs && ./node_modules/.bin/nextrs --version; echo exit=\$?" > /tmp/o 2>&1
   rec broken:not-executable "$(grep -q 'exit=126' /tmp/o && grep -q 'not executable' /tmp/o; echo $?)" "$(grep -m1 'nextrs:' /tmp/o) [$(grep -o 'exit=[0-9]*' /tmp/o)]"
-  as "cd /tmp/perm && rm node_modules/@nextrs-sh/cli/native/nextrs && ./node_modules/.bin/nextrs --version; echo exit=\$?" > /tmp/o 2>&1
+  as "cd /tmp/perm && rm node_modules/@nextrs/cli/native/nextrs && ./node_modules/.bin/nextrs --version; echo exit=\$?" > /tmp/o 2>&1
   rec broken:missing-binary "$(grep -q 'exit=127' /tmp/o && grep -q 'native binary is missing' /tmp/o; echo $?)" "$(grep -m1 'nextrs:' /tmp/o) [$(grep -o 'exit=[0-9]*' /tmp/o)]"
   # Another CPU or OS, as npm and pnpm see it: process.arch / process.platform
   # are overridden in the package manager's own process (simulation; the
@@ -148,7 +148,7 @@ old-glibc)
   rec old-glibc:install $? "npm installs it (glibc's version cannot be declared in package.json): $(tail -1 /tmp/o)"
   as "cd /tmp/old && npx --no-install nextrs --version; echo exit=\$?" > /tmp/o 2>&1
   rec old-glibc:launcher "$(grep -q 'exit=1$' /tmp/o && grep -q 'needs glibc 2.35' /tmp/o; echo $?)" "$(grep -m1 'nextrs:' /tmp/o) [$(grep -o 'exit=[0-9]*' /tmp/o)]"
-  as "cd /tmp/old && node_modules/@nextrs-sh/cli/native/nextrs --version; echo exit=\$?" > /tmp/o 2>&1
+  as "cd /tmp/old && node_modules/@nextrs/cli/native/nextrs --version; echo exit=\$?" > /tmp/o 2>&1
   rec old-glibc:direct-binary "$(! grep -q 'exit=0' /tmp/o && grep -q 'GLIBC_2.3' /tmp/o; echo $?)" "without the launcher, the loader says: $(grep -m1 GLIBC /tmp/o | head -c 200) [$(grep -o 'exit=[0-9]*' /tmp/o)]"
   ;;
 

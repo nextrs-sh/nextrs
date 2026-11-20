@@ -4,7 +4,7 @@
 # problem. Runs on the builder (bash, node, npm, tar, readelf).
 #
 #   tests/npm/packaging-negative.sh --archive dist/nextrs-v0.1.0-rc.1-linux-x86_64.tar.gz \
-#     --tarball dist/npm/nextrs-sh-cli-0.1.0-rc.1.tgz [--json OUT]
+#     --tarball dist/npm/nextrs-cli-0.1.0-rc.1.tgz [--json OUT]
 #
 # The archive (with .sha256 and .manifest.json) and the tarball must be a
 # good pair: the script first checks that they pass, then breaks copies.

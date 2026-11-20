@@ -1,4 +1,4 @@
-# @nextrs-sh/cli
+# @nextrs/cli
 
 The `nextrs` command for [NextRS](https://github.com/nextrs-sh/nextrs). NextRS
 serves the output of an official Next.js `next build` from a native Rust
@@ -20,7 +20,7 @@ need no Rust toolchain.
 **npm**
 
 ```bash
-npm install --save-dev @nextrs-sh/cli@0.1.0-rc.1
+npm install --save-dev @nextrs/cli@0.1.0-rc.1
 npx next build
 npx nextrs start . --js-runtime embedded-v8
 ```
@@ -28,7 +28,7 @@ npx nextrs start . --js-runtime embedded-v8
 **pnpm**
 
 ```bash
-pnpm add -D @nextrs-sh/cli@0.1.0-rc.1
+pnpm add -D @nextrs/cli@0.1.0-rc.1
 pnpm exec next build
 pnpm exec nextrs start . --js-runtime embedded-v8
 ```
@@ -37,7 +37,7 @@ pnpm exec nextrs start . --js-runtime embedded-v8
 run `next build`):
 
 ```bash
-npx --yes @nextrs-sh/cli@0.1.0-rc.1 start . --js-runtime embedded-v8
+npx --yes @nextrs/cli@0.1.0-rc.1 start . --js-runtime embedded-v8
 ```
 
 The application is served at <http://127.0.0.1:3000>.
@@ -70,8 +70,8 @@ executable. No JavaScript launcher runs.
 **Checking the binary:**
 
 ```bash
-sha256sum node_modules/@nextrs-sh/cli/bin/nextrs
-node -p "require('@nextrs-sh/cli/BUILD-INFO.json').binary_sha256"
+sha256sum node_modules/@nextrs/cli/bin/nextrs
+node -p "require('@nextrs/cli/BUILD-INFO.json').binary_sha256"
 ```
 
 The two values must be equal. They must also equal the `binary_sha256` of
@@ -118,7 +118,7 @@ In production, start the native binary itself, not through `npx` or
 pnpm's `node_modules/.bin/nextrs` is a shell shim that also stays running.
 
 ```bash
-exec ./node_modules/@nextrs-sh/cli/bin/nextrs start . --host 0.0.0.0 --js-runtime embedded-v8
+exec ./node_modules/@nextrs/cli/bin/nextrs start . --host 0.0.0.0 --js-runtime embedded-v8
 ```
 
 **In a container image,** copy the binary out of `node_modules` in the build

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Developer-installation test of the @nextrs-sh/cli tarball in one project.
+# Developer-installation test of the @nextrs/cli tarball in one project.
 #
 #   scripts/npm-install-suite.sh --pm npm|pnpm --project DIR --tarball FILE.tgz \
 #     --expect-sha256 SHA --probe tests/npm/probe.mjs [--port 6300] [--json OUT]
@@ -85,18 +85,18 @@ else
   "$PNPM" add -D --offline "$TARBALL" > "$LOGS/install.log" 2>&1
 fi
 check install $? "$(tail -3 "$LOGS/install.log" | tr '\n' ' ')"
-pj=node_modules/@nextrs-sh/cli/package.json
+pj=node_modules/@nextrs/cli/package.json
 scripts=$(node -e 'const p=JSON.parse(require("fs").readFileSync(process.argv[1]));console.log(Object.keys({...p.scripts}).join(" "))' "$pj" 2>&1)
 noisy=$(grep -iE 'node-gyp|gyp info|prebuild|cargo|rustc|postinstall|preinstall|> .*install$|downloading|fetching binary' "$LOGS/install.log" | head -3)
 check no-lifecycle "$([[ -z $scripts && -z $noisy ]]; echo $?)" "package scripts: ${scripts:-none}; install log: ${noisy:-no script, compiler or download lines}"
 
-native=$(readlink -f node_modules/@nextrs-sh/cli/native/nextrs)
+native=$(readlink -f node_modules/@nextrs/cli/native/nextrs)
 sha=$(sha256sum "$native" 2>/dev/null | cut -d' ' -f1)
 check native-binary "$([[ $sha == "$EXPECT" && -x $native ]]; echo $?)" "$native sha256 ${sha:-missing}, mode $(stat -c %a "$native" 2>/dev/null)"
 link=node_modules/.bin/nextrs
 if [[ -L $link ]]; then
   how="symlink -> $(readlink "$link")"
-  [[ $(readlink -f "$link") == "$(readlink -f node_modules/@nextrs-sh/cli/bin/nextrs)" ]]; ok=$?
+  [[ $(readlink -f "$link") == "$(readlink -f node_modules/@nextrs/cli/bin/nextrs)" ]]; ok=$?
 else
   how="shim: $(grep -E '^ *exec ' "$link" | head -1 | sed 's/^ *//' | cut -c1-120)"
   grep -qE '^ *exec .*/bin/nextrs" "\$@"' "$link"; ok=$?

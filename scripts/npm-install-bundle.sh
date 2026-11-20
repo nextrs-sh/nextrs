@@ -5,7 +5,7 @@
 # test scripts. The containers see nothing else: no checkout, no Rust, no
 # Cargo registry, no build of the application.
 #
-#   scripts/npm-install-bundle.sh --tarball dist/npm/nextrs-sh-cli-0.1.0-rc.1.tgz \
+#   scripts/npm-install-bundle.sh --tarball dist/npm/nextrs-cli-0.1.0-rc.1.tgz \
 #     --manifest dist/nextrs-v0.1.0-rc.1-linux-x86_64.manifest.json --out DIR \
 #     [--node-version 22.20.0] [--node-dist node-vX-linux-x64.tar.xz --node-shasums SHASUMS256.txt] \
 #     [--pnpm-version 10.23.0]

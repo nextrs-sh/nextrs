@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 # Builds and tests the documented multi-stage Dockerfile (examples/docker)
-# with the @nextrs-sh/cli tarball under test and fixtures/next-app.
+# with the @nextrs/cli tarball under test and fixtures/next-app.
 #
-#   scripts/npm-docker-example.sh --tarball dist/npm/nextrs-sh-cli-0.1.0-rc.1.tgz \
+#   scripts/npm-docker-example.sh --tarball dist/npm/nextrs-cli-0.1.0-rc.1.tgz \
 #     --expect-sha256 SHA --out DIR [--engine docker|podman] [--port 6400] [--keep-image]
 #
 # The build context is fixtures/next-app's source with:
 #   - next.config.ts set to output: "standalone" (as the Dockerfile requires);
-#   - @nextrs-sh/cli added to devDependencies from the tarball (the lockfile
-#     records it as file:nextrs-sh-cli-<version>.tgz);
+#   - @nextrs/cli added to devDependencies from the tarball (the lockfile
+#     records it as file:nextrs-cli-<version>.tgz);
 #   - one line added to a copy of the Dockerfile, so that `npm ci` can read
 #     that tarball before the package is on the registry:
-#       COPY nextrs-sh-cli-<version>.tgz ./
+#       COPY nextrs-cli-<version>.tgz ./
 #     This is the only difference from examples/docker/Dockerfile; it is
 #     recorded in DIR/Dockerfile.diff.
 #
 # Checks (JSON in DIR/docker-example.json): the image builds; the runtime
 # image has no node, npm, npx, corepack, cargo or rustc, and no
-# node_modules/.bin/nextrs or @nextrs-sh/cli; /usr/local/bin/nextrs is the
+# node_modules/.bin/nextrs or @nextrs/cli; /usr/local/bin/nextrs is the
 # release binary; PID 1 is nextrs; the server answers readiness, SSR, RSC, a
 # Server Action and a static file; `stop` (SIGTERM) gives exit 0 and a
 # graceful stop. Needs node on the host (for npm and the probes).
@@ -73,7 +73,7 @@ EOF
 cp "$TARBALL" "$ctx/"
 tgz=$(basename "$TARBALL")
 (cd "$ctx" && npm install --save-dev --package-lock-only --no-audit --no-fund --loglevel=error "./$tgz") > "$OUT/lock.log" 2>&1
-check lockfile $? "package.json devDependencies: $(node -p "JSON.stringify(require('$ctx/package.json').devDependencies['@nextrs-sh/cli'])")"
+check lockfile $? "package.json devDependencies: $(node -p "JSON.stringify(require('$ctx/package.json').devDependencies['@nextrs/cli'])")"
 cp "$ROOT/examples/docker/.dockerignore" "$ctx/.dockerignore"
 sed "s#^RUN npm ci --no-audit --no-fund\$#COPY $tgz ./\n&#" "$ROOT/examples/docker/Dockerfile" > "$ctx/Dockerfile"
 diff "$ROOT/examples/docker/Dockerfile" "$ctx/Dockerfile" > "$OUT/Dockerfile.diff"
@@ -91,10 +91,10 @@ check image-size 0 "$(( size / 1048576 )) MiB (runtime stage)"
 # 3. What the runtime image contains.
 inv=$($ENGINE run --rm --entrypoint /bin/sh "$IMAGE" -c '
   for t in node nodejs npm npx corepack pnpm cargo rustc; do command -v "$t" && echo "found $t"; done
-  find / -xdev \( -path /proc -o -path /sys \) -prune -o \( -name "@nextrs-sh" -o -path "*/node_modules/.bin/nextrs" -o -name ".cargo" -o -name "Cargo.toml" \) -print 2>/dev/null
+  find / -xdev \( -path /proc -o -path /sys \) -prune -o \( -name "@nextrs" -o -path "*/node_modules/.bin/nextrs" -o -name ".cargo" -o -name "Cargo.toml" \) -print 2>/dev/null
   echo "glibc: $(getconf GNU_LIBC_VERSION)"; echo "user: $(id -un)"; sha256sum /usr/local/bin/nextrs; ls /app; ls /usr/share/doc/nextrs' 2>&1)
 echo "$inv" > "$OUT/inventory.txt"
-bad=$(echo "$inv" | grep -E '^found |@nextrs-sh|node_modules/.bin/nextrs|\.cargo|Cargo.toml' | tr '\n' ' ')
+bad=$(echo "$inv" | grep -E '^found |@nextrs|node_modules/.bin/nextrs|\.cargo|Cargo.toml' | tr '\n' ' ')
 check no-node-no-rust "$([[ -z $bad ]]; echo $?)" "${bad:-no node, npm, npx, corepack, pnpm, cargo or rustc; no npm package or Rust files}; $(echo "$inv" | grep -E '^(glibc|user):' | tr '\n' ' ')"
 check binary-sha256 "$(echo "$inv" | grep -q "^$EXPECT  /usr/local/bin/nextrs"; echo $?)" "$(echo "$inv" | grep /usr/local/bin/nextrs)"
 check license-files "$(echo "$inv" | grep -q THIRD-PARTY-LICENSES.txt && echo "$inv" | grep -q LICENSE-APACHE; echo $?)" "/usr/share/doc/nextrs: $(echo "$inv" | grep -E 'LICENSE|THIRD|BUILD-INFO' | tr '\n' ' ')"

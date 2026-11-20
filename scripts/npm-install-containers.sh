@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# npm and pnpm installation of the @nextrs-sh/cli tarball in fresh
+# npm and pnpm installation of the @nextrs/cli tarball in fresh
 # distribution containers, as a developer would do it, with no Rust anywhere.
 #
 #   scripts/npm-install-containers.sh --bundle DIR --results DIR \

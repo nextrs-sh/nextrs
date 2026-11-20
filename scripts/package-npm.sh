@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the @nextrs-sh/cli npm tarball from a verified NextRS release archive.
+# Build the @nextrs/cli npm tarball from a verified NextRS release archive.
 #
 #   scripts/package-npm.sh --archive dist/nextrs-v0.1.0-rc.1-linux-x86_64.tar.gz \
 #     [--expect-binary-sha256 SHA] [--out dist/npm] [--allow-dirty]
@@ -29,9 +29,9 @@
 #     the npm manifest then says dirty: true).
 #
 # Produces, in --out:
-#   nextrs-sh-cli-<version>.tgz          the npm tarball (npm pack, deterministic)
-#   nextrs-sh-cli-<version>.tgz.sha256   its checksum (sha256sum format)
-#   nextrs-sh-cli-<version>.npm.json     package, integrity, binary and archive identity
+#   nextrs-cli-<version>.tgz          the npm tarball (npm pack, deterministic)
+#   nextrs-cli-<version>.tgz.sha256   its checksum (sha256sum format)
+#   nextrs-cli-<version>.npm.json     package, integrity, binary and archive identity
 # and then runs scripts/verify-npm-package.sh on the tarball (results in <name>.verify.json).
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
@@ -140,7 +140,7 @@ EOF
 #    nothing outside the stage can change it.
 mkdir -p "$OUT"
 OUT=$(cd "$OUT" && pwd)
-name="nextrs-sh-cli-$version"
+name="nextrs-cli-$version"
 rm -f "$OUT/$name.tgz"
 (cd "$pkg" && npm_config_userconfig=/dev/null npm pack --ignore-scripts --pack-destination "$OUT" --json --loglevel=error) > "$stage/pack.json"
 [[ -f $OUT/$name.tgz ]] || die "npm pack did not write $name.tgz"

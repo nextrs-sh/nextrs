@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Verify an @nextrs-sh/cli npm tarball against the release it was made from.
+# Verify an @nextrs/cli npm tarball against the release it was made from.
 #
-#   scripts/verify-npm-package.sh --tarball dist/npm/nextrs-sh-cli-0.1.0-rc.1.tgz \
+#   scripts/verify-npm-package.sh --tarball dist/npm/nextrs-cli-0.1.0-rc.1.tgz \
 #     --manifest dist/nextrs-v0.1.0-rc.1-linux-x86_64.manifest.json \
 #     [--archive dist/nextrs-v0.1.0-rc.1-linux-x86_64.tar.gz] [--json OUT]
 #
@@ -106,7 +106,7 @@ problems=$(node - "$pj" <<'EOF'
 const p = JSON.parse(require("fs").readFileSync(process.argv[2], "utf8"));
 const bad = [];
 const eq = (k, v) => JSON.stringify(p[k]) === JSON.stringify(v) || bad.push(`${k}=${JSON.stringify(p[k])}`);
-eq("name", "@nextrs-sh/cli");
+eq("name", "@nextrs/cli");
 eq("license", "MIT OR Apache-2.0");
 eq("bin", { nextrs: "bin/nextrs" });
 eq("os", ["linux"]);
