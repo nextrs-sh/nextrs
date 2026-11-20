@@ -199,7 +199,8 @@ jobs:
           flags="--tag $TAG --access public --provenance"
           [ "$DRY_RUN" = true ] && flags="$flags --dry-run"
           # shellcheck disable=SC2086
-          npm publish "npm/nextrs-cli-$VERSION.tgz" $flags
+          # "./": without it npm reads "npm/<file>" as the GitHub repository npm/<file>.
+          npm publish "./npm/nextrs-cli-$VERSION.tgz" $flags
       - name: Registry integrity, dist-tags and provenance
         if: ${{ !inputs.dry_run }}
         run: |
