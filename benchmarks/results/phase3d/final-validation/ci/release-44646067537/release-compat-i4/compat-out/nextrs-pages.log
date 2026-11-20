@@ -1,0 +1,300 @@
+[2m2026-11-20T00:39:12.465108Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-20T00:39:12.467544Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5641
+[2m2026-11-20T00:39:12.467586Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-20T00:39:12.580721Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:12.580781Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:12.608630Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m140
+[2m2026-11-20T00:39:12.610923Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:12.610953Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:12.632413Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m164
+[2m2026-11-20T00:39:12.669681Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:12.669745Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:12.671303Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:12.671348Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:12.691277Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m221
+[2m2026-11-20T00:39:12.691556Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m226 [3misolates[0m[2m=[0m4
+[2m2026-11-20T00:39:12.691812Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m222
+[2m2026-11-20T00:39:12.701164Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5640 [3mbuild_id[0m[2m=[0mqh5v5pR1cMVKX1-mgPhzu [3mready_ms[0m[2m=[0m235
+Error: getServerSideProps failure (synthetic)
+    at h (.next/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-20T00:39:13.925788Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/error: Error: getServerSideProps failure (synthetic)
+    at h (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: render failure (synthetic)
+    at <unknown> (.next/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+Error: render failure (synthetic)
+    at <unknown> (.next/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+[2m2026-11-20T00:39:13.949947Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/render-error: Error: render failure (synthetic)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307
+    at renderWithHooks (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:4942:18)
+    at renderElement (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5109:19)
+    at retryNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5937:16)
+    at renderNodeDestructive (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14)
+    at renderChildrenArray (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6081:7)
+    at retryNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5951:9)
+    at renderNodeDestructive (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14) [3mkind[0m[2m=[0m"handler-error"
+Error: getServerSideProps failure (synthetic)
+    at h (.next/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-20T00:39:14.178421Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /_next/data/qh5v5pR1cMVKX1-mgPhzu/ssr/error.json: Error: getServerSideProps failure (synthetic)
+    at h (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: API route failure (synthetic)
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: ISR regeneration failure (synthetic)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+Error: ISR regeneration failure (synthetic)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+[2m2026-11-20T00:39:41.372939Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m114 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-20T00:39:41.373450Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-20T00:39:41.413605Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-20T00:39:47.837145Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-20T00:39:47.839551Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5641
+[2m2026-11-20T00:39:47.839599Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-20T00:39:47.959682Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:47.959735Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:47.980150Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m140
+[2m2026-11-20T00:39:48.016790Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:48.016842Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:48.029791Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:48.029849Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:48.041898Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m201
+[2m2026-11-20T00:39:48.045176Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:48.045252Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:39:48.063336Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m223
+[2m2026-11-20T00:39:48.076263Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m236
+[2m2026-11-20T00:39:48.076277Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m239 [3misolates[0m[2m=[0m4
+[2m2026-11-20T00:39:48.084696Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5640 [3mbuild_id[0m[2m=[0mJwIuKE83NGkyhaSaqHU8v [3mready_ms[0m[2m=[0m247
+Error: getServerSideProps failure (synthetic)
+    at h (.next-base-path/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-20T00:39:49.296441Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/ssr/error: Error: getServerSideProps failure (synthetic)
+    at h (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: render failure (synthetic)
+    at <unknown> (.next-base-path/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+Error: render failure (synthetic)
+    at <unknown> (.next-base-path/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+[2m2026-11-20T00:39:49.316602Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/ssr/render-error: Error: render failure (synthetic)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307
+    at renderWithHooks (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:4942:18)
+    at renderElement (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5109:19)
+    at retryNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5937:16)
+    at renderNodeDestructive (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14)
+    at renderChildrenArray (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6081:7)
+    at retryNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5951:9)
+    at renderNodeDestructive (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14) [3mkind[0m[2m=[0m"handler-error"
+Error: getServerSideProps failure (synthetic)
+    at h (.next-base-path/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-20T00:39:49.533733Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/_next/data/JwIuKE83NGkyhaSaqHU8v/ssr/error.json: Error: getServerSideProps failure (synthetic)
+    at h (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: API route failure (synthetic)
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-base-path/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+[2m2026-11-20T00:40:02.292297Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m2 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-20T00:40:02.292689Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-20T00:40:02.321861Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-20T00:40:08.807457Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-20T00:40:08.809839Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5641
+[2m2026-11-20T00:40:08.809882Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-20T00:40:08.968677Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:08.968741Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:08.983109Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:08.983161Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:08.991201Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:08.991275Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:09.008841Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:09.008895Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:09.029930Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m219
+[2m2026-11-20T00:40:09.029960Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m219
+[2m2026-11-20T00:40:09.033417Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m223
+[2m2026-11-20T00:40:09.040634Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m228
+[2m2026-11-20T00:40:09.040648Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m233 [3misolates[0m[2m=[0m4
+[2m2026-11-20T00:40:09.052611Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5640 [3mbuild_id[0m[2m=[0mG06PLebWtU1ixZrhOO12S [3mready_ms[0m[2m=[0m245
+Error: getServerSideProps failure (synthetic)
+    at h (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-20T00:40:10.251326Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/error/: Error: getServerSideProps failure (synthetic)
+    at h (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: render failure (synthetic)
+    at <unknown> (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+Error: render failure (synthetic)
+    at <unknown> (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+[2m2026-11-20T00:40:10.283652Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/render-error/: Error: render failure (synthetic)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307
+    at renderWithHooks (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:4942:18)
+    at renderElement (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5109:19)
+    at retryNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5937:16)
+    at renderNodeDestructive (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14)
+    at renderChildrenArray (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6081:7)
+    at retryNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5951:9)
+    at renderNodeDestructive (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14) [3mkind[0m[2m=[0m"handler-error"
+Error: getServerSideProps failure (synthetic)
+    at h (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-20T00:40:10.492670Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /_next/data/G06PLebWtU1ixZrhOO12S/ssr/error.json: Error: getServerSideProps failure (synthetic)
+    at h (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: API route failure (synthetic)
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-trailing-slash/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+[2m2026-11-20T00:40:23.240769Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m2 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-20T00:40:23.241122Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-20T00:40:23.275719Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-20T00:40:28.578745Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-20T00:40:28.585711Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5641
+[2m2026-11-20T00:40:28.585759Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-20T00:40:28.746535Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:28.746594Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:28.752019Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:28.752073Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:28.755735Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:28.755768Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:28.760125Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:28.760170Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:40:28.779830Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m191
+[2m2026-11-20T00:40:28.788281Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m202
+[2m2026-11-20T00:40:28.789142Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m202
+[2m2026-11-20T00:40:28.794530Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m208
+[2m2026-11-20T00:40:28.794571Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m215 [3misolates[0m[2m=[0m4
+[2m2026-11-20T00:40:28.808136Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5640 [3mbuild_id[0m[2m=[0mJXs-vCz-af01pTXTGGOUx [3mready_ms[0m[2m=[0m229
+Error: getServerSideProps failure (synthetic)
+    at h (.next-adapter/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-20T00:40:29.984887Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/error: Error: getServerSideProps failure (synthetic)
+    at h (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: render failure (synthetic)
+    at <unknown> (.next-adapter/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+Error: render failure (synthetic)
+    at <unknown> (.next-adapter/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307)
+[2m2026-11-20T00:40:30.018435Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /ssr/render-error: Error: render failure (synthetic)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__1exb96tme1i9t._.js:1:307
+    at renderWithHooks (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:4942:18)
+    at renderElement (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5109:19)
+    at retryNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5937:16)
+    at renderNodeDestructive (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14)
+    at renderChildrenArray (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6081:7)
+    at retryNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5951:9)
+    at renderNodeDestructive (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:5727:7)
+    at renderNode (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/react-dom/cjs/react-dom-server.edge.production.js:6307:14) [3mkind[0m[2m=[0m"handler-error"
+Error: getServerSideProps failure (synthetic)
+    at h (.next-adapter/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at async o (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async as (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+[2m2026-11-20T00:40:30.238641Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /_next/data/JXs-vCz-af01pTXTGGOUx/ssr/error.json: Error: getServerSideProps failure (synthetic)
+    at h (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0xaclnnldvrr1._.js:1:279)
+    at /home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:767
+    at NextTracerImpl.trace (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/server/lib/trace/tracer.js:196:72)
+    at rA (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:19:662)
+    at async o (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+    at async rj.handleResponse (/home/runner/work/nextrs/nextrs/fixtures/next-pages/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:36866)
+    at async i (/home/runner/work/nextrs/nextrs/fixtures/next-pages/.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:40204)
+    at async serve (ext:nextrs/03_server.js:445:11) [3mkind[0m[2m=[0m"handler-error"
+Error: API route failure (synthetic)
+[90m    at processTicksAndRejections (ext:core/01_core.js:405:7)[39m
+[90m    at drainTicks (ext:core/01_core.js:432:5)[39m
+[90m    at async serve (ext:nextrs/03_server.js:445:11)[39m
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+Error: ISR regeneration failure (synthetic)
+    at async o (.next-adapter/server/chunks/ssr/[root-of-the-server]__0fn22jnxiikx_._.js:1:33921)
+[2m2026-11-20T00:40:42.979574Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m2 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-20T00:40:42.979911Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-20T00:40:43.021963Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

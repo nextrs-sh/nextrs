@@ -1,0 +1,39 @@
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 32ms
+⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.9s
+  Running TypeScript ...
+  Finished TypeScript in 2.0s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/9) ...
+  Generating static pages using 3 workers (2/9) 
+  Generating static pages using 3 workers (4/9) 
+  Generating static pages using 3 workers (6/9) 
+✓ Generating static pages using 3 workers (9/9) in 203ms
+  Finalizing page optimization ...
+  Running onBuildComplete from nextrs
+
+Route (app)
+┌ ○ /_not-found
+├ ƒ /api/health
+├ ƒ /app-api
+├ ƒ /app-items/[id]
+├ ○ /app-page
+├ ƒ /secure/app-secret
+└ ○ /with-image
+
+Route (pages)
+┌ ƒ /api/pages-health
+├ ƒ /pages-items/[id]
+├ ○ /pages-page
+├ ● /pages-ssg
+└ ƒ /secure/pages-secret
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

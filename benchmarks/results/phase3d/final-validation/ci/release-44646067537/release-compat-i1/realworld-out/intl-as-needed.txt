@@ -1,0 +1,19 @@
+MATCH      root-default-unprefixed
+MATCH      root-detects-de
+MATCH      root-cookie-fr
+MATCH      default-unprefixed-static
+MATCH      default-unprefixed-dynamic
+MATCH      default-prefix-removed
+MATCH      default-prefix-removed-root
+MATCH      default-prefix-removed-query
+MATCH      other-locale-prefixed
+MATCH      other-locale-dynamic
+MATCH      other-locale-search
+MATCH      unprefixed-cookie-redirects
+MATCH      unprefixed-header-redirects
+MATCH      prefix-wins-over-cookie
+MATCH      unsupported-locale
+MATCH      rsc-unprefixed
+MATCH      head-unprefixed
+MATCH      alternate-links
+intl-variants (next-intl as-needed): 18 MATCH (18 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 0 ORACLE-FAIL, 0 ERROR

@@ -10,59 +10,79 @@ maintainer's explicit decision:
 `.github/workflows/release.yml` builds, tests and packages, but publishes
 nothing.
 
-## Rule: publish the archive that was tested
+## Rule: publish the binary that was tested
 
-Builds are not bit-for-bit reproducible. A rebuild of the same commit
-differs by a few kilobytes of code. The archive to publish is therefore
-the one whose binary went through the release gates. Its binary checksum
-is in the gate record:
+Builds are not bit-for-bit reproducible: a rebuild of the same commit
+differs by a few kilobytes of code. What is published is therefore the
+**binary** that went through the release gates, identified by its
+SHA-256. For v0.1.0-rc.1 that binary was built by the release workflow
+(`workflow_dispatch` run 44646067537 on `main` at `711d77f`), not on a
+developer machine:
 
-- the six-hour soak;
-- the Velasia certification;
-- the release regression;
-- the clean-install smoke test.
+```text
+binary sha256  44f04e586c7dc9eb0b8f69dfd992143f725472aa5f3619df5a4039d77d2c6956
+```
 
-Do not substitute a rebuild, including the release workflow's own
-artifact. Use that artifact to verify the pipeline and clean installs.
+The archive around it may be repackaged at a later commit (release notes,
+licenses) with `--built-from 711d77f`; `package-release.sh` accepts that
+only if `Cargo.toml`, `Cargo.lock` and `crates/` are unchanged since
+`711d77f`. Every repackaged archive must pass the clean-install test
+again before it is published, because the archive bytes changed.
 
-## The tested archive's records
+`release/WITHDRAWN.txt` lists builds that must never be published.
+`package-release.sh` refuses them, and refuses release notes that name
+them.
 
-**None are current.** The archive that passed the Phase 3D gates
-(`7b8746d4…`, binary `621da204…`) is **withdrawn and must not be
-published**. Its binary read deno_web's and deno_webidl's JavaScript from
-the build machine's Cargo registry at run time, so it failed on every
-other machine. The `release.yml` clean-install jobs on PR #26 found it.
-Its records were removed from `release/checksums/` and `release/manifests/`.
+## Gates that are per binary, and per archive
 
-**When to recreate them.** Once the fixed binary has passed the gates,
-package it with `scripts/package-release.sh`. Then commit its checksums to
-`release/checksums/` and its manifest to `release/manifests/`. Whatever is
-published must match those records.
+| Gate | Re-run when |
+|---|---|
+| Runtime file audit (`scripts/runtime-file-audit.sh`) | the binary changes |
+| Clean installs (`scripts/clean-install-containers.sh`) | the archive changes |
+| Compatibility matrix, Velasia certification, release regression | the binary changes |
+| Six-hour soak | the binary changes |
+| CI (`ci.yml`, `release.yml`) | the release commit changes |
 
-**Test hermeticity.** A local smoke test run on the build machine cannot
-detect this class of defect. The `release.yml` clean-install jobs can.
-Alternatively, hide `~/.cargo/registry/src` while the smoke test runs.
+**Test hermeticity.** A smoke test on the build machine cannot find a
+dependency on the build machine's files: they are all there. Two checks
+can:
+
+- `scripts/runtime-file-audit.sh` records every path the binary touches
+  (strace) and fails on any under the Cargo home, rustup, a Cargo target
+  directory or the source tree, even though those reads would succeed;
+- `scripts/clean-install-containers.sh` runs the archive in fresh
+  Ubuntu 22.04, Ubuntu 24.04 and Debian 12 containers whose only mounts are
+  the archive, prebuilt applications and curl-only test scripts (from
+  `scripts/clean-install-bundle.sh`).
+
+Both run in `release.yml`; both can be run locally (the containers with
+`--engine podman` or `docker`).
 
 ## Steps for v0.1.0-rc.1
 
-1. **Close every blocking gate.** The release-readiness checklist must
-   show every blocking gate as passed, with evidence.
+1. **Close every blocking gate.** The final validation report's gate
+   matrix must show every gate as passed on binary `44f04e58…6956`.
 2. **Check the source tree.** The tree at the release commit must be
-   clean, and CI must be green on that commit.
+   clean, and CI (`ci.yml` and `release.yml`) must be green on that commit.
 3. **Package the tested binary at the release commit:**
 
    ```bash
-   scripts/package-release.sh --binary target/dist/nextrs --version 0.1.0-rc.1 --out dist --toolchain 1.98.0
+   gh run download 44646067537 -R nextrs-sh/nextrs -n nextrs-v0.1.0-rc.1-linux-x86_64 -D ci
+   (cd ci && sha256sum -c *.sha256 && tar -xzf *.tar.gz)
+   sha256sum ci/nextrs-v0.1.0-rc.1-linux-x86_64/nextrs   # 44f04e58...6956
+   scripts/package-release.sh --binary ci/nextrs-v0.1.0-rc.1-linux-x86_64/nextrs \
+     --version 0.1.0-rc.1 --out dist --toolchain 1.98.0 --built-from 711d77f
    ```
 
-   Then check both of these:
-   - `dist/*.manifest.json` → `binary_sha256` equals the gate record's
-     checksum;
-   - `dirty: false`.
-4. **Smoke-test the archive:**
+   Then check, in `dist/*.manifest.json`: `binary_sha256` is
+   `44f04e58…6956`, `binary_commit` is `711d77f…`, `dirty: false`.
+   Packaging is deterministic: the archive checksum must equal the one
+   committed in `release/checksums/`.
+4. **Clean-install the archive:**
 
    ```bash
-   scripts/release-smoke.sh --archive dist/nextrs-v0.1.0-rc.1-linux-x86_64.tar.gz --app <built app>
+   scripts/clean-install-bundle.sh --archive dist/nextrs-v0.1.0-rc.1-linux-x86_64.tar.gz --out /tmp/ci-bundle
+   scripts/clean-install-containers.sh --bundle /tmp/ci-bundle --results /tmp/ci-results
    ```
 
 5. **Tag and push,** with authorization:
@@ -72,8 +92,9 @@ Alternatively, hide `~/.cargo/registry/src` while the smoke test runs.
    git push origin v0.1.0-rc.1
    ```
 
-   The tag push runs the release workflow, which provides independent
-   verification.
+   The tag push runs the release workflow on the tagged commit. Its own
+   binary is a rebuild and is **not** the one to publish; the run is an
+   independent check of the pipeline, the audit and the clean installs.
 6. **Create the GitHub release as a prerelease,** with authorization:
 
    ```bash

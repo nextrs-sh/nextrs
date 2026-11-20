@@ -1,0 +1,357 @@
+[
+  {
+    "name": "no-cache",
+    "verdict": "MATCH",
+    "candidate": [
+      1,
+      2,
+      3
+    ],
+    "baseline": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "name": "force-cache",
+    "verdict": "MATCH",
+    "candidate": {
+      "responses": [
+        1,
+        1,
+        1
+      ],
+      "upstreamHits": 1
+    },
+    "baseline": {
+      "responses": [
+        1,
+        1,
+        1
+      ],
+      "upstreamHits": 1
+    }
+  },
+  {
+    "name": "distinct-keys",
+    "verdict": "MATCH",
+    "baseline": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "candidate": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "no-store",
+    "verdict": "MATCH",
+    "candidate": [
+      1,
+      2,
+      3
+    ],
+    "baseline": [
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "name": "expiration",
+    "verdict": "MATCH",
+    "candidate": [
+      1,
+      1,
+      1,
+      2
+    ],
+    "baseline": [
+      1,
+      1,
+      1,
+      2
+    ]
+  },
+  {
+    "name": "tag-revalidation",
+    "verdict": "MATCH",
+    "candidate": [
+      1,
+      1,
+      2,
+      2,
+      2
+    ],
+    "baseline": [
+      1,
+      1,
+      2,
+      2,
+      2
+    ]
+  },
+  {
+    "name": "upstream-error",
+    "verdict": "MATCH",
+    "candidate": [
+      [
+        200,
+        500,
+        1
+      ],
+      [
+        200,
+        500,
+        2
+      ]
+    ],
+    "baseline": [
+      [
+        200,
+        500,
+        1
+      ],
+      [
+        200,
+        500,
+        2
+      ]
+    ]
+  },
+  {
+    "name": "connection-refused",
+    "verdict": "MATCH",
+    "candidate": {
+      "status": 502,
+      "code": "ECONNREFUSED"
+    },
+    "baseline": {
+      "status": 502,
+      "code": "ECONNREFUSED"
+    }
+  },
+  {
+    "name": "header-identity",
+    "verdict": "MATCH",
+    "candidate": [
+      [
+        "user-a",
+        1
+      ],
+      [
+        "user-b",
+        2
+      ],
+      [
+        "user-a",
+        1
+      ],
+      [
+        "user-b",
+        2
+      ]
+    ],
+    "baseline": [
+      [
+        "user-a",
+        1
+      ],
+      [
+        "user-b",
+        2
+      ],
+      [
+        "user-a",
+        1
+      ],
+      [
+        "user-b",
+        2
+      ]
+    ]
+  },
+  {
+    "name": "cookie-identity",
+    "verdict": "MATCH",
+    "candidate": [
+      [
+        "session=a",
+        1
+      ],
+      [
+        "session=b",
+        2
+      ],
+      [
+        "session=a",
+        1
+      ],
+      [
+        "session=b",
+        2
+      ]
+    ],
+    "baseline": [
+      [
+        "session=a",
+        1
+      ],
+      [
+        "session=b",
+        2
+      ],
+      [
+        "session=a",
+        1
+      ],
+      [
+        "session=b",
+        2
+      ]
+    ]
+  },
+  {
+    "name": "auth-auto-no-cache",
+    "verdict": "MATCH",
+    "candidate": [
+      1,
+      1,
+      1,
+      2
+    ],
+    "baseline": [
+      1,
+      1,
+      1,
+      2
+    ]
+  },
+  {
+    "name": "render-dedupe",
+    "verdict": "MATCH",
+    "candidate": {
+      "renders": [
+        "a=1,b=1,c=1,x=1,y=1",
+        "a=2,b=2,c=2,x=2,y=2"
+      ],
+      "upstreamHits": 2
+    },
+    "baseline": {
+      "renders": [
+        "a=1,b=1,c=1,x=1,y=1",
+        "a=2,b=2,c=2,x=2,y=2"
+      ],
+      "upstreamHits": 2
+    }
+  },
+  {
+    "name": "page-force-cache",
+    "verdict": "MATCH",
+    "candidate": [
+      1,
+      1,
+      1
+    ],
+    "baseline": [
+      1,
+      1,
+      1
+    ]
+  },
+  {
+    "name": "shared-entry",
+    "verdict": "MATCH",
+    "candidate": {
+      "first": 1,
+      "all": [
+        1
+      ],
+      "upstreamHits": 1
+    },
+    "baseline": {
+      "first": 1,
+      "all": [
+        1
+      ],
+      "upstreamHits": 1
+    }
+  },
+  {
+    "name": "concurrent-misses",
+    "verdict": "MATCH",
+    "candidate": {
+      "compare": {
+        "readersAgree": true
+      },
+      "report": {
+        "upstreamHits": 8
+      }
+    },
+    "baseline": {
+      "compare": {
+        "readersAgree": true
+      },
+      "report": {
+        "upstreamHits": 8
+      }
+    }
+  },
+  {
+    "name": "tag-across-isolates",
+    "verdict": "MATCH",
+    "candidate": {
+      "first": 1,
+      "warm": [
+        1
+      ],
+      "noneServedTheOldEntry": true
+    },
+    "baseline": {
+      "first": 1,
+      "warm": [
+        1
+      ],
+      "noneServedTheOldEntry": true
+    }
+  },
+  {
+    "name": "cancellation",
+    "verdict": "MATCH",
+    "candidate": {
+      "compare": {
+        "clientSaw": "ECONNRESET",
+        "next": 1
+      },
+      "report": {
+        "upstreamAborted": 0
+      }
+    },
+    "baseline": {
+      "compare": {
+        "clientSaw": "ECONNRESET",
+        "next": 1
+      },
+      "report": {
+        "upstreamAborted": 0
+      }
+    }
+  },
+  {
+    "name": "identity-after-fetch",
+    "verdict": "PASS",
+    "ok": 60,
+    "n": 60,
+    "bad": []
+  }
+]

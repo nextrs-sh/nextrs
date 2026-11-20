@@ -10,7 +10,8 @@
 #
 # Checks, each recorded as pass/fail:
 #   checksum       the archive matches its .sha256 file
-#   layout         the archive holds nextrs, BUILD-INFO.json, README.md, RELEASE-NOTES.md, THIRD-PARTY.md
+#   layout         the archive holds nextrs, BUILD-INFO.json, README.md, RELEASE-NOTES.md, LICENSE-MIT,
+#                  LICENSE-APACHE, THIRD-PARTY.md, THIRD-PARTY-LICENSES.txt
 #   version        `nextrs --version` is "nextrs <BUILD-INFO version>"
 #   help           `nextrs --help`, `nextrs start --help` exit 0
 #   no-toolchain   the server runs with an empty environment and PATH=/usr/bin:/bin
@@ -63,7 +64,7 @@ fi
 tar -xzf "$ARCHIVE" -C "$WORK"
 DIR=$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'nextrs-v*' | head -1)
 missing=""
-for f in nextrs BUILD-INFO.json README.md RELEASE-NOTES.md THIRD-PARTY.md; do [[ -e $DIR/$f ]] || missing+=" $f"; done
+for f in nextrs BUILD-INFO.json README.md RELEASE-NOTES.md LICENSE-MIT LICENSE-APACHE THIRD-PARTY.md THIRD-PARTY-LICENSES.txt; do [[ -e $DIR/$f ]] || missing+=" $f"; done
 check layout "$([[ -z $missing && -x $DIR/nextrs ]]; echo $?)" "${missing:-all present in $(basename "$DIR")}"
 NEXTRS=$DIR/nextrs
 want=$(sed -n 's/.*"version": "\(.*\)".*/\1/p' "$DIR/BUILD-INFO.json")

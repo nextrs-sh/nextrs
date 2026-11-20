@@ -1,0 +1,7 @@
+# Builds that must never be published. scripts/package-release.sh refuses to
+# package a binary with one of these checksums, and refuses release notes or
+# an install guide that name one (first 8 hex digits or the whole value).
+#
+# sha256                                                            what      why
+621da20422015abc92114887c8d794523e7c5c61d5ec1e954625af1c29e34bfc  binary    nextrs 0.1.0-rc.1 built at b06745d: read deno_web/deno_webidl JavaScript from the build machine's Cargo registry at every isolate start (fixed in PR #27)
+7b8746d4fbe912372d712935b8f46f9b5042deaf2d89d4de0ad2dcc5c73ec5ea  archive   nextrs-v0.1.0-rc.1-linux-x86_64.tar.gz holding that binary

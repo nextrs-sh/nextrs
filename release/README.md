@@ -43,7 +43,13 @@ Contents:
   architectures have no release binary and are untested.
 - **Runtime:** none. The binary needs no Rust toolchain, no Node.js and no
   Deno.
-  - V8 is linked into the binary.
+  - V8, and the JavaScript of Deno's web APIs that NextRS uses, are
+    compiled into the binary. It reads no file of the machine it was built
+    on.
+  - The only shared libraries it loads are the C library's (`libc.so.6`,
+    `libm.so.6`, `ld-linux-x86-64.so.2`) and `libgcc_s.so.1`, which every
+    glibc distribution installs, including minimal container images such as
+    `debian:12-slim`.
   - TLS uses a bundled Mozilla root store, so no system CA package is
     needed.
 
@@ -85,8 +91,10 @@ The archive contains:
 | `nextrs` | The binary |
 | `README.md` | This guide |
 | `RELEASE-NOTES.md` | The release notes |
-| `BUILD-INFO.json` | Version, source commit, compiler, Cargo profile, minimum glibc, binary checksum |
-| `THIRD-PARTY.md` | The statically linked crates and their licenses |
+| `BUILD-INFO.json` | Version, source commit (and the commit the binary was built at), compiler, Cargo profile, minimum glibc, shared libraries, binary checksum |
+| `LICENSE-MIT`, `LICENSE-APACHE` | NextRS's licenses (MIT or Apache-2.0, at your option) |
+| `THIRD-PARTY.md` | The statically linked crates, V8 and its C/C++ libraries, and their licenses |
+| `THIRD-PARTY-LICENSES.txt` | Their license and notice texts |
 
 To build from source instead, see the repository README. NextRS is not
 published on crates.io; the crate named `nextrs` there is an unrelated
