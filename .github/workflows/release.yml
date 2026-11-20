@@ -13,6 +13,11 @@ name: Release build
 # pushes a v* tag. It also runs on pull requests that change the release
 # tooling, packaging the workspace version, so the pipeline (and the
 # clean-install containers) are exercised before a release is cut.
+#
+# Candidate mode (workflow_dispatch with binary_run_id and binary_sha256)
+# compiles nothing: it packages the gated binary from an earlier run at this
+# commit (package-release.sh --built-from), so every job here validates the
+# exact bytes that would be published, including the npm package.
 
 on:
   workflow_dispatch:
@@ -20,6 +25,18 @@ on:
       version:
         description: "Version without the v prefix, e.g. 0.1.0-rc.1 (must equal the Cargo workspace version)"
         required: true
+      # Candidate mode: instead of compiling, package the binary that an
+      # earlier successful release.yml run on main built and that went
+      # through the release gates. Every later job (runtime audit, compat,
+      # clean installs, npm, Docker) then runs on those exact bytes.
+      binary_run_id:
+        description: "Optional: ID of the earlier release.yml run whose binary to package (no compilation), e.g. 44646067537"
+        required: false
+        default: ""
+      binary_sha256:
+        description: "Required with binary_run_id: the gated binary's SHA-256"
+        required: false
+        default: ""
   push:
     tags: ["v*"]
   pull_request:
@@ -108,8 +125,15 @@ jobs:
     needs: version
     # The oldest supported runner: the binary's glibc floor follows it.
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      actions: read # candidate mode downloads an earlier run's artifact
     steps:
       - uses: actions/checkout@v4
+        with:
+          # package-release.sh --built-from checks the binary's commit is an
+          # ancestor and that Cargo.toml, Cargo.lock and crates/ are unchanged.
+          fetch-depth: 0
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -118,9 +142,46 @@ jobs:
           node-version: "22.20.0"
       # No cache: a release is built from a clean target directory.
       - name: Build (dist profile, portable, no target-cpu)
-        run: cargo build --locked --profile dist -p nextrs-cli
+        if: inputs.binary_run_id == ''
+        run: |
+          cargo build --locked --profile dist -p nextrs-cli
+          echo "BINARY=target/dist/nextrs" >> "$GITHUB_ENV"
+      - name: Candidate binary from run ${{ inputs.binary_run_id }} (no compilation)
+        if: inputs.binary_run_id != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.binary_run_id }}
+          WANT: ${{ inputs.binary_sha256 }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          [[ $RUN_ID =~ ^[0-9]+$ ]] || { echo "binary_run_id must be a run ID"; exit 1; }
+          [[ $WANT =~ ^[0-9a-f]{64}$ ]] || { echo "binary_sha256 must be the gated binary's 64-hex SHA-256"; exit 1; }
+          # The run must be a successful release.yml run of this repository on main.
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" \
+            --jq '[.path, .conclusion, .head_branch, .head_repository.full_name, .head_sha] | @tsv' > run.tsv
+          IFS=$'\t' read -r path conclusion branch repo sha < run.tsv
+          [[ $path == .github/workflows/release.yml && $conclusion == success && $branch == main && $repo == "$GITHUB_REPOSITORY" ]] ||
+            { echo "run $RUN_ID is not a successful release.yml run on main of $GITHUB_REPOSITORY: $(cat run.tsv)"; exit 1; }
+          a="nextrs-v$VERSION-linux-x86_64"
+          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -n "$a" -D candidate
+          (cd candidate && sha256sum -c "$a.tar.gz.sha256")
+          tar -xzf "candidate/$a.tar.gz" -C candidate
+          got=$(sha256sum "candidate/$a/nextrs" | cut -d' ' -f1)
+          [[ $got == "$WANT" ]] || { echo "run $RUN_ID's binary is $got, not $WANT"; exit 1; }
+          echo "candidate binary $got, built at $sha by run $RUN_ID"
+          { echo "BINARY=candidate/$a/nextrs"; echo "BUILT_FROM=$sha"; } >> "$GITHUB_ENV"
       - name: Package
-        run: scripts/package-release.sh --binary target/dist/nextrs --version "${{ needs.version.outputs.version }}" --out dist --toolchain "${{ env.RUST_TOOLCHAIN }}"
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          WANT: ${{ inputs.binary_sha256 }}
+        run: |
+          set -euo pipefail
+          scripts/package-release.sh --binary "$BINARY" --version "$VERSION" --out dist --toolchain "$RUST_TOOLCHAIN" \
+            ${BUILT_FROM:+--built-from "$BUILT_FROM"}
+          got=$(node -p "require('./dist/nextrs-v$VERSION-linux-x86_64.manifest.json').binary_sha256")
+          [[ -z $WANT || $got == "$WANT" ]] || { echo "packaged binary $got, not $WANT"; exit 1; }
+          echo "binary $got"; cat "dist/nextrs-v$VERSION-linux-x86_64.tar.gz.sha256"
       # The bundle step runs `next build` on the fixtures (in place), which the
       # audit below needs: it serves fixtures/next-app.
       - name: Clean-install bundle (official next build outputs; Node.js builds them, nothing serves them with it)
@@ -249,10 +310,10 @@ jobs:
           scripts/package-npm.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --out repack > /dev/null
           cmp dist/npm/*.tgz repack/*.tgz && echo "identical: $(cat dist/npm/*.tgz.sha256)"
       - name: Refusals (version mismatch, checksums, withdrawn build, scripts, permissions, extra files)
-        run: tests/npm/packaging-negative.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --tarball dist/npm/nextrs-sh-cli-${{ needs.version.outputs.version }}.tgz --json dist/npm/packaging-negative.json
+        run: tests/npm/packaging-negative.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --tarball dist/npm/nextrs-cli-${{ needs.version.outputs.version }}.tgz --json dist/npm/packaging-negative.json
       - uses: actions/upload-artifact@v4
         with:
-          name: nextrs-sh-cli-${{ needs.version.outputs.version }}-npm
+          name: nextrs-cli-${{ needs.version.outputs.version }}-npm
           path: |
             dist/npm/*.tgz
             dist/npm/*.tgz.sha256
@@ -280,14 +341,14 @@ jobs:
           path: dist
       - uses: actions/download-artifact@v4
         with:
-          name: nextrs-sh-cli-${{ needs.version.outputs.version }}-npm
+          name: nextrs-cli-${{ needs.version.outputs.version }}-npm
           path: dist/npm
       # The containers get only the bundle: the tarball, Node.js and pnpm
       # (checksum-verified), and the application source. Its dependencies are
       # installed with the network; the NextRS package, next build and the
       # server run with --network none. No Rust is visible anywhere.
       - name: Bundle
-        run: scripts/npm-install-bundle.sh --tarball dist/npm/nextrs-sh-cli-${{ needs.version.outputs.version }}.tgz --manifest "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json" --out bundle --node-version 22.20.0
+        run: scripts/npm-install-bundle.sh --tarball dist/npm/nextrs-cli-${{ needs.version.outputs.version }}.tgz --manifest "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json" --out bundle --node-version 22.20.0
       - name: Install, build, serve, signals, failure cases
         run: scripts/npm-install-containers.sh --engine docker --bundle bundle --results results --image "${{ matrix.image }}" --no-unsupported
       - if: always()
@@ -312,10 +373,10 @@ jobs:
           path: dist
       - uses: actions/download-artifact@v4
         with:
-          name: nextrs-sh-cli-${{ needs.version.outputs.version }}-npm
+          name: nextrs-cli-${{ needs.version.outputs.version }}-npm
           path: dist/npm
       - name: Bundle
-        run: scripts/npm-install-bundle.sh --tarball dist/npm/nextrs-sh-cli-${{ needs.version.outputs.version }}.tgz --manifest "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json" --out bundle --node-version 22.20.0
+        run: scripts/npm-install-bundle.sh --tarball dist/npm/nextrs-cli-${{ needs.version.outputs.version }}.tgz --manifest "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json" --out bundle --node-version 22.20.0
       - name: Ubuntu 20.04 (glibc 2.31) and Alpine (musl) refuse clearly
         run: scripts/npm-install-containers.sh --engine docker --bundle bundle --results results --only-unsupported
       - if: always()
@@ -340,12 +401,12 @@ jobs:
           path: dist
       - uses: actions/download-artifact@v4
         with:
-          name: nextrs-sh-cli-${{ needs.version.outputs.version }}-npm
+          name: nextrs-cli-${{ needs.version.outputs.version }}-npm
           path: dist/npm
       - name: Build the image from the npm package, run it without Node.js, stop it
         run: |
           sha=$(node -p "require('./dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json').binary_sha256")
-          scripts/npm-docker-example.sh --engine docker --tarball dist/npm/nextrs-sh-cli-${{ needs.version.outputs.version }}.tgz --expect-sha256 "$sha" --out docker-example
+          scripts/npm-docker-example.sh --engine docker --tarball dist/npm/nextrs-cli-${{ needs.version.outputs.version }}.tgz --expect-sha256 "$sha" --out docker-example
       - if: always()
         uses: actions/upload-artifact@v4
         with:
