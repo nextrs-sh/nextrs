@@ -7,7 +7,7 @@ compiler: every channel delivers the same precompiled binary.
 > [!IMPORTANT]
 > **Availability (2026-11-20).** Nothing is published yet:
 >
-> - **npm:** `@nextrs-sh/cli` is not on the npm registry. The commands in
+> - **npm:** `@nextrs/cli` is not on the npm registry. The commands in
 >   [Install with npm](#install-with-npm) and
 >   [Install with pnpm](#install-with-pnpm) work only with a locally packed
 >   tarball until it is.
@@ -71,7 +71,7 @@ compiler: every channel delivers the same precompiled binary.
 Add NextRS as a development dependency of the application:
 
 ```bash
-npm install --save-dev @nextrs-sh/cli@0.1.0-rc.1
+npm install --save-dev @nextrs/cli@0.1.0-rc.1
 npx next build
 npx nextrs start . --js-runtime embedded-v8
 ```
@@ -105,7 +105,7 @@ process, see [Running in production](#running-in-production).
 ## Install with pnpm
 
 ```bash
-pnpm add -D @nextrs-sh/cli@0.1.0-rc.1
+pnpm add -D @nextrs/cli@0.1.0-rc.1
 pnpm exec next build
 pnpm exec nextrs start . --js-runtime embedded-v8
 ```
@@ -118,8 +118,8 @@ they are allowed. NextRS has none, so nothing needs to be allowed.
 In an application that has already run `next build`:
 
 ```bash
-npx --yes @nextrs-sh/cli@0.1.0-rc.1 start . --js-runtime embedded-v8
-pnpm --package=@nextrs-sh/cli@0.1.0-rc.1 dlx nextrs start . --js-runtime embedded-v8
+npx --yes @nextrs/cli@0.1.0-rc.1 start . --js-runtime embedded-v8
+pnpm --package=@nextrs/cli@0.1.0-rc.1 dlx nextrs start . --js-runtime embedded-v8
 ```
 
 ## Install the standalone binary
@@ -146,7 +146,7 @@ is [`release/README.md`](../release/README.md).
 |---|---|---|
 | Binary | the same bytes (SHA-256 `binary_sha256` in both manifests) | the same bytes |
 | Installs with | your project's package manager; version pinned in the lockfile with an integrity hash | curl, sha256sum, tar |
-| Location | `node_modules/@nextrs-sh/cli/native/nextrs`, run through `node_modules/.bin/nextrs` | where you install it, e.g. `/usr/local/bin/nextrs` |
+| Location | `node_modules/@nextrs/cli/native/nextrs`, run through `node_modules/.bin/nextrs` | where you install it, e.g. `/usr/local/bin/nextrs` |
 | Startup | a POSIX `sh` launcher checks the platform, then `exec`s the binary (a few ms) | the binary directly |
 | Checksum record | `BUILD-INFO.json` in the package; the lockfile's integrity | `.sha256` file; `BUILD-INFO.json` |
 | Includes | binary, launcher, `BUILD-INFO.json`, licenses, third-party notices | the same, plus this guide and the release notes |
@@ -160,7 +160,7 @@ is whether anything stays between it and the process manager:
 | How you start it | Processes | Signals (SIGTERM from systemd, Kubernetes, `docker stop`) |
 |---|---|---|
 | `node_modules/.bin/nextrs start …` (npm or pnpm) | `nextrs` only: the launcher replaces itself | reach the server; graceful shutdown, exit 0 |
-| `node_modules/@nextrs-sh/cli/native/nextrs start …`, or a copied binary | `nextrs` only | reach the server; graceful shutdown, exit 0 |
+| `node_modules/@nextrs/cli/native/nextrs start …`, or a copied binary | `nextrs` only | reach the server; graceful shutdown, exit 0 |
 | `npx nextrs start …`, `npm start` | npm (Node.js) → `sh -c` → `nextrs` | **not reliable.** On Debian and Ubuntu, `/bin/sh` (dash) dies on SIGTERM without passing it on. npm exits 143, and the server keeps running, orphaned. |
 | `pnpm exec nextrs start …` | pnpm (Node.js) → `nextrs` | reach the server; pnpm reports 143 |
 
@@ -190,7 +190,7 @@ multi-stage build.
 
 **Build stage** (`node:22-bookworm-slim`):
 
-1. `npm ci` installs the application's dependencies, with `@nextrs-sh/cli`
+1. `npm ci` installs the application's dependencies, with `@nextrs/cli`
    as a devDependency.
 2. `next build` builds with `output: "standalone"`.
 3. The installed binary is checked against `BUILD-INFO.json`.
@@ -203,6 +203,22 @@ multi-stage build.
 
 It has no Node.js, npm or Rust. NextRS is PID 1 and runs as an unprivileged
 user.
+
+**Keep NextRS as PID 1.**
+
+- **Use the exec form.** The example uses
+  `ENTRYPOINT ["/usr/local/bin/nextrs"]`. The shell form
+  (`ENTRYPOINT nextrs …`) makes `/bin/sh` PID 1, and `docker stop` then
+  waits for its timeout and kills the server.
+- **Don't start an npm wrapper as the container's command.** Images that
+  keep Node.js should still not run `npm start` or `npx nextrs` (or
+  `pnpm exec`). Those make npm PID 1 with a shell in between, and SIGTERM
+  may never reach the server.
+- **Point at the binary.** Run `node_modules/.bin/nextrs` or the native
+  binary instead.
+- **An init.** If you need one for zombie reaping (`docker run --init`,
+  tini), NextRS runs as its child: the init forwards SIGTERM to it. This
+  variant has not been tested with the example image.
 
 ```bash
 docker build -t my-app .
@@ -227,9 +243,9 @@ docker run --rm -p 3000:3000 my-app
 ## Verifying what you installed
 
 ```bash
-sha256sum node_modules/@nextrs-sh/cli/native/nextrs
-node -p "require('@nextrs-sh/cli/BUILD-INFO.json').binary_sha256"
-node -p "require('@nextrs-sh/cli/package.json').nextrs"
+sha256sum node_modules/@nextrs/cli/native/nextrs
+node -p "require('@nextrs/cli/BUILD-INFO.json').binary_sha256"
+node -p "require('@nextrs/cli/package.json').nextrs"
 ```
 
 **The two checksums must be equal.** They must also equal `binary_sha256`
@@ -250,7 +266,7 @@ integrity in the lockfile. A tarball that changed afterwards fails
 
 | Message | Cause | Fix |
 |---|---|---|
-| `npm error code EBADPLATFORM … Unsupported platform for @nextrs-sh/cli` | not Linux x64 glibc | Use a supported system or image. There is no build from source behind the package. |
+| `npm error code EBADPLATFORM … Unsupported platform for @nextrs/cli` | not Linux x64 glibc | Use a supported system or image. There is no build from source behind the package. |
 | `nextrs: this package holds a Linux x86_64 binary; this system is '…'` | another OS or CPU (pnpm installs it; npm would refuse) | The same. |
 | `nextrs: NextRS needs glibc 2.35 or later; this system has glibc 2.31` | the distribution is too old (Ubuntu 20.04, Debian 11) | Ubuntu 22.04+, Debian 12+, or a newer base image |
 | `nextrs: this system uses musl libc (for example Alpine Linux)` | Alpine, after a forced install | A glibc image such as `debian:12-slim` |
