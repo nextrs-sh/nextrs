@@ -33,8 +33,9 @@ with Next.js. NextRS is concerned only with the runtime and serving layer.
 
 ### Why a Rust serving layer
 
-These are design motivations, **not measured results**. NextRS makes no claim
-to be faster, lighter or more scalable than `next start`.
+These are design motivations, **not measured results**. Measurements of
+specific workloads against `next start` are in [benchmarks.md](benchmarks.md);
+NextRS makes no general claim to be faster, lighter or more scalable.
 
 - **Resource control:** memory is managed without a garbage collector, and
   per-request costs (buffers, queues, connections) are explicitly bounded.

@@ -4,8 +4,7 @@
 
 <p align="center">
   <strong>An experimental Rust runtime for Next.js build output.</strong><br>
-  Build your app with Next.js as usual, then serve the <code>.next</code> output from a Rust server,
-  with Next.js's own compiled server code running in embedded V8.
+  Build with Next.js as usual. Run production output with NextRS.
 </p>
 
 <p align="center">
@@ -14,68 +13,91 @@
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-1.88%2B-CE422B?style=flat-square&logo=rust&logoColor=white" alt="Rust 1.88 or later"></a>
 </p>
 
+NextRS serves the `.next` output of an unmodified `next build` from one Rust
+process. Static files and prerendered pages are answered from Rust; dynamic
+routes run Next.js's own compiled server code in embedded V8. It replaces
+`next start`, not `next build`.
+
 ```bash
-next build
-nextrs start
+npx next build                            # build with Next.js, as usual
+nextrs start . --js-runtime embedded-v8   # serve the build with NextRS
 ```
 
-<p align="center"><sub>The workflow NextRS is aiming for. There is no published package yet: build it from source with the <a href="#quick-start">Quick Start</a>.</sub></p>
+<p align="center"><sub>There is no npm package yet, and no release has been published: build <code>nextrs</code> from source with the <a href="#quick-start">Quick Start</a>.</sub></p>
 
 > [!WARNING]
-> **NextRS is experimental.** It is not ready for untrusted public traffic and
-> it is not a production replacement for `next start`. It supports selected
-> App Router features, verified on small test applications. Read the
-> [security notice](engineering/security.md) before exposing it to a network.
+> **NextRS is experimental.** It is tested with Next.js 16.4.x builds on
+> Linux x86_64, against test applications and one larger real application,
+> and it has not run in production. It is not a drop-in replacement for
+> `next start` for every application, and it is not ready for untrusted
+> public traffic. Read the [security notice](engineering/security.md) before
+> exposing it to a network.
 
 ## Why NextRS?
-
-`next build` compiles your application into a `.next` directory: prerendered
-pages, static assets and compiled server handlers. Normally `next start`
-serves that output with Node.js. NextRS serves the **same, unmodified
-output** from a single Rust process.
 
 - **Keep your Next.js workflow.** Develop and build with Next.js and Node.js
   as you do today. NextRS does not rewrite React, Next.js or your code.
 - **Rust handles the serving layer.** HTTP, routing, `next.config` rules,
-  static files and prerendered pages are handled by an
+  static files, prerendered pages and image optimization run in an
   [axum](https://github.com/tokio-rs/axum) + Tokio server.
-- **Next.js's own handlers run in embedded V8.** Dynamic routes execute the
-  JavaScript that `next build` produced, in V8 isolates linked into the
-  NextRS binary. No separate Node.js server process runs while serving.
+- **Next.js's own handlers run in embedded V8.** No Node.js process serves
+  the web application. Backend services it calls, such as an API or a
+  database, are separate and keep running as they do today.
 - **Resources are explicit.** Isolate pools, queues, timeouts, body sizes and
   outbound network access are bounded and set from the command line.
-
-These are design goals. The [benchmarks](#performance-benchmarks) cover 24
-workloads on test fixtures and one machine, so NextRS makes no general claim
-to be faster or lighter than `next start`.
 
 ## Features
 
 - **Rust HTTP serving:** static assets, `public/` files, prerendered HTML and
-  RSC payloads, served from Rust with Next's caching headers.
-- **Dynamic SSR and React Server Components** *(experimental):* streaming
-  server rendering through Next.js's compiled handlers.
-- **Server Actions and Route Handlers** *(experimental):* forms, client
-  calls, encrypted closures, uploads and `route.ts` handlers.
-- **Pages Router** *(experimental):* `pages/` applications, alone or next
-  to `app/`: `getServerSideProps`, `getStaticProps` and `getStaticPaths`
-  with ISR, API routes, Preview Mode, `/_next/data` and Next's native
-  `i18n` routing, through Next.js's compiled handlers; also from
-  Deployment Adapter builds.
-- **Proxy and routing** *(experimental):* `proxy.ts` on the Node.js runtime,
-  plus `next.config` headers, redirects, rewrites, `basePath` and
-  `trailingSlash`, applied in `next start`'s order.
-- **ISR and caching** *(experimental):* ISR, on-demand revalidation, the
-  data cache and `"use cache"`, in one cache shared by every isolate and
-  optionally persisted to disk.
-- **Image optimization and runtime controls** *(experimental):*
-  `/_next/image` answered in Rust within a memory budget, outbound network
-  denied by default, and supervised isolates that are replaced when they
-  fail.
+  RSC payloads, with Next's caching headers.
+- **App Router** *(experimental):* streaming server rendering and React
+  Server Components, Route Handlers, Server Actions, ISR and on-demand
+  revalidation, Cache Components and partial prerendering.
+- **Pages Router** *(experimental):* `getServerSideProps`,
+  `getStaticProps` with ISR, API routes, Preview Mode, `/_next/data` and
+  Next's `i18n` routing.
+- **Proxy and routing** *(experimental):* `proxy.ts` and middleware on the
+  Node.js runtime, `next.config` headers, redirects and rewrites,
+  `basePath` and `trailingSlash`, in `next start`'s order.
+- **Shared cache** *(experimental):* one data and response cache for every
+  isolate, optionally persisted to disk.
+- **Image optimization** *(experimental):* `/_next/image` in Rust, without
+  `sharp`, within a memory budget.
+- **Operations:** outbound network denied by default, supervised isolates,
+  health and readiness probes, Prometheus metrics and JSON logs.
 
-Not supported: the edge runtime, and Next's `i18n` config together with App Router routes (`i18n` with the Pages Router is supported).
-NextRS refuses to start a build it would serve incorrectly. See the
-[compatibility reference](engineering/compatibility.md) for details.
+Not supported: the edge runtime, interception routes, and Next's `i18n`
+config with App Router routes. NextRS refuses to start a build it would
+serve incorrectly. See the [compatibility reference](engineering/compatibility.md).
+
+## Performance
+
+Measured against the official Next.js production server using identical
+build output. The chart highlights one Dynamic App Router SSR workload from
+November 18, 2026. A separate historical 24-workload matrix and its raw
+results are available in the [benchmark documentation](engineering/benchmarks.md).
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px)" srcset=".github/assets/nextrs-benchmarks-mobile.svg">
+    <img src=".github/assets/nextrs-benchmarks.svg" width="100%" alt="NextRS vs next start, Dynamic App Router SSR (/books/[id]), measured November 18, 2026 on NextRS f5c480d, Next.js 16.4.6 and Node.js 24.18.0, same Next.js build, median of 3 interleaved rounds. NextRS with one isolate against next start: throughput 20% higher (736 against 611 req/s); p95 latency 47% lower (3.30 against 6.26 ms); anonymous memory 63% less (141 against 376 MiB); CPU time per request 9% less (1.75 against 1.92 ms). Scale across V8 isolates: NextRS with 4 isolates reached 1,898 req/s, 3.11 times next start, sharing the same four-CPU server allocation; the Node baseline is one server process.">
+  </picture>
+</p>
+
+> [!NOTE]
+> **Benchmark notice.** Results were measured on November 18, 2026, using a
+> pre-release NextRS build (`f5c480d`), Next.js 16.4.6 and Node.js 24.18.0
+> on an Intel Core i5-9400F. Throughput, CPU and memory use closed-loop
+> measurements; p95 latency uses equal offered load. Results vary across
+> workloads. Some Pages Router routes have higher tail latency, and image
+> performance depends on concurrency. See the
+> [full methodology, historical 24-workload matrix and raw data](engineering/benchmarks.md).
+
+Image performance depends on concurrency: `next start` was faster than
+NextRS at its default two image workers, while NextRS exceeded it with four
+workers on the tested four-CPU host. Increasing workers may reduce CPU
+capacity available for rendering.
+([Image capacity results](engineering/benchmarks.md#image-capacity-phase-3d-2026-11-19).)
 
 ## Architecture
 
@@ -90,56 +112,16 @@ handlers in a pool of embedded V8 isolates, and their cache entries live in a
 Rust store shared by every isolate.
 [More in the architecture reference.](engineering/architecture.md)
 
-## Performance Benchmarks
-
-NextRS compared with the official Next.js server (`next start`), both
-serving the same `.next` build. The measurements cover 24 workloads; this
-chart shows one of them, measured on a pre-release build of NextRS
-(`f5c480d`), before the first release candidate, v0.1.0-rc.1.
-
-<p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset=".github/assets/nextrs-benchmarks-mobile.svg">
-    <img src=".github/assets/nextrs-benchmarks.svg" width="100%" alt="Measured 2026-11-18 on NextRS f5c480d, Next.js 16.4.6: Dynamic App Router SSR (/books/[id]); throughput, CPU and memory in a closed loop with 32 connections, p95 latency in an open loop at an equal offered rate; median of 3 interleaved rounds on one machine. Throughput: next start 611 req/s, NextRS · 1 isolate 736 req/s, NextRS · 4 isolates 1,898 req/s. p95 latency: next start 6.26 ms, NextRS · 1 isolate 3.30 ms. Anonymous memory: next start 376 MiB, NextRS · 1 isolate 141 MiB. CPU per request: next start 1.92 ms, NextRS · 1 isolate 1.75 ms.">
-  </picture>
-</p>
-
-> [!NOTE]
-> **Benchmark notice.**
-> - **When and what:**
->   - Measured on 2026-11-18.
->   - NextRS pre-release build `f5c480d`, Next.js 16.4.6, Node.js 24.18.0.
->   - One Intel Core i5-9400F host: the server on 4 CPUs, the load
->     generator on 2 others.
-> - **How:**
->   - Closed loop with 32 connections for throughput, CPU and memory.
->   - Open loop at an equal offered rate for p95 latency.
->   - 3 interleaved rounds, medians reported.
-> - **Results are mixed.**
->   - On Pages SSR, NextRS with one isolate has a higher open-loop p95 and
->     slightly more CPU per request than `next start`.
->   - `next start` transforms images faster.
->
-> All 24 workloads, the method, the regressions, the raw data and the
-> reproduction steps are in [engineering/benchmarks.md](engineering/benchmarks.md).
-> Results are specific to the tested workloads, hardware, and runtime
-> configurations. They are not guarantees of production performance.
-
 ## Quick Start
 
-Build NextRS from source and serve the example app in
+NextRS is not published yet: there is no npm package, no GitHub release and
+no crates.io crate (the crate named `nextrs` there is an unrelated project).
+Build it from source and serve the example app in
 [`fixtures/next-app`](fixtures/next-app/).
 
-> [!NOTE]
-> Release binaries (Linux x86_64) will be published as GitHub releases,
-> starting with the v0.1.0 release candidates. The installation and
-> operations guide is [`release/README.md`](release/README.md). NextRS is
-> not published on crates.io: the crate named `nextrs` there is an
-> unrelated project, so `cargo install nextrs` does not install this one.
-
-**You need:** Rust 1.88 or later, Node.js 20.9 or later (only for
-`next build`), and network access for the first build, which downloads a
-prebuilt V8 library. CI builds and tests on Linux.
+**You need:** Linux, Rust 1.88 or later, Node.js 20.9 or later (for
+`next build` only), and network access for the first build, which downloads
+a prebuilt V8 library.
 
 ```bash
 # 1. Build the NextRS CLI (V8 is linked statically, so this takes a while)
@@ -161,18 +143,22 @@ curl -i http://127.0.0.1:3001/           # prerendered page, served from Rust
 curl -i http://127.0.0.1:3001/books/42   # dynamic page, rendered by Next.js in V8
 ```
 
-Without `--js-runtime embedded-v8`, NextRS runs no JavaScript: dynamic routes
-answer an explicit `501`, and a build that needs JavaScript for Server Actions
-or ISR, like this one, is refused at startup. To see how each route will be
-served, run `./target/release/nextrs inspect fixtures/next-app`.
+- **Without `--js-runtime embedded-v8`,** NextRS runs no JavaScript: dynamic
+  routes answer `501`, and a build that needs JavaScript (Server Actions or
+  ISR, like this one) is refused at startup.
+- **`./target/release/nextrs inspect fixtures/next-app`** shows how each
+  route will be served.
+- **`./target/release/nextrs start --help`** lists every option; the
+  [configuration reference](engineering/configuration.md) explains limits,
+  network access, caching and reverse proxies.
+- **If the build runs out of memory,** limit parallel jobs with
+  `cargo build --release -j 2 -p nextrs-cli`.
 
-`nextrs start --help` lists every option. The
-[configuration reference](engineering/configuration.md) explains limits,
-network access, caching and reverse proxy settings.
-
-> [!TIP]
-> If the build runs out of memory, limit parallel jobs with
-> `cargo build --release -j 2 -p nextrs-cli`.
+**Precompiled binaries** for Linux x86_64 will be attached to GitHub
+releases, starting with v0.1.0-rc.1, which is still being validated. A
+precompiled binary needs no Rust toolchain, Cargo or Node.js to run; Node.js
+is still needed for `next build`. The
+[installation and operations guide](release/README.md) covers it.
 
 ## Project Status
 
@@ -180,23 +166,36 @@ NextRS is a research project, developed in the open.
 
 - **Experimental:** not recommended for untrusted production traffic. It
   binds to `127.0.0.1` by default.
-- **Selected features:** tested against small App and Pages Router
-  applications with Next.js 16.4.6. The same suites pass on 16.4.5.
-  One larger application (Velasia Airways) was also checked with its own
-  browser suite.
-- **Next.js 16 only:** builds of other Next.js majors are refused at
-  startup.
+- **Tested scope:** Next.js 16.4.6 and 16.4.5 builds on Linux x86_64. Other
+  16.x versions start with a warning; other majors are refused.
+- **Tested applications:** App Router and Pages Router fixtures compared
+  response by response with `next start`, independent sample applications,
+  and one larger application.
+- **Real-world example:** the unchanged
+  [Velasia Airways](https://github.com/nextrs-sh/velasia-airways) web
+  frontend (App Router, Cache Components, Server Actions) passed its own
+  Playwright suite on NextRS at 1 and 4 isolates on November 18, 2026:
+  flight search, booking, checkout and account management, 101 of 111 tests,
+  with 10 mobile-only tests skipped by design
+  ([results](benchmarks/certification/results/velasia-airways/)). Its
+  Fastify API is a separate service and still runs on Node.js.
 - **A narrow Node.js layer:** Node's network modules (`http`, `net`, TCP
   sockets), `zlib` streams, `child_process` and native addons are
   unavailable, so many database drivers will not work.
-- **Operations:** health, readiness, Prometheus metrics and JSON logs are
-  documented in [Operations](engineering/operations.md).
 - **Isolation limits:** a V8 isolate is a memory boundary, not a security
   boundary, and CPU limits apply per isolate, not per request.
+- **Release:** v0.1.0-rc.1, the first release candidate, is being validated
+  and has not been published.
 
-Technical details: [Compatibility](engineering/compatibility.md) ·
+## Documentation
+
+[Compatibility](engineering/compatibility.md) ·
+[Configuration](engineering/configuration.md) ·
+[Operations](engineering/operations.md) ·
 [Security](engineering/security.md) ·
 [Architecture](engineering/architecture.md) ·
+[Benchmarks](engineering/benchmarks.md) ·
+[Installation guide](release/README.md) ·
 [Engineering reference](engineering/README.md)
 
 ## Contributing

@@ -37,9 +37,14 @@ same build.
   undefined.
 - **Node.js runtime only.**
 
-Every check runs against small applications in [`fixtures/`](../fixtures/).
-Only their routes have been verified. Other applications may use code paths
-these fixtures do not reach.
+The comparison suites run against small applications in
+[`fixtures/`](../fixtures/). Beyond them, independent sample applications
+and one larger application, the unchanged Velasia Airways web frontend
+(App Router, Cache Components, Server Actions), were checked with their own
+HTTP and browser suites at 1 and 4 isolates
+([`benchmarks/certification/`](../benchmarks/certification/)). Only the
+routes these applications use have been verified. Other applications may
+use code paths none of them reach.
 
 | Fixture | Covers |
 |---|---|
