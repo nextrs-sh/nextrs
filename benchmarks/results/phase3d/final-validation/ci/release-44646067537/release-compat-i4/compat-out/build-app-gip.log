@@ -1,0 +1,30 @@
+▲ Next.js 16.4.6 (Turbopack)
+✓ Running next.config.ts took 25ms
+⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+
+  Running TypeScript ...
+  Finished TypeScript in 1764ms ...
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.1s
+  Collecting page data using 3 workers ...
+Warning: You have opted-out of Automatic Static Optimization due to `getInitialProps` in `pages/_app`. This does not opt-out pages with `getStaticProps`
+Read more: https://nextjs.org/docs/messages/opt-out-auto-static-optimization
+
+  Generating static pages using 3 workers (0/1) ...
+✓ Generating static pages using 3 workers (1/1) in 44ms
+  Finalizing page optimization ...
+
+Route (pages)
+┌ ƒ /
+├   /_app
+├ ƒ /404
+├ ƒ /api/health
+├ ƒ /gip
+├ ƒ /redirect
+├ ● /ssg
+├ ƒ /ssr
+└ ƒ /throws
+
+●  (SSG)      prerendered as static HTML (uses getStaticProps)
+ƒ  (Dynamic)  server-rendered on demand
+

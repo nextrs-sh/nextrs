@@ -1,0 +1,381 @@
+{
+  "summary": {
+    "title": "intl-variants (next-intl pathnames)",
+    "total": 17,
+    "match": 17,
+    "pass": 0,
+    "knownDiff": 0,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 17,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "localized-de-about",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/ueber-uns>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/a-propos>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/de/about",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Über uns",
+            "kind": "de",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "localized-fr-about",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/ueber-uns>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/a-propos>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/fr/about",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=fr; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "À propos",
+            "kind": "fr",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "canonical-en-about",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/ueber-uns>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/a-propos>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "About",
+            "kind": "en",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "internal-path-redirects-de",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/de/ueber-uns"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": "/de/ueber-uns"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "internal-path-redirects-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr/a-propos"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=fr; Path=/; SameSite=lax"
+          ],
+          "body": "/fr/a-propos"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "localized-dynamic-de",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/products/5>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/produkte/5>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/produits/5>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/products/5>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/de/products/5",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Produkt 5",
+            "slug": "5",
+            "kind": "de",
+            "info": "{\"acceptLanguage\":\"*\",\"nextUrl\":null}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "localized-dynamic-fr-encoded",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/products/a%20b>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/produkte/a%20b>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/produits/a%20b>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/products/a%20b>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/fr/products/a%20b",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=fr; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Produit a%20b",
+            "slug": "a%20b",
+            "kind": "fr",
+            "info": "{\"acceptLanguage\":\"*\",\"nextUrl\":null}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "internal-dynamic-redirects",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/de/produkte/5"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": "/de/produkte/5"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "localized-search-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/search>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/suche>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/recherche>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/search>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/de/search?q=k%C3%A4se",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Suchergebnisse für käse",
+            "query": "{\"q\":\"käse\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "internal-search-redirects-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr/recherche?q=x&p=2"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=fr; Path=/; SameSite=lax"
+          ],
+          "body": "/fr/recherche?q=x&p=2"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "unprefixed-detects-de",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/de/ueber-uns"
+          },
+          "setCookie": [],
+          "body": "/de/ueber-uns"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "unprefixed-cookie-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr/produits/3"
+          },
+          "setCookie": [],
+          "body": "/fr/produits/3"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "root-detects-fr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/fr"
+          },
+          "setCookie": [],
+          "body": "/fr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "foreign-pathname",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/de/ueber-uns"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": "/de/ueber-uns"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "unprefixed-localized-path",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/en/about"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=en; Path=/; SameSite=lax"
+          ],
+          "body": "/en/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "alternate-links-localized",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/ueber-uns>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/a-propos>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-middleware-rewrite": "/de/about",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": {
+            "title": "Über uns",
+            "kind": "de",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "rsc-localized",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "link": "<http://SELF/en/about>; rel=\"alternate\"; hreflang=\"en\", <http://SELF/de/ueber-uns>; rel=\"alternate\"; hreflang=\"de\", <http://SELF/fr/a-propos>; rel=\"alternate\"; hreflang=\"fr\", <http://SELF/about>; rel=\"alternate\"; hreflang=\"x-default\"",
+            "location": "/de/ueber-uns?_rsc",
+            "x-middleware-rewrite": "/de/about",
+            "x-nextjs-rewritten-path": "/de/about"
+          },
+          "setCookie": [
+            "NEXT_LOCALE=de; Path=/; SameSite=lax"
+          ],
+          "body": ""
+        },
+        "asserted": true
+      }
+    }
+  ]
+}

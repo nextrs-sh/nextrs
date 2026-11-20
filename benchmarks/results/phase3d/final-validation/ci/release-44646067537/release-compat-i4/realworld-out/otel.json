@@ -1,0 +1,185 @@
+{
+  "summary": {
+    "title": "otel (@vercel/otel)",
+    "total": 8,
+    "match": 7,
+    "pass": 0,
+    "knownDiff": 1,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 7,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "registration-once-per-instance",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "registrations": [
+            1
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "continues-incoming-trace",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "appShape": [
+            "@vercel/otel/fetch 3 fetch GET http://127.0.0.1:5307/echo?label=a <- work",
+            "fixture 1 work <- executing api route (app) /api/work",
+            "fixture 1 work-inner <- work",
+            "next.js 1 executing api route (app) /api/work <- GET /api/work",
+            "next.js 1 middleware GET <- outside",
+            "next.js 1 prepare route module <- GET /api/work",
+            "next.js 1 start response <- GET /api/work",
+            "next.js 2 GET /api/work <- outside"
+          ],
+          "wrong": null
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "starts-a-trace",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "appShape": [
+            "@vercel/otel/fetch 3 fetch GET http://127.0.0.1:5307/echo?label=a <- work",
+            "fixture 1 work <- executing api route (app) /api/work",
+            "fixture 1 work-inner <- work",
+            "next.js 1 executing api route (app) /api/work <- GET /api/work",
+            "next.js 1 middleware GET <- outside",
+            "next.js 1 prepare route module <- GET /api/work",
+            "next.js 1 start response <- GET /api/work",
+            "next.js 2 GET /api/work <- outside"
+          ],
+          "wrong": null,
+          "fresh": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "page-render",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "continued": true,
+          "hasRenderWork": true,
+          "appShape": [
+            "fixture 1 render-work <- render route (app) /page-traced",
+            "next.js 1 NextNodeServer.clientComponentLoading <- GET /page-traced",
+            "next.js 1 build component tree <- render route (app) /page-traced",
+            "next.js 1 middleware GET <- outside",
+            "next.js 1 prepare route module <- GET /page-traced",
+            "next.js 1 render route (app) /page-traced <- GET /page-traced",
+            "next.js 1 resolve segment modules <- build component tree",
+            "next.js 1 resolve segment modules <- build component tree",
+            "next.js 1 start response <- render route (app) /page-traced",
+            "next.js 2 GET /page-traced <- outside"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "server-level-spans",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "reason": "next start's router-server and base-server spans (a root GET around an incoming trace, resolve page components, load route module) have no NextRS counterpart; a fresh NextRS isolate registers instrumentation inside its first request",
+        "diffs": [
+          "$.full: [\"@vercel/otel/fetch 3 fetch GET http://127.0.0.1:5307/echo?label=server-spans <- work\",\"fixture 1 work <- executing api route (app) /api/work\",\"fixture 1 work-inner <- work\",\"next.js 1 executing api route (app) /api/work <- GET /api/work\",\"next.js 1 load route module <- resolve page components\",\"ne | [\"@vercel/otel/fetch 3 fetch GET http://127.0.0.1:5307/echo?label=server-spans <- work\",\"fixture 1 work <- executing api route (app) /api/work\",\"fixture 1 work-inner <- work\",\"next.js 1 executing api route (app) /api/work <- GET /api/work\",\"next.js 1 middleware GET <- remote\",\"next.js 1 prepare rout"
+        ],
+        "candidateWrong": null,
+        "baseline": {
+          "status": 200,
+          "full": [
+            "@vercel/otel/fetch 3 fetch GET http://127.0.0.1:5307/echo?label=server-spans <- work",
+            "fixture 1 work <- executing api route (app) /api/work",
+            "fixture 1 work-inner <- work",
+            "next.js 1 executing api route (app) /api/work <- GET /api/work",
+            "next.js 1 load route module <- resolve page components",
+            "next.js 1 middleware GET <- GET",
+            "next.js 1 prepare route module <- GET /api/work",
+            "next.js 1 resolve page components <- GET /api/work",
+            "next.js 1 start response <- GET /api/work",
+            "next.js 2 GET /api/work <- GET",
+            "next.js 2 GET <- remote"
+          ]
+        },
+        "candidate": {
+          "status": 200,
+          "full": [
+            "@vercel/otel/fetch 3 fetch GET http://127.0.0.1:5307/echo?label=server-spans <- work",
+            "fixture 1 work <- executing api route (app) /api/work",
+            "fixture 1 work-inner <- work",
+            "next.js 1 executing api route (app) /api/work <- GET /api/work",
+            "next.js 1 middleware GET <- remote",
+            "next.js 1 prepare route module <- GET /api/work",
+            "next.js 1 start response <- GET /api/work",
+            "next.js 2 GET /api/work <- remote"
+          ]
+        }
+      }
+    },
+    {
+      "name": "concurrent-traces",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "total": 40,
+          "wrong": 0,
+          "mixed": 0
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "exporter-failure",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200
+          ],
+          "recovered": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "after-executor-restart",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "appShape": [
+            "@vercel/otel/fetch 3 fetch GET http://127.0.0.1:5307/echo?label=restart <- work",
+            "fixture 1 work <- executing api route (app) /api/work",
+            "fixture 1 work-inner <- work",
+            "next.js 1 executing api route (app) /api/work <- GET /api/work",
+            "next.js 1 middleware GET <- outside",
+            "next.js 1 prepare route module <- GET /api/work",
+            "next.js 1 start response <- GET /api/work",
+            "next.js 2 GET /api/work <- outside"
+          ],
+          "wrong": null,
+          "registrations": [
+            1
+          ]
+        },
+        "asserted": true
+      }
+    }
+  ]
+}

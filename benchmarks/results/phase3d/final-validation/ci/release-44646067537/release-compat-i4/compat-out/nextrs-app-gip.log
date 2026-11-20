@@ -1,0 +1,38 @@
+[2m2026-11-20T00:41:16.437043Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-20T00:41:16.437907Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5641
+[2m2026-11-20T00:41:16.437966Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-20T00:41:16.565397Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:41:16.567313Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:41:16.598103Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:41:16.598315Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:41:16.614643Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:41:16.614711Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:41:16.622278Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m3 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m183
+[2m2026-11-20T00:41:16.635109Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m196
+[2m2026-11-20T00:41:16.636641Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:41:16.636671Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-20T00:41:16.641023Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m1 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m202
+[2m2026-11-20T00:41:16.659405Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m2 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m217
+[2m2026-11-20T00:41:16.659430Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m222 [3misolates[0m[2m=[0m4
+[2m2026-11-20T00:41:16.662039Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5640 [3mbuild_id[0m[2m=[0m9jE8vKLHjwFd6IpZ-rfsj [3mready_ms[0m[2m=[0m224
+Error: page getInitialProps failure (synthetic)
+    at o (.next/server/chunks/ssr/[root-of-the-server]__0gfjpjbfoe4cr._.js:1:10500)
+    at i.h (.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:25034)
+    at g.getInitialProps (.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:44327)
+    at async o (.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:34039)
+    at async as (.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:36984)
+    at async i (.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:40322)
+[2m2026-11-20T00:41:17.644148Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /throws: Error: page getInitialProps failure (synthetic)
+    at h.getInitialProps (/home/runner/work/nextrs/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/node_modules_next_dist_esm_build_templates_pages_1u4nyv1_wirw0.js:1:214)
+    at o (/home/runner/work/nextrs/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0gfjpjbfoe4cr._.js:1:10500)
+    at i.h (/home/runner/work/nextrs/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:25034)
+    at g.getInitialProps (/home/runner/work/nextrs/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/_1f6rlntdxfz-o._.js:1:44327)
+    at V (/home/runner/work/nextrs/nextrs/fixtures/next-pages-app-gip/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:38839)
+    at rA (/home/runner/work/nextrs/nextrs/fixtures/next-pages-app-gip/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:13:2692)
+    at async o (/home/runner/work/nextrs/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:34039)
+    at async rj.handleResponse (/home/runner/work/nextrs/nextrs/fixtures/next-pages-app-gip/node_modules/next/dist/compiled/next-server/pages-turbo.runtime.prod.js:1:104985)
+    at async as (/home/runner/work/nextrs/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:36984)
+    at async i (/home/runner/work/nextrs/nextrs/fixtures/next-pages-app-gip/.next/server/chunks/ssr/[root-of-the-server]__0b-la2m8xofs3._.js:1:40322) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-20T00:41:18.266876Z[0m [32m INFO[0m [2mnextrs_server::serve[0m[2m:[0m shutting down: no new connections; draining [3mconnections[0m[2m=[0m80 [3mgrace_ms[0m[2m=[0m10000
+[2m2026-11-20T00:41:18.266962Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-20T00:41:18.319433Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

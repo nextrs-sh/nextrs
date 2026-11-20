@@ -1,0 +1,46 @@
+MATCH                GET /                                                                  baseline=200/6070B candidate=200/6070B
+MATCH                HEAD /                                                                 baseline=200/0B candidate=200/0B
+MATCH                GET /                                                                  baseline=304/0B candidate=304/0B
+MATCH (header diffs) GET /_next/static/chunks/310vm2bl3xxpt.js                              baseline=200/5364B candidate=200/5364B
+                     header accept-ranges: baseline="bytes" candidate=null
+MATCH                GET /_next/static/chunks/does-not-exist.js                             baseline=404/9B candidate=404/9B
+MATCH                GET /_next/static/../../BUILD_ID                                       baseline=404/7389B candidate=404/7389B
+MATCH                GET /_next/static/%2e%2e/%2e%2e/prerender-manifest.json                baseline=404/7389B candidate=404/7389B
+MATCH                GET /_next/static/..%2f..%2frequired-server-files.json                 baseline=404/9B candidate=404/9B
+MATCH                GET /_next/prerender-manifest.json                                     baseline=404/7389B candidate=404/7389B
+MATCH                GET /books/42/                                                         baseline=308/9B candidate=308/9B
+MATCH                GET /does-not-exist                                                    baseline=404/7389B candidate=404/7389B
+MATCH                GET /_not-found                                                        baseline=404/7389B candidate=404/7389B
+MATCH                GET /_global-error                                                     baseline=500/8994B candidate=500/8994B
+MATCH                GET /_next/data/x.json                                                 baseline=404/7389B candidate=404/7389B
+MATCH                GET /                                                                  baseline=307/0B candidate=307/0B
+MATCH                GET /?_rsc                                                             baseline=200/3630B candidate=200/3630B
+MATCH                GET /?_rsc=_i_aeImnuN6u1u1r                                            baseline=200/110B candidate=200/110B
+MATCH                GET /?_rsc=bogus                                                       baseline=307/0B candidate=307/0B
+MATCH                POST /                                                                 baseline=405/18B candidate=405/18B
+MATCH                GET /dynamic                                                           baseline=200/7150B candidate=200/7150B
+MATCH                GET /books/42                                                          baseline=200/6038B candidate=200/6038B
+MATCH                GET /api/health                                                        baseline=200/42B candidate=200/42B
+MATCH                GET /request-info                                                      baseline=200/5663B candidate=200/5663B
+MATCH                GET /_next/image?url=%2Ffoo.png&w=64&q=75                              baseline=404/57B candidate=404/57B
+MATCH                HEAD /dynamic                                                          baseline=200/0B candidate=200/0B
+MATCH                GET /books/42                                                          baseline=307/0B candidate=307/0B
+MATCH (normalized)   GET /books/42?_rsc                                                     baseline=200/3729B candidate=200/3729B
+MATCH                GET /books/%E2%9C%93                                                   baseline=200/6080B candidate=200/6080B
+MATCH                GET /books/7?ref=nextrs&x=1                                            baseline=200/6072B candidate=200/6072B
+MATCH                GET /request-info                                                      baseline=200/5669B candidate=200/5669B
+MATCH                GET /request-info                                                      baseline=200/5661B candidate=200/5661B
+MATCH                POST /api/health                                                       baseline=405/0B candidate=405/0B
+MATCH                HEAD /api/health                                                       baseline=200/0B candidate=200/0B
+MATCH                POST /api/echo                                                         baseline=200/107B candidate=200/107B
+MATCH                POST /api/echo                                                         baseline=200/107B candidate=200/107B
+MATCH                POST /api/echo                                                         baseline=200/103B candidate=200/103B
+MATCH                POST /api/echo?mode=stream                                             baseline=200/500000B candidate=200/500000B
+MATCH                GET /api/stream?size=4194304                                           baseline=200/4194304B candidate=200/4194304B
+MATCH                GET /api/after?id=compare                                              baseline=200/16B candidate=200/16B
+MATCH                GET /isolation/boundary                                                baseline=200/6163B candidate=200/6163B
+MATCH                GET /isolation/boundary                                                baseline=500/5929B candidate=500/5929B
+MATCH                GET /gsp/alpha                                                         baseline=200/5993B candidate=200/5993B
+MATCH                GET /gsp/gamma                                                         baseline=200/5990B candidate=200/5990B
+
+Summary: {"MATCH":41,"MATCH (header diffs)":1,"MATCH (normalized)":1}
