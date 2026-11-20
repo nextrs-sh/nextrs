@@ -27,8 +27,10 @@
 # does not use it.
 #
 # The fixtures are official `next build` outputs of the pinned Next.js
-# version (each fixture's package-lock.json). --skip-build reuses the
-# `.next` directories already present.
+# version (each fixture's package-lock.json), built with each fixture's own
+# `npm run build`. For next-image that first runs scripts/make-images.mjs,
+# which writes the gitignored images and data.ts; a fresh checkout has
+# neither. --skip-build reuses the `.next` directories already present.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 ARCHIVE="" OUT="" BUILD=1
@@ -64,7 +66,7 @@ fi
 for f in "${FIXTURES[@]}"; do
   src="$ROOT/fixtures/$f"
   if [[ $BUILD == 1 ]]; then
-    (cd "$src" && npm ci --no-audit --no-fund --loglevel=error && rm -rf .next && npx next build > "$OUT/build-$f.log" 2>&1) ||
+    (cd "$src" && npm ci --no-audit --no-fund --loglevel=error && rm -rf .next && npm run build > "$OUT/build-$f.log" 2>&1) ||
       { tail -30 "$OUT/build-$f.log"; exit 1; }
   fi
   [[ -f $src/.next/BUILD_ID ]] || { echo "$f has no .next build" >&2; exit 1; }
