@@ -96,6 +96,27 @@ The archive contains:
 | `THIRD-PARTY.md` | The statically linked crates, V8 and its C/C++ libraries, and their licenses |
 | `THIRD-PARTY-LICENSES.txt` | Their license and notice texts |
 
+**With npm or pnpm.** The same binary is published as the npm package
+`@nextrs/cli`, for Linux x86_64 with glibc 2.35 or later. Add it to the
+Next.js application as a development dependency:
+
+```bash
+npm install -D @nextrs/cli@0.1.0-rc.1      # or: pnpm add -D @nextrs/cli@0.1.0-rc.1
+npx next build                              # Node.js builds the application
+npx nextrs start . --js-runtime embedded-v8
+```
+
+Installing it needs no Rust or Cargo:
+
+- the package has no install scripts and no dependencies;
+- its `native/nextrs` is this archive's binary, byte for byte;
+- `BUILD-INFO.json` is included.
+
+**In production,** start `node_modules/.bin/nextrs`, or the copied binary,
+directly. Don't use `npx` or `npm start`: an npm wrapper does not reliably
+pass SIGTERM on to the server. A prerelease is published under the
+dist-tag `next`, so install it with its exact version.
+
 To build from source instead, see the repository README. NextRS is not
 published on crates.io; the crate named `nextrs` there is an unrelated
 project.
