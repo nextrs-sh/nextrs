@@ -1,0 +1,39 @@
+#!/bin/sh
+# nextrs launcher (@nextrs-sh/cli).
+#
+# Checks the platform, then replaces itself with the native NextRS binary
+# (exec). No shell or Node.js process stays between the caller and the
+# server: signals reach the server directly, and the exit status is the
+# server's own. It never compiles, downloads or installs anything.
+#
+# Why a launcher rather than pointing "bin" at the binary: pnpm runs a bin
+# without a #! line as a child of its .bin shell shim, which then outlives
+# signals sent to it and leaves the server running; a #! script is exec'd.
+self=$(readlink -f -- "$0" 2>/dev/null) || self=$0
+native=${self%/*}/../native/nextrs
+die() {
+  echo "nextrs: $1" >&2
+  echo "nextrs: see https://github.com/nextrs-sh/nextrs/blob/main/engineering/installation.md#troubleshooting" >&2
+  exit "$2"
+}
+platform=$(uname -sm 2>/dev/null)
+[ "$platform" = "Linux x86_64" ] ||
+  die "this package holds a Linux x86_64 binary; this system is '${platform:-unknown}'. No other platform is supported yet, and NextRS is never built from source on install." 1
+libc=$(getconf GNU_LIBC_VERSION 2>/dev/null)
+case $libc in
+  "glibc "*)
+    ver=${libc#glibc }
+    minor=${ver#*.}
+    minor=${minor%%.*}
+    if [ "${ver%%.*}" = 2 ] && [ "$minor" -lt 35 ] 2>/dev/null; then
+      die "NextRS needs glibc 2.35 or later; this system has glibc $ver. Use a newer distribution or base image (for example Ubuntu 22.04 or later, Debian 12 or later)." 1
+    fi ;;
+  *)
+    [ ! -e /lib/ld-musl-x86_64.so.1 ] ||
+      die "this system uses musl libc (for example Alpine Linux); NextRS needs glibc 2.35 or later." 1 ;;
+esac
+[ -e "$native" ] ||
+  die "the native binary is missing: $native. Reinstall the package (for example: rm -rf node_modules && npm ci)." 127
+[ -x "$native" ] ||
+  die "the native binary is not executable: $native. Reinstall the package, or run: chmod 0755 '$native'" 126
+exec "$native" "$@"
