@@ -1,0 +1,111 @@
+name: npm publish (maintainers)
+
+# Publishes @nextrs-sh/cli to the public npm registry. It never runs on its
+# own: a maintainer dispatches it, and the `npm-publish` environment must be
+# configured with required reviewers (Settings → Environments), so a second
+# approval is needed before the publish step can start.
+#
+# What it publishes is rebuilt from the GitHub release, not from a CI build:
+#   1. the release archive, its .sha256 and manifest are downloaded from the
+#      published GitHub release v<version>;
+#   2. their checksums must equal the records committed in release/checksums/
+#      (archive, binary) and release/checksums/ (npm tarball);
+#   3. scripts/package-npm.sh packs the archive's binary (packing is
+#      deterministic), and the tarball's SHA-256 must equal the committed
+#      record; scripts/verify-npm-package.sh must pass;
+#   4. npm publish --tag next (a prerelease is never "latest"), with
+#      provenance, through npm trusted publishing (OIDC) when configured, or
+#      an NPM_TOKEN secret of the environment otherwise.
+# dry_run (the default) stops before uploading: it runs `npm publish --dry-run`.
+# See release/npm-publishing.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without the v prefix, e.g. 0.1.0-rc.1 (the GitHub release v<version> must exist)"
+        required: true
+      dry_run:
+        description: "Stop before uploading (npm publish --dry-run)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: publish @nextrs-sh/cli ${{ inputs.version }}${{ inputs.dry_run && ' (dry run)' || '' }}
+    # Only from the default branch, never from a pull request or a fork.
+    if: github.ref == 'refs/heads/main' && github.repository == 'nextrs-sh/nextrs'
+    runs-on: ubuntu-24.04
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing and provenance
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Version format
+        run: echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.[0-9]+)?$' || { echo "not a release version: $VERSION"; exit 1; }
+      - uses: actions/checkout@v4
+        with:
+          # The tagged commit: package.json, README and the checksum records as released.
+          ref: v${{ inputs.version }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.18.0"
+          registry-url: "https://registry.npmjs.org"
+      - name: Download the GitHub release archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir dist
+          gh release download "v$VERSION" -R "$GITHUB_REPOSITORY" -D dist \
+            -p "nextrs-v$VERSION-linux-x86_64.tar.gz" -p "nextrs-v$VERSION-linux-x86_64.tar.gz.sha256" -p "nextrs-v$VERSION-linux-x86_64.manifest.json"
+          gh release view "v$VERSION" -R "$GITHUB_REPOSITORY" --json isPrerelease -q .isPrerelease | tee prerelease
+      - name: Checksums agree with the committed records
+        run: |
+          set -eu
+          a=nextrs-v$VERSION-linux-x86_64
+          (cd dist && sha256sum -c "$a.tar.gz.sha256")
+          want_archive=$(cut -d' ' -f1 "release/checksums/$a.tar.gz.sha256")
+          want_binary=$(cut -d' ' -f1 "release/checksums/$a.binary.sha256")
+          [ "$(sha256sum "dist/$a.tar.gz" | cut -d' ' -f1)" = "$want_archive" ] || { echo "archive differs from release/checksums"; exit 1; }
+          [ "$(node -p "require('./dist/$a.manifest.json').binary_sha256")" = "$want_binary" ] || { echo "manifest binary differs from release/checksums"; exit 1; }
+          echo "WANT_BINARY=$want_binary" >> "$GITHUB_ENV"
+      - name: Pack (deterministic) and verify
+        run: |
+          set -eu
+          scripts/package-npm.sh --archive "dist/nextrs-v$VERSION-linux-x86_64.tar.gz" --expect-binary-sha256 "$WANT_BINARY" --out npm
+          want=$(cut -d' ' -f1 "release/checksums/nextrs-sh-cli-$VERSION.tgz.sha256")
+          got=$(cut -d' ' -f1 "npm/nextrs-sh-cli-$VERSION.tgz.sha256")
+          [ "$got" = "$want" ] || { echo "npm tarball $got differs from release/checksums ($want)"; exit 1; }
+      - name: Dist-tag
+        run: |
+          case "$VERSION" in
+            *-*) [ "$(cat prerelease)" = true ] || { echo "v$VERSION is not marked prerelease on GitHub"; exit 1; }; echo "TAG=next" >> "$GITHUB_ENV" ;;
+            *) echo "TAG=latest" >> "$GITHUB_ENV" ;;
+          esac
+      - name: npm publish
+        env:
+          # Only needed until trusted publishing is configured for the package.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -eu
+          npm --version
+          flags="--tag $TAG --access public --provenance"
+          [ "$DRY_RUN" = true ] && flags="$flags --dry-run"
+          npm publish "npm/nextrs-sh-cli-$VERSION.tgz" $flags
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-publish-${{ inputs.version }}
+          path: |
+            npm/*.tgz.sha256
+            npm/*.npm.json
+            npm/*.verify.json

@@ -32,6 +32,12 @@ on:
       - "scripts/runtime-file-audit.sh"
       - "scripts/third-party-licenses.mjs"
       - "LICENSE-*"
+      - "packages/cli/**"
+      - "scripts/package-npm.sh"
+      - "scripts/verify-npm-package.sh"
+      - "scripts/npm-*.sh"
+      - "tests/npm/**"
+      - "examples/docker/**"
       - "Cargo.toml"
       - "Cargo.lock"
       - "crates/nextrs-runtime/js/**"
@@ -214,4 +220,138 @@ jobs:
         with:
           name: clean-install-${{ strategy.job-index }}
           path: results
+          if-no-files-found: ignore
+
+  # ------------------------------------------------------------------ npm
+  # The npm package is a second channel for the same binary: it is packed
+  # from the archive built above (never from a separate build), verified
+  # byte for byte against it, and installed with npm and pnpm in clean
+  # containers. Nothing is published: see npm-publish.yml.
+  npm-package:
+    name: npm package (pack, verify, negative tests)
+    needs: [version, build]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.20.0"
+      - uses: actions/download-artifact@v4
+        with:
+          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
+          path: dist
+      - name: Pack from the release archive and verify against it
+        run: scripts/package-npm.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --out dist/npm
+      - name: Packing is deterministic
+        run: |
+          scripts/package-npm.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --out repack > /dev/null
+          cmp dist/npm/*.tgz repack/*.tgz && echo "identical: $(cat dist/npm/*.tgz.sha256)"
+      - name: Refusals (version mismatch, checksums, withdrawn build, scripts, permissions, extra files)
+        run: tests/npm/packaging-negative.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --tarball dist/npm/nextrs-sh-cli-${{ needs.version.outputs.version }}.tgz --json dist/npm/packaging-negative.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nextrs-sh-cli-${{ needs.version.outputs.version }}-npm
+          path: |
+            dist/npm/*.tgz
+            dist/npm/*.tgz.sha256
+            dist/npm/*.npm.json
+            dist/npm/*.verify.json
+            dist/npm/packaging-negative.json
+          if-no-files-found: error
+
+  npm-install:
+    name: npm and pnpm install on ${{ matrix.image }}
+    needs: [version, build, npm-package]
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ["ubuntu:22.04", "ubuntu:24.04", "debian:12-slim"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.20.0"
+      - uses: actions/download-artifact@v4
+        with:
+          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: nextrs-sh-cli-${{ needs.version.outputs.version }}-npm
+          path: dist/npm
+      # The containers get only the bundle: the tarball, Node.js and pnpm
+      # (checksum-verified), and the application source. Its dependencies are
+      # installed with the network; the NextRS package, next build and the
+      # server run with --network none. No Rust is visible anywhere.
+      - name: Bundle
+        run: scripts/npm-install-bundle.sh --tarball dist/npm/nextrs-sh-cli-${{ needs.version.outputs.version }}.tgz --manifest "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json" --out bundle --node-version 22.20.0
+      - name: Install, build, serve, signals, failure cases
+        run: scripts/npm-install-containers.sh --engine docker --bundle bundle --results results --image "${{ matrix.image }}" --no-unsupported
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-install-${{ strategy.job-index }}
+          path: results
+          if-no-files-found: ignore
+
+  npm-unsupported:
+    name: npm on unsupported platforms (glibc 2.31, musl)
+    needs: [version, build, npm-package]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.20.0"
+      - uses: actions/download-artifact@v4
+        with:
+          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: nextrs-sh-cli-${{ needs.version.outputs.version }}-npm
+          path: dist/npm
+      - name: Bundle
+        run: scripts/npm-install-bundle.sh --tarball dist/npm/nextrs-sh-cli-${{ needs.version.outputs.version }}.tgz --manifest "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json" --out bundle --node-version 22.20.0
+      - name: Ubuntu 20.04 (glibc 2.31) and Alpine (musl) refuse clearly
+        run: scripts/npm-install-containers.sh --engine docker --bundle bundle --results results --only-unsupported
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-unsupported
+          path: results
+          if-no-files-found: ignore
+
+  docker-example:
+    name: documented Dockerfile (examples/docker)
+    needs: [version, build, npm-package]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.20.0"
+      - uses: actions/download-artifact@v4
+        with:
+          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: nextrs-sh-cli-${{ needs.version.outputs.version }}-npm
+          path: dist/npm
+      - name: Build the image from the npm package, run it without Node.js, stop it
+        run: |
+          sha=$(node -p "require('./dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json').binary_sha256")
+          scripts/npm-docker-example.sh --engine docker --tarball dist/npm/nextrs-sh-cli-${{ needs.version.outputs.version }}.tgz --expect-sha256 "$sha" --out docker-example
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-example
+          path: |
+            docker-example/docker-example.json
+            docker-example/Dockerfile.diff
+            docker-example/inventory.txt
+            docker-example/server.log
+            docker-example/build.log
           if-no-files-found: ignore
