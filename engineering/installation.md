@@ -54,10 +54,13 @@ compiler: every channel delivers the same precompiled binary.
 | CPU | x86_64 (`x64`) | arm64 and every other CPU |
 | C library | glibc 2.35+ (tested on Ubuntu 22.04, Ubuntu 24.04 and Debian 12) | musl (Alpine), and glibc older than 2.35 (Ubuntu 20.04, Debian 11) |
 
-**The npm package refuses other platforms at install time.**
+**Other platforms are refused, at install or at the first run.**
 
-- **Another OS, CPU or libc:** npm and pnpm stop with an unsupported-platform
-  error.
+- **Another OS, CPU or libc with npm:** the install stops with
+  `EBADPLATFORM`.
+- **The same with pnpm:** pnpm installs the package, because it checks these
+  fields only for optional dependencies. `nextrs` then refuses to start and
+  names the problem.
 - **glibc older than 2.35:** this cannot be declared to npm. The package
   installs, then `nextrs` exits with a message naming the requirement.
 
@@ -248,7 +251,7 @@ integrity in the lockfile. A tarball that changed afterwards fails
 | Message | Cause | Fix |
 |---|---|---|
 | `npm error code EBADPLATFORM … Unsupported platform for @nextrs-sh/cli` | not Linux x64 glibc | Use a supported system or image. There is no build from source behind the package. |
-| `ERR_PNPM_UNSUPPORTED_PLATFORM` | the same, with pnpm | The same. |
+| `nextrs: this package holds a Linux x86_64 binary; this system is '…'` | another OS or CPU (pnpm installs it; npm would refuse) | The same. |
 | `nextrs: NextRS needs glibc 2.35 or later; this system has glibc 2.31` | the distribution is too old (Ubuntu 20.04, Debian 11) | Ubuntu 22.04+, Debian 12+, or a newer base image |
 | `nextrs: this system uses musl libc (for example Alpine Linux)` | Alpine, after a forced install | A glibc image such as `debian:12-slim` |
 | `nextrs: the native binary is missing: …` | the package directory was modified or pruned | `rm -rf node_modules && npm ci` (or `pnpm install --force`) |

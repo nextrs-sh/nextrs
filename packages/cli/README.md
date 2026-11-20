@@ -85,10 +85,14 @@ the GitHub release manifest for the same version.
 | Architecture | x86_64 (`x64`) |
 | C library | glibc 2.35 or later. Tested on Ubuntu 22.04, Ubuntu 24.04 and Debian 12. |
 
-**Other platforms are refused at install.** On another OS, another CPU or
-musl (Alpine), npm and pnpm stop with an unsupported-platform error
-(`EBADPLATFORM`, `ERR_PNPM_UNSUPPORTED_PLATFORM`). There is no build from
-source behind it.
+**Other platforms are refused.** On another OS, another CPU or musl (Alpine):
+
+- **npm** stops the install with `EBADPLATFORM`.
+- **pnpm** installs the package (it enforces `os`, `cpu` and `libc` only for
+  optional dependencies), then `nextrs` refuses to start and names the
+  problem.
+
+There is no build from source behind either.
 
 **An older glibc installs but cannot run.** The loader then exits with:
 

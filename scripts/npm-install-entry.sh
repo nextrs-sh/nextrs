@@ -156,8 +156,10 @@ musl)
   user
   as "mkdir -p /tmp/m && cd /tmp/m && npm init -y > /dev/null && npm install --offline -D $TGZ; echo exit=\$?" > /tmp/o 2>&1
   rec musl:npm-refused "$(! grep -q 'exit=0' /tmp/o && grep -q EBADPLATFORM /tmp/o; echo $?)" "$(grep -m1 -E 'EBADPLATFORM|notsup' /tmp/o) $(grep -m1 -iE 'libc' /tmp/o | head -c 160)"
-  as "mkdir -p /tmp/mp && cd /tmp/mp && echo '{\"name\":\"p\",\"version\":\"1.0.0\",\"private\":true}' > package.json && pnpm add --offline -D $TGZ; echo exit=\$?" > /tmp/o 2>&1
-  rec musl:pnpm-refused "$(! grep -q 'exit=0' /tmp/o && grep -qiE 'UNSUPPORTED_PLATFORM|unsupported platform|incompatible' /tmp/o; echo $?)" "$(grep -m1 -iE 'ERR_PNPM|unsupported|incompatible' /tmp/o | head -c 220)"
+  # pnpm enforces os/cpu/libc only for optional dependencies: it installs the
+  # package, and the launcher must refuse at the first run.
+  as "mkdir -p /tmp/mp && cd /tmp/mp && echo '{\"name\":\"p\",\"version\":\"1.0.0\",\"private\":true}' > package.json && pnpm add --offline -D $TGZ > add.log 2>&1; echo add-exit=\$?; ./node_modules/.bin/nextrs --version; echo exit=\$?" > /tmp/o 2>&1
+  rec musl:pnpm-launcher "$(grep -q 'exit=1$' /tmp/o && grep -q 'musl' /tmp/o; echo $?)" "pnpm add: $(grep -o 'add-exit=[0-9]*' /tmp/o) (installed); first run: $(grep -m1 'nextrs:' /tmp/o) [$(grep -o '^exit=[0-9]*' /tmp/o)]"
   as "cd /tmp/m && npm install --offline --force -D $TGZ > /dev/null 2>&1; ./node_modules/.bin/nextrs --version; echo exit=\$?" > /tmp/o 2>&1
   rec musl:forced-launcher "$(grep -q 'exit=1$' /tmp/o && grep -q 'musl' /tmp/o; echo $?)" "after npm install --force: $(grep -m1 'nextrs:' /tmp/o) [$(grep -o 'exit=[0-9]*' /tmp/o)]"
   ;;

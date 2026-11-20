@@ -68,9 +68,12 @@ package/
   package, compiles nothing and downloads nothing. `package-npm.sh` and
   `verify-npm-package.sh` both refuse a `scripts`, `gypfile` or dependency
   field.
-- **`"os": ["linux"]`, `"cpu": ["x64"]`, `"libc": ["glibc"]`.** npm and pnpm
-  refuse to install the package elsewhere (`EBADPLATFORM`,
-  `ERR_PNPM_UNSUPPORTED_PLATFORM`).
+- **`"os": ["linux"]`, `"cpu": ["x64"]`, `"libc": ["glibc"]`.** npm refuses
+  to install the package elsewhere (`EBADPLATFORM`).
+  - pnpm 10.23.0 enforces these fields only for optional dependencies. It
+    installed the package on Alpine (musl) and under a simulated arm64 or
+    darwin without an error.
+  - There, the launcher refuses at the first run instead.
 - **The glibc version cannot be declared** in `package.json`. The launcher
   checks it at run time.
 - **`publishConfig`:** `access: public`, `tag: next` and `provenance: true`.
