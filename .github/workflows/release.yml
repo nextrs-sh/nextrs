@@ -28,7 +28,13 @@ on:
       - "release/**"
       - "scripts/package-release.sh"
       - "scripts/release-smoke.sh"
+      - "scripts/clean-install-*.sh"
+      - "scripts/runtime-file-audit.sh"
+      - "scripts/third-party-licenses.mjs"
+      - "LICENSE-*"
       - "Cargo.toml"
+      - "Cargo.lock"
+      - "crates/nextrs-runtime/js/**"
 
 permissions:
   contents: read
@@ -109,11 +115,17 @@ jobs:
         run: cargo build --locked --profile dist -p nextrs-cli
       - name: Package
         run: scripts/package-release.sh --binary target/dist/nextrs --version "${{ needs.version.outputs.version }}" --out dist --toolchain "${{ env.RUST_TOOLCHAIN }}"
-      - name: Build the smoke-test application with Next.js
-        working-directory: fixtures/next-app
-        run: npm ci --no-audit --no-fund && npx next build
-      - name: Bundle the built application (no Node.js needed to serve it)
-        run: tar -czf smoke-app.tar.gz -C fixtures next-app
+      # The build machine still has the Cargo registry and this checkout, so
+      # every read below would succeed: the audit fails on any attempt.
+      - name: Runtime file audit (no build-machine path is touched at run time)
+        run: |
+          sudo apt-get install -y -qq strace > /dev/null
+          scripts/runtime-file-audit.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" \
+            --app fixtures/next-app --isolates 2 --out audit
+      - name: Clean-install bundle (official next build outputs; Node.js builds them, nothing serves them with it)
+        run: |
+          scripts/clean-install-bundle.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --out bundle
+          tar -czf clean-install-bundle.tar.gz bundle
       - uses: actions/upload-artifact@v4
         with:
           name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
@@ -124,9 +136,19 @@ jobs:
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
-          name: smoke-app
-          path: smoke-app.tar.gz
+          name: clean-install-bundle
+          path: clean-install-bundle.tar.gz
           retention-days: 7
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-file-audit
+          path: |
+            audit/summary.json
+            audit/paths.txt
+            audit/violations.txt
+            audit/server.log
+          if-no-files-found: ignore
 
   compat:
     name: compatibility suites on the release binary (pinned, ${{ matrix.isolates }} isolate(s))
@@ -166,36 +188,30 @@ jobs:
     name: clean install on ${{ matrix.image }}
     needs: [version, build]
     runs-on: ubuntu-24.04
-    # A bare distribution image: no Rust, no Node.js, no CA bundle. Only
-    # curl is installed, without recommended packages (so no
-    # ca-certificates): TLS must work from NextRS's bundled roots.
-    container: ${{ matrix.image }}
+    # No checkout: the runner gets only the bundle (the archive, prebuilt
+    # applications and the curl-only test scripts). The test runs in a
+    # fresh container of a bare distribution image whose only mounts are
+    # that bundle (read-only) and an empty results directory, so no Rust,
+    # no Node.js, no Cargo registry and no source tree is visible inside.
+    # Only curl is installed, without recommended packages (so no
+    # ca-certificates): TLS must work from NextRS's bundled roots. The
+    # server runs as an unprivileged user.
     strategy:
       fail-fast: false
       matrix:
         image: ["ubuntu:22.04", "ubuntu:24.04", "debian:12-slim"]
     steps:
-      - name: Install curl only
-        run: apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --no-install-recommends curl > /dev/null
-      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
-          path: dist
-      - uses: actions/download-artifact@v4
-        with:
-          name: smoke-app
+          name: clean-install-bundle
           path: .
-      - name: Smoke test as an unprivileged user
-        run: |
-          tar -xzf smoke-app.tar.gz
-          useradd --create-home smoke
-          chown -R smoke "$PWD"
-          for t in cargo rustc node deno; do command -v "$t" && echo "unexpected: $t is installed" && exit 1; done
-          su smoke -s /bin/bash -c "scripts/release-smoke.sh --archive dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz --app next-app --json smoke-${{ strategy.job-index }}.json"
+      - name: Unpack the bundle
+        run: tar -xzf clean-install-bundle.tar.gz && rm clean-install-bundle.tar.gz && ls bundle
+      - name: Install, isolation and feature checks in a fresh container
+        run: bash bundle/scripts/clean-install-containers.sh --engine docker --bundle bundle --results results --image "${{ matrix.image }}"
       - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: clean-install-${{ strategy.job-index }}
-          path: smoke-*.json
+          path: results
           if-no-files-found: ignore
