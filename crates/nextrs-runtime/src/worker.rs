@@ -106,10 +106,13 @@ fn run(
             false,
             deno_web::InMemoryBroadcastChannel::default(),
         );
+        crate::embedded_js::embed(&mut web, crate::embedded_js::DENO_WEB);
         crate::web_patches::apply(&mut web);
+        let mut webidl = deno_webidl::deno_webidl::init();
+        crate::embedded_js::embed(&mut webidl, crate::embedded_js::DENO_WEBIDL);
         let mut runtime = JsRuntime::new(RuntimeOptions {
             extensions: vec![
-                deno_webidl::deno_webidl::init(),
+                webidl,
                 web,
                 ops::nextrs_runtime::init(
                     boot,

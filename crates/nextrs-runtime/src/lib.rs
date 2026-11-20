@@ -19,6 +19,7 @@
 //! and host capabilities only through the ops in `ops.rs`.
 
 mod cache;
+mod embedded_js;
 mod internal;
 mod metrics;
 mod multipart;
