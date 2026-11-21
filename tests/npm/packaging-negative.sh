@@ -3,8 +3,8 @@
 # each case builds a broken input and expects a refusal that names the
 # problem. Runs on the builder (bash, node, npm, tar, readelf).
 #
-#   tests/npm/packaging-negative.sh --archive dist/nextrs-v0.1.0-rc.1-linux-x86_64.tar.gz \
-#     --tarball dist/npm/nextrs-cli-0.1.0-rc.1.tgz [--json OUT]
+#   tests/npm/packaging-negative.sh --archive dist/nextrs-vVERSION-linux-x86_64.tar.gz \
+#     --tarball dist/npm/nextrs-cli-VERSION.tgz [--json OUT]
 #
 # The archive (with .sha256 and .manifest.json) and the tarball must be a
 # good pair: the script first checks that they pass, then breaks copies.
@@ -35,6 +35,10 @@ check() {
 PACK=("$ROOT/scripts/package-npm.sh" --allow-dirty)
 VERIFY="$ROOT/scripts/verify-npm-package.sh"
 name=$(basename "$ARCHIVE" .tar.gz)
+# A version no release will ever have: the cases that inject a wrong version
+# must not go stale when the real version is bumped.
+WRONG=0.0.0-negative-test
+[[ $(node -p 'require(process.argv[1]).version' "$MANIFEST") != "$WRONG" ]] || { echo "the manifest version is $WRONG" >&2; exit 2; }
 
 # refused CASE PATTERN CMD...: the command must fail, and its output match PATTERN.
 refused() {
@@ -78,14 +82,14 @@ refused pack:manifest-binary 'the manifest says' "${PACK[@]}" --archive "$T/a2/$
 
 refused pack:expected-sha 'not the expected' "${PACK[@]}" --archive "$ARCHIVE" --expect-binary-sha256 "$(printf 'cd%.0s' {1..32})" --out "$T/o3"
 
-remake "$T/a4" 'printf "#!/bin/sh\necho \"nextrs 0.1.0-rc.2\"\n" > nextrs; chmod 755 nextrs; setinfo binary_sha256 "$(sha256sum nextrs | cut -d" " -f1)"'
-refused pack:binary-version "reports 'nextrs 0.1.0-rc.2'" "${PACK[@]}" --archive "$T/a4/$name.tar.gz" --out "$T/o4"
+remake "$T/a4" 'printf "#!/bin/sh\necho \"nextrs $WRONG\"\n" > nextrs; chmod 755 nextrs; setinfo binary_sha256 "$(sha256sum nextrs | cut -d" " -f1)"'
+refused pack:binary-version "reports 'nextrs $WRONG'" "${PACK[@]}" --archive "$T/a4/$name.tar.gz" --out "$T/o4"
 
-node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync(process.argv[1]));p.version="0.1.0-rc.2";fs.writeFileSync(process.argv[2],JSON.stringify(p))' "$ROOT/packages/cli/package.json" "$T/template-rc2.json"
-refused pack:template-version 'template-rc2.json is 0.1.0-rc.2' "${PACK[@]}" --archive "$ARCHIVE" --template "$T/template-rc2.json" --out "$T/o5"
+node -e 'const fs=require("fs");const p=JSON.parse(fs.readFileSync(process.argv[1]));p.version=process.argv[3];fs.writeFileSync(process.argv[2],JSON.stringify(p))' "$ROOT/packages/cli/package.json" "$T/template-wrong.json" "$WRONG"
+refused pack:template-version "template-wrong.json is $WRONG" "${PACK[@]}" --archive "$ARCHIVE" --template "$T/template-wrong.json" --out "$T/o5"
 
-remake "$T/a6" 'setinfo version 0.1.0-rc.9'
-refused pack:build-info-version 'BUILD-INFO.json is 0.1.0-rc.9' "${PACK[@]}" --archive "$T/a6/$name.tar.gz" --out "$T/o6"
+remake "$T/a6" 'setinfo version "$WRONG"'
+refused pack:build-info-version "BUILD-INFO.json is $WRONG" "${PACK[@]}" --archive "$T/a6/$name.tar.gz" --out "$T/o6"
 
 echo "$(node -p 'require(process.argv[1]).binary_sha256' "$MANIFEST")  binary  test: this build is withdrawn" > "$T/withdrawn.txt"
 refused pack:withdrawn 'withdrawn build' "${PACK[@]}" --archive "$ARCHIVE" --withdrawn "$T/withdrawn.txt" --out "$T/o7"
@@ -112,7 +116,7 @@ refused verify:extra-file 'contents +fail.*unexpected: package/.env' "$VERIFY" -
 refused verify:secret 'no-secrets +fail' "$VERIFY" --tarball "$T/v1/pkg.tgz" --manifest "$MANIFEST"
 repack "$T/v2" 'chmod 0644 native/nextrs'
 refused verify:binary-mode 'binary-mode +fail' "$VERIFY" --tarball "$T/v2/pkg.tgz" --manifest "$MANIFEST"
-repack "$T/v3" 'setpkg "p.version=\"0.1.0-rc.2\""'
+repack "$T/v3" "setpkg 'p.version=\"$WRONG\"'"
 refused verify:version-mismatch 'versions +fail' "$VERIFY" --tarball "$T/v3/pkg.tgz" --manifest "$MANIFEST"
 repack "$T/v4" 'setpkg "p.publishConfig.tag=\"latest\""'
 refused verify:prerelease-latest 'dist-tag +fail' "$VERIFY" --tarball "$T/v4/pkg.tgz" --manifest "$MANIFEST"
