@@ -16,6 +16,7 @@ mod image;
 mod pages;
 #[cfg(feature = "negative-controls")]
 mod pages_controls;
+mod range;
 mod resolve;
 #[doc(hidden)]
 pub mod routing;
@@ -1159,8 +1160,7 @@ async fn serve_resolved(
             }
             // Build output under /_next/static: its gzip copy may be cached
             // (keyed by the file's identity as stat'ed per request).
-            let cacheable = may_cache_gzip(state, headers);
-            file_response(&file, IMMUTABLE, method, headers, cacheable).await
+            file_response(state, &file, IMMUTABLE, method, headers, true).await
         }
         Output::EncodedApp => {
             // next start's page handler does not match the encoded path and
@@ -1265,7 +1265,7 @@ async fn serve_resolved(
             }
             // Public files can be replaced while the server runs: compressed
             // per request, never cached.
-            file_response(&file, PUBLIC_FILE, method, headers, false).await
+            file_response(state, &file, PUBLIC_FILE, method, headers, false).await
         }
         Output::App {
             route,
@@ -2105,44 +2105,61 @@ fn may_cache_gzip(state: &AppState, request: &HeaderMap) -> bool {
 }
 
 /// Mirrors the `send` package used by `next start`: weak ETag
-/// `W/"<size hex>-<mtime ms hex>"`, Last-Modified, and 304 revalidation.
-/// Range requests are not implemented, so `Accept-Ranges` is not advertised.
+/// `W/"<size hex>-<mtime ms hex>"`, Last-Modified, 304 revalidation and
+/// single byte ranges (`range.rs`: 206 over the identity bytes, 416, and
+/// where NextRS follows RFC 9110 instead of `send`). `immutable`: build
+/// output, whose gzip copy the compression cache may hold.
 async fn file_response(
+    state: &AppState,
     file: &Path,
     cache_control: &'static str,
     method: &Method,
     request: &HeaderMap,
-    cacheable: bool,
+    immutable: bool,
 ) -> Response {
     // One blocking task opens the file, takes its metadata from the open
-    // handle, decides freshness and reads the body only when it is sent
-    // (Phase 3A: separate `tokio::fs` calls each hopped to the blocking
-    // pool). It gets only the headers `etag::fresh` reads.
+    // handle, decides freshness and the range, and reads only the bytes it
+    // sends (Phase 3A: separate `tokio::fs` calls each hopped to the
+    // blocking pool). It gets only the headers it reads.
     let mut conditional = HeaderMap::new();
     for name in [
         header::IF_MODIFIED_SINCE,
         header::IF_NONE_MATCH,
         header::CACHE_CONTROL,
+        header::RANGE,
+        header::IF_RANGE,
     ] {
         for value in request.get_all(&name) {
             conditional.append(name.clone(), value.clone());
         }
     }
+    let content_type = static_files::content_type(file);
+    // The full response would be compressed (given its size): partial
+    // responses are identity bytes, so an If-Range is not trusted then.
+    let gzip =
+        state.compress && compress::wants_gzip(request) && compress::compressible(content_type);
+    let options = FileRead {
+        body: method != Method::HEAD,
+        // RFC 9110 section 14.2: GET is the only method with ranges.
+        ranges: method == Method::GET,
+        gzip,
+        cache_key: immutable && gzip && state.compression_cache.enabled(),
+    };
     let path = file.to_path_buf();
-    let read_body = method != Method::HEAD;
-    let loaded =
-        tokio::task::spawn_blocking(move || load_file(&path, &conditional, read_body, cacheable))
-            .await;
+    let loaded = tokio::task::spawn_blocking(move || load_file(&path, &conditional, options)).await;
     let Ok(Some(loaded)) = loaded else {
         return not_found_plain();
     };
 
     let mut response = Response::new(Body::empty());
     let headers = response.headers_mut();
-    headers.insert(
-        header::CACHE_CONTROL,
-        HeaderValue::from_static(cache_control),
-    );
+    if loaded.selection != range::Selection::Unsatisfiable {
+        headers.insert(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static(cache_control),
+        );
+    }
+    headers.insert(header::ACCEPT_RANGES, HeaderValue::from_static("bytes"));
     if let Some(etag) = loaded.etag {
         headers.insert(header::ETAG, etag);
     }
@@ -2153,11 +2170,36 @@ async fn file_response(
         *response.status_mut() = StatusCode::NOT_MODIFIED;
         return response;
     }
-    headers.insert(
-        header::CONTENT_TYPE,
-        HeaderValue::from_static(static_files::content_type(file)),
-    );
-    let length = loaded.body.as_ref().map_or(loaded.len, |b| b.len() as u64);
+    match loaded.selection {
+        range::Selection::Unsatisfiable => {
+            *response.status_mut() = StatusCode::RANGE_NOT_SATISFIABLE;
+            let headers = response.headers_mut();
+            if let Ok(value) = HeaderValue::from_str(&range::unsatisfied_range(loaded.len)) {
+                headers.insert(header::CONTENT_RANGE, value);
+            }
+            headers.insert(
+                header::CONTENT_TYPE,
+                HeaderValue::from_static("text/plain; charset=utf-8"),
+            );
+            *response.body_mut() = Body::from("Range Not Satisfiable");
+            return response;
+        }
+        range::Selection::Partial { start, end } => {
+            *response.status_mut() = StatusCode::PARTIAL_CONTENT;
+            if let Ok(value) = HeaderValue::from_str(&range::content_range(start, end, loaded.len))
+            {
+                response.headers_mut().insert(header::CONTENT_RANGE, value);
+            }
+        }
+        range::Selection::Full => {}
+    }
+    let headers = response.headers_mut();
+    headers.insert(header::CONTENT_TYPE, HeaderValue::from_static(content_type));
+    let length = match (&loaded.body, loaded.selection) {
+        (Some(body), _) => body.len() as u64,
+        (None, range::Selection::Partial { start, end }) => end - start + 1,
+        (None, _) => loaded.len,
+    };
     headers.insert(header::CONTENT_LENGTH, HeaderValue::from(length));
     if let Some(body) = loaded.body {
         let body = Bytes::from(body);
@@ -2172,56 +2214,111 @@ async fn file_response(
     response
 }
 
-/// A file's validators, freshness and (when it will be sent) contents.
+/// What `load_file` reads besides the validators.
+#[derive(Clone, Copy)]
+struct FileRead {
+    /// The bytes to send (not for HEAD).
+    body: bool,
+    /// The request may select a byte range (GET).
+    ranges: bool,
+    /// The full response would be gzip if large enough.
+    gzip: bool,
+    /// A compression cache key is wanted for a full body.
+    cache_key: bool,
+}
+
+/// A file's validators, freshness, selected range and (when it will be
+/// sent) the bytes.
 struct LoadedFile {
     etag: Option<HeaderValue>,
     last_modified: Option<HeaderValue>,
     fresh: bool,
     len: u64,
+    selection: range::Selection,
+    /// The selected bytes: the whole file, or the range.
     body: Option<Vec<u8>>,
-    /// The compression cache key for `body` (asked for, and the file did
-    /// not change while it was read).
+    /// The compression cache key for a whole-file `body` (asked for, and
+    /// the file did not change while it was read).
     key: Option<compress_cache::FileKey>,
 }
 
-/// Blocking: open, stat the handle, check the conditional headers, read.
-/// `None` when the file cannot be opened, stat'ed or read (a 404, as
-/// before).
-fn load_file(
-    path: &Path,
-    conditional: &HeaderMap,
-    read_body: bool,
-    want_key: bool,
-) -> Option<LoadedFile> {
-    use std::io::Read;
+/// Blocking: open, stat the handle, check the conditional headers, select
+/// the range, read. `None` when the file cannot be opened, stat'ed or read
+/// (a 404, as before).
+fn load_file(path: &Path, conditional: &HeaderMap, read: FileRead) -> Option<LoadedFile> {
+    use std::io::{Read, Seek, SeekFrom};
     let mut handle = std::fs::File::open(path).ok()?;
     let metadata = handle.metadata().ok()?;
+    let len = metadata.len();
     let modified = metadata.modified().ok();
     let etag = modified
         .and_then(|m| m.duration_since(UNIX_EPOCH).ok())
         .and_then(|d| {
             // Node builds `stat.mtime` with Math.round(mtimeMs).
             let millis = d.as_secs() * 1000 + (u64::from(d.subsec_nanos()) + 500_000) / 1_000_000;
-            HeaderValue::from_str(&format!("W/\"{:x}-{millis:x}\"", metadata.len())).ok()
+            HeaderValue::from_str(&format!("W/\"{len:x}-{millis:x}\"")).ok()
         });
     let last_modified =
         modified.and_then(|m| HeaderValue::from_str(&httpdate::fmt_http_date(m)).ok());
+    // RFC 9110 section 13.2.2: If-None-Match / If-Modified-Since before
+    // Range (a 304 whatever the range).
     let fresh = etag::fresh(
         conditional,
         etag.as_ref().and_then(|e| e.to_str().ok()),
         last_modified.as_ref().and_then(|l| l.to_str().ok()),
     );
-    let body = if fresh || !read_body {
-        None
+    let mut ranges = conditional.get_all(header::RANGE).iter();
+    let selection = match (read.ranges && !fresh, ranges.next(), ranges.next()) {
+        (true, Some(value), None) => match value.to_str() {
+            Ok(value) => range::select(value, len),
+            Err(_) => range::Selection::Full,
+        },
+        // No Range, HEAD, or a repeated header (not one ranges-specifier).
+        _ => range::Selection::Full,
+    };
+    let if_range = if read.gzip && len >= compress::THRESHOLD {
+        !conditional.contains_key(header::IF_RANGE)
     } else {
-        let mut bytes = Vec::with_capacity(metadata.len() as usize);
-        handle.read_to_end(&mut bytes).ok()?;
-        Some(bytes)
+        range::if_range_holds(
+            conditional,
+            etag.as_ref().and_then(|e| e.to_str().ok()),
+            modified,
+        )
+    };
+    let selection = if if_range {
+        selection
+    } else {
+        range::Selection::Full
+    };
+    let body = match selection {
+        _ if fresh || !read.body => None,
+        range::Selection::Unsatisfiable => None,
+        range::Selection::Partial { start, end } => {
+            let wanted = end - start + 1;
+            handle.seek(SeekFrom::Start(start)).ok()?;
+            let mut bytes = Vec::with_capacity(usize::try_from(wanted).ok()?);
+            (&mut handle).take(wanted).read_to_end(&mut bytes).ok()?;
+            // Truncated since the stat: the range no longer exists as
+            // described.
+            if bytes.len() as u64 != wanted {
+                return None;
+            }
+            Some(bytes)
+        }
+        range::Selection::Full => {
+            let mut bytes = Vec::with_capacity(len as usize);
+            handle.read_to_end(&mut bytes).ok()?;
+            Some(bytes)
+        }
     };
     // The key describes the bytes read only if the file is the same after
     // the read as before it (a write in between changes its size or times).
     let key = match &body {
-        Some(bytes) if want_key && bytes.len() as u64 == metadata.len() => {
+        Some(bytes)
+            if read.cache_key
+                && selection == range::Selection::Full
+                && bytes.len() as u64 == len =>
+        {
             let before = compress_cache::FileKey::of(path, &metadata);
             let after = handle
                 .metadata()
@@ -2235,7 +2332,8 @@ fn load_file(
         etag,
         last_modified,
         fresh,
-        len: metadata.len(),
+        len,
+        selection,
         body,
         key,
     })

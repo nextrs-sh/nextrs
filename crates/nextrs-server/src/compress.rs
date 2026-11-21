@@ -59,7 +59,7 @@ use http_body::{Body as _, Frame, SizeHint};
 use crate::compress_cache::{Cacheable, CompressionCache};
 
 /// The middleware's default `threshold` (`bytes.parse('1kb')`).
-const THRESHOLD: u64 = 1024;
+pub(crate) const THRESHOLD: u64 = 1024;
 /// How much of a chunk is handed to zlib at a time: bounds the work done in
 /// one poll and the size of one output frame.
 const SLICE: usize = 32 * 1024;

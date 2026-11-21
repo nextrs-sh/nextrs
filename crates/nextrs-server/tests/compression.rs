@@ -229,11 +229,10 @@ async fn rsc_payloads_are_compressed() {
     assert_eq!(gunzip(&body), rsc);
 }
 
-/// Static JavaScript is compressed whole. NextRS does not implement Range
-/// requests (it answers the full 200 and advertises no Accept-Ranges; next
-/// start answers 206, a difference that predates compression): that full
-/// response is compressed too. Partial responses themselves are never
-/// compressed (compress.rs unit tests).
+/// Static JavaScript is compressed whole, without Accept-Ranges (ranges
+/// apply to the identity bytes). A range request with gzip accepted gets a
+/// 206 of the identity bytes, never compressed (next start compresses the
+/// partial body; see tests/range.rs).
 #[tokio::test]
 async fn static_assets_and_ranges() {
     let app = app_for(&snapshot(DPL)).await;
@@ -255,10 +254,14 @@ async fn static_assets_and_ranges() {
         &[("accept-encoding", "gzip"), ("range", "bytes=0-2047")],
     )
     .await;
-    assert_eq!(response.status(), StatusCode::OK);
-    assert_eq!(header(&response, "content-range"), None);
-    assert_eq!(header(&response, "content-encoding"), Some("gzip"));
-    assert_eq!(gunzip(&body), file);
+    assert_eq!(response.status(), StatusCode::PARTIAL_CONTENT);
+    assert_eq!(
+        header(&response, "content-range"),
+        Some(format!("bytes 0-2047/{}", file.len()).as_str())
+    );
+    assert_eq!(header(&response, "content-encoding"), None);
+    assert_eq!(header(&response, "vary"), Some("Accept-Encoding"));
+    assert_eq!(body, &file[..2048]);
 
     // Revalidating the compressed copy with its weak ETag.
     let (response, _) = request(
