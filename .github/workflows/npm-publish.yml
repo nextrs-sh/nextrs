@@ -31,7 +31,7 @@ name: npm publish (maintainers)
 #                       and refuses to run if the package is already on the
 #                       registry. Revoke the token right after.
 # dry_run (the default) stops before uploading: it runs `npm publish --dry-run`.
-# See release/npm-publishing.md.
+# See release/PUBLISHING.md.
 
 on:
   workflow_dispatch:
@@ -183,7 +183,7 @@ jobs:
           fi
           case "$AUTH" in
             trusted-publishing)
-              [ "$exists" = true ] || { echo "$PACKAGE does not exist yet, and npm cannot configure trusted publishing for it: use auth=bootstrap-token once (release/npm-publishing.md)"; exit 1; } ;;
+              [ "$exists" = true ] || { echo "$PACKAGE does not exist yet, and npm cannot configure trusted publishing for it: use auth=bootstrap-token once (release/PUBLISHING.md)"; exit 1; } ;;
             bootstrap-token)
               [ "$exists" = false ] || { echo "$PACKAGE already exists: publish with trusted-publishing, then revoke the bootstrap token and delete NPM_TOKEN"; exit 1; }
               [ "$HAVE_TOKEN" = true ] || { echo "the npm-publish environment has no NPM_TOKEN secret"; exit 1; } ;;

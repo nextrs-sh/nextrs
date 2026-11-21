@@ -154,10 +154,16 @@ curl -i http://127.0.0.1:3001/books/42   # dynamic page, rendered by Next.js in 
 - **If the build runs out of memory,** limit parallel jobs with
   `cargo build --release -j 2 -p nextrs-cli`.
 
-**Precompiled binaries** for Linux x86_64 will be attached to GitHub
-releases, starting with v0.1.0-rc.1, which is still being validated. A
-precompiled binary needs no Rust toolchain, Cargo or Node.js to run; Node.js
-is still needed for `next build`. The
+**Precompiled binaries** for Linux x86_64 (glibc 2.35 or later) are
+attached to [GitHub releases](https://github.com/nextrs-sh/nextrs/releases)
+and published on npm as `@nextrs/cli` (dist-tag `next`):
+
+```bash
+npm install -D @nextrs/cli@0.1.0-rc.2
+```
+
+A precompiled binary needs no Rust toolchain, Cargo or Node.js to run;
+Node.js is still needed for `next build`. The
 [installation and operations guide](release/README.md) covers it.
 
 ## Project Status
@@ -184,8 +190,10 @@ NextRS is a research project, developed in the open.
   unavailable, so many database drivers will not work.
 - **Isolation limits:** a V8 isolate is a memory boundary, not a security
   boundary, and CPU limits apply per isolate, not per request.
-- **Release:** v0.1.0-rc.1, the first release candidate, is being validated
-  and has not been published.
+- **Release:** v0.1.0-rc.2, an experimental prerelease. It adds
+  `deploymentId` support, gzip compression with a cache for immutable
+  responses, byte ranges and RSC route-handler parity to v0.1.0-rc.1
+  ([release notes](release/v0.1.0-rc.2-release-notes.md)).
 
 ## Documentation
 

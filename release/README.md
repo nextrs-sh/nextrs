@@ -75,13 +75,13 @@ Download the archive and its checksum from the GitHub release, verify the
 checksum, and put the binary on your `PATH`:
 
 ```bash
-V=0.1.0-rc.1
+V=0.1.0-rc.2
 curl -LO https://github.com/nextrs-sh/nextrs/releases/download/v$V/nextrs-v$V-linux-x86_64.tar.gz
 curl -LO https://github.com/nextrs-sh/nextrs/releases/download/v$V/nextrs-v$V-linux-x86_64.tar.gz.sha256
 sha256sum -c nextrs-v$V-linux-x86_64.tar.gz.sha256
 tar -xzf nextrs-v$V-linux-x86_64.tar.gz
 sudo install -m 0755 nextrs-v$V-linux-x86_64/nextrs /usr/local/bin/nextrs
-nextrs --version        # nextrs 0.1.0-rc.1
+nextrs --version        # nextrs 0.1.0-rc.2
 ```
 
 The archive contains:
@@ -101,7 +101,7 @@ The archive contains:
 Next.js application as a development dependency:
 
 ```bash
-npm install -D @nextrs/cli@0.1.0-rc.1      # or: pnpm add -D @nextrs/cli@0.1.0-rc.1
+npm install -D @nextrs/cli@0.1.0-rc.2      # or: pnpm add -D @nextrs/cli@0.1.0-rc.2
 npx next build                              # Node.js builds the application
 npx nextrs start . --js-runtime embedded-v8
 ```
@@ -273,6 +273,7 @@ instant can be reset.
 |---|---|---|
 | Data and response cache (fetch cache, `unstable_cache`, `'use cache'`, ISR pages) | In memory, shared by all isolates | `--cache-dir DIR` (created with mode 0700, outside the build) |
 | Optimized images | In memory | `--image-cache-dir DIR` |
+| Gzip copies of immutable responses (`/_next/static` files, prerendered App Router pages) | In memory, `--compression-cache 32` MiB | None: `--compression-cache 0` compresses every response per request |
 
 - **Size limits:** `--cache-max-memory`, `--cache-max-disk`,
   `--cache-max-entry`, `--cache-max-response`, `--image-cache-max-memory`,
@@ -283,6 +284,21 @@ instant can be reset.
 - **Disk errors.** A disk error, such as a full or read-only volume,
   degrades the cache to memory. The error is counted, and serving
   continues.
+
+**Response compression.** NextRS gzips responses as `next start`'s
+compression middleware does, with the same switch: `compress` in
+`next.config` (default `true`). Set `compress: false` and rebuild to turn
+it off, for example behind a CDN that compresses. Responses whose bytes
+cannot change are compressed once and the copy reused, within
+`--compression-cache`. Dynamic output (SSR, route handlers, Server Actions,
+streamed RSC), ISR and partial-prerendering pages and `public/` files are
+compressed per request and never cached. Streaming is preserved. Details
+and the differences from `next start`: the
+[configuration reference](../engineering/configuration.md#response-compression).
+
+**Byte ranges.** Files under `/_next/static` and `public/` answer a single
+`Range` with `206 Partial Content`. Unsatisfiable ranges get `416`, as
+RFC 9110 specifies (`next start` answers `500`).
 
 ## 10. Image optimization limits
 
@@ -435,7 +451,11 @@ contract below):
 - **Pages Router:** `getServerSideProps`, `getStaticProps` with ISR, API
   routes, i18n, Preview and Draft Mode.
 - **Routing and requests:** `proxy.ts` and middleware, rewrites, redirects
-  and headers.
+  and headers; `deploymentId` builds (the routes-manifest `onMatchHeaders`
+  rules and `NEXT_DEPLOYMENT_ID`), and RSC request validation for route
+  handlers.
+- **HTTP:** gzip response compression, single byte ranges, and
+  `If-None-Match` / `If-Modified-Since` revalidation.
 - **Images:** `next/image` optimization.
 - **Integrations:** Auth.js, and `jose`-based sessions.
 - **Instrumentation:** `instrumentation.ts`.
@@ -474,6 +494,20 @@ NextRS does not claim compatibility with every Next.js application.
 9. **No access log or request ID** in v0.1.0.
 10. **Single-machine evidence.** All performance and soak evidence comes
     from one x86_64 machine.
+11. **HTTP differences from `next start`,** by design:
+    - gzip only: a client that accepts deflate but not gzip gets the
+      response uncompressed;
+    - a compressed response's ETag is weak, and it has no `Accept-Ranges`;
+    - a gzip copy served from the compression cache has a `Content-Length`
+      (`next start` streams it chunked);
+    - a partial (`206`) response is always the uncompressed bytes;
+    - `416` for unsatisfiable ranges, and the full `200` for malformed
+      ones, where `next start` answers `500`;
+    - `If-Range` uses the strong comparison, so a static file's weak ETag
+      never matches.
+12. **Not implemented:** `multipart/byteranges` (several ranges get the
+    full response, as with `next start`), and `If-Match` /
+    `If-Unmodified-Since` on static files.
 
 ## 19. Reporting security issues
 
@@ -486,7 +520,7 @@ through GitHub's private vulnerability reporting on the repository
 Verify the download against the published checksum:
 
 ```bash
-sha256sum -c nextrs-v0.1.0-rc.1-linux-x86_64.tar.gz.sha256
+sha256sum -c nextrs-v0.1.0-rc.2-linux-x86_64.tar.gz.sha256
 ```
 
 `BUILD-INFO.json` records the commit, compiler and profile the binary was
@@ -494,7 +528,7 @@ built from, and the binary's own SHA-256. To build the same source
 yourself:
 
 ```bash
-git checkout v0.1.0-rc.1
+git checkout v0.1.0-rc.2
 cargo +1.98.0 build --locked --profile dist -p nextrs-cli
 ```
 
