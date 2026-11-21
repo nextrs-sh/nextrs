@@ -290,6 +290,9 @@ pub struct RoutingConfig {
     pub generate_etags: bool,
     /// `skipProxyUrlNormalize` (formerly `skipMiddlewareUrlNormalize`).
     pub skip_proxy_url_normalize: bool,
+    /// `compress` (default `true`): next start's router-server compresses
+    /// responses unless the config sets it to `false`.
+    pub compress: bool,
     /// The deployment ID options next start's base server reads.
     pub deployment: DeploymentConfig,
 }

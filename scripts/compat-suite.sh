@@ -250,6 +250,7 @@ if [[ $skip_base != 1 ]]; then
 run compare   tests/compat/compare.mjs   --baseline "$baseline" --candidate "$candidate" --project "$project" --json "$out/compare.json"
 run semantic  tests/compat/semantic.mjs  --baseline "$baseline" --candidate "$candidate" --json "$out/semantic.json"
 run streaming tests/compat/streaming.mjs --target "$candidate" --runs 20
+run streaming-gzip tests/compat/streaming.mjs --target "$candidate" --runs 20 --encoding gzip
 run isolation tests/compat/isolation.mjs --target "$candidate" --requests 1200 --concurrency 64 --aborts 20 --json "$out/isolation.json"
 run features  tests/compat/features.mjs  --target "$candidate" --requests 600 --concurrency 64 --json "$out/features.json"
 run data      tests/compat/data.mjs      --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --closed-port "$closed_port" --json "$out/data.json"

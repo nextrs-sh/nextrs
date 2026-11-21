@@ -5,6 +5,7 @@
 //! everything else that needs JavaScript gets an explicit
 //! `501 Not Implemented`.
 
+mod compress;
 mod dynamic;
 mod etag;
 mod external;
@@ -438,6 +439,9 @@ struct AppState {
     proxy: Option<ProxyRuntime>,
     /// A proxy or a `has`/`missing` rule reads the request's headers.
     needs_node_headers: bool,
+    /// next.config `compress` (next start's router-server compresses
+    /// unless it is `false`).
+    compress: bool,
     /// Files in `public/` (relative, decoded), listed at startup as next
     /// start's `publicFolderItems`.
     public_files: std::collections::HashSet<String>,
@@ -711,6 +715,7 @@ impl AppState {
             None => Default::default(),
         };
         Ok(Self {
+            compress: info.config.compress,
             needs_node_headers: proxy.is_some()
                 || [
                     &rules.headers,
@@ -876,7 +881,15 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
     .await;
     // HTTP/1.0 framing for every response, the proxy's direct responses
     // included (a body without a length then closes the connection).
-    dynamic::frame_for(version, with_routing_headers(response, &res_headers))
+    let response = dynamic::frame_for(version, with_routing_headers(response, &res_headers));
+    // router-server's compression, for client requests only: Next's
+    // requests to its own server (image sources, Server Action
+    // forwarding) read the bytes themselves.
+    if state.compress && !internal {
+        compress::Negotiated::of(&method, version, &headers).apply(response)
+    } else {
+        response
+    }
 }
 
 /// Marks a response that must not get routing's response headers (config

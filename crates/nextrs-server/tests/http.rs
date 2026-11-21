@@ -64,7 +64,12 @@ async fn serves_prerendered_html_like_next_start() {
     assert_eq!(header(&response, "x-powered-by"), Some("Next.js"));
     assert_eq!(
         header(&response, "vary"),
-        Some("rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch")
+        // next start's compression middleware adds Accept-Encoding to
+        // every compressible response, compressed or not.
+        Some(
+            "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, \
+             Accept-Encoding"
+        )
     );
     assert_eq!(
         header(&response, "x-next-cache-tags"),

@@ -191,6 +191,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
                 powered_by_header: output.config.powered_by_header,
                 generate_etags: output.config.generate_etags,
                 skip_proxy_url_normalize: config_flag(required.as_ref(), "skipProxyUrlNormalize"),
+                compress: compress_flag(required.as_ref()),
                 deployment: DeploymentConfig::from_config(required.as_ref().map(|r| &r.config)),
             };
             let tables = adapter_output::tables(&project_dir, output, &mut diagnostics);
@@ -423,8 +424,15 @@ fn routing_config(required: Option<&RequiredServerFiles>, base_path: &str) -> Ro
         generate_etags: flag("generateEtags", true),
         skip_proxy_url_normalize: flag("skipProxyUrlNormalize", false)
             || flag("skipMiddlewareUrlNormalize", false),
+        compress: compress_flag(required),
         deployment: DeploymentConfig::from_config(config),
     }
+}
+
+/// router-server's `config?.compress !== false`: only an explicit `false`
+/// turns compression off.
+fn compress_flag(required: Option<&RequiredServerFiles>) -> bool {
+    required.and_then(|r| r.config.get("compress")) != Some(&serde_json::Value::Bool(false))
 }
 
 fn config_flag(required: Option<&RequiredServerFiles>, key: &str) -> bool {
