@@ -193,6 +193,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
                 skip_proxy_url_normalize: config_flag(required.as_ref(), "skipProxyUrlNormalize"),
                 compress: compress_flag(required.as_ref()),
                 deployment: DeploymentConfig::from_config(required.as_ref().map(|r| &r.config)),
+                skip_rsc_header_validation: skip_rsc_header_validation(required.as_ref()),
             };
             let tables = adapter_output::tables(&project_dir, output, &mut diagnostics);
             // One model for both sources: the Pages Router's routes and
@@ -426,7 +427,17 @@ fn routing_config(required: Option<&RequiredServerFiles>, base_path: &str) -> Ro
             || flag("skipMiddlewareUrlNormalize", false),
         compress: compress_flag(required),
         deployment: DeploymentConfig::from_config(config),
+        skip_rsc_header_validation: skip_rsc_header_validation(required),
     }
+}
+
+/// base-server checks `experimental.validateRSCRequestHeaders` (default
+/// true): only an explicit `false` turns the check off.
+fn skip_rsc_header_validation(required: Option<&RequiredServerFiles>) -> bool {
+    required
+        .and_then(|r| r.config.get("experimental"))
+        .and_then(|e| e.get("validateRSCRequestHeaders"))
+        == Some(&serde_json::Value::Bool(false))
 }
 
 /// router-server's `config?.compress !== false`: only an explicit `false`

@@ -384,9 +384,7 @@ pub(crate) async fn resolve(
     } else {
         JsMap::new()
     };
-    let rsc_request = headers
-        .get(state.rsc.header.as_str())
-        .is_some_and(|v| v.as_bytes() == b"1");
+    let rsc_request = crate::rsc::is_rsc_request(headers, &state.rsc.header);
 
     let done =
         |outcome: Outcome, router: Option<Router<'_>>, body: Body| -> (Outcome, Resolved, Body) {

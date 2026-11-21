@@ -81,6 +81,14 @@ impl<'a> RouterHeaders<'a> {
     }
 }
 
+/// base-server's `isRSCRequestHeader`: an RSC request carries the RSC
+/// header with exactly the value `1`. Node joins a repeated header
+/// (`1, 1`), which is not one.
+pub(crate) fn is_rsc_request(headers: &HeaderMap, name: &str) -> bool {
+    let mut values = headers.get_all(name).iter();
+    matches!((values.next(), values.next()), (Some(value), None) if value == "1")
+}
+
 /// First `_rsc` value in a raw query string (decoded like `URLSearchParams`).
 pub(crate) fn query_hash(query: Option<&str>) -> Option<String> {
     query?.split('&').find_map(|pair| {
@@ -127,6 +135,21 @@ fn to_base36(mut value: u32) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn rsc_requests_carry_exactly_one() {
+        let map = |values: &[&'static str]| {
+            let mut headers = HeaderMap::new();
+            for value in values {
+                headers.append("rsc", axum::http::HeaderValue::from_static(value));
+            }
+            headers
+        };
+        assert!(is_rsc_request(&map(&["1"]), "rsc"));
+        for values in [&[][..], &["0"], &["true"], &["1", "1"], &["1", ""], &[" 1"]] {
+            assert!(!is_rsc_request(&map(values), "rsc"), "{values:?}");
+        }
+    }
 
     fn headers<'a>(
         prefetch: Option<&'a str>,

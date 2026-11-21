@@ -1170,7 +1170,7 @@ async fn serve_resolved(
             // router-server's no-store header is not set: routing matched
             // the (decoded) file, so only the handler's own headers apply.
             if is_possible_server_action(method, headers)
-                || headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                || rsc::is_rsc_request(headers, &state.rsc.header)
             {
                 return not_found_render(
                     state,
@@ -1395,7 +1395,7 @@ async fn serve_resolved(
                     && state.executor.is_some()
                     && let Some(entry) = state.action_entry(path)
                 {
-                    if headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                    if rsc::is_rsc_request(headers, &state.rsc.header)
                         && let Some(redirect) = rsc_redirect(state, &request_path, query, headers)
                     {
                         return redirect;
@@ -1436,7 +1436,7 @@ async fn serve_resolved(
                         return method_not_allowed(state);
                     }
                 }
-                if headers.get(&state.rsc.header).is_some_and(|v| v == "1") {
+                if rsc::is_rsc_request(headers, &state.rsc.header) {
                     return serve_rsc(state, page, &request_path, query, headers, method);
                 }
                 if let Some(html) = &page.html {
@@ -1468,8 +1468,13 @@ async fn serve_resolved(
                         "builds with interception routes are not supported by the NextRS executor",
                     );
                 }
-                if route.kind == RouteKind::AppPage
-                    && headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                // base-server validates the cache-busting parameter of an
+                // RSC request before rendering any route module it serves:
+                // App Router pages and route handlers alike, for every
+                // method (Pages API routes and edge functions are handled
+                // before that check, and are not affected).
+                if matches!(route.kind, RouteKind::AppPage | RouteKind::AppRoute)
+                    && rsc::is_rsc_request(headers, &state.rsc.header)
                     && let Some(redirect) = rsc_redirect(state, &request_path, query, headers)
                 {
                     return redirect;
@@ -1590,7 +1595,7 @@ async fn not_found_render(
     // from the same handler. So does a document request when the not-found
     // page has no static shell to serve: Cache Components store it as ISR
     // (or as a Partial Prerendering shell), which only its handler serves.
-    let rsc = headers.get(&state.rsc.header).is_some_and(|v| v == "1");
+    let rsc = rsc::is_rsc_request(headers, &state.rsc.header);
     if (is_possible_server_action(method, headers)
         || (readonly && rsc)
         || (readonly && state.not_found.is_none()))
@@ -1984,6 +1989,9 @@ fn rsc_redirect(
     query: Option<&str>,
     headers: &HeaderMap,
 ) -> Option<Response> {
+    if state.config.skip_rsc_header_validation {
+        return None;
+    }
     let router = RouterHeaders::from_headers(
         headers,
         &state.rsc.prefetch_header,
@@ -2015,7 +2023,7 @@ fn serve_rsc(
         &state.rsc.segment_prefetch_header,
     );
     let actual = rsc::query_hash(query);
-    if !router.matches(actual.as_deref()) {
+    if !state.config.skip_rsc_header_validation && !router.matches(actual.as_deref()) {
         let target = rsc::redirect_target(path, query, &router.expected_hash());
         return redirect(StatusCode::TEMPORARY_REDIRECT, &target, false, false);
     }
