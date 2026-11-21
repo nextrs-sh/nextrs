@@ -9,7 +9,7 @@ in Rust and embedded V8.** This package installs a precompiled binary, so you
 need no Rust toolchain.
 
 > [!WARNING]
-> **Experimental prerelease.** Version 0.1.0-rc.1 is a release candidate,
+> **Experimental prerelease.** Version 0.1.0-rc.2 is a release candidate,
 > published under the `next` dist-tag. It is tested on Next.js 16.4.5 and
 > 16.4.6 and on one real application, and has not run in production yet.
 > Read the [known limitations](https://github.com/nextrs-sh/nextrs/blob/main/release/README.md#18-known-limitations)
@@ -20,7 +20,7 @@ need no Rust toolchain.
 **npm**
 
 ```bash
-npm install --save-dev @nextrs/cli@0.1.0-rc.1
+npm install --save-dev @nextrs/cli@0.1.0-rc.2
 npx next build
 npx nextrs start . --js-runtime embedded-v8
 ```
@@ -28,7 +28,7 @@ npx nextrs start . --js-runtime embedded-v8
 **pnpm**
 
 ```bash
-pnpm add -D @nextrs/cli@0.1.0-rc.1
+pnpm add -D @nextrs/cli@0.1.0-rc.2
 pnpm exec next build
 pnpm exec nextrs start . --js-runtime embedded-v8
 ```
@@ -37,7 +37,7 @@ pnpm exec nextrs start . --js-runtime embedded-v8
 run `next build`):
 
 ```bash
-npx --yes @nextrs/cli@0.1.0-rc.1 start . --js-runtime embedded-v8
+npx --yes @nextrs/cli@0.1.0-rc.2 start . --js-runtime embedded-v8
 ```
 
 The application is served at <http://127.0.0.1:3000>.
@@ -52,7 +52,8 @@ The application is served at <http://127.0.0.1:3000>.
 
 | File | Contents |
 |---|---|
-| `bin/nextrs` | The native NextRS binary: the same bytes as in the GitHub release archive |
+| `native/nextrs` | The native NextRS binary: the same bytes as in the GitHub release archive |
+| `bin/nextrs` | A small POSIX launcher: it checks the platform, then `exec`s `native/nextrs` |
 | `BUILD-INFO.json` | Version, source commit, compiler, minimum glibc, the binary's SHA-256 |
 | `LICENSE-MIT`, `LICENSE-APACHE` | NextRS's licenses |
 | `THIRD-PARTY.md`, `THIRD-PARTY-LICENSES.txt` | Statically linked components, and their license and notice texts |
@@ -64,13 +65,15 @@ dependencies, so installing it:
 - downloads nothing;
 - runs no code.
 
-**How the command is linked.** `nextrs` points straight at the native
-executable. No JavaScript launcher runs.
+**How the command is linked.** `nextrs` is `bin/nextrs`, a `#!/bin/sh`
+launcher. It checks the platform and glibc, then replaces itself with
+`native/nextrs` (`exec`), so no shell or Node.js process stays between the
+caller and the server. No JavaScript launcher runs.
 
 **Checking the binary:**
 
 ```bash
-sha256sum node_modules/@nextrs/cli/bin/nextrs
+sha256sum node_modules/@nextrs/cli/native/nextrs
 node -p "require('@nextrs/cli/BUILD-INFO.json').binary_sha256"
 ```
 

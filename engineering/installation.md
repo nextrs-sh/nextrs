@@ -5,16 +5,13 @@ in Rust and embedded V8.** Installing NextRS never needs Rust, Cargo or a
 compiler: every channel delivers the same precompiled binary.
 
 > [!IMPORTANT]
-> **Availability (2026-11-20).** Nothing is published yet:
+> **Availability.** NextRS is an experimental prerelease. Release candidates
+> are published on both channels, with the same binary:
 >
-> - **npm:** `@nextrs/cli` is not on the npm registry. The commands in
->   [Install with npm](#install-with-npm) and
->   [Install with pnpm](#install-with-pnpm) work only with a locally packed
->   tarball until it is.
-> - **GitHub:** the v0.1.0-rc.1 release, with its archive, is not published.
-> - **Today:** [build from source](../README.md#quick-start), or pack the
->   binary of a release workflow run, as described in
->   `release/npm-publishing.md`.
+> - **npm:** `@nextrs/cli`, under the dist-tag `next`. Install a release
+>   candidate by its exact version, as below.
+> - **GitHub:** [Releases](https://github.com/nextrs-sh/nextrs/releases),
+>   with the archive, its checksum and manifest.
 
 ## Contents
 
@@ -71,7 +68,7 @@ compiler: every channel delivers the same precompiled binary.
 Add NextRS as a development dependency of the application:
 
 ```bash
-npm install --save-dev @nextrs/cli@0.1.0-rc.1
+npm install --save-dev @nextrs/cli@0.1.0-rc.2
 npx next build
 npx nextrs start . --js-runtime embedded-v8
 ```
@@ -105,7 +102,7 @@ process, see [Running in production](#running-in-production).
 ## Install with pnpm
 
 ```bash
-pnpm add -D @nextrs/cli@0.1.0-rc.1
+pnpm add -D @nextrs/cli@0.1.0-rc.2
 pnpm exec next build
 pnpm exec nextrs start . --js-runtime embedded-v8
 ```
@@ -118,8 +115,8 @@ they are allowed. NextRS has none, so nothing needs to be allowed.
 In an application that has already run `next build`:
 
 ```bash
-npx --yes @nextrs/cli@0.1.0-rc.1 start . --js-runtime embedded-v8
-pnpm --package=@nextrs/cli@0.1.0-rc.1 dlx nextrs start . --js-runtime embedded-v8
+npx --yes @nextrs/cli@0.1.0-rc.2 start . --js-runtime embedded-v8
+pnpm --package=@nextrs/cli@0.1.0-rc.2 dlx nextrs start . --js-runtime embedded-v8
 ```
 
 ## Install the standalone binary
@@ -128,7 +125,7 @@ Without npm, download the archive from GitHub Releases, verify it and put
 the binary on your `PATH`:
 
 ```bash
-V=0.1.0-rc.1
+V=0.1.0-rc.2
 curl -LO https://github.com/nextrs-sh/nextrs/releases/download/v$V/nextrs-v$V-linux-x86_64.tar.gz
 curl -LO https://github.com/nextrs-sh/nextrs/releases/download/v$V/nextrs-v$V-linux-x86_64.tar.gz.sha256
 sha256sum -c nextrs-v$V-linux-x86_64.tar.gz.sha256
