@@ -1,0 +1,131 @@
+{
+  "run": "mwhyragi362b",
+  "isolates": 1,
+  "results": [
+    {
+      "name": "first-call-then-cached",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "generations": [
+            0,
+            0,
+            0
+          ],
+          "executions": 3
+        },
+        "wrong": "{\"statuses\":[200,200,200],\"generations\":[0,0,0],\"executions\":3}"
+      }
+    },
+    {
+      "name": "arguments-are-keys",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "distinct": false,
+          "aCached": true,
+          "executions": 2
+        },
+        "wrong": "{\"distinct\":false,\"aCached\":true,\"executions\":2}"
+      }
+    },
+    {
+      "name": "cache-life-expiry",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "generations": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "executions": 2
+        },
+        "wrong": "{\"generations\":[0,0,0,0],\"executions\":2}"
+      }
+    },
+    {
+      "name": "updateTag-from-action",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "action": {
+            "status": 200,
+            "revalidated": "1"
+          },
+          "generations": [
+            0,
+            0,
+            0
+          ],
+          "executions": 2
+        },
+        "wrong": "{\"action\":{\"status\":200,\"revalidated\":\"1\"},\"generations\":[0,0,0],\"executions\":2}"
+      }
+    },
+    {
+      "name": "revalidateTag-max-from-action",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "action": {
+            "status": 200,
+            "revalidated": null
+          },
+          "generations": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "executions": 2
+        },
+        "wrong": "{\"action\":{\"status\":200,\"revalidated\":null},\"generations\":[0,0,0,0],\"executions\":2}"
+      }
+    },
+    {
+      "name": "unrelated-tag-untouched",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "same": false,
+          "executions": 1
+        },
+        "wrong": "{\"same\":false,\"executions\":1}"
+      }
+    },
+    {
+      "name": "concurrent-first-calls-agree-afterwards",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "allOk": true,
+          "afterwardOneValue": false
+        },
+        "wrong": "{\"allOk\":true,\"afterwardOneValue\":false}"
+      }
+    },
+    {
+      "name": "shared-by-isolates",
+      "verdict": "PASS",
+      "detail": {
+        "pass": true,
+        "executions": 1
+      }
+    },
+    {
+      "name": "tag-revalidation-reaches-every-isolate",
+      "verdict": "PASS",
+      "detail": {
+        "pass": true,
+        "distinct": 1
+      }
+    }
+  ]
+}

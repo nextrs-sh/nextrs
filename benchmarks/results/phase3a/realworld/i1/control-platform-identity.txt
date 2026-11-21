@@ -1,0 +1,79 @@
+MATCH      no-matcher-home
+MATCH      no-matcher-not-found
+MATCH      no-matcher-route-handler
+MATCH      no-matcher-static-asset
+MATCH      no-matcher-static-missing
+MATCH      fetch-continue
+MATCH      fetch-redirect
+MATCH      fetch-direct-response
+MATCH      fetch-rewrite
+MATCH      fetch-status-200
+MATCH      fetch-status-401-redirect
+MATCH      fetch-status-404-rewrite
+MATCH      fetch-status-500-direct
+MATCH      fetch-timeout
+MATCH      fetch-abort
+MATCH      fetch-refused
+MATCH      fetch-large-response
+KNOWN-DIFF fetch-unlisted-destination
+    (the proxy's fetch to an origin outside --net-allow is refused by NextRS (TypeError, cause ERR_NEXTRS_NET_DENIED); next start has no policy)
+MATCH      fetch-head
+MATCH      fetch-rsc
+MATCH      fetch-concurrent-identities
+MATCH      wait-until-runs-after-response
+MATCH      wait-until-failure-isolated
+PASS       wait-until-never-settles
+MATCH      instrumentation-registered-once
+MATCH      instrumentation-before-proxy
+MATCH      instrumentation-on-request-error
+MATCH      ext-get
+MATCH      ext-query-merge
+MATCH      ext-post-json
+MATCH      ext-put-text
+MATCH      ext-delete
+MATCH      ext-head
+MATCH      ext-cookies-and-auth
+MATCH      ext-redirect-not-followed
+MATCH      ext-status-418
+MATCH      ext-status-204
+MATCH      ext-rsc
+MATCH      ext-refused
+MATCH      ext-forwarded-headers
+MATCH      ext-internal-headers
+KNOWN-DIFF ext-hop-by-hop-headers
+    (NextRS does not forward hop-by-hop request headers (RFC 9110 7.6.1: Connection and the headers it names, TE, Keep-Alive, Proxy-*); next start's httpxy forwards them)
+MATCH      ext-large-response
+MATCH      ext-proxy-timeout
+MATCH      ext-proxy-timeout-mid-body
+MATCH      ext-streamed-response
+PASS       ext-streamed-response-incremental
+MATCH      ext-large-upload
+MATCH      ext-concurrent
+MATCH      ext-action-post-forwarded
+PASS       ext-client-abort
+KNOWN-DIFF ext-unlisted-destination
+    (a config rewrite to an origin outside --net-allow: NextRS 502 external-rewrite-denied, nothing sent; next start proxies)
+KNOWN-DIFF ext-metadata-destination
+    (a config rewrite to 169.254.169.254: NextRS 502 external-rewrite-denied, nothing sent; next start tries to connect)
+MATCH      ext-host-from-path-allowed
+KNOWN-DIFF ext-host-from-path-metadata
+    (a destination host taken from the path (169.254.169.254): NextRS refuses it, next start tries to connect)
+KNOWN-DIFF ext-host-from-path-encoded-loopback
+    (a destination host taken from the path (2130706433, loopback in decimal, port 80 not in --net-allow): NextRS refuses it, next start connects (refused here))
+MATCH      proxy-ext-rewrite
+MATCH      proxy-ext-rewrite-post
+KNOWN-DIFF proxy-ext-rewrite-internal-header
+    (next start forwards routing's x-middleware-set-cookie (the proxy's own cookies) to the upstream; NextRS does not send Next's internal headers to other origins)
+KNOWN-DIFF proxy-ext-rewrite-unlisted
+    (NextResponse.rewrite() to an origin outside --net-allow: NextRS 502, next start proxies)
+MATCH      posts-listed
+MATCH      posts-unlisted-dynamic-params-false
+MATCH      posts-unlisted-rsc
+MATCH      proxy-rewrite-to-listed-post
+MATCH      proxy-rewrite-to-unlisted-post
+MATCH      draft-wrong-secret
+MATCH      draft-forged-cookie
+MATCH      draft-mode-round-trip
+MATCH      isr-listed
+MATCH      isr-fallback-generated-then-cached
+platform-proxy (1 isolate): 59 MATCH (25 asserted), 3 PASS, 8 KNOWN-DIFF, 0 DIFF, 0 FAIL, 0 ORACLE-FAIL, 0 ERROR [negative control identity:both]

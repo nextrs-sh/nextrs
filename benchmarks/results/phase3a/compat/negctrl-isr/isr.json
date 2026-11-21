@@ -1,0 +1,416 @@
+{
+  "run": "mwhyldczaff3",
+  "isolates": 1,
+  "results": [
+    {
+      "name": "fresh-prerender",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200,
+            200
+          ],
+          "cache": [
+            "HIT",
+            "HIT"
+          ],
+          "cacheControl": "s-maxage=3600, stale-while-revalidate=31532400",
+          "sameGeneration": true,
+          "renders": 1
+        },
+        "wrong": "{\"statuses\":[200,200],\"cache\":[\"HIT\",\"HIT\"],\"cacheControl\":\"s-maxage=3600, stale-while-revalidate=31532400\",\"sameGeneration\":true,\"renders\":1}"
+      }
+    },
+    {
+      "name": "expired-regenerates-in-background",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "cache": [
+            "STALE",
+            "HIT",
+            "HIT"
+          ],
+          "generations": [
+            0,
+            0,
+            0
+          ],
+          "cacheControl": "s-maxage=2, stale-while-revalidate=31535998",
+          "renders": 1
+        },
+        "wrong": "{\"cache\":[\"STALE\",\"HIT\",\"HIT\"],\"generations\":[0,0,0],\"cacheControl\":\"s-maxage=2, stale-while-revalidate=31535998\",\"renders\":1}"
+      }
+    },
+    {
+      "name": "expired-rsc-request",
+      "verdict": "MATCH",
+      "detail": {
+        "status": 307,
+        "location": true
+      }
+    },
+    {
+      "name": "on-demand-params-cached",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "cache": [
+            "MISS",
+            "HIT",
+            "HIT"
+          ],
+          "generations": [
+            0,
+            0,
+            0
+          ],
+          "renders": 3
+        },
+        "wrong": "{\"statuses\":[200,200,200],\"cache\":[\"MISS\",\"HIT\",\"HIT\"],\"generations\":[0,0,0],\"renders\":3}"
+      }
+    },
+    {
+      "name": "route-handler-isr",
+      "verdict": "MATCH",
+      "detail": {
+        "type": "application/json",
+        "cache": [
+          "STALE",
+          "HIT",
+          "HIT"
+        ],
+        "generations": [
+          0,
+          1,
+          1
+        ],
+        "cacheControl": "s-maxage=2, stale-while-revalidate=31535998",
+        "renders": 1
+      }
+    },
+    {
+      "name": "concurrent-requests-on-stale-page",
+      "verdict": "DIFF",
+      "detail": {
+        "baseline": {
+          "allOk": true,
+          "staleServed": true,
+          "rendersWithinIsolates": true,
+          "distinctGenerationsServed": true,
+          "settledHit": "STALE"
+        },
+        "candidate": {
+          "allOk": true,
+          "staleServed": true,
+          "rendersWithinIsolates": true,
+          "distinctGenerationsServed": true,
+          "settledHit": "HIT"
+        }
+      }
+    },
+    {
+      "name": "failed-regeneration-keeps-last-good-page",
+      "verdict": "DIFF",
+      "detail": {
+        "baseline": {
+          "statuses": [
+            200,
+            500,
+            200,
+            200,
+            200
+          ],
+          "generations": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "recovered": false
+        },
+        "candidate": {
+          "statuses": [
+            200,
+            500,
+            200,
+            200,
+            200
+          ],
+          "generations": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          "recovered": true
+        }
+      }
+    },
+    {
+      "name": "action-revalidatePath-on-isr-page",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "action": {
+            "status": 200,
+            "type": "text/x-component",
+            "revalidated": "1",
+            "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+            "rendered": true
+          },
+          "cache": [
+            "HIT",
+            "MISS",
+            "HIT",
+            "HIT"
+          ],
+          "generations": [
+            0,
+            1,
+            1,
+            1
+          ],
+          "renders": 2,
+          "mutations": 2
+        },
+        "wrong": "{\"action\":{\"status\":200,\"type\":\"text/x-component\",\"revalidated\":\"1\",\"cacheControl\":\"no-cache, no-store, max-age=0, must-revalidate\",\"rendered\":true},\"cache\":[\"HIT\",\"MISS\",\"HIT\",\"HIT\"],\"generations\":[0,1,1,1],\"renders\":2,\"mutations\":2}"
+      }
+    },
+    {
+      "name": "action-updateTag-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "action": {
+          "status": 200,
+          "type": "text/x-component",
+          "revalidated": "1",
+          "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+          "rendered": true
+        },
+        "cache": [
+          "HIT",
+          "MISS",
+          "HIT",
+          "HIT"
+        ],
+        "generations": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "renders": 2,
+        "mutations": 1
+      }
+    },
+    {
+      "name": "action-revalidateTag-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "action": {
+          "status": 200,
+          "type": "text/x-component",
+          "revalidated": null,
+          "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+          "rendered": false
+        },
+        "cache": [
+          "HIT",
+          "STALE",
+          "HIT",
+          "HIT"
+        ],
+        "generations": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "renders": 1,
+        "mutations": 1
+      }
+    },
+    {
+      "name": "action-none-on-isr-page",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "action": {
+            "status": 200,
+            "type": "text/x-component",
+            "revalidated": null,
+            "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+            "rendered": false
+          },
+          "cache": [
+            "HIT",
+            "HIT",
+            "HIT",
+            "HIT"
+          ],
+          "generations": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "renders": 1,
+          "mutations": 1
+        },
+        "wrong": "{\"action\":{\"status\":200,\"type\":\"text/x-component\",\"revalidated\":null,\"cacheControl\":\"no-cache, no-store, max-age=0, must-revalidate\",\"rendered\":false},\"cache\":[\"HIT\",\"HIT\",\"HIT\",\"HIT\"],\"generations\":[0,0,0,0],\"renders\":1,\"mutations\":1}"
+      }
+    },
+    {
+      "name": "mpa-form-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "status": 200,
+        "type": "text/html",
+        "location": null,
+        "rendered": true,
+        "regenerated": true,
+        "mutations": 1
+      }
+    },
+    {
+      "name": "bound-action-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "status": 200,
+        "type": "text/html",
+        "location": null,
+        "rendered": true,
+        "regenerated": true,
+        "mutations": 1
+      }
+    },
+    {
+      "name": "concurrent-mutations-on-isr-page",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200
+          ],
+          "eachRecordedOnce": false,
+          "afterwardOneGeneration": true
+        },
+        "wrong": "{\"statuses\":[200],\"eachRecordedOnce\":false,\"afterwardOneGeneration\":true}"
+      }
+    },
+    {
+      "name": "revalidation-visible-in-every-isolate",
+      "verdict": "PASS",
+      "detail": {
+        "pass": true,
+        "distinct": 1
+      }
+    },
+    {
+      "name": "on-demand-page-shared-by-isolates",
+      "verdict": "PASS",
+      "detail": {
+        "pass": true,
+        "renders": 1
+      }
+    },
+    {
+      "name": "cookie-dependent-page-not-shared",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+          "cache": null,
+          "eachOwn": false,
+          "anonymous": true
+        },
+        "wrong": "{\"cacheControl\":\"private, no-cache, no-store, max-age=0, must-revalidate\",\"cache\":null,\"eachOwn\":false,\"anonymous\":true}"
+      }
+    },
+    {
+      "name": "authorization-dependent-route-not-shared",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "cacheControl": "s-maxage=3600",
+          "eachOwn": true
+        },
+        "wrong": "{\"cacheControl\":\"s-maxage=3600\",\"eachOwn\":true}"
+      }
+    },
+    {
+      "name": "poisoning-query-and-headers",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "attempts": [
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            },
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            },
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            },
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            },
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            },
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            }
+          ],
+          "renders": 0,
+          "unchanged": false
+        },
+        "wrong": "{\"attempts\":[{\"status\":200,\"cache\":\"HIT\",\"sameGeneration\":true,\"setCookie\":false},{\"status\":200,\"cache\":\"HIT\",\"sameGeneration\":true,\"setCookie\":false},{\"status\":200,\"cache\":\"HIT\",\"sameGeneration\":true,\"setCookie\":false},{\"status\":200,\"cache\":\"HIT\",\"sameGeneration\":true,\"setCookie\":false},{\"status\":200,\"cache\":\"HIT\",\"sameGeneration\":true,\"setCookie\":false},{\"status\":200,\"cache\":\"HIT\",\"sameGeneration\":true,\"setCookie\":false}],\"renders\":0,\"unchanged\":false}"
+      }
+    },
+    {
+      "name": "rsc-and-html-entries-not-confused",
+      "verdict": "ORACLE-FAIL",
+      "detail": {
+        "observed": {
+          "htmlType": "text/html",
+          "flightType": "text/x-component",
+          "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+          "afterType": "text/x-component",
+          "afterIsHtml": false
+        },
+        "wrong": "{\"htmlType\":\"text/html\",\"flightType\":\"text/x-component\",\"vary\":\"rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch\",\"afterType\":\"text/x-component\",\"afterIsHtml\":false}"
+      }
+    }
+  ]
+}

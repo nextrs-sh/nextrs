@@ -1,0 +1,90 @@
+MATCH      providers
+MATCH      csrf-token
+MATCH      session-anonymous
+MATCH      signin-page
+FAIL       credentials-sign-in
+    NextRS: status 302 location /elsewhere, expected 302 http://SELF/dashboard
+FAIL       credentials-sign-in-bob
+    NextRS: status 302 location /elsewhere, expected 302 http://SELF/reports
+FAIL       credentials-wrong-password
+    NextRS: location /elsewhere
+FAIL       credentials-unknown-user
+    NextRS: location /elsewhere
+FAIL       credentials-missing-csrf
+    NextRS: location /elsewhere
+FAIL       credentials-foreign-csrf
+    NextRS: location /elsewhere
+FAIL       credentials-open-redirect
+    NextRS: status 302 location /elsewhere, expected 302 http://SELF
+DIFF       sign-out
+    $.location: "http://SELF/" | "/elsewhere"
+MATCH      session-alice-api
+MATCH      session-bob-api
+MATCH      session-endpoint
+MATCH      session-dashboard
+DIFF       session-isr
+    $.headers.x-nextjs-cache: "HIT" | "STALE"
+MATCH      session-home
+FAIL       anon-dashboard
+    NextRS: status 307 location /elsewhere
+FAIL       anon-isr
+    NextRS: status 307 location /elsewhere
+FAIL       anon-action-page
+    NextRS: status 307 location /elsewhere
+MATCH      anon-api
+MATCH      anon-home
+MATCH      session-wrong-secret
+FAIL       session-wrong-secret-page
+    NextRS: status 307 location /elsewhere
+MATCH      session-wrong-salt
+MATCH      session-expired
+FAIL       session-expired-page
+    NextRS: status 307 location /elsewhere
+MATCH      session-tampered
+MATCH      session-tampered-tag
+MATCH      session-not-a-jwe
+MATCH      session-signed-jwt-not-jwe
+MATCH      session-rolled
+MATCH      session-expires
+ERROR      oidc-sign-in-alice
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-sign-in-bob
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-wrong-state
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-no-state-cookie
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-no-pkce-cookie
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-no-nonce-cookie
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-forged-code
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-missing-code
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-wrong-iss-parameter
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-wrong-iss
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-wrong-aud
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-wrong-nonce
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-expired
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-bad-signature-not-verified
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-unknown-kid-not-verified
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-key-rotation
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-callback-replay
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:308:21)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:399:19)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+MATCH      action-anon
+MATCH      action-alice
+MATCH      action-bob-public-page
+MATCH      action-expired
+MATCH      action-wrong-secret
+MATCH      concurrent-users
+MATCH      session-after-executor-restart
+authjs (next-auth 5): 27 MATCH (27 asserted), 0 PASS, 0 KNOWN-DIFF, 2 DIFF, 12 FAIL, 0 ORACLE-FAIL, 17 ERROR

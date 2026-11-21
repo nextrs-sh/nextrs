@@ -1,0 +1,16 @@
+PASS            client-nav-proxy-rewrite
+PASS            client-nav-proxy-redirect
+PASS            client-nav-protected-anonymous
+PASS            client-nav-protected-session
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+browserContext.close: Protocol error (Target.disposeBrowserContext): Failed to find context with id 0732537A2305449D3A87CE48C593FD12
+    at async runScenario (/home/dennispaler/Documents/OpenSource/nextrs/tests/browser/proxy.mjs:166:5)
+    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/browser/proxy.mjs:175:20 {
+  log: [],
+  name: 'Error'
+}
+
+Node.js v24.18.0

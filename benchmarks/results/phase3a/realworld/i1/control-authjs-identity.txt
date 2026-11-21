@@ -1,0 +1,78 @@
+MATCH      providers
+MATCH      csrf-token
+MATCH      session-anonymous
+MATCH      signin-page
+ORACLE-FAIL credentials-sign-in
+    next start: session {"sub":"u-bob","name":"Alice","email":"alice@example.test"} (decoded with Node's Auth.js), expected u-alice
+ORACLE-FAIL credentials-sign-in-bob
+    next start: session {"sub":"u-alice","name":"Bob","email":"bob@example.test"} (decoded with Node's Auth.js), expected u-bob
+MATCH      credentials-wrong-password
+MATCH      credentials-unknown-user
+MATCH      credentials-missing-csrf
+MATCH      credentials-foreign-csrf
+ORACLE-FAIL credentials-open-redirect
+    next start: session {"sub":"u-bob","name":"Alice","email":"alice@example.test"} (decoded with Node's Auth.js), expected u-alice
+MATCH      sign-out
+ORACLE-FAIL session-alice-api
+    next start: status 200 "{\"userId\":\"u-bob\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+ORACLE-FAIL session-bob-api
+    next start: status 200 "{\"userId\":\"u-alice\",\"name\":\"Bob\",\"email\":\"bob@example.test\"}"
+ORACLE-FAIL session-endpoint
+    next start: status 200 {"user":{"name":"Bob","email":"bob@example.test","id":"u-alice"},"expires":"<DATE>"}
+ORACLE-FAIL session-dashboard
+    next start: status 200 {"title":"Dashboard","secret":"dashboard of Alice","info":"{\"userId\":\"u-bob\",\"email\":\"alice@example.test\"}","stamp":"absent"}
+MATCH      session-isr
+ORACLE-FAIL session-home
+    next start: {"title":"Home","info":"{\"user\":\"u-alice\"}","stamp":"absent"}
+MATCH      anon-dashboard
+MATCH      anon-isr
+MATCH      anon-action-page
+MATCH      anon-api
+MATCH      anon-home
+MATCH      session-wrong-secret
+MATCH      session-wrong-secret-page
+MATCH      session-wrong-salt
+MATCH      session-expired
+MATCH      session-expired-page
+MATCH      session-tampered
+MATCH      session-tampered-tag
+MATCH      session-not-a-jwe
+MATCH      session-signed-jwt-not-jwe
+ORACLE-FAIL session-rolled
+    next start: {"status":200,"rolled":{"sub":"u-bob","name":"Alice","email":"alice@example.test"},"setCookie":["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"]}
+ORACLE-FAIL session-expires
+    next start: status 200 "{\"userId\":\"u-bob\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+ORACLE-FAIL oidc-sign-in-alice
+    next start: session {"sub":"u-bob","name":"Alice","email":"alice@example.test"}
+ORACLE-FAIL oidc-sign-in-bob
+    next start: session {"sub":"u-alice","name":"Bob","email":"bob@example.test"}
+MATCH      oidc-wrong-state
+MATCH      oidc-no-state-cookie
+MATCH      oidc-no-pkce-cookie
+MATCH      oidc-no-nonce-cookie
+MATCH      oidc-forged-code
+MATCH      oidc-missing-code
+MATCH      oidc-wrong-iss-parameter
+MATCH      oidc-id-token-wrong-iss
+MATCH      oidc-id-token-wrong-aud
+MATCH      oidc-id-token-wrong-nonce
+MATCH      oidc-id-token-expired
+ORACLE-FAIL oidc-id-token-bad-signature-not-verified
+    next start: session {"sub":"u-bob","name":"Alice","email":"alice@example.test"}
+ORACLE-FAIL oidc-id-token-unknown-kid-not-verified
+    next start: session {"sub":"u-bob","name":"Alice","email":"alice@example.test"}
+ORACLE-FAIL oidc-key-rotation
+    next start: session {"sub":"u-bob","name":"Alice","email":"alice@example.test"}
+ORACLE-FAIL oidc-callback-replay
+    next start: session {"sub":"u-bob","name":"Alice","email":"alice@example.test"}
+MATCH      action-anon
+ORACLE-FAIL action-alice
+    next start: ledger ["u-bob:1"], expected ["u-alice:1"]
+ORACLE-FAIL action-bob-public-page
+    next start: ledger ["u-alice:1"], expected ["u-bob:1"]
+MATCH      action-expired
+MATCH      action-wrong-secret
+MATCH      concurrent-users
+ORACLE-FAIL session-after-executor-restart
+    next start: status 200 "{\"userId\":\"u-bob\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+authjs (next-auth 5): 39 MATCH (39 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 19 ORACLE-FAIL, 0 ERROR [negative control identity:both]

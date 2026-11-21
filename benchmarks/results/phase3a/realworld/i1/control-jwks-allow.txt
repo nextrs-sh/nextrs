@@ -1,0 +1,126 @@
+MATCH      valid-RS256
+MATCH      valid-PS256
+MATCH      valid-ES256
+MATCH      valid-ES384
+MATCH      valid-EdDSA
+MATCH      valid-bob-ES256
+MATCH      valid-no-kid
+MATCH      valid-audience-array
+MATCH      valid-tenant-main
+ORACLE-FAIL expired
+    next start: status 200, expected 401
+ORACLE-FAIL not-yet-valid
+    next start: status 200, expected 401
+ORACLE-FAIL wrong-issuer
+    next start: status 200, expected 401
+ORACLE-FAIL wrong-audience
+    next start: status 200, expected 401
+ORACLE-FAIL no-subject
+    next start: status 200, expected 401
+ORACLE-FAIL no-expiry
+    next start: status 200, expected 401
+MATCH      future-iat-is-fine
+ORACLE-FAIL tampered-payload-rs-1
+    next start: status 200, expected 401
+ORACLE-FAIL tampered-signature-rs-1
+    next start: status 200, expected 401
+ORACLE-FAIL tampered-payload-es-1
+    next start: status 200, expected 401
+ORACLE-FAIL tampered-signature-es-1
+    next start: status 200, expected 401
+ORACLE-FAIL tampered-payload-ed-1
+    next start: status 200, expected 401
+ORACLE-FAIL tampered-signature-ed-1
+    next start: status 200, expected 401
+ORACLE-FAIL alg-none
+    next start: status 200, expected 401
+ORACLE-FAIL alg-confusion-hs256-public-key
+    next start: status 200, expected 401
+ORACLE-FAIL alg-header-rs256-on-ec-key
+    next start: status 200, expected 401
+ORACLE-FAIL alg-header-ps256-on-rs256-key
+    next start: status 200, expected 401
+ORACLE-FAIL alg-not-allowed-hs256
+    next start: status 200, expected 401
+ORACLE-FAIL unknown-kid
+    next start: status 200, expected 401
+ORACLE-FAIL malformed-token
+    next start: status 200, expected 401
+ORACLE-FAIL no-authorization
+    next start: status 200, expected 401
+ORACLE-FAIL basic-authorization
+    next start: status 200, expected 401
+MATCH      spoofed-identity-header
+ORACLE-FAIL spoofed-identity-header-anon
+    next start: status 200, expected 401
+MATCH      jku-header-ignored
+ORACLE-FAIL key-rotation
+    next start: status 200, expected 401
+MATCH      several-keys-same-type
+MATCH      key-set-is-cached
+MATCH      jwks-unavailable
+MATCH      jwks-malformed
+ORACLE-FAIL jwks-empty
+    next start: status 200, expected 401
+MATCH      jwks-timeout
+MATCH      jwks-redirect-not-followed
+KNOWN-DIFF jwks-huge-response
+    (NextRS bounds every fetch's response (--net-max-response, 32 MiB); next start reads a 40 MiB key set)
+KNOWN-DIFF tenant-unlisted-issuer
+    (NextRS's network policy refuses the unlisted issuer (fetch-failed); next start reaches it)
+PASS       tenant-metadata-address
+ORACLE-FAIL tenant-unknown
+    next start: status 200, expected 401
+MATCH      client-abort-during-jwks-fetch
+MATCH      login-signs-es256-session
+ORACLE-FAIL logout-clears-session
+    next start: status 200 location null, expected 303 to /login
+MATCH      app-signs-ES256
+MATCH      app-signs-PS256
+MATCH      app-signs-RS256
+MATCH      app-signs-EdDSA
+MATCH      app-verifies-ES256
+ORACLE-FAIL app-rejects-tampered-ES256
+    next start: status 200 "{\"ok\":false,\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+MATCH      app-verifies-PS256
+ORACLE-FAIL app-rejects-tampered-PS256
+    next start: status 200 "{\"ok\":false,\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+MATCH      app-verifies-RS256
+ORACLE-FAIL app-rejects-tampered-RS256
+    next start: status 200 "{\"ok\":false,\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+MATCH      app-verifies-EdDSA
+ORACLE-FAIL app-rejects-tampered-EdDSA
+    next start: status 200 "{\"ok\":false,\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+ORACLE-FAIL app-rejects-wrong-key
+    next start: status 200 "{\"ok\":false,\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+ORACLE-FAIL app-rejects-hs256
+    next start: status 200 "{\"ok\":false,\"code\":\"alg-not-allowed\"}"
+ORACLE-FAIL app-rejects-expired
+    next start: status 200 "{\"ok\":false,\"code\":\"ERR_JWT_EXPIRED\"}"
+ORACLE-FAIL anon-dashboard
+    next start: status 200 location /login?next=%2Fdashboard, expected a redirect to /login
+ORACLE-FAIL anon-static
+    next start: status 200 location /login?next=%2Faccount, expected a redirect to /login
+ORACLE-FAIL anon-isr
+    next start: status 200 location /login?next=%2Freports, expected a redirect to /login
+MATCH      session-dashboard-alice
+MATCH      session-dashboard-bob
+MATCH      session-static
+MATCH      session-isr
+ORACLE-FAIL session-expired
+    next start: status 200 location /login?next=%2Fdashboard, expected a redirect to /login
+ORACLE-FAIL session-wrong-key
+    next start: status 200 location /login?next=%2Fdashboard, expected a redirect to /login
+ORACLE-FAIL session-tampered
+    next start: status 200 location /login?next=%2Fdashboard, expected a redirect to /login
+ORACLE-FAIL session-wrong-issuer
+    next start: status 200 location /login?next=%2Fdashboard, expected a redirect to /login
+ORACLE-FAIL session-provider-token-as-cookie
+    next start: status 200 location /login?next=%2Fdashboard, expected a redirect to /login
+MATCH      action-anon
+MATCH      action-alice
+MATCH      action-bob-public-page
+MATCH      action-expired
+MATCH      action-bearer-is-not-a-session
+MATCH      concurrent-identities
+jwks-proxy (jose JWKS): 38 MATCH (38 asserted), 1 PASS, 2 KNOWN-DIFF, 0 DIFF, 0 FAIL, 41 ORACLE-FAIL, 0 ERROR [negative control allow:both]

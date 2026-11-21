@@ -1,0 +1,98 @@
+velasia-web-1  | 2026-11-20T07:43:37.041391Z  INFO nextrs: X-Forwarded-* headers removed from every request
+velasia-web-1  | 2026-11-20T07:43:37.046973Z  INFO nextrs: monorepo build: the workspace root's packages are readable packages=/app/node_modules
+velasia-web-1  | 2026-11-20T07:43:37.046991Z  INFO nextrs: outbound fetch enabled allow=http://velasia-api:4010
+velasia-web-1  | 2026-11-20T07:43:37.047049Z  INFO nextrs: shared data cache enabled persistent=true dir=/var/cache/nextrs/data
+velasia-web-1  | 2026-11-20T07:43:37.102797Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+velasia-web-1  | 2026-11-20T07:43:37.102819Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+velasia-web-1  | 2026-11-20T07:43:37.103442Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+velasia-web-1  | 2026-11-20T07:43:37.103457Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+velasia-web-1  | 2026-11-20T07:43:37.196176Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=148
+velasia-web-1  | 2026-11-20T07:43:37.196206Z  INFO nextrs::executor: isolate ready slot=1 generation=1 boot_ms=148
+velasia-web-1  | 2026-11-20T07:43:37.196225Z  INFO nextrs: embedded V8 executor ready ready_ms=154 isolates=2
+velasia-web-1  | 2026-11-20T07:43:37.197665Z  INFO nextrs: Server Actions enabled actions=45 next_body_limit=131072 nextrs_body_limit=10485760 effective=131072
+velasia-web-1  | 2026-11-20T07:43:37.202011Z  WARN nextrs: serving metrics on a non-loopback address metrics_addr=0.0.0.0:9100
+velasia-web-1  | 2026-11-20T07:43:37.202093Z  INFO nextrs: metrics listening metrics_addr=0.0.0.0:9100
+velasia-web-1  | 2026-11-20T07:43:37.202099Z  WARN nextrs: binding a non-loopback address; NextRS is experimental addr=0.0.0.0:3000
+velasia-web-1  | 2026-11-20T07:43:37.202121Z  INFO nextrs: nextrs ready addr=0.0.0.0:3000 build_id=i35V8ZnDo4vkF6as9Slvl ready_ms=160
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  |     at async serve (ext:nextrs/03_server.js:445:11) {
+velasia-web-1  |   digest: "781837629"
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795160717413,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+velasia-web-1  | {"level":50,"time":1795160717916,"service":"velasia-web","msg":"retailing api call failed","area":"account","action":"register","code":"REGISTRATION_DISABLED","kind":"rejected","status":403}
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  |     at async serve (ext:nextrs/03_server.js:445:11) {
+velasia-web-1  |   digest: "781837629"
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795160834765,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+velasia-web-1  | {"level":50,"time":1795160835541,"service":"velasia-web","msg":"retailing api call failed","area":"account","action":"register","code":"REGISTRATION_DISABLED","kind":"rejected","status":403}
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  |     at async serve (ext:nextrs/03_server.js:445:11) {
+velasia-web-1  |   digest: "781837629"
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795161012613,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  |     at async serve (ext:nextrs/03_server.js:445:11) {
+velasia-web-1  |   digest: "781837629"
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795161072682,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  |     at async serve (ext:nextrs/03_server.js:445:11) {
+velasia-web-1  |   digest: "781837629"
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795161164274,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  |     at async serve (ext:nextrs/03_server.js:445:11) {
+velasia-web-1  |   digest: "781837629"
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795161212597,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  |     at async serve (ext:nextrs/03_server.js:445:11) {
+velasia-web-1  |   digest: "781837629"
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795161296135,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  |     at async serve (ext:nextrs/03_server.js:445:11) {
+velasia-web-1  |   digest: "781837629"
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795161327390,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}

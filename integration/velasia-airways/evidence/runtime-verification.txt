@@ -1,0 +1,168 @@
+NextRS x Velasia Airways runtime verification — 2026-11-20T07:56:19Z
+target: http://localhost:3000
+
+== 1. Containers
+SERVICE       IMAGE                      STATUS                    PORTS
+velasia-api   nextrs-velasia-api:local   Up 7 minutes (healthy)    4010/tcp
+velasia-web   nextrs-velasia-web:local   Up 12 minutes (healthy)   127.0.0.1:3000->3000/tcp
+PASS  velasia-web container running (0fb5b83d5412e417ac9609a6d177807e27d556fc85ffba0c910333a6859b47cc)
+PASS  velasia-web health: healthy (NextRS /readyz)
+
+== 2. Installed npm package
+package: @nextrs/cli@0.1.0-rc.1
+PASS  npm package is @nextrs/cli@0.1.0-rc.1
+lockfile "resolved": "https://registry.npmjs.org/@nextrs/cli/-/cli-0.1.0-rc.1.tgz"
+lockfile "integrity": "sha512-RnUTCEw2Gsputfg9ivIQSoCX+vCExL4guxuJY4M6CARd9VwYqRTrEzKn8Jx1SuiH+E27efb5v71ZLZXw7yj/7w=="
+PASS  installed from registry.npmjs.org tarball
+{
+  "name": "nextrs",
+  "version": "0.1.0-rc.1",
+  "tag": "v0.1.0-rc.1",
+  "commit": "3ae8e5440ba65df14ce21a756e1f486456f79b2c",
+  "binary_commit": "711d77f36533bda91c762ca088b989329094c4e1",
+  "dirty": false,
+  "target": "x86_64-unknown-linux-gnu",
+  "cargo_profile": "dist",
+  "rustc": "rustc 1.98.0 (88d9e12ae 2026-08-18)",
+  "min_glibc": "2.35",
+  "runtime_libraries": "ld-linux-x86-64.so.2 libc.so.6 libgcc_s.so.1 libm.so.6",
+  "binary_sha256": "44f04e586c7dc9eb0b8f69dfd992143f725472aa5f3619df5a4039d77d2c6956",
+  "source_date_epoch": 1795147811
+}
+
+== 3. Executable
+PASS  nextrs --version: nextrs 0.1.0-rc.1
+sha256 /usr/local/bin/nextrs = 44f04e586c7dc9eb0b8f69dfd992143f725472aa5f3619df5a4039d77d2c6956
+PASS  binary sha256 = BUILD-INFO binary_sha256 (the npm package's native/nextrs)
+entrypoint+args: ["/usr/local/bin/nextrs"] ["start","/app/apps/web","--host","0.0.0.0","--port","3000","--js-runtime","embedded-v8","--isolates","2","--js-env","RETAILING_API_URL","--js-env","SITE_URL","--js-env","RETAILING_API_TIMEOUT_MS","--js-env","VELASIA_TODAY","--net-allow","http://velasia-api:4010","--net-allow-addr","172.30.47.0/24","--strip-forwarded-headers","--cache-dir","/var/cache/nextrs/data","--image-cache-dir","/var/cache/nextrs/images","--metrics-addr","0.0.0.0:9100","--log-format","text"]
+PASS  container entrypoint is /usr/local/bin/nextrs
+
+== 4. Processes inside velasia-web (/proc)
+PID	EXE	CMDLINE
+1	/usr/sbin/docker-init	/sbin/docker-init -- /usr/local/bin/nextrs start /app/apps/web --host 0.0.0.0 --port 3000 --js-runtime embedded-v8 --isolates 2 --js-env RETAILING_API_URL --js-env SITE_URL --js-env RETAILING_API_TIMEOUT_MS --js-env VELASIA_TODAY --net-allow http://velasia-api:4010 --net-allow-addr 172.30.47.0/24 --strip-forwarded-headers --cache-dir /var/cache/nextrs/data --image-cache-dir /var/cache/nextrs/images --metrics-addr 0.0.0.0:9100 --log-format text 
+1239	/usr/bin/bash	bash -c for p in /proc/[0-9]*; do pid=${p#/proc/}; exe=$(readlink "$p/exe" 2>/dev/null || echo "?"); cmd=$(tr "\0" " " < "$p/cmdline" 2>/dev/null); [ -n "$cmd" ] && printf "%s\t%s\t%s\n" "$pid" "$exe" "$cmd"; done 
+7	/usr/local/bin/nextrs	/usr/local/bin/nextrs start /app/apps/web --host 0.0.0.0 --port 3000 --js-runtime embedded-v8 --isolates 2 --js-env RETAILING_API_URL --js-env SITE_URL --js-env RETAILING_API_TIMEOUT_MS --js-env VELASIA_TODAY --net-allow http://velasia-api:4010 --net-allow-addr 172.30.47.0/24 --strip-forwarded-headers --cache-dir /var/cache/nextrs/data --image-cache-dir /var/cache/nextrs/images --metrics-addr 0.0.0.0:9100 --log-format text 
+PASS  a process runs /usr/local/bin/nextrs start /app/apps/web ... --js-runtime embedded-v8
+PASS  embedded V8 runtime enabled
+PASS  no node / npm / pnpm / next start / server.js process in velasia-web
+PASS  no node/npm/pnpm executable in the web image
+host view (docker top):
+PID                 USER                COMMAND
+49685               10001               /sbin/docker-init -- /usr/local/bin/nextrs start /app/apps/web --host 0.0.0.0 --port 3000 --js-runtime embedded-v8 --isolates 2 --js-env RETAILING_API_URL --js-env SITE_URL --js-env RETAILING_API_TIMEOUT_MS --js-env VELASIA_TODAY --net-allow http://velasia-api:4010 --net-allow-addr 172.30.47.0/24 --strip-forwarded-headers --cache-dir /var/cache/nextrs/data --image-cache-dir /var/cache/nextrs/images --metrics-addr 0.0.0.0:9100 --log-format text
+49753               10001               /usr/local/bin/nextrs start /app/apps/web --host 0.0.0.0 --port 3000 --js-runtime embedded-v8 --isolates 2 --js-env RETAILING_API_URL --js-env SITE_URL --js-env RETAILING_API_TIMEOUT_MS --js-env VELASIA_TODAY --net-allow http://velasia-api:4010 --net-allow-addr 172.30.47.0/24 --strip-forwarded-headers --cache-dir /var/cache/nextrs/data --image-cache-dir /var/cache/nextrs/images --metrics-addr 0.0.0.0:9100 --log-format text
+listening sockets (hex addr:port): 00000000:0BB8 00000000:238C 0B00007F:8099 
+PASS  port 3000 (0x0BB8) is listening inside velasia-web
+
+== 5. Host port 3000 -> velasia-web only
+127.0.0.1:3000
+containers publishing 3000: 0fb5b83d5412 nextrs-velasia-velasia-web-1
+PASS  only velasia-web publishes port 3000
+velasia-api ports: {"4010/tcp":null}
+PASS  velasia-api publishes no host port (internal network only)
+velasia-api process (declared supporting API, Node.js allowed): ["node","--enable-source-maps","dist/server.mjs"]
+
+== 6. Requests reach NextRS (operations counters before/after)
+probe responses: /?nextrs-probe-1795161382-18931=200 /destinations?nextrs-probe-1795161382-18931=200 /api/airports?nextrs-probe-1795161382-18931=200 /flights?nextrs-probe-1795161382-18931=200 /_next/static/__missing-nextrs-probe-1795161382-18931.js=404
+nextrs_http_requests_total: before=7846 after=7851
+PASS  NextRS request counter rose by 5 for 5 browser-facing probes
+nextrs_http_requests_total{class="1xx"} 0
+nextrs_http_requests_total{class="2xx"} 7809
+nextrs_http_requests_total{class="3xx"} 16
+nextrs_http_requests_total{class="4xx"} 18
+nextrs_http_requests_total{class="5xx"} 8
+nextrs_http_requests_total{class="other"} 0
+
+== 7. Response headers from the host
+--- GET /
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+referrer-policy: strict-origin-when-cross-origin
+x-frame-options: DENY
+cross-origin-opener-policy: same-origin
+x-accel-buffering: no
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+x-nextjs-cache: HIT
+x-nextjs-prerender: 1
+x-nextjs-prerender: 1
+link: </_next/static/media/07c7676b89ed2778-s.p.2bn3s6zvc0dyp.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2", </_next/static/media/82450a180bcad83c-s.p.0p-wng2nn8o-p.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2", </_next/static/media/ba63f6a0e436df8e-s.p.3-6t-g6q0vh0a.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2", </_next/static/media/fbb7028efdf70529-s.p.1_0gbi-gsbqmd.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2"
+x-nextjs-stale-time: 300
+cache-control: s-maxage=3600, stale-while-revalidate=82800
+etag: "zizlff890w3qrh"
+content-type: text/html; charset=utf-8
+content-length: 174791
+date: Fri, 20 Nov 2026 07:56:23 GMT
+
+--- GET /api/airports
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+referrer-policy: strict-origin-when-cross-origin
+x-frame-options: DENY
+cross-origin-opener-policy: same-origin
+x-accel-buffering: no
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+cache-control: public, max-age=300, s-maxage=3600, stale-while-revalidate=86400
+content-type: application/json
+transfer-encoding: chunked
+date: Fri, 20 Nov 2026 07:56:23 GMT
+
+--- GET /flights
+HTTP/1.1 200 OK
+x-content-type-options: nosniff
+referrer-policy: strict-origin-when-cross-origin
+x-frame-options: DENY
+cross-origin-opener-policy: same-origin
+x-accel-buffering: no
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+link: </_next/static/media/07c7676b89ed2778-s.p.2bn3s6zvc0dyp.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2", </_next/static/media/82450a180bcad83c-s.p.0p-wng2nn8o-p.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2", </_next/static/media/ba63f6a0e436df8e-s.p.3-6t-g6q0vh0a.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2", </_next/static/media/fbb7028efdf70529-s.p.1_0gbi-gsbqmd.woff2>; rel=preload; as="font"; crossorigin=""; type="font/woff2"
+x-nextjs-stale-time: 300
+x-nextjs-prerender: 1
+x-nextjs-postponed: 1
+cache-control: private, no-cache, no-store, max-age=0, must-revalidate
+content-type: text/html; charset=utf-8
+transfer-encoding: chunked
+date: Fri, 20 Nov 2026 07:56:23 GMT
+
+
+== 8. NextRS log lines
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  | [90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+velasia-web-1  |   digest: [32m"781837629"[39m
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795161164274,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  | [90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+velasia-web-1  |   digest: [32m"781837629"[39m
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795161212597,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  | [90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+velasia-web-1  |   digest: [32m"781837629"[39m
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795161296135,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+velasia-web-1  | `x-forwarded-host` header with value `localhost:3000` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+velasia-web-1  | Error: Invalid Server Actions request.
+velasia-web-1  |     at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+velasia-web-1  |     at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+velasia-web-1  |     at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+velasia-web-1  |     at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+velasia-web-1  | [90m    at async serve (ext:nextrs/03_server.js:445:11)[39m {
+velasia-web-1  |   digest: [32m"781837629"[39m
+velasia-web-1  | }
+velasia-web-1  | {"level":50,"time":1795161327390,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"781837629","requestId":null}
+
+RESULT: PASS (all runtime checks)

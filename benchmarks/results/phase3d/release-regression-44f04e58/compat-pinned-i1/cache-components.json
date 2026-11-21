@@ -1,0 +1,131 @@
+{
+  "run": "mwo99r9qbbb2",
+  "isolates": 1,
+  "results": [
+    {
+      "name": "first-call-then-cached",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "generations": [
+            0,
+            0,
+            0
+          ],
+          "executions": 1
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "arguments-are-keys",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "distinct": true,
+          "aCached": true,
+          "executions": 2
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "cache-life-expiry",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "generations": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "executions": 2
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "updateTag-from-action",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "action": {
+            "status": 200,
+            "revalidated": "1"
+          },
+          "generations": [
+            0,
+            1,
+            1
+          ],
+          "executions": 2
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "revalidateTag-max-from-action",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "action": {
+            "status": 200,
+            "revalidated": null
+          },
+          "generations": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "executions": 2
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "unrelated-tag-untouched",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "same": true,
+          "executions": 1
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "concurrent-first-calls-agree-afterwards",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "allOk": true,
+          "afterwardOneValue": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "shared-by-isolates",
+      "verdict": "PASS",
+      "detail": {
+        "pass": true,
+        "executions": 1
+      }
+    },
+    {
+      "name": "tag-revalidation-reaches-every-isolate",
+      "verdict": "PASS",
+      "detail": {
+        "pass": true,
+        "distinct": 1
+      }
+    }
+  ]
+}

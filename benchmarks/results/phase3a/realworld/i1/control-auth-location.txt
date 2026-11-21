@@ -1,0 +1,100 @@
+MATCH      public-home
+MATCH      public-login
+MATCH      public-login-next
+MATCH      public-health-not-matched
+ORACLE-FAIL anon-dashboard
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+ORACLE-FAIL anon-dashboard-query
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard?tab=billing&x=1+2
+ORACLE-FAIL anon-static-page
+    next start: status 307 location /elsewhere, expected the login redirect with next=/account
+ORACLE-FAIL anon-isr-page
+    next start: status 307 location /elsewhere, expected the login redirect with next=/reports
+ORACLE-FAIL anon-dynamic-param
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard/projects/p-1
+MATCH      anon-route-handler
+ORACLE-FAIL anon-action-page
+    next start: status 307 location /elsewhere, expected the login redirect with next=/actions/protected
+MATCH      anon-head
+MATCH      anon-rsc
+MATCH      anon-rsc-prefetch
+MATCH      anon-rsc-segment-prefetch
+MATCH      anon-rsc-query
+MATCH      valid-alice-dashboard
+MATCH      valid-bob-dashboard
+MATCH      valid-static-page
+MATCH      valid-isr-page
+MATCH      valid-dynamic-param
+MATCH      valid-route-handler
+ORACLE-FAIL valid-rsc
+    next start: status 307 location /elsewhere
+ORACLE-FAIL valid-login-redirects-to-dashboard
+    next start: status 307 /elsewhere
+ORACLE-FAIL expired-session
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+MATCH      expired-session-route-handler
+ORACLE-FAIL not-yet-valid-session
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+ORACLE-FAIL wrong-secret
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+ORACLE-FAIL tampered-payload
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+ORACLE-FAIL tampered-signature
+    next start: status 307 location /elsewhere, expected the login redirect with next=/account
+ORACLE-FAIL alg-none
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+ORACLE-FAIL alg-not-allowed-hs512
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+ORACLE-FAIL missing-claims
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+ORACLE-FAIL malformed-cookie
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+ORACLE-FAIL empty-cookie
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+ORACLE-FAIL other-cookie-only
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+MATCH      duplicate-session-cookie
+ORACLE-FAIL spoofed-identity-header-anon
+    next start: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+MATCH      spoofed-identity-header-session
+MATCH      bypass-encoded-first-char
+MATCH      bypass-encoded-last-char
+MATCH      bypass-encoded-static
+MATCH      bypass-encoded-isr
+MATCH      bypass-encoded-api
+MATCH      bypass-encoded-rsc
+MATCH      bypass-encoded-prefetch
+MATCH      bypass-encoded-slash
+MATCH      bypass-dot-segments
+MATCH      bypass-encoded-dot-segments
+MATCH      bypass-double-slash
+MATCH      bypass-backslash
+MATCH      bypass-trailing-slash
+MATCH      bypass-upper-case
+MATCH      bypass-upper-case-static
+MATCH      bypass-semicolon
+MATCH      bypass-rsc-suffix
+MATCH      bypass-html-suffix
+MATCH      bypass-data-route
+MATCH      bypass-next-data-query
+MATCH      bypass-config-rewrite-alias
+MATCH      config-rewrite-alias-session
+MATCH      bypass-internal-headers
+MATCH      bypass-forwarded-host
+MATCH      login-action-success
+MATCH      login-action-wrong-password
+MATCH      login-action-open-redirect
+ORACLE-FAIL login-form-without-js
+    next start: redirected to /elsewhere, expected http://SELF/dashboard/projects/p-2
+MATCH      login-action-cross-origin
+MATCH      logout-action
+MATCH      action-anon-on-protected-page
+MATCH      action-anon-on-public-page
+MATCH      action-expired-on-public-page
+MATCH      action-tampered-on-public-page
+MATCH      action-alice-on-protected-page
+MATCH      action-bob-on-public-page
+MATCH      action-anon-encoded-path
+MATCH      action-cross-origin-session
+MATCH      concurrent-identities
+auth-proxy (jose): 57 MATCH (55 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 21 ORACLE-FAIL, 0 ERROR [negative control location:both]

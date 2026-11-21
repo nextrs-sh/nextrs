@@ -1,0 +1,19 @@
+# clean install 2026-11-20T07:57:25Z in node:24.18.0-bookworm-slim@sha256:6f7b03f7c2c8e2e784dcf9295400527b9b1270fd37b7e9a7285cf83b6951452d
+# node v24.18.0, npm 11.16.0, glibc 2.36, Linux x86_64
+
+added 1 package in 1s
+package: @nextrs/cli@0.1.0-rc.1 (os=linux cpu=x64 libc=glibc, scripts={})
+resolved: https://registry.npmjs.org/@nextrs/cli/-/cli-0.1.0-rc.1.tgz
+integrity: sha512-RnUTCEw2Gsputfg9ivIQSoCX+vCExL4guxuJY4M6CARd9VwYqRTrEzKn8Jx1SuiH+E27efb5v71ZLZXw7yj/7w==
+BUILD-INFO: binary_sha256=44f04e586c7dc9eb0b8f69dfd992143f725472aa5f3619df5a4039d77d2c6956 binary_commit=711d77f36533bda91c762ca088b989329094c4e1 min_glibc=2.35 target=x86_64-unknown-linux-gnu
+files: BUILD-INFO.json LICENSE-APACHE LICENSE-MIT README.md THIRD-PARTY-LICENSES.txt THIRD-PARTY.md bin native package.json 
+bin/nextrs: 1885 bytes, first line: #!/bin/sh
+node_modules/@nextrs/cli/native/nextrs: OK
+sha256 bin/nextrs (the file the package README says to checksum): de785ce94dcdbd50f3b6535f5bf36246dc78a33cf304205dbccca39252d1668e
+nextrs --version (via node_modules/.bin): nextrs 0.1.0-rc.1
+ldd native/nextrs:
+	linux-vdso.so.1 (0x00007fac2dc9f000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fac29953000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fac29873000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fac29691000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007fac2dca1000)

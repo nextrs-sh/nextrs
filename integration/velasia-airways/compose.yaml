@@ -1,0 +1,146 @@
+# Velasia Airways x NextRS (@nextrs/cli@0.1.0-rc.1 from npm): manual browser testing.
+#
+#   docker compose -f integration/velasia-airways/compose.yaml up --build -d
+#   open http://localhost:3000
+#
+# Two services:
+#   velasia-api   Velasia's OWN retailing API image (its docker/Dockerfile.api, unmodified):
+#                 Fastify + embedded TalaDB on Node.js. A declared supporting backend; it
+#                 renders nothing and is never reachable from the host.
+#   velasia-web   The storefront, served by the native `nextrs` binary from the published npm
+#                 package. The image contains no Node.js at all (see Dockerfile, stage D).
+#
+# Only velasia-web publishes a port: ${NEXTRS_HTTP_BIND:-127.0.0.1}:3000. The NextRS operations
+# listener (:9100, /readyz /healthz /metrics) stays inside the container (health check only).
+#
+# Velasia Airways is read-only: it is a build context, nothing is written into it.
+
+name: nextrs-velasia
+
+x-hardening: &hardening
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ['no-new-privileges:true']
+  init: true
+  logging:
+    driver: json-file
+    options: { max-size: 10m, max-file: '3' }
+
+services:
+  velasia-api:
+    <<: *hardening
+    build:
+      context: ${VELASIA_SRC:-../../../velasia-airways}
+      dockerfile: docker/Dockerfile.api
+    image: nextrs-velasia-api:local
+    platform: linux/amd64
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      RETAILING_API_HOST: 0.0.0.0
+      RETAILING_API_PORT: '4010'
+      TALADB_PATH: /data/velasia.db
+      VELASIA_TODAY: ${VELASIA_TODAY:-}
+      # Velasia's own switch; production defaults it to disabled. Enabled here so the account
+      # flows (register, sign in, trips) can be tested manually. Not related to NextRS.
+      ACCOUNT_REGISTRATION: ${ACCOUNT_REGISTRATION:-enabled}
+    volumes:
+      - velasia-api-data:/data
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    networks: [backend]
+    stop_grace_period: 30s
+
+  velasia-web:
+    <<: *hardening
+    build:
+      context: .
+      dockerfile: Dockerfile
+      additional_contexts:
+        velasia: ${VELASIA_SRC:-../../../velasia-airways}
+      args:
+        SITE_URL: ${SITE_URL:-http://localhost:3000}
+        VELASIA_TODAY: ${VELASIA_TODAY:-}
+    image: nextrs-velasia-web:local
+    platform: linux/amd64
+    environment:
+      # Read by Velasia's server code. NextRS exposes ONLY the variables named with --js-env
+      # below; nothing else from this environment reaches JavaScript.
+      RETAILING_API_URL: http://velasia-api:4010
+      SITE_URL: ${SITE_URL:-http://localhost:3000}
+      RETAILING_API_TIMEOUT_MS: ${RETAILING_API_TIMEOUT_MS:-5000}
+      VELASIA_TODAY: ${VELASIA_TODAY:-}
+      RUST_LOG: ${RUST_LOG:-nextrs=info}
+    command:
+      - start
+      - /app/apps/web
+      - --host
+      - 0.0.0.0
+      - --port
+      - '3000'
+      - --js-runtime
+      - embedded-v8
+      - --isolates
+      - '${NEXTRS_ISOLATES:-2}'
+      - --js-env
+      - RETAILING_API_URL
+      - --js-env
+      - SITE_URL
+      - --js-env
+      - RETAILING_API_TIMEOUT_MS
+      - --js-env
+      - VELASIA_TODAY
+      # Outbound fetch: only the retailing API, on the pinned backend subnet below.
+      - --net-allow
+      - http://velasia-api:4010
+      - --net-allow-addr
+      - 172.30.47.0/24
+      # No proxy in front: forwarded headers from browsers are dropped.
+      - --strip-forwarded-headers
+      - --cache-dir
+      - /var/cache/nextrs/data
+      - --image-cache-dir
+      - /var/cache/nextrs/images
+      - --metrics-addr
+      - 0.0.0.0:9100
+      - --log-format
+      - '${NEXTRS_LOG_FORMAT:-text}'
+    depends_on:
+      velasia-api:
+        condition: service_healthy
+    ports:
+      - '${NEXTRS_HTTP_BIND:-127.0.0.1}:3000:3000'
+    volumes:
+      - nextrs-cache:/var/cache/nextrs
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    networks: [backend, frontend]
+    # No curl/wget/node in the runtime image: bash's /dev/tcp asks NextRS's own /readyz.
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -c
+        - exec 3<>/dev/tcp/127.0.0.1/9100 && printf 'GET /readyz HTTP/1.0\r\n\r\n' >&3 && head -n1 <&3 | grep -q ' 200 '
+      interval: 10s
+      timeout: 3s
+      start_period: 60s
+      retries: 3
+    stop_grace_period: 20s
+
+networks:
+  # API and storefront only; no route to the internet. Subnet pinned so --net-allow-addr can
+  # name exactly this range (NextRS refuses private destinations otherwise).
+  backend:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.47.0/24
+  # Storefront only: carries the published port.
+  frontend: {}
+
+volumes:
+  velasia-api-data:
+  nextrs-cache:

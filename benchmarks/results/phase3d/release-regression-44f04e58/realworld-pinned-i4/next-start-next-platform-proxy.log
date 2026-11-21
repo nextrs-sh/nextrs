@@ -1,0 +1,90 @@
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.6
+- Local:         http://localhost:5216
+- Network:       http://0.0.0.0:5216
+✓ Ready in 117ms
+✓ Running next.config.ts took 40ms
+Error: background failure (synthetic)
+    at rD (.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76778)
+    at handler (.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78376)
+    at <unknown> (.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283)
+    at <unknown> (.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249)
+    at async tz (.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:38077)
+    at async rF (.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78265)
+Failed to proxy http://127.0.0.1:5219/x Error: connect ECONNREFUSED 127.0.0.1:5219
+    at ignore-listed frames {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5219
+}
+Error: connect ECONNREFUSED 127.0.0.1:5219
+    at ignore-listed frames {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 5219
+}
+Failed to proxy http://127.0.0.1:5218/data?key=ext-too-slow&delay=7000 Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+Failed to proxy http://169.254.169.254/latest/meta-data/ Error: connect ECONNREFUSED 169.254.169.254:80
+    at ignore-listed frames {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '169.254.169.254',
+  port: 80
+}
+Error: connect ECONNREFUSED 169.254.169.254:80
+    at ignore-listed frames {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '169.254.169.254',
+  port: 80
+}
+TypeError: Invalid URL
+    at ignore-listed frames {
+  code: 'ERR_INVALID_URL',
+  input: 'http://127.0.0.1%3A5218/echo/host'
+}
+Failed to proxy http://169.254.169.254/echo/host Error: connect ECONNREFUSED 169.254.169.254:80
+    at ignore-listed frames {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '169.254.169.254',
+  port: 80
+}
+Error: connect ECONNREFUSED 169.254.169.254:80
+    at ignore-listed frames {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '169.254.169.254',
+  port: 80
+}
+Failed to proxy http://127.0.0.1/echo/host Error: connect ECONNREFUSED 127.0.0.1:80
+    at ignore-listed frames {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 80
+}
+Error: connect ECONNREFUSED 127.0.0.1:80
+    at ignore-listed frames {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 80
+}

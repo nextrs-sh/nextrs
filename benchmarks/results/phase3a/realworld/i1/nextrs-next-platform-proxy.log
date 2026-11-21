@@ -1,0 +1,390 @@
+[2m2026-11-15T14:10:31.730216Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-15T14:10:31.732103Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5459, http://127.0.0.1:5455, http://127.0.0.1:5456, http://127.0.0.1:5458
+[2m2026-11-15T14:10:31.732144Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-15T14:10:31.786919Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T14:10:31.786950Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T14:10:31.856515Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m126 [3misolates[0m[2m=[0m1
+[2m2026-11-15T14:10:31.856516Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m124
+[2m2026-11-15T14:10:31.862880Z[0m [33m WARN[0m [2mnextrs_server[0m[2m:[0m external rewrite will answer 502: its destination is not allowed [3msource[0m[2m=[0m/ext-unlisted/:path* [3mdestination[0m[2m=[0m"http://127.0.0.1:5457/echo/:path*" [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:10:31.862923Z[0m [33m WARN[0m [2mnextrs_server[0m[2m:[0m external rewrite will answer 502: its destination is not allowed [3msource[0m[2m=[0m/ext-metadata [3mdestination[0m[2m=[0m"http://169.254.169.254/latest/meta-data/" [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:10:31.862990Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5454 [3mbuild_id[0m[2m=[0m0S687jPz7-W3R192M8-Pr [3mready_ms[0m[2m=[0m132
+[2m2026-11-15T14:10:37.917683Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:10:38.264491Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:10:48.353659Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:10:52.922586Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:10:58.366511Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:11:03.648889Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:11:03.658794Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:11:03.666283Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:11:03.674277Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:11:03.680126Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:11:03.710265Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:11:09.334269Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:11:09.661299Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:11:19.739538Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:11:24.339949Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:11:29.753218Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:11:35.020132Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:11:35.029543Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:11:35.036232Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:11:35.046747Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:11:35.052571Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:11:35.080252Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:11:40.567719Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:11:40.900314Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:11:50.986559Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:11:55.573283Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:12:00.999538Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:12:06.257158Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:12:06.265711Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:12:06.270331Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:12:06.279256Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:12:06.284902Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:12:06.313264Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:12:11.740561Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:12:12.061160Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:12:22.139622Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:12:26.746719Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:12:32.152092Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:12:37.413790Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:12:37.423253Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:12:37.430490Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:12:37.439601Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:12:37.445912Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:12:37.475431Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:12:43.166621Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:12:43.484951Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:12:53.564637Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:12:58.172003Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:13:03.576673Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:13:08.836724Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:13:08.847066Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:13:08.853289Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:13:08.863660Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:13:08.869089Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:13:08.893778Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:13:14.290867Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:13:14.609073Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:13:24.684622Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:13:29.296654Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:13:34.695596Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:13:39.928088Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:13:39.937673Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:13:39.943816Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:13:39.951942Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:13:39.957371Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:13:39.984521Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:13:45.262999Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:13:45.580404Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:13:55.656499Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:14:00.269031Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:14:05.664495Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:14:10.911648Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:14:10.923745Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:14:10.929948Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:14:10.938834Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:14:10.944438Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:14:10.970683Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:14:16.309735Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:14:16.637307Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:14:26.730613Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:14:31.315720Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:14:36.739603Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:14:41.990427Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:14:42.000715Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:14:42.007673Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:14:42.017523Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:14:42.024179Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:14:42.055298Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:14:47.358156Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:14:47.679311Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:14:57.771494Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:15:02.364208Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:15:07.781556Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:15:13.072263Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:15:13.081518Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:15:13.087851Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:15:13.096656Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:15:13.102854Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:15:13.133452Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:15:18.583084Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:15:18.907817Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:15:29.000607Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:15:33.587782Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:15:39.010595Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:15:44.254059Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:15:44.264381Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:15:44.271024Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:15:44.281222Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:15:44.287291Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:15:44.315974Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:15:49.675019Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:15:49.999773Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:16:00.093067Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:16:04.680559Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:16:10.104468Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:16:15.390608Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:16:15.399906Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:16:15.406347Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:16:15.416607Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:16:15.422846Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:16:15.452951Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:16:20.832208Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:16:21.154278Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:16:31.250542Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:16:35.837924Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:16:41.261624Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:16:46.501322Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:16:46.510281Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:16:46.516666Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:16:46.527111Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:16:46.533035Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:16:46.560437Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:16:51.907072Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:16:52.229404Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:17:02.321489Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:17:06.912811Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:17:12.330546Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:17:17.580346Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:17:17.590241Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:17:17.597017Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:17:17.609223Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:17:17.615270Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:17:17.644579Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:17:22.971625Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m Error: background failure (synthetic)
+    at rD (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:76660)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78258)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rF (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-platform-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:78147) [3mkind[0m[2m=[0m"wait-until-error"
+Error: route failure (synthetic)
+    at <unknown> (.next/server/chunks/_0_8qb768eg4op._.js:1:76)
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[90m    at runInContext (ext:nextrs/00_globals.js:155:57)[39m
+[90m    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)[39m
+[2m2026-11-15T14:17:23.301199Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite failed [3mcode[0m[2m=[0m"ECONNREFUSED" [3merror[0m[2m=[0mconnection refused
+[2m2026-11-15T14:17:33.400645Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:17:37.976826Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /gate/wait-until-forever: waitUntil work abandoned at the deadline [3mkind[0m[2m=[0m"wait-until-timeout"
+[2m2026-11-15T14:17:43.410805Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite body timed out (experimental.proxyTimeout) [3mtimeout_ms[0m[2m=[0m5000
+[2m2026-11-15T14:17:48.681391Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:17:48.693661Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/latest/meta-data/ [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:17:48.699304Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m invalid external rewrite destination [3mdestination[0m[2m=[0mhttp://127.0.0.1%3A5455/echo/host
+[2m2026-11-15T14:17:48.708904Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://169.254.169.254/echo/host [3mreason[0m[2m=[0mhttp://169.254.169.254 is not allowed by the NextRS network policy
+[2m2026-11-15T14:17:48.714782Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1/echo/host [3mreason[0m[2m=[0mhttp://127.0.0.1 is not allowed by the NextRS network policy
+[2m2026-11-15T14:17:48.746702Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5457/echo/unlisted [3mreason[0m[2m=[0mhttp://127.0.0.1:5457 is not allowed by the NextRS network policy
+[2m2026-11-15T14:17:49.054333Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-15T14:17:49.069305Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped

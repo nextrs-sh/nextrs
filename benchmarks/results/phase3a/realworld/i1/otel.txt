@@ -1,0 +1,10 @@
+MATCH      registration-once-per-instance
+MATCH      continues-incoming-trace
+MATCH      starts-a-trace
+MATCH      page-render
+KNOWN-DIFF server-level-spans
+    (next start's router-server and base-server spans (a root GET around an incoming trace, resolve page components, load route module) have no NextRS counterpart; a fresh NextRS isolate registers instrumentation inside its first request)
+MATCH      concurrent-traces
+MATCH      exporter-failure
+MATCH      after-executor-restart
+otel (@vercel/otel): 7 MATCH (7 asserted), 0 PASS, 1 KNOWN-DIFF, 0 DIFF, 0 FAIL, 0 ORACLE-FAIL, 0 ERROR

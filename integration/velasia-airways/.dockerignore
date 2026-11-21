@@ -1,0 +1,10 @@
+# Only package.json and package-lock.json are needed from this directory; Velasia comes in
+# through the `velasia` named context (with its own .dockerignore).
+node_modules
+results
+test-results
+playwright-report
+*.md
+.env
+.env.*
+!.env.example

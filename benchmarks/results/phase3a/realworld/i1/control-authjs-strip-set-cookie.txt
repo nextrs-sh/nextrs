@@ -1,0 +1,117 @@
+MATCH      providers
+FAIL       csrf-token
+    NextRS: {"status":200,"tokenShape":true,"cookieMatches":false,"setCookie":[]}
+DIFF       session-anonymous
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       signin-page
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+FAIL       credentials-sign-in
+    NextRS: status 302 location http://SELF/api/auth/signin?error=MissingCSRF, expected 302 http://SELF/dashboard
+FAIL       credentials-sign-in-bob
+    NextRS: status 302 location http://SELF/api/auth/signin?error=MissingCSRF, expected 302 http://SELF/reports
+FAIL       credentials-wrong-password
+    NextRS: location http://SELF/api/auth/signin?error=MissingCSRF
+FAIL       credentials-unknown-user
+    NextRS: location http://SELF/api/auth/signin?error=MissingCSRF
+MATCH      credentials-missing-csrf
+MATCH      credentials-foreign-csrf
+FAIL       credentials-open-redirect
+    NextRS: status 302 location http://SELF/api/auth/signin?error=MissingCSRF, expected 302 http://SELF
+FAIL       sign-out
+    NextRS: {"status":302,"location":"http://SELF/api/auth/signin?error=MissingCSRF","cleared":false,"sessionAfter":"null"}
+DIFF       session-alice-api
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; | []
+DIFF       session-bob-api
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; | []
+DIFF       session-endpoint
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"] | []
+DIFF       session-dashboard
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"] | []
+DIFF       session-isr
+    $.headers.x-nextjs-cache: "STALE" | "HIT"
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"] | []
+DIFF       session-home
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"] | []
+DIFF       anon-dashboard
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       anon-isr
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       anon-action-page
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       anon-api
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       anon-home
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       session-wrong-secret
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       session-wrong-secret-page
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       session-wrong-salt
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       session-expired
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       session-expired-page
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       session-tampered
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       session-tampered-tag
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       session-not-a-jwe
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       session-signed-jwt-not-jwe
+    $.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+FAIL       session-rolled
+    NextRS: {"status":200,"rolled":null,"setCookie":[]}
+DIFF       session-expires
+    $.before.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; | []
+    $.after.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+ERROR      oidc-sign-in-alice
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-sign-in-bob
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-wrong-state
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-no-state-cookie
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-no-pkce-cookie
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-no-nonce-cookie
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-forged-code
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-missing-code
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-wrong-iss-parameter
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-wrong-iss
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-wrong-aud
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-wrong-nonce
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-expired
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-bad-signature-not-verified
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-id-token-unknown-kid-not-verified
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-key-rotation
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:355:22)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+ERROR      oidc-callback-replay
+    "TypeError: Invalid URL\n    at new URL (node:internal/url:840:25)\n    at oidcFlow (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:314:20)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Object.run (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:399:19)\n    at async runScenarios (file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/routing-lib.mjs:152:19)\n    at async file:///home/dennispaler/Documents/OpenSource/nextrs/tests/compat/authjs.mjs:490:18"
+DIFF       action-anon
+    $.response.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       action-alice
+    $.response.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"] | []
+DIFF       action-bob-public-page
+    $.response.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax"] | []
+DIFF       action-expired
+    $.response.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax"] | []
+DIFF       action-wrong-secret
+    $.response.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax"] | []
+MATCH      concurrent-users
+DIFF       session-after-executor-restart
+    $.alice.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; | []
+    $.forged.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax"] | []
+    $.bob.setCookie: ["authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.callback-url=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; Expires=<DATE>; HttpOnly; SameSite=Lax","authjs.csrf-token=<VALUE>; Path=/; HttpOnly; SameSite=Lax","authjs.session-token=<VALUE>; Path=/; | []
+authjs (next-auth 5): 4 MATCH (4 asserted), 0 PASS, 0 KNOWN-DIFF, 29 DIFF, 8 FAIL, 0 ORACLE-FAIL, 17 ERROR

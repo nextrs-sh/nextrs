@@ -1,0 +1,116 @@
+MATCH      public-home
+MATCH      public-login
+MATCH      public-login-next
+MATCH      public-health-not-matched
+FAIL       anon-dashboard
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+FAIL       anon-dashboard-query
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard?tab=billing&x=1+2
+FAIL       anon-static-page
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/account
+FAIL       anon-isr-page
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/reports
+FAIL       anon-dynamic-param
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard/projects/p-1
+MATCH      anon-route-handler
+FAIL       anon-action-page
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/actions/protected
+DIFF       anon-head
+    $.headers.location: "/login?next=%2Faccount" | "/elsewhere"
+DIFF       anon-rsc
+    $.headers.location: "/login?next=%2Fdashboard" | "/elsewhere"
+DIFF       anon-rsc-prefetch
+    $.headers.location: "/login?next=%2Faccount" | "/elsewhere"
+DIFF       anon-rsc-segment-prefetch
+    $.headers.location: "/login?next=%2Freports" | "/elsewhere"
+DIFF       anon-rsc-query
+    $.headers.location: "/login?next=%2Fdashboard" | "/elsewhere"
+MATCH      valid-alice-dashboard
+MATCH      valid-bob-dashboard
+MATCH      valid-static-page
+MATCH      valid-isr-page
+MATCH      valid-dynamic-param
+MATCH      valid-route-handler
+FAIL       valid-rsc
+    NextRS: status 307 location /elsewhere
+FAIL       valid-login-redirects-to-dashboard
+    NextRS: status 307 /elsewhere
+FAIL       expired-session
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+MATCH      expired-session-route-handler
+FAIL       not-yet-valid-session
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+FAIL       wrong-secret
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+FAIL       tampered-payload
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+FAIL       tampered-signature
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/account
+FAIL       alg-none
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+FAIL       alg-not-allowed-hs512
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+FAIL       missing-claims
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+FAIL       malformed-cookie
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+FAIL       empty-cookie
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+FAIL       other-cookie-only
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+MATCH      duplicate-session-cookie
+FAIL       spoofed-identity-header-anon
+    NextRS: status 307 location /elsewhere, expected the login redirect with next=/dashboard
+MATCH      spoofed-identity-header-session
+MATCH      bypass-encoded-first-char
+MATCH      bypass-encoded-last-char
+MATCH      bypass-encoded-static
+MATCH      bypass-encoded-isr
+MATCH      bypass-encoded-api
+MATCH      bypass-encoded-rsc
+MATCH      bypass-encoded-prefetch
+MATCH      bypass-encoded-slash
+DIFF       bypass-dot-segments
+    $.headers.location: "/login?next=%2Fdashboard" | "/elsewhere"
+DIFF       bypass-encoded-dot-segments
+    $.headers.location: "/login?next=%2Faccount" | "/elsewhere"
+DIFF       bypass-double-slash
+    $.headers.location: "/dashboard" | "/elsewhere"
+DIFF       bypass-backslash
+    $.headers.location: "/account" | "/elsewhere"
+DIFF       bypass-trailing-slash
+    $.headers.location: "/account" | "/elsewhere"
+MATCH      bypass-upper-case
+MATCH      bypass-upper-case-static
+MATCH      bypass-semicolon
+DIFF       bypass-rsc-suffix
+    $.headers.location: "/login?next=%2Faccount" | "/elsewhere"
+MATCH      bypass-html-suffix
+MATCH      bypass-data-route
+DIFF       bypass-next-data-query
+    $.headers.location: "/login?next=%2Faccount%3F__nextDataReq%3D1" | "/elsewhere"
+DIFF       bypass-config-rewrite-alias
+    $.headers.location: "/login" | "/elsewhere"
+MATCH      config-rewrite-alias-session
+DIFF       bypass-internal-headers
+    $.headers.location: "/login?next=%2Faccount" | "/elsewhere"
+DIFF       bypass-forwarded-host
+    $.headers.location: "/login?next=%2Fdashboard" | "/elsewhere"
+MATCH      login-action-success
+MATCH      login-action-wrong-password
+MATCH      login-action-open-redirect
+FAIL       login-form-without-js
+    NextRS: redirected to /elsewhere, expected http://SELF/dashboard/projects/p-2
+MATCH      login-action-cross-origin
+MATCH      logout-action
+DIFF       action-anon-on-protected-page
+    $.response.headers.location: "/login?next=%2Factions%2Fprotected" | "/elsewhere"
+MATCH      action-anon-on-public-page
+MATCH      action-expired-on-public-page
+MATCH      action-tampered-on-public-page
+MATCH      action-alice-on-protected-page
+MATCH      action-bob-on-public-page
+MATCH      action-anon-encoded-path
+MATCH      action-cross-origin-session
+MATCH      concurrent-identities
+auth-proxy (jose): 41 MATCH (39 asserted), 0 PASS, 0 KNOWN-DIFF, 16 DIFF, 21 FAIL, 0 ORACLE-FAIL, 0 ERROR

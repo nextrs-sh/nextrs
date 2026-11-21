@@ -1,0 +1,3735 @@
+{
+  "summary": {
+    "title": "pages-trailing-slash",
+    "total": 127,
+    "match": 127,
+    "pass": 0,
+    "knownDiff": 0,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 127,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "static-index",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"12ouqdwnpj31v4\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "NextRS Pages Router",
+            "kind": "static",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "static-about",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"9kuyna0zml1y4\"",
+            "x-config-about": "1",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "static-nested",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"mu0gw0amc21vc\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Nested deep page",
+            "kind": "static",
+            "next": {
+              "page": "/nested/deep",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "static-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"9kuyna0zml1y4\"",
+            "x-config-about": "1",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "static-head",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"9kuyna0zml1y4\"",
+            "x-config-about": "1",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "document": false,
+            "app": false,
+            "css": false
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "static-post-405",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 405,
+          "headers": {
+            "allow": "GET, HEAD",
+            "x-config-about": "1"
+          },
+          "setCookie": [],
+          "body": "Method Not Allowed"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "conditional-no-cache",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"9kuyna0zml1y4\"",
+            "x-config-about": "1",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "conditional-static-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 304,
+          "etag": "\"9kuyna0zml1y4\""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "conditional-ssg-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 304,
+          "etag": "\"fwbf2fp6wx1zy\""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "conditional-404-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 304,
+          "etag": "\"gyi3erahqc1uj\""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "conditional-static-asset",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "first": 200,
+          "second": 304
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "rsc-header-static-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/about/?_rsc",
+            "x-config-about": "1"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "rsc-header-ssr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/books/1/?_rsc",
+            "x-config-book": "1",
+            "x-proxy-seen": "/books/1"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "rsc-header-ssg-post",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/ssg/static/?_rsc"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "rsc-header-api",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"136lfa0r4opf\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": {
+            "status": "ok"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "rsc-header-404",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "missing-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "status-page-404",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "status-page-500",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 500,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"12e5mrjgc561uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 500 (pages)",
+            "next": {
+              "page": "/500",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "blocked-app",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "blocked-document",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "blocked-error",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-missing",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-config-api": "1",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "missing-post",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-params-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-book-id": "42",
+            "x-config-book": "42",
+            "x-powered-by": "Next.js",
+            "x-proxy-seen": "/books/42"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Book 42",
+            "slug": "42",
+            "kind": "ssr",
+            "secret": "user=- header=-",
+            "query": "{\"ref\":[\"a\",\"b\"],\"x\":\"1\",\"id\":\"42\"}",
+            "next": {
+              "page": "/books/[id]",
+              "query": {
+                "ref": [
+                  "a",
+                  "b"
+                ],
+                "x": "1",
+                "id": "42"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "id": "42",
+                  "query": {
+                    "ref": [
+                      "a",
+                      "b"
+                    ],
+                    "x": "1",
+                    "id": "42"
+                  },
+                  "user": null,
+                  "header": null,
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-header-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-book-id": "7",
+            "x-config-book": "7",
+            "x-powered-by": "Next.js",
+            "x-proxy-seen": "/books/7"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Book 7",
+            "slug": "7",
+            "kind": "ssr",
+            "secret": "user=u-alice header=h-alice",
+            "query": "{\"id\":\"7\"}",
+            "next": {
+              "page": "/books/[id]",
+              "query": {
+                "id": "7"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "id": "7",
+                  "query": {
+                    "id": "7"
+                  },
+                  "user": "u-alice",
+                  "header": "h-alice",
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-encoded-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-book-id": "cafÃ© au lait",
+            "x-config-book": "caf%C3%A9%20au%20lait",
+            "x-powered-by": "Next.js",
+            "x-proxy-seen": "/books/caf%C3%A9%20au%20lait"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Book café au lait",
+            "slug": "café au lait",
+            "kind": "ssr",
+            "secret": "user=- header=-",
+            "query": "{\"id\":\"café au lait\"}",
+            "next": {
+              "page": "/books/[id]",
+              "query": {
+                "id": "café au lait"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "id": "café au lait",
+                  "query": {
+                    "id": "café au lait"
+                  },
+                  "user": null,
+                  "header": null,
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-trailing-slash-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/books/42/",
+            "refresh": "0;url=/books/42/"
+          },
+          "setCookie": [],
+          "body": "/books/42/"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-options-400",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 400,
+          "headers": {
+            "x-config-book": "1",
+            "x-proxy-seen": "/books/1"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-delete-renders",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-book-id": "1",
+            "x-config-book": "1",
+            "x-powered-by": "Next.js",
+            "x-proxy-seen": "/books/1"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Book 1",
+            "slug": "1",
+            "kind": "ssr",
+            "secret": "user=- header=-",
+            "query": "{\"id\":\"1\"}",
+            "next": {
+              "page": "/books/[id]",
+              "query": {
+                "id": "1"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "id": "1",
+                  "query": {
+                    "id": "1"
+                  },
+                  "user": null,
+                  "header": null,
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "location": "/about?from=ssr"
+          },
+          "setCookie": [],
+          "body": "/about?from=ssr"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-redirect-permanent",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "location": "/about",
+            "refresh": "0;url=/about"
+          },
+          "setCookie": [],
+          "body": "/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-redirect-external",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "location": "https://example.com/elsewhere"
+          },
+          "setCookie": [],
+          "body": "https://example.com/elsewhere"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-redirect-303",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 303,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "location": "/books/7"
+          },
+          "setCookie": [],
+          "body": "/books/7"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-not-found",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-error",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 500,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"12e5mrjgc561uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 500 (pages)",
+            "next": {
+              "page": "/500",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-render-error",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 500,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"12e5mrjgc561uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 500 (pages)",
+            "next": {
+              "page": "/500",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-internal-headers",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"11dmmiggjq224x\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "ssr-a=1; Path=/",
+            "ssr-b=2; Path=/; HttpOnly"
+          ],
+          "body": {
+            "title": "Headers",
+            "result": "{\"x-test-user\":\"visible\",\"x-middleware-subrequest\":\"middleware:middleware:middleware:middleware:middleware\",\"x-invoke-path\":\"/books/1\"}",
+            "next": {
+              "page": "/ssr/headers",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "seen": {
+                    "x-test-user": "visible",
+                    "x-middleware-subrequest": "middleware:middleware:middleware:middleware:middleware",
+                    "x-invoke-path": "/books/1"
+                  }
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "gip-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"ewrkl1dzbl1xt\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "getInitialProps",
+            "kind": "server",
+            "query": "{\"z\":\"1\"}",
+            "next": {
+              "page": "/gip",
+              "query": {
+                "z": "1"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": true,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "from": "server",
+                  "query": "{\"z\":\"1\"}"
+                }
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssr-fetch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Fetched pages-fetch-nmwoaf83e-SIDE",
+            "kind": "ssr-fetch",
+            "result": "{\"key\":\"pages-fetch-nmwoaf83e-SIDE\",\"hit\":1,\"auth\":\"Bearer t-1\"}",
+            "next": {
+              "page": "/ssr/fetch",
+              "query": {
+                "key": "pages-fetch-nmwoaf83e-SIDE"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "name": "pages-fetch-nmwoaf83e-SIDE",
+                  "hit": 1,
+                  "auth": "Bearer t-1"
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-static",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"fwbf2fp6wx1zy\"",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "SSG static",
+            "kind": "ssg",
+            "info": "built-1795137338060",
+            "result": "{\"list\":[1,2,3],\"when\":\"build\"}",
+            "next": {
+              "page": "/ssg/static",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "built": 1795137338060,
+                  "nested": {
+                    "list": [
+                      1,
+                      2,
+                      3
+                    ],
+                    "when": "build"
+                  }
+                },
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-paths-alpha",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"2y3nvis2fa1yg\"",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Post alpha",
+            "slug": "alpha",
+            "kind": "ssg-paths",
+            "info": "built-1795137338063",
+            "next": {
+              "page": "/posts/[slug]",
+              "query": {
+                "slug": "alpha"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "slug": "alpha",
+                  "built": 1795137338063
+                },
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-paths-beta",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gu2jy0j1dn1yc\"",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Post beta",
+            "slug": "beta",
+            "kind": "ssg-paths",
+            "info": "built-1795137338064",
+            "next": {
+              "page": "/posts/[slug]",
+              "query": {
+                "slug": "beta"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "slug": "beta",
+                  "built": 1795137338064
+                },
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-fallback-false-unknown",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-not-found",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "ssg-post-405",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 405,
+          "headers": {
+            "allow": "GET, HEAD"
+          },
+          "setCookie": [],
+          "body": "Method Not Allowed"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "fallback-true-known",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"16j2u68prq91z1\"",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Fallback true known",
+            "slug": "known",
+            "kind": "fallback-true",
+            "info": "built-1795137338062",
+            "next": {
+              "page": "/fallback-true/[slug]",
+              "query": {
+                "slug": "known"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "slug": "known",
+                  "built": 1795137338062
+                },
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "fallback-true-new",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "shell": {
+            "status": 200,
+            "headers": {
+              "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/html; charset=utf-8",
+              "etag": "\"olreek47e21uk\"",
+              "x-nextjs-cache": "MISS",
+              "x-powered-by": "Next.js"
+            },
+            "setCookie": [],
+            "body": {
+              "kind": "fallback-loading",
+              "next": {
+                "page": "/fallback-true/[slug]",
+                "query": {},
+                "buildId": "BUILD",
+                "isFallback": true,
+                "gssp": false,
+                "gsp": true,
+                "gip": false,
+                "appGip": false,
+                "props": {
+                  "pageProps": {},
+                  "__N_SSG": true
+                }
+              },
+              "document": true,
+              "app": true,
+              "css": true
+            }
+          },
+          "json": {
+            "status": 200,
+            "slug": "new-nmwoaf83e",
+            "cache": "MISS"
+          },
+          "after": {
+            "status": 200,
+            "headers": {
+              "cache-control": "s-maxage=31536000",
+              "content-type": "text/html; charset=utf-8",
+              "x-nextjs-cache": "HIT",
+              "x-powered-by": "Next.js"
+            },
+            "setCookie": [],
+            "body": {
+              "title": "Fallback true new-nmwoaf83e",
+              "slug": "new-nmwoaf83e",
+              "kind": "fallback-true",
+              "info": "built-REQUEST",
+              "next": {
+                "page": "/fallback-true/[slug]",
+                "query": {
+                  "slug": "new-nmwoaf83e"
+                },
+                "buildId": "BUILD",
+                "isFallback": false,
+                "gssp": false,
+                "gsp": true,
+                "gip": false,
+                "appGip": false,
+                "props": {
+                  "pageProps": {
+                    "slug": "new-nmwoaf83e",
+                    "built": 0
+                  },
+                  "__N_SSG": true
+                }
+              },
+              "document": true,
+              "app": true,
+              "css": true
+            }
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "fallback-true-missing-data",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "x-nextjs-cache": "MISS",
+            "x-nextjs-matched-path": "/fallback-true/[slug]"
+          },
+          "setCookie": [],
+          "body": {
+            "notFound": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "fallback-blocking-known",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=60, stale-while-revalidate=31535940",
+            "content-type": "text/html; charset=utf-8",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Fallback blocking known",
+            "slug": "known",
+            "kind": "fallback-blocking",
+            "info": "built-REQUEST",
+            "next": {
+              "page": "/fallback-blocking/[slug]",
+              "query": {
+                "slug": "known"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "slug": "known",
+                  "built": 0
+                },
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          },
+          "cacheState": "HIT-or-STALE"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "fallback-blocking-new",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "first": {
+            "status": 200,
+            "headers": {
+              "cache-control": "s-maxage=60, stale-while-revalidate=31535940",
+              "content-type": "text/html; charset=utf-8",
+              "x-nextjs-cache": "MISS",
+              "x-powered-by": "Next.js"
+            },
+            "setCookie": [],
+            "body": {
+              "title": "Fallback blocking blk-nmwoaf83e",
+              "slug": "blk-nmwoaf83e",
+              "kind": "fallback-blocking",
+              "info": "built-REQUEST",
+              "next": {
+                "page": "/fallback-blocking/[slug]",
+                "query": {
+                  "slug": "blk-nmwoaf83e"
+                },
+                "buildId": "BUILD",
+                "isFallback": false,
+                "gssp": false,
+                "gsp": true,
+                "gip": false,
+                "appGip": false,
+                "props": {
+                  "pageProps": {
+                    "slug": "blk-nmwoaf83e",
+                    "built": 0
+                  },
+                  "__N_SSG": true
+                }
+              },
+              "document": true,
+              "app": true,
+              "css": true
+            }
+          },
+          "second": {
+            "status": 200,
+            "headers": {
+              "cache-control": "s-maxage=60, stale-while-revalidate=31535940",
+              "content-type": "text/html; charset=utf-8",
+              "x-nextjs-cache": "HIT",
+              "x-powered-by": "Next.js"
+            },
+            "setCookie": [],
+            "body": {
+              "title": "Fallback blocking blk-nmwoaf83e",
+              "slug": "blk-nmwoaf83e",
+              "kind": "fallback-blocking",
+              "info": "built-REQUEST",
+              "next": {
+                "page": "/fallback-blocking/[slug]",
+                "query": {
+                  "slug": "blk-nmwoaf83e"
+                },
+                "buildId": "BUILD",
+                "isFallback": false,
+                "gssp": false,
+                "gsp": true,
+                "gip": false,
+                "appGip": false,
+                "props": {
+                  "pageProps": {
+                    "slug": "blk-nmwoaf83e",
+                    "built": 0
+                  },
+                  "__N_SSG": true
+                }
+              },
+              "document": true,
+              "app": true,
+              "css": true
+            }
+          },
+          "same": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "fallback-blocking-missing",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gyi3erahqc1uj\"",
+            "x-nextjs-cache": "MISS",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 404 (pages)",
+            "next": {
+              "page": "/404",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "fallback-blocking-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "location": "/posts/alpha",
+            "x-nextjs-cache": "MISS"
+          },
+          "setCookie": [],
+          "body": "/posts/alpha"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-ssr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8",
+            "x-book-id": "42",
+            "x-config-book": "42",
+            "x-nextjs-matched-path": "/books/[id]",
+            "x-proxy-seen": "/books/42"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "id": "42",
+              "query": {
+                "x": "1",
+                "id": "42"
+              },
+              "user": null,
+              "header": null,
+              "stamp": 0
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-ssr-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"13dk7cff6t22c\"",
+            "x-nextjs-matched-path": "/ssr/whoami"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "user": "u-bob",
+              "secret": "secret-of-u-bob",
+              "marker": ""
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-ssg",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"3mghj4djpy2l\"",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-matched-path": "/ssg/static"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "built": 1795137338060,
+              "nested": {
+                "list": [
+                  1,
+                  2,
+                  3
+                ],
+                "when": "build"
+              }
+            },
+            "__N_SSG": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-ssg-dynamic",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"hhvtmfu36r1v\"",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-matched-path": "/posts/[slug]"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "slug": "alpha",
+              "built": 1795137338063
+            },
+            "__N_SSG": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-fallback-false-unknown",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json",
+            "x-nextjs-matched-path": "/posts/gamma/"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8",
+            "x-nextjs-matched-path": "/ssr/redirect"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "__N_REDIRECT": "/about?from=ssr",
+              "__N_REDIRECT_STATUS": 307
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-not-found",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-nextjs-matched-path": "/ssr/not-found"
+          },
+          "setCookie": [],
+          "body": {
+            "notFound": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-ssg-not-found",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-matched-path": "/ssg/not-found"
+          },
+          "setCookie": [],
+          "body": {
+            "notFound": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefetch-ssr-skipped",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-config-book": "42",
+            "x-matched-path": "/books/[id]",
+            "x-middleware-skip": "1",
+            "x-proxy-seen": "/books/42"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefetch-static-skipped",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "x-config-about": "1",
+            "x-matched-path": "/about",
+            "x-middleware-skip": "1"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefetch-ssg-served",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"3mghj4djpy2l\"",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-matched-path": "/ssg/static"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "built": 1795137338060,
+              "nested": {
+                "list": [
+                  1,
+                  2,
+                  3
+                ],
+                "when": "build"
+              }
+            },
+            "__N_SSG": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "prefetch-api-served",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"136lfa0r4opf\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": {
+            "status": "ok"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-wrong-build",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json",
+            "x-nextjs-matched-path": "/_next/data/not-the-build/books/42.json",
+            "x-proxy-seen": "/books/42"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-missing",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json",
+            "x-nextjs-matched-path": "/no-such-page/"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-index",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"12ouqdwnpj31v4\"",
+            "x-nextjs-matched-path": "/",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "NextRS Pages Router",
+            "kind": "static",
+            "next": {
+              "page": "/",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-static-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"9kuyna0zml1y4\"",
+            "x-config-about": "1",
+            "x-nextjs-matched-path": "/about",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-error",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 500,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"12e5mrjgc561uj\"",
+            "x-nextjs-matched-path": "/ssr/error",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Custom 500 (pages)",
+            "next": {
+              "page": "/500",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-encoded-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8",
+            "x-book-id": "a b",
+            "x-config-book": "a%20b",
+            "x-nextjs-matched-path": "/books/[id]",
+            "x-proxy-seen": "/books/a%20b"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "id": "a b",
+              "query": {
+                "id": "a b"
+              },
+              "user": null,
+              "header": null,
+              "stamp": 0
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-no-json-suffix",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/_next/data/hqnV37yydN0xYfEcT3M8w/books/42/",
+            "refresh": "0;url=/_next/data/hqnV37yydN0xYfEcT3M8w/books/42/"
+          },
+          "setCookie": [],
+          "body": "/_next/data/hqnV37yydN0xYfEcT3M8w/books/42/"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "data-through-proxy-rewrite",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8",
+            "x-book-id": "99",
+            "x-middleware-rewrite": "/books/99/?from=proxy",
+            "x-nextjs-matched-path": "/books/[id]",
+            "x-nextjs-rewrite": "/books/99/?from=proxy"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "id": "99",
+              "query": {
+                "from": "proxy",
+                "id": "99"
+              },
+              "user": null,
+              "header": null,
+              "stamp": 0
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-health",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"136lfa0r4opf\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": {
+            "status": "ok"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-head",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"136lfa0r4opf\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-get-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"188kyky6hm84d\"",
+            "x-api-route": "echo",
+            "x-config-api": "1",
+            "x-proxy-seen": "/api/echo"
+          },
+          "setCookie": [],
+          "body": {
+            "method": "GET",
+            "query": {
+              "a": [
+                "1",
+                "2"
+              ],
+              "b": "x y"
+            },
+            "body": "",
+            "bodyType": "string",
+            "cookies": {},
+            "contentType": null,
+            "user": null,
+            "url": "/api/echo/?a=1&a=2&b=x+y"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-post-json",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"3slvii8fjl48\"",
+            "x-api-route": "echo",
+            "x-config-api": "1",
+            "x-proxy-seen": "/api/echo"
+          },
+          "setCookie": [],
+          "body": {
+            "method": "POST",
+            "query": {},
+            "body": {
+              "n": [
+                1,
+                2
+              ],
+              "s": "é"
+            },
+            "bodyType": "object",
+            "cookies": {},
+            "contentType": "application/json",
+            "user": null,
+            "url": "/api/echo/"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-post-form",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"78xjbc459n53\"",
+            "x-api-route": "echo",
+            "x-config-api": "1",
+            "x-proxy-seen": "/api/echo"
+          },
+          "setCookie": [],
+          "body": {
+            "method": "POST",
+            "query": {},
+            "body": {
+              "a": "1",
+              "b": "x y",
+              "c": [
+                "1",
+                "2"
+              ]
+            },
+            "bodyType": "object",
+            "cookies": {},
+            "contentType": "application/x-www-form-urlencoded",
+            "user": null,
+            "url": "/api/echo/"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-post-text",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"alozyf17ut3v\"",
+            "x-api-route": "echo",
+            "x-config-api": "1",
+            "x-proxy-seen": "/api/echo"
+          },
+          "setCookie": [],
+          "body": {
+            "method": "POST",
+            "query": {},
+            "body": "plain body",
+            "bodyType": "string",
+            "cookies": {},
+            "contentType": "text/plain",
+            "user": null,
+            "url": "/api/echo/"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-post-bad-json",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 400,
+          "headers": {
+            "x-config-api": "1",
+            "x-proxy-seen": "/api/echo"
+          },
+          "setCookie": [],
+          "body": "Invalid JSON"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-cookies",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 201,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"10fyqgbwyr9k\"",
+            "x-config-api": "1",
+            "x-custom": "one, two"
+          },
+          "setCookie": [
+            "api-a=9; Path=/",
+            "api-b=2; Path=/; HttpOnly; SameSite=Lax"
+          ],
+          "body": {
+            "seen": {
+              "c1": "v1"
+            }
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/books/1?via=api",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": "/books/1?via=api"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-redirect-301",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 301,
+          "headers": {
+            "location": "/about",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": "/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-error-throw",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 500,
+          "headers": {
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": "Internal Server Error"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-error-status",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 418,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"85vi6ffelti\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": {
+            "error": "teapot"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-stream",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/plain; charset=utf-8",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": "chunk-0\nchunk-1\nchunk-2\nchunk-3\ndone\n"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-raw-body",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"5mde9gu0km18\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": {
+            "method": "POST",
+            "length": 70000,
+            "sum": 35749
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-body-limit",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 413,
+          "headers": {
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": "Body exceeded 1kb limit"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-dynamic",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"lxzfwutdgu1k\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": {
+            "id": "abc",
+            "query": {
+              "q": "1",
+              "id": "abc"
+            },
+            "method": "GET"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-mutate-get-405",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 405,
+          "headers": {
+            "allow": "POST",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "api-mutate-once",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "recorded": 1,
+          "ledger": [
+            "1"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-anon",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/about/?login=required"
+          },
+          "setCookie": [],
+          "body": "/about/?login=required"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"cr2jphvyfi1yf\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Protected",
+            "slug": "u-carol",
+            "secret": "top-secret-for-u-carol",
+            "next": {
+              "page": "/protected/secret",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "user": "u-carol",
+                  "secret": "top-secret-for-u-carol"
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-data-anon",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "x-nextjs-redirect": "/about/?login=required"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-data-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"s5otv6aibi29\"",
+            "x-nextjs-matched-path": "/protected/secret"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "user": "u-carol",
+              "secret": "top-secret-for-u-carol"
+            },
+            "__N_SSP": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-ssg-anon",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/about/?login=required"
+          },
+          "setCookie": [],
+          "body": "/about/?login=required"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-ssg-data-anon",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "x-nextjs-redirect": "/about/?login=required"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-encoded",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/%70rotected/secret/",
+            "refresh": "0;url=/%70rotected/secret/"
+          },
+          "setCookie": [],
+          "body": "/%70rotected/secret/"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-data-encoded",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "x-nextjs-matched-path": "/%70rotected/secret",
+            "x-proxy-seen": "/%70rotected/secret"
+          },
+          "setCookie": [],
+          "body": {}
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-protected-data-wrong-build",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "x-nextjs-redirect": "/_next/data/other/about.json?login=required"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-header-on-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-book-id": "3",
+            "x-config-book": "3",
+            "x-powered-by": "Next.js",
+            "x-proxy-seen": "/books/3"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Book 3",
+            "slug": "3",
+            "kind": "ssr",
+            "secret": "user=- header=-",
+            "query": "{\"id\":\"3\"}",
+            "next": {
+              "page": "/books/[id]",
+              "query": {
+                "id": "3"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "id": "3",
+                  "query": {
+                    "id": "3"
+                  },
+                  "user": null,
+                  "header": null,
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-rewrite-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-book-id": "99",
+            "x-middleware-rewrite": "/books/99/?from=proxy",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Book 99",
+            "slug": "99",
+            "kind": "ssr",
+            "secret": "user=- header=-",
+            "query": "{\"from\":\"proxy\",\"id\":\"99\"}",
+            "next": {
+              "page": "/books/[id]",
+              "query": {
+                "from": "proxy",
+                "id": "99"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "id": "99",
+                  "query": {
+                    "from": "proxy",
+                    "id": "99"
+                  },
+                  "user": null,
+                  "header": null,
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-rewrite-ssg",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gu2jy0j1dn1yc\"",
+            "x-middleware-rewrite": "/posts/beta/",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Post beta",
+            "slug": "beta",
+            "kind": "ssg-paths",
+            "info": "built-1795137338064",
+            "next": {
+              "page": "/posts/[slug]",
+              "query": {
+                "slug": "beta"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "slug": "beta",
+                  "built": 1795137338064
+                },
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/posts/alpha/"
+          },
+          "setCookie": [],
+          "body": "/posts/alpha/"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-json",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 202,
+          "headers": {
+            "content-type": "application/json"
+          },
+          "setCookie": [],
+          "body": {
+            "fromProxy": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "proxy-api",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"licxccr5g93c\"",
+            "x-api-route": "echo",
+            "x-config-api": "1",
+            "x-proxy-seen": "/api/echo"
+          },
+          "setCookie": [],
+          "body": {
+            "method": "GET",
+            "query": {},
+            "body": "",
+            "bodyType": "string",
+            "cookies": {},
+            "contentType": null,
+            "user": null,
+            "url": "/api/echo/"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-redirect",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/about",
+            "refresh": "0;url=/about"
+          },
+          "setCookie": [],
+          "body": "/about"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-redirect-dynamic",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/books/5"
+          },
+          "setCookie": [],
+          "body": "/books/5"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-before-files",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"9kuyna0zml1y4\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-after-files-ssr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-book-id": "5",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Book 5",
+            "slug": "5",
+            "kind": "ssr",
+            "secret": "user=- header=-",
+            "query": "{\"id\":\"5\"}",
+            "next": {
+              "page": "/books/[id]",
+              "query": {
+                "id": "5"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "id": "5",
+                  "query": {
+                    "id": "5"
+                  },
+                  "user": null,
+                  "header": null,
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-after-files-ssg",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"gu2jy0j1dn1yc\"",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Post beta",
+            "slug": "beta",
+            "kind": "ssg-paths",
+            "info": "built-1795137338064",
+            "next": {
+              "page": "/posts/[slug]",
+              "query": {
+                "slug": "beta"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "slug": "beta",
+                  "built": 1795137338064
+                },
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-after-files-api",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"oxyn54g3qu48\"",
+            "x-api-route": "echo"
+          },
+          "setCookie": [],
+          "body": {
+            "method": "GET",
+            "query": {
+              "alias": "x/y",
+              "path": [
+                "x",
+                "y"
+              ]
+            },
+            "body": "",
+            "bodyType": "string",
+            "cookies": {},
+            "contentType": null,
+            "user": null,
+            "url": "/rw-api/x/y/"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-fallback",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-book-id": "77",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Book 77",
+            "slug": "77",
+            "kind": "ssr",
+            "secret": "user=- header=-",
+            "query": "{\"id\":\"77\"}",
+            "next": {
+              "page": "/books/[id]",
+              "query": {
+                "id": "77"
+              },
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "id": "77",
+                  "query": {
+                    "id": "77"
+                  },
+                  "user": null,
+                  "header": null,
+                  "stamp": 0
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-headers",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"9kuyna0zml1y4\"",
+            "x-config-about": "1",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "About",
+            "kind": "static",
+            "next": {
+              "page": "/about",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {}
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "config-rewrite-into-protected",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"qop8noywnr1yb\"",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Protected",
+            "slug": "nobody",
+            "secret": "top-secret-for-nobody",
+            "next": {
+              "page": "/protected/secret",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": true,
+              "gsp": false,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "user": "nobody",
+                  "secret": "top-secret-for-nobody"
+                },
+                "__N_SSP": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "preview-bad-secret",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"96dconiwagr\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": {
+            "message": "invalid token"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "preview-enable",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"71x5umgmmqg\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [
+            "__prerender_bypass=VALUE; Max-Age=X; Path=/; HttpOnly; Secure; SameSite=None",
+            "__next_preview_data=VALUE; Max-Age=X; Path=/; HttpOnly; Secure; SameSite=None"
+          ],
+          "body": {
+            "preview": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "preview-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Preview page",
+            "kind": "preview",
+            "secret": "{\"user\":\"u-dana\"}",
+            "info": "built-REQUEST",
+            "next": {
+              "page": "/preview",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "preview": true,
+                  "data": "{\"user\":\"u-dana\"}",
+                  "built": 0
+                },
+                "__N_PREVIEW": true,
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "preview-off",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"i1augsltip1y7\"",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Preview page",
+            "kind": "published",
+            "secret": "none",
+            "info": "built-1795137338057",
+            "next": {
+              "page": "/preview",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "preview": false,
+                  "data": "none",
+                  "built": 1795137338057
+                },
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "preview-forged-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "etag": "\"i1augsltip1y7\"",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [
+            "__prerender_bypass=; Path=/; Expires=X; HttpOnly; Secure; SameSite=None",
+            "__next_preview_data=; Path=/; Expires=X; HttpOnly; Secure; SameSite=None"
+          ],
+          "body": {
+            "title": "Preview page",
+            "kind": "published",
+            "secret": "none",
+            "info": "built-1795137338057",
+            "next": {
+              "page": "/preview",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "preview": false,
+                  "data": "none",
+                  "built": 1795137338057
+                },
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "preview-data-route",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "application/json; charset=utf-8",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-matched-path": "/preview"
+          },
+          "setCookie": [],
+          "body": {
+            "pageProps": {
+              "preview": true,
+              "data": "{\"user\":\"u-erin\"}",
+              "built": 0
+            },
+            "__N_PREVIEW": true,
+            "__N_SSG": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "preview-cross-server-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "x-nextjs-cache": "HIT",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Preview page",
+            "kind": "preview",
+            "secret": "{\"user\":\"u-frank\"}",
+            "info": "built-REQUEST",
+            "next": {
+              "page": "/preview",
+              "query": {},
+              "buildId": "BUILD",
+              "isFallback": false,
+              "gssp": false,
+              "gsp": true,
+              "gip": false,
+              "appGip": false,
+              "props": {
+                "pageProps": {
+                  "preview": true,
+                  "data": "{\"user\":\"u-frank\"}",
+                  "built": 0
+                },
+                "__N_PREVIEW": true,
+                "__N_SSG": true
+              }
+            },
+            "document": true,
+            "app": true,
+            "css": true
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "preview-clear",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"pzt9o7ys5sh\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [
+            "__prerender_bypass=; Path=/; Expires=X; HttpOnly; Secure; SameSite=None",
+            "__next_preview_data=; Path=/; Expires=X; HttpOnly; Secure; SameSite=None"
+          ],
+          "body": {
+            "preview": false
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "isr-stale-then-regenerated",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "stale": "STALE",
+          "advanced": true,
+          "fresh": "HIT",
+          "cacheControl": "s-maxage=2, stale-while-revalidate=31535998"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "isr-failed-regeneration-keeps-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": [
+            200,
+            200
+          ],
+          "kept": true,
+          "cache": "STALE"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "isr-on-demand",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "stable": true,
+          "revalidated": {
+            "revalidated": true,
+            "path": "/on-demand"
+          },
+          "advanced": true,
+          "dataMatches": true,
+          "cache": "HIT"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "isr-on-demand-missing",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 500,
+          "headers": {
+            "content-type": "application/json; charset=utf-8",
+            "etag": "\"kja3xnq2ze37\"",
+            "x-config-api": "1"
+          },
+          "setCookie": [],
+          "body": {
+            "revalidated": false,
+            "path": "/does-not-exist",
+            "error": "Failed to revalidate /does-not-exist: Invalid response 404"
+          }
+        },
+        "asserted": true
+      }
+    }
+  ]
+}

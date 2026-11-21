@@ -1,0 +1,1085 @@
+{
+  "summary": {
+    "title": "routing-config (base-path-trailing-slash)",
+    "total": 63,
+    "match": 63,
+    "pass": 0,
+    "knownDiff": 0,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 0,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "header-all-paths",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/target/",
+            "refresh": "0;url=/base/target/"
+          },
+          "setCookie": [],
+          "body": "/base/target/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/blog/hello/",
+            "refresh": "0;url=/base/blog/hello/"
+          },
+          "setCookie": [],
+          "body": "/base/blog/hello/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-param-on-demand",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/blog/zz-config/",
+            "refresh": "0;url=/base/blog/zz-config/"
+          },
+          "setCookie": [],
+          "body": "/base/blog/zz-config/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-has-query-absent",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/static/",
+            "refresh": "0;url=/base/static/"
+          },
+          "setCookie": [],
+          "body": "/base/static/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-has-query-present",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/static/?h=1",
+            "refresh": "0;url=/base/static/?h=1"
+          },
+          "setCookie": [],
+          "body": "/base/static/?h=1"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-missing-header-present",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/target/",
+            "refresh": "0;url=/base/target/"
+          },
+          "setCookie": [],
+          "body": "/base/target/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-set-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/target/",
+            "refresh": "0;url=/base/target/"
+          },
+          "setCookie": [],
+          "body": "/base/target/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-cookie-capture",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/cookie-header/",
+            "refresh": "0;url=/base/cookie-header/"
+          },
+          "setCookie": [],
+          "body": "/base/cookie-header/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-cookie-capture-nomatch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/cookie-header/",
+            "refresh": "0;url=/base/cookie-header/"
+          },
+          "setCookie": [],
+          "body": "/base/cookie-header/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-vs-proxy-conflict",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/proxy/json/",
+            "refresh": "0;url=/base/proxy/json/"
+          },
+          "setCookie": [],
+          "body": "/base/proxy/json/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-on-404",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/nope-config/",
+            "refresh": "0;url=/base/nope-config/"
+          },
+          "setCookie": [],
+          "body": "/base/nope-config/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-on-public-file",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "public, max-age=0",
+            "content-type": "text/plain; charset=UTF-8",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": "public asset\n"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "header-on-static-asset-miss",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/plain; charset=utf-8",
+            "x-config-all": "1"
+          },
+          "setCookie": [],
+          "body": "Not Found"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-permanent-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/old-blog/x/",
+            "refresh": "0;url=/base/old-blog/x/"
+          },
+          "setCookie": [],
+          "body": "/base/old-blog/x/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-temporary",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/temp-redirect/",
+            "refresh": "0;url=/base/temp-redirect/"
+          },
+          "setCookie": [],
+          "body": "/base/temp-redirect/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-case-insensitive",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/TEMP-Redirect/",
+            "refresh": "0;url=/base/TEMP-Redirect/"
+          },
+          "setCookie": [],
+          "body": "/base/TEMP-Redirect/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-status-301",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/status-redirect/",
+            "refresh": "0;url=/base/status-redirect/"
+          },
+          "setCookie": [],
+          "body": "/base/status-redirect/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-has-query-capture",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/query-redirect/?to=abc",
+            "refresh": "0;url=/base/query-redirect/?to=abc"
+          },
+          "setCookie": [],
+          "body": "/base/query-redirect/?to=abc"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-has-query-nomatch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/query-redirect/?to=ABC1",
+            "refresh": "0;url=/base/query-redirect/?to=ABC1"
+          },
+          "setCookie": [],
+          "body": "/base/query-redirect/?to=ABC1"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-keeps-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/keep-query/?a=1&a=2&b=%20",
+            "refresh": "0;url=/base/keep-query/?a=1&a=2&b=%20"
+          },
+          "setCookie": [],
+          "body": "/base/keep-query/?a=1&a=2&b=%20"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-external",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/external-redirect/x/y/?q=1",
+            "refresh": "0;url=/base/external-redirect/x/y/?q=1"
+          },
+          "setCookie": [],
+          "body": "/base/external-redirect/x/y/?q=1"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-before-proxy",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/proxy/config-wins/",
+            "refresh": "0;url=/base/proxy/config-wins/"
+          },
+          "setCookie": [],
+          "body": "/base/proxy/config-wins/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-cookie-present",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/cookie-redirect/",
+            "refresh": "0;url=/base/cookie-redirect/"
+          },
+          "setCookie": [],
+          "body": "/base/cookie-redirect/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-cookie-absent",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/cookie-redirect/",
+            "refresh": "0;url=/base/cookie-redirect/"
+          },
+          "setCookie": [],
+          "body": "/base/cookie-redirect/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-host",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/host-redirect/",
+            "refresh": "0;url=/base/host-redirect/"
+          },
+          "setCookie": [],
+          "body": "/base/host-redirect/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-host-other",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/host-redirect/",
+            "refresh": "0;url=/base/host-redirect/"
+          },
+          "setCookie": [],
+          "body": "/base/host-redirect/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-wildcard",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/wildcard/a/b/c/",
+            "refresh": "0;url=/base/wildcard/a/b/c/"
+          },
+          "setCookie": [],
+          "body": "/base/wildcard/a/b/c/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-wildcard-empty",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/wildcard/",
+            "refresh": "0;url=/base/wildcard/"
+          },
+          "setCookie": [],
+          "body": "/base/wildcard/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-regex-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/regex/42/",
+            "refresh": "0;url=/base/regex/42/"
+          },
+          "setCookie": [],
+          "body": "/base/regex/42/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-regex-nomatch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/regex/abc/",
+            "refresh": "0;url=/base/regex/abc/"
+          },
+          "setCookie": [],
+          "body": "/base/regex/abc/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-missing",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/missing-redirect/",
+            "refresh": "0;url=/base/missing-redirect/"
+          },
+          "setCookie": [],
+          "body": "/base/missing-redirect/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-missing-present",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/missing-redirect/",
+            "refresh": "0;url=/base/missing-redirect/"
+          },
+          "setCookie": [],
+          "body": "/base/missing-redirect/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-post",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/temp-redirect/",
+            "refresh": "0;url=/base/temp-redirect/"
+          },
+          "setCookie": [],
+          "body": "/base/temp-redirect/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-head",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/old-blog/x/",
+            "refresh": "0;url=/base/old-blog/x/"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "redirect-encoded-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/old-blog/a%20b/",
+            "refresh": "0;url=/base/old-blog/a%20b/"
+          },
+          "setCookie": [],
+          "body": "/base/old-blog/a%20b/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "before-files",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/bf-static/",
+            "refresh": "0;url=/base/bf-static/"
+          },
+          "setCookie": [],
+          "body": "/base/bf-static/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "before-files-overrides-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/static/?bf=1",
+            "refresh": "0;url=/base/static/?bf=1"
+          },
+          "setCookie": [],
+          "body": "/base/static/?bf=1"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-does-not-override-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/static/",
+            "refresh": "0;url=/base/static/"
+          },
+          "setCookie": [],
+          "body": "/base/static/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/af/hello/",
+            "refresh": "0;url=/base/af/hello/"
+          },
+          "setCookie": [],
+          "body": "/base/af/hello/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-on-demand",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/af/zz-af/",
+            "refresh": "0;url=/base/af/zz-af/"
+          },
+          "setCookie": [],
+          "body": "/base/af/zz-af/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-chain",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/af-chain/",
+            "refresh": "0;url=/base/af-chain/"
+          },
+          "setCookie": [],
+          "body": "/base/af-chain/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-isr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/af-isr/",
+            "refresh": "0;url=/base/af-isr/"
+          },
+          "setCookie": [],
+          "body": "/base/af-isr/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-route-handler",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/af-api/a/b/?z=1",
+            "refresh": "0;url=/base/af-api/a/b/?z=1"
+          },
+          "setCookie": [],
+          "body": "/base/af-api/a/b/?z=1"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-fixed-query",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/af-query/?x=1&fixed=2",
+            "refresh": "0;url=/base/af-query/?x=1&fixed=2"
+          },
+          "setCookie": [],
+          "body": "/base/af-query/?x=1&fixed=2"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-to-protected",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/af-protected/",
+            "refresh": "0;url=/base/af-protected/"
+          },
+          "setCookie": [],
+          "body": "/base/af-protected/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-rsc",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/af/hello/",
+            "refresh": "0;url=/base/af/hello/"
+          },
+          "setCookie": [],
+          "body": "/base/af/hello/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "after-files-head",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/af/hello/",
+            "refresh": "0;url=/base/af/hello/"
+          },
+          "setCookie": [],
+          "body": ""
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "fallback-param",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/fb/a/b/",
+            "refresh": "0;url=/base/fb/a/b/"
+          },
+          "setCookie": [],
+          "body": "/base/fb/a/b/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "fallback-not-before-dynamic",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/blog/zz-fb/",
+            "refresh": "0;url=/base/blog/zz-fb/"
+          },
+          "setCookie": [],
+          "body": "/base/blog/zz-fb/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "no-rule-404",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/nothing/here/",
+            "refresh": "0;url=/base/nothing/here/"
+          },
+          "setCookie": [],
+          "body": "/base/nothing/here/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "external-rewrite",
+      "verdict": "MATCH",
+      "detail": {
+        "reason": "the destination (a closed port) is outside this run's --net-allow: NextRS answers 502 external-rewrite-denied and sends nothing, next start proxies (connection refused: 500). Allowed destinations are compared in tests/compat/platform-proxy.mjs",
+        "diffs": [],
+        "candidateWrong": null,
+        "baseline": {
+          "status": 308,
+          "headers": {
+            "location": "/base/external-rewrite/x/",
+            "refresh": "0;url=/base/external-rewrite/x/"
+          },
+          "setCookie": [],
+          "body": "/base/external-rewrite/x/"
+        },
+        "candidate": {
+          "status": 308,
+          "headers": {
+            "location": "/base/external-rewrite/x/",
+            "refresh": "0;url=/base/external-rewrite/x/"
+          },
+          "setCookie": [],
+          "body": "/base/external-rewrite/x/"
+        }
+      }
+    },
+    {
+      "name": "trailing-slash-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-missing-header": "absent",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "target",
+            "kind": "static",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "trailing-slash-dynamic",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-blog-slug": "hello",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "blog",
+            "slug": "hello",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "no-trailing-slash-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/target/",
+            "refresh": "0;url=/base/target/"
+          },
+          "setCookie": [],
+          "body": "/base/target/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "trailing-slash-file",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/asset.txt",
+            "refresh": "0;url=/base/asset.txt"
+          },
+          "setCookie": [],
+          "body": "/base/asset.txt"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "well-known",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/.well-known/x/",
+            "refresh": "0;url=/base/.well-known/x/"
+          },
+          "setCookie": [],
+          "body": "/base/.well-known/x/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "double-slash",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/target",
+            "refresh": "0;url=/base/target"
+          },
+          "setCookie": [],
+          "body": "/base/target"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "dot-segment",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/target/",
+            "refresh": "0;url=/base/target/"
+          },
+          "setCookie": [],
+          "body": "/base/target/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "root",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/base/",
+            "refresh": "0;url=/base/"
+          },
+          "setCookie": [],
+          "body": "/base/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "root-slash",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-config-all": "1",
+            "x-conflict": "proxy",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js",
+            "x-proxy-response": "1"
+          },
+          "setCookie": [
+            "proxy-visit=1; Path=/"
+          ],
+          "body": {
+            "title": "home",
+            "stamp": "absent"
+          }
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "outside-base-path",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/target/",
+            "refresh": "0;url=/target/"
+          },
+          "setCookie": [],
+          "body": "/target/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "base-path-prefix-only",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 308,
+          "headers": {
+            "location": "/basex/target/",
+            "refresh": "0;url=/basex/target/"
+          },
+          "setCookie": [],
+          "body": "/basex/target/"
+        },
+        "asserted": false
+      }
+    },
+    {
+      "name": "base-path-static-asset-outside",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 404,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/plain; charset=utf-8"
+          },
+          "setCookie": [],
+          "body": "Not Found"
+        },
+        "asserted": false
+      }
+    }
+  ]
+}

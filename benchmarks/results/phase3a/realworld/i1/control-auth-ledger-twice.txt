@@ -1,0 +1,87 @@
+MATCH      public-home
+MATCH      public-login
+MATCH      public-login-next
+MATCH      public-health-not-matched
+MATCH      anon-dashboard
+MATCH      anon-dashboard-query
+MATCH      anon-static-page
+MATCH      anon-isr-page
+MATCH      anon-dynamic-param
+MATCH      anon-route-handler
+MATCH      anon-action-page
+MATCH      anon-head
+MATCH      anon-rsc
+MATCH      anon-rsc-prefetch
+MATCH      anon-rsc-segment-prefetch
+MATCH      anon-rsc-query
+MATCH      valid-alice-dashboard
+MATCH      valid-bob-dashboard
+MATCH      valid-static-page
+MATCH      valid-isr-page
+MATCH      valid-dynamic-param
+MATCH      valid-route-handler
+MATCH      valid-rsc
+MATCH      valid-login-redirects-to-dashboard
+MATCH      expired-session
+MATCH      expired-session-route-handler
+MATCH      not-yet-valid-session
+MATCH      wrong-secret
+MATCH      tampered-payload
+MATCH      tampered-signature
+MATCH      alg-none
+MATCH      alg-not-allowed-hs512
+MATCH      missing-claims
+MATCH      malformed-cookie
+MATCH      empty-cookie
+MATCH      other-cookie-only
+MATCH      duplicate-session-cookie
+MATCH      spoofed-identity-header-anon
+MATCH      spoofed-identity-header-session
+MATCH      bypass-encoded-first-char
+MATCH      bypass-encoded-last-char
+MATCH      bypass-encoded-static
+MATCH      bypass-encoded-isr
+MATCH      bypass-encoded-api
+MATCH      bypass-encoded-rsc
+MATCH      bypass-encoded-prefetch
+MATCH      bypass-encoded-slash
+MATCH      bypass-dot-segments
+MATCH      bypass-encoded-dot-segments
+MATCH      bypass-double-slash
+MATCH      bypass-backslash
+MATCH      bypass-trailing-slash
+MATCH      bypass-upper-case
+MATCH      bypass-upper-case-static
+MATCH      bypass-semicolon
+MATCH      bypass-rsc-suffix
+MATCH      bypass-html-suffix
+MATCH      bypass-data-route
+MATCH      bypass-next-data-query
+MATCH      bypass-config-rewrite-alias
+MATCH      config-rewrite-alias-session
+MATCH      bypass-internal-headers
+MATCH      bypass-forwarded-host
+MATCH      login-action-success
+MATCH      login-action-wrong-password
+MATCH      login-action-open-redirect
+MATCH      login-form-without-js
+MATCH      login-action-cross-origin
+MATCH      logout-action
+ORACLE-FAIL action-anon-on-protected-page
+    next start: ledger ["unexpected"], expected []
+ORACLE-FAIL action-anon-on-public-page
+    next start: ledger ["unexpected"], expected []
+ORACLE-FAIL action-expired-on-public-page
+    next start: ledger ["unexpected"], expected []
+ORACLE-FAIL action-tampered-on-public-page
+    next start: ledger ["unexpected"], expected []
+ORACLE-FAIL action-alice-on-protected-page
+    next start: ledger ["u-alice:1","u-alice:1"], expected ["u-alice:1"]
+ORACLE-FAIL action-bob-on-public-page
+    next start: ledger ["u-bob:1","u-bob:1"], expected ["u-bob:1"]
+ORACLE-FAIL action-anon-encoded-path
+    next start: ledger ["unexpected"], expected []
+ORACLE-FAIL action-cross-origin-session
+    next start: ledger ["unexpected"], expected []
+MATCH      concurrent-identities
+auth-proxy (jose): 70 MATCH (68 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 8 ORACLE-FAIL, 0 ERROR [negative control ledger-twice:both]

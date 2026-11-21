@@ -1,0 +1,64 @@
+MATCH      providers
+MATCH      csrf-token
+MATCH      session-anonymous
+MATCH      signin-page
+MATCH      credentials-sign-in
+MATCH      credentials-sign-in-bob
+MATCH      credentials-wrong-password
+MATCH      credentials-unknown-user
+MATCH      credentials-missing-csrf
+MATCH      credentials-foreign-csrf
+MATCH      credentials-open-redirect
+MATCH      sign-out
+MATCH      session-alice-api
+MATCH      session-bob-api
+MATCH      session-endpoint
+MATCH      session-dashboard
+MATCH      session-isr
+MATCH      session-home
+ORACLE-FAIL anon-dashboard
+    next start: status 307 location /elsewhere
+ORACLE-FAIL anon-isr
+    next start: status 307 location /elsewhere
+ORACLE-FAIL anon-action-page
+    next start: status 307 location /elsewhere
+MATCH      anon-api
+MATCH      anon-home
+MATCH      session-wrong-secret
+ORACLE-FAIL session-wrong-secret-page
+    next start: status 307 location /elsewhere
+MATCH      session-wrong-salt
+MATCH      session-expired
+ORACLE-FAIL session-expired-page
+    next start: status 307 location /elsewhere
+MATCH      session-tampered
+MATCH      session-tampered-tag
+MATCH      session-not-a-jwe
+MATCH      session-signed-jwt-not-jwe
+MATCH      session-rolled
+MATCH      session-expires
+MATCH      oidc-sign-in-alice
+MATCH      oidc-sign-in-bob
+MATCH      oidc-wrong-state
+MATCH      oidc-no-state-cookie
+MATCH      oidc-no-pkce-cookie
+MATCH      oidc-no-nonce-cookie
+MATCH      oidc-forged-code
+MATCH      oidc-missing-code
+MATCH      oidc-wrong-iss-parameter
+MATCH      oidc-id-token-wrong-iss
+MATCH      oidc-id-token-wrong-aud
+MATCH      oidc-id-token-wrong-nonce
+MATCH      oidc-id-token-expired
+MATCH      oidc-id-token-bad-signature-not-verified
+MATCH      oidc-id-token-unknown-kid-not-verified
+MATCH      oidc-key-rotation
+MATCH      oidc-callback-replay
+MATCH      action-anon
+MATCH      action-alice
+MATCH      action-bob-public-page
+MATCH      action-expired
+MATCH      action-wrong-secret
+MATCH      concurrent-users
+MATCH      session-after-executor-restart
+authjs (next-auth 5): 53 MATCH (53 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 5 ORACLE-FAIL, 0 ERROR [negative control location:both]

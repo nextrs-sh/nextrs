@@ -1,0 +1,67 @@
+NextRS Inspector
+
+Project:          /app/apps/web
+Workspace root:   /app (monorepo)
+Next.js version:  16.4.6 (from node_modules/next/package.json)
+Build ID:         i35V8ZnDo4vkF6as9Slvl
+Metadata source:  internal .next manifests (undocumented)
+App Router:       detected
+Pages Router:     not detected
+
+Routes:
+  /                                        page           ISR (revalidate 3600s)  (stored: html + rsc + 4 segments)
+  /_global-error                           page           prerendered  (framework; stored: html + rsc + 3 segments)
+  /_not-found                              page           ISR (revalidate 86400s)  (framework; stored: html + rsc + 4 segments)
+  /about                                   page           ISR (revalidate 86400s)  (stored: html + rsc + 4 segments)
+  /account                                 page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /account/register                        page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /account/settings                        page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /account/sign-in                         page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /account/travellers                      page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /account/trips                           page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /api/aircraft                            route handler  ISR (revalidate 3600s)  (stored: )
+  /api/airports                            route handler  dynamic
+  /api/ancillaries                         route handler  ISR (revalidate 3600s)  (stored: )
+  /api/destinations                        route handler  dynamic
+  /api/fare-families                       route handler  ISR (revalidate 3600s)  (stored: )
+  /api/flights                             route handler  dynamic
+  /api/flights/[id]                        route handler  dynamic  (params: nxtPid)
+  /api/flights/[id]/seatmap                route handler  dynamic  (params: nxtPid)
+  /api/internal/health/live                route handler  dynamic
+  /api/internal/health/ready               route handler  dynamic
+  /api/internal/metrics                    route handler  dynamic
+  /api/offers                              route handler  dynamic
+  /api/offers/[offerId]                    route handler  dynamic  (params: nxtPofferId)
+  /api/routes                              route handler  dynamic
+  /booking/checkout                        page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /booking/confirmation/[orderId]          page           uncertain: dynamic route with prerendered params (generateStaticParams); fallback behaviour is not modelled yet  (params: nxtPorderId)
+  /booking/extras                          page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /booking/review                          page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /booking/seats                           page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /booking/travellers                      page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /credits                                 page           ISR (revalidate 86400s)  (stored: html + rsc + 4 segments)
+  /destinations                            page           ISR (revalidate 3600s)  (stored: html + rsc + 4 segments)
+  /destinations/[slug]                     page           uncertain: dynamic route with prerendered params (generateStaticParams); fallback behaviour is not modelled yet  (params: nxtPslug)
+  /flights                                 page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /help                                    page           ISR (revalidate 86400s)  (stored: html + rsc + 4 segments)
+  /manage-booking                          page           ISR (revalidate 86400s)  (stored: html + 4 segments)
+  /manage-booking/[orderId]                page           uncertain: dynamic route with prerendered params (generateStaticParams); fallback behaviour is not modelled yet  (params: nxtPorderId)
+  /manage-booking/[orderId]/cancel         page           uncertain: dynamic route with prerendered params (generateStaticParams); fallback behaviour is not modelled yet  (params: nxtPorderId)
+  /manage-booking/[orderId]/change-flight  page           uncertain: dynamic route with prerendered params (generateStaticParams); fallback behaviour is not modelled yet  (params: nxtPorderId)
+  /manage-booking/[orderId]/extras         page           uncertain: dynamic route with prerendered params (generateStaticParams); fallback behaviour is not modelled yet  (params: nxtPorderId)
+  /manage-booking/[orderId]/seats          page           uncertain: dynamic route with prerendered params (generateStaticParams); fallback behaviour is not modelled yet  (params: nxtPorderId)
+  /manifest.webmanifest                    route handler  prerendered  (stored: )
+  /robots.txt                              route handler  prerendered  (stored: )
+  /sitemap.xml                             route handler  ISR (revalidate 3600s)  (stored: )
+
+Runtime requirements:
+  JavaScript execution: required for 40 route(s): /, /about, /account, /account/register, /account/settings, /account/sign-in, /account/travellers, /account/trips, /api/aircraft, /api/airports, /api/ancillaries, /api/destinations, /api/fare-families, /api/flights, /api/flights/[id], /api/flights/[id]/seatmap, /api/internal/health/live, /api/internal/health/ready, /api/internal/metrics, /api/offers, /api/offers/[offerId], /api/routes, /booking/checkout, /booking/confirmation/[orderId], /booking/extras, /booking/review, /booking/seats, /booking/travellers, /credits, /destinations, /destinations/[slug], /flights, /help, /manage-booking, /manage-booking/[orderId], /manage-booking/[orderId]/cancel, /manage-booking/[orderId]/change-flight, /manage-booking/[orderId]/extras, /manage-booking/[orderId]/seats, /sitemap.xml
+  Node.js APIs:         required (nodejs-runtime handlers take IncomingMessage/ServerResponse); not provided by NextRS Phase 0
+  NextRS serves: /_next/static, public/, prerendered HTML/RSC/segments and Pages Router HTML;
+  dynamic App Router and Pages Router routes with --js-runtime embedded-v8 (experimental)
+
+Diagnostics:
+  [unsupported] server-actions: 45 Server Actions require JavaScript execution
+  [unsupported] isr: ISR regeneration requires JavaScript: /, /_not-found, /about, /account, /account/register, /account/settings, /account/sign-in, /account/travellers, /account/trips, /api/aircraft, /api/ancillaries, /api/fare-families, /booking/checkout, /booking/extras, /booking/review, /booking/seats, /booking/travellers, /credits, /destinations, /destinations/bangkok, /destinations/cebu, /destinations/davao, /destinations/ho-chi-minh-city, /destinations/hong-kong, /destinations/kuala-lumpur, /destinations/manila, /destinations/osaka, /destinations/seoul, /destinations/singapore, /destinations/taipei, /destinations/tokyo, /flights, /help, /manage-booking, /sitemap.xml
+  [info] routing-rules: 1 header rules, 2 redirects and 0 rewrites from next.config are applied
+  [info] javascript-required: 40 routes require server-side JavaScript execution

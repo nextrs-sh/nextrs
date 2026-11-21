@@ -1,0 +1,216 @@
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.5
+- Local:         http://127.0.0.1:5381
+- Network:       http://127.0.0.1:5381
+✓ Ready in 149ms
+✓ Running next.config.ts took 1330ms
+⨯ Error: Invalid accept header
+    at ignore-listed frames {
+  data: null,
+  isBoom: true,
+  isServer: false,
+  output: {
+    statusCode: 400,
+    payload: {
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'Invalid accept header'
+    },
+    headers: {}
+  }
+}
+⨯ internal image response failed for /photos/%252e%252e/next.config.ts 404
+⨯ internal image response failed for /photos/..%2fnext.config.ts 404
+⨯ internal image response failed for /photos/missing.jpg 404
+⚠ The requested resource "/photos/animated.gif" is an animated image so it will not be optimized. Consider adding the "unoptimized" property to the <Image>.
+⚠ The requested resource "/photos/animated.webp" is an animated image so it will not be optimized. Consider adding the "unoptimized" property to the <Image>.
+⨯ The requested resource isn't a valid image for /photos/not-an-image.png received null
+⨯ The requested resource isn't a valid image for /photos/document.pdf received application/pdf
+⨯ The requested resource "/photos/icon.svg" has type "image/svg+xml" but dangerouslyAllowSVG is disabled. Consider adding the "unoptimized" property to the <Image>.
+⨯ upstream image response had too many redirects http://127.0.0.1:5385/img/redirect.jpg
+⨯ upstream image response had too many redirects http://127.0.0.1:5385/img/redirect-loop.jpg
+⨯ upstream image response failed for http://127.0.0.1:5385/img/missing.jpg?n=98601-1794751241483 404
+⨯ upstream image response failed for http://127.0.0.1:5385/img/server-error.jpg?n=98601-1794751241483 503
+⨯ The requested resource isn't a valid image for http://127.0.0.1:5385/img/text.jpg?n=98601-1794751241483 received null
+⨯ The requested resource isn't a valid image for http://127.0.0.1:5385/img/html.jpg?n=98601-1794751241483 received null
+⨯ upstream image response is empty for http://127.0.0.1:5385/img/empty.jpg?n=98601-1794751241483
+⨯ upstream image response exceeded maximum size for http://127.0.0.1:5385/img/oversized.jpg?n=98601-1794751241483 5045424
+⚠ The requested resource "http://127.0.0.1:5385/img/animated.gif?n=98601-1794751241483" is an animated image so it will not be optimized. Consider adding the "unoptimized" property to the <Image>.
+⨯ The requested resource "http://127.0.0.1:5385/img/icon.svg?n=98601-1794751241483" has type "image/svg+xml" but dangerouslyAllowSVG is disabled. Consider adding the "unoptimized" property to the <Image>.
+⨯ Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+⨯ upstream image response timed out for http://127.0.0.1:5385/img/slow-head.jpg?n=98601-1794751241483
+⨯ upstream image response timed out for http://127.0.0.1:5385/img/slow-body.jpg?n=98601-1794751241483
+⨯ Error: unable to verify the first certificate; if the root CA is installed locally, try running Node.js with --use-system-ca
+    at ignore-listed frames {
+  code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE'
+}
+⨯ Error: Hostname/IP does not match certificate's altnames: IP: 127.0.0.1 is not in the cert's list: 
+    at ignore-listed frames {
+  code: 'ERR_TLS_CERT_ALTNAME_INVALID',
+  reason: "IP: 127.0.0.1 is not in the cert's list: ",
+  host: '127.0.0.1',
+  cert: {
+    subject: [Object: null prototype] { CN: 'localhost' },
+    issuer: [Object: null prototype] { CN: 'NextRS image suite test CA' },
+    subjectaltname: 'DNS:localhost',
+    infoAccess: undefined,
+    ca: false,
+    modulus: undefined,
+    exponent: undefined,
+    pubkey: <Buffer 04 dc 56 06 00 b4 b4 67 6f d5 3e 93 d1 6e ac bf 67 78 49 88 28 98 55 b5 d7 24 8f 1a 12 47 16 57 bd c5 85 ec d9 39 b3 7a 6c e3 d2 c9 ea 43 d1 6c 4a 6e ... 15 more bytes>,
+    bits: 256,
+    valid_from: 'Nov 15 13:57:59 2026 GMT',
+    valid_to: 'Nov 17 13:57:59 2026 GMT',
+    fingerprint: '66:C5:97:C8:BB:2C:C8:D0:E7:BC:73:85:57:C5:05:18:76:8E:18:7D',
+    fingerprint256: '93:CA:B5:C0:81:60:F7:64:90:CD:91:52:08:F0:08:8D:91:1C:79:E8:6A:DA:0F:84:49:B0:D1:F7:FE:77:ED:84',
+    fingerprint512: '9C:65:BC:66:B7:78:98:96:59:28:DA:9F:9B:77:59:A7:3F:03:B0:D0:B3:E5:F7:52:0E:37:80:C4:C8:E6:2C:1A:33:66:D4:A2:0B:DE:C8:41:FE:73:03:E5:04:78:91:2D:80:48:D9:3B:39:96:A8:9F:78:32:DE:FA:58:A0:2D:C8',
+    ext_key_usage: [ '1.3.6.1.5.5.7.3.1' ],
+    serialNumber: '38CBE723BE07FF47FE7C96C26BC97B17AE6C1965',
+    raw: <Buffer 30 82 01 c9 30 82 01 6e a0 03 02 01 02 02 14 38 cb e7 23 be 07 ff 47 fe 7c 96 c2 6b c9 7b 17 ae 6c 19 65 30 0a 06 08 2a 86 48 ce 3d 04 03 02 30 25 31 ... 411 more bytes>,
+    asn1Curve: 'prime256v1',
+    nistCurve: 'P-256',
+    issuerCertificate: <ref *1> {
+      subject: [Object: null prototype],
+      issuer: [Object: null prototype],
+      subjectaltname: undefined,
+      infoAccess: undefined,
+      ca: true,
+      modulus: undefined,
+      exponent: undefined,
+      pubkey: <Buffer 04 61 5f d6 f3 6d 9d 32 67 0c 12 e0 9f 61 60 47 98 0b 82 28 27 5b cd 47 59 b4 2b f3 fd 26 46 18 e0 04 26 b4 b2 9f 93 ba a4 e8 f8 1d 26 b6 92 62 25 fb ... 15 more bytes>,
+      bits: 256,
+      valid_from: 'Nov 15 13:57:59 2026 GMT',
+      valid_to: 'Nov 17 13:57:59 2026 GMT',
+      fingerprint: '4C:37:69:54:BC:F2:6C:BE:D3:81:0C:A2:B8:33:52:71:02:C6:A4:91',
+      fingerprint256: 'EC:06:E1:1C:48:DF:18:5F:2F:D9:60:2B:07:24:E5:B2:3B:00:74:CA:5D:66:5F:9C:EB:47:29:85:48:F7:58:27',
+      fingerprint512: '42:42:C3:E6:9F:95:FC:5B:59:C1:D8:8A:37:52:AB:06:13:02:60:F4:6E:47:38:0D:A8:12:16:FB:68:32:E8:CB:5A:40:5D:37:78:36:6F:5F:E8:E5:13:31:E3:87:9A:E9:B3:B4:59:5E:0B:F5:3A:23:96:9F:E6:C1:E1:9E:6E:84',
+      ext_key_usage: undefined,
+      serialNumber: '4F2D07A35480FFC556E43B5EE42FE2618CE6A8E5',
+      raw: <Buffer 30 82 01 b0 30 82 01 55 a0 03 02 01 02 02 14 4f 2d 07 a3 54 80 ff c5 56 e4 3b 5e e4 2f e2 61 8c e6 a8 e5 30 0a 06 08 2a 86 48 ce 3d 04 03 02 30 25 31 ... 386 more bytes>,
+      asn1Curve: 'prime256v1',
+      nistCurve: 'P-256',
+      issuerCertificate: [Circular *1]
+    }
+  }
+}
+⨯ Error: Hostname/IP does not match certificate's altnames: IP: 127.0.0.2 is not in the cert's list: 
+    at ignore-listed frames {
+  code: 'ERR_TLS_CERT_ALTNAME_INVALID',
+  reason: "IP: 127.0.0.2 is not in the cert's list: ",
+  host: '127.0.0.2',
+  cert: {
+    subject: [Object: null prototype] { CN: 'localhost' },
+    issuer: [Object: null prototype] { CN: 'NextRS image suite test CA' },
+    subjectaltname: 'DNS:localhost',
+    infoAccess: undefined,
+    ca: false,
+    modulus: undefined,
+    exponent: undefined,
+    pubkey: <Buffer 04 dc 56 06 00 b4 b4 67 6f d5 3e 93 d1 6e ac bf 67 78 49 88 28 98 55 b5 d7 24 8f 1a 12 47 16 57 bd c5 85 ec d9 39 b3 7a 6c e3 d2 c9 ea 43 d1 6c 4a 6e ... 15 more bytes>,
+    bits: 256,
+    valid_from: 'Nov 15 13:57:59 2026 GMT',
+    valid_to: 'Nov 17 13:57:59 2026 GMT',
+    fingerprint: '66:C5:97:C8:BB:2C:C8:D0:E7:BC:73:85:57:C5:05:18:76:8E:18:7D',
+    fingerprint256: '93:CA:B5:C0:81:60:F7:64:90:CD:91:52:08:F0:08:8D:91:1C:79:E8:6A:DA:0F:84:49:B0:D1:F7:FE:77:ED:84',
+    fingerprint512: '9C:65:BC:66:B7:78:98:96:59:28:DA:9F:9B:77:59:A7:3F:03:B0:D0:B3:E5:F7:52:0E:37:80:C4:C8:E6:2C:1A:33:66:D4:A2:0B:DE:C8:41:FE:73:03:E5:04:78:91:2D:80:48:D9:3B:39:96:A8:9F:78:32:DE:FA:58:A0:2D:C8',
+    ext_key_usage: [ '1.3.6.1.5.5.7.3.1' ],
+    serialNumber: '38CBE723BE07FF47FE7C96C26BC97B17AE6C1965',
+    raw: <Buffer 30 82 01 c9 30 82 01 6e a0 03 02 01 02 02 14 38 cb e7 23 be 07 ff 47 fe 7c 96 c2 6b c9 7b 17 ae 6c 19 65 30 0a 06 08 2a 86 48 ce 3d 04 03 02 30 25 31 ... 411 more bytes>,
+    asn1Curve: 'prime256v1',
+    nistCurve: 'P-256',
+    issuerCertificate: <ref *1> {
+      subject: [Object: null prototype],
+      issuer: [Object: null prototype],
+      subjectaltname: undefined,
+      infoAccess: undefined,
+      ca: true,
+      modulus: undefined,
+      exponent: undefined,
+      pubkey: <Buffer 04 61 5f d6 f3 6d 9d 32 67 0c 12 e0 9f 61 60 47 98 0b 82 28 27 5b cd 47 59 b4 2b f3 fd 26 46 18 e0 04 26 b4 b2 9f 93 ba a4 e8 f8 1d 26 b6 92 62 25 fb ... 15 more bytes>,
+      bits: 256,
+      valid_from: 'Nov 15 13:57:59 2026 GMT',
+      valid_to: 'Nov 17 13:57:59 2026 GMT',
+      fingerprint: '4C:37:69:54:BC:F2:6C:BE:D3:81:0C:A2:B8:33:52:71:02:C6:A4:91',
+      fingerprint256: 'EC:06:E1:1C:48:DF:18:5F:2F:D9:60:2B:07:24:E5:B2:3B:00:74:CA:5D:66:5F:9C:EB:47:29:85:48:F7:58:27',
+      fingerprint512: '42:42:C3:E6:9F:95:FC:5B:59:C1:D8:8A:37:52:AB:06:13:02:60:F4:6E:47:38:0D:A8:12:16:FB:68:32:E8:CB:5A:40:5D:37:78:36:6F:5F:E8:E5:13:31:E3:87:9A:E9:B3:B4:59:5E:0B:F5:3A:23:96:9F:E6:C1:E1:9E:6E:84',
+      ext_key_usage: undefined,
+      serialNumber: '4F2D07A35480FFC556E43B5EE42FE2618CE6A8E5',
+      raw: <Buffer 30 82 01 b0 30 82 01 55 a0 03 02 01 02 02 14 4f 2d 07 a3 54 80 ff c5 56 e4 3b 5e e4 2f e2 61 8c e6 a8 e5 30 0a 06 08 2a 86 48 ce 3d 04 03 02 30 25 31 ... 386 more bytes>,
+      asn1Curve: 'prime256v1',
+      nistCurve: 'P-256',
+      issuerCertificate: [Circular *1]
+    }
+  }
+}
+⨯ upstream image response exceeded maximum size for https://localhost:5386/img/oversized.jpg?n=100864-1794751310009 5013497
+⨯ upstream image response timed out for https://localhost:5386/img/slow-head.jpg?n=100864-1794751310009
+⨯ internal image response failed for /photos/missing.jpg 404
+⨯ The requested resource isn't a valid image for /photos/not-an-image.png received null
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.5
+- Local:         http://127.0.0.1:5381
+- Network:       http://127.0.0.1:5381
+✓ Ready in 135ms
+✓ Running next.config.ts took 28ms
+⨯ Error: Invalid accept header
+    at ignore-listed frames {
+  data: null,
+  isBoom: true,
+  isServer: false,
+  output: {
+    statusCode: 400,
+    payload: {
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'Invalid accept header'
+    },
+    headers: {}
+  }
+}
+⨯ internal image response failed for /base/photos/%252e%252e/next.config.ts 404
+⨯ internal image response failed for /base/photos/..%2fnext.config.ts 404
+⨯ internal image response failed for /base/photos/missing.jpg 404
+⨯ internal image response failed for /photos/photo.jpg 404
+⨯ internal image response failed for /base/next.config.ts 404
+⨯ internal image response failed for /next.config.ts 404
+⨯ internal image response failed for /base/.next-alt/BUILD_ID 404
+⨯ internal image response failed for /base/.next-alt/server/app/page.js 404
+⨯ internal image response failed for /base/node_modules/next/package.json 404
+⨯ internal image response failed for /base/package.json 404
+⨯ The requested resource isn't a valid image for /base/second received null
+⚠ The requested resource "/base/photos/animated.gif" is an animated image so it will not be optimized. Consider adding the "unoptimized" property to the <Image>.
+⚠ The requested resource "/base/photos/animated.webp" is an animated image so it will not be optimized. Consider adding the "unoptimized" property to the <Image>.
+⨯ The requested resource isn't a valid image for /base/photos/not-an-image.png received null
+⨯ The requested resource isn't a valid image for /base/photos/document.pdf received application/pdf
+⨯ upstream image response had too many redirects http://127.0.0.1:5385/img/redirect.jpg
+⨯ upstream image response had too many redirects http://127.0.0.1:5385/img/redirect-loop.jpg
+⨯ upstream image response failed for http://127.0.0.1:5385/img/missing.jpg?n=101982-1794751380032 404
+⨯ upstream image response failed for http://127.0.0.1:5385/img/server-error.jpg?n=101982-1794751380032 503
+⨯ The requested resource isn't a valid image for http://127.0.0.1:5385/img/text.jpg?n=101982-1794751380032 received null
+⨯ The requested resource isn't a valid image for http://127.0.0.1:5385/img/html.jpg?n=101982-1794751380032 received null
+⨯ upstream image response is empty for http://127.0.0.1:5385/img/empty.jpg?n=101982-1794751380032
+⨯ upstream image response exceeded maximum size for http://127.0.0.1:5385/img/oversized.jpg?n=101982-1794751380032 5045424
+⚠ The requested resource "http://127.0.0.1:5385/img/animated.gif?n=101982-1794751380032" is an animated image so it will not be optimized. Consider adding the "unoptimized" property to the <Image>.
+⨯ Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+⨯ upstream image response timed out for http://127.0.0.1:5385/img/slow-head.jpg?n=101982-1794751380032
+⨯ upstream image response timed out for http://127.0.0.1:5385/img/slow-body.jpg?n=101982-1794751380032
+⨯ internal image response failed for /base/photos/missing.jpg 404
+⨯ The requested resource isn't a valid image for /base/photos/not-an-image.png received null
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.5
+- Local:         http://127.0.0.1:5381
+- Network:       http://127.0.0.1:5381
+✓ Ready in 137ms
+✓ Running next.config.ts took 29ms
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.5
+- Local:         http://127.0.0.1:5381
+- Network:       http://127.0.0.1:5381
+✓ Ready in 109ms
+✓ Running next.config.ts took 27ms

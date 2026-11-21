@@ -1,0 +1,37 @@
+{
+  "results": [
+    {
+      "name": "stall-and-heap-limit-under-load",
+      "ok": true,
+      "detail": {
+        "stalled": 502,
+        "heap": 502,
+        "after": 200,
+        "tally": {
+          "ok": 5752,
+          "failed": 9
+        }
+      }
+    },
+    {
+      "name": "no-replay-after-isolate-failure",
+      "ok": true,
+      "detail": {
+        "mutationStatus": 502,
+        "spinStatus": 502,
+        "ledger": [
+          "1"
+        ],
+        "after": 200
+      }
+    },
+    {
+      "name": "graceful-shutdown-drains-ssr",
+      "ok": true,
+      "detail": {
+        "status": 200,
+        "exit": 0
+      }
+    }
+  ]
+}

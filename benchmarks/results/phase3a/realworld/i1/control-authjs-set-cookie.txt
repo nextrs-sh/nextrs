@@ -1,0 +1,64 @@
+MATCH      providers
+ORACLE-FAIL csrf-token
+    next start: {"status":200,"tokenShape":true,"cookieMatches":true,"setCookie":[]}
+MATCH      session-anonymous
+MATCH      signin-page
+ORACLE-FAIL credentials-sign-in
+    next start: the callback set no session cookie: []
+ORACLE-FAIL credentials-sign-in-bob
+    next start: the callback set no session cookie: []
+MATCH      credentials-wrong-password
+MATCH      credentials-unknown-user
+MATCH      credentials-missing-csrf
+MATCH      credentials-foreign-csrf
+ORACLE-FAIL credentials-open-redirect
+    next start: the callback set no session cookie: []
+MATCH      sign-out
+MATCH      session-alice-api
+MATCH      session-bob-api
+MATCH      session-endpoint
+MATCH      session-dashboard
+MATCH      session-isr
+MATCH      session-home
+MATCH      anon-dashboard
+MATCH      anon-isr
+MATCH      anon-action-page
+MATCH      anon-api
+MATCH      anon-home
+MATCH      session-wrong-secret
+MATCH      session-wrong-secret-page
+MATCH      session-wrong-salt
+MATCH      session-expired
+MATCH      session-expired-page
+MATCH      session-tampered
+MATCH      session-tampered-tag
+MATCH      session-not-a-jwe
+MATCH      session-signed-jwt-not-jwe
+ORACLE-FAIL session-rolled
+    next start: {"status":200,"rolled":{"sub":"u-alice","name":"Alice","email":"alice@example.test"},"setCookie":[]}
+MATCH      session-expires
+MATCH      oidc-sign-in-alice
+MATCH      oidc-sign-in-bob
+MATCH      oidc-wrong-state
+MATCH      oidc-no-state-cookie
+MATCH      oidc-no-pkce-cookie
+MATCH      oidc-no-nonce-cookie
+MATCH      oidc-forged-code
+MATCH      oidc-missing-code
+MATCH      oidc-wrong-iss-parameter
+MATCH      oidc-id-token-wrong-iss
+MATCH      oidc-id-token-wrong-aud
+MATCH      oidc-id-token-wrong-nonce
+MATCH      oidc-id-token-expired
+MATCH      oidc-id-token-bad-signature-not-verified
+MATCH      oidc-id-token-unknown-kid-not-verified
+MATCH      oidc-key-rotation
+MATCH      oidc-callback-replay
+MATCH      action-anon
+MATCH      action-alice
+MATCH      action-bob-public-page
+MATCH      action-expired
+MATCH      action-wrong-secret
+MATCH      concurrent-users
+MATCH      session-after-executor-restart
+authjs (next-auth 5): 53 MATCH (53 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 5 ORACLE-FAIL, 0 ERROR [negative control set-cookie:both]

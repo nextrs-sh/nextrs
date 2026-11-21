@@ -1,0 +1,222 @@
+{
+  "results": [
+    {
+      "name": "client-nav-proxy-rewrite",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/proxy/rewrite",
+          "rsc": [
+            {
+              "path": "/proxy/rewrite",
+              "status": 200,
+              "type": "text/x-component",
+              "proxied": null,
+              "rewrittenPath": "/target"
+            },
+            {
+              "path": "/target",
+              "status": 200,
+              "type": "text/x-component",
+              "proxied": "1",
+              "rewrittenPath": null
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/proxy/rewrite",
+          "rsc": [
+            {
+              "path": "/proxy/rewrite",
+              "status": 200,
+              "type": "text/x-component",
+              "proxied": null,
+              "rewrittenPath": "/target"
+            },
+            {
+              "path": "/target",
+              "status": 200,
+              "type": "text/x-component",
+              "proxied": "1",
+              "rewrittenPath": null
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "client-nav-proxy-redirect",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/target"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/target"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "client-nav-protected-anonymous",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/login?next=%2Fprotected",
+          "secret": null
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/login?next=%2Fprotected",
+          "secret": null
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "client-nav-protected-session",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/protected",
+          "secret": "synthetic protected content"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/protected",
+          "secret": "synthetic protected content"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "direct-load-protected",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/login?next=%2Fprotected%2Fisr",
+          "secret": null
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/login?next=%2Fprotected%2Fisr",
+          "secret": null
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "client-nav-dynamic-headers",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/dynamic",
+          "proxyRequest": "set-by-proxy",
+          "proxyVisit": "1",
+          "cookies": [
+            "proxy-visit=1"
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/dynamic",
+          "proxyRequest": "set-by-proxy",
+          "proxyVisit": "1",
+          "cookies": [
+            "proxy-visit=1"
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "client-nav-config-rewrite",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/af/linked",
+          "slug": "linked"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/af/linked",
+          "slug": "linked"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "client-nav-config-redirect",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/blog/moved",
+          "slug": "moved"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/blog/moved",
+          "slug": "moved"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "server-action-through-proxy",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/actions",
+          "result": {
+            "proxyRequest": "set-by-proxy",
+            "proxyPathname": "/actions",
+            "proxyVisit": "1",
+            "user": null,
+            "value": "from-browser"
+          },
+          "cookies": [
+            "action-cookie=from-browser",
+            "proxy-visit=1"
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/actions",
+          "result": {
+            "proxyRequest": "set-by-proxy",
+            "proxyPathname": "/actions",
+            "proxyVisit": "1",
+            "user": null,
+            "value": "from-browser"
+          },
+          "cookies": [
+            "action-cookie=from-browser",
+            "proxy-visit=1"
+          ]
+        },
+        "errors": []
+      }
+    }
+  ]
+}

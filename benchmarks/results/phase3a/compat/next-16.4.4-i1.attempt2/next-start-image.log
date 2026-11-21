@@ -1,0 +1,45 @@
+npm warn Unknown global config "tmp". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+▲ Next.js 16.4.4
+- Local:         http://127.0.0.1:5223
+- Network:       http://127.0.0.1:5223
+✓ Ready in 111ms
+✓ Running next.config.ts took 29ms
+⨯ Error: Invalid accept header
+    at ignore-listed frames {
+  data: null,
+  isBoom: true,
+  isServer: false,
+  output: {
+    statusCode: 400,
+    payload: {
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'Invalid accept header'
+    },
+    headers: {}
+  }
+}
+⨯ internal image response failed for /photos/%252e%252e/next.config.ts 404
+⨯ internal image response failed for /photos/..%2fnext.config.ts 404
+⨯ internal image response failed for /photos/missing.jpg 404
+⚠ The requested resource "/photos/animated.gif" is an animated image so it will not be optimized. Consider adding the "unoptimized" property to the <Image>.
+⚠ The requested resource "/photos/animated.webp" is an animated image so it will not be optimized. Consider adding the "unoptimized" property to the <Image>.
+⨯ The requested resource isn't a valid image for /photos/not-an-image.png received null
+⨯ The requested resource isn't a valid image for /photos/document.pdf received application/pdf
+⨯ The requested resource "/photos/icon.svg" has type "image/svg+xml" but dangerouslyAllowSVG is disabled. Consider adding the "unoptimized" property to the <Image>.
+⨯ upstream image response had too many redirects http://127.0.0.1:5227/img/redirect.jpg
+⨯ upstream image response had too many redirects http://127.0.0.1:5227/img/redirect-loop.jpg
+⨯ upstream image response failed for http://127.0.0.1:5227/img/missing.jpg?n=455918-1794745438972 404
+⨯ upstream image response failed for http://127.0.0.1:5227/img/server-error.jpg?n=455918-1794745438972 503
+⨯ The requested resource isn't a valid image for http://127.0.0.1:5227/img/text.jpg?n=455918-1794745438972 received null
+⨯ The requested resource isn't a valid image for http://127.0.0.1:5227/img/html.jpg?n=455918-1794745438972 received null
+⨯ upstream image response is empty for http://127.0.0.1:5227/img/empty.jpg?n=455918-1794745438972
+⨯ upstream image response exceeded maximum size for http://127.0.0.1:5227/img/oversized.jpg?n=455918-1794745438972 5045424
+⚠ The requested resource "http://127.0.0.1:5227/img/animated.gif?n=455918-1794745438972" is an animated image so it will not be optimized. Consider adding the "unoptimized" property to the <Image>.
+⨯ The requested resource "http://127.0.0.1:5227/img/icon.svg?n=455918-1794745438972" has type "image/svg+xml" but dangerouslyAllowSVG is disabled. Consider adding the "unoptimized" property to the <Image>.
+⨯ Error: socket hang up
+    at ignore-listed frames {
+  code: 'ECONNRESET'
+}
+⨯ upstream image response timed out for http://127.0.0.1:5227/img/slow-head.jpg?n=455918-1794745438972
+⨯ upstream image response timed out for http://127.0.0.1:5227/img/slow-body.jpg?n=455918-1794745438972

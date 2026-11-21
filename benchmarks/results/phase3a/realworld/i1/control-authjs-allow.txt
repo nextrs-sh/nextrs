@@ -1,0 +1,74 @@
+MATCH      providers
+MATCH      csrf-token
+MATCH      session-anonymous
+MATCH      signin-page
+MATCH      credentials-sign-in
+MATCH      credentials-sign-in-bob
+MATCH      credentials-wrong-password
+MATCH      credentials-unknown-user
+MATCH      credentials-missing-csrf
+MATCH      credentials-foreign-csrf
+MATCH      credentials-open-redirect
+MATCH      sign-out
+MATCH      session-alice-api
+MATCH      session-bob-api
+MATCH      session-endpoint
+MATCH      session-dashboard
+MATCH      session-isr
+MATCH      session-home
+ORACLE-FAIL anon-dashboard
+    next start: status 200 location /api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Fdashboard
+ORACLE-FAIL anon-isr
+    next start: status 200 location /api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Freports
+ORACLE-FAIL anon-action-page
+    next start: status 200 location /api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Factions%2Fprotected
+ORACLE-FAIL anon-api
+    next start: status 200 "{\"error\":\"unauthorized\"}"
+MATCH      anon-home
+ORACLE-FAIL session-wrong-secret
+    next start: status 200 "{\"error\":\"unauthorized\"}"
+ORACLE-FAIL session-wrong-secret-page
+    next start: status 200 location /api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Fdashboard
+ORACLE-FAIL session-wrong-salt
+    next start: status 200 "{\"error\":\"unauthorized\"}"
+ORACLE-FAIL session-expired
+    next start: status 200 "{\"error\":\"unauthorized\"}"
+ORACLE-FAIL session-expired-page
+    next start: status 200 location /api/auth/signin?callbackUrl=http%3A%2F%2FSELF%2Fdashboard
+ORACLE-FAIL session-tampered
+    next start: status 200 "{\"error\":\"unauthorized\"}"
+ORACLE-FAIL session-tampered-tag
+    next start: status 200 "{\"error\":\"unauthorized\"}"
+ORACLE-FAIL session-not-a-jwe
+    next start: status 200 "{\"error\":\"unauthorized\"}"
+ORACLE-FAIL session-signed-jwt-not-jwe
+    next start: status 200 "{\"error\":\"unauthorized\"}"
+MATCH      session-rolled
+ORACLE-FAIL session-expires
+    next start: status 200 "{\"error\":\"unauthorized\"}"
+MATCH      oidc-sign-in-alice
+MATCH      oidc-sign-in-bob
+MATCH      oidc-wrong-state
+MATCH      oidc-no-state-cookie
+MATCH      oidc-no-pkce-cookie
+MATCH      oidc-no-nonce-cookie
+MATCH      oidc-forged-code
+MATCH      oidc-missing-code
+MATCH      oidc-wrong-iss-parameter
+MATCH      oidc-id-token-wrong-iss
+MATCH      oidc-id-token-wrong-aud
+MATCH      oidc-id-token-wrong-nonce
+MATCH      oidc-id-token-expired
+MATCH      oidc-id-token-bad-signature-not-verified
+MATCH      oidc-id-token-unknown-kid-not-verified
+MATCH      oidc-key-rotation
+MATCH      oidc-callback-replay
+MATCH      action-anon
+MATCH      action-alice
+MATCH      action-bob-public-page
+MATCH      action-expired
+MATCH      action-wrong-secret
+MATCH      concurrent-users
+ORACLE-FAIL session-after-executor-restart
+    next start: status 200 "{\"error\":\"unauthorized\"}"
+authjs (next-auth 5): 43 MATCH (43 asserted), 0 PASS, 0 KNOWN-DIFF, 0 DIFF, 0 FAIL, 15 ORACLE-FAIL, 0 ERROR [negative control allow:both]

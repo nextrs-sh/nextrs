@@ -1,0 +1,270 @@
+{
+  "results": [
+    {
+      "name": "hydration-and-global-css",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "title": "NextRS Pages Router",
+          "color": "rgb(12, 34, 56)",
+          "lang": "nextrs-pages-doc",
+          "page": "/",
+          "errors": []
+        },
+        "candidate": {
+          "title": "NextRS Pages Router",
+          "color": "rgb(12, 34, 56)",
+          "lang": "nextrs-pages-doc",
+          "page": "/",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-nav-ssr-data",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/books/42?ref=nav",
+          "slug": "42",
+          "query": "{\"ref\":\"nav\",\"id\":\"42\"}",
+          "data": [
+            "200 /_next/data/BUILD/books/42.json?ref=nav&id=42",
+            "200 /_next/data/BUILD/isr.json",
+            "200 /_next/data/BUILD/posts/alpha.json?slug=alpha",
+            "200 /_next/data/BUILD/ssg/static.json"
+          ],
+          "errors": []
+        },
+        "candidate": {
+          "url": "/books/42?ref=nav",
+          "slug": "42",
+          "query": "{\"ref\":\"nav\",\"id\":\"42\"}",
+          "data": [
+            "200 /_next/data/BUILD/books/42.json?ref=nav&id=42",
+            "200 /_next/data/BUILD/isr.json",
+            "200 /_next/data/BUILD/posts/alpha.json?slug=alpha",
+            "200 /_next/data/BUILD/ssg/static.json"
+          ],
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-nav-ssg-and-isr",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/isr",
+          "data": [
+            "200 /_next/data/BUILD/books/42.json?ref=nav&id=42",
+            "200 /_next/data/BUILD/isr.json",
+            "200 /_next/data/BUILD/posts/alpha.json?slug=alpha",
+            "200 /_next/data/BUILD/ssg/static.json"
+          ],
+          "errors": []
+        },
+        "candidate": {
+          "url": "/isr",
+          "data": [
+            "200 /_next/data/BUILD/books/42.json?ref=nav&id=42",
+            "200 /_next/data/BUILD/isr.json",
+            "200 /_next/data/BUILD/posts/alpha.json?slug=alpha",
+            "200 /_next/data/BUILD/ssg/static.json"
+          ],
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "back-forward-reload",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/books/42?ref=nav",
+          "title": "Book 42",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/books/42?ref=nav",
+          "title": "Book 42",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-nav-ssr-redirect",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/about?from=ssr",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/about?from=ssr",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-nav-ssr-not-found",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/ssr/not-found",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/ssr/not-found",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-nav-unknown-static-path",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/posts/gamma",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/posts/gamma",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "direct-fallback-true",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/fallback-true/fb-bmwhrjhb0-SIDE",
+          "slug": "fb-bmwhrjhb0-SIDE",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/fallback-true/fb-bmwhrjhb0-SIDE",
+          "slug": "fb-bmwhrjhb0-SIDE",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-nav-fallback-blocking",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "slug": "blk-bmwhrjhb0-SIDE",
+          "errors": []
+        },
+        "candidate": {
+          "slug": "blk-bmwhrjhb0-SIDE",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "preview-mode",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "previewKind": "preview",
+          "afterClear": "published",
+          "errors": []
+        },
+        "candidate": {
+          "previewKind": "preview",
+          "afterClear": "published",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "protected-client-nav-anonymous",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/about?login=required",
+          "leaked": false,
+          "errors": []
+        },
+        "candidate": {
+          "url": "/about?login=required",
+          "leaked": false,
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "protected-client-nav-session",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/protected/secret",
+          "secret": "top-secret-for-u-browser",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/protected/secret",
+          "secret": "top-secret-for-u-browser",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "api-from-the-page",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "status": 200,
+          "method": "POST",
+          "body": {
+            "hello": "world"
+          },
+          "query": {
+            "from": "browser"
+          },
+          "errors": []
+        },
+        "candidate": {
+          "status": 200,
+          "method": "POST",
+          "body": {
+            "hello": "world"
+          },
+          "query": {
+            "from": "browser"
+          },
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    }
+  ]
+}

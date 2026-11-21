@@ -1,0 +1,73 @@
+MATCH      providers
+MATCH      csrf-token
+MATCH      session-anonymous
+MATCH      signin-page
+FAIL       credentials-sign-in
+    NextRS: status 200 "{\"userId\":\"u-bob\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+FAIL       credentials-sign-in-bob
+    NextRS: status 200 "{\"userId\":\"u-alice\",\"name\":\"Bob\",\"email\":\"bob@example.test\"}"
+MATCH      credentials-wrong-password
+MATCH      credentials-unknown-user
+MATCH      credentials-missing-csrf
+MATCH      credentials-foreign-csrf
+FAIL       credentials-open-redirect
+    NextRS: status 200 "{\"userId\":\"u-bob\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+MATCH      sign-out
+FAIL       session-alice-api
+    NextRS: status 200 "{\"userId\":\"u-bob\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+FAIL       session-bob-api
+    NextRS: status 200 "{\"userId\":\"u-alice\",\"name\":\"Bob\",\"email\":\"bob@example.test\"}"
+FAIL       session-endpoint
+    NextRS: status 200 {"user":{"name":"Bob","email":"bob@example.test","id":"u-alice"},"expires":"<DATE>"}
+FAIL       session-dashboard
+    NextRS: status 200 {"title":"Dashboard","secret":"dashboard of Alice","info":"{\"userId\":\"u-bob\",\"email\":\"alice@example.test\"}","stamp":"absent"}
+DIFF       session-isr
+    $.headers.x-nextjs-cache: "HIT" | "STALE"
+FAIL       session-home
+    NextRS: {"title":"Home","info":"{\"user\":\"u-alice\"}","stamp":"absent"}
+MATCH      anon-dashboard
+MATCH      anon-isr
+MATCH      anon-action-page
+MATCH      anon-api
+MATCH      anon-home
+MATCH      session-wrong-secret
+MATCH      session-wrong-secret-page
+MATCH      session-wrong-salt
+MATCH      session-expired
+MATCH      session-expired-page
+MATCH      session-tampered
+MATCH      session-tampered-tag
+MATCH      session-not-a-jwe
+MATCH      session-signed-jwt-not-jwe
+MATCH      session-rolled
+FAIL       session-expires
+    NextRS: status 200 "{\"userId\":\"u-bob\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+MATCH      oidc-sign-in-alice
+MATCH      oidc-sign-in-bob
+MATCH      oidc-wrong-state
+MATCH      oidc-no-state-cookie
+MATCH      oidc-no-pkce-cookie
+MATCH      oidc-no-nonce-cookie
+MATCH      oidc-forged-code
+MATCH      oidc-missing-code
+MATCH      oidc-wrong-iss-parameter
+MATCH      oidc-id-token-wrong-iss
+MATCH      oidc-id-token-wrong-aud
+MATCH      oidc-id-token-wrong-nonce
+MATCH      oidc-id-token-expired
+MATCH      oidc-id-token-bad-signature-not-verified
+MATCH      oidc-id-token-unknown-kid-not-verified
+MATCH      oidc-key-rotation
+MATCH      oidc-callback-replay
+MATCH      action-anon
+DIFF       action-alice
+    $.response.body.value: "{\"recorded\":\"u-alice:1\",\"user\":\"u-alice\"}" | "{\"recorded\":\"u-bob:1\",\"user\":\"u-bob\"}"
+DIFF       action-bob-public-page
+    $.response.body.value: "{\"recorded\":\"u-bob:1\",\"user\":\"u-bob\"}" | "{\"recorded\":\"u-alice:1\",\"user\":\"u-alice\"}"
+MATCH      action-expired
+MATCH      action-wrong-secret
+FAIL       concurrent-users
+    NextRS: {"total":300,"wrong":120,"failed":0,"sample":[{"i":0,"expected":"u-alice","seen":"u-bob"},{"i":1,"expected":"u-bob","seen":"u-alice"},{"i":21,"expected":"u-bob","seen":"u-alice"}]}
+FAIL       session-after-executor-restart
+    NextRS: status 200 "{\"userId\":\"u-bob\",\"name\":\"Alice\",\"email\":\"alice@example.test\"}"
+authjs (next-auth 5): 44 MATCH (44 asserted), 0 PASS, 0 KNOWN-DIFF, 3 DIFF, 11 FAIL, 0 ORACLE-FAIL, 0 ERROR

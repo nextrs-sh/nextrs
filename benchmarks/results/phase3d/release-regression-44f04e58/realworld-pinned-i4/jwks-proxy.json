@@ -1,0 +1,1547 @@
+{
+  "summary": {
+    "title": "jwks-proxy (jose JWKS)",
+    "total": 82,
+    "match": 79,
+    "pass": 1,
+    "knownDiff": 2,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "asserted": 79,
+    "negativeControl": null
+  },
+  "results": [
+    {
+      "name": "valid-RS256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"RS256\",\"kid\":\"rs-1\",\"proxySub\":\"u-alice\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-PS256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"PS256\",\"kid\":\"ps-1\",\"proxySub\":\"u-alice\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-ES256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"ES256\",\"kid\":\"es-1\",\"proxySub\":\"u-alice\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-ES384",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"ES384\",\"kid\":\"es384-1\",\"proxySub\":\"u-alice\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-EdDSA",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"EdDSA\",\"kid\":\"ed-1\",\"proxySub\":\"u-alice\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-bob-ES256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"sub\":\"u-bob\",\"name\":\"Bob\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"ES256\",\"kid\":\"es-1\",\"proxySub\":\"u-bob\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-no-kid",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"EdDSA\",\"kid\":null,\"proxySub\":\"u-alice\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-audience-array",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":[\"other\",\"nextrs-api\"],\"alg\":\"RS256\",\"kid\":\"rs-1\",\"proxySub\":\"u-alice\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "valid-tenant-main",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"tenant\":\"main\",\"sub\":\"u-bob\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "expired",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWT_EXPIRED\",\"claim\":\"exp\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "not-yet-valid",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWT_CLAIM_VALIDATION_FAILED\",\"claim\":\"nbf\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "wrong-issuer",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWT_CLAIM_VALIDATION_FAILED\",\"claim\":\"iss\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "wrong-audience",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWT_CLAIM_VALIDATION_FAILED\",\"claim\":\"aud\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "no-subject",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWT_CLAIM_VALIDATION_FAILED\",\"claim\":\"sub\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "no-expiry",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWT_CLAIM_VALIDATION_FAILED\",\"claim\":\"exp\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "future-iat-is-fine",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"ES256\",\"kid\":\"es-1\",\"proxySub\":\"u-alice\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "tampered-payload-rs-1",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "tampered-signature-rs-1",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "tampered-payload-es-1",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "tampered-signature-es-1",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "tampered-payload-ed-1",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "tampered-signature-ed-1",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "alg-none",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JOSE_ALG_NOT_ALLOWED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "alg-confusion-hs256-public-key",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JOSE_ALG_NOT_ALLOWED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "alg-header-rs256-on-ec-key",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWKS_NO_MATCHING_KEY\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "alg-header-ps256-on-rs256-key",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWKS_NO_MATCHING_KEY\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "alg-not-allowed-hs256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JOSE_ALG_NOT_ALLOWED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "unknown-kid",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWKS_NO_MATCHING_KEY\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "malformed-token",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_token\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWS_INVALID\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "no-authorization",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_request\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_request\",\"code\":\"no-bearer-token\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "basic-authorization",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_request\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_request\",\"code\":\"no-bearer-token\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "spoofed-identity-header",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"sub\":\"u-bob\",\"name\":\"Bob\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"ES256\",\"kid\":\"es-1\",\"proxySub\":\"u-bob\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "spoofed-identity-header-anon",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"invalid_request\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"invalid_request\",\"code\":\"no-bearer-token\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "jku-header-ignored",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"RS256\",\"kid\":\"rs-1\",\"proxySub\":\"u-alice\"}"
+          },
+          "attackerFetches": 0
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "key-rotation",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "before": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"RS256\",\"kid\":\"rs-1\",\"proxySub\":\"u-alice\"}"
+          },
+          "newKey": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": "{\"sub\":\"u-bob\",\"name\":\"Bob\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"RS256\",\"kid\":\"rs-2\",\"proxySub\":\"u-bob\"}"
+          },
+          "retiredKey": {
+            "status": 401,
+            "headers": {
+              "content-type": "application/json",
+              "www-authenticate": "Bearer error=\"invalid_token\""
+            },
+            "setCookie": [],
+            "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWKS_NO_MATCHING_KEY\"}"
+          },
+          "otherKeysUnchanged": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"ES256\",\"kid\":\"es-1\",\"proxySub\":\"u-alice\"}"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "several-keys-same-type",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "first": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"RS256\",\"kid\":\"rs-1\",\"proxySub\":\"u-alice\"}"
+          },
+          "second": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": "{\"sub\":\"u-bob\",\"name\":\"Bob\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"RS256\",\"kid\":\"rs-extra\",\"proxySub\":\"u-bob\"}"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "key-set-is-cached",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200
+          ],
+          "bounded": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "jwks-unavailable",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 503,
+            "headers": {
+              "content-type": "application/json",
+              "www-authenticate": "Bearer error=\"provider_unavailable\""
+            },
+            "setCookie": [],
+            "body": "{\"error\":\"provider_unavailable\",\"code\":\"ERR_JOSE_GENERIC\"}"
+          },
+          "recovered": 200,
+          "attackerFetches": 0,
+          "elapsedUnder": "2.5s"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "jwks-malformed",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 503,
+            "headers": {
+              "content-type": "application/json",
+              "www-authenticate": "Bearer error=\"provider_unavailable\""
+            },
+            "setCookie": [],
+            "body": "{\"error\":\"provider_unavailable\",\"code\":\"ERR_JOSE_GENERIC\"}"
+          },
+          "recovered": 200,
+          "attackerFetches": 0,
+          "elapsedUnder": "2.5s"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "jwks-empty",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 401,
+            "headers": {
+              "content-type": "application/json",
+              "www-authenticate": "Bearer error=\"invalid_token\""
+            },
+            "setCookie": [],
+            "body": "{\"error\":\"invalid_token\",\"code\":\"ERR_JWKS_NO_MATCHING_KEY\"}"
+          },
+          "recovered": 200,
+          "attackerFetches": 0,
+          "elapsedUnder": "2.5s"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "jwks-timeout",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 503,
+            "headers": {
+              "content-type": "application/json",
+              "www-authenticate": "Bearer error=\"provider_unavailable\""
+            },
+            "setCookie": [],
+            "body": "{\"error\":\"provider_unavailable\",\"code\":\"ERR_JWKS_TIMEOUT\"}"
+          },
+          "recovered": 200,
+          "attackerFetches": 0,
+          "elapsedUnder": "2.5s"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "jwks-redirect-not-followed",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 503,
+            "headers": {
+              "content-type": "application/json",
+              "www-authenticate": "Bearer error=\"provider_unavailable\""
+            },
+            "setCookie": [],
+            "body": "{\"error\":\"provider_unavailable\",\"code\":\"ERR_JOSE_GENERIC\"}"
+          },
+          "recovered": 200,
+          "attackerFetches": 0,
+          "elapsedUnder": "2.5s"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "jwks-huge-response",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "reason": "NextRS bounds every fetch's response (--net-max-response, 32 MiB); next start reads a 40 MiB key set",
+        "diffs": [
+          "$.response.status: 200 | 503",
+          "$.response.headers.vary: \"rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch\" | undefined",
+          "$.response.headers.www-authenticate: undefined | \"Bearer error=\\\"provider_unavailable\\\"\"",
+          "$.response.body: \"{\\\"sub\\\":\\\"u-alice\\\",\\\"name\\\":\\\"Alice\\\",\\\"iss\\\":\\\"http://SELF\\\",\\\"aud\\\":\\\"nextrs-api\\\",\\\"alg\\\":\\\"RS256\\\",\\\"kid\\\":\\\"rs-1\\\",\\\"proxySub\\\":\\\"u-alice\\\"}\" | \"{\\\"error\\\":\\\"provider_unavailable\\\",\\\"code\\\":\\\"ERR_JOSE_GENERIC\\\"}\""
+        ],
+        "candidateWrong": null,
+        "baseline": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "content-type": "application/json",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": "{\"sub\":\"u-alice\",\"name\":\"Alice\",\"iss\":\"http://SELF\",\"aud\":\"nextrs-api\",\"alg\":\"RS256\",\"kid\":\"rs-1\",\"proxySub\":\"u-alice\"}"
+          },
+          "recovered": 200,
+          "attackerFetches": 0,
+          "elapsedUnder": "2.5s"
+        },
+        "candidate": {
+          "response": {
+            "status": 503,
+            "headers": {
+              "content-type": "application/json",
+              "www-authenticate": "Bearer error=\"provider_unavailable\""
+            },
+            "setCookie": [],
+            "body": "{\"error\":\"provider_unavailable\",\"code\":\"ERR_JOSE_GENERIC\"}"
+          },
+          "recovered": 200,
+          "attackerFetches": 0,
+          "elapsedUnder": "2.5s"
+        }
+      }
+    },
+    {
+      "name": "tenant-unlisted-issuer",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "reason": "NextRS's network policy refuses the unlisted issuer (fetch-failed); next start reaches it",
+        "diffs": [
+          "$.body: \"{\\\"error\\\":\\\"provider_unavailable\\\",\\\"code\\\":\\\"ERR_JOSE_GENERIC\\\"}\" | \"{\\\"error\\\":\\\"provider_unavailable\\\",\\\"code\\\":\\\"fetch-failed\\\"}\""
+        ],
+        "candidateWrong": null,
+        "baseline": {
+          "status": 503,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"provider_unavailable\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"provider_unavailable\",\"code\":\"ERR_JOSE_GENERIC\"}"
+        },
+        "candidate": {
+          "status": 503,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"provider_unavailable\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"provider_unavailable\",\"code\":\"fetch-failed\"}"
+        }
+      }
+    },
+    {
+      "name": "tenant-metadata-address",
+      "verdict": "PASS",
+      "detail": {
+        "wrong": null,
+        "elapsed": 6,
+        "observed": {
+          "status": 503,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"provider_unavailable\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"provider_unavailable\",\"code\":\"fetch-failed\"}"
+        }
+      }
+    },
+    {
+      "name": "tenant-unknown",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "www-authenticate": "Bearer error=\"unknown_tenant\""
+          },
+          "setCookie": [],
+          "body": "{\"error\":\"unknown_tenant\",\"code\":\"unknown-tenant\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "client-abort-during-jwks-fetch",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "aborted": 4,
+          "after": 200
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "login-signs-es256-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "setCookie": [
+            "session=<JWT>; Path=/; Expires=<DATE>; HttpOnly; SameSite=lax"
+          ],
+          "session": {
+            "valid": true,
+            "header": {
+              "alg": "ES256"
+            },
+            "claims": {
+              "userId": "u-alice",
+              "name": "Alice",
+              "iss": "nextrs-jwks-app",
+              "aud": "nextrs-jwks-app"
+            },
+            "lifetime": 3600
+          },
+          "dashboard": {
+            "status": 200,
+            "headers": {
+              "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/html; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-powered-by": "Next.js"
+            },
+            "setCookie": [],
+            "body": {
+              "title": "Dashboard",
+              "secret": "dashboard of Alice",
+              "info": "{\"userId\":\"u-alice\",\"proxyUser\":\"u-alice\"}",
+              "stamp": "absent"
+            }
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "logout-clears-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "location": null,
+          "actionRedirect": "/login;push",
+          "setCookie": [
+            "session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-signs-ES256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "token": {
+            "valid": true,
+            "header": {
+              "alg": "ES256",
+              "kid": "app-ES256"
+            },
+            "claims": {
+              "name": "Bob",
+              "sub": "u-bob",
+              "iss": "nextrs-jwks-app",
+              "aud": "nextrs-services"
+            },
+            "lifetime": 300
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-signs-PS256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "token": {
+            "valid": true,
+            "header": {
+              "alg": "PS256",
+              "kid": "app-PS256"
+            },
+            "claims": {
+              "name": "Bob",
+              "sub": "u-bob",
+              "iss": "nextrs-jwks-app",
+              "aud": "nextrs-services"
+            },
+            "lifetime": 300
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-signs-RS256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "token": {
+            "valid": true,
+            "header": {
+              "alg": "RS256",
+              "kid": "app-RS256"
+            },
+            "claims": {
+              "name": "Bob",
+              "sub": "u-bob",
+              "iss": "nextrs-jwks-app",
+              "aud": "nextrs-services"
+            },
+            "lifetime": 300
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-signs-EdDSA",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "token": {
+            "valid": true,
+            "header": {
+              "alg": "EdDSA",
+              "kid": "app-EdDSA"
+            },
+            "claims": {
+              "name": "Bob",
+              "sub": "u-bob",
+              "iss": "nextrs-jwks-app",
+              "aud": "nextrs-services"
+            },
+            "lifetime": 300
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-verifies-ES256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":true,\"sub\":\"u-alice\",\"alg\":\"ES256\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-rejects-tampered-ES256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":false,\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-verifies-PS256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":true,\"sub\":\"u-alice\",\"alg\":\"PS256\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-rejects-tampered-PS256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":false,\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-verifies-RS256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":true,\"sub\":\"u-alice\",\"alg\":\"RS256\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-rejects-tampered-RS256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":false,\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-verifies-EdDSA",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":true,\"sub\":\"u-alice\",\"alg\":\"EdDSA\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-rejects-tampered-EdDSA",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":false,\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-rejects-wrong-key",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":false,\"code\":\"ERR_JWS_SIGNATURE_VERIFICATION_FAILED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-rejects-hs256",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":false,\"code\":\"alg-not-allowed\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "app-rejects-expired",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 401,
+          "headers": {
+            "content-type": "application/json",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+          },
+          "setCookie": [],
+          "body": "{\"ok\":false,\"code\":\"ERR_JWT_EXPIRED\"}"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-dashboard",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-static",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Faccount"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Faccount"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "anon-isr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Freports"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Freports"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-dashboard-alice",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Dashboard",
+            "secret": "dashboard of Alice",
+            "info": "{\"userId\":\"u-alice\",\"proxyUser\":\"u-alice\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-dashboard-bob",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Dashboard",
+            "secret": "dashboard of Bob",
+            "info": "{\"userId\":\"u-bob\",\"proxyUser\":\"u-bob\"}",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-static",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=31536000",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "HIT",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Account",
+            "secret": "account settings (prerendered, proxy-protected)",
+            "stamp": "absent"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-isr",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 200,
+          "headers": {
+            "cache-control": "s-maxage=30, stale-while-revalidate=31535970",
+            "content-type": "text/html; charset=utf-8",
+            "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+            "x-nextjs-cache": "STALE",
+            "x-nextjs-prerender": "1",
+            "x-nextjs-stale-time": "300",
+            "x-powered-by": "Next.js"
+          },
+          "setCookie": [],
+          "body": {
+            "title": "Reports",
+            "secret": "quarterly reports (ISR, proxy-protected)",
+            "stamp": "present"
+          }
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-expired",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-wrong-key",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-tampered",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-wrong-issuer",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "session-provider-token-as-cookie",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "status": 307,
+          "headers": {
+            "location": "/login?next=%2Fdashboard"
+          },
+          "setCookie": [],
+          "body": "/login?next=%2Fdashboard"
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-anon",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1"
+            },
+            "setCookie": [],
+            "body": "{}"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-alice",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch"
+            },
+            "setCookie": [],
+            "body": {
+              "rsc": true,
+              "value": "{\"recorded\":\"u-alice:1\",\"user\":\"u-alice\"}",
+              "stamp": "absent"
+            }
+          },
+          "ledger": [
+            "u-alice:1"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-bob-public-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "text/x-component",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1"
+            },
+            "setCookie": [],
+            "body": {
+              "rsc": true,
+              "value": "{\"recorded\":\"u-bob:1\",\"user\":\"u-bob\"}",
+              "stamp": "absent"
+            }
+          },
+          "ledger": [
+            "u-bob:1"
+          ]
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-expired",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1"
+            },
+            "setCookie": [],
+            "body": "{}"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-bearer-is-not-a-session",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "response": {
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+              "content-type": "application/json; charset=utf-8",
+              "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+              "x-nextjs-cache": "HIT",
+              "x-nextjs-prerender": "1"
+            },
+            "setCookie": [],
+            "body": "{}"
+          },
+          "ledger": []
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "concurrent-identities",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "total": 300,
+          "wrong": 0,
+          "failed": 0,
+          "sample": []
+        },
+        "asserted": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,341 @@
+[2m2026-11-15T11:51:49.909390Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-15T11:51:49.911381Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5432
+[2m2026-11-15T11:51:49.911424Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-15T11:51:49.966877Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:51:49.966916Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:51:50.038281Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m126
+[2m2026-11-15T11:51:50.038314Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m128 [3misolates[0m[2m=[0m1
+[2m2026-11-15T11:51:50.038611Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m6 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-15T11:51:50.051580Z[0m [33m WARN[0m [2mnextrs_server[0m[2m:[0m external rewrite will answer 502: its destination is not allowed [3msource[0m[2m=[0m/external-rewrite/:path* [3mdestination[0m[2m=[0m"http://127.0.0.1:5433/:path*" [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:51:50.051653Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5431 [3mbuild_id[0m[2m=[0mtQOQzuS_3RL1YlEGAGC_c [3mready_ms[0m[2m=[0m142
+[2m2026-11-15T11:51:51.491185Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/rewrite-invalid: Error: URL is malformed "not a url". Please use only absolute URLs - https://nextjs.org/docs/messages/middleware-relative-urls
+    at c (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:10466)
+    at d.rewrite (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:8119)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75356)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249 [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:51:51.502386Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5433/ext [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:51:51.533575Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/location-200: TypeError: Invalid URL: '/target'
+    at getSerialization (ext:deno_web/00_url.js:106:11)
+    at new URL (ext:deno_web/00_url.js:737:29)
+    at $ (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3745)
+    at new q (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3991)
+    at tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:43620)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415)
+    at async runProxy (ext:nextrs/03_server.js:593:20)
+    at async serve (ext:nextrs/03_server.js:424:11) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:51:51.540489Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/throw: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:51:51.546054Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/throw: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:52:09.267611Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/slow exceeded 15000 ms [3mkind[0m[2m=[0m"request-timeout"
+[2m2026-11-15T11:52:12.281754Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m JavaScript exceeded the stall timeout; terminating the isolate [3mslot[0m[2m=[0m0 [3mbusy_ms[0m[2m=[0m3021 [3mactive[0m[2m=[0m1
+[2m2026-11-15T11:52:12.284574Z[0m [31mERROR[0m [2mnextrs::executor[0m[2m:[0m isolate failed: terminated [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mreason[0m[2m=[0m"cpu_stall" [3muptime_ms[0m[2m=[0m22372
+[2m2026-11-15T11:52:12.284597Z[0m [33m WARN[0m [2mnextrs::executor[0m[2m:[0m restarting isolate [3mslot[0m[2m=[0m0 [3mdelay_ms[0m[2m=[0m100 [3mrecent_failures[0m[2m=[0m1
+[2m2026-11-15T11:52:12.432646Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:52:12.432686Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:52:12.498444Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m2 [3mboot_ms[0m[2m=[0m113
+[2m2026-11-15T11:52:13.243936Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5433/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:53:17.346759Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-15T11:53:17.379638Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-15T11:53:23.454778Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-15T11:53:23.456691Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5432
+[2m2026-11-15T11:53:23.456722Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-15T11:53:23.510657Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:53:23.510699Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:53:23.580903Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m123
+[2m2026-11-15T11:53:23.580932Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m126 [3misolates[0m[2m=[0m1
+[2m2026-11-15T11:53:23.581248Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m6 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-15T11:53:23.603791Z[0m [33m WARN[0m [2mnextrs_server[0m[2m:[0m external rewrite will answer 502: its destination is not allowed [3msource[0m[2m=[0m/base/external-rewrite/:path* [3mdestination[0m[2m=[0m"http://127.0.0.1:5433/:path*" [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:53:23.603871Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5431 [3mbuild_id[0m[2m=[0mjcTHLFGfcfxPAY2stEZTG [3mready_ms[0m[2m=[0m149
+[2m2026-11-15T11:53:25.016298Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/proxy/rewrite-invalid: Error: URL is malformed "not a url". Please use only absolute URLs - https://nextjs.org/docs/messages/middleware-relative-urls
+    at c (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:10466)
+    at d.rewrite (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:8119)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75356)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249 [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:53:25.027691Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5433/ext [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:53:25.061000Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/proxy/location-200: TypeError: Invalid URL: '/target'
+    at getSerialization (ext:deno_web/00_url.js:106:11)
+    at new URL (ext:deno_web/00_url.js:737:29)
+    at $ (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3745)
+    at new q (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3991)
+    at tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:43620)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415)
+    at async runProxy (ext:nextrs/03_server.js:593:20)
+    at async serve (ext:nextrs/03_server.js:424:11) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:53:25.067733Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/proxy/throw: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:53:25.073139Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/proxy/throw: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:53:28.211643Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5433/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:54:32.309571Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-15T11:54:32.341112Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-15T11:54:37.648227Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-15T11:54:37.650178Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5432
+[2m2026-11-15T11:54:37.650212Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-15T11:54:37.704136Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:54:37.704209Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:54:37.775041Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m124
+[2m2026-11-15T11:54:37.775070Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m126 [3misolates[0m[2m=[0m1
+[2m2026-11-15T11:54:37.775390Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m6 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-15T11:54:37.865941Z[0m [33m WARN[0m [2mnextrs_server[0m[2m:[0m external rewrite will answer 502: its destination is not allowed [3msource[0m[2m=[0m/external-rewrite/:path* [3mdestination[0m[2m=[0m"http://127.0.0.1:5433/:path*" [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:54:37.866015Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5431 [3mbuild_id[0m[2m=[0mDBL9S6yf4CS_gey5frBp0 [3mready_ms[0m[2m=[0m217
+[2m2026-11-15T11:54:39.271459Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/rewrite-invalid/: Error: URL is malformed "not a url". Please use only absolute URLs - https://nextjs.org/docs/messages/middleware-relative-urls
+    at c (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:10466)
+    at d.rewrite (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:8119)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75356)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249 [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:54:39.283098Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5433/ext [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:54:39.316041Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/location-200/: TypeError: Invalid URL: '/target'
+    at getSerialization (ext:deno_web/00_url.js:106:11)
+    at new URL (ext:deno_web/00_url.js:737:29)
+    at $ (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3745)
+    at new q (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3991)
+    at tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:43620)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415)
+    at async runProxy (ext:nextrs/03_server.js:593:20)
+    at async serve (ext:nextrs/03_server.js:424:11) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:54:39.322667Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/throw/: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:54:39.329277Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/throw/: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:54:42.325698Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-15T11:54:42.386993Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-15T11:54:47.991259Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-15T11:54:47.993254Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5432
+[2m2026-11-15T11:54:47.993298Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-15T11:54:48.047912Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:54:48.047948Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:54:48.118374Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m124
+[2m2026-11-15T11:54:48.118414Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m127 [3misolates[0m[2m=[0m1
+[2m2026-11-15T11:54:48.118758Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m6 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-15T11:54:48.136697Z[0m [33m WARN[0m [2mnextrs_server[0m[2m:[0m external rewrite will answer 502: its destination is not allowed [3msource[0m[2m=[0m/base/external-rewrite/:path* [3mdestination[0m[2m=[0m"http://127.0.0.1:5433/:path*" [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:54:48.136781Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5431 [3mbuild_id[0m[2m=[0mGKvlgZd-y2kfiLu7P0_oI [3mready_ms[0m[2m=[0m145
+[2m2026-11-15T11:54:49.601922Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/proxy/rewrite-invalid/: Error: URL is malformed "not a url". Please use only absolute URLs - https://nextjs.org/docs/messages/middleware-relative-urls
+    at c (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:10466)
+    at d.rewrite (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:8119)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75356)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249 [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:54:49.613799Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5433/ext [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:54:49.646740Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/proxy/location-200/: TypeError: Invalid URL: '/target'
+    at getSerialization (ext:deno_web/00_url.js:106:11)
+    at new URL (ext:deno_web/00_url.js:737:29)
+    at $ (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3745)
+    at new q (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3991)
+    at tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:43620)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415)
+    at async runProxy (ext:nextrs/03_server.js:593:20)
+    at async serve (ext:nextrs/03_server.js:424:11) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:54:49.653188Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/proxy/throw/: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:54:49.659869Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /base/proxy/throw/: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-base-path-trailing-slash/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:54:52.731353Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-15T11:54:52.828986Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-15T11:54:58.504316Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-15T11:54:58.506296Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5432
+[2m2026-11-15T11:54:58.506338Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-15T11:54:58.562769Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:54:58.562857Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:54:58.634648Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m127
+[2m2026-11-15T11:54:58.634677Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m130 [3misolates[0m[2m=[0m1
+[2m2026-11-15T11:54:58.634982Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m6 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-15T11:54:58.651367Z[0m [33m WARN[0m [2mnextrs_server[0m[2m:[0m external rewrite will answer 502: its destination is not allowed [3msource[0m[2m=[0m/external-rewrite/:path* [3mdestination[0m[2m=[0m"http://127.0.0.1:5433/:path*" [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:54:58.651448Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5431 [3mbuild_id[0m[2m=[0mlrNllmzQ6d_GLlDP348Kp [3mready_ms[0m[2m=[0m147
+[2m2026-11-15T11:55:00.049174Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/rewrite-invalid: Error: URL is malformed "not a url". Please use only absolute URLs - https://nextjs.org/docs/messages/middleware-relative-urls
+    at c (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:10466)
+    at d.rewrite (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:8119)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75356)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249 [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:55:00.060169Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5433/ext [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:55:00.091550Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/location-200: TypeError: Invalid URL: '/target'
+    at getSerialization (ext:deno_web/00_url.js:106:11)
+    at new URL (ext:deno_web/00_url.js:737:29)
+    at $ (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3745)
+    at new q (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3991)
+    at tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:43620)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415)
+    at async runProxy (ext:nextrs/03_server.js:593:20)
+    at async serve (ext:nextrs/03_server.js:424:11) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:55:00.097937Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/throw: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:55:00.103469Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/throw: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-asset-prefix/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:55:03.227430Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5433/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:55:03.459495Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-15T11:55:03.546788Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
+[2m2026-11-15T11:55:09.235388Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+[2m2026-11-15T11:55:09.237328Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m outbound fetch enabled [3mallow[0m[2m=[0mhttp://127.0.0.1:5432
+[2m2026-11-15T11:55:09.237371Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m shared data cache enabled [3mpersistent[0m[2m=[0mfalse [3mdir[0m[2m=[0m
+[2m2026-11-15T11:55:09.291769Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generatePrimeSync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:55:09.291806Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m node:crypto.generateKeySync is not implemented (read as undefined) [3mkind[0m[2m=[0m"missing-member"
+[2m2026-11-15T11:55:09.363171Z[0m [32m INFO[0m [2mnextrs::executor[0m[2m:[0m isolate ready [3mslot[0m[2m=[0m0 [3mgeneration[0m[2m=[0m1 [3mboot_ms[0m[2m=[0m125
+[2m2026-11-15T11:55:09.363173Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m embedded V8 executor ready [3mready_ms[0m[2m=[0m127 [3misolates[0m[2m=[0m1
+[2m2026-11-15T11:55:09.363549Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m Server Actions enabled [3mactions[0m[2m=[0m6 [3mnext_body_limit[0m[2m=[0m1048576 [3mnextrs_body_limit[0m[2m=[0m10485760 [3meffective[0m[2m=[0m1048576
+[2m2026-11-15T11:55:09.371763Z[0m [33m WARN[0m [2mnextrs_server[0m[2m:[0m external rewrite will answer 502: its destination is not allowed [3msource[0m[2m=[0m/external-rewrite/:path* [3mdestination[0m[2m=[0m"http://127.0.0.1:5433/:path*" [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:55:09.371849Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs ready [3maddr[0m[2m=[0m127.0.0.1:5431 [3mbuild_id[0m[2m=[0mx7WPc52K0JCyQ5xNa6idj [3mready_ms[0m[2m=[0m136
+[2m2026-11-15T11:55:10.812233Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/rewrite-invalid: Error: URL is malformed "not a url". Please use only absolute URLs - https://nextjs.org/docs/messages/middleware-relative-urls
+    at c (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:10466)
+    at d.rewrite (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:66:8119)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75356)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249 [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:55:10.823808Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5433/ext [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:55:10.855821Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/location-200: TypeError: Invalid URL: '/target'
+    at getSerialization (ext:deno_web/00_url.js:106:11)
+    at new URL (ext:deno_web/00_url.js:737:29)
+    at $ (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3745)
+    at new q (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:3991)
+    at tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:43620)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415)
+    at async runProxy (ext:nextrs/03_server.js:593:20)
+    at async serve (ext:nextrs/03_server.js:424:11) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:55:10.862158Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/throw: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:55:10.868675Z[0m [33m WARN[0m [2mnextrs::js[0m[2m:[0m GET /proxy/throw: Error: proxy failure (synthetic)
+    at rA (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:75193)
+    at handler (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77526)
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42283
+    at runInContext (ext:nextrs/00_globals.js:155:57)
+    at AsyncLocalStorage.run (ext:nextrs/00_globals.js:192:14)
+    at /home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:42249
+    at async tz (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:37991)
+    at async rM (/home/dennispaler/Documents/OpenSource/nextrs/fixtures/next-proxy/.next-case-sensitive/server/chunks/[root-of-the-server]__1z2mv_4lkoix_._.js:8:77415) [3mkind[0m[2m=[0m"handler-error"
+[2m2026-11-15T11:55:14.022629Z[0m [33m WARN[0m [2mnextrs_server::external[0m[2m:[0m external rewrite refused by the network policy [3mdestination[0m[2m=[0mhttp://127.0.0.1:5433/x [3mreason[0m[2m=[0mhttp://127.0.0.1:5433 is not allowed by the NextRS network policy
+[2m2026-11-15T11:55:14.296614Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m stopping JavaScript isolates
+[2m2026-11-15T11:55:14.375148Z[0m [32m INFO[0m [2mnextrs[0m[2m:[0m nextrs stopped
