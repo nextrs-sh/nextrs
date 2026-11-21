@@ -1,0 +1,210 @@
+{
+  "results": [
+    {
+      "name": "hydration-under-locale",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/fr",
+          "title": "Bonjour",
+          "locale": "fr",
+          "router": "fr",
+          "lang": "fr",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/fr",
+          "title": "Bonjour",
+          "locale": "fr",
+          "router": "fr",
+          "lang": "fr",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "switch-locale-link",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/ja/about",
+          "locale": "ja",
+          "router": "ja",
+          "client": true,
+          "errors": []
+        },
+        "candidate": {
+          "url": "/ja/about",
+          "locale": "ja",
+          "router": "ja",
+          "client": true,
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-nav-ssr-data",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/fr/ssr",
+          "locale": "fr",
+          "client": true,
+          "data": [
+            "200 /_next/data/BUILD/fr/ssr.json"
+          ],
+          "errors": []
+        },
+        "candidate": {
+          "url": "/fr/ssr",
+          "locale": "fr",
+          "client": true,
+          "data": [
+            "200 /_next/data/BUILD/fr/ssr.json"
+          ],
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "client-nav-other-locale-ssg",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/fr/posts/hello",
+          "slug": "hello",
+          "router": "fr",
+          "client": true,
+          "data": [
+            "200 /_next/data/BUILD/fr/posts/hello.json"
+          ],
+          "errors": []
+        },
+        "candidate": {
+          "url": "/fr/posts/hello",
+          "slug": "hello",
+          "router": "fr",
+          "client": true,
+          "data": [
+            "200 /_next/data/BUILD/fr/posts/hello.json"
+          ],
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "back-forward-across-locales",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "back": {
+            "url": "/fr/ssr",
+            "router": "fr"
+          },
+          "forward": {
+            "url": "/ja/ssr",
+            "router": "ja",
+            "title": "SSR ja"
+          },
+          "errors": []
+        },
+        "candidate": {
+          "back": {
+            "url": "/fr/ssr",
+            "router": "fr"
+          },
+          "forward": {
+            "url": "/ja/ssr",
+            "router": "ja",
+            "title": "SSR ja"
+          },
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "detect-browser-language",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/fr",
+          "title": "Bonjour",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/fr",
+          "title": "Bonjour",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "detect-next-locale-cookie",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/ja",
+          "title": "こんにちは",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/ja",
+          "title": "こんにちは",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "protected-client-nav",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/fr/about?login=required",
+          "leaked": false,
+          "errors": []
+        },
+        "candidate": {
+          "url": "/fr/about?login=required",
+          "leaked": false,
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    },
+    {
+      "name": "not-found-client-nav",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/ja/nope",
+          "title": "見つかりません",
+          "locale": "ja",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/ja/nope",
+          "title": "見つかりません",
+          "locale": "ja",
+          "errors": []
+        }
+      },
+      "wrong": null,
+      "oracleWrong": null
+    }
+  ]
+}

@@ -16,6 +16,10 @@ negative-controls = []
 axum.workspace = true
 base64.workspace = true
 fancy-regex.workspace = true
+# gzip for response compression. zlib-rs: about as fast as C zlib, where
+# the default miniz_oxide backend measured slower than next start's zlib on
+# large responses (benchmarks/results/rc2). Shared with node:zlib.
+flate2 = { version = "1.1", default-features = false, features = ["zlib-rs"] }
 futures-util.workspace = true
 http-body.workspace = true
 httpdate.workspace = true

@@ -290,6 +290,74 @@ pub struct RoutingConfig {
     pub generate_etags: bool,
     /// `skipProxyUrlNormalize` (formerly `skipMiddlewareUrlNormalize`).
     pub skip_proxy_url_normalize: bool,
+    /// `compress` (default `true`): next start's router-server compresses
+    /// responses unless the config sets it to `false`.
+    pub compress: bool,
+    /// The deployment ID options next start's base server reads.
+    pub deployment: DeploymentConfig,
+}
+
+/// `deploymentId` and the options that change how next start uses it
+/// (`base-server.js`), from `required-server-files.json#config`.
+#[derive(Debug, Clone, Default, Serialize, PartialEq, Eq)]
+pub struct DeploymentConfig {
+    /// `deploymentId` (also set by `NEXT_DEPLOYMENT_ID` at build time).
+    /// `None` when absent or empty.
+    pub id: Option<String>,
+    /// `experimental.useSkewCookie`: the ID travels in a `__vdpl` cookie
+    /// (a header rule Next writes) and next start's own ID is empty.
+    pub use_skew_cookie: bool,
+    /// `experimental.runtimeServerDeploymentId`: next start takes the ID
+    /// from `NEXT_DEPLOYMENT_ID` when it starts, and refuses to start
+    /// without it.
+    pub runtime_server_id: bool,
+    /// `supportsImmutableAssets`: asset URLs carry no `?dpl=` token.
+    pub supports_immutable_assets: bool,
+}
+
+/// The environment variable next start's base server writes its
+/// deployment ID to (and, with `runtimeServerDeploymentId`, reads it from).
+pub const DEPLOYMENT_ID_ENV: &str = "NEXT_DEPLOYMENT_ID";
+
+impl DeploymentConfig {
+    /// Reads the options from `required-server-files.json#config`.
+    pub(crate) fn from_config(config: Option<&serde_json::Value>) -> Self {
+        let experimental = config.and_then(|c| c.get("experimental"));
+        let flag = |value: Option<&serde_json::Value>| {
+            value.and_then(serde_json::Value::as_bool).unwrap_or(false)
+        };
+        Self {
+            id: config
+                .and_then(|c| c.get("deploymentId"))
+                .and_then(serde_json::Value::as_str)
+                .filter(|id| !id.is_empty())
+                .map(str::to_owned),
+            use_skew_cookie: flag(experimental.and_then(|e| e.get("useSkewCookie"))),
+            runtime_server_id: flag(experimental.and_then(|e| e.get("runtimeServerDeploymentId"))),
+            supports_immutable_assets: flag(config.and_then(|c| c.get("supportsImmutableAssets"))),
+        }
+    }
+
+    /// base-server's `this.deploymentId`, which it also assigns to
+    /// `process.env.NEXT_DEPLOYMENT_ID` (an empty string without one):
+    /// the runtime environment's value with `runtimeServerDeploymentId`
+    /// (an error when it is missing, as next start throws), else empty
+    /// with `useSkewCookie`, else `deploymentId`.
+    pub fn server_id(&self, runtime_env: Option<&str>) -> Result<String, String> {
+        if self.runtime_server_id {
+            return match runtime_env {
+                Some(id) if !id.is_empty() => Ok(id.to_owned()),
+                _ => Err(format!(
+                    "process.env.{DEPLOYMENT_ID_ENV} is missing but runtimeServerDeploymentId \
+                     is enabled (pass it with --js-env {DEPLOYMENT_ID_ENV})"
+                )),
+            };
+        }
+        if self.use_skew_cookie {
+            return Ok(String::new());
+        }
+        Ok(self.id.clone().unwrap_or_default())
+    }
 }
 
 /// Next's `i18n` config (`routes-manifest.json#i18n`, the same object as

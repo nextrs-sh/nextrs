@@ -1,0 +1,115 @@
+
+Running 96 tests using 1 worker
+
+[1/96] [compare] › tests/parity/compare.spec.ts:73:5 › static and prerendered pages › /: same status, headers and server-rendered outline
+[2/96] [compare] › tests/parity/compare.spec.ts:73:5 › static and prerendered pages › /destinations: same status, headers and server-rendered outline
+[3/96] [compare] › tests/parity/compare.spec.ts:73:5 › static and prerendered pages › /help: same status, headers and server-rendered outline
+[4/96] [compare] › tests/parity/compare.spec.ts:73:5 › static and prerendered pages › /about: same status, headers and server-rendered outline
+[5/96] [compare] › tests/parity/compare.spec.ts:73:5 › static and prerendered pages › /credits: same status, headers and server-rendered outline
+[6/96] [compare] › tests/parity/compare.spec.ts:73:5 › static and prerendered pages › /destinations/tokyo: same status, headers and server-rendered outline
+[7/96] [compare] › tests/parity/compare.spec.ts:88:3 › static and prerendered pages › metadata routes are identical
+[8/96] [compare] › tests/parity/compare.spec.ts:101:5 › dynamic pages › /flights?trip=one-way&from=MNL&to=SIN&depart=2026-12-22&adults=1&cabin=economy: same status, headers and server-rendered outline
+[9/96] [compare] › tests/parity/compare.spec.ts:101:5 › dynamic pages › /booking/travellers: same status, headers and server-rendered outline
+[10/96] [compare] › tests/parity/compare.spec.ts:101:5 › dynamic pages › /manage-booking: same status, headers and server-rendered outline
+[11/96] [compare] › tests/parity/compare.spec.ts:101:5 › dynamic pages › /account/sign-in: same status, headers and server-rendered outline
+[12/96] [compare] › tests/parity/compare.spec.ts:109:3 › dynamic pages › RSC requests: same status and content type
+[13/96] [compare] › tests/parity/compare.spec.ts:131:5 › redirects and errors › /booking/travelers: same status, headers and body
+[14/96] [compare] › tests/parity/compare.spec.ts:131:5 › redirects and errors › /checkout: same status, headers and body
+[15/96] [compare] › tests/parity/compare.spec.ts:131:5 › redirects and errors › /this-page-does-not-exist: same status, headers and body
+[16/96] [compare] › tests/parity/compare.spec.ts:131:5 › redirects and errors › /api/flights?from=MNL&to=MNL&departureDate=2001-01-01&adults=0: same status, headers and body
+[17/96] [compare] › tests/parity/compare.spec.ts:131:5 › redirects and errors › /api/flights/not-a-flight: same status, headers and body
+[18/96] [compare] › tests/parity/compare.spec.ts:131:5 › redirects and errors › /api/offers/not-an-offer: same status, headers and body
+[19/96] [compare] › tests/parity/compare.spec.ts:131:5 › redirects and errors › /api/routes?from=12: same status, headers and body
+[20/96] [compare] › tests/parity/compare.spec.ts:131:5 › redirects and errors › /api/offers?adults=1: same status, headers and body
+[21/96] [compare] › tests/parity/compare.spec.ts:156:5 › route handlers: same JSON from the shared API › /api/airports
+[22/96] [compare] › tests/parity/compare.spec.ts:156:5 › route handlers: same JSON from the shared API › /api/airports?q=osaka
+[23/96] [compare] › tests/parity/compare.spec.ts:156:5 › route handlers: same JSON from the shared API › /api/destinations
+[24/96] [compare] › tests/parity/compare.spec.ts:156:5 › route handlers: same JSON from the shared API › /api/destinations?featured=true
+[25/96] [compare] › tests/parity/compare.spec.ts:156:5 › route handlers: same JSON from the shared API › /api/fare-families
+[26/96] [compare] › tests/parity/compare.spec.ts:156:5 › route handlers: same JSON from the shared API › /api/aircraft
+[27/96] [compare] › tests/parity/compare.spec.ts:156:5 › route handlers: same JSON from the shared API › /api/ancillaries
+[28/96] [compare] › tests/parity/compare.spec.ts:156:5 › route handlers: same JSON from the shared API › /api/routes?from=MNL
+[29/96] [compare] › tests/parity/compare.spec.ts:156:5 › route handlers: same JSON from the shared API › /api/flights?from=MNL&to=SIN&departureDate=2026-12-22&adults=1
+[30/96] [compare] › tests/parity/compare.spec.ts:156:5 › route handlers: same JSON from the shared API › /api/flights?from=CEB&to=SIN&departureDate=2026-12-23&adults=2
+[31/96] [compare] › tests/parity/compare.spec.ts:164:3 › route handlers: same JSON from the shared API › flight detail JSON for the same flight
+[32/96] [compare] › tests/parity/compare.spec.ts:175:3 › rendered in the browser › flight details dialog shows the same content
+[33/96] [compare] › tests/parity/compare.spec.ts:195:3 › rendered in the browser › flight results show the same cards
+[34/96] [compare] › tests/parity/compare.spec.ts:222:3 › response compression (known NextRS 0.1.0-rc.1 difference) › both runtimes compress HTML, JSON and static assets for gzip clients
+  1) [compare] › tests/parity/compare.spec.ts:222:3 › response compression (known NextRS 0.1.0-rc.1 difference) › both runtimes compress HTML, JSON and static assets for gzip clients 
+
+    Expected to fail, but passed.
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/compare-response-compressi-82019-tic-assets-for-gzip-clients-compare/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/compare-response-compressi-82019-tic-assets-for-gzip-clients-compare/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[35/96] [node] › tests/parity/runtime.spec.ts:35:5 › static and prerendered routes › / is served from the build output
+[36/96] [node] › tests/parity/runtime.spec.ts:35:5 › static and prerendered routes › /destinations is served from the build output
+[37/96] [node] › tests/parity/runtime.spec.ts:35:5 › static and prerendered routes › /help is served from the build output
+[38/96] [node] › tests/parity/runtime.spec.ts:35:5 › static and prerendered routes › /about is served from the build output
+[39/96] [node] › tests/parity/runtime.spec.ts:35:5 › static and prerendered routes › /credits is served from the build output
+[40/96] [node] › tests/parity/runtime.spec.ts:49:3 › static and prerendered routes › a generateStaticParams destination, then client navigation to it
+[41/96] [node] › tests/parity/runtime.spec.ts:63:3 › static and prerendered routes › metadata routes: robots.txt, sitemap.xml, manifest
+[42/96] [node] › tests/parity/runtime.spec.ts:78:3 › dynamic rendering (request time) › flight results: PPR static shell plus streamed results, never cached
+[43/96] [node] › tests/parity/runtime.spec.ts:92:3 › dynamic rendering (request time) › personal pages are private and uncached
+[44/96] [node] › tests/parity/runtime.spec.ts:102:3 › dynamic rendering (request time) › RSC payload request answers in the Flight format
+[45/96] [node] › tests/parity/runtime.spec.ts:112:3 › delivery › CSS and JavaScript are delivered immutable and applied; page hydrates
+[46/96] [node] › tests/parity/runtime.spec.ts:143:3 › delivery › public images and next/image optimisation
+[47/96] [node] › tests/parity/runtime.spec.ts:158:3 › delivery › security headers from next.config, no x-powered-by
+[48/96] [node] › tests/parity/runtime.spec.ts:171:3 › routing, redirects and errors › client-side navigation uses RSC payloads, no document reloads
+[49/96] [node] › tests/parity/runtime.spec.ts:200:3 › routing, redirects and errors › unknown page: 404 status with the app not-found page
+[50/96] [node] › tests/parity/runtime.spec.ts:213:3 › routing, redirects and errors › redirects from next.config (308 permanent, 307 temporary)
+[51/96] [node] › tests/parity/runtime.spec.ts:222:3 › routing, redirects and errors › invalid search: route handler 4xx and the app error state
+[52/96] [node] › tests/parity/runtime.spec.ts:237:3 › route handlers and health › reference data from the shared API
+[53/96] [node] › tests/parity/runtime.spec.ts:252:3 › route handlers and health › live flight search JSON is private and has results
+[54/96] [node] › tests/parity/runtime.spec.ts:259:3 › route handlers and health › health: live and ready (the API is reachable from this runtime)
+[55/96] [node] › tests/parity/runtime.spec.ts:271:3 › flight search and details › homepage search form shows results from the API
+[56/96] [node] › tests/parity/runtime.spec.ts:296:3 › flight search and details › flight details dialog and the stops filter
+[57/96] [node] › tests/parity/runtime.spec.ts:329:3 › booking and checkout (Server Actions, cookies, API writes) › select a flight and fare
+[58/96] [node] › tests/parity/runtime.spec.ts:343:3 › booking and checkout (Server Actions, cookies, API writes) › travellers
+[59/96] [node] › tests/parity/runtime.spec.ts:355:3 › booking and checkout (Server Actions, cookies, API writes) › seat (held by the API), extras, review, review refresh
+[60/96] [node] › tests/parity/runtime.spec.ts:375:3 › booking and checkout (Server Actions, cookies, API writes) › checkout and payment, then confirmation
+[61/96] [node] › tests/parity/runtime.spec.ts:396:3 › booking and checkout (Server Actions, cookies, API writes) › manage booking by reference; confirmation survives a hard refresh
+[62/96] [node] › tests/parity/runtime.spec.ts:408:3 › booking and checkout (Server Actions, cookies, API writes) › no browser errors during the journey
+[63/96] [node] › tests/parity/runtime.spec.ts:425:3 › Server Actions › unknown reference: the action runs and shows the app error
+[64/96] [node] › tests/parity/runtime.spec.ts:432:3 › Server Actions › cross-site action request is refused
+[65/96] [node] › tests/parity/runtime.spec.ts:449:3 › accounts › register, sign out, sign in
+[66/96] [nextrs] › tests/parity/runtime.spec.ts:35:5 › static and prerendered routes › / is served from the build output
+[67/96] [nextrs] › tests/parity/runtime.spec.ts:35:5 › static and prerendered routes › /destinations is served from the build output
+[68/96] [nextrs] › tests/parity/runtime.spec.ts:35:5 › static and prerendered routes › /help is served from the build output
+[69/96] [nextrs] › tests/parity/runtime.spec.ts:35:5 › static and prerendered routes › /about is served from the build output
+[70/96] [nextrs] › tests/parity/runtime.spec.ts:35:5 › static and prerendered routes › /credits is served from the build output
+[71/96] [nextrs] › tests/parity/runtime.spec.ts:49:3 › static and prerendered routes › a generateStaticParams destination, then client navigation to it
+[72/96] [nextrs] › tests/parity/runtime.spec.ts:63:3 › static and prerendered routes › metadata routes: robots.txt, sitemap.xml, manifest
+[73/96] [nextrs] › tests/parity/runtime.spec.ts:78:3 › dynamic rendering (request time) › flight results: PPR static shell plus streamed results, never cached
+[74/96] [nextrs] › tests/parity/runtime.spec.ts:92:3 › dynamic rendering (request time) › personal pages are private and uncached
+[75/96] [nextrs] › tests/parity/runtime.spec.ts:102:3 › dynamic rendering (request time) › RSC payload request answers in the Flight format
+[76/96] [nextrs] › tests/parity/runtime.spec.ts:112:3 › delivery › CSS and JavaScript are delivered immutable and applied; page hydrates
+[77/96] [nextrs] › tests/parity/runtime.spec.ts:143:3 › delivery › public images and next/image optimisation
+[78/96] [nextrs] › tests/parity/runtime.spec.ts:158:3 › delivery › security headers from next.config, no x-powered-by
+[79/96] [nextrs] › tests/parity/runtime.spec.ts:171:3 › routing, redirects and errors › client-side navigation uses RSC payloads, no document reloads
+[80/96] [nextrs] › tests/parity/runtime.spec.ts:200:3 › routing, redirects and errors › unknown page: 404 status with the app not-found page
+[81/96] [nextrs] › tests/parity/runtime.spec.ts:213:3 › routing, redirects and errors › redirects from next.config (308 permanent, 307 temporary)
+[82/96] [nextrs] › tests/parity/runtime.spec.ts:222:3 › routing, redirects and errors › invalid search: route handler 4xx and the app error state
+[83/96] [nextrs] › tests/parity/runtime.spec.ts:237:3 › route handlers and health › reference data from the shared API
+[84/96] [nextrs] › tests/parity/runtime.spec.ts:252:3 › route handlers and health › live flight search JSON is private and has results
+[85/96] [nextrs] › tests/parity/runtime.spec.ts:259:3 › route handlers and health › health: live and ready (the API is reachable from this runtime)
+[86/96] [nextrs] › tests/parity/runtime.spec.ts:271:3 › flight search and details › homepage search form shows results from the API
+[87/96] [nextrs] › tests/parity/runtime.spec.ts:296:3 › flight search and details › flight details dialog and the stops filter
+[88/96] [nextrs] › tests/parity/runtime.spec.ts:329:3 › booking and checkout (Server Actions, cookies, API writes) › select a flight and fare
+[89/96] [nextrs] › tests/parity/runtime.spec.ts:343:3 › booking and checkout (Server Actions, cookies, API writes) › travellers
+[90/96] [nextrs] › tests/parity/runtime.spec.ts:355:3 › booking and checkout (Server Actions, cookies, API writes) › seat (held by the API), extras, review, review refresh
+[91/96] [nextrs] › tests/parity/runtime.spec.ts:375:3 › booking and checkout (Server Actions, cookies, API writes) › checkout and payment, then confirmation
+[92/96] [nextrs] › tests/parity/runtime.spec.ts:396:3 › booking and checkout (Server Actions, cookies, API writes) › manage booking by reference; confirmation survives a hard refresh
+[93/96] [nextrs] › tests/parity/runtime.spec.ts:408:3 › booking and checkout (Server Actions, cookies, API writes) › no browser errors during the journey
+[94/96] [nextrs] › tests/parity/runtime.spec.ts:425:3 › Server Actions › unknown reference: the action runs and shows the app error
+[95/96] [nextrs] › tests/parity/runtime.spec.ts:432:3 › Server Actions › cross-site action request is refused
+[96/96] [nextrs] › tests/parity/runtime.spec.ts:449:3 › accounts › register, sign out, sign in
+  1 failed
+    [compare] › tests/parity/compare.spec.ts:222:3 › response compression (known NextRS 0.1.0-rc.1 difference) › both runtimes compress HTML, JSON and static assets for gzip clients 
+  95 passed (50.2s)

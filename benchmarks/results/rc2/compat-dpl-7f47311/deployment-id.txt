@@ -1,0 +1,60 @@
+ok   document /
+ok   rsc /
+ok   rsc prefetch /
+ok   rsc from another deployment /
+ok   head /
+ok   document /dynamic
+ok   rsc /dynamic
+ok   rsc prefetch /dynamic
+ok   rsc from another deployment /dynamic
+ok   head /dynamic
+ok   document /books/42
+ok   rsc /books/42
+ok   rsc prefetch /books/42
+ok   rsc from another deployment /books/42
+ok   head /books/42
+ok   document /request-info
+ok   rsc /request-info
+ok   rsc prefetch /request-info
+ok   rsc from another deployment /request-info
+ok   head /request-info
+ok   document /gsp/alpha
+ok   rsc /gsp/alpha
+ok   rsc prefetch /gsp/alpha
+ok   rsc from another deployment /gsp/alpha
+ok   head /gsp/alpha
+ok   document /isr/timed
+ok   rsc /isr/timed
+ok   rsc prefetch /isr/timed
+ok   rsc from another deployment /isr/timed
+ok   head /isr/timed
+ok   document /actions/form
+ok   rsc /actions/form
+ok   rsc prefetch /actions/form
+ok   rsc from another deployment /actions/form
+ok   head /actions/form
+ok   document /data-fetch
+ok   rsc /data-fetch
+ok   rsc prefetch /data-fetch
+ok   rsc from another deployment /data-fetch
+ok   head /data-fetch
+ok   document /no-such-page
+ok   rsc /no-such-page
+ok   rsc prefetch /no-such-page
+ok   rsc from another deployment /no-such-page
+ok   head /no-such-page
+ok   document /a/b/c
+ok   rsc /a/b/c
+ok   rsc prefetch /a/b/c
+ok   rsc from another deployment /a/b/c
+ok   head /a/b/c
+ok   rsc value must be exactly 1
+ok   static asset with any dpl
+ok   next data path
+ok   server action from another deployment
+ok   expect: RSC responses carry the deployment ID
+ok   expect: RSC payloads have no build ID
+ok   expect: documents carry data-dpl-id
+ok   expect: documents have no deployment header
+ok   expect: asset URLs carry ?dpl=<id>
+54/54 comparisons equal, 5/5 expectations met

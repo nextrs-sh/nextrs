@@ -1,0 +1,303 @@
+{
+  "summary": {
+    "title": "image-https",
+    "total": 11,
+    "match": 9,
+    "pass": 1,
+    "knownDiff": 1,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0
+  },
+  "results": [
+    {
+      "name": "authorized https image",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "x-nextjs-cache": "MISS"
+          },
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "x-nextjs-cache": "MISS"
+          },
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480
+          }
+        }
+      }
+    },
+    {
+      "name": "invalid certificate (untrusted CA)",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "baseline": {
+          "status": 500,
+          "headers": {},
+          "body": "Internal Server Error",
+          "requestsReached": 0
+        },
+        "candidate": {
+          "status": 500,
+          "headers": {},
+          "body": "Internal Server Error",
+          "requestsReached": 0
+        }
+      }
+    },
+    {
+      "name": "hostname mismatch",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "baseline": {
+          "status": 500,
+          "headers": {},
+          "body": "Internal Server Error",
+          "requestsReached": 0
+        },
+        "candidate": {
+          "status": 500,
+          "headers": {},
+          "body": "Internal Server Error",
+          "requestsReached": 0
+        }
+      }
+    },
+    {
+      "name": "redirect from https to https",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"redirect.webp\"",
+            "x-nextjs-cache": "MISS"
+          },
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"redirect.webp\"",
+            "x-nextjs-cache": "MISS"
+          },
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288
+          }
+        }
+      }
+    },
+    {
+      "name": "redirect from https to an allowed http origin",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"redirect-downgrade.webp\"",
+            "x-nextjs-cache": "MISS"
+          },
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"redirect-downgrade.webp\"",
+            "x-nextjs-cache": "MISS"
+          },
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288
+          }
+        }
+      }
+    },
+    {
+      "name": "redirect to an unauthorized destination",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "diffs": [
+          "$.status: 500 | 400",
+          "$.body: \"Internal Server Error\" | \"\\\"url\\\" parameter is not allowed\""
+        ],
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "baseline": {
+          "status": 500,
+          "headers": {},
+          "body": "Internal Server Error"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "body": "\"url\" parameter is not allowed"
+        },
+        "reason": "next start (dangerouslyAllowLocalIP) follows a redirect to 127.0.0.2 (whose TLS name check then fails); NextRS (--net-allow-addr 127.0.0.1 and ::1) never connects"
+      }
+    },
+    {
+      "name": "body above maximumResponseBody",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "baseline": {
+          "status": 413,
+          "headers": {},
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        },
+        "candidate": {
+          "status": 413,
+          "headers": {},
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        }
+      }
+    },
+    {
+      "name": "slow head times out",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "baseline": {
+          "status": 504,
+          "headers": {},
+          "body": "\"url\" parameter is valid but upstream response timed out"
+        },
+        "candidate": {
+          "status": 504,
+          "headers": {},
+          "body": "\"url\" parameter is valid but upstream response timed out"
+        }
+      }
+    },
+    {
+      "name": "slow streaming body within the limits",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"trickle.webp\"",
+            "x-nextjs-cache": "MISS"
+          },
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"trickle.webp\"",
+            "x-nextjs-cache": "MISS"
+          },
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288
+          }
+        }
+      }
+    },
+    {
+      "name": "client abort",
+      "verdict": "PASS",
+      "detail": {
+        "client": "ECONNRESET",
+        "upstreamAborted": 1,
+        "after": 200,
+        "reason": "NextRS cancels the download when the last client leaves (next start lets it finish)"
+      }
+    },
+    {
+      "name": "concurrent downloads",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "baseline": {
+          "statuses": [
+            200
+          ]
+        },
+        "candidate": {
+          "statuses": [
+            200
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -51,8 +51,9 @@ async fn get(app: &Router, request: Request<Body>) -> (StatusCode, axum::http::H
     )
 }
 
-const VARY: &str =
-    "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch";
+/// With next start's compression middleware's Accept-Encoding.
+const VARY: &str = "rsc, next-router-state-tree, next-router-prefetch, \
+                    next-router-segment-prefetch, Accept-Encoding";
 
 #[tokio::test(flavor = "multi_thread")]
 #[ignore = "requires fixtures/next-app to be built (npm ci && next build)"]

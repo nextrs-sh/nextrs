@@ -1230,6 +1230,21 @@
     globalThis[symbol]["."] = { ...globalThis[symbol]["."], nextConfig: runtime };
   }
 
+  // next start's base server sets the suffix client asset URLs get from
+  // its deployment ID (`?dpl=<id>`, none with supportsImmutableAssets or
+  // without an ID). The host put that ID in process.env.NEXT_DEPLOYMENT_ID,
+  // as the base server does.
+  function setClientAssetSuffix() {
+    let config;
+    try {
+      config = rootRequire(path.join(distDir, "required-server-files.json")).config;
+    } catch {
+      config = undefined;
+    }
+    const id = globalThis.process?.env?.NEXT_DEPLOYMENT_ID;
+    globalThis.NEXT_CLIENT_ASSET_SUFFIX = config?.supportsImmutableAssets || !id ? "" : `?dpl=${id}`;
+  }
+
   globalThis.__nextrsStart = function start() {
     delete globalThis.__nextrsStart;
     delete globalThis.__nextrsInternal;
@@ -1252,6 +1267,7 @@
     }
     patchFetchAsNextStartDoes();
     registerRouterServerConfig();
+    setClientAssetSuffix();
     if (boot.faultInjection) {
       Object.defineProperty(globalThis, "__nextrsFault", { value: (kind) => ops.op_nextrs_fault(kind) });
     }

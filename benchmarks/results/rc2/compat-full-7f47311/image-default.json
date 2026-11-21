@@ -1,0 +1,4378 @@
+{
+  "summary": {
+    "title": "image (default)",
+    "total": 106,
+    "match": 99,
+    "asserted": 97,
+    "pass": 1,
+    "knownDiff": 6,
+    "diff": 0,
+    "fail": 0,
+    "oracleFail": 0,
+    "error": 0,
+    "negativeControl": null,
+    "tolerance": {
+      "mae": 6,
+      "alphaMae": 6,
+      "ssim": 0.95
+    },
+    "fidelity": {
+      "ssimMargin": 0.02,
+      "ssimFloor": 0.97,
+      "maeMargin": 2,
+      "maeFloor": 3
+    },
+    "quadrants": {
+      "maxDelta": 8
+    },
+    "directWithinTolerance": 30,
+    "directOutsideTolerance": 5
+  },
+  "results": [
+    {
+      "name": "validate: url required",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is required"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is required"
+        }
+      }
+    },
+    {
+      "name": "validate: url array",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter cannot be an array"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter cannot be an array"
+        }
+      }
+    },
+    {
+      "name": "validate: url too long",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is too long"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is too long"
+        }
+      }
+    },
+    {
+      "name": "validate: protocol-relative",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter cannot be a protocol-relative URL (//)"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter cannot be a protocol-relative URL (//)"
+        }
+      }
+    },
+    {
+      "name": "validate: recursive",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter cannot be recursive"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter cannot be recursive"
+        }
+      }
+    },
+    {
+      "name": "validate: recursive encoded",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter cannot be recursive"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter cannot be recursive"
+        }
+      }
+    },
+    {
+      "name": "validate: invalid absolute",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is invalid"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is invalid"
+        }
+      }
+    },
+    {
+      "name": "validate: non-http scheme",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is invalid"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is invalid"
+        }
+      }
+    },
+    {
+      "name": "validate: file scheme",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is invalid"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is invalid"
+        }
+      }
+    },
+    {
+      "name": "validate: width required",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) is required"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) is required"
+        }
+      }
+    },
+    {
+      "name": "validate: width array",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) cannot be an array"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) cannot be an array"
+        }
+      }
+    },
+    {
+      "name": "validate: width not a number",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) must be an integer greater than 0"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) must be an integer greater than 0"
+        }
+      }
+    },
+    {
+      "name": "validate: width negative",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) must be an integer greater than 0"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) must be an integer greater than 0"
+        }
+      }
+    },
+    {
+      "name": "validate: width zero",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) must be an integer greater than 0"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) must be an integer greater than 0"
+        }
+      }
+    },
+    {
+      "name": "validate: width not allowed",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) of 641 is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) of 641 is not allowed"
+        }
+      }
+    },
+    {
+      "name": "validate: width huge",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) of 99999999 is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"w\" parameter (width) of 99999999 is not allowed"
+        }
+      }
+    },
+    {
+      "name": "validate: quality required",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"q\" parameter (quality) is required"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"q\" parameter (quality) is required"
+        }
+      }
+    },
+    {
+      "name": "validate: quality not a number",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"q\" parameter (quality) must be an integer between 1 and 100"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"q\" parameter (quality) must be an integer between 1 and 100"
+        }
+      }
+    },
+    {
+      "name": "validate: quality zero",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"q\" parameter (quality) must be an integer between 1 and 100"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"q\" parameter (quality) must be an integer between 1 and 100"
+        }
+      }
+    },
+    {
+      "name": "validate: quality above 100",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"q\" parameter (quality) must be an integer between 1 and 100"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"q\" parameter (quality) must be an integer between 1 and 100"
+        }
+      }
+    },
+    {
+      "name": "validate: quality not allowed",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"q\" parameter (quality) of 80 is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"q\" parameter (quality) of 80 is not allowed"
+        }
+      }
+    },
+    {
+      "name": "validate: leading zeros accepted",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.3,
+          "alphaMae": 0,
+          "ssim": 0.999,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.875,
+            "mae": 6.92
+          },
+          "nextrs": {
+            "ssim": 0.8753,
+            "mae": 6.92
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"small.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 32,
+            "height": 21,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"small.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 32,
+            "height": 21,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "validate: accept parameter without value",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": false,
+        "baseline": {
+          "status": 500,
+          "headers": {},
+          "etag": "absent",
+          "body": "Internal Server Error"
+        },
+        "candidate": {
+          "status": 500,
+          "headers": {},
+          "etag": "absent",
+          "body": "Internal Server Error"
+        }
+      }
+    },
+    {
+      "name": "validate: local outside patterns",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        }
+      }
+    },
+    {
+      "name": "validate: local with query",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        }
+      }
+    },
+    {
+      "name": "validate: traversal",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        }
+      }
+    },
+    {
+      "name": "validate: encoded traversal",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        }
+      }
+    },
+    {
+      "name": "validate: traversal to .next",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        }
+      }
+    },
+    {
+      "name": "access: double-encoded traversal",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 404,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but internal response is invalid"
+        },
+        "candidate": {
+          "status": 404,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but internal response is invalid"
+        }
+      }
+    },
+    {
+      "name": "access: encoded slash traversal",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 404,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but internal response is invalid"
+        },
+        "candidate": {
+          "status": 404,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but internal response is invalid"
+        }
+      }
+    },
+    {
+      "name": "access: missing file",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 404,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but internal response is invalid"
+        },
+        "candidate": {
+          "status": 404,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but internal response is invalid"
+        }
+      }
+    },
+    {
+      "name": "access: dot-segment normalization",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.64,
+          "alphaMae": 0,
+          "ssim": 0.9906,
+          "direct": true
+        },
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: jpeg to webp",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.64,
+          "alphaMae": 0,
+          "ssim": 0.9906,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9059,
+            "mae": 2.24
+          },
+          "nextrs": {
+            "ssim": 0.9058,
+            "mae": 2.25
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: jpeg to avif",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.23,
+          "alphaMae": 0,
+          "ssim": 0.9857,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9091,
+            "mae": 2.07
+          },
+          "nextrs": {
+            "ssim": 0.9047,
+            "mae": 2.28
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/avif",
+            "content-disposition": "attachment; filename=\"photo.avif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "heif",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/avif",
+            "content-disposition": "attachment; filename=\"photo.avif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "heif",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: jpeg kept for */*",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.26,
+          "alphaMae": 0,
+          "ssim": 0.9969,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.913,
+            "mae": 2.09
+          },
+          "nextrs": {
+            "ssim": 0.913,
+            "mae": 2.09
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/jpeg",
+            "content-disposition": "attachment; filename=\"photo.jpeg\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "jpeg",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/jpeg",
+            "content-disposition": "attachment; filename=\"photo.jpeg\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "jpeg",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: chrome accept",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.35,
+          "alphaMae": 0,
+          "ssim": 0.9856,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9625,
+            "mae": 1.46
+          },
+          "nextrs": {
+            "ssim": 0.9571,
+            "mae": 1.7
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/avif",
+            "content-disposition": "attachment; filename=\"photo.avif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "heif",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/avif",
+            "content-disposition": "attachment; filename=\"photo.avif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "heif",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: no enlargement",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.74,
+          "alphaMae": 0,
+          "ssim": 0.9845,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.8626,
+            "mae": 3.83
+          },
+          "nextrs": {
+            "ssim": 0.8625,
+            "mae": 3.83
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 1600,
+            "height": 1200,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: aspect rounding",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.41,
+          "alphaMae": 0,
+          "ssim": 0.9448,
+          "direct": false
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.8255,
+            "mae": 3.26
+          },
+          "nextrs": {
+            "ssim": 0.8296,
+            "mae": 3.25
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"odd.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 426,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"odd.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 426,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: aspect rounding 2",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 4.58,
+          "alphaMae": 0,
+          "ssim": 0.8999,
+          "direct": false
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9496,
+            "mae": 4.64
+          },
+          "nextrs": {
+            "ssim": 0.9302,
+            "mae": 4.28
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"odd.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 96,
+            "height": 64,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"odd.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 96,
+            "height": 64,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: small png kept size",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.44,
+          "alphaMae": 0,
+          "ssim": 0.9774,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9774,
+            "mae": 1.44
+          },
+          "nextrs": {
+            "ssim": 1,
+            "mae": 0
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/png",
+            "content-disposition": "attachment; filename=\"small.png\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "png",
+            "width": 48,
+            "height": 32,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/png",
+            "content-disposition": "attachment; filename=\"small.png\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "png",
+            "width": 48,
+            "height": 32,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: quality 50",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.7,
+          "alphaMae": 0,
+          "ssim": 0.9926,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.8759,
+            "mae": 2.67
+          },
+          "nextrs": {
+            "ssim": 0.8758,
+            "mae": 2.66
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 750,
+            "height": 563,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 750,
+            "height": 563,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: quality 90",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.57,
+          "alphaMae": 0,
+          "ssim": 0.9448,
+          "direct": false
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9462,
+            "mae": 1.86
+          },
+          "nextrs": {
+            "ssim": 0.9497,
+            "mae": 1.81
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 750,
+            "height": 563,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 750,
+            "height": 563,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: alpha png to webp",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.47,
+          "alphaMae": 0.03,
+          "ssim": 0.9952,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9677,
+            "mae": 1.06
+          },
+          "nextrs": {
+            "ssim": 0.9675,
+            "mae": 1.12
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"alpha.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 4,
+            "hasAlpha": true
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"alpha.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 4,
+            "hasAlpha": true
+          }
+        }
+      }
+    },
+    {
+      "name": "local: alpha png kept png",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.75,
+          "alphaMae": 0.88,
+          "ssim": 0.9862,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9866,
+            "mae": 0.7
+          },
+          "nextrs": {
+            "ssim": 0.999,
+            "mae": 0.28
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/png",
+            "content-disposition": "attachment; filename=\"alpha.png\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "png",
+            "width": 256,
+            "height": 192,
+            "channels": 4,
+            "hasAlpha": true
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/png",
+            "content-disposition": "attachment; filename=\"alpha.png\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "png",
+            "width": 256,
+            "height": 192,
+            "channels": 4,
+            "hasAlpha": true
+          }
+        }
+      }
+    },
+    {
+      "name": "local: webp to jpeg for */*",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.7,
+          "alphaMae": 0,
+          "ssim": 0.9846,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.8679,
+            "mae": 2.68
+          },
+          "nextrs": {
+            "ssim": 0.8718,
+            "mae": 2.67
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/jpeg",
+            "content-disposition": "attachment; filename=\"photo.jpeg\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "jpeg",
+            "width": 640,
+            "height": 427,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/jpeg",
+            "content-disposition": "attachment; filename=\"photo.jpeg\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "jpeg",
+            "width": 640,
+            "height": 427,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: alpha webp to jpeg",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.53,
+          "alphaMae": 0,
+          "ssim": 0.9931,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.972,
+            "mae": 1.09
+          },
+          "nextrs": {
+            "ssim": 0.9743,
+            "mae": 1.16
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/jpeg",
+            "content-disposition": "attachment; filename=\"alpha.jpeg\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "jpeg",
+            "width": 256,
+            "height": 192,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/jpeg",
+            "content-disposition": "attachment; filename=\"alpha.jpeg\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "jpeg",
+            "width": 256,
+            "height": 192,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: webp to avif",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.4,
+          "alphaMae": 0,
+          "ssim": 0.9799,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.8581,
+            "mae": 2.69
+          },
+          "nextrs": {
+            "ssim": 0.8518,
+            "mae": 2.83
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/avif",
+            "content-disposition": "attachment; filename=\"photo.avif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "heif",
+            "width": 640,
+            "height": 427,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/avif",
+            "content-disposition": "attachment; filename=\"photo.avif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "heif",
+            "width": 640,
+            "height": 427,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: static gif to webp",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 2.13,
+          "alphaMae": 0,
+          "ssim": 0.9144,
+          "direct": false
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.8305,
+            "mae": 4.04
+          },
+          "nextrs": {
+            "ssim": 0.8348,
+            "mae": 3.99
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"still.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 171,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"still.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 171,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: static gif kept gif",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "diffs": [
+          "$.image.channels: 4 | 3",
+          "$.image.hasAlpha: true | false"
+        ],
+        "similarity": {
+          "mae": 1.02,
+          "alphaMae": 0,
+          "ssim": 0.9869,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9889,
+            "mae": 1.06
+          },
+          "nextrs": {
+            "ssim": 0.9958,
+            "mae": 0.51
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/gif",
+            "content-disposition": "attachment; filename=\"still.gif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "gif",
+            "width": 256,
+            "height": 171,
+            "channels": 4,
+            "hasAlpha": true
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/gif",
+            "content-disposition": "attachment; filename=\"still.gif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "gif",
+            "width": 256,
+            "height": 171,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "reason": "sharp's GIF writer declares a transparency index on an opaque image (decodes with an alpha channel); NextRS writes none; the pixels are opaque in both"
+      }
+    },
+    {
+      "name": "local: lzw tiff to webp",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.74,
+          "alphaMae": 0,
+          "ssim": 0.9784,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.8399,
+            "mae": 3.11
+          },
+          "nextrs": {
+            "ssim": 0.8376,
+            "mae": 3.12
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"lzw.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"lzw.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: jpeg-compressed tiff",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "diffs": [
+          "$.headers.content-type: \"image/webp\" | \"image/tiff\"",
+          "$.headers.content-disposition: \"attachment; filename=\\\"photo.webp\\\"\" | \"attachment; filename=\\\"photo.tiff\\\"\"",
+          "$.image.format: \"webp\" | \"tiff\"",
+          "$.image.width: 384 | 640",
+          "$.image.height: 288 | 480",
+          "$.sameAsSource: false | true"
+        ],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          },
+          "sameAsSource": false
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/tiff",
+            "content-disposition": "attachment; filename=\"photo.tiff\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "tiff",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          },
+          "sameAsSource": true
+        },
+        "reason": "the tiff decoder has no YCbCr (JPEG-in-TIFF): the source is served unchanged, next start converts it"
+      }
+    },
+    {
+      "name": "local: exif orientation",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.36,
+          "alphaMae": 0,
+          "ssim": 0.9539,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.8267,
+            "mae": 3.29
+          },
+          "nextrs": {
+            "ssim": 0.8233,
+            "mae": 3.26
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"rotated.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 384,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"rotated.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 384,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: display p3 to srgb",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.34,
+          "alphaMae": 0,
+          "ssim": 0.9615,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.8249,
+            "mae": 3.37
+          },
+          "nextrs": {
+            "ssim": 0.8252,
+            "mae": 3.34
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"p3.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"p3.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: large photo",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.12,
+          "alphaMae": 0,
+          "ssim": 0.9806,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9688,
+            "mae": 1.55
+          },
+          "nextrs": {
+            "ssim": 0.9695,
+            "mae": 1.58
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"large.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 1080,
+            "height": 720,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"large.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 1080,
+            "height": 720,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: animated gif unchanged",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0,
+          "alphaMae": 0,
+          "ssim": 1
+        },
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/gif",
+            "content-disposition": "attachment; filename=\"animated.gif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "gif",
+            "width": 120,
+            "height": 80,
+            "channels": 4,
+            "hasAlpha": true
+          },
+          "sameAsSource": true
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/gif",
+            "content-disposition": "attachment; filename=\"animated.gif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "gif",
+            "width": 120,
+            "height": 80,
+            "channels": 4,
+            "hasAlpha": true
+          },
+          "sameAsSource": true
+        }
+      }
+    },
+    {
+      "name": "local: animated webp unchanged",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0,
+          "alphaMae": 0,
+          "ssim": 1
+        },
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"animated.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 120,
+            "height": 80,
+            "channels": 3,
+            "hasAlpha": false
+          },
+          "sameAsSource": true
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"animated.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 120,
+            "height": 80,
+            "channels": 3,
+            "hasAlpha": false
+          },
+          "sameAsSource": true
+        }
+      }
+    },
+    {
+      "name": "local: corrupt served unchanged",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/jpeg",
+            "content-disposition": "attachment; filename=\"corrupt.jpeg\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "undecodable": "Input buffer has corrupt header: VipsJpeg: premature end of "
+          },
+          "sameAsSource": true
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/jpeg",
+            "content-disposition": "attachment; filename=\"corrupt.jpeg\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "undecodable": "Input buffer has corrupt header: VipsJpeg: premature end of "
+          },
+          "sameAsSource": true
+        }
+      }
+    },
+    {
+      "name": "local: truncated served unchanged",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/png",
+            "content-disposition": "attachment; filename=\"truncated.png\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "undecodable": "vipspng: libpng read error"
+          },
+          "sameAsSource": true
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/png",
+            "content-disposition": "attachment; filename=\"truncated.png\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "undecodable": "vipspng: libpng read error"
+          },
+          "sameAsSource": true
+        }
+      }
+    },
+    {
+      "name": "local: bomb served unchanged",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0,
+          "alphaMae": 0,
+          "ssim": 1
+        },
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/png",
+            "content-disposition": "attachment; filename=\"bomb.png\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "png",
+            "width": 16500,
+            "height": 16500,
+            "channels": 1,
+            "hasAlpha": false
+          },
+          "sameAsSource": true
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/png",
+            "content-disposition": "attachment; filename=\"bomb.png\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "png",
+            "width": 16500,
+            "height": 16500,
+            "channels": 1,
+            "hasAlpha": false
+          },
+          "sameAsSource": true
+        }
+      }
+    },
+    {
+      "name": "local: not an image",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "The requested resource isn't a valid image."
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "The requested resource isn't a valid image."
+        }
+      }
+    },
+    {
+      "name": "local: pdf refused",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "The requested resource isn't a valid image."
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "The requested resource isn't a valid image."
+        }
+      }
+    },
+    {
+      "name": "local: svg refused",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but image type is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but image type is not allowed"
+        }
+      }
+    },
+    {
+      "name": "local: avif source",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "diffs": [
+          "$.headers.content-type: \"image/webp\" | \"image/avif\"",
+          "$.headers.content-disposition: \"attachment; filename=\\\"photo.webp\\\"\" | \"attachment; filename=\\\"photo.avif\\\"\"",
+          "$.image.format: \"webp\" | \"heif\"",
+          "$.image.width: 384 | 800",
+          "$.image.height: 288 | 600",
+          "$.sameAsSource: false | true"
+        ],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          },
+          "sameAsSource": false
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/avif",
+            "content-disposition": "attachment; filename=\"photo.avif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "heif",
+            "width": 800,
+            "height": 600,
+            "channels": 3,
+            "hasAlpha": false
+          },
+          "sameAsSource": true
+        },
+        "reason": "NextRS has no AVIF decoder: the source is served unchanged (next start's fallback when sharp fails), next start converts it"
+      }
+    },
+    {
+      "name": "local: dynamic route source",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.52,
+          "alphaMae": 0,
+          "ssim": 0.9467,
+          "direct": false
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.8239,
+            "mae": 3.73
+          },
+          "nextrs": {
+            "ssim": 0.8234,
+            "mae": 3.76
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"dyn.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 192,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"dyn.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 192,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: rewritten source",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.46,
+          "alphaMae": 0,
+          "ssim": 0.9787,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9621,
+            "mae": 2.07
+          },
+          "nextrs": {
+            "ssim": 0.9613,
+            "mae": 2.36
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 192,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 192,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: source rewritten to the endpoint",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": false,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed"
+        }
+      }
+    },
+    {
+      "name": "local: static import",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.7,
+          "alphaMae": 0,
+          "ssim": 0.985,
+          "direct": true
+        },
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=315360000, immutable",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"still.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=315360000, immutable",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"still.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "local: head request",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "type": "image/webp",
+          "length": "present",
+          "body": 0
+        },
+        "candidate": {
+          "status": 200,
+          "type": "image/webp",
+          "length": "present",
+          "body": 0
+        }
+      }
+    },
+    {
+      "name": "cache: hit returns the same image",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "first": "MISS",
+          "second": "HIT",
+          "same": true,
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 256,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "first": "MISS",
+          "second": "HIT",
+          "same": true,
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 256,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "cache: widths do not share entries",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "a": [
+            828,
+            621
+          ],
+          "b": [
+            1080,
+            810
+          ],
+          "c": [
+            828,
+            "HIT"
+          ]
+        },
+        "candidate": {
+          "a": [
+            828,
+            621
+          ],
+          "b": [
+            1080,
+            810
+          ],
+          "c": [
+            828,
+            "HIT"
+          ]
+        }
+      }
+    },
+    {
+      "name": "cache: formats do not share entries",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": [
+          "webp",
+          "jpeg",
+          "heif",
+          "Accept"
+        ],
+        "candidate": [
+          "webp",
+          "jpeg",
+          "heif",
+          "Accept"
+        ]
+      }
+    },
+    {
+      "name": "cache: conditional request",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "r304": [
+            304,
+            false,
+            true,
+            "public, max-age=2, must-revalidate",
+            "Accept",
+            null
+          ],
+          "weak": [
+            304,
+            false,
+            true,
+            "public, max-age=2, must-revalidate",
+            "Accept",
+            null
+          ],
+          "star": [
+            304,
+            false,
+            true,
+            "public, max-age=2, must-revalidate",
+            "Accept",
+            null
+          ],
+          "other": 200,
+          "nocache": 200
+        },
+        "candidate": {
+          "r304": [
+            304,
+            false,
+            true,
+            "public, max-age=2, must-revalidate",
+            "Accept",
+            null
+          ],
+          "weak": [
+            304,
+            false,
+            true,
+            "public, max-age=2, must-revalidate",
+            "Accept",
+            null
+          ],
+          "star": [
+            304,
+            false,
+            true,
+            "public, max-age=2, must-revalidate",
+            "Accept",
+            null
+          ],
+          "other": 200,
+          "nocache": 200
+        }
+      }
+    },
+    {
+      "name": "cache: stale entry is served, then revalidated",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": [
+          "MISS",
+          "STALE",
+          "HIT",
+          256
+        ],
+        "candidate": [
+          "MISS",
+          "STALE",
+          "HIT",
+          256
+        ]
+      }
+    },
+    {
+      "name": "remote: jpeg to webp",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.64,
+          "alphaMae": 0,
+          "ssim": 0.9906,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9059,
+            "mae": 2.24
+          },
+          "nextrs": {
+            "ssim": 0.9058,
+            "mae": 2.25
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 640,
+            "height": 480,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "remote: alpha png",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.47,
+          "alphaMae": 0.03,
+          "ssim": 0.9952,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9677,
+            "mae": 1.06
+          },
+          "nextrs": {
+            "ssim": 0.9675,
+            "mae": 1.12
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"alpha.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 4,
+            "hasAlpha": true
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"alpha.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 4,
+            "hasAlpha": true
+          }
+        }
+      }
+    },
+    {
+      "name": "remote: no cache headers",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.47,
+          "alphaMae": 0,
+          "ssim": 0.9724,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9552,
+            "mae": 2.28
+          },
+          "nextrs": {
+            "ssim": 0.9522,
+            "mae": 2.33
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"no-cache-headers.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 170,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"no-cache-headers.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 170,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "remote: s-maxage wins",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 1.47,
+          "alphaMae": 0,
+          "ssim": 0.9724,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9552,
+            "mae": 2.28
+          },
+          "nextrs": {
+            "ssim": 0.9522,
+            "mae": 2.33
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=30, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"s-maxage.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 170,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=30, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"s-maxage.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 256,
+            "height": 170,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "remote: redirect followed",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.96,
+          "alphaMae": 0,
+          "ssim": 0.9863,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9504,
+            "mae": 1.93
+          },
+          "nextrs": {
+            "ssim": 0.9509,
+            "mae": 1.95
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"redirect.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"redirect.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "remote: three redirects",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.96,
+          "alphaMae": 0,
+          "ssim": 0.9863,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9504,
+            "mae": 1.93
+          },
+          "nextrs": {
+            "ssim": 0.9509,
+            "mae": 1.95
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"redirect-chain-2.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"redirect-chain-2.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "remote: four redirects",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 508,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        },
+        "candidate": {
+          "status": 508,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        }
+      }
+    },
+    {
+      "name": "remote: redirect loop",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 508,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        },
+        "candidate": {
+          "status": 508,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        }
+      }
+    },
+    {
+      "name": "remote: missing",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 404,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        },
+        "candidate": {
+          "status": 404,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        }
+      }
+    },
+    {
+      "name": "remote: upstream 503",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 503,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        },
+        "candidate": {
+          "status": 503,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        }
+      }
+    },
+    {
+      "name": "remote: text body",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "The requested resource isn't a valid image."
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "The requested resource isn't a valid image."
+        }
+      }
+    },
+    {
+      "name": "remote: html body",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "The requested resource isn't a valid image."
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "The requested resource isn't a valid image."
+        }
+      }
+    },
+    {
+      "name": "remote: empty body",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        }
+      }
+    },
+    {
+      "name": "remote: corrupt served unchanged",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/jpeg",
+            "content-disposition": "attachment; filename=\"corrupt.jpeg\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "undecodable": "Input buffer has corrupt header: VipsJpeg: premature end of "
+          },
+          "sameAsSource": true
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/jpeg",
+            "content-disposition": "attachment; filename=\"corrupt.jpeg\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "undecodable": "Input buffer has corrupt header: VipsJpeg: premature end of "
+          },
+          "sameAsSource": true
+        }
+      }
+    },
+    {
+      "name": "remote: content type is sniffed",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.96,
+          "alphaMae": 0,
+          "ssim": 0.9863,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9504,
+            "mae": 1.93
+          },
+          "nextrs": {
+            "ssim": 0.9509,
+            "mae": 1.95
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"wrong-type.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"wrong-type.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "remote: oversized body",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 413,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        },
+        "candidate": {
+          "status": 413,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response is invalid"
+        }
+      }
+    },
+    {
+      "name": "remote: gzip body",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.96,
+          "alphaMae": 0,
+          "ssim": 0.9863,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9504,
+            "mae": 1.93
+          },
+          "nextrs": {
+            "ssim": 0.9509,
+            "mae": 1.95
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"gzip.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"gzip.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "remote: brotli body",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0.96,
+          "alphaMae": 0,
+          "ssim": 0.9863,
+          "direct": true
+        },
+        "fidelity": {
+          "nextStart": {
+            "ssim": 0.9504,
+            "mae": 1.93
+          },
+          "nextrs": {
+            "ssim": 0.9509,
+            "mae": 1.95
+          }
+        },
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"brotli.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"brotli.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          }
+        }
+      }
+    },
+    {
+      "name": "remote: animated unchanged",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": {
+          "mae": 0,
+          "alphaMae": 0,
+          "ssim": 1
+        },
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/gif",
+            "content-disposition": "attachment; filename=\"animated.gif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "gif",
+            "width": 120,
+            "height": 80,
+            "channels": 4,
+            "hasAlpha": true
+          },
+          "sameAsSource": true
+        },
+        "candidate": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/gif",
+            "content-disposition": "attachment; filename=\"animated.gif\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "gif",
+            "width": 120,
+            "height": 80,
+            "channels": 4,
+            "hasAlpha": true
+          },
+          "sameAsSource": true
+        }
+      }
+    },
+    {
+      "name": "remote: svg refused",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but image type is not allowed"
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but image type is not allowed"
+        }
+      }
+    },
+    {
+      "name": "remote: connection reset",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 500,
+          "headers": {},
+          "etag": "absent",
+          "body": "Internal Server Error"
+        },
+        "candidate": {
+          "status": 500,
+          "headers": {},
+          "etag": "absent",
+          "body": "Internal Server Error"
+        }
+      }
+    },
+    {
+      "name": "remote: slow head times out",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 504,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response timed out"
+        },
+        "candidate": {
+          "status": 504,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response timed out"
+        }
+      }
+    },
+    {
+      "name": "remote: slow body times out",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 504,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response timed out"
+        },
+        "candidate": {
+          "status": 504,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is valid but upstream response timed out"
+        }
+      }
+    },
+    {
+      "name": "remote: path outside remotePatterns",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        }
+      }
+    },
+    {
+      "name": "remote: port outside remotePatterns",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        }
+      }
+    },
+    {
+      "name": "remote: host outside remotePatterns",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        }
+      }
+    },
+    {
+      "name": "remote: https outside remotePatterns",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        }
+      }
+    },
+    {
+      "name": "remote: credentials in url",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "diffs": [
+          "$.status: 200 | 400",
+          "$.headers.vary: \"Accept\" | undefined",
+          "$.headers.cache-control: \"public, max-age=60, must-revalidate\" | undefined",
+          "$.headers.content-type: \"image/webp\" | undefined",
+          "$.headers.content-disposition: \"attachment; filename=\\\"photo.webp\\\"\" | undefined",
+          "$.headers.content-security-policy: \"script-src 'none'; frame-src 'none'; sandbox;\" | undefined",
+          "$.headers.x-nextjs-cache: \"MISS\" | undefined",
+          "$.etag: \"present\" | \"absent\"",
+          "$.image: {\"format\":\"webp\",\"width\":384,\"height\":288,\"channels\":3,\"hasAlpha\":false} | undefined",
+          "$.body: undefined | \"\\\"url\\\" parameter is not allowed\""
+        ],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"photo.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          },
+          "fetched": 0
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        },
+        "reason": "next start fetches URLs with credentials; NextRS's network policy refuses them"
+      }
+    },
+    {
+      "name": "remote: redirect to another address",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "diffs": [
+          "$.status: 200 | 400",
+          "$.headers.vary: \"Accept\" | undefined",
+          "$.headers.cache-control: \"public, max-age=60, must-revalidate\" | undefined",
+          "$.headers.content-type: \"image/webp\" | undefined",
+          "$.headers.content-disposition: \"attachment; filename=\\\"redirect-other-addr.webp\\\"\" | undefined",
+          "$.headers.content-security-policy: \"script-src 'none'; frame-src 'none'; sandbox;\" | undefined",
+          "$.headers.x-nextjs-cache: \"MISS\" | undefined",
+          "$.etag: \"present\" | \"absent\"",
+          "$.image: {\"format\":\"webp\",\"width\":384,\"height\":288,\"channels\":3,\"hasAlpha\":false} | undefined",
+          "$.fetched: 1 | 0",
+          "$.body: undefined | \"\\\"url\\\" parameter is not allowed\""
+        ],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"redirect-other-addr.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          },
+          "fetched": 1
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        },
+        "reason": "next start (dangerouslyAllowLocalIP) follows a redirect to 127.0.0.2; NextRS's --net-allow-addr covers 127.0.0.1 only"
+      }
+    },
+    {
+      "name": "remote: redirect to another host",
+      "verdict": "KNOWN-DIFF",
+      "detail": {
+        "diffs": [
+          "$.status: 200 | 400",
+          "$.headers.vary: \"Accept\" | undefined",
+          "$.headers.cache-control: \"public, max-age=60, must-revalidate\" | undefined",
+          "$.headers.content-type: \"image/webp\" | undefined",
+          "$.headers.content-disposition: \"attachment; filename=\\\"redirect-other-host.webp\\\"\" | undefined",
+          "$.headers.content-security-policy: \"script-src 'none'; frame-src 'none'; sandbox;\" | undefined",
+          "$.headers.x-nextjs-cache: \"MISS\" | undefined",
+          "$.etag: \"present\" | \"absent\"",
+          "$.image: {\"format\":\"webp\",\"width\":384,\"height\":288,\"channels\":3,\"hasAlpha\":false} | undefined",
+          "$.fetched: 1 | 0",
+          "$.body: undefined | \"\\\"url\\\" parameter is not allowed\""
+        ],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "status": 200,
+          "headers": {
+            "vary": "Accept",
+            "cache-control": "public, max-age=60, must-revalidate",
+            "content-type": "image/webp",
+            "content-disposition": "attachment; filename=\"redirect-other-host.webp\"",
+            "content-security-policy": "script-src 'none'; frame-src 'none'; sandbox;",
+            "x-nextjs-cache": "MISS"
+          },
+          "etag": "present",
+          "image": {
+            "format": "webp",
+            "width": 384,
+            "height": 288,
+            "channels": 3,
+            "hasAlpha": false
+          },
+          "fetched": 1
+        },
+        "candidate": {
+          "status": 400,
+          "headers": {},
+          "etag": "absent",
+          "body": "\"url\" parameter is not allowed",
+          "fetched": 0
+        },
+        "reason": "next start follows a redirect to localhost; --net-allow allows only http://127.0.0.1:<port>"
+      }
+    },
+    {
+      "name": "remote: redirect to cloud metadata",
+      "verdict": "PASS",
+      "detail": {
+        "status": 400,
+        "headers": {},
+        "etag": "absent",
+        "body": "\"url\" parameter is not allowed"
+      }
+    },
+    {
+      "name": "remote: one fetch for concurrent requests",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "statuses": [
+            200
+          ],
+          "distinctBodies": 1,
+          "fetches": 1
+        },
+        "candidate": {
+          "statuses": [
+            200
+          ],
+          "distinctBodies": 1,
+          "fetches": 1
+        }
+      }
+    },
+    {
+      "name": "remote: changed source after revalidation",
+      "verdict": "MATCH",
+      "detail": {
+        "diffs": [],
+        "similarity": null,
+        "fidelity": null,
+        "oracleWrong": null,
+        "candidateWrong": null,
+        "asserted": true,
+        "baseline": {
+          "first": 192,
+          "stale": "STALE",
+          "after": [
+            170,
+            "HIT"
+          ]
+        },
+        "candidate": {
+          "first": 192,
+          "stale": "STALE",
+          "after": [
+            170,
+            "HIT"
+          ]
+        }
+      }
+    }
+  ]
+}

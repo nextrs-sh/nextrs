@@ -290,6 +290,20 @@ impl Router<'_> {
         }
     }
 
+    /// resolve-routes once a route returned a `matchedOutput`: every
+    /// `onMatchHeaders` rule goes through handleRoute as a header rule,
+    /// matched against the pathname and query as routing left them (after
+    /// rewrites) and the request's headers.
+    fn apply_on_match_headers(&mut self) -> Result<(), String> {
+        let state = self.state;
+        for rule in &state.rules.on_match_headers {
+            if let Some(params) = rule.matches(&self.parsed.pathname, &self.view()) {
+                self.apply_header_rule(rule, &params)?;
+            }
+        }
+        Ok(())
+    }
+
     fn apply_header_rule(&mut self, rule: &Rule, params: &JsMap) -> Result<(), String> {
         for (key, value) in &rule.headers {
             let (key, value) = if params.is_empty() {
@@ -376,6 +390,19 @@ pub(crate) async fn resolve(
 
     let done =
         |outcome: Outcome, router: Option<Router<'_>>, body: Body| -> (Outcome, Resolved, Body) {
+            let mut outcome = outcome;
+            let mut router = router;
+            // Only an output (a file, page or route) gets onMatchHeaders:
+            // redirects, the proxy's own responses, external rewrites and
+            // not-found do not (resolve-routes applies them for a
+            // `matchedOutput` alone).
+            if matches!(outcome, Outcome::Output(_))
+                && let Some(router) = router.as_mut()
+                && let Err(error) = router.apply_on_match_headers()
+            {
+                tracing::warn!(%error, "routing failed");
+                outcome = Outcome::ProxyFailed;
+            }
             let resolved = match router {
                 Some(router) => Resolved {
                     locale: router.route_locale(),

@@ -1,0 +1,108 @@
+{
+  "deploymentId": "dpl-rc2-suite",
+  "results": {
+    "sameDeployment": {
+      "same": true,
+      "baseline": {
+        "documents": [
+          "/"
+        ],
+        "rscPaths": [
+          "/books/42",
+          "/dynamic",
+          "/request-info"
+        ],
+        "rscDeployments": [
+          "dpl-rc2-suite"
+        ],
+        "sentDeployments": [
+          "dpl-rc2-suite"
+        ],
+        "title": "NextRS fixture"
+      },
+      "candidate": {
+        "documents": [
+          "/"
+        ],
+        "rscPaths": [
+          "/books/42",
+          "/dynamic",
+          "/request-info"
+        ],
+        "rscDeployments": [
+          "dpl-rc2-suite"
+        ],
+        "sentDeployments": [
+          "dpl-rc2-suite"
+        ],
+        "title": "NextRS fixture"
+      }
+    },
+    "skew": {
+      "same": true,
+      "baseline": {
+        "documents": [
+          "/",
+          "/dynamic"
+        ]
+      },
+      "candidate": {
+        "documents": [
+          "/",
+          "/dynamic"
+        ]
+      }
+    },
+    "action": {
+      "same": true,
+      "baseline": {
+        "documents": [
+          "/actions/form"
+        ],
+        "actions": [
+          {
+            "status": 200,
+            "sentDeployment": "dpl-rc2-suite"
+          }
+        ]
+      },
+      "candidate": {
+        "documents": [
+          "/actions/form"
+        ],
+        "actions": [
+          {
+            "status": 200,
+            "sentDeployment": "dpl-rc2-suite"
+          }
+        ]
+      }
+    }
+  },
+  "expectations": [
+    [
+      "same deployment: one document load only",
+      true
+    ],
+    [
+      "same deployment: RSC responses carry the ID",
+      true
+    ],
+    [
+      "same deployment: the client sends its ID",
+      true
+    ],
+    [
+      "skew: falls back to a full page load",
+      true
+    ],
+    [
+      "action: ran without a reload",
+      true
+    ],
+    [
+      "action: sends the deployment ID",
+      true
+    ]
+  ]
+}

@@ -81,10 +81,43 @@ build wrote there.
 | `--host` | `127.0.0.1` | Bind address. Loopback by default for safety; a non-loopback address logs a warning |
 | `--port`, `-p` | `3000` | Port |
 | `--js-runtime` | `none` | `none` answers `501` for dynamic routes; `embedded-v8` executes them |
-| `--js-env NAME` | none | Expose one host environment variable to JavaScript (repeatable). Nothing else is inherited; `NODE_ENV` is always `production` |
+| `--js-env NAME` | none | Expose one host environment variable to JavaScript (repeatable). Nothing else is inherited; `NODE_ENV` is always `production`, and `NEXT_DEPLOYMENT_ID` is the build's `deploymentId` (empty without one), as `next start` sets it. Only a build with `experimental.runtimeServerDeploymentId` reads `NEXT_DEPLOYMENT_ID` from `--js-env`, and refuses to start without it |
 | `--allow-unsupported` | off | Start despite unsupported features, including a build of an unsupported Next.js major (see [compatibility.md](compatibility.md#tested-versions-and-fixtures)). This does **not** add those features |
 | `--log-format` | `text` | `text`, or `json` (one object per line on stderr). `NEXTRS_LOG_FORMAT=json` sets the default; levels come from `RUST_LOG` (default `nextrs=info`) |
 | `--ignore-adapter-output` | off | Read internal manifests even if adapter output exists |
+
+## Response compression
+
+NextRS compresses responses as `next start` does, with the same switch:
+`compress` in `next.config` (default `true`). Set `compress: false` and
+rebuild to turn it off for both servers. That is useful for controlled
+benchmarks, or behind a reverse proxy or CDN that compresses. There is no
+command-line flag.
+
+- **Encoding:** gzip, at zlib's default level, when the request's
+  `Accept-Encoding` makes `next start`'s middleware choose gzip. A client
+  that accepts only deflate, or nothing, gets the response uncompressed.
+  Brotli and zstd are not offered (nor does `next start` offer them).
+- **What is compressed:** compressible types only (HTML, RSC payloads,
+  JSON, JavaScript, CSS, SVG and other text), from 1 KiB up when the size
+  is known; streamed responses of unknown size always. Never: images,
+  fonts in WOFF/WOFF2, archives, responses that already have a
+  `Content-Encoding`, `Cache-Control: no-transform`, HEAD, 204/304, and
+  partial (206) responses.
+- **Headers:** `Vary: Accept-Encoding` is added to every compressible
+  response, compressed or not, after any `Vary` the response has (the RSC
+  fields are kept). A compressed response has no `Content-Length` and no
+  `Accept-Ranges`, and its strong ETag becomes weak (`W/"…"`);
+  `If-None-Match` still revalidates it with a `304`.
+- **Streaming:** each chunk a route writes is compressed and flushed
+  before the next, so streamed HTML, RSC and Partial Prerendering responses
+  arrive as progressively as without compression.
+- **Scope:** only responses to clients. Next's requests to its own server
+  (image sources, Server Action forwarding) are not compressed.
+- **Secrets next to reflected input:** compression can leak a secret through
+  response sizes when it shares a response with input an attacker controls
+  (BREACH), with either server. Send such a response with
+  `Cache-Control: no-transform`, or set `compress: false`.
 
 ## Runtime limits
 

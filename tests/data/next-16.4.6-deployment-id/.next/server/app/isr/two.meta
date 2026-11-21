@@ -1,0 +1,39 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/isr/layout,_N_T_/isr/[slug]/layout,_N_T_/isr/[slug]/page,_N_T_/isr/two,isr-slug-two"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/isr/$d$slug/__PAGE__"
+  ],
+  "prefetchHints": {
+    "hints": 64,
+    "slots": {
+      "children": {
+        "hints": 96,
+        "slots": {
+          "children": {
+            "hints": 96,
+            "slots": {
+              "children": {
+                "hints": 160,
+                "slots": null
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/6e99cb6c2126aa346effd301cd8b58ab9e51a4e7d8647e988beb50fdd49cc814/$/isr/two",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/isr/[slug]/page"
+    },
+    "isFallback": false
+  }
+}
