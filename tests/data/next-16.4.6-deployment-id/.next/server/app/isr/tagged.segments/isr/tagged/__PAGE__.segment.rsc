@@ -1,0 +1,33 @@
+1:"$Sreact.fragment"
+2:"/_next/static/chunks/3qfy96eoyh-ek.js?dpl=dpl-rc2-test"
+3:I[39756,["$2"],"default"]
+4:I[37457,["$2"],"default"]
+f:"/_next/static/chunks/3zt_16xndew4w.js?dpl=dpl-rc2-test"
+10:I[22016,["$2","$f"],""]
+11:I[97367,["$2"],"OutletBoundary"]
+12:"$Sreact.suspense"
+15:"ViewportBoundary"
+16:I[97367,["$2"],"$15"]
+17:"MetadataBoundary"
+18:I[97367,["$2"],"$17"]
+6:X
+9:X
+9:C
+d:{"id":"40131b904c5282257bfa135d9974c876900538ad57","bound":null}
+c:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","main",null,{"children":[["$","h1",null,{"children":"ISR with actions"}],["$","p",null,{"id":"stamp","children":"stamp-1795246262205"}],["$","p",null,{"id":"hit","children":"2"}],[["$","form","revalidatePath",{"action":"$hd","children":[["$","input",null,{"type":"hidden","name":"how","value":"revalidatePath"}],["$","button",null,{"type":"submit","id":"isr-revalidatePath","children":"revalidatePath"}]]}],["$","form","revalidateTag",{"action":"$hd","children":[["$","input",null,{"type":"hidden","name":"how","value":"revalidateTag"}],["$","button",null,{"type":"submit","id":"isr-revalidateTag","children":"revalidateTag"}]]}],["$","form","updateTag",{"action":"$hd","children":[["$","input",null,{"type":"hidden","name":"how","value":"updateTag"}],["$","button",null,{"type":"submit","id":"isr-updateTag","children":"updateTag"}]]}],["$","form","none",{"action":"$hd","children":[["$","input",null,{"type":"hidden","name":"how","value":"none"}],["$","button",null,{"type":"submit","id":"isr-none","children":"none"}]]}]],"$Le",["$","$L10",null,{"href":"/isr/one","id":"to-one","children":"one"}]]}],[["$","script","script-0",{"src":"/_next/static/chunks/3zt_16xndew4w.js?dpl=dpl-rc2-test","async":true}]],["$","$L11",null,{"children":["$","$12",null,{"name":"Next.MetadataOutlet","children":"$@13"}]}]]}],"p":"$@14","v":null,"s":"$6"}}]]
+a:[["children",{"s":"tagged","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}]}]]}],"p":"$@b","v":"$9","s":"$6"},"c":"$Qc"}]]
+7:[["children",{"s":"isr","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}]}]]}],"p":"$@8","v":"$9","s":"$6"},"c":"$Qa"}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","script","script-0",{"src":"/_next/static/chunks/3qfy96eoyh-ek.js?dpl=dpl-rc2-test","async":true}]],["$","html",null,{"lang":"en","children":["$","body",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]}]}]]}],"p":"$@5","v":null,"s":"$6"},"c":"$Q7"},"h":{"r":["$","$1","h",{"children":[null,["$","$L16",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","$L18",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$12",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"NextRS fixture"}],["$","meta","1",{"name":"description","content":"Compatibility fixture for the NextRS runtime"}]]}]}],null]}],null]}],"p":"$@19","v":null,"s":"$6"}},"a":"$@1a","u":"$@1b"}
+13:null
+6:300
+1b:true
+1c:{"id":"60f5fac60cc9e22817e5b1bdd1435ab142bf82b66e","bound":"$@1d"}
+e:["$","form",null,{"action":"$h1c","children":["$","button",null,{"type":"submit","id":"isr-bound","children":"bound"}]}]
+6:C
+1d:["bound-label"]
+1a:0
+b:"$undefined"
+8:"$undefined"
+5:"$undefined"
+19:"$undefined"
+14:"$undefined"

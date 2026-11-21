@@ -191,6 +191,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
                 powered_by_header: output.config.powered_by_header,
                 generate_etags: output.config.generate_etags,
                 skip_proxy_url_normalize: config_flag(required.as_ref(), "skipProxyUrlNormalize"),
+                deployment: DeploymentConfig::from_config(required.as_ref().map(|r| &r.config)),
             };
             let tables = adapter_output::tables(&project_dir, output, &mut diagnostics);
             // One model for both sources: the Pages Router's routes and
@@ -304,7 +305,7 @@ pub fn inspect_with(path: &Path, options: &InspectOptions) -> Result<BuildInfo, 
         diagnostics.push(Diagnostic {
             severity: Severity::Unsupported,
             code: "routing-rule",
-            message: format!("routes-manifest rule without source or regex: {rule}"),
+            message: format!("routes-manifest {rule}"),
         });
     }
     let workspace_root = workspace_root(
@@ -422,6 +423,7 @@ fn routing_config(required: Option<&RequiredServerFiles>, base_path: &str) -> Ro
         generate_etags: flag("generateEtags", true),
         skip_proxy_url_normalize: flag("skipProxyUrlNormalize", false)
             || flag("skipMiddlewareUrlNormalize", false),
+        deployment: DeploymentConfig::from_config(config),
     }
 }
 

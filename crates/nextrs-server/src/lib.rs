@@ -453,6 +453,9 @@ struct AppState {
 #[derive(Default)]
 struct CompiledRules {
     headers: Vec<routing::Rule>,
+    /// routes-manifest `onMatchHeaders`: header rules applied only when
+    /// routing found an output (Next writes them for a deployment ID).
+    on_match_headers: Vec<routing::Rule>,
     redirects: Vec<routing::Rule>,
     before_files: Vec<routing::Rule>,
     after_files: Vec<routing::Rule>,
@@ -508,14 +511,12 @@ fn compile_rules(info: &BuildInfo) -> Result<CompiledRules, StartError> {
             })
             .collect()
     };
-    if !info.routing.on_match_headers.is_empty() {
-        return Err(StartError::Routing {
-            rule: "onMatchHeaders".into(),
-            error: "routes-manifest onMatchHeaders are not implemented".into(),
-        });
-    }
     Ok(CompiledRules {
         headers: list(RuleKind::Header, &info.routing.headers)?,
+        // resolve-routes runs them through the same handleRoute as the
+        // headers list (filesystem.js builds both with
+        // buildCustomRoute('header')).
+        on_match_headers: list(RuleKind::Header, &info.routing.on_match_headers)?,
         redirects: list(RuleKind::Redirect, &info.routing.redirects)?,
         before_files: list(RuleKind::BeforeFiles, &info.routing.before_files)?,
         after_files: list(RuleKind::AfterFiles, &info.routing.after_files)?,
@@ -713,6 +714,7 @@ impl AppState {
             needs_node_headers: proxy.is_some()
                 || [
                     &rules.headers,
+                    &rules.on_match_headers,
                     &rules.redirects,
                     &rules.before_files,
                     &rules.after_files,

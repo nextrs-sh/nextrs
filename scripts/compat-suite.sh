@@ -5,7 +5,7 @@
 #   scripts/compat-suite.sh [--next VERSION] [--isolates N] [--out DIR] [--browser]
 #                           [--cache-components] [--proxy] [--proxy-combinations]
 #                           [--images] [--only-images] [--pages] [--only-pages]
-#                           [--only-i18n] [--adapter]
+#                           [--only-i18n] [--adapter] [--deployment-id ID]
 #
 # Without --next the fixture's pinned lockfile is used (npm ci, in place).
 # With --next the fixture is copied to a temporary directory and that
@@ -56,6 +56,11 @@
 # next-hybrid are also built with the NextRS deployment adapter
 # (NEXT_ADAPTER_PATH=packages/next-adapter/index.mjs, into .next-adapter)
 # and compared again (next start serving the same adapter build).
+# --deployment-id ID builds every fixture with NEXT_DEPLOYMENT_ID=ID (Next's
+# deploymentId) and starts next start with it too, as a deployment would;
+# NextRS takes it from the build. The base fixture then also runs
+# tests/compat/deployment-id.mjs and, with --browser,
+# tests/browser/deployment-id.mjs.
 # Exits non-zero if any suite fails.
 set -euo pipefail
 
@@ -73,6 +78,7 @@ pages=0
 only_pages=0
 only_i18n=0
 adapter=0
+deployment_id=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --next) next_version="$2"; shift 2 ;;
@@ -88,9 +94,15 @@ while [[ $# -gt 0 ]]; do
     --only-pages) pages=1; only_pages=1; shift ;;
     --only-i18n) pages=1; only_pages=1; only_i18n=1; shift ;;
     --adapter) adapter=1; shift ;;
+    --deployment-id) deployment_id="$2"; shift 2 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
 done
+
+if [[ -n "$deployment_id" ]]; then
+  # Read by next build (deploymentId) and by next start's config.
+  export NEXT_DEPLOYMENT_ID="$deployment_id"
+fi
 
 work=""
 pids=()
@@ -247,6 +259,14 @@ run isr       tests/compat/isr.mjs       --baseline "$baseline" --candidate "$ca
   --project "$project" --isolates "$isolates" --json "$out/isr.json"
 if [[ $browser == 1 ]]; then
   run browser tests/browser/actions.mjs --baseline "$baseline" --candidate "$candidate" --upstream "$NEXTRS_UPSTREAM" --json "$out/browser.json"
+fi
+if [[ -n "$deployment_id" ]]; then
+  run deployment-id tests/compat/deployment-id.mjs --baseline "$baseline" --candidate "$candidate" \
+    --deployment-id "$deployment_id" --json "$out/deployment-id.json"
+  if [[ $browser == 1 ]]; then
+    run browser-deployment-id tests/browser/deployment-id.mjs --baseline "$baseline" --candidate "$candidate" \
+      --deployment-id "$deployment_id" --json "$out/browser-deployment-id.json"
+  fi
 fi
 # The same feature checks against next start: the reference must pass too.
 run features-next-start tests/compat/features.mjs --target "$baseline" --requests 600 --concurrency 64 --json "$out/features-next-start.json"

@@ -6,7 +6,8 @@ use std::time::Duration;
 
 use clap::{Parser, Subcommand, ValueEnum};
 use nextrs_adapter::{
-    BuildInfo, InspectOptions, Matcher, MetadataSource, Rendering, RouteKind, Runtime, Severity,
+    BuildInfo, DEPLOYMENT_ID_ENV, InspectOptions, Matcher, MetadataSource, Rendering, RouteKind,
+    Runtime, Severity,
 };
 use nextrs_runtime::{
     AddrRange, AllowRule, CacheConfig, Executor, ExecutorConfig, Limits, NetworkConfig,
@@ -748,6 +749,27 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                             Err(_) => tracing::warn!(%name, "--js-env variable is not set"),
                         }
                     }
+                    // next start's base server assigns its deployment ID to
+                    // process.env.NEXT_DEPLOYMENT_ID before any route runs
+                    // (an empty string without one); Next's server code
+                    // reads it from there. With runtimeServerDeploymentId it
+                    // reads the variable instead, and refuses to start
+                    // without it.
+                    let deployment = &info.config.deployment;
+                    let passed = config.env.get(DEPLOYMENT_ID_ENV).cloned();
+                    let id = deployment.server_id(passed.as_deref())?;
+                    if let Some(passed) = passed.filter(|p| *p != id) {
+                        tracing::warn!(
+                            passed = %passed,
+                            deployment_id = %id,
+                            "--js-env {DEPLOYMENT_ID_ENV} replaced by the build's deploymentId, \
+                             as next start replaces it"
+                        );
+                    }
+                    if !id.is_empty() {
+                        tracing::info!(deployment_id = %id, "deployment ID");
+                    }
+                    config.env.insert(DEPLOYMENT_ID_ENV.to_owned(), id);
                     if let Some(flags) = &limits.v8_flags {
                         let flags: Vec<String> =
                             flags.split_whitespace().map(str::to_owned).collect();
