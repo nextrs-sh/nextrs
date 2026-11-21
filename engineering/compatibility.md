@@ -90,6 +90,8 @@ The suites that compare these fixtures are described in
 | Cache Components (`"use cache"`, `cacheLife`, `cacheTag`) | 🧪 Partial | `"use cache"` functions share one cache across isolates; Partial Prerendering shells are completed by Next's handler. `"use cache: private"` and custom `cacheHandlers` are untested |
 | `next.config` headers, redirects, rewrites (beforeFiles, afterFiles, fallback; `has`/`missing`) | 🧪 Experimental | Applied in Rust in `next start`'s order from `routes-manifest.json`; no executor needed |
 | Rewrites to another origin (config or proxy) | 🧪 Experimental | Forwarded as `next start` forwards them, only to destinations `--net-allow` permits (the same policy as `fetch`, checked for every connection); otherwise `502` (`external-rewrite-denied`) and nothing is sent. WebSocket upgrades answer `501` |
+| Response compression (`compress`) | 🧪 Experimental | gzip, decided as `next start`'s compression middleware decides it; on unless `compress: false`. Streaming is preserved. Differences from `next start` under [Known gaps](#known-gaps); details in [configuration.md](configuration.md#response-compression) |
+| `deploymentId` (and `NEXT_DEPLOYMENT_ID` at build time) | 🧪 Experimental | The routes-manifest `onMatchHeaders` rules Next writes for it are applied as `next start` applies them (`x-nextjs-deployment-id` on RSC and `/_next/data` responses that matched a route or file); the JavaScript runtime gets `NEXT_DEPLOYMENT_ID` as `next start` sets it. Client navigation stays client-side; a response from another deployment makes the client load the page in full, as with `next start`. Malformed or unknown `onMatchHeaders` entries are refused at startup. No server-side skew routing (neither does `next start`) |
 | `basePath`, `trailingSlash`, `assetPrefix`, `experimental.caseSensitiveRoutes` | 🧪 Experimental | Tested in separate fixture builds, including `basePath` with `trailingSlash` |
 | Image optimization (`/_next/image`, `next/image`) | 🧪 Experimental | Answered in Rust, no executor needed for public files and static imports: Next's validation, cache keys, headers and 304s; JPEG, PNG, WebP, GIF and TIFF sources; WebP, AVIF, JPEG and PNG output; EXIF orientation and colour profiles; remote sources only where both `images.remotePatterns` and `--net-allow` allow them. AVIF/HEIF and JPEG-compressed TIFF sources are served unchanged (see [Known gaps](#known-gaps)) |
 | Pages Router (`pages/`): pages, `getServerSideProps`, `getStaticProps`/`getStaticPaths`, API routes, `/_next/data` | 🧪 Experimental | Pages without data functions are served from Rust as `next start` serves them; everything else runs Next's compiled page and API handlers (requires `--js-runtime embedded-v8`, otherwise `501`): every `fallback` mode, ISR and on-demand `res.revalidate`, Preview Mode, `getInitialProps`, the custom App, Document, 404, 500 and `_error` pages. Hybrid `app/` + `pages/` builds are supported, as are builds made with a deployment adapter (`NEXT_ADAPTER_PATH`; checked against the build's manifests at startup). Not with the edge runtime |
@@ -248,7 +250,20 @@ with Server Actions, ISR or a proxy is refused at startup (unless
   `images.customCacheHandler` is ignored. Remote images need `--net-allow`
   (and, for loopback or private addresses, both `dangerouslyAllowLocalIP`
   and `--net-allow-addr`).
-- **Other framework features:** response compression is not implemented.
+- **Compression differences:** gzip only: where `next start` would send
+  deflate (a client that accepts deflate but not gzip) NextRS sends the
+  response uncompressed. Partial (206) responses are never compressed
+  (`next start` compresses the partial body). A compressed response's
+  strong ETag becomes weak, and its `Accept-Ranges` is removed (`next
+  start` keeps both).
+- **Range requests:** static files answer a `Range` request with the
+  whole file (`200`, no `Accept-Ranges` advertised), where `next start`
+  answers `206`.
+- **Deployment ID source:** NextRS uses the `deploymentId` recorded in the
+  build. `next start` evaluates `next.config` again when it starts, so a
+  `NEXT_DEPLOYMENT_ID` different from the build's at start time changes
+  what its handlers render but not its routing headers; NextRS keeps the
+  build's throughout. Start both with the build's ID.
 - **Browser verification:** Server Actions, proxies, real-world proxy
   applications, `next/image`, the Pages Router and navigation between the
   App Router and the Pages Router are tested in Chromium against

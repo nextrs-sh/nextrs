@@ -3,6 +3,16 @@
 Measurements of NextRS against the official Next.js server (`next start`),
 with their method, conditions and raw data.
 
+> [!NOTE]
+> Compression. After `0.1.0-rc.1`, NextRS gzips responses as `next start`
+> does. Every result on this page was measured with requests that do not
+> accept compression (the load generator sends no `Accept-Encoding`, the
+> Node.js drivers send `identity`), so both servers sent the same
+> uncompressed bytes and the results are unaffected. When comparing with
+> clients that accept gzip (browsers, k6, most HTTP libraries), both
+> servers compress and spend CPU on it; to compare without it, build with
+> `compress: false` in `next.config`, which turns it off for both.
+
 > [!IMPORTANT]
 > Results are specific to the tested workloads, hardware, and runtime
 > configurations. They are not guarantees of production performance.

@@ -1,0 +1,390 @@
+{
+  "run": "mwqaglgjdcef",
+  "isolates": 1,
+  "results": [
+    {
+      "name": "fresh-prerender",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200,
+            200
+          ],
+          "cache": [
+            "HIT",
+            "HIT"
+          ],
+          "cacheControl": "s-maxage=3600, stale-while-revalidate=31532400",
+          "sameGeneration": true,
+          "renders": 0
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "expired-regenerates-in-background",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "cache": [
+            "STALE",
+            "HIT",
+            "HIT"
+          ],
+          "generations": [
+            0,
+            1,
+            1
+          ],
+          "cacheControl": "s-maxage=2, stale-while-revalidate=31535998",
+          "renders": 1
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "expired-rsc-request",
+      "verdict": "MATCH",
+      "detail": {
+        "status": 307,
+        "location": true
+      }
+    },
+    {
+      "name": "on-demand-params-cached",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200,
+            200,
+            200
+          ],
+          "cache": [
+            "MISS",
+            "HIT",
+            "HIT"
+          ],
+          "generations": [
+            0,
+            0,
+            0
+          ],
+          "renders": 1
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "route-handler-isr",
+      "verdict": "MATCH",
+      "detail": {
+        "type": "application/json",
+        "cache": [
+          "STALE",
+          "HIT",
+          "HIT"
+        ],
+        "generations": [
+          0,
+          1,
+          1
+        ],
+        "cacheControl": "s-maxage=2, stale-while-revalidate=31535998",
+        "renders": 1
+      }
+    },
+    {
+      "name": "concurrent-requests-on-stale-page",
+      "verdict": "MATCH",
+      "detail": {
+        "allOk": true,
+        "staleServed": true,
+        "rendersWithinIsolates": true,
+        "distinctGenerationsServed": true,
+        "settledHit": "HIT"
+      }
+    },
+    {
+      "name": "failed-regeneration-keeps-last-good-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200,
+            200,
+            200,
+            200,
+            200
+          ],
+          "generations": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          "recovered": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-revalidatePath-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "action": {
+            "status": 200,
+            "type": "text/x-component",
+            "revalidated": "1",
+            "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+            "rendered": true
+          },
+          "cache": [
+            "HIT",
+            "MISS",
+            "HIT",
+            "HIT"
+          ],
+          "generations": [
+            0,
+            1,
+            1,
+            1
+          ],
+          "renders": 2,
+          "mutations": 1
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "action-updateTag-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "action": {
+          "status": 200,
+          "type": "text/x-component",
+          "revalidated": "1",
+          "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+          "rendered": true
+        },
+        "cache": [
+          "HIT",
+          "MISS",
+          "HIT",
+          "HIT"
+        ],
+        "generations": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "renders": 2,
+        "mutations": 1
+      }
+    },
+    {
+      "name": "action-revalidateTag-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "action": {
+          "status": 200,
+          "type": "text/x-component",
+          "revalidated": null,
+          "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+          "rendered": false
+        },
+        "cache": [
+          "HIT",
+          "STALE",
+          "HIT",
+          "HIT"
+        ],
+        "generations": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "renders": 1,
+        "mutations": 1
+      }
+    },
+    {
+      "name": "action-none-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "action": {
+            "status": 200,
+            "type": "text/x-component",
+            "revalidated": null,
+            "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+            "rendered": false
+          },
+          "cache": [
+            "HIT",
+            "HIT",
+            "HIT",
+            "HIT"
+          ],
+          "generations": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "renders": 0,
+          "mutations": 1
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "mpa-form-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "status": 200,
+        "type": "text/html",
+        "location": null,
+        "rendered": true,
+        "regenerated": true,
+        "mutations": 1
+      }
+    },
+    {
+      "name": "bound-action-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "status": 200,
+        "type": "text/html",
+        "location": null,
+        "rendered": true,
+        "regenerated": true,
+        "mutations": 1
+      }
+    },
+    {
+      "name": "concurrent-mutations-on-isr-page",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "statuses": [
+            200
+          ],
+          "eachRecordedOnce": true,
+          "afterwardOneGeneration": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "revalidation-visible-in-every-isolate",
+      "verdict": "PASS",
+      "detail": {
+        "pass": true,
+        "distinct": 1
+      }
+    },
+    {
+      "name": "on-demand-page-shared-by-isolates",
+      "verdict": "PASS",
+      "detail": {
+        "pass": true,
+        "renders": 1
+      }
+    },
+    {
+      "name": "cookie-dependent-page-not-shared",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+          "cache": null,
+          "eachOwn": true,
+          "anonymous": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "authorization-dependent-route-not-shared",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "cacheControl": null,
+          "eachOwn": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "poisoning-query-and-headers",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "attempts": [
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            },
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            },
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            },
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            },
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            },
+            {
+              "status": 200,
+              "cache": "HIT",
+              "sameGeneration": true,
+              "setCookie": false
+            }
+          ],
+          "renders": 0,
+          "unchanged": true
+        },
+        "asserted": true
+      }
+    },
+    {
+      "name": "rsc-and-html-entries-not-confused",
+      "verdict": "MATCH",
+      "detail": {
+        "observed": {
+          "htmlType": "text/html",
+          "flightType": "text/x-component",
+          "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+          "afterType": "text/html",
+          "afterIsHtml": true
+        },
+        "asserted": true
+      }
+    }
+  ]
+}

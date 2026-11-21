@@ -58,13 +58,16 @@ scripts/realworld-suite.sh --isolates 1 --out realworld-out --browser
 alone, `--only-i18n` the native i18n suites. `--adapter` also builds the
 Pages Router, hybrid and i18n fixtures with the deployment adapter and runs
 the same suites on those builds (next start serving the same build).
+`--deployment-id ID` builds every fixture with `NEXT_DEPLOYMENT_ID=ID`
+(starting `next start` with it too) and adds the deployment ID suites.
 
 | Suite | What it checks |
 |---|---|
 | [`compare.mjs`](../tests/compat/compare.mjs) | Status, headers and body of every fixture case against `next start`. An explicit `501` is reported as UNSUPPORTED, never as a match |
 | [`semantic.mjs`](../tests/compat/semantic.mjs) | Server-rendered DOM and the parsed RSC Flight tree, for output that is equivalent but chunked differently |
 | [`isolation.mjs`](../tests/compat/isolation.mjs) | Many overlapping requests with unique headers, cookies and params, plus client aborts: no request may see another's data |
-| [`streaming.mjs`](../tests/compat/streaming.mjs) | The Suspense shell reaches the client before the delayed boundary content |
+| [`streaming.mjs`](../tests/compat/streaming.mjs) | The Suspense shell reaches the client before the delayed boundary content; with `--encoding gzip`, also when the response is gzip-compressed and decoded as it arrives |
+| [`deployment-id.mjs`](../tests/compat/deployment-id.mjs) | A `deploymentId` build (`--deployment-id ID`): `x-nextjs-deployment-id` per request kind (document, RSC, prefetch, HEAD, another deployment's client, unmatched paths, static files, Server Actions), `data-dpl-id` and `?dpl=` assets, no build ID in RSC payloads |
 | [`features.mjs`](../tests/compat/features.mjs) | Isolation beyond headers: `React.cache`, concurrent Suspense, error boundaries, `after()`, concurrent uploads, and the intended scope of `unstable_cache` |
 | [`data.mjs`](../tests/compat/data.mjs) | Server-side `fetch` and the data cache through a local upstream ([`upstream.mjs`](../tests/compat/upstream.mjs)) that counts requests: caching modes, revalidation, tags, cache identity, dedupe, errors, cancellation, sharing across isolates |
 | [`restart.mjs`](../tests/compat/restart.mjs) | Cache persistence across a restart of both servers: data entries and an ISR page |
@@ -89,6 +92,7 @@ the same suites on those builds (next start serving the same build).
 | [`hybrid.mjs`](../tests/compat/hybrid.mjs) | App Router and Pages Router in one build ([`next-hybrid`](../fixtures/next-hybrid/)): both routers' pages, route handlers and API routes, data and RSC requests, the App Router not-found page answering for both, a rewrite between them, `next/image`, one proxy in front of both |
 | [`pages-i18n.mjs`](../tests/compat/pages-i18n.mjs) | Next's native `i18n` ([`next-pages-i18n`](../fixtures/next-pages-i18n/): default, no detection without a proxy, `basePath` + `trailingSlash`, domain locales, and a deployment-adapter build): the locale redirect for `/` (`Accept-Language`, `NEXT_LOCALE`, domains), prefixes, case and encoding, pages of every kind per locale, data routes, localized 404 pages, API routes under a locale, rules with and without `locale: false`, the proxy and bypass attempts, ISR and on-demand revalidation per locale, Preview Mode, concurrent identities, middleware prefetches |
 | [`pages-app-gip.mjs`](../tests/compat/pages-app-gip.mjs) | A custom App with `getInitialProps` ([`next-pages-app-gip`](../fixtures/next-pages-app-gip/)): App and page initial props, request headers and cookies, data routes, a redirect, the error page, concurrent identities |
+| [`browser/deployment-id.mjs`](../tests/browser/deployment-id.mjs) | A `deploymentId` build in Chromium: client navigation stays client-side, a response claiming another deployment makes the client load the page in full, a Server Action sends the deployment ID |
 | [`browser/actions.mjs`](../tests/browser/actions.mjs) | Server Actions in Chromium (playwright-core), with and without JavaScript: what a user sees, cookies, every action request's status and headers |
 | [`browser/proxy.mjs`](../tests/browser/proxy.mjs) | Client-side navigation through the proxy and config rules |
 | [`browser/realworld.mjs`](../tests/browser/realworld.mjs) | The `jose` and `next-intl` applications: login and logout, redirects back, a protected mutation, language detection, locale switching |

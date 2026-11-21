@@ -1,0 +1,1322 @@
+{
+  "results": [
+    {
+      "name": "simple-js",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/actions/simple",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/actions/simple",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "simple-nojs",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/actions/simple",
+          "form": 1,
+          "actions": [
+            {
+              "action": false,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/html",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/actions/simple",
+          "form": 1,
+          "actions": [
+            {
+              "action": false,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/html",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "form",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "first": {
+            "ok": true,
+            "entries": [
+              [
+                "title",
+                "Dune"
+              ],
+              [
+                "author",
+                "Frank Herbert"
+              ],
+              [
+                "tag",
+                "sf"
+              ],
+              [
+                "tag",
+                "classic"
+              ],
+              [
+                "note",
+                "Ünïcödé ✓ 📚 ‮ RTL \u0000 nul"
+              ],
+              [
+                "empty",
+                ""
+              ]
+            ]
+          },
+          "second": {
+            "ok": true,
+            "entries": [
+              [
+                "title",
+                "Dune II"
+              ],
+              [
+                "author",
+                ""
+              ],
+              [
+                "note",
+                "second"
+              ],
+              [
+                "empty",
+                ""
+              ]
+            ]
+          },
+          "invalid": {
+            "ok": false,
+            "entries": [],
+            "error": "Title must not be blank"
+          },
+          "resetTitle": "",
+          "pending": "idle",
+          "submits": "3",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "first": {
+            "ok": true,
+            "entries": [
+              [
+                "title",
+                "Dune"
+              ],
+              [
+                "author",
+                "Frank Herbert"
+              ],
+              [
+                "tag",
+                "sf"
+              ],
+              [
+                "tag",
+                "classic"
+              ],
+              [
+                "note",
+                "Ünïcödé ✓ 📚 ‮ RTL \u0000 nul"
+              ],
+              [
+                "empty",
+                ""
+              ]
+            ]
+          },
+          "second": {
+            "ok": true,
+            "entries": [
+              [
+                "title",
+                "Dune II"
+              ],
+              [
+                "author",
+                ""
+              ],
+              [
+                "note",
+                "second"
+              ],
+              [
+                "empty",
+                ""
+              ]
+            ]
+          },
+          "invalid": {
+            "ok": false,
+            "entries": [],
+            "error": "Title must not be blank"
+          },
+          "resetTitle": "",
+          "pending": "idle",
+          "submits": "3",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "form-nojs",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/actions/form",
+          "result": "{\"ok\":true,\"entries\":[[\"title\",\"Dune\"],[\"author\",\"\"],[\"tag\",\"sf\"],[\"note\",\"progressive ✓\"],[\"empty\",\"\"]]}",
+          "actions": [
+            {
+              "action": false,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/html",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/actions/form",
+          "result": "{\"ok\":true,\"entries\":[[\"title\",\"Dune\"],[\"author\",\"\"],[\"tag\",\"sf\"],[\"note\",\"progressive ✓\"],[\"empty\",\"\"]]}",
+          "actions": [
+            {
+              "action": false,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/html",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "upload",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "result": {
+            "ok": true,
+            "entries": [
+              [
+                "caption",
+                "cover"
+              ],
+              [
+                "file",
+                {
+                  "file": "cover ✓.bin",
+                  "type": "application/octet-stream",
+                  "size": 131072,
+                  "sha256": "8848b865f564362c03a1ceb28f4df62c2ad38f8979969e62e409442052ec9f38"
+                }
+              ],
+              [
+                "many",
+                {
+                  "file": "a.txt",
+                  "type": "text/plain",
+                  "size": 6,
+                  "sha256": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+                }
+              ],
+              [
+                "many",
+                {
+                  "file": "empty.dat",
+                  "type": "application/x-empty",
+                  "size": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                }
+              ],
+              [
+                "none",
+                {
+                  "file": "undefined",
+                  "type": "application/octet-stream",
+                  "size": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                }
+              ]
+            ]
+          },
+          "expectedSha": "8848b865f564362c03a1ceb28f4df62c2ad38f8979969e62e409442052ec9f38",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "result": {
+            "ok": true,
+            "entries": [
+              [
+                "caption",
+                "cover"
+              ],
+              [
+                "file",
+                {
+                  "file": "cover ✓.bin",
+                  "type": "application/octet-stream",
+                  "size": 131072,
+                  "sha256": "8848b865f564362c03a1ceb28f4df62c2ad38f8979969e62e409442052ec9f38"
+                }
+              ],
+              [
+                "many",
+                {
+                  "file": "a.txt",
+                  "type": "text/plain",
+                  "size": 6,
+                  "sha256": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060"
+                }
+              ],
+              [
+                "many",
+                {
+                  "file": "empty.dat",
+                  "type": "application/x-empty",
+                  "size": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                }
+              ],
+              [
+                "none",
+                {
+                  "file": "undefined",
+                  "type": "application/octet-stream",
+                  "size": 0,
+                  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                }
+              ]
+            ]
+          },
+          "expectedSha": "8848b865f564362c03a1ceb28f4df62c2ad38f8979969e62e409442052ec9f38",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "upload-nojs",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "result": "{\"ok\":true,\"entries\":[[\"caption\",\"cover\"],[\"file\",{\"file\":\"cover.bin\",\"type\":\"application/octet-stream\",\"size\":131072,\"sha256\":\"8848b865f564362c03a1ceb28f4df62c2ad38f8979969e62e409442052ec9f38\"}],[\"many\",{\"file\":\"\",\"type\":\"application/octet-stream\",\"size\":0,\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"}],[\"none\",{\"file\":\"\",\"type\":\"application/octet-stream\",\"size\":0,\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"}]]}",
+          "actions": [
+            {
+              "action": false,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/html",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "result": "{\"ok\":true,\"entries\":[[\"caption\",\"cover\"],[\"file\",{\"file\":\"cover.bin\",\"type\":\"application/octet-stream\",\"size\":131072,\"sha256\":\"8848b865f564362c03a1ceb28f4df62c2ad38f8979969e62e409442052ec9f38\"}],[\"many\",{\"file\":\"\",\"type\":\"application/octet-stream\",\"size\":0,\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"}],[\"none\",{\"file\":\"\",\"type\":\"application/octet-stream\",\"size\":0,\"sha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"}]]}",
+          "actions": [
+            {
+              "action": false,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/html",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "bound",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "bound": "{\"greeting\":\"Hello, Ada\"}",
+          "closure": "{\"greeting\":\"Grace read edition 3 (Third) with closure-secret-1d\"}",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "bound": "{\"greeting\":\"Hello, Ada\"}",
+          "closure": "{\"greeting\":\"Grace read edition 3 (Third) with closure-secret-1d\"}",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "bound-nojs",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "closure": "{\"greeting\":\"Grace read edition 3 (Third) with closure-secret-1d\"}"
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "closure": "{\"greeting\":\"Grace read edition 3 (Third) with closure-secret-1d\"}"
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "bound-dynamic",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "closureCarriesRender": true,
+          "bound": "{\"greeting\":\"Hi, Ada\"}",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "closureCarriesRender": true,
+          "bound": "{\"greeting\":\"Hi, Ada\"}",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "redirect",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "heading": "Redirected",
+          "dynamic": "/books/7",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": "/actions/redirect/done?from=action;push",
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "s-maxage=31536000"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": "/books/7;push",
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "heading": "Redirected",
+          "dynamic": "/books/7",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": "/actions/redirect/done?from=action;push",
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "s-maxage=31536000"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": "/books/7;push",
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "redirect-nojs",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "heading": "Redirected",
+          "actions": [
+            {
+              "action": false,
+              "requestType": "multipart/form-data",
+              "status": 303,
+              "type": "",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "heading": "Redirected",
+          "actions": [
+            {
+              "action": false,
+              "requestType": "multipart/form-data",
+              "status": 303,
+              "type": "",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "error",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "thrown": {
+            "error": "Minified React error #441; visit https://react.dev/errors/441 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+          },
+          "boundary": {
+            "message": "Minified React error #441; visit https://react.dev/errors/441 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+            "digest": "has-digest"
+          },
+          "notFound": "Action said not found",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "text/plain",
+              "status": 500,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 500,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 404,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": [
+          "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+          "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+          "console: Error: Minified React error #441; visit https://react.dev/errors/441 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+          "console: Failed to load resource: the server responded with a status of 404 (Not Found)"
+        ]
+      },
+      "candidate": {
+        "observed": {
+          "thrown": {
+            "error": "Minified React error #441; visit https://react.dev/errors/441 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+          },
+          "boundary": {
+            "message": "Minified React error #441; visit https://react.dev/errors/441 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+            "digest": "has-digest"
+          },
+          "notFound": "Action said not found",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "text/plain",
+              "status": 500,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 500,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 404,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": [
+          "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+          "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+          "console: Error: Minified React error #441; visit https://react.dev/errors/441 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.",
+          "console: Failed to load resource: the server responded with a status of 404 (Not Found)"
+        ]
+      }
+    },
+    {
+      "name": "error-nojs",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "status": 500,
+          "boundary": 0
+        },
+        "errors": [
+          "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      },
+      "candidate": {
+        "observed": {
+          "status": 500,
+          "boundary": 0
+        },
+        "errors": [
+          "console: Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+        ]
+      }
+    },
+    {
+      "name": "cookies",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "before": "unset",
+          "set": "mint",
+          "jar": [
+            {
+              "name": "nextrs-flavor",
+              "value": "mint",
+              "httpOnly": true,
+              "sameSite": "Lax",
+              "path": "/"
+            }
+          ],
+          "cleared": "unset",
+          "after": 0,
+          "reloaded": "unset",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": "1",
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": "1",
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "before": "unset",
+          "set": "mint",
+          "jar": [
+            {
+              "name": "nextrs-flavor",
+              "value": "mint",
+              "httpOnly": true,
+              "sameSite": "Lax",
+              "path": "/"
+            }
+          ],
+          "cleared": "unset",
+          "after": 0,
+          "reloaded": "unset",
+          "actions": [
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": "1",
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "multipart/form-data",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": "1",
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "client",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "who": {
+            "ok": {
+              "tag": "client",
+              "user": null,
+              "userAfterDelay": null,
+              "cookie": "vanilla"
+            }
+          },
+          "large": {
+            "ok": 200000
+          },
+          "actions": [
+            {
+              "action": true,
+              "requestType": "text/plain",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "text/plain",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "who": {
+            "ok": {
+              "tag": "client",
+              "user": null,
+              "userAfterDelay": null,
+              "cookie": "vanilla"
+            }
+          },
+          "large": {
+            "ok": 200000
+          },
+          "actions": [
+            {
+              "action": true,
+              "requestType": "text/plain",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            },
+            {
+              "action": true,
+              "requestType": "text/plain",
+              "status": 200,
+              "type": "text/x-component",
+              "redirect": null,
+              "revalidated": null,
+              "notFound": null,
+              "cacheControl": "no-cache, no-store, max-age=0, must-revalidate"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "concurrent",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "run": {
+            "count": 8,
+            "mismatched": 0,
+            "tags": [
+              "t0",
+              "t1",
+              "t2",
+              "t3",
+              "t4",
+              "t5",
+              "t6",
+              "t7"
+            ]
+          },
+          "recorded": 8,
+          "ledger": 8,
+          "distinct": 8,
+          "actions": 16
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "run": {
+            "count": 8,
+            "mismatched": 0,
+            "tags": [
+              "t0",
+              "t1",
+              "t2",
+              "t3",
+              "t4",
+              "t5",
+              "t6",
+              "t7"
+            ]
+          },
+          "recorded": 8,
+          "ledger": 8,
+          "distinct": 8,
+          "actions": 16
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "revalidate",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "updateTag": {
+            "visibleRefetch": true
+          },
+          "revalidatePath": {
+            "visibleRefetch": true
+          },
+          "refresh": {
+            "visibleRefetch": false
+          },
+          "revalidateTag": {
+            "visibleRefetch": false
+          },
+          "staticPage": {
+            "rerendered": true
+          },
+          "actions": [
+            {
+              "status": 200,
+              "revalidated": "1"
+            },
+            {
+              "status": 200,
+              "revalidated": "1"
+            },
+            {
+              "status": 200,
+              "revalidated": "2"
+            },
+            {
+              "status": 200,
+              "revalidated": null
+            },
+            {
+              "status": 200,
+              "revalidated": "1"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "updateTag": {
+            "visibleRefetch": true
+          },
+          "revalidatePath": {
+            "visibleRefetch": true
+          },
+          "refresh": {
+            "visibleRefetch": false
+          },
+          "revalidateTag": {
+            "visibleRefetch": false
+          },
+          "staticPage": {
+            "rerendered": true
+          },
+          "actions": [
+            {
+              "status": 200,
+              "revalidated": "1"
+            },
+            {
+              "status": 200,
+              "revalidated": "1"
+            },
+            {
+              "status": 200,
+              "revalidated": "2"
+            },
+            {
+              "status": 200,
+              "revalidated": null
+            },
+            {
+              "status": 200,
+              "revalidated": "1"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "isr-actions",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "none": {
+            "changed": false
+          },
+          "revalidatePath": {
+            "visibleRerender": true,
+            "reloadFresh": true,
+            "reloadCached": true
+          },
+          "updateTag": {
+            "visibleRerender": true,
+            "reloadFresh": true,
+            "reloadCached": true
+          },
+          "revalidateTag": {
+            "visibleRerender": false,
+            "firstReloadStale": true,
+            "laterReloadFresh": true
+          },
+          "navigated": "slug one",
+          "repeat": {
+            "first": true,
+            "second": true
+          },
+          "actions": [
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": null
+            },
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": "1"
+            },
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": "1"
+            },
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": null
+            },
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": "1"
+            },
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": "1"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "none": {
+            "changed": false
+          },
+          "revalidatePath": {
+            "visibleRerender": true,
+            "reloadFresh": true,
+            "reloadCached": true
+          },
+          "updateTag": {
+            "visibleRerender": true,
+            "reloadFresh": true,
+            "reloadCached": true
+          },
+          "revalidateTag": {
+            "visibleRerender": false,
+            "firstReloadStale": true,
+            "laterReloadFresh": true
+          },
+          "navigated": "slug one",
+          "repeat": {
+            "first": true,
+            "second": true
+          },
+          "actions": [
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": null
+            },
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": "1"
+            },
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": "1"
+            },
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": null
+            },
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": "1"
+            },
+            {
+              "status": 200,
+              "type": "text/x-component",
+              "revalidated": "1"
+            }
+          ]
+        },
+        "errors": []
+      }
+    },
+    {
+      "name": "isr-actions-nojs",
+      "verdict": "PASS",
+      "baseline": {
+        "observed": {
+          "url": "/isr/tagged",
+          "postRendered": true,
+          "regenerated": true,
+          "cached": true,
+          "actions": [
+            {
+              "status": 200,
+              "type": "text/html"
+            }
+          ]
+        },
+        "errors": []
+      },
+      "candidate": {
+        "observed": {
+          "url": "/isr/tagged",
+          "postRendered": true,
+          "regenerated": true,
+          "cached": true,
+          "actions": [
+            {
+              "status": 200,
+              "type": "text/html"
+            }
+          ]
+        },
+        "errors": []
+      }
+    }
+  ]
+}

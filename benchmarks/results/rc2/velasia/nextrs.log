@@ -1,0 +1,35 @@
+2026-11-21T10:47:01.615145Z  INFO nextrs: X-Forwarded-* headers are passed through from every client (as next start); a reverse proxy must overwrite them, or use --trusted-proxy
+2026-11-21T10:47:01.635103Z  INFO nextrs: monorepo build: the workspace root's packages are readable packages=/home/dennispaler/.cache/nextrs-rc2/velasia/apps/web/.next/standalone/node_modules
+2026-11-21T10:47:01.635125Z  INFO nextrs: outbound fetch enabled allow=http://127.0.0.1:4010
+2026-11-21T10:47:01.635155Z  INFO nextrs: shared data cache enabled persistent=false dir=
+2026-11-21T10:47:01.635164Z  INFO nextrs: deployment ID deployment_id=velasia-rc2-dpl
+2026-11-21T10:47:01.752822Z  WARN nextrs::js: node:crypto.generatePrimeSync is not implemented (read as undefined) kind="missing-member"
+2026-11-21T10:47:01.752848Z  WARN nextrs::js: node:crypto.generateKeySync is not implemented (read as undefined) kind="missing-member"
+2026-11-21T10:47:01.992602Z  INFO nextrs::executor: isolate ready slot=0 generation=1 boot_ms=357
+2026-11-21T10:47:01.992628Z  INFO nextrs: embedded V8 executor ready ready_ms=377 isolates=1
+2026-11-21T10:47:01.992883Z  INFO nextrs: Server Actions enabled actions=45 next_body_limit=131072 nextrs_body_limit=10485760 effective=131072
+2026-11-21T10:47:02.019589Z  INFO nextrs: metrics listening metrics_addr=127.0.0.1:9100
+2026-11-21T10:47:02.019617Z  INFO nextrs: nextrs ready addr=127.0.0.1:8082 build_id=build-TfctsWXpff2fKS ready_ms=404
+`x-forwarded-host` header with value `127.0.0.1:8082` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+    at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+    at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+    at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+    at async serve (ext:nextrs/03_server.js:445:11) {
+  digest: "2905030397"
+}
+{"level":50,"time":1795258080355,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"2905030397","requestId":null}
+`x-forwarded-host` header with value `127.0.0.1:8082` does not match `origin` header with value `evil.example` from a forwarded Server Actions request. Aborting the action.
+Error: Invalid Server Actions request.
+    at async m (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:1:12033)
+    at async n (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:4601)
+    at async t (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:2:6022)
+    at async $ (.next/server/chunks/ssr/[root-of-the-server]__0k8waiqs70wj4._.js:4:1526)
+    at async serve (ext:nextrs/03_server.js:445:11) {
+  digest: "2905030397"
+}
+{"level":50,"time":1795258138779,"service":"velasia-web","msg":"request error","method":"POST","route":"/manage-booking","routeType":"action","renderSource":"react-server-components-payload","errorName":"Error","digest":"2905030397","requestId":null}
+2026-11-21T10:49:13.658495Z  INFO nextrs_server::serve: shutting down: no new connections; draining connections=8 grace_ms=10000
+2026-11-21T10:49:13.697716Z  INFO nextrs: stopping JavaScript isolates
+2026-11-21T10:49:13.738452Z  INFO nextrs: nextrs stopped

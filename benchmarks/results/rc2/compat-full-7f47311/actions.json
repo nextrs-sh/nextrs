@@ -1,0 +1,877 @@
+{
+  "run": "mwqajw7k-2025b0",
+  "ids": {
+    "record": "7ca41462ddfebf1d54d844329711f4801db0186032",
+    "who": "60dca6650e1e12cae17629b3fdf5215b4d177f2a42",
+    "echo": "604a70ed3cc8791d24bb30fabaa2021058bbb39f0e",
+    "flavor": "40532fe9039861399f44e2c9f505a17aede1ed3789",
+    "hang": "000928c2b09cdb1602525ecd8d540179438edb1eb6",
+    "large": "40d7d362e8da512f2a7edef774356132c957753792",
+    "throws": "40b25314e590ed98048ab887533187eb709f7a888f"
+  },
+  "results": [
+    {
+      "name": "invalid-origin-fetch",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": null,
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n",
+        "recorded": 0
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": null,
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n",
+        "recorded": 0
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "invalid-origin-mpa",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/plain",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": null,
+        "setCookie": null,
+        "body": "Internal Server Error"
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/plain",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": null,
+        "setCookie": null,
+        "body": "Internal Server Error"
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "origin-null",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": null,
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n",
+        "recorded": 0
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": null,
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n",
+        "recorded": 0
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "forwarded-host-matching-origin",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "recorded": 1
+      },
+      "candidate": {
+        "status": 200,
+        "recorded": 1
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "missing-origin",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "recorded": 1
+      },
+      "candidate": {
+        "status": 200,
+        "recorded": 1
+      }
+    },
+    {
+      "name": "get-does-not-run-actions",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "type": "text/html",
+        "recorded": 0
+      },
+      "candidate": {
+        "status": 200,
+        "type": "text/html",
+        "recorded": 0
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "put-and-delete-refused",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "statuses": [
+          405,
+          405,
+          405
+        ],
+        "recorded": 0
+      },
+      "candidate": {
+        "statuses": [
+          405,
+          405,
+          405
+        ],
+        "recorded": 0
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "unknown-action-id",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 409,
+        "type": "text/plain",
+        "notFound": "1",
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "Server Action unavailable."
+      },
+      "candidate": {
+        "status": 409,
+        "type": "text/plain",
+        "notFound": "1",
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "Server Action unavailable."
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "malformed-action-id",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 400,
+        "type": "text/plain",
+        "notFound": "1",
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "Invalid Server Action request."
+      },
+      "candidate": {
+        "status": 400,
+        "type": "text/plain",
+        "notFound": "1",
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "Invalid Server Action request."
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "prototype-action-id",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 400,
+        "type": "text/plain",
+        "notFound": "1",
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "Invalid Server Action request."
+      },
+      "candidate": {
+        "status": 400,
+        "type": "text/plain",
+        "notFound": "1",
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "Invalid Server Action request."
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "action-id-from-another-build",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 409,
+        "type": "text/plain",
+        "notFound": "1",
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "Server Action unavailable."
+      },
+      "candidate": {
+        "status": 409,
+        "type": "text/plain",
+        "notFound": "1",
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "Server Action unavailable."
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "forwarded-to-another-worker",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "type": "text/x-component",
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:{\"key\":\"mwqajw7k-2025b0-?-forward\",\"id\":\"fwd\",\"recorded\":true}\n",
+        "recorded": [
+          "fwd"
+        ]
+      },
+      "candidate": {
+        "status": 200,
+        "type": "text/x-component",
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:{\"key\":\"mwqajw7k-2025b0-?-forward\",\"id\":\"fwd\",\"recorded\":true}\n",
+        "recorded": [
+          "fwd"
+        ]
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "unmatched-path",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 404,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:{\"tag\":\"x\",\"user\":null,\"userAfterDelay\":null,\"cookie\":null}\n"
+      },
+      "candidate": {
+        "status": 404,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:{\"tag\":\"x\",\"user\":null,\"userAfterDelay\":null,\"cookie\":null}\n"
+      }
+    },
+    {
+      "name": "args-limit",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n"
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n"
+      }
+    },
+    {
+      "name": "closure-mpa",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "type": "text/html"
+      },
+      "candidate": {
+        "status": 200,
+        "type": "text/html"
+      }
+    },
+    {
+      "name": "closure-tampered",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/plain",
+        "leaked": false
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/plain",
+        "leaked": false
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "closure-foreign-key",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/plain"
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/plain"
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "closure-not-base64",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/plain"
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/plain"
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "body-over-next-limit",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/x-component",
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n"
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/x-component",
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n"
+      }
+    },
+    {
+      "name": "body-under-next-limit",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "type": "text/x-component",
+        "hasTag": true
+      },
+      "candidate": {
+        "status": 200,
+        "type": "text/x-component",
+        "hasTag": true
+      }
+    },
+    {
+      "name": "multipart-bad-boundary",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n"
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n"
+      }
+    },
+    {
+      "name": "multipart-truncated",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n"
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "redirect": null,
+        "cacheControl": "no-cache, no-store, max-age=0, must-revalidate",
+        "setCookie": null,
+        "body": "0:{\"a\":\"$@1\",\"q\":\"\",\"i\":false,\"b\":\"_8cffPVsuC8KUB9dryvbJ\"}\n1:E{\"digest\":\"<digest>\"}\n"
+      }
+    },
+    {
+      "name": "mpa-multipart-truncated",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/plain"
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/plain"
+      }
+    },
+    {
+      "name": "urlencoded-post",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 405,
+        "type": ""
+      },
+      "candidate": {
+        "status": 405,
+        "type": ""
+      }
+    },
+    {
+      "name": "large-result",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "type": "text/x-component"
+      },
+      "candidate": {
+        "status": 200,
+        "type": "text/x-component"
+      }
+    },
+    {
+      "name": "flight-proto-then",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "flight-constructor-chain",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "flight-self-reference",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      },
+      "candidate": {
+        "status": 200,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      }
+    },
+    {
+      "name": "flight-cyclic-promise",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      },
+      "candidate": {
+        "status": 200,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      }
+    },
+    {
+      "name": "flight-server-ref-to-source",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      }
+    },
+    {
+      "name": "flight-deep-nesting",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      },
+      "candidate": {
+        "status": 500,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      }
+    },
+    {
+      "name": "flight-nesting-3000",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      },
+      "candidate": {
+        "status": 200,
+        "type": "text/x-component",
+        "notFound": null,
+        "sourceLeak": false
+      }
+    },
+    {
+      "name": "invalidate-updateTag",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "revalidated": "1",
+        "refetched": true
+      },
+      "candidate": {
+        "status": 200,
+        "revalidated": "1",
+        "refetched": true
+      }
+    },
+    {
+      "name": "invalidate-revalidatePath",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "revalidated": "1",
+        "refetched": true
+      },
+      "candidate": {
+        "status": 200,
+        "revalidated": "1",
+        "refetched": true
+      }
+    },
+    {
+      "name": "invalidate-refresh",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "revalidated": "2",
+        "refetched": false
+      },
+      "candidate": {
+        "status": 200,
+        "revalidated": "2",
+        "refetched": false
+      }
+    },
+    {
+      "name": "invalidate-revalidateTag-max",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "revalidated": null,
+        "firstReadRefetched": false
+      },
+      "candidate": {
+        "status": 200,
+        "revalidated": null,
+        "firstReadRefetched": false
+      }
+    },
+    {
+      "name": "revalidateTag-max-refresh-timing",
+      "kind": "candidate",
+      "verdict": "OBSERVED",
+      "candidate": {
+        "firstRead": 0,
+        "secondRead": 1
+      }
+    },
+    {
+      "name": "invalidate-static-path",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "revalidated": "1",
+        "htmlRerendered": true,
+        "rscRerendered": true
+      },
+      "candidate": {
+        "status": 200,
+        "revalidated": "1",
+        "htmlRerendered": true,
+        "rscRerendered": true
+      }
+    },
+    {
+      "name": "mutation-once",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "status": 200,
+        "body": true,
+        "ledger": [
+          "only"
+        ]
+      },
+      "candidate": {
+        "status": 200,
+        "body": true,
+        "ledger": [
+          "only"
+        ]
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "concurrent-mutations",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "answered": 64,
+        "recorded": 64,
+        "distinct": 64
+      },
+      "candidate": {
+        "answered": 64,
+        "recorded": 64,
+        "distinct": 64
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "concurrent-identity",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "n": 48,
+        "leaks": 0
+      },
+      "candidate": {
+        "n": 48,
+        "leaks": 0
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "disconnect-after-commit",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "outcome": "AbortError",
+        "ledger": [
+          "a"
+        ]
+      },
+      "candidate": {
+        "outcome": "AbortError",
+        "ledger": [
+          "a"
+        ]
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "disconnect-before-commit",
+      "kind": "compare",
+      "verdict": "MATCH",
+      "baseline": {
+        "outcome": "AbortError",
+        "ledger": [
+          "b"
+        ]
+      },
+      "candidate": {
+        "outcome": "AbortError",
+        "ledger": [
+          "b"
+        ]
+      },
+      "asserted": true,
+      "oracleWrong": null,
+      "candidateWrong": null
+    },
+    {
+      "name": "body-over-nextrs-limit",
+      "kind": "candidate",
+      "verdict": "OBSERVED",
+      "candidate": {
+        "error": "EPIPE",
+        "healthy": true
+      }
+    },
+    {
+      "name": "mpa-too-many-parts",
+      "kind": "candidate",
+      "verdict": "OBSERVED",
+      "candidate": {
+        "status": 500,
+        "healthy": true
+      }
+    },
+    {
+      "name": "stall-after-commit",
+      "kind": "candidate",
+      "verdict": "OBSERVED",
+      "candidate": {
+        "status": 502,
+        "nextrsError": "executor-failed",
+        "ledger": [
+          "s"
+        ],
+        "recovered": true
+      }
+    },
+    {
+      "name": "never-resolving-action",
+      "kind": "candidate",
+      "verdict": "OBSERVED",
+      "candidate": {
+        "status": 504,
+        "nextrsError": "request-timeout",
+        "withinDeadline": true,
+        "healthy": true
+      }
+    },
+    {
+      "name": "closures-across-isolates",
+      "kind": "candidate",
+      "verdict": "OBSERVED",
+      "candidate": {
+        "n": 24,
+        "ok": 24
+      }
+    }
+  ]
+}
