@@ -6,6 +6,7 @@
 //! `501 Not Implemented`.
 
 mod compress;
+mod compress_cache;
 mod dynamic;
 mod etag;
 mod external;
@@ -22,6 +23,7 @@ mod rsc;
 mod serve;
 mod static_files;
 
+pub use crate::compress_cache::CompressionCache;
 pub use crate::dynamic::DEFAULT_MAX_REQUEST_BODY;
 pub use crate::http_metrics::HttpMetrics;
 pub use crate::image::{ImageCacheOptions, ImageFault, ImageFaults, ImageOptions};
@@ -132,6 +134,9 @@ pub struct ServerOptions {
     pub listen: SocketAddr,
     /// `/_next/image` (transformations, remote sources, cache).
     pub images: ImageOptions,
+    /// Gzip copies of immutable responses (`/_next/static` files and
+    /// prerendered pages), shared with the metrics endpoint.
+    pub compression_cache: Arc<CompressionCache>,
 }
 
 impl Default for ServerOptions {
@@ -143,6 +148,7 @@ impl Default for ServerOptions {
             forwarded: ForwardedHeaders::Pass,
             listen: SocketAddr::from(([127, 0, 0, 1], 3000)),
             images: ImageOptions::default(),
+            compression_cache: Arc::new(CompressionCache::default()),
         }
     }
 }
@@ -249,6 +255,7 @@ pub async fn app_with_stats(
         forwarded: options.forwarded.clone(),
         listen: Listen::from(options.listen),
         images,
+        compression_cache: options.compression_cache.clone(),
         ..state
     });
     if let Some(images) = &state.images {
@@ -442,6 +449,7 @@ struct AppState {
     /// next.config `compress` (next start's router-server compresses
     /// unless it is `false`).
     compress: bool,
+    compression_cache: Arc<CompressionCache>,
     /// Files in `public/` (relative, decoded), listed at startup as next
     /// start's `publicFolderItems`.
     public_files: std::collections::HashSet<String>,
@@ -559,10 +567,15 @@ impl Page {
 /// without ISR, so these never change while the server runs.
 #[derive(Clone)]
 struct Cached {
+    /// Names this body for the compression cache (unique per load).
+    id: u64,
     body: Bytes,
     headers: Vec<(HeaderName, HeaderValue)>,
     etag: Option<HeaderValue>,
 }
+
+/// `Cached::id`s.
+static NEXT_CACHED_ID: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
 
 struct CompiledRoute {
     page: String,
@@ -716,6 +729,7 @@ impl AppState {
         };
         Ok(Self {
             compress: info.config.compress,
+            compression_cache: Arc::new(CompressionCache::disabled()),
             needs_node_headers: proxy.is_some()
                 || [
                     &rules.headers,
@@ -814,6 +828,7 @@ async fn load_cached(
         .then(|| HeaderValue::from_str(&etag::generate_etag(&String::from_utf8_lossy(&body))).ok())
         .flatten();
     Ok(Some(Cached {
+        id: NEXT_CACHED_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
         body: Bytes::from(body),
         headers,
         etag,
@@ -886,7 +901,9 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
     // requests to its own server (image sources, Server Action
     // forwarding) read the bytes themselves.
     if state.compress && !internal {
-        compress::Negotiated::of(&method, version, &headers).apply(response)
+        compress::Negotiated::of(&method, version, &headers)
+            .apply(response, &state.compression_cache)
+            .await
     } else {
         response
     }
@@ -1140,7 +1157,10 @@ async fn serve_resolved(
             if !readonly {
                 return method_not_allowed(state);
             }
-            file_response(&file, IMMUTABLE, method, headers).await
+            // Build output under /_next/static: its gzip copy may be cached
+            // (keyed by the file's identity as stat'ed per request).
+            let cacheable = may_cache_gzip(state, headers);
+            file_response(&file, IMMUTABLE, method, headers, cacheable).await
         }
         Output::EncodedApp => {
             // next start's page handler does not match the encoded path and
@@ -1243,7 +1263,9 @@ async fn serve_resolved(
                 )
                 .await;
             }
-            file_response(&file, PUBLIC_FILE, method, headers).await
+            // Public files can be replaced while the server runs: compressed
+            // per request, never cached.
+            file_response(&file, PUBLIC_FILE, method, headers, false).await
         }
         Output::App {
             route,
@@ -1711,6 +1733,8 @@ pub struct MetricsSources {
     pub executor: Option<Arc<Executor>>,
     /// The image optimizer (when the build has an image config).
     pub images: Option<ImageStats>,
+    /// The gzip cache of immutable responses.
+    pub compression: Option<Arc<CompressionCache>>,
     /// The main listener's request, response and connection counters.
     pub http: Arc<HttpMetrics>,
     /// `/readyz` answers 200 only with at least this many ready isolates.
@@ -1771,6 +1795,12 @@ pub fn metrics_app(sources: MetricsSources) -> Router {
                         out.push_str(&format!("nextrs_image_{name} {value}\n"));
                     }
                 }
+                if let Some(cache) = &text.compression {
+                    out.push_str("# HELP nextrs_compression_cache_* Gzip cache of immutable responses (hits, misses, coalesced, bypassed and evictions are counters).\n");
+                    for (name, value) in cache.snapshot() {
+                        out.push_str(&format!("nextrs_compression_cache_{name} {value}\n"));
+                    }
+                }
                 out.push_str(&text.http.to_prometheus());
                 let malloc = text
                     .executor
@@ -1798,6 +1828,14 @@ pub fn metrics_app(sources: MetricsSources) -> Router {
                             .map(|(k, v)| (k.to_owned(), v.into()))
                             .collect();
                         object.insert("images".into(), map.into());
+                    }
+                    if let Some(cache) = &json.compression {
+                        let map: serde_json::Map<String, serde_json::Value> = cache
+                            .snapshot()
+                            .into_iter()
+                            .map(|(k, v)| (k.to_owned(), v.into()))
+                            .collect();
+                        object.insert("compression_cache".into(), map.into());
                     }
                     object.insert("http".into(), json.http.to_json());
                     object.insert(
@@ -2046,8 +2084,24 @@ fn prerendered(
     *response.status_mut() = status;
     if method != Method::HEAD {
         *response.body_mut() = Body::from(cached.body.clone());
+        // Build output loaded at startup: the same bytes for every request
+        // that reaches here (ISR, PPR, Draft Mode and revalidated pages are
+        // rendered by Next's handler instead).
+        if may_cache_gzip(state, request) {
+            response.extensions_mut().insert(compress_cache::Cacheable {
+                key: compress_cache::Key::Stored(cached.id),
+                identity: cached.body.clone(),
+            });
+        }
     }
     response
+}
+
+/// A response for this request may take its body from the compression
+/// cache: compression is on and the request negotiates gzip (the cache is
+/// read only then; the final decision stays with `compress::apply`).
+fn may_cache_gzip(state: &AppState, request: &HeaderMap) -> bool {
+    state.compress && state.compression_cache.enabled() && compress::wants_gzip(request)
 }
 
 /// Mirrors the `send` package used by `next start`: weak ETag
@@ -2058,6 +2112,7 @@ async fn file_response(
     cache_control: &'static str,
     method: &Method,
     request: &HeaderMap,
+    cacheable: bool,
 ) -> Response {
     // One blocking task opens the file, takes its metadata from the open
     // handle, decides freshness and reads the body only when it is sent
@@ -2076,7 +2131,8 @@ async fn file_response(
     let path = file.to_path_buf();
     let read_body = method != Method::HEAD;
     let loaded =
-        tokio::task::spawn_blocking(move || load_file(&path, &conditional, read_body)).await;
+        tokio::task::spawn_blocking(move || load_file(&path, &conditional, read_body, cacheable))
+            .await;
     let Ok(Some(loaded)) = loaded else {
         return not_found_plain();
     };
@@ -2104,7 +2160,14 @@ async fn file_response(
     let length = loaded.body.as_ref().map_or(loaded.len, |b| b.len() as u64);
     headers.insert(header::CONTENT_LENGTH, HeaderValue::from(length));
     if let Some(body) = loaded.body {
-        *response.body_mut() = Body::from(body);
+        let body = Bytes::from(body);
+        *response.body_mut() = Body::from(body.clone());
+        if let Some(key) = loaded.key {
+            response.extensions_mut().insert(compress_cache::Cacheable {
+                key: compress_cache::Key::File(key),
+                identity: body,
+            });
+        }
     }
     response
 }
@@ -2116,12 +2179,20 @@ struct LoadedFile {
     fresh: bool,
     len: u64,
     body: Option<Vec<u8>>,
+    /// The compression cache key for `body` (asked for, and the file did
+    /// not change while it was read).
+    key: Option<compress_cache::FileKey>,
 }
 
 /// Blocking: open, stat the handle, check the conditional headers, read.
 /// `None` when the file cannot be opened, stat'ed or read (a 404, as
 /// before).
-fn load_file(path: &Path, conditional: &HeaderMap, read_body: bool) -> Option<LoadedFile> {
+fn load_file(
+    path: &Path,
+    conditional: &HeaderMap,
+    read_body: bool,
+    want_key: bool,
+) -> Option<LoadedFile> {
     use std::io::Read;
     let mut handle = std::fs::File::open(path).ok()?;
     let metadata = handle.metadata().ok()?;
@@ -2147,12 +2218,26 @@ fn load_file(path: &Path, conditional: &HeaderMap, read_body: bool) -> Option<Lo
         handle.read_to_end(&mut bytes).ok()?;
         Some(bytes)
     };
+    // The key describes the bytes read only if the file is the same after
+    // the read as before it (a write in between changes its size or times).
+    let key = match &body {
+        Some(bytes) if want_key && bytes.len() as u64 == metadata.len() => {
+            let before = compress_cache::FileKey::of(path, &metadata);
+            let after = handle
+                .metadata()
+                .ok()
+                .and_then(|m| compress_cache::FileKey::of(path, &m));
+            before.filter(|b| after.as_ref() == Some(b))
+        }
+        _ => None,
+    };
     Some(LoadedFile {
         etag,
         last_modified,
         fresh,
         len: metadata.len(),
         body,
+        key,
     })
 }
 
