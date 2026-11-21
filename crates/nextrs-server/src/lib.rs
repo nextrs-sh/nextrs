@@ -6,6 +6,7 @@
 //! `501 Not Implemented`.
 
 mod compress;
+mod compress_cache;
 mod dynamic;
 mod etag;
 mod external;
@@ -15,6 +16,7 @@ mod image;
 mod pages;
 #[cfg(feature = "negative-controls")]
 mod pages_controls;
+mod range;
 mod resolve;
 #[doc(hidden)]
 pub mod routing;
@@ -22,6 +24,7 @@ mod rsc;
 mod serve;
 mod static_files;
 
+pub use crate::compress_cache::CompressionCache;
 pub use crate::dynamic::DEFAULT_MAX_REQUEST_BODY;
 pub use crate::http_metrics::HttpMetrics;
 pub use crate::image::{ImageCacheOptions, ImageFault, ImageFaults, ImageOptions};
@@ -132,6 +135,9 @@ pub struct ServerOptions {
     pub listen: SocketAddr,
     /// `/_next/image` (transformations, remote sources, cache).
     pub images: ImageOptions,
+    /// Gzip copies of immutable responses (`/_next/static` files and
+    /// prerendered pages), shared with the metrics endpoint.
+    pub compression_cache: Arc<CompressionCache>,
 }
 
 impl Default for ServerOptions {
@@ -143,6 +149,7 @@ impl Default for ServerOptions {
             forwarded: ForwardedHeaders::Pass,
             listen: SocketAddr::from(([127, 0, 0, 1], 3000)),
             images: ImageOptions::default(),
+            compression_cache: Arc::new(CompressionCache::default()),
         }
     }
 }
@@ -249,6 +256,7 @@ pub async fn app_with_stats(
         forwarded: options.forwarded.clone(),
         listen: Listen::from(options.listen),
         images,
+        compression_cache: options.compression_cache.clone(),
         ..state
     });
     if let Some(images) = &state.images {
@@ -442,6 +450,7 @@ struct AppState {
     /// next.config `compress` (next start's router-server compresses
     /// unless it is `false`).
     compress: bool,
+    compression_cache: Arc<CompressionCache>,
     /// Files in `public/` (relative, decoded), listed at startup as next
     /// start's `publicFolderItems`.
     public_files: std::collections::HashSet<String>,
@@ -559,10 +568,15 @@ impl Page {
 /// without ISR, so these never change while the server runs.
 #[derive(Clone)]
 struct Cached {
+    /// Names this body for the compression cache (unique per load).
+    id: u64,
     body: Bytes,
     headers: Vec<(HeaderName, HeaderValue)>,
     etag: Option<HeaderValue>,
 }
+
+/// `Cached::id`s.
+static NEXT_CACHED_ID: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
 
 struct CompiledRoute {
     page: String,
@@ -716,6 +730,7 @@ impl AppState {
         };
         Ok(Self {
             compress: info.config.compress,
+            compression_cache: Arc::new(CompressionCache::disabled()),
             needs_node_headers: proxy.is_some()
                 || [
                     &rules.headers,
@@ -814,6 +829,7 @@ async fn load_cached(
         .then(|| HeaderValue::from_str(&etag::generate_etag(&String::from_utf8_lossy(&body))).ok())
         .flatten();
     Ok(Some(Cached {
+        id: NEXT_CACHED_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
         body: Bytes::from(body),
         headers,
         etag,
@@ -886,7 +902,9 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
     // requests to its own server (image sources, Server Action
     // forwarding) read the bytes themselves.
     if state.compress && !internal {
-        compress::Negotiated::of(&method, version, &headers).apply(response)
+        compress::Negotiated::of(&method, version, &headers)
+            .apply(response, &state.compression_cache)
+            .await
     } else {
         response
     }
@@ -1140,7 +1158,9 @@ async fn serve_resolved(
             if !readonly {
                 return method_not_allowed(state);
             }
-            file_response(&file, IMMUTABLE, method, headers).await
+            // Build output under /_next/static: its gzip copy may be cached
+            // (keyed by the file's identity as stat'ed per request).
+            file_response(state, &file, IMMUTABLE, method, headers, true).await
         }
         Output::EncodedApp => {
             // next start's page handler does not match the encoded path and
@@ -1150,7 +1170,7 @@ async fn serve_resolved(
             // router-server's no-store header is not set: routing matched
             // the (decoded) file, so only the handler's own headers apply.
             if is_possible_server_action(method, headers)
-                || headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                || rsc::is_rsc_request(headers, &state.rsc.header)
             {
                 return not_found_render(
                     state,
@@ -1243,7 +1263,9 @@ async fn serve_resolved(
                 )
                 .await;
             }
-            file_response(&file, PUBLIC_FILE, method, headers).await
+            // Public files can be replaced while the server runs: compressed
+            // per request, never cached.
+            file_response(state, &file, PUBLIC_FILE, method, headers, false).await
         }
         Output::App {
             route,
@@ -1373,7 +1395,7 @@ async fn serve_resolved(
                     && state.executor.is_some()
                     && let Some(entry) = state.action_entry(path)
                 {
-                    if headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                    if rsc::is_rsc_request(headers, &state.rsc.header)
                         && let Some(redirect) = rsc_redirect(state, &request_path, query, headers)
                     {
                         return redirect;
@@ -1414,7 +1436,7 @@ async fn serve_resolved(
                         return method_not_allowed(state);
                     }
                 }
-                if headers.get(&state.rsc.header).is_some_and(|v| v == "1") {
+                if rsc::is_rsc_request(headers, &state.rsc.header) {
                     return serve_rsc(state, page, &request_path, query, headers, method);
                 }
                 if let Some(html) = &page.html {
@@ -1446,8 +1468,13 @@ async fn serve_resolved(
                         "builds with interception routes are not supported by the NextRS executor",
                     );
                 }
-                if route.kind == RouteKind::AppPage
-                    && headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+                // base-server validates the cache-busting parameter of an
+                // RSC request before rendering any route module it serves:
+                // App Router pages and route handlers alike, for every
+                // method (Pages API routes and edge functions are handled
+                // before that check, and are not affected).
+                if matches!(route.kind, RouteKind::AppPage | RouteKind::AppRoute)
+                    && rsc::is_rsc_request(headers, &state.rsc.header)
                     && let Some(redirect) = rsc_redirect(state, &request_path, query, headers)
                 {
                     return redirect;
@@ -1568,7 +1595,7 @@ async fn not_found_render(
     // from the same handler. So does a document request when the not-found
     // page has no static shell to serve: Cache Components store it as ISR
     // (or as a Partial Prerendering shell), which only its handler serves.
-    let rsc = headers.get(&state.rsc.header).is_some_and(|v| v == "1");
+    let rsc = rsc::is_rsc_request(headers, &state.rsc.header);
     if (is_possible_server_action(method, headers)
         || (readonly && rsc)
         || (readonly && state.not_found.is_none()))
@@ -1711,6 +1738,8 @@ pub struct MetricsSources {
     pub executor: Option<Arc<Executor>>,
     /// The image optimizer (when the build has an image config).
     pub images: Option<ImageStats>,
+    /// The gzip cache of immutable responses.
+    pub compression: Option<Arc<CompressionCache>>,
     /// The main listener's request, response and connection counters.
     pub http: Arc<HttpMetrics>,
     /// `/readyz` answers 200 only with at least this many ready isolates.
@@ -1771,6 +1800,12 @@ pub fn metrics_app(sources: MetricsSources) -> Router {
                         out.push_str(&format!("nextrs_image_{name} {value}\n"));
                     }
                 }
+                if let Some(cache) = &text.compression {
+                    out.push_str("# HELP nextrs_compression_cache_* Gzip cache of immutable responses (hits, misses, coalesced, bypassed and evictions are counters).\n");
+                    for (name, value) in cache.snapshot() {
+                        out.push_str(&format!("nextrs_compression_cache_{name} {value}\n"));
+                    }
+                }
                 out.push_str(&text.http.to_prometheus());
                 let malloc = text
                     .executor
@@ -1798,6 +1833,14 @@ pub fn metrics_app(sources: MetricsSources) -> Router {
                             .map(|(k, v)| (k.to_owned(), v.into()))
                             .collect();
                         object.insert("images".into(), map.into());
+                    }
+                    if let Some(cache) = &json.compression {
+                        let map: serde_json::Map<String, serde_json::Value> = cache
+                            .snapshot()
+                            .into_iter()
+                            .map(|(k, v)| (k.to_owned(), v.into()))
+                            .collect();
+                        object.insert("compression_cache".into(), map.into());
                     }
                     object.insert("http".into(), json.http.to_json());
                     object.insert(
@@ -1946,6 +1989,9 @@ fn rsc_redirect(
     query: Option<&str>,
     headers: &HeaderMap,
 ) -> Option<Response> {
+    if state.config.skip_rsc_header_validation {
+        return None;
+    }
     let router = RouterHeaders::from_headers(
         headers,
         &state.rsc.prefetch_header,
@@ -1977,7 +2023,7 @@ fn serve_rsc(
         &state.rsc.segment_prefetch_header,
     );
     let actual = rsc::query_hash(query);
-    if !router.matches(actual.as_deref()) {
+    if !state.config.skip_rsc_header_validation && !router.matches(actual.as_deref()) {
         let target = rsc::redirect_target(path, query, &router.expected_hash());
         return redirect(StatusCode::TEMPORARY_REDIRECT, &target, false, false);
     }
@@ -2046,47 +2092,82 @@ fn prerendered(
     *response.status_mut() = status;
     if method != Method::HEAD {
         *response.body_mut() = Body::from(cached.body.clone());
+        // Build output loaded at startup: the same bytes for every request
+        // that reaches here (ISR, PPR, Draft Mode and revalidated pages are
+        // rendered by Next's handler instead).
+        if may_cache_gzip(state, request) {
+            response.extensions_mut().insert(compress_cache::Cacheable {
+                key: compress_cache::Key::Stored(cached.id),
+                identity: cached.body.clone(),
+            });
+        }
     }
     response
 }
 
+/// A response for this request may take its body from the compression
+/// cache: compression is on and the request negotiates gzip (the cache is
+/// read only then; the final decision stays with `compress::apply`).
+fn may_cache_gzip(state: &AppState, request: &HeaderMap) -> bool {
+    state.compress && state.compression_cache.enabled() && compress::wants_gzip(request)
+}
+
 /// Mirrors the `send` package used by `next start`: weak ETag
-/// `W/"<size hex>-<mtime ms hex>"`, Last-Modified, and 304 revalidation.
-/// Range requests are not implemented, so `Accept-Ranges` is not advertised.
+/// `W/"<size hex>-<mtime ms hex>"`, Last-Modified, 304 revalidation and
+/// single byte ranges (`range.rs`: 206 over the identity bytes, 416, and
+/// where NextRS follows RFC 9110 instead of `send`). `immutable`: build
+/// output, whose gzip copy the compression cache may hold.
 async fn file_response(
+    state: &AppState,
     file: &Path,
     cache_control: &'static str,
     method: &Method,
     request: &HeaderMap,
+    immutable: bool,
 ) -> Response {
     // One blocking task opens the file, takes its metadata from the open
-    // handle, decides freshness and reads the body only when it is sent
-    // (Phase 3A: separate `tokio::fs` calls each hopped to the blocking
-    // pool). It gets only the headers `etag::fresh` reads.
+    // handle, decides freshness and the range, and reads only the bytes it
+    // sends (Phase 3A: separate `tokio::fs` calls each hopped to the
+    // blocking pool). It gets only the headers it reads.
     let mut conditional = HeaderMap::new();
     for name in [
         header::IF_MODIFIED_SINCE,
         header::IF_NONE_MATCH,
         header::CACHE_CONTROL,
+        header::RANGE,
+        header::IF_RANGE,
     ] {
         for value in request.get_all(&name) {
             conditional.append(name.clone(), value.clone());
         }
     }
+    let content_type = static_files::content_type(file);
+    // The full response would be compressed (given its size): partial
+    // responses are identity bytes, so an If-Range is not trusted then.
+    let gzip =
+        state.compress && compress::wants_gzip(request) && compress::compressible(content_type);
+    let options = FileRead {
+        body: method != Method::HEAD,
+        // RFC 9110 section 14.2: GET is the only method with ranges.
+        ranges: method == Method::GET,
+        gzip,
+        cache_key: immutable && gzip && state.compression_cache.enabled(),
+    };
     let path = file.to_path_buf();
-    let read_body = method != Method::HEAD;
-    let loaded =
-        tokio::task::spawn_blocking(move || load_file(&path, &conditional, read_body)).await;
+    let loaded = tokio::task::spawn_blocking(move || load_file(&path, &conditional, options)).await;
     let Ok(Some(loaded)) = loaded else {
         return not_found_plain();
     };
 
     let mut response = Response::new(Body::empty());
     let headers = response.headers_mut();
-    headers.insert(
-        header::CACHE_CONTROL,
-        HeaderValue::from_static(cache_control),
-    );
+    if loaded.selection != range::Selection::Unsatisfiable {
+        headers.insert(
+            header::CACHE_CONTROL,
+            HeaderValue::from_static(cache_control),
+        );
+    }
+    headers.insert(header::ACCEPT_RANGES, HeaderValue::from_static("bytes"));
     if let Some(etag) = loaded.etag {
         headers.insert(header::ETAG, etag);
     }
@@ -2097,62 +2178,172 @@ async fn file_response(
         *response.status_mut() = StatusCode::NOT_MODIFIED;
         return response;
     }
-    headers.insert(
-        header::CONTENT_TYPE,
-        HeaderValue::from_static(static_files::content_type(file)),
-    );
-    let length = loaded.body.as_ref().map_or(loaded.len, |b| b.len() as u64);
+    match loaded.selection {
+        range::Selection::Unsatisfiable => {
+            *response.status_mut() = StatusCode::RANGE_NOT_SATISFIABLE;
+            let headers = response.headers_mut();
+            if let Ok(value) = HeaderValue::from_str(&range::unsatisfied_range(loaded.len)) {
+                headers.insert(header::CONTENT_RANGE, value);
+            }
+            headers.insert(
+                header::CONTENT_TYPE,
+                HeaderValue::from_static("text/plain; charset=utf-8"),
+            );
+            *response.body_mut() = Body::from("Range Not Satisfiable");
+            return response;
+        }
+        range::Selection::Partial { start, end } => {
+            *response.status_mut() = StatusCode::PARTIAL_CONTENT;
+            if let Ok(value) = HeaderValue::from_str(&range::content_range(start, end, loaded.len))
+            {
+                response.headers_mut().insert(header::CONTENT_RANGE, value);
+            }
+        }
+        range::Selection::Full => {}
+    }
+    let headers = response.headers_mut();
+    headers.insert(header::CONTENT_TYPE, HeaderValue::from_static(content_type));
+    let length = match (&loaded.body, loaded.selection) {
+        (Some(body), _) => body.len() as u64,
+        (None, range::Selection::Partial { start, end }) => end - start + 1,
+        (None, _) => loaded.len,
+    };
     headers.insert(header::CONTENT_LENGTH, HeaderValue::from(length));
     if let Some(body) = loaded.body {
-        *response.body_mut() = Body::from(body);
+        let body = Bytes::from(body);
+        *response.body_mut() = Body::from(body.clone());
+        if let Some(key) = loaded.key {
+            response.extensions_mut().insert(compress_cache::Cacheable {
+                key: compress_cache::Key::File(key),
+                identity: body,
+            });
+        }
     }
     response
 }
 
-/// A file's validators, freshness and (when it will be sent) contents.
+/// What `load_file` reads besides the validators.
+#[derive(Clone, Copy)]
+struct FileRead {
+    /// The bytes to send (not for HEAD).
+    body: bool,
+    /// The request may select a byte range (GET).
+    ranges: bool,
+    /// The full response would be gzip if large enough.
+    gzip: bool,
+    /// A compression cache key is wanted for a full body.
+    cache_key: bool,
+}
+
+/// A file's validators, freshness, selected range and (when it will be
+/// sent) the bytes.
 struct LoadedFile {
     etag: Option<HeaderValue>,
     last_modified: Option<HeaderValue>,
     fresh: bool,
     len: u64,
+    selection: range::Selection,
+    /// The selected bytes: the whole file, or the range.
     body: Option<Vec<u8>>,
+    /// The compression cache key for a whole-file `body` (asked for, and
+    /// the file did not change while it was read).
+    key: Option<compress_cache::FileKey>,
 }
 
-/// Blocking: open, stat the handle, check the conditional headers, read.
-/// `None` when the file cannot be opened, stat'ed or read (a 404, as
-/// before).
-fn load_file(path: &Path, conditional: &HeaderMap, read_body: bool) -> Option<LoadedFile> {
-    use std::io::Read;
+/// Blocking: open, stat the handle, check the conditional headers, select
+/// the range, read. `None` when the file cannot be opened, stat'ed or read
+/// (a 404, as before).
+fn load_file(path: &Path, conditional: &HeaderMap, read: FileRead) -> Option<LoadedFile> {
+    use std::io::{Read, Seek, SeekFrom};
     let mut handle = std::fs::File::open(path).ok()?;
     let metadata = handle.metadata().ok()?;
+    let len = metadata.len();
     let modified = metadata.modified().ok();
     let etag = modified
         .and_then(|m| m.duration_since(UNIX_EPOCH).ok())
         .and_then(|d| {
             // Node builds `stat.mtime` with Math.round(mtimeMs).
             let millis = d.as_secs() * 1000 + (u64::from(d.subsec_nanos()) + 500_000) / 1_000_000;
-            HeaderValue::from_str(&format!("W/\"{:x}-{millis:x}\"", metadata.len())).ok()
+            HeaderValue::from_str(&format!("W/\"{len:x}-{millis:x}\"")).ok()
         });
     let last_modified =
         modified.and_then(|m| HeaderValue::from_str(&httpdate::fmt_http_date(m)).ok());
+    // RFC 9110 section 13.2.2: If-None-Match / If-Modified-Since before
+    // Range (a 304 whatever the range).
     let fresh = etag::fresh(
         conditional,
         etag.as_ref().and_then(|e| e.to_str().ok()),
         last_modified.as_ref().and_then(|l| l.to_str().ok()),
     );
-    let body = if fresh || !read_body {
-        None
+    let mut ranges = conditional.get_all(header::RANGE).iter();
+    let selection = match (read.ranges && !fresh, ranges.next(), ranges.next()) {
+        (true, Some(value), None) => match value.to_str() {
+            Ok(value) => range::select(value, len),
+            Err(_) => range::Selection::Full,
+        },
+        // No Range, HEAD, or a repeated header (not one ranges-specifier).
+        _ => range::Selection::Full,
+    };
+    let if_range = if read.gzip && len >= compress::THRESHOLD {
+        !conditional.contains_key(header::IF_RANGE)
     } else {
-        let mut bytes = Vec::with_capacity(metadata.len() as usize);
-        handle.read_to_end(&mut bytes).ok()?;
+        range::if_range_holds(
+            conditional,
+            etag.as_ref().and_then(|e| e.to_str().ok()),
+            modified,
+        )
+    };
+    let selection = if if_range {
+        selection
+    } else {
+        range::Selection::Full
+    };
+    let body = match selection {
+        _ if fresh || !read.body => None,
+        range::Selection::Unsatisfiable => None,
+        range::Selection::Partial { start, end } => {
+            let wanted = end - start + 1;
+            handle.seek(SeekFrom::Start(start)).ok()?;
+            let mut bytes = Vec::with_capacity(usize::try_from(wanted).ok()?);
+            (&mut handle).take(wanted).read_to_end(&mut bytes).ok()?;
+            // Truncated since the stat: the range no longer exists as
+            // described.
+            if bytes.len() as u64 != wanted {
+                return None;
+            }
+            Some(bytes)
+        }
+        range::Selection::Full => {
+            let mut bytes = Vec::with_capacity(len as usize);
+            handle.read_to_end(&mut bytes).ok()?;
+            Some(bytes)
+        }
+    };
+    // The key describes the bytes read only if the file is the same after
+    // the read as before it (a write in between changes its size or times).
+    let key = match &body {
         Some(bytes)
+            if read.cache_key
+                && selection == range::Selection::Full
+                && bytes.len() as u64 == len =>
+        {
+            let before = compress_cache::FileKey::of(path, &metadata);
+            let after = handle
+                .metadata()
+                .ok()
+                .and_then(|m| compress_cache::FileKey::of(path, &m));
+            before.filter(|b| after.as_ref() == Some(b))
+        }
+        _ => None,
     };
     Some(LoadedFile {
         etag,
         last_modified,
         fresh,
-        len: metadata.len(),
+        len,
+        selection,
         body,
+        key,
     })
 }
 

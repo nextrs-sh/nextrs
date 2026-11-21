@@ -1,0 +1,69 @@
+{
+  "baseline": "http://127.0.0.1:5263/",
+  "candidate": "http://127.0.0.1:5264/",
+  "results": [
+    {
+      "request": "/dynamic",
+      "verdict": "IDENTICAL",
+      "bytes": [
+        7340,
+        7340
+      ],
+      "problems": []
+    },
+    {
+      "request": "/books/42",
+      "verdict": "IDENTICAL",
+      "bytes": [
+        6232,
+        6232
+      ],
+      "problems": []
+    },
+    {
+      "request": "/books/%E2%9C%93",
+      "verdict": "IDENTICAL",
+      "bytes": [
+        6274,
+        6274
+      ],
+      "problems": []
+    },
+    {
+      "request": "/api/health",
+      "verdict": "IDENTICAL",
+      "bytes": [
+        42,
+        42
+      ],
+      "problems": []
+    },
+    {
+      "request": "/request-info",
+      "verdict": "IDENTICAL",
+      "bytes": [
+        5857,
+        5857
+      ],
+      "problems": []
+    },
+    {
+      "request": "/request-info",
+      "verdict": "IDENTICAL",
+      "bytes": [
+        5863,
+        5863
+      ],
+      "problems": []
+    },
+    {
+      "request": "/books/42?_rsc",
+      "verdict": "EQUIVALENT",
+      "bytes": [
+        3737,
+        3737
+      ],
+      "problems": []
+    }
+  ]
+}

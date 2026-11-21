@@ -477,6 +477,12 @@ struct LimitArgs {
     /// Request bodies above this get a 413 (chunked ones included).
     #[arg(long, value_name = "MIB", default_value_t = 10)]
     max_request_body: u64,
+    /// Memory for gzip copies of immutable responses (/_next/static files
+    /// and prerendered pages), each compressed once instead of per
+    /// request; least recently used copies are dropped beyond it. 0 turns
+    /// the cache off.
+    #[arg(long, value_name = "MIB", default_value_t = 32)]
+    compression_cache: usize,
     /// Open connections; more wait in the accept backlog.
     #[arg(long, default_value_t = 1024)]
     max_connections: usize,
@@ -847,6 +853,9 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     );
                 }
             }
+            let compression_cache = Arc::new(nextrs_server::CompressionCache::with_capacity(
+                limits.compression_cache.saturating_mul(1024 * 1024),
+            ));
             runtime.block_on(async move {
                 let options = ServerOptions {
                     allow_unsupported,
@@ -855,6 +864,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     forwarded: forwarded.clone(),
                     listen: SocketAddr::new(host, port),
                     images: image_options,
+                    compression_cache: compression_cache.clone(),
                 };
                 let (app, image_stats) = nextrs_server::app_with_stats(&info, &options).await?;
                 let http_metrics = HttpMetrics::new();
@@ -862,6 +872,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     let sources = MetricsSources {
                         executor: executor.clone(),
                         images: image_stats,
+                        compression: Some(compression_cache.clone()),
                         http: http_metrics.clone(),
                         ready_min_isolates: limits.ready_min_isolates,
                     };

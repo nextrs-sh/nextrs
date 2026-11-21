@@ -1,0 +1,6686 @@
+{
+ "summary": {
+  "label": "candidate",
+  "gzip": true,
+  "minutes": 30,
+  "completed": 12560205,
+  "failures": 0,
+  "rps": 6977.88759077398,
+  "latency": {
+   "count": 12560205,
+   "mean_ms": 9.1691231531651,
+   "p50_ms": 0.202,
+   "p90_ms": 16.927,
+   "p95_ms": 79.935,
+   "p99_ms": 143.871,
+   "p999_ms": 157.055,
+   "max_ms": 243.583
+  },
+  "rss_first_third_mib": 215.5,
+  "rss_last_third_mib": 219.1,
+  "rss_max_mib": 227.6
+ },
+ "loadgen": {
+  "run_id": "2b7a298439432f31",
+  "mode": "closed",
+  "target": "127.0.0.1:5702",
+  "connections": 64,
+  "offered_rate": 0,
+  "duration_s": 1800.001051408,
+  "warmup_s": 10,
+  "completed": 12560205,
+  "achieved_rps": 6977.88759077398,
+  "ok": 12560205,
+  "status_mismatch": 0,
+  "body_mismatch": 0,
+  "io_errors": 0,
+  "timeouts": 0,
+  "late_starts": 0,
+  "bytes_received": 128599338784,
+  "latency": {
+   "count": 12560205,
+   "mean_ms": 9.1691231531651,
+   "p50_ms": 0.202,
+   "p90_ms": 16.927,
+   "p95_ms": 79.935,
+   "p99_ms": 143.871,
+   "p999_ms": 157.055,
+   "max_ms": 243.583
+  },
+  "service": {
+   "count": 12560205,
+   "mean_ms": 9.1691231531651,
+   "p50_ms": 0.202,
+   "p90_ms": 16.927,
+   "p95_ms": 79.935,
+   "p99_ms": 143.871,
+   "p999_ms": 157.055,
+   "max_ms": 243.583
+  },
+  "ttfb": {
+   "count": 12560205,
+   "mean_ms": 8.457271344615796,
+   "p50_ms": 0.197,
+   "p90_ms": 16.655,
+   "p95_ms": 79.935,
+   "p99_ms": 124.863,
+   "p999_ms": 140.287,
+   "max_ms": 240.767
+  },
+  "check_failure_samples": [],
+  "passed_any_by_index": [
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450703,
+   450702,
+   450702,
+   450702,
+   450702,
+   450702
+  ],
+  "failed_any": 0,
+  "loadgen_cpu_s": 335.8,
+  "by_kind": {
+   "json-api": {
+    "count": 448579,
+    "mean_ms": 13.116422944453488,
+    "p50_ms": 11.967,
+    "p90_ms": 19.327,
+    "p95_ms": 21.503,
+    "p99_ms": 25.343,
+    "p999_ms": 29.951,
+    "max_ms": 58.111
+   },
+   "large-static": {
+    "count": 448579,
+    "mean_ms": 0.3870621518171825,
+    "p50_ms": 0.303,
+    "p90_ms": 0.539,
+    "p95_ms": 0.803,
+    "p99_ms": 2.351,
+    "p999_ms": 5.183,
+    "max_ms": 41.727
+   },
+   "prerendered": {
+    "count": 448578,
+    "mean_ms": 0.12671537168563796,
+    "p50_ms": 0.092,
+    "p90_ms": 0.195,
+    "p95_ms": 0.277,
+    "p99_ms": 0.663,
+    "p999_ms": 2.319,
+    "max_ms": 24.831
+   },
+   "range": {
+    "count": 448578,
+    "mean_ms": 0.24870014802330975,
+    "p50_ms": 0.173,
+    "p90_ms": 0.397,
+    "p95_ms": 0.563,
+    "p99_ms": 1.455,
+    "p999_ms": 4.831,
+    "max_ms": 27.135
+   },
+   "rsc": {
+    "count": 448579,
+    "mean_ms": 19.09262108123652,
+    "p50_ms": 18.175,
+    "p90_ms": 26.367,
+    "p95_ms": 28.159,
+    "p99_ms": 32.255,
+    "p999_ms": 38.143,
+    "max_ms": 74.239
+   },
+   "ssr": {
+    "count": 448578,
+    "mean_ms": 79.43801634498345,
+    "p50_ms": 78.335,
+    "p90_ms": 89.599,
+    "p95_ms": 93.695,
+    "p99_ms": 98.815,
+    "p999_ms": 109.055,
+    "max_ms": 172.031
+   },
+   "static-mix": {
+    "count": 9420156,
+    "mean_ms": 0.2560794887048584,
+    "p50_ms": 0.18,
+    "p90_ms": 0.415,
+    "p95_ms": 0.603,
+    "p99_ms": 1.535,
+    "p999_ms": 4.543,
+    "max_ms": 40.447
+   },
+   "streaming-64": {
+    "count": 448578,
+    "mean_ms": 138.95510424496965,
+    "p50_ms": 138.239,
+    "p90_ms": 150.527,
+    "p95_ms": 154.623,
+    "p99_ms": 162.815,
+    "p999_ms": 173.055,
+    "max_ms": 243.711
+   }
+  }
+ },
+ "samples": [
+  {
+   "t_s": 5,
+   "rss_mib": 205.3,
+   "anon_mib": 162.8,
+   "threads": 53,
+   "cpu_s": 9.9,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 16680,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 10,
+   "rss_mib": 210.5,
+   "anon_mib": 168.1,
+   "threads": 56,
+   "cpu_s": 19.67,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 36088,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 15,
+   "rss_mib": 213,
+   "anon_mib": 170.6,
+   "threads": 56,
+   "cpu_s": 29.35,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 55509,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 20,
+   "rss_mib": 214.8,
+   "anon_mib": 172.3,
+   "threads": 56,
+   "cpu_s": 39.19,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 75433,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 25,
+   "rss_mib": 211.5,
+   "anon_mib": 169.1,
+   "threads": 60,
+   "cpu_s": 49.12,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 95509,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 30,
+   "rss_mib": 214.8,
+   "anon_mib": 172.4,
+   "threads": 76,
+   "cpu_s": 59.04,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 115790,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 35,
+   "rss_mib": 215.5,
+   "anon_mib": 173.1,
+   "threads": 76,
+   "cpu_s": 68.78,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 136175,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 40,
+   "rss_mib": 216.4,
+   "anon_mib": 174,
+   "threads": 76,
+   "cpu_s": 78.84,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 156726,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 45,
+   "rss_mib": 217,
+   "anon_mib": 174.6,
+   "threads": 76,
+   "cpu_s": 88.67,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 177465,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 50,
+   "rss_mib": 213.4,
+   "anon_mib": 171,
+   "threads": 76,
+   "cpu_s": 98.58,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 198241,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 55,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 76,
+   "cpu_s": 108.44,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 218946,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 60,
+   "rss_mib": 210.3,
+   "anon_mib": 167.8,
+   "threads": 76,
+   "cpu_s": 118.32,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 239739,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 65,
+   "rss_mib": 213.7,
+   "anon_mib": 171.3,
+   "threads": 76,
+   "cpu_s": 128.2,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 260466,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 70,
+   "rss_mib": 213.6,
+   "anon_mib": 171.1,
+   "threads": 76,
+   "cpu_s": 138.16,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 281557,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 75,
+   "rss_mib": 216.7,
+   "anon_mib": 174.3,
+   "threads": 76,
+   "cpu_s": 148.29,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 302348,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 80,
+   "rss_mib": 216,
+   "anon_mib": 173.6,
+   "threads": 76,
+   "cpu_s": 158.18,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 323326,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 85,
+   "rss_mib": 216.2,
+   "anon_mib": 173.8,
+   "threads": 76,
+   "cpu_s": 168.12,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 344568,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 90,
+   "rss_mib": 216,
+   "anon_mib": 173.5,
+   "threads": 76,
+   "cpu_s": 178.07,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 365555,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 95,
+   "rss_mib": 215.1,
+   "anon_mib": 172.6,
+   "threads": 76,
+   "cpu_s": 187.99,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 386821,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 100,
+   "rss_mib": 214.3,
+   "anon_mib": 171.9,
+   "threads": 76,
+   "cpu_s": 197.91,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 407752,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 105,
+   "rss_mib": 217.5,
+   "anon_mib": 175.1,
+   "threads": 76,
+   "cpu_s": 207.83,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 428981,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 110,
+   "rss_mib": 217.3,
+   "anon_mib": 174.9,
+   "threads": 76,
+   "cpu_s": 217.8,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 450220,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 115,
+   "rss_mib": 215.2,
+   "anon_mib": 172.8,
+   "threads": 76,
+   "cpu_s": 227.77,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 471498,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 120,
+   "rss_mib": 216.1,
+   "anon_mib": 173.7,
+   "threads": 76,
+   "cpu_s": 237.65,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 492549,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 125,
+   "rss_mib": 213.8,
+   "anon_mib": 171.3,
+   "threads": 76,
+   "cpu_s": 247.59,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 513674,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 130,
+   "rss_mib": 214,
+   "anon_mib": 171.6,
+   "threads": 76,
+   "cpu_s": 257.56,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 534909,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 135,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 76,
+   "cpu_s": 267.47,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 556069,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 140,
+   "rss_mib": 215.7,
+   "anon_mib": 173.3,
+   "threads": 76,
+   "cpu_s": 277.47,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 577337,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 145,
+   "rss_mib": 216,
+   "anon_mib": 173.6,
+   "threads": 76,
+   "cpu_s": 287.46,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 598759,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 150,
+   "rss_mib": 216.6,
+   "anon_mib": 174.2,
+   "threads": 76,
+   "cpu_s": 297.42,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 620029,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 155,
+   "rss_mib": 220,
+   "anon_mib": 177.6,
+   "threads": 76,
+   "cpu_s": 307.34,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 641277,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 160,
+   "rss_mib": 220.7,
+   "anon_mib": 178.3,
+   "threads": 76,
+   "cpu_s": 317.35,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 662577,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 165,
+   "rss_mib": 214.9,
+   "anon_mib": 172.5,
+   "threads": 76,
+   "cpu_s": 327.29,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 683793,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 170,
+   "rss_mib": 214.2,
+   "anon_mib": 171.8,
+   "threads": 76,
+   "cpu_s": 337.26,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 705046,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 175,
+   "rss_mib": 220.2,
+   "anon_mib": 177.8,
+   "threads": 76,
+   "cpu_s": 347.22,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 726307,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 180,
+   "rss_mib": 220.9,
+   "anon_mib": 178.5,
+   "threads": 76,
+   "cpu_s": 357.19,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 747576,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 185,
+   "rss_mib": 218.8,
+   "anon_mib": 176.4,
+   "threads": 76,
+   "cpu_s": 367.18,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 768845,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 190,
+   "rss_mib": 214.2,
+   "anon_mib": 171.8,
+   "threads": 76,
+   "cpu_s": 377.17,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 790180,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 195,
+   "rss_mib": 215.4,
+   "anon_mib": 173,
+   "threads": 76,
+   "cpu_s": 387.1,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 811515,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 200,
+   "rss_mib": 212.7,
+   "anon_mib": 170.2,
+   "threads": 76,
+   "cpu_s": 397.12,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 832902,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 205,
+   "rss_mib": 216.3,
+   "anon_mib": 173.9,
+   "threads": 76,
+   "cpu_s": 407.1,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 854236,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 210,
+   "rss_mib": 217.2,
+   "anon_mib": 174.8,
+   "threads": 76,
+   "cpu_s": 417.1,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 875503,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 215,
+   "rss_mib": 215.7,
+   "anon_mib": 173.3,
+   "threads": 76,
+   "cpu_s": 427.09,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 896807,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 220,
+   "rss_mib": 215.8,
+   "anon_mib": 173.4,
+   "threads": 76,
+   "cpu_s": 437.03,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 918239,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 225,
+   "rss_mib": 215.6,
+   "anon_mib": 173.1,
+   "threads": 76,
+   "cpu_s": 447.01,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 939504,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 230,
+   "rss_mib": 217.3,
+   "anon_mib": 174.9,
+   "threads": 76,
+   "cpu_s": 457.02,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 960827,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 235,
+   "rss_mib": 214.6,
+   "anon_mib": 172.1,
+   "threads": 76,
+   "cpu_s": 467,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 982128,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 240,
+   "rss_mib": 213.9,
+   "anon_mib": 171.5,
+   "threads": 76,
+   "cpu_s": 476.98,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1003510,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 245,
+   "rss_mib": 215.9,
+   "anon_mib": 173.4,
+   "threads": 76,
+   "cpu_s": 486.9,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1024746,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 250,
+   "rss_mib": 214.3,
+   "anon_mib": 171.9,
+   "threads": 76,
+   "cpu_s": 496.85,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1046031,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 255,
+   "rss_mib": 216.8,
+   "anon_mib": 174.4,
+   "threads": 76,
+   "cpu_s": 506.82,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1067483,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 260,
+   "rss_mib": 214.7,
+   "anon_mib": 172.3,
+   "threads": 76,
+   "cpu_s": 516.8,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1088751,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 265,
+   "rss_mib": 214.7,
+   "anon_mib": 172.3,
+   "threads": 76,
+   "cpu_s": 526.78,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1110137,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 270,
+   "rss_mib": 215.9,
+   "anon_mib": 173.5,
+   "threads": 76,
+   "cpu_s": 536.72,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1131369,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 275,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 76,
+   "cpu_s": 546.68,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1152739,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 280,
+   "rss_mib": 213.5,
+   "anon_mib": 171.1,
+   "threads": 76,
+   "cpu_s": 556.71,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1174094,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 285,
+   "rss_mib": 214.8,
+   "anon_mib": 172.4,
+   "threads": 76,
+   "cpu_s": 566.71,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1195342,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 290,
+   "rss_mib": 215.6,
+   "anon_mib": 173.2,
+   "threads": 76,
+   "cpu_s": 576.68,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1216683,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 295,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 76,
+   "cpu_s": 586.54,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1237439,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 300,
+   "rss_mib": 215.8,
+   "anon_mib": 173.4,
+   "threads": 76,
+   "cpu_s": 596.25,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1257527,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 305,
+   "rss_mib": 215.2,
+   "anon_mib": 172.8,
+   "threads": 76,
+   "cpu_s": 606.21,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1278556,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 310,
+   "rss_mib": 214.7,
+   "anon_mib": 172.3,
+   "threads": 76,
+   "cpu_s": 616.18,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1299714,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 315,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 76,
+   "cpu_s": 626.15,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1321042,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 320,
+   "rss_mib": 215.4,
+   "anon_mib": 173,
+   "threads": 76,
+   "cpu_s": 635.97,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1341695,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 325,
+   "rss_mib": 215.5,
+   "anon_mib": 173.1,
+   "threads": 76,
+   "cpu_s": 645.91,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1362859,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 330,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 76,
+   "cpu_s": 655.81,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1383685,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 335,
+   "rss_mib": 214.1,
+   "anon_mib": 171.6,
+   "threads": 76,
+   "cpu_s": 665.65,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1404221,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 340,
+   "rss_mib": 213.5,
+   "anon_mib": 171,
+   "threads": 76,
+   "cpu_s": 675.67,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1425487,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 345,
+   "rss_mib": 213.3,
+   "anon_mib": 170.9,
+   "threads": 76,
+   "cpu_s": 685.6,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1446788,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 350,
+   "rss_mib": 214.4,
+   "anon_mib": 172,
+   "threads": 76,
+   "cpu_s": 695.61,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1468037,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 355,
+   "rss_mib": 216.5,
+   "anon_mib": 174.1,
+   "threads": 76,
+   "cpu_s": 705.6,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1489373,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 360,
+   "rss_mib": 216.2,
+   "anon_mib": 173.8,
+   "threads": 76,
+   "cpu_s": 715.58,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1510708,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 365,
+   "rss_mib": 213.8,
+   "anon_mib": 171.4,
+   "threads": 76,
+   "cpu_s": 725.56,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1531959,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 370,
+   "rss_mib": 212.7,
+   "anon_mib": 170.3,
+   "threads": 76,
+   "cpu_s": 735.53,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1553208,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 375,
+   "rss_mib": 215.8,
+   "anon_mib": 173.4,
+   "threads": 76,
+   "cpu_s": 745.5,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1574487,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 380,
+   "rss_mib": 214.4,
+   "anon_mib": 172,
+   "threads": 76,
+   "cpu_s": 755.46,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1595793,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 385,
+   "rss_mib": 214.4,
+   "anon_mib": 172,
+   "threads": 76,
+   "cpu_s": 765.47,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1617093,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 390,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 76,
+   "cpu_s": 775.48,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1638363,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 395,
+   "rss_mib": 215,
+   "anon_mib": 172.6,
+   "threads": 76,
+   "cpu_s": 785.49,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1659610,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 400,
+   "rss_mib": 216,
+   "anon_mib": 173.6,
+   "threads": 76,
+   "cpu_s": 795.46,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1680912,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 405,
+   "rss_mib": 214.1,
+   "anon_mib": 171.7,
+   "threads": 76,
+   "cpu_s": 805.45,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1702213,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 410,
+   "rss_mib": 225.3,
+   "anon_mib": 182.8,
+   "threads": 76,
+   "cpu_s": 815.46,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1723468,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 415,
+   "rss_mib": 223.8,
+   "anon_mib": 181.4,
+   "threads": 76,
+   "cpu_s": 825.42,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1744781,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 420,
+   "rss_mib": 216,
+   "anon_mib": 173.6,
+   "threads": 76,
+   "cpu_s": 835.39,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1766132,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 425,
+   "rss_mib": 218.2,
+   "anon_mib": 175.7,
+   "threads": 76,
+   "cpu_s": 845.34,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1787451,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 430,
+   "rss_mib": 216.1,
+   "anon_mib": 173.7,
+   "threads": 76,
+   "cpu_s": 855.26,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1808615,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 435,
+   "rss_mib": 215.7,
+   "anon_mib": 173.3,
+   "threads": 76,
+   "cpu_s": 865.26,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1829829,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 440,
+   "rss_mib": 214.6,
+   "anon_mib": 172.2,
+   "threads": 76,
+   "cpu_s": 875.28,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1851167,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 445,
+   "rss_mib": 214.6,
+   "anon_mib": 172.2,
+   "threads": 76,
+   "cpu_s": 885.28,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1872439,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 450,
+   "rss_mib": 215.5,
+   "anon_mib": 173.1,
+   "threads": 76,
+   "cpu_s": 895.27,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1893769,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 455,
+   "rss_mib": 218,
+   "anon_mib": 175.5,
+   "threads": 76,
+   "cpu_s": 905.25,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1915171,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 460,
+   "rss_mib": 215.2,
+   "anon_mib": 172.8,
+   "threads": 76,
+   "cpu_s": 915.25,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1936490,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 465,
+   "rss_mib": 215.8,
+   "anon_mib": 173.4,
+   "threads": 76,
+   "cpu_s": 925.25,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1957808,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 470,
+   "rss_mib": 214.9,
+   "anon_mib": 172.5,
+   "threads": 76,
+   "cpu_s": 935.26,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 1979136,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 475,
+   "rss_mib": 215.8,
+   "anon_mib": 173.4,
+   "threads": 76,
+   "cpu_s": 945.27,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2000482,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 480,
+   "rss_mib": 214.9,
+   "anon_mib": 172.5,
+   "threads": 76,
+   "cpu_s": 955.24,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2021780,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 485,
+   "rss_mib": 216.7,
+   "anon_mib": 174.3,
+   "threads": 76,
+   "cpu_s": 965.27,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2043114,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 490,
+   "rss_mib": 215.5,
+   "anon_mib": 173.1,
+   "threads": 76,
+   "cpu_s": 975.28,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2064449,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 495,
+   "rss_mib": 217.6,
+   "anon_mib": 175.2,
+   "threads": 76,
+   "cpu_s": 985.25,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2085733,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 500,
+   "rss_mib": 215.2,
+   "anon_mib": 172.8,
+   "threads": 76,
+   "cpu_s": 995.18,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2106966,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 505,
+   "rss_mib": 216,
+   "anon_mib": 173.6,
+   "threads": 76,
+   "cpu_s": 1005.15,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2128349,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 510,
+   "rss_mib": 216.2,
+   "anon_mib": 173.8,
+   "threads": 76,
+   "cpu_s": 1015.16,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2149720,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 515,
+   "rss_mib": 215.3,
+   "anon_mib": 172.8,
+   "threads": 76,
+   "cpu_s": 1025.14,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2171073,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 520,
+   "rss_mib": 216,
+   "anon_mib": 173.6,
+   "threads": 76,
+   "cpu_s": 1035.18,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2192443,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 525,
+   "rss_mib": 217.6,
+   "anon_mib": 175.2,
+   "threads": 76,
+   "cpu_s": 1045.16,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2213759,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 530,
+   "rss_mib": 215.6,
+   "anon_mib": 173.2,
+   "threads": 76,
+   "cpu_s": 1055.15,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2235078,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 535,
+   "rss_mib": 215.5,
+   "anon_mib": 173.1,
+   "threads": 76,
+   "cpu_s": 1065.18,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2256429,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 540,
+   "rss_mib": 215.5,
+   "anon_mib": 173.1,
+   "threads": 76,
+   "cpu_s": 1075.17,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2277731,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 545,
+   "rss_mib": 215.8,
+   "anon_mib": 173.4,
+   "threads": 76,
+   "cpu_s": 1085.14,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2299032,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 550,
+   "rss_mib": 214.9,
+   "anon_mib": 172.5,
+   "threads": 76,
+   "cpu_s": 1095.15,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2320333,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 555,
+   "rss_mib": 215,
+   "anon_mib": 172.6,
+   "threads": 76,
+   "cpu_s": 1105.16,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2341651,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 560,
+   "rss_mib": 216.8,
+   "anon_mib": 174.4,
+   "threads": 76,
+   "cpu_s": 1115.13,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2362901,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 565,
+   "rss_mib": 214.6,
+   "anon_mib": 172.2,
+   "threads": 76,
+   "cpu_s": 1125.14,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2384256,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 570,
+   "rss_mib": 215.9,
+   "anon_mib": 173.5,
+   "threads": 76,
+   "cpu_s": 1135.11,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2405672,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 575,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 76,
+   "cpu_s": 1145.12,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2427008,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 580,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 76,
+   "cpu_s": 1155.12,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2448290,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 585,
+   "rss_mib": 215,
+   "anon_mib": 172.6,
+   "threads": 76,
+   "cpu_s": 1165.14,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2469688,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 590,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 76,
+   "cpu_s": 1175.13,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2490961,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 595,
+   "rss_mib": 214.7,
+   "anon_mib": 172.3,
+   "threads": 76,
+   "cpu_s": 1185.13,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2512314,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 600,
+   "rss_mib": 215.9,
+   "anon_mib": 173.5,
+   "threads": 77,
+   "cpu_s": 1195.06,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2533616,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 605,
+   "rss_mib": 215.6,
+   "anon_mib": 173.2,
+   "threads": 77,
+   "cpu_s": 1205.06,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2554933,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 610,
+   "rss_mib": 218.4,
+   "anon_mib": 176,
+   "threads": 77,
+   "cpu_s": 1215.04,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2576236,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 615,
+   "rss_mib": 215.8,
+   "anon_mib": 173.4,
+   "threads": 77,
+   "cpu_s": 1225.02,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2597467,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 620,
+   "rss_mib": 215.8,
+   "anon_mib": 173.4,
+   "threads": 77,
+   "cpu_s": 1235.03,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2618819,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 625,
+   "rss_mib": 215.8,
+   "anon_mib": 173.4,
+   "threads": 77,
+   "cpu_s": 1245.02,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2640120,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 630,
+   "rss_mib": 217.1,
+   "anon_mib": 174.7,
+   "threads": 77,
+   "cpu_s": 1255,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2661472,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 635,
+   "rss_mib": 215.9,
+   "anon_mib": 173.5,
+   "threads": 77,
+   "cpu_s": 1264.97,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2682790,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 640,
+   "rss_mib": 217.1,
+   "anon_mib": 174.7,
+   "threads": 77,
+   "cpu_s": 1274.95,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2704091,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 645,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 77,
+   "cpu_s": 1284.92,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2725237,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 651,
+   "rss_mib": 215.6,
+   "anon_mib": 173.2,
+   "threads": 77,
+   "cpu_s": 1294.9,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2746574,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 656,
+   "rss_mib": 214.7,
+   "anon_mib": 172.3,
+   "threads": 77,
+   "cpu_s": 1304.91,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2767892,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 661,
+   "rss_mib": 215,
+   "anon_mib": 172.6,
+   "threads": 77,
+   "cpu_s": 1314.87,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2789193,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 666,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 77,
+   "cpu_s": 1324.85,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2810545,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 671,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 77,
+   "cpu_s": 1334.86,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2831829,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 676,
+   "rss_mib": 215.9,
+   "anon_mib": 173.5,
+   "threads": 77,
+   "cpu_s": 1344.85,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2853200,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 681,
+   "rss_mib": 215.6,
+   "anon_mib": 173.2,
+   "threads": 77,
+   "cpu_s": 1354.83,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2874533,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 686,
+   "rss_mib": 215,
+   "anon_mib": 172.6,
+   "threads": 77,
+   "cpu_s": 1364.85,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2895852,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 691,
+   "rss_mib": 214.7,
+   "anon_mib": 172.3,
+   "threads": 77,
+   "cpu_s": 1374.86,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2917237,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 696,
+   "rss_mib": 215,
+   "anon_mib": 172.6,
+   "threads": 77,
+   "cpu_s": 1384.85,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2938572,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 701,
+   "rss_mib": 217.1,
+   "anon_mib": 174.7,
+   "threads": 77,
+   "cpu_s": 1394.88,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2959890,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 706,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 77,
+   "cpu_s": 1404.83,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 2981157,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 711,
+   "rss_mib": 216.5,
+   "anon_mib": 174.1,
+   "threads": 77,
+   "cpu_s": 1414.79,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3002475,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 716,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 77,
+   "cpu_s": 1424.76,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3023793,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 721,
+   "rss_mib": 218.5,
+   "anon_mib": 176.1,
+   "threads": 77,
+   "cpu_s": 1434.75,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3045044,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 726,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 77,
+   "cpu_s": 1444.74,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3066327,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 731,
+   "rss_mib": 215.4,
+   "anon_mib": 173,
+   "threads": 77,
+   "cpu_s": 1454.7,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3087662,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 736,
+   "rss_mib": 215.4,
+   "anon_mib": 173,
+   "threads": 77,
+   "cpu_s": 1464.7,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3108980,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 741,
+   "rss_mib": 214.9,
+   "anon_mib": 172.5,
+   "threads": 77,
+   "cpu_s": 1474.68,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3130293,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 746,
+   "rss_mib": 215.9,
+   "anon_mib": 173.5,
+   "threads": 77,
+   "cpu_s": 1484.65,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3151651,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 751,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 77,
+   "cpu_s": 1494.63,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3172917,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 756,
+   "rss_mib": 216.5,
+   "anon_mib": 174.1,
+   "threads": 77,
+   "cpu_s": 1504.62,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3194333,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 761,
+   "rss_mib": 216.7,
+   "anon_mib": 174.3,
+   "threads": 77,
+   "cpu_s": 1514.62,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3215689,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 766,
+   "rss_mib": 215.6,
+   "anon_mib": 173.2,
+   "threads": 77,
+   "cpu_s": 1524.58,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3237024,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 771,
+   "rss_mib": 214.9,
+   "anon_mib": 172.5,
+   "threads": 77,
+   "cpu_s": 1534.57,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3258360,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 776,
+   "rss_mib": 215.3,
+   "anon_mib": 172.9,
+   "threads": 77,
+   "cpu_s": 1544.57,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3279764,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 781,
+   "rss_mib": 215.6,
+   "anon_mib": 173.2,
+   "threads": 77,
+   "cpu_s": 1554.51,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3301114,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 786,
+   "rss_mib": 216.5,
+   "anon_mib": 174,
+   "threads": 77,
+   "cpu_s": 1564.48,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3322466,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 791,
+   "rss_mib": 216.2,
+   "anon_mib": 173.8,
+   "threads": 77,
+   "cpu_s": 1574.47,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3343802,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 796,
+   "rss_mib": 215,
+   "anon_mib": 172.5,
+   "threads": 77,
+   "cpu_s": 1584.49,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3365131,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 801,
+   "rss_mib": 215.2,
+   "anon_mib": 172.8,
+   "threads": 77,
+   "cpu_s": 1594.49,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3386437,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 806,
+   "rss_mib": 214.7,
+   "anon_mib": 172.3,
+   "threads": 77,
+   "cpu_s": 1604.29,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3407161,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 811,
+   "rss_mib": 226.2,
+   "anon_mib": 183.8,
+   "threads": 77,
+   "cpu_s": 1614.19,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3427934,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 816,
+   "rss_mib": 216.7,
+   "anon_mib": 174.3,
+   "threads": 77,
+   "cpu_s": 1624.13,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3449200,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 821,
+   "rss_mib": 217.1,
+   "anon_mib": 174.7,
+   "threads": 77,
+   "cpu_s": 1633.77,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3469313,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 826,
+   "rss_mib": 217.1,
+   "anon_mib": 174.6,
+   "threads": 77,
+   "cpu_s": 1643.74,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3490630,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 831,
+   "rss_mib": 217.6,
+   "anon_mib": 175.2,
+   "threads": 77,
+   "cpu_s": 1653.7,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3511865,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 836,
+   "rss_mib": 217.6,
+   "anon_mib": 175.2,
+   "threads": 77,
+   "cpu_s": 1663.57,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3532721,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 841,
+   "rss_mib": 218.3,
+   "anon_mib": 175.8,
+   "threads": 77,
+   "cpu_s": 1673.52,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3554005,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 846,
+   "rss_mib": 217.7,
+   "anon_mib": 175.3,
+   "threads": 77,
+   "cpu_s": 1683.5,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3575391,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 851,
+   "rss_mib": 217.7,
+   "anon_mib": 175.3,
+   "threads": 77,
+   "cpu_s": 1693.48,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3596705,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 856,
+   "rss_mib": 217.6,
+   "anon_mib": 175.2,
+   "threads": 77,
+   "cpu_s": 1703.47,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3618028,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 861,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 1713.42,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3639227,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 866,
+   "rss_mib": 218.3,
+   "anon_mib": 175.9,
+   "threads": 103,
+   "cpu_s": 1723.4,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3660630,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 871,
+   "rss_mib": 218.3,
+   "anon_mib": 175.9,
+   "threads": 103,
+   "cpu_s": 1733.42,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3681897,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 876,
+   "rss_mib": 218.3,
+   "anon_mib": 175.9,
+   "threads": 103,
+   "cpu_s": 1743.42,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3703119,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 881,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 1753.42,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3724329,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 886,
+   "rss_mib": 217.8,
+   "anon_mib": 175.4,
+   "threads": 103,
+   "cpu_s": 1763.44,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3745663,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 891,
+   "rss_mib": 218.1,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 1773.4,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3767022,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 896,
+   "rss_mib": 218.1,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 1783.38,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3788255,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 901,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 1793.41,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3809601,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 906,
+   "rss_mib": 217.7,
+   "anon_mib": 175.3,
+   "threads": 103,
+   "cpu_s": 1803.42,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3830987,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 911,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 1813.44,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3852387,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 916,
+   "rss_mib": 217.6,
+   "anon_mib": 175.1,
+   "threads": 103,
+   "cpu_s": 1823.46,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3873717,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 921,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 1833.47,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3895116,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 926,
+   "rss_mib": 218.1,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 1843.47,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3916484,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 931,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 1853.46,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3937832,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 936,
+   "rss_mib": 218.3,
+   "anon_mib": 175.9,
+   "threads": 103,
+   "cpu_s": 1863.45,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3959017,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 941,
+   "rss_mib": 218.2,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 1873.34,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 3979975,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 946,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 1883.34,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4001039,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 951,
+   "rss_mib": 218.9,
+   "anon_mib": 176.5,
+   "threads": 103,
+   "cpu_s": 1893.23,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4021805,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 956,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 1903.26,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4043078,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 961,
+   "rss_mib": 218.5,
+   "anon_mib": 176.1,
+   "threads": 103,
+   "cpu_s": 1913.2,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4064328,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 966,
+   "rss_mib": 217.6,
+   "anon_mib": 175.2,
+   "threads": 103,
+   "cpu_s": 1923.23,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4085767,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 971,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 1933.21,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4107152,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 976,
+   "rss_mib": 219.4,
+   "anon_mib": 177,
+   "threads": 103,
+   "cpu_s": 1943,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4127479,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 981,
+   "rss_mib": 220.6,
+   "anon_mib": 178.2,
+   "threads": 103,
+   "cpu_s": 1952.89,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4148177,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 986,
+   "rss_mib": 219.9,
+   "anon_mib": 177.4,
+   "threads": 103,
+   "cpu_s": 1962.89,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4169369,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 991,
+   "rss_mib": 218.8,
+   "anon_mib": 176.4,
+   "threads": 103,
+   "cpu_s": 1972.9,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4190708,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 996,
+   "rss_mib": 218.8,
+   "anon_mib": 176.4,
+   "threads": 103,
+   "cpu_s": 1982.92,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4211958,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1001,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 1992.87,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4233089,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1006,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 2002.85,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4254337,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1011,
+   "rss_mib": 218.2,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 2012.89,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4275639,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1016,
+   "rss_mib": 217.8,
+   "anon_mib": 175.4,
+   "threads": 103,
+   "cpu_s": 2022.9,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4296992,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1021,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 2032.9,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4318326,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1026,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2042.78,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4339287,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1031,
+   "rss_mib": 217.8,
+   "anon_mib": 175.4,
+   "threads": 103,
+   "cpu_s": 2052.74,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4360384,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1036,
+   "rss_mib": 217.8,
+   "anon_mib": 175.4,
+   "threads": 103,
+   "cpu_s": 2062.76,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4381771,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1041,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2072.77,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4403147,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1046,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 2082.64,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4423964,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1051,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 2092.46,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4444745,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1056,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2102.4,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4465767,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1061,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 2112.03,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4485592,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1066,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2121.99,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4506618,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1071,
+   "rss_mib": 217.6,
+   "anon_mib": 175.2,
+   "threads": 103,
+   "cpu_s": 2131.99,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4527919,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1076,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2141.71,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4548302,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1081,
+   "rss_mib": 218.4,
+   "anon_mib": 176,
+   "threads": 103,
+   "cpu_s": 2151.65,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4569264,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1086,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 2161.69,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4590632,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1091,
+   "rss_mib": 219.3,
+   "anon_mib": 176.9,
+   "threads": 103,
+   "cpu_s": 2171.71,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4611984,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1096,
+   "rss_mib": 218.8,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 2181.55,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4632639,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1101,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2191.51,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4653600,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1106,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2201.53,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4674986,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1111,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2211.52,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4696219,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1116,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2221.51,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4717470,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1121,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2231.56,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4738905,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1126,
+   "rss_mib": 218.5,
+   "anon_mib": 176.1,
+   "threads": 103,
+   "cpu_s": 2241.59,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4760236,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1131,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2251.6,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4781507,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1136,
+   "rss_mib": 218.1,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2261.6,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4802724,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1141,
+   "rss_mib": 218.8,
+   "anon_mib": 176.4,
+   "threads": 103,
+   "cpu_s": 2271.57,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4823974,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1146,
+   "rss_mib": 219.1,
+   "anon_mib": 176.6,
+   "threads": 103,
+   "cpu_s": 2281.59,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4845360,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1151,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2291.63,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4866700,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1156,
+   "rss_mib": 218.5,
+   "anon_mib": 176.1,
+   "threads": 103,
+   "cpu_s": 2301.68,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4887986,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1161,
+   "rss_mib": 218.3,
+   "anon_mib": 175.9,
+   "threads": 103,
+   "cpu_s": 2311.71,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4909314,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1166,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2321.75,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4930615,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1171,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2331.78,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4951950,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1176,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2341.78,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4973335,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1181,
+   "rss_mib": 218.6,
+   "anon_mib": 176.2,
+   "threads": 103,
+   "cpu_s": 2351.82,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 4994654,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1186,
+   "rss_mib": 218.6,
+   "anon_mib": 176.1,
+   "threads": 103,
+   "cpu_s": 2361.84,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5016057,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1191,
+   "rss_mib": 219.1,
+   "anon_mib": 176.7,
+   "threads": 103,
+   "cpu_s": 2371.86,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5037358,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1196,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2381.87,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5058625,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1201,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 2391.89,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5079894,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1206,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 2401.88,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5101125,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1211,
+   "rss_mib": 226.2,
+   "anon_mib": 183.8,
+   "threads": 103,
+   "cpu_s": 2411.87,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5122460,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1216,
+   "rss_mib": 225.9,
+   "anon_mib": 183.5,
+   "threads": 103,
+   "cpu_s": 2421.88,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5143779,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1221,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2431.93,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5165114,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1226,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2441.96,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5186413,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1231,
+   "rss_mib": 227,
+   "anon_mib": 184.6,
+   "threads": 103,
+   "cpu_s": 2451.77,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5206916,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1236,
+   "rss_mib": 226.7,
+   "anon_mib": 184.3,
+   "threads": 103,
+   "cpu_s": 2461.62,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5227231,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1241,
+   "rss_mib": 227.3,
+   "anon_mib": 184.9,
+   "threads": 103,
+   "cpu_s": 2471.49,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5248039,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1246,
+   "rss_mib": 218.3,
+   "anon_mib": 175.9,
+   "threads": 103,
+   "cpu_s": 2481.48,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5269203,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1251,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2491.51,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5290420,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1256,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2501.54,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5311636,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1261,
+   "rss_mib": 218.5,
+   "anon_mib": 176.1,
+   "threads": 103,
+   "cpu_s": 2511.56,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5332989,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1266,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2521.53,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5354119,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1271,
+   "rss_mib": 218.6,
+   "anon_mib": 176.2,
+   "threads": 103,
+   "cpu_s": 2531.54,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5375369,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1276,
+   "rss_mib": 218.3,
+   "anon_mib": 175.9,
+   "threads": 103,
+   "cpu_s": 2541.57,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5396500,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1281,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 2551.59,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5417921,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1286,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2561.59,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5439136,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1291,
+   "rss_mib": 218.8,
+   "anon_mib": 176.4,
+   "threads": 103,
+   "cpu_s": 2571.58,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5460437,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1296,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2581.52,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5481636,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1301,
+   "rss_mib": 218.9,
+   "anon_mib": 176.5,
+   "threads": 103,
+   "cpu_s": 2591.5,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5502939,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1306,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 2601.45,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5524086,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1311,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2611.45,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5545404,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1316,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2621.45,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5566738,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1321,
+   "rss_mib": 218.5,
+   "anon_mib": 176.1,
+   "threads": 103,
+   "cpu_s": 2631.4,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5588022,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1326,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2641.44,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5609217,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1331,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2651.47,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5630454,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1336,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2661.49,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5651703,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1341,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2671.52,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5673070,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1346,
+   "rss_mib": 218.3,
+   "anon_mib": 175.9,
+   "threads": 103,
+   "cpu_s": 2681.5,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5694294,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1351,
+   "rss_mib": 217.7,
+   "anon_mib": 175.3,
+   "threads": 103,
+   "cpu_s": 2691.5,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5715609,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1356,
+   "rss_mib": 218,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2701.5,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5736926,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1361,
+   "rss_mib": 218,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2711.53,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5758294,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1366,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2721.59,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5779758,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1371,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2731.59,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5800963,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1376,
+   "rss_mib": 218.3,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2741.6,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5822227,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1381,
+   "rss_mib": 218,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2751.56,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5843414,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1386,
+   "rss_mib": 218,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 2761.55,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5864748,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1391,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2771.58,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5886049,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1396,
+   "rss_mib": 218.3,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2781.58,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5907362,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1401,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2791.58,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5928670,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1406,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2801.61,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5949969,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1411,
+   "rss_mib": 218.3,
+   "anon_mib": 175.9,
+   "threads": 103,
+   "cpu_s": 2811.62,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5971287,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1416,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2821.65,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 5992618,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1421,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2831.69,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6013986,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1426,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2841.72,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6035376,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1431,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2851.76,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6056751,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1436,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2861.74,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6078098,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1441,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2871.76,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6099416,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1446,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2881.78,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6120798,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1451,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2891.81,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6142120,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1456,
+   "rss_mib": 218.2,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 2901.84,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6163467,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1461,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2911.86,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6184743,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1466,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2921.88,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6206091,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1471,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2931.86,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6227407,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1476,
+   "rss_mib": 219.2,
+   "anon_mib": 176.8,
+   "threads": 103,
+   "cpu_s": 2941.88,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6248677,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1481,
+   "rss_mib": 218.2,
+   "anon_mib": 175.8,
+   "threads": 103,
+   "cpu_s": 2951.9,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6270027,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1486,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2961.94,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6291414,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1491,
+   "rss_mib": 218,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 2971.96,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6312749,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1496,
+   "rss_mib": 221.3,
+   "anon_mib": 178.8,
+   "threads": 103,
+   "cpu_s": 2981.98,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6334085,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1501,
+   "rss_mib": 221.8,
+   "anon_mib": 179.4,
+   "threads": 103,
+   "cpu_s": 2991.94,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6355385,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1506,
+   "rss_mib": 222.5,
+   "anon_mib": 180.1,
+   "threads": 103,
+   "cpu_s": 3001.65,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6375412,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1511,
+   "rss_mib": 218.1,
+   "anon_mib": 175.6,
+   "threads": 103,
+   "cpu_s": 3011.59,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6396455,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1516,
+   "rss_mib": 218.8,
+   "anon_mib": 176.4,
+   "threads": 103,
+   "cpu_s": 3021.6,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6417673,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1521,
+   "rss_mib": 218.5,
+   "anon_mib": 176.1,
+   "threads": 103,
+   "cpu_s": 3031.62,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6438973,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1526,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 3041.58,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6460037,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1531,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 3051.48,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6480828,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1536,
+   "rss_mib": 218.8,
+   "anon_mib": 176.4,
+   "threads": 103,
+   "cpu_s": 3061.48,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6502179,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1541,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 3071.52,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6523461,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1546,
+   "rss_mib": 219.7,
+   "anon_mib": 177.3,
+   "threads": 103,
+   "cpu_s": 3081.55,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6544764,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1551,
+   "rss_mib": 218.5,
+   "anon_mib": 176.1,
+   "threads": 103,
+   "cpu_s": 3091.36,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6565131,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1556,
+   "rss_mib": 217.7,
+   "anon_mib": 175.3,
+   "threads": 103,
+   "cpu_s": 3101.25,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6586025,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1561,
+   "rss_mib": 217.7,
+   "anon_mib": 175.3,
+   "threads": 103,
+   "cpu_s": 3111.24,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6607125,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1566,
+   "rss_mib": 217.7,
+   "anon_mib": 175.3,
+   "threads": 103,
+   "cpu_s": 3121.22,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6628320,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1571,
+   "rss_mib": 217.9,
+   "anon_mib": 175.5,
+   "threads": 103,
+   "cpu_s": 3131.22,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6649384,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1576,
+   "rss_mib": 218.9,
+   "anon_mib": 176.5,
+   "threads": 103,
+   "cpu_s": 3141.16,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6670568,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1581,
+   "rss_mib": 219.3,
+   "anon_mib": 176.9,
+   "threads": 103,
+   "cpu_s": 3151.08,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6691526,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1586,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3161.02,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6712525,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1591,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 3171.06,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6733856,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1596,
+   "rss_mib": 218.3,
+   "anon_mib": 175.9,
+   "threads": 103,
+   "cpu_s": 3181.02,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6755055,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1601,
+   "rss_mib": 220.5,
+   "anon_mib": 178.1,
+   "threads": 103,
+   "cpu_s": 3190.96,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6776238,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1606,
+   "rss_mib": 219.9,
+   "anon_mib": 177.5,
+   "threads": 103,
+   "cpu_s": 3200.95,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6797335,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1611,
+   "rss_mib": 219.9,
+   "anon_mib": 177.5,
+   "threads": 103,
+   "cpu_s": 3210.95,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6818567,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1616,
+   "rss_mib": 219.3,
+   "anon_mib": 176.9,
+   "threads": 103,
+   "cpu_s": 3220.93,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6839732,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1621,
+   "rss_mib": 219,
+   "anon_mib": 176.6,
+   "threads": 103,
+   "cpu_s": 3230.89,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6860998,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1626,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3240.84,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6882096,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1631,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3250.88,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6903465,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1636,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3260.87,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6924800,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1641,
+   "rss_mib": 218.1,
+   "anon_mib": 175.7,
+   "threads": 103,
+   "cpu_s": 3270.83,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6945931,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1646,
+   "rss_mib": 219.1,
+   "anon_mib": 176.7,
+   "threads": 103,
+   "cpu_s": 3280.84,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6967130,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1651,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3290.78,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 6988363,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1656,
+   "rss_mib": 218.7,
+   "anon_mib": 176.2,
+   "threads": 103,
+   "cpu_s": 3300.79,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7009681,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1661,
+   "rss_mib": 218.4,
+   "anon_mib": 176,
+   "threads": 103,
+   "cpu_s": 3310.75,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7030967,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1666,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3320.73,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7052248,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1671,
+   "rss_mib": 218.7,
+   "anon_mib": 176.2,
+   "threads": 103,
+   "cpu_s": 3330.7,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7073353,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1676,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3340.68,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7094750,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1681,
+   "rss_mib": 219.4,
+   "anon_mib": 177,
+   "threads": 103,
+   "cpu_s": 3350.66,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7116033,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1686,
+   "rss_mib": 219.6,
+   "anon_mib": 177.2,
+   "threads": 103,
+   "cpu_s": 3360.65,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7137300,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1691,
+   "rss_mib": 218.5,
+   "anon_mib": 176,
+   "threads": 103,
+   "cpu_s": 3370.63,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7158482,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1696,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3380.64,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7179835,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1701,
+   "rss_mib": 226.9,
+   "anon_mib": 184.5,
+   "threads": 103,
+   "cpu_s": 3390.63,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7201135,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1706,
+   "rss_mib": 227.6,
+   "anon_mib": 185.2,
+   "threads": 103,
+   "cpu_s": 3400.63,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7222419,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1711,
+   "rss_mib": 218.4,
+   "anon_mib": 176,
+   "threads": 103,
+   "cpu_s": 3410.57,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7243686,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1716,
+   "rss_mib": 218.4,
+   "anon_mib": 176,
+   "threads": 103,
+   "cpu_s": 3420.55,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7264902,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1721,
+   "rss_mib": 218.4,
+   "anon_mib": 176,
+   "threads": 103,
+   "cpu_s": 3430.55,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7286254,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1726,
+   "rss_mib": 218.8,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3440.56,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7307572,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1731,
+   "rss_mib": 218.6,
+   "anon_mib": 176.2,
+   "threads": 103,
+   "cpu_s": 3450.43,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7328249,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1736,
+   "rss_mib": 219.3,
+   "anon_mib": 176.9,
+   "threads": 103,
+   "cpu_s": 3460.45,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7349392,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1741,
+   "rss_mib": 219.2,
+   "anon_mib": 176.8,
+   "threads": 103,
+   "cpu_s": 3470.38,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7370336,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1746,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3480.23,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7391227,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1751,
+   "rss_mib": 219.3,
+   "anon_mib": 176.9,
+   "threads": 103,
+   "cpu_s": 3490.16,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7412429,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1756,
+   "rss_mib": 218.4,
+   "anon_mib": 176,
+   "threads": 103,
+   "cpu_s": 3500.14,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7433678,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1761,
+   "rss_mib": 218.7,
+   "anon_mib": 176.3,
+   "threads": 103,
+   "cpu_s": 3510.15,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7454894,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1766,
+   "rss_mib": 219.3,
+   "anon_mib": 176.9,
+   "threads": 103,
+   "cpu_s": 3520.14,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7476314,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1771,
+   "rss_mib": 219.2,
+   "anon_mib": 176.8,
+   "threads": 103,
+   "cpu_s": 3530.12,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7497581,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1776,
+   "rss_mib": 219.5,
+   "anon_mib": 177,
+   "threads": 103,
+   "cpu_s": 3540.15,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7518935,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1781,
+   "rss_mib": 218.5,
+   "anon_mib": 176.1,
+   "threads": 103,
+   "cpu_s": 3550.17,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7540336,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1786,
+   "rss_mib": 219.4,
+   "anon_mib": 177,
+   "threads": 103,
+   "cpu_s": 3560.18,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7561704,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1791,
+   "rss_mib": 218.5,
+   "anon_mib": 176,
+   "threads": 103,
+   "cpu_s": 3570.15,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7582989,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1796,
+   "rss_mib": 218.4,
+   "anon_mib": 176,
+   "threads": 103,
+   "cpu_s": 3580.1,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7604188,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1801,
+   "rss_mib": 218.5,
+   "anon_mib": 176.1,
+   "threads": 103,
+   "cpu_s": 3590.07,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7625593,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  },
+  {
+   "t_s": 1806,
+   "rss_mib": 218.9,
+   "anon_mib": 176.5,
+   "threads": 103,
+   "cpu_s": 3600.07,
+   "compression_cache": {
+    "capacity_bytes": 33554432,
+    "max_entry_bytes": 4194304,
+    "held_bytes": 194044,
+    "entries": 16,
+    "hits": 7646909,
+    "misses": 16,
+    "coalesced": 16,
+    "bypassed": 0,
+    "evictions": 0
+   }
+  }
+ ]
+}

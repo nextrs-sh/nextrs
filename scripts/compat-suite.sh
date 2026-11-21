@@ -269,6 +269,9 @@ if [[ -n "$deployment_id" ]]; then
       --deployment-id "$deployment_id" --json "$out/browser-deployment-id.json"
   fi
 fi
+# 0.1.0-rc.2 HTTP changes: RSC requests to route handlers, byte ranges and
+# the gzip cache of immutable responses.
+run http-rc2 tests/compat/http-rc2.mjs --baseline "$baseline" --candidate "$candidate" --project "$project" --json "$out/http-rc2.json"
 # The same feature checks against next start: the reference must pass too.
 run features-next-start tests/compat/features.mjs --target "$baseline" --requests 600 --concurrency 64 --json "$out/features-next-start.json"
 

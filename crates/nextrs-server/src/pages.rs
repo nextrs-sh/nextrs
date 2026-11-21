@@ -359,10 +359,7 @@ pub(crate) fn html_response(
 /// base server's setVaryHeader for a Pages Router page: the RSC Vary list
 /// when the request is an RSC request (rsc: 1), whatever the page.
 pub(crate) fn rsc_vary<'s>(state: &'s crate::AppState, request: &HeaderMap) -> Option<&'s str> {
-    request
-        .get(&state.rsc.header)
-        .is_some_and(|v| v == "1")
-        .then_some(state.rsc.vary_header.as_str())
+    crate::rsc::is_rsc_request(request, &state.rsc.header).then_some(state.rsc.vary_header.as_str())
 }
 
 fn add_rsc_vary(state: &crate::AppState, request: &HeaderMap, response: &mut Response) {
@@ -579,7 +576,7 @@ pub(crate) async fn serve(
         // before it renders any page (the 404 page aside), a Pages Router
         // page too, and before its method checks.
         if path != "/404"
-            && ctx.headers.get(&state.rsc.header).is_some_and(|v| v == "1")
+            && crate::rsc::is_rsc_request(ctx.headers, &state.rsc.header)
             && let Some(redirect) =
                 crate::rsc_redirect(state, ctx.uri.path(), ctx.uri.query(), ctx.headers)
         {

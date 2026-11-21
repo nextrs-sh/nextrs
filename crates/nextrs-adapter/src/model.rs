@@ -295,6 +295,10 @@ pub struct RoutingConfig {
     pub compress: bool,
     /// The deployment ID options next start's base server reads.
     pub deployment: DeploymentConfig,
+    /// `experimental.validateRSCRequestHeaders: false`: next start then
+    /// answers RSC requests without checking their `_rsc` parameter
+    /// (default: it redirects a mismatch with 307).
+    pub skip_rsc_header_validation: bool,
 }
 
 /// `deploymentId` and the options that change how next start uses it

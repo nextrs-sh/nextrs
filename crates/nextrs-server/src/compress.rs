@@ -29,6 +29,12 @@
 //! - `Accept-Ranges` is removed from a compressed response (ranges apply to
 //!   the identity bytes).
 //!
+//! Immutable responses (`/_next/static` files, prerendered pages loaded at
+//! startup) are compressed once and the gzip copy reused from the bounded
+//! cache in `compress_cache`; the decision and the headers above are the
+//! same either way, and the cached response also carries its
+//! Content-Length.
+//!
 //! Streaming: every chunk the route writes is compressed and flushed with a
 //! zlib sync flush before the next one is read, as Next's pipe to the
 //! response calls the middleware's `res.flush()` after each chunk: HTML,
@@ -50,8 +56,10 @@ use flate2::Compression;
 use flate2::write::GzEncoder;
 use http_body::{Body as _, Frame, SizeHint};
 
+use crate::compress_cache::{Cacheable, CompressionCache};
+
 /// The middleware's default `threshold` (`bytes.parse('1kb')`).
-const THRESHOLD: u64 = 1024;
+pub(crate) const THRESHOLD: u64 = 1024;
 /// How much of a chunk is handed to zlib at a time: bounds the work done in
 /// one poll and the size of one output frame.
 const SLICE: usize = 32 * 1024;
@@ -440,8 +448,10 @@ impl Negotiated {
         }
     }
 
-    /// The response as the middleware would send it.
-    pub(crate) fn apply(self, mut response: Response) -> Response {
+    /// The response as the middleware would send it. A response marked
+    /// [`Cacheable`] takes its gzip body from `cache` (compressing it there
+    /// on a miss).
+    pub(crate) async fn apply(self, mut response: Response, cache: &CompressionCache) -> Response {
         let headers = response.headers();
         let Some(content_type) = headers.get(header::CONTENT_TYPE) else {
             return response;
@@ -486,6 +496,17 @@ impl Negotiated {
             if let Ok(weak) = HeaderValue::from_bytes(&weak) {
                 headers.insert(header::ETAG, weak);
             }
+        }
+        if let Some(cacheable) = response.extensions_mut().remove::<Cacheable>()
+            // The marker names this body (nothing replaced it since).
+            && response.body().size_hint().exact() == Some(cacheable.identity.len() as u64)
+            && let Some(gzip) = cache.gzip(cacheable.key, cacheable.identity).await
+        {
+            response
+                .headers_mut()
+                .insert(header::CONTENT_LENGTH, HeaderValue::from(gzip.len()));
+            *response.body_mut() = Body::from(gzip);
+            return response;
         }
         let response = response.map(|body| Body::new(GzipBody::new(body)));
         // Without a length, an HTTP/1.0 response is delimited by closing
@@ -926,6 +947,14 @@ mod tests {
         response
     }
 
+    /// `apply` without a cache, from a synchronous test.
+    fn apply(negotiated: Negotiated, response: Response) -> Response {
+        tokio::runtime::Builder::new_current_thread()
+            .build()
+            .unwrap()
+            .block_on(negotiated.apply(response, &CompressionCache::disabled()))
+    }
+
     fn gzip_get() -> Negotiated {
         let mut headers = HeaderMap::new();
         headers.insert(header::ACCEPT_ENCODING, HeaderValue::from_static("gzip"));
@@ -949,138 +978,165 @@ mod tests {
             "application/octet-stream",
             "font/woff2",
         ] {
-            let r = gzip_get().apply(response(200, &[("content-type", t)], big()));
+            let r = apply(gzip_get(), response(200, &[("content-type", t)], big()));
             assert_eq!(get(&r, "content-encoding"), None, "{t}");
             assert_eq!(get(&r, "vary"), None, "{t}");
         }
         // No Content-Type: untouched.
-        let r = gzip_get().apply(response(200, &[], big()));
+        let r = apply(gzip_get(), response(200, &[], big()));
         assert_eq!(get(&r, "vary"), None);
         // no-transform: untouched, no Vary.
-        let r = gzip_get().apply(response(
-            200,
-            &[
-                ("content-type", "text/html"),
-                ("cache-control", "private, no-transform"),
-            ],
-            big(),
-        ));
+        let r = apply(
+            gzip_get(),
+            response(
+                200,
+                &[
+                    ("content-type", "text/html"),
+                    ("cache-control", "private, no-transform"),
+                ],
+                big(),
+            ),
+        );
         assert_eq!(get(&r, "content-encoding"), None);
         assert_eq!(get(&r, "vary"), None);
         // Already encoded (a precompressed body): Vary, not compressed again.
-        let r = gzip_get().apply(response(
-            200,
-            &[
-                ("content-type", "application/json"),
-                ("content-encoding", "br"),
-            ],
-            big(),
-        ));
+        let r = apply(
+            gzip_get(),
+            response(
+                200,
+                &[
+                    ("content-type", "application/json"),
+                    ("content-encoding", "br"),
+                ],
+                big(),
+            ),
+        );
         assert_eq!(get(&r, "content-encoding"), Some("br"));
         assert_eq!(get(&r, "vary"), Some("Accept-Encoding"));
         // `identity` is no encoding.
-        let r = gzip_get().apply(response(
-            200,
-            &[
-                ("content-type", "application/json"),
-                ("content-encoding", "identity"),
-            ],
-            big(),
-        ));
+        let r = apply(
+            gzip_get(),
+            response(
+                200,
+                &[
+                    ("content-type", "application/json"),
+                    ("content-encoding", "identity"),
+                ],
+                big(),
+            ),
+        );
         assert_eq!(get(&r, "content-encoding"), Some("gzip"));
         // Below the threshold, by Content-Length or by the body's size.
-        let r = gzip_get().apply(response(
-            200,
-            &[("content-type", "text/plain"), ("content-length", "1023")],
-            Body::from(vec![b'a'; 1023]),
-        ));
+        let r = apply(
+            gzip_get(),
+            response(
+                200,
+                &[("content-type", "text/plain"), ("content-length", "1023")],
+                Body::from(vec![b'a'; 1023]),
+            ),
+        );
         assert_eq!(get(&r, "content-encoding"), None);
         assert_eq!(get(&r, "vary"), Some("Accept-Encoding"));
-        let r = gzip_get().apply(response(
-            200,
-            &[("content-type", "text/plain")],
-            Body::from("tiny"),
-        ));
+        let r = apply(
+            gzip_get(),
+            response(200, &[("content-type", "text/plain")], Body::from("tiny")),
+        );
         assert_eq!(get(&r, "content-encoding"), None);
-        let r = gzip_get().apply(response(
-            200,
-            &[("content-type", "text/plain")],
-            Body::empty(),
-        ));
+        let r = apply(
+            gzip_get(),
+            response(200, &[("content-type", "text/plain")], Body::empty()),
+        );
         assert_eq!(get(&r, "content-encoding"), None);
         // Exactly the threshold is compressed.
-        let r = gzip_get().apply(response(
-            200,
-            &[("content-type", "text/plain")],
-            Body::from(vec![b'a'; 1024]),
-        ));
+        let r = apply(
+            gzip_get(),
+            response(
+                200,
+                &[("content-type", "text/plain")],
+                Body::from(vec![b'a'; 1024]),
+            ),
+        );
         assert_eq!(get(&r, "content-encoding"), Some("gzip"));
         // A stream of unknown size is compressed whatever its size.
         let stream = Body::from_stream(futures_util::stream::iter([Ok::<_, std::io::Error>(
             Bytes::from_static(b"{}"),
         )]));
-        let r = gzip_get().apply(response(
-            200,
-            &[("content-type", "application/json")],
-            stream,
-        ));
+        let r = apply(
+            gzip_get(),
+            response(200, &[("content-type", "application/json")], stream),
+        );
         assert_eq!(get(&r, "content-encoding"), Some("gzip"));
         // Bodyless and partial statuses.
         for status in [204, 304, 206] {
-            let r = gzip_get().apply(response(status, &[("content-type", "text/html")], big()));
+            let r = apply(
+                gzip_get(),
+                response(status, &[("content-type", "text/html")], big()),
+            );
             assert_eq!(get(&r, "content-encoding"), None, "{status}");
             assert_eq!(get(&r, "vary"), Some("Accept-Encoding"), "{status}");
         }
-        let r = gzip_get().apply(response(
-            200,
-            &[
-                ("content-type", "text/html"),
-                ("content-range", "bytes 0-9/4096"),
-            ],
-            big(),
-        ));
+        let r = apply(
+            gzip_get(),
+            response(
+                200,
+                &[
+                    ("content-type", "text/html"),
+                    ("content-range", "bytes 0-9/4096"),
+                ],
+                big(),
+            ),
+        );
         assert_eq!(get(&r, "content-encoding"), None);
         // HEAD.
         let mut headers = HeaderMap::new();
         headers.insert(header::ACCEPT_ENCODING, HeaderValue::from_static("gzip"));
         let head = Negotiated::of(&Method::HEAD, Version::HTTP_11, &headers);
-        let r = head.apply(response(
-            200,
-            &[("content-type", "text/html"), ("content-length", "4096")],
-            Body::empty(),
-        ));
+        let r = apply(
+            head,
+            response(
+                200,
+                &[("content-type", "text/html"), ("content-length", "4096")],
+                Body::empty(),
+            ),
+        );
         assert_eq!(get(&r, "content-encoding"), None);
         assert_eq!(get(&r, "content-length"), Some("4096"));
         // Not accepted.
         let none = Negotiated::of(&Method::GET, Version::HTTP_11, &HeaderMap::new());
-        let r = none.apply(response(200, &[("content-type", "text/html")], big()));
+        let r = apply(none, response(200, &[("content-type", "text/html")], big()));
         assert_eq!(get(&r, "content-encoding"), None);
         assert_eq!(get(&r, "vary"), Some("Accept-Encoding"));
     }
 
     #[test]
     fn compressed_responses_change_their_validators() {
-        let r = gzip_get().apply(response(
-            200,
-            &[
-                ("content-type", "application/javascript"),
-                ("content-length", "4096"),
-                ("etag", "\"abc\""),
-                ("accept-ranges", "bytes"),
-                ("vary", "rsc"),
-            ],
-            big(),
-        ));
+        let r = apply(
+            gzip_get(),
+            response(
+                200,
+                &[
+                    ("content-type", "application/javascript"),
+                    ("content-length", "4096"),
+                    ("etag", "\"abc\""),
+                    ("accept-ranges", "bytes"),
+                    ("vary", "rsc"),
+                ],
+                big(),
+            ),
+        );
         assert_eq!(get(&r, "content-encoding"), Some("gzip"));
         assert_eq!(get(&r, "content-length"), None);
         assert_eq!(get(&r, "accept-ranges"), None);
         assert_eq!(get(&r, "etag"), Some("W/\"abc\""));
         assert_eq!(get(&r, "vary"), Some("rsc, Accept-Encoding"));
-        let r = gzip_get().apply(response(
-            200,
-            &[("content-type", "text/css"), ("etag", "W/\"x\"")],
-            big(),
-        ));
+        let r = apply(
+            gzip_get(),
+            response(
+                200,
+                &[("content-type", "text/css"), ("etag", "W/\"x\"")],
+                big(),
+            ),
+        );
         assert_eq!(get(&r, "etag"), Some("W/\"x\""));
     }
 
@@ -1091,14 +1147,136 @@ mod tests {
         let mut headers = HeaderMap::new();
         headers.insert(header::ACCEPT_ENCODING, HeaderValue::from_static("gzip"));
         let n = Negotiated::of(&Method::GET, Version::HTTP_10, &headers);
-        let r = n.apply(response(
-            200,
-            &[("content-type", "text/html"), ("content-length", "4096")],
-            big(),
-        ));
+        let r = apply(
+            n,
+            response(
+                200,
+                &[("content-type", "text/html"), ("content-length", "4096")],
+                big(),
+            ),
+        );
         assert_eq!(get(&r, "content-encoding"), Some("gzip"));
         assert_eq!(get(&r, "connection"), Some("close"));
         assert_eq!(r.version(), Version::HTTP_10);
+    }
+
+    fn marked(status: u16, headers: &[(&str, &str)], identity: &'static [u8]) -> Response {
+        let mut r = response(status, headers, Body::from(identity));
+        r.extensions_mut().insert(Cacheable {
+            key: crate::compress_cache::Key::Stored(7),
+            identity: Bytes::from_static(identity),
+        });
+        r
+    }
+
+    async fn body_of(r: Response) -> Vec<u8> {
+        axum::body::to_bytes(r.into_body(), usize::MAX)
+            .await
+            .unwrap()
+            .to_vec()
+    }
+
+    fn snapshot(cache: &CompressionCache, name: &str) -> u64 {
+        cache
+            .snapshot()
+            .into_iter()
+            .find(|(n, _)| *n == name)
+            .unwrap()
+            .1
+    }
+
+    /// A marked body is compressed once and reused, with the same headers
+    /// as the per-request path plus its length.
+    #[tokio::test]
+    async fn marked_bodies_come_from_the_cache() {
+        static PAGE: [u8; 4096] = [b'p'; 4096];
+        let cache = CompressionCache::new(1 << 20, 1 << 20);
+        let headers = [
+            ("content-type", "text/html; charset=utf-8"),
+            ("content-length", "4096"),
+            ("etag", "\"abc\""),
+            ("vary", "rsc"),
+        ];
+        let mut bodies = Vec::new();
+        for _ in 0..3 {
+            let r = gzip_get().apply(marked(200, &headers, &PAGE), &cache).await;
+            assert_eq!(get(&r, "content-encoding"), Some("gzip"));
+            assert_eq!(get(&r, "etag"), Some("W/\"abc\""));
+            assert_eq!(get(&r, "vary"), Some("rsc, Accept-Encoding"));
+            let length: usize = get(&r, "content-length").unwrap().parse().unwrap();
+            let body = body_of(r).await;
+            assert_eq!(body.len(), length);
+            let mut decoded = Vec::new();
+            std::io::Read::read_to_end(&mut flate2::read::GzDecoder::new(&body[..]), &mut decoded)
+                .unwrap();
+            assert_eq!(decoded, PAGE);
+            bodies.push(body);
+        }
+        assert!(bodies.iter().all(|b| b == &bodies[0]));
+        assert_eq!(snapshot(&cache, "misses"), 1);
+        assert_eq!(snapshot(&cache, "hits"), 2);
+        // A 404 page is a complete body too.
+        let r = gzip_get().apply(marked(404, &headers, &PAGE), &cache).await;
+        assert_eq!(get(&r, "content-encoding"), Some("gzip"));
+        assert_eq!(snapshot(&cache, "hits"), 3);
+    }
+
+    /// Whatever leaves a response uncompressed also leaves the cache unread.
+    #[tokio::test]
+    async fn the_cache_is_read_only_for_gzip() {
+        static PAGE: [u8; 4096] = [b'q'; 4096];
+        let cache = CompressionCache::new(1 << 20, 1 << 20);
+        let html = [("content-type", "text/html")];
+        let identity = Negotiated::of(&Method::GET, Version::HTTP_11, &HeaderMap::new());
+        let r = identity.apply(marked(200, &html, &PAGE), &cache).await;
+        assert_eq!(get(&r, "content-encoding"), None);
+        assert_eq!(body_of(r).await, PAGE);
+        let r = gzip_get()
+            .apply(
+                marked(
+                    200,
+                    &[
+                        ("content-type", "text/html"),
+                        ("cache-control", "no-transform"),
+                    ],
+                    &PAGE,
+                ),
+                &cache,
+            )
+            .await;
+        assert_eq!(get(&r, "content-encoding"), None);
+        assert_eq!(body_of(r).await, PAGE);
+        let r = gzip_get().apply(marked(206, &html, &PAGE), &cache).await;
+        assert_eq!(get(&r, "content-encoding"), None);
+        assert_eq!(body_of(r).await, PAGE);
+        let mut headers = HeaderMap::new();
+        headers.insert(header::ACCEPT_ENCODING, HeaderValue::from_static("gzip"));
+        let head = Negotiated::of(&Method::HEAD, Version::HTTP_11, &headers);
+        let r = head.apply(marked(200, &html, &PAGE), &cache).await;
+        assert_eq!(get(&r, "content-encoding"), None);
+        assert_eq!(snapshot(&cache, "entries"), 0);
+        assert_eq!(snapshot(&cache, "misses") + snapshot(&cache, "hits"), 0);
+    }
+
+    /// A marker whose body was replaced afterwards is ignored: the body in
+    /// hand is compressed as it streams.
+    #[tokio::test]
+    async fn a_stale_marker_is_ignored() {
+        let cache = CompressionCache::new(1 << 20, 1 << 20);
+        let mut r = response(200, &[("content-type", "text/html")], big());
+        r.extensions_mut().insert(Cacheable {
+            key: crate::compress_cache::Key::Stored(8),
+            identity: Bytes::from_static(&[b'z'; 2048]),
+        });
+        let r = gzip_get().apply(r, &cache).await;
+        assert_eq!(get(&r, "content-encoding"), Some("gzip"));
+        assert_eq!(get(&r, "content-length"), None);
+        let body = body_of(r).await;
+        let mut decoded = Vec::new();
+        std::io::Read::read_to_end(&mut flate2::read::GzDecoder::new(&body[..]), &mut decoded)
+            .unwrap();
+        assert_eq!(decoded, vec![b'a'; 4096]);
+        assert_eq!(snapshot(&cache, "entries"), 0);
     }
 
     #[test]

@@ -1,0 +1,190 @@
+{
+ "summary": {
+  "inflight": 24,
+  "ok": 24,
+  "by_kind": {
+   "gzip-miss-then-hit": "6/6",
+   "gzip-cached-page": "6/6",
+   "gzip-streamed-ssr": "6/6",
+   "range": "6/6"
+  },
+  "drained_ms": 281,
+  "new_connection_after_drain": "refused",
+  "exited": true,
+  "stderr_tail": [
+   "\u001b[2m2026-11-21T14:07:45.072420Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mnextrs_server::serve\u001b[0m\u001b[2m:\u001b[0m shutting down: no new connections; draining \u001b[3mconnections\u001b[0m\u001b[2m=\u001b[0m24 \u001b[3mgrace_ms\u001b[0m\u001b[2m=\u001b[0m15000",
+   "\u001b[2m2026-11-21T14:07:45.187688Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mnextrs\u001b[0m\u001b[2m:\u001b[0m stopping JavaScript isolates",
+   "\u001b[2m2026-11-21T14:07:45.235228Z\u001b[0m \u001b[32m INFO\u001b[0m \u001b[2mnextrs\u001b[0m\u001b[2m:\u001b[0m nextrs stopped"
+  ]
+ },
+ "rows": [
+  {
+   "kind": "gzip-miss-then-hit",
+   "status": 200,
+   "bytes": 72542,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-miss-then-hit",
+   "status": 200,
+   "bytes": 72542,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-miss-then-hit",
+   "status": 200,
+   "bytes": 72542,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-miss-then-hit",
+   "status": 200,
+   "bytes": 72542,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-miss-then-hit",
+   "status": 200,
+   "bytes": 72542,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-miss-then-hit",
+   "status": 200,
+   "bytes": 72542,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-cached-page",
+   "status": 200,
+   "bytes": 2006,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-cached-page",
+   "status": 200,
+   "bytes": 2006,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-cached-page",
+   "status": 200,
+   "bytes": 2006,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-cached-page",
+   "status": 200,
+   "bytes": 2006,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-cached-page",
+   "status": 200,
+   "bytes": 2006,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-cached-page",
+   "status": 200,
+   "bytes": 2006,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-streamed-ssr",
+   "status": 200,
+   "bytes": 2556,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-streamed-ssr",
+   "status": 200,
+   "bytes": 2556,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-streamed-ssr",
+   "status": 200,
+   "bytes": 2556,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-streamed-ssr",
+   "status": 200,
+   "bytes": 2556,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-streamed-ssr",
+   "status": 200,
+   "bytes": 2556,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "gzip-streamed-ssr",
+   "status": 200,
+   "bytes": 2556,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "range",
+   "status": 206,
+   "bytes": 100000,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "range",
+   "status": 206,
+   "bytes": 100000,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "range",
+   "status": 206,
+   "bytes": 100000,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "range",
+   "status": 206,
+   "bytes": 100000,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "range",
+   "status": 206,
+   "bytes": 100000,
+   "ok": true,
+   "error": null
+  },
+  {
+   "kind": "range",
+   "status": 206,
+   "bytes": 100000,
+   "ok": true,
+   "error": null
+  }
+ ]
+}

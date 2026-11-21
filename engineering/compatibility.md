@@ -72,7 +72,7 @@ The suites that compare these fixtures are described in
 |---|---|---|
 | Static assets (`/_next/static`, `public/`) | ✅ Supported | Served from the build output, with ETags and immutable caching for hashed assets |
 | Prerendered App Router pages | ✅ Supported | HTML stored by `next build` |
-| Prerendered RSC payloads | ✅ Supported | Full payloads and segment prefetches, including the `_rsc` cache-busting check |
+| Prerendered RSC payloads | ✅ Supported | Full payloads and segment prefetches, including the `_rsc` cache-busting check (also applied, as by `next start`, to RSC requests for dynamic pages and route handlers; off with `experimental.validateRSCRequestHeaders: false`) |
 | Not-found handling | ✅ Supported | Serves the prerendered not-found page with a `404` |
 | Build inspection and unsupported-feature detection | ✅ Supported | `nextrs inspect` and the startup check |
 | Dynamic App Router pages (SSR, streaming) | 🧪 Experimental | Requires `--js-runtime embedded-v8`; otherwise `501` |
@@ -90,7 +90,8 @@ The suites that compare these fixtures are described in
 | Cache Components (`"use cache"`, `cacheLife`, `cacheTag`) | 🧪 Partial | `"use cache"` functions share one cache across isolates; Partial Prerendering shells are completed by Next's handler. `"use cache: private"` and custom `cacheHandlers` are untested |
 | `next.config` headers, redirects, rewrites (beforeFiles, afterFiles, fallback; `has`/`missing`) | 🧪 Experimental | Applied in Rust in `next start`'s order from `routes-manifest.json`; no executor needed |
 | Rewrites to another origin (config or proxy) | 🧪 Experimental | Forwarded as `next start` forwards them, only to destinations `--net-allow` permits (the same policy as `fetch`, checked for every connection); otherwise `502` (`external-rewrite-denied`) and nothing is sent. WebSocket upgrades answer `501` |
-| Response compression (`compress`) | 🧪 Experimental | gzip, decided as `next start`'s compression middleware decides it; on unless `compress: false`. Streaming is preserved. Differences from `next start` under [Known gaps](#known-gaps); details in [configuration.md](configuration.md#response-compression) |
+| Response compression (`compress`) | 🧪 Experimental | gzip, decided as `next start`'s compression middleware decides it; on unless `compress: false`. Streaming is preserved. `/_next/static` files and prerendered pages are compressed once and the copy reused (bounded by `--compression-cache`). Differences from `next start` under [Known gaps](#known-gaps); details in [configuration.md](configuration.md#response-compression) |
+| Byte ranges (`Range`, `If-Range`) on `/_next/static` and `public/` files | 🧪 Experimental | A single byte range gets `206`, as with `next start`; `416` for unsatisfiable ranges; several ranges get the full response. Differences under [Known gaps](#known-gaps); details in [configuration.md](configuration.md#byte-ranges) |
 | `deploymentId` (and `NEXT_DEPLOYMENT_ID` at build time) | 🧪 Experimental | The routes-manifest `onMatchHeaders` rules Next writes for it are applied as `next start` applies them (`x-nextjs-deployment-id` on RSC and `/_next/data` responses that matched a route or file); the JavaScript runtime gets `NEXT_DEPLOYMENT_ID` as `next start` sets it. Client navigation stays client-side; a response from another deployment makes the client load the page in full, as with `next start`. Malformed or unknown `onMatchHeaders` entries are refused at startup. No server-side skew routing (neither does `next start`) |
 | `basePath`, `trailingSlash`, `assetPrefix`, `experimental.caseSensitiveRoutes` | 🧪 Experimental | Tested in separate fixture builds, including `basePath` with `trailingSlash` |
 | Image optimization (`/_next/image`, `next/image`) | 🧪 Experimental | Answered in Rust, no executor needed for public files and static imports: Next's validation, cache keys, headers and 304s; JPEG, PNG, WebP, GIF and TIFF sources; WebP, AVIF, JPEG and PNG output; EXIF orientation and colour profiles; remote sources only where both `images.remotePatterns` and `--net-allow` allow them. AVIF/HEIF and JPEG-compressed TIFF sources are served unchanged (see [Known gaps](#known-gaps)) |
@@ -255,10 +256,17 @@ with Server Actions, ISR or a proxy is refused at startup (unless
   response uncompressed. Partial (206) responses are never compressed
   (`next start` compresses the partial body). A compressed response's
   strong ETag becomes weak, and its `Accept-Ranges` is removed (`next
-  start` keeps both).
-- **Range requests:** static files answer a `Range` request with the
-  whole file (`200`, no `Accept-Ranges` advertised), where `next start`
-  answers `206`.
+  start` keeps both). A compressed copy served from the compression cache
+  has a `Content-Length` (`next start` streams it chunked).
+- **Range requests:** where `next start` answers `500` (unsatisfiable or
+  malformed ranges) NextRS sends `416` or the full `200`; `HEAD` ignores
+  `Range`; `If-Range` compares strongly, so the weak ETag of a static file
+  never matches (`next start` matches it); a range is always served from
+  the uncompressed bytes. See [configuration.md](configuration.md#byte-ranges).
+  `multipart/byteranges` is not implemented (several ranges get the full
+  response, as with `next start`). `If-Match` and `If-Unmodified-Since`
+  are not evaluated for static files (`next start` answers `500` when they
+  fail).
 - **Deployment ID source:** NextRS uses the `deploymentId` recorded in the
   build. `next start` evaluates `next.config` again when it starts, so a
   `NEXT_DEPLOYMENT_ID` different from the build's at start time changes

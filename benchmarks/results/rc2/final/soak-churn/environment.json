@@ -1,0 +1,66 @@
+{
+ "environment": {
+  "date": "2026-11-21T13:48:56.028Z",
+  "host_kind": "single-host (load generator and server on the same machine, pinned to disjoint CPUs)",
+  "cpu_model": "Intel(R) Core(TM) i5-9400F CPU @ 2.90GHz",
+  "logical_cpus": 6,
+  "cpu_governors": [
+   "performance"
+  ],
+  "cpu_max_mhz": 4100,
+  "turbo_disabled": "0",
+  "mem_total_mib": 15919,
+  "mem_available_mib_at_start": 8028,
+  "swap_total_mib": 8192,
+  "swap_used_mib_at_start": 5652,
+  "loadavg_at_start": [
+   7.74,
+   5.53,
+   5.16
+  ],
+  "os": "Freedesktop SDK 26.08 (Flatpak runtime)",
+  "kernel": "7.3.4-300.fc45.x86_64",
+  "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1",
+  "node": "v24.18.0",
+  "nextrs_binary": "/home/dennispaler/.cache/nextrs-rc2b/bin/nextrs-cand-c697c1e",
+  "nextrs_binary_sha256": "8d85c5b2db4112cd5fd0aea8b09c5cccf40adc661591b1581fb4e51d9f03e4ca",
+  "nextrs_commit": "c697c1e00d212cd632db23d6c347fa9dc92b0fcc",
+  "nextrs_dirty": true,
+  "loadgen": "/home/dennispaler/.cache/nextrs-phase3a/worktrees/nextrs-rc2fix/benchmarks/loadgen/target/release/nextrs-loadgen",
+  "loadgen_sha256": "41823cebe513bda909ea9fc54edbe6ba9a8d76485c974768b1e726c79026a5ee",
+  "server_cpus": "0-3",
+  "load_cpus": "4-5",
+  "memory_limit": "none (no cgroup limit applied); RSS is reported per process tree"
+ },
+ "chunk": {
+  "path": "/_next/static/chunks/39_j1bdzreq0m.js",
+  "size": 229288
+ },
+ "project": "/home/dennispaler/.cache/nextrs-rc2b/churn",
+ "configs": [
+  {
+   "label": "cand-identity",
+   "bin": "/home/dennispaler/.cache/nextrs-rc2b/bin/nextrs-cand-c697c1e"
+  },
+  {
+   "label": "cand-gzip",
+   "bin": "/home/dennispaler/.cache/nextrs-rc2b/bin/nextrs-cand-c697c1e"
+  },
+  {
+   "label": "cand-nocache-gzip",
+   "bin": "/home/dennispaler/.cache/nextrs-rc2b/bin/nextrs-cand-c697c1e"
+  },
+  {
+   "label": "cand-tiny-gzip",
+   "bin": "/home/dennispaler/.cache/nextrs-rc2b/bin/nextrs-cand-c697c1e"
+  },
+  {
+   "label": "next-identity",
+   "bin": "next start"
+  },
+  {
+   "label": "next-gzip",
+   "bin": "next start"
+  }
+ ]
+}

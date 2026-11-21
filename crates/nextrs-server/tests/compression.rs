@@ -9,7 +9,9 @@ use std::path::{Path, PathBuf};
 use axum::Router;
 use axum::body::{Body, to_bytes};
 use axum::http::{Method, Request, Response, StatusCode};
-use nextrs_server::ServerOptions;
+use std::sync::Arc;
+
+use nextrs_server::{CompressionCache, ServerOptions};
 use tower::ServiceExt;
 
 const RSC_VARY: &str =
@@ -72,9 +74,10 @@ fn read(snapshot_name: &str, rel: &str) -> Vec<u8> {
 const DEFAULT: &str = "next-16.4.3-default";
 const DPL: &str = "next-16.4.6-deployment-id";
 
-/// next start: `Accept-Encoding: gzip` on a prerendered page → gzip, no
-/// Content-Length, Vary keeps the RSC fields and adds Accept-Encoding.
-/// NextRS also weakens the strong ETag (next start keeps it as is).
+/// next start: `Accept-Encoding: gzip` on a prerendered page → gzip, Vary
+/// keeps the RSC fields and adds Accept-Encoding. NextRS also weakens the
+/// strong ETag (next start keeps it as is), and sends the Content-Length of
+/// its cached gzip copy (next start streams it chunked).
 #[tokio::test]
 async fn prerendered_html_is_gzipped_for_gzip_clients() {
     let app = app_for(&snapshot(DEFAULT)).await;
@@ -88,7 +91,10 @@ async fn prerendered_html_is_gzipped_for_gzip_clients() {
     .await;
     assert_eq!(response.status(), StatusCode::OK);
     assert_eq!(header(&response, "content-encoding"), Some("gzip"));
-    assert_eq!(header(&response, "content-length"), None);
+    assert_eq!(
+        header(&response, "content-length"),
+        Some(body.len().to_string().as_str())
+    );
     assert_eq!(
         header(&response, "vary"),
         Some(format!("{RSC_VARY}, Accept-Encoding").as_str())
@@ -223,11 +229,10 @@ async fn rsc_payloads_are_compressed() {
     assert_eq!(gunzip(&body), rsc);
 }
 
-/// Static JavaScript is compressed whole. NextRS does not implement Range
-/// requests (it answers the full 200 and advertises no Accept-Ranges; next
-/// start answers 206, a difference that predates compression): that full
-/// response is compressed too. Partial responses themselves are never
-/// compressed (compress.rs unit tests).
+/// Static JavaScript is compressed whole, without Accept-Ranges (ranges
+/// apply to the identity bytes). A range request with gzip accepted gets a
+/// 206 of the identity bytes, never compressed (next start compresses the
+/// partial body; see tests/range.rs).
 #[tokio::test]
 async fn static_assets_and_ranges() {
     let app = app_for(&snapshot(DPL)).await;
@@ -249,10 +254,14 @@ async fn static_assets_and_ranges() {
         &[("accept-encoding", "gzip"), ("range", "bytes=0-2047")],
     )
     .await;
-    assert_eq!(response.status(), StatusCode::OK);
-    assert_eq!(header(&response, "content-range"), None);
-    assert_eq!(header(&response, "content-encoding"), Some("gzip"));
-    assert_eq!(gunzip(&body), file);
+    assert_eq!(response.status(), StatusCode::PARTIAL_CONTENT);
+    assert_eq!(
+        header(&response, "content-range"),
+        Some(format!("bytes 0-2047/{}", file.len()).as_str())
+    );
+    assert_eq!(header(&response, "content-encoding"), None);
+    assert_eq!(header(&response, "vary"), Some("Accept-Encoding"));
+    assert_eq!(body, &file[..2048]);
 
     // Revalidating the compressed copy with its weak ETag.
     let (response, _) = request(
@@ -337,4 +346,180 @@ fn copy_dir(from: &Path, to: &Path) {
             std::fs::copy(entry.path(), target).unwrap();
         }
     }
+}
+
+// ---------------------------------------------------------------------
+// The gzip cache of immutable responses.
+
+fn cache_stat(cache: &CompressionCache, name: &str) -> u64 {
+    cache
+        .snapshot()
+        .into_iter()
+        .find(|(n, _)| *n == name)
+        .unwrap()
+        .1
+}
+
+async fn app_with_cache(dir: &Path, cache: &Arc<CompressionCache>) -> Router {
+    let info = nextrs_adapter::inspect(dir).unwrap();
+    let options = ServerOptions {
+        compression_cache: cache.clone(),
+        ..options()
+    };
+    nextrs_server::app(&info, &options).await.unwrap()
+}
+
+/// Prerendered HTML, its RSC payload, the 404 page and a static chunk are
+/// each compressed once; later gzip requests get the same bytes from the
+/// cache. Identity and HEAD requests never touch it.
+#[tokio::test]
+async fn immutable_responses_are_compressed_once() {
+    let cache = Arc::new(CompressionCache::new(1 << 20, 1 << 20));
+    let app = app_with_cache(&snapshot(DPL), &cache).await;
+    let chunk = "/_next/static/chunks/310vm2bl3xxpt.js";
+    type Case<'a> = (&'a str, &'a [(&'a str, &'a str)], Vec<u8>);
+    let cases: [Case; 4] = [
+        ("/", &[], read(DPL, "server/app/index.html")),
+        ("/?_rsc", &[("rsc", "1")], read(DPL, "server/app/index.rsc")),
+        ("/missing", &[], read(DPL, "server/app/_not-found.html")),
+        (chunk, &[], read(DPL, "static/chunks/310vm2bl3xxpt.js")),
+    ];
+    for (path, extra, expected) in &cases {
+        let mut first = None;
+        for _ in 0..3 {
+            let mut headers = extra.to_vec();
+            headers.push(("accept-encoding", "gzip"));
+            let (response, body) = request(&app, Method::GET, path, &headers).await;
+            assert_eq!(
+                header(&response, "content-encoding"),
+                Some("gzip"),
+                "{path}"
+            );
+            assert_eq!(
+                header(&response, "content-length"),
+                Some(body.len().to_string().as_str()),
+                "{path}"
+            );
+            assert_eq!(&gunzip(&body), expected, "{path}");
+            match &first {
+                None => first = Some(body),
+                Some(first) => assert_eq!(first, &body, "{path}: the cached copy"),
+            }
+            // Identity in between: the file's own bytes, not the cache's.
+            let (response, body) = request(&app, Method::GET, path, extra).await;
+            assert_eq!(header(&response, "content-encoding"), None, "{path}");
+            assert_eq!(&body, expected, "{path}");
+            let (response, body) = request(
+                &app,
+                Method::HEAD,
+                path,
+                &[extra, &[("accept-encoding", "gzip")][..]].concat(),
+            )
+            .await;
+            assert_eq!(header(&response, "content-encoding"), None, "{path}");
+            assert!(body.is_empty());
+        }
+    }
+    assert_eq!(cache_stat(&cache, "misses"), 4);
+    assert_eq!(cache_stat(&cache, "hits"), 8);
+    assert_eq!(cache_stat(&cache, "entries"), 4);
+    assert!(cache_stat(&cache, "held_bytes") > 0);
+}
+
+/// A static file rewritten in place, even with the same size and its old
+/// modification time put back, is compressed again: never a stale copy.
+#[tokio::test]
+async fn a_rewritten_static_file_is_compressed_again() {
+    let dir = std::env::temp_dir().join(format!("nextrs-server-ccfile-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    copy_dir(&snapshot(DPL), &dir);
+    let cache = Arc::new(CompressionCache::new(1 << 20, 1 << 20));
+    let app = app_with_cache(&dir, &cache).await;
+    let path = "/_next/static/chunks/310vm2bl3xxpt.js";
+    let file = dir.join(".next/static/chunks/310vm2bl3xxpt.js");
+    let original = std::fs::read(&file).unwrap();
+    let get = || async {
+        let (response, body) =
+            request(&app, Method::GET, path, &[("accept-encoding", "gzip")]).await;
+        assert_eq!(header(&response, "content-encoding"), Some("gzip"));
+        gunzip(&body)
+    };
+    assert_eq!(get().await, original);
+    assert_eq!(get().await, original);
+    let modified = std::fs::metadata(&file).unwrap().modified().unwrap();
+    let mut changed = original.clone();
+    changed[..12].copy_from_slice(b"/*changed!*/");
+    std::thread::sleep(std::time::Duration::from_millis(20));
+    std::fs::write(&file, &changed).unwrap();
+    std::fs::File::options()
+        .write(true)
+        .open(&file)
+        .unwrap()
+        .set_modified(modified)
+        .unwrap();
+    assert_eq!(
+        std::fs::metadata(&file).unwrap().len(),
+        original.len() as u64
+    );
+    assert_eq!(get().await, changed);
+    assert_eq!(cache_stat(&cache, "misses"), 2);
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// A cache smaller than the build's output stays within its capacity,
+/// evicting, and every response is still correct.
+#[tokio::test]
+async fn the_capacity_bounds_real_output() {
+    // Holds a few of the eight chunks; the 229 KB one compresses to more
+    // than the whole capacity and is served without being held.
+    let capacity = 64 * 1024;
+    let cache = Arc::new(CompressionCache::new(capacity, 1 << 20));
+    let app = app_with_cache(&snapshot(DEFAULT), &cache).await;
+    let dir = snapshot(DEFAULT).join(".next/static/chunks");
+    let mut chunks: Vec<_> = std::fs::read_dir(&dir)
+        .unwrap()
+        .map(|e| e.unwrap().file_name().into_string().unwrap())
+        .filter(|f| f.ends_with(".js"))
+        .collect();
+    chunks.sort();
+    let mut compressed = 0;
+    for round in 0..3 {
+        for chunk in &chunks {
+            let file = read(DEFAULT, &format!("static/chunks/{chunk}"));
+            let (response, body) = request(
+                &app,
+                Method::GET,
+                &format!("/_next/static/chunks/{chunk}"),
+                &[("accept-encoding", "gzip")],
+            )
+            .await;
+            if header(&response, "content-encoding") == Some("gzip") {
+                assert_eq!(gunzip(&body), file, "{chunk}");
+                compressed += usize::from(round == 0);
+            } else {
+                assert_eq!(body, file, "{chunk}");
+            }
+            assert!(cache_stat(&cache, "held_bytes") <= capacity as u64);
+        }
+    }
+    assert!(compressed >= 4, "{compressed} chunks compressed");
+    assert!(
+        cache_stat(&cache, "evictions") > 0,
+        "{:?}",
+        cache.snapshot()
+    );
+    assert!(cache_stat(&cache, "bypassed") > 0, "{:?}", cache.snapshot());
+}
+
+/// `--compression-cache 0`: compressed per request (chunked), as rc.2's
+/// first candidate did.
+#[tokio::test]
+async fn a_disabled_cache_compresses_per_request() {
+    let cache = Arc::new(CompressionCache::disabled());
+    let app = app_with_cache(&snapshot(DEFAULT), &cache).await;
+    let (response, body) = request(&app, Method::GET, "/", &[("accept-encoding", "gzip")]).await;
+    assert_eq!(header(&response, "content-encoding"), Some("gzip"));
+    assert_eq!(header(&response, "content-length"), None);
+    assert_eq!(gunzip(&body), read(DEFAULT, "server/app/index.html"));
+    assert_eq!(cache_stat(&cache, "entries"), 0);
 }
