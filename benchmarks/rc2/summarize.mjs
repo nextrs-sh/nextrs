@@ -14,7 +14,7 @@ const median = (xs) => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 const fmt = (x, d = 0) => (x == null ? "–" : Number(x).toFixed(d));
-const order = ["base-identity", "cand-identity", "next-identity", "base-gzip", "cand-gzip", "next-gzip"];
+const order = ["base-identity", "cand-identity", "next-identity", "base-gzip", "cand-gzip", "cand-nocache-gzip", "cand-tiny-gzip", "next-gzip"];
 const workloads = [...new Set(results.map((r) => r.workload))];
 
 console.log(`Large static response: \`${chunk.path}\` (${chunk.size} bytes).\n`);

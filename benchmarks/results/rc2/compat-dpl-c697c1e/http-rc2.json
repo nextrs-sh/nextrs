@@ -1,0 +1,8314 @@
+{
+  "failures": [],
+  "rsc": [
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=gO6pH-93hUwkIF31"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=gO6pH-93hUwkIF31"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "HEAD",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "rsc",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=gO6pH-93hUwkIF31"
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/health?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/health?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 204,
+        "candidate": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&b=2",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc=bogus",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?_rsc",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/api/health?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 204,
+        "location": null
+      },
+      "candidate": {
+        "status": 204,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/echo?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/echo?_rsc&_rsc=gO6pH-93hUwkIF31"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/echo?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/echo?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/echo?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&b=2",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc=bogus",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?_rsc",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=gO6pH-93hUwkIF31"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=_i_aeImnuN6u1u1r"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/api/echo?mode=stream&_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/api/echo?mode=stream&a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&b=2",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc=bogus",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&_rsc",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/echo?mode=stream&a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/dynamic?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/dynamic?_rsc&_rsc=gO6pH-93hUwkIF31"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/dynamic?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/dynamic?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/dynamic?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/dynamic?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&b=2",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc=bogus",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?_rsc",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/dynamic?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/books/42?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/books/42?_rsc&_rsc=gO6pH-93hUwkIF31"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/books/42?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/books/42?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/books/42?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/books/42?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&b=2",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc=bogus",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?_rsc",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/books/42?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-uppercase-name",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/?_rsc&_rsc=HEAvJdHAQJrUAe2K"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc=HEAvJdHAQJrUAe2K"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/?_rsc&_rsc=gO6pH-93hUwkIF31"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "prefetch-2",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc=gO6pH-93hUwkIF31"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/?_rsc&_rsc=_i_aeImnuN6u1u1r"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "segment-prefetch",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc=_i_aeImnuN6u1u1r"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/?_rsc&_rsc=OxBCQ2sR9P8GlKR3"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "state-tree",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc=OxBCQ2sR9P8GlKR3"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=2&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 307,
+        "candidate": 307,
+        "location": "/?_rsc&_rsc=r5_QZQLSPtUo-Pa8"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "next-url",
+      "baseline": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "candidate": {
+        "status": 307,
+        "location": "/?a=1&b=%20x&_rsc=r5_QZQLSPtUo-Pa8"
+      },
+      "followed": {
+        "baseline": 200,
+        "candidate": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "no-rsc",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-0",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-true",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-repeated",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&b=2",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc=bogus",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?_rsc",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/?a=1&_rsc=bogus&b=%20x",
+      "kind": "rsc-empty",
+      "baseline": {
+        "status": 200,
+        "location": null
+      },
+      "candidate": {
+        "status": 200,
+        "location": null
+      }
+    }
+  ],
+  "range": [
+    {
+      "name": "first byte",
+      "request": [
+        [
+          "range",
+          "bytes=0-0"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 0-0/229288",
+        "length": "1",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 0-0/229288",
+        "length": "1",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "last byte",
+      "request": [
+        [
+          "range",
+          "bytes=229287-229287"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 229287-229287/229288",
+        "length": "1",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 229287-229287/229288",
+        "length": "1",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "middle",
+      "request": [
+        [
+          "range",
+          "bytes=1000-1999"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 1000-1999/229288",
+        "length": "1000",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 1000-1999/229288",
+        "length": "1000",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "whole file",
+      "request": [
+        [
+          "range",
+          "bytes=0-229287"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 0-229287/229288",
+        "length": "229288",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 0-229287/229288",
+        "length": "229288",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "open-ended",
+      "request": [
+        [
+          "range",
+          "bytes=1000-"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 1000-229287/229288",
+        "length": "228288",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 1000-229287/229288",
+        "length": "228288",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "suffix",
+      "request": [
+        [
+          "range",
+          "bytes=-500"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 228788-229287/229288",
+        "length": "500",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 228788-229287/229288",
+        "length": "500",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "suffix longer than file",
+      "request": [
+        [
+          "range",
+          "bytes=-229298"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 500,
+        "range": "bytes */229288",
+        "length": "21",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 0-229287/229288",
+        "length": "229288",
+        "encoding": null
+      },
+      "expect": {
+        "baseline": 500,
+        "candidate": 206
+      }
+    },
+    {
+      "name": "last-pos past the end",
+      "request": [
+        [
+          "range",
+          "bytes=10-99999999999999999999"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 10-229287/229288",
+        "length": "229278",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 10-229287/229288",
+        "length": "229278",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "whitespace and empty elements",
+      "request": [
+        [
+          "range",
+          "bytes= 0-9,"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 0-9/229288",
+        "length": "10",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 0-9/229288",
+        "length": "10",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "several ranges",
+      "request": [
+        [
+          "range",
+          "bytes=0-0,5-9"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "unknown unit",
+      "request": [
+        [
+          "range",
+          "items=0-5"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "unsatisfiable",
+      "request": [
+        [
+          "range",
+          "bytes=229288-"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 500,
+        "range": "bytes */229288",
+        "length": "21",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 416,
+        "range": "bytes */229288",
+        "length": "21",
+        "encoding": null
+      },
+      "expect": {
+        "baseline": 500,
+        "candidate": 416
+      }
+    },
+    {
+      "name": "unsatisfiable suffix",
+      "request": [
+        [
+          "range",
+          "bytes=-0"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 500,
+        "range": "bytes */229288",
+        "length": "21",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 416,
+        "range": "bytes */229288",
+        "length": "21",
+        "encoding": null
+      },
+      "expect": {
+        "baseline": 500,
+        "candidate": 416
+      }
+    },
+    {
+      "name": "malformed",
+      "request": [
+        [
+          "range",
+          "bytes=abc"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 500,
+        "range": "bytes */229288",
+        "length": "21",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "expect": {
+        "baseline": 500,
+        "candidate": 200
+      }
+    },
+    {
+      "name": "last before first",
+      "request": [
+        [
+          "range",
+          "bytes=5-2"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 500,
+        "range": "bytes */229288",
+        "length": "21",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "expect": {
+        "baseline": 500,
+        "candidate": 200
+      }
+    },
+    {
+      "name": "HEAD",
+      "request": [
+        [
+          "range",
+          "bytes=0-9"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 0-9/229288",
+        "length": "10",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "expect": {
+        "baseline": 206,
+        "candidate": 200
+      }
+    },
+    {
+      "name": "If-Range: Last-Modified",
+      "request": [
+        [
+          "range",
+          "bytes=0-9"
+        ],
+        [
+          "if-range",
+          "Sat, 21 Nov 2026 12:08:47 GMT"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 0-9/229288",
+        "length": "10",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 0-9/229288",
+        "length": "10",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "If-Range: later date",
+      "request": [
+        [
+          "range",
+          "bytes=0-9"
+        ],
+        [
+          "if-range",
+          "Sat, 21 Nov 2026 12:08:48 GMT"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 0-9/229288",
+        "length": "10",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "expect": {
+        "baseline": 206,
+        "candidate": 200
+      }
+    },
+    {
+      "name": "If-Range: weak ETag",
+      "request": [
+        [
+          "range",
+          "bytes=0-9"
+        ],
+        [
+          "if-range",
+          "W/\"37fa8-1a1fe0253b9\""
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 0-9/229288",
+        "length": "10",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "expect": {
+        "baseline": 206,
+        "candidate": 200
+      }
+    },
+    {
+      "name": "If-Range: other ETag",
+      "request": [
+        [
+          "range",
+          "bytes=0-9"
+        ],
+        [
+          "if-range",
+          "\"other\""
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 200,
+        "range": null,
+        "length": "229288",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "If-None-Match wins",
+      "request": [
+        [
+          "range",
+          "bytes=0-9"
+        ],
+        [
+          "if-none-match",
+          "W/\"37fa8-1a1fe0253b9\""
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 304,
+        "range": null,
+        "length": null,
+        "encoding": null
+      },
+      "candidate": {
+        "status": 304,
+        "range": null,
+        "length": null,
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "If-Modified-Since wins",
+      "request": [
+        [
+          "range",
+          "bytes=0-9"
+        ],
+        [
+          "if-modified-since",
+          "Sat, 21 Nov 2026 12:08:47 GMT"
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 304,
+        "range": null,
+        "length": null,
+        "encoding": null
+      },
+      "candidate": {
+        "status": 304,
+        "range": null,
+        "length": null,
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "If-None-Match mismatch",
+      "request": [
+        [
+          "range",
+          "bytes=0-9"
+        ],
+        [
+          "if-none-match",
+          "\"x\""
+        ],
+        [
+          "accept-encoding",
+          "identity"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 0-9/229288",
+        "length": "10",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 0-9/229288",
+        "length": "10",
+        "encoding": null
+      },
+      "expect": "match"
+    },
+    {
+      "name": "gzip accepted",
+      "request": [
+        [
+          "range",
+          "bytes=100-2099"
+        ],
+        [
+          "accept-encoding",
+          "gzip"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 100-2099/229288",
+        "length": null,
+        "encoding": "gzip"
+      },
+      "candidate": {
+        "status": 206,
+        "range": "bytes 100-2099/229288",
+        "length": "2000",
+        "encoding": null
+      },
+      "expect": {
+        "baseline": 206,
+        "candidate": 206,
+        "encoding": {
+          "baseline": "gzip"
+        }
+      }
+    },
+    {
+      "name": "gzip + If-Range",
+      "request": [
+        [
+          "range",
+          "bytes=0-9"
+        ],
+        [
+          "accept-encoding",
+          "gzip"
+        ],
+        [
+          "if-range",
+          "Sat, 21 Nov 2026 12:08:47 GMT"
+        ]
+      ],
+      "baseline": {
+        "status": 206,
+        "range": "bytes 0-9/229288",
+        "length": "10",
+        "encoding": null
+      },
+      "candidate": {
+        "status": 200,
+        "range": null,
+        "length": "72542",
+        "encoding": "gzip"
+      },
+      "expect": {
+        "baseline": 206,
+        "candidate": 200
+      }
+    }
+  ],
+  "compression": [
+    {
+      "path": "/",
+      "identity_bytes": 6318,
+      "gzip_bytes": 2012
+    },
+    {
+      "path": "/?_rsc",
+      "identity_bytes": 3674,
+      "gzip_bytes": 1400
+    },
+    {
+      "path": "/_next/static/chunks/39_j1bdzreq0m.js",
+      "identity_bytes": 229288,
+      "gzip_bytes": 72542
+    },
+    {
+      "path": "/no-such-page",
+      "identity_bytes": 7583,
+      "gzip_bytes": 2042
+    },
+    {
+      "path": "/dynamic",
+      "dynamic": true,
+      "gzip_bytes": 2554
+    },
+    {
+      "path": "/books/42",
+      "dynamic": true,
+      "gzip_bytes": 1895
+    }
+  ]
+}

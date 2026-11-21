@@ -91,8 +91,9 @@ build wrote there.
 NextRS compresses responses as `next start` does, with the same switch:
 `compress` in `next.config` (default `true`). Set `compress: false` and
 rebuild to turn it off for both servers. That is useful for controlled
-benchmarks, or behind a reverse proxy or CDN that compresses. There is no
-command-line flag.
+benchmarks, or behind a reverse proxy or CDN that compresses. No
+command-line flag turns it off; `--compression-cache` only sizes the cache
+of compressed copies described below.
 
 - **Encoding:** gzip, at zlib's default level, when the request's
   `Accept-Encoding` makes `next start`'s middleware choose gzip. A client
@@ -106,9 +107,25 @@ command-line flag.
   partial (206) responses.
 - **Headers:** `Vary: Accept-Encoding` is added to every compressible
   response, compressed or not, after any `Vary` the response has (the RSC
-  fields are kept). A compressed response has no `Content-Length` and no
-  `Accept-Ranges`, and its strong ETag becomes weak (`W/"…"`);
-  `If-None-Match` still revalidates it with a `304`.
+  fields are kept). A compressed response has no `Accept-Ranges`, and its
+  strong ETag becomes weak (`W/"…"`); `If-None-Match` still revalidates it
+  with a `304`. A response compressed per request is streamed without a
+  `Content-Length`; one served from the cache (below) has one.
+- **Compression cache:** responses whose bytes cannot change are compressed
+  once and the compressed copy is reused: files under `/_next/static`, and
+  prerendered App Router pages (HTML, RSC payloads, segment prefetches)
+  served from the build. Pages using ISR, Partial Prerendering, Draft Mode
+  or revalidated since the build, all dynamic output (SSR, route handlers,
+  Server Actions, streamed RSC), `public/` files and image optimizer
+  results are compressed per request and never cached. A `/_next/static`
+  file is keyed by its path and what the per-request `stat` reports (size,
+  modification and change times, device and inode), so a file replaced on
+  disk is compressed again. `--compression-cache MIB` (default `32`) bounds
+  the memory; the least recently used copies are dropped beyond it, bodies
+  over 4 MiB are not cached, and `0` turns the cache off. Concurrent first
+  requests for one response compress it once. Hits, misses, evictions and
+  the bytes held are on the metrics endpoint
+  (`nextrs_compression_cache_*`).
 - **Streaming:** each chunk a route writes is compressed and flushed
   before the next, so streamed HTML, RSC and Partial Prerendering responses
   arrive as progressively as without compression.
@@ -118,6 +135,37 @@ command-line flag.
   response sizes when it shares a response with input an attacker controls
   (BREACH), with either server. Send such a response with
   `Cache-Control: no-transform`, or set `compress: false`.
+
+## Byte ranges
+
+Files under `/_next/static` and `public/` answer a single byte range with
+`206 Partial Content`, as `next start` does, and advertise
+`Accept-Ranges: bytes`. Prerendered pages and dynamic routes ignore
+`Range` (as in `next start`). Where `next start` (the `send` package
+behind Next's error handling) answers with an error page or an invalid
+partial response, NextRS follows RFC 9110:
+
+- an unsatisfiable range (`bytes=<size>-`, `bytes=-0`) is a `416` with
+  `Content-Range: bytes */<size>` (`next start`: `500`);
+- a malformed range (`bytes=abc`, `bytes=5-2`) is ignored: the full `200`
+  (`next start`: `500`); several ranges also get the full `200`, as in
+  `next start` (no `multipart/byteranges`);
+- a suffix range longer than the file selects the whole file (`206`;
+  `next start`: `500`);
+- `HEAD` ignores `Range` and describes the full response (`next start`:
+  `206` headers);
+- `If-Range` uses the strong comparison: the weak ETag static files carry
+  never matches, and a date matches only the exact `Last-Modified`
+  (`next start` matches the weak ETag, and any later date);
+- a partial response is always the uncompressed bytes, whatever
+  `Accept-Encoding` says (`next start` gzips the partial body, so its
+  `Content-Range` no longer describes what it sends). When the full
+  response would be gzip, an `If-Range` is treated as not matching, so a
+  download resumed from a compressed copy restarts in full;
+- `If-None-Match` and `If-Modified-Since` are evaluated before `Range`: a
+  `304` whatever the range.
+
+Only the requested bytes are read from disk.
 
 ## Runtime limits
 
@@ -135,6 +183,7 @@ timeout.
 | `--js-heap-limit` | V8 default | Heap limit per isolate, in MiB; reaching it replaces the isolate. Lower values trade throughput for memory |
 | `--response-buffer` | `64` | Response KiB buffered per request before the renderer waits for the client |
 | `--max-request-body` | `10` | Request body limit in MiB (`413`), whether a length is declared or the body is chunked |
+| `--compression-cache` | `32` | MiB of gzip copies of immutable responses (see [Response compression](#response-compression)); `0` compresses every response per request |
 | `--max-connections`, `--write-timeout` | `1024`, `30` | Open connections; close clients that stop reading |
 | `--shutdown-grace` | `10` | On SIGINT/SIGTERM, time for in-flight requests to finish |
 | `--metrics-addr` | off | See [Metrics](#metrics) |

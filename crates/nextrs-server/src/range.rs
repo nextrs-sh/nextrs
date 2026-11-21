@@ -10,6 +10,9 @@
 //!   (next start: a 500 error page carrying that Content-Range);
 //! - a malformed or invalid ranges-specifier (`bytes=abc`, `bytes=5-2`) is
 //!   ignored: the full 200 (next start: 500, as for unsatisfiable);
+//! - a suffix range longer than the file (`bytes=-<more than its size>`)
+//!   selects all of it, a 206 for the whole file (next start: 500; its
+//!   range parser computes a negative start);
 //! - Range is evaluated for GET only; HEAD ignores it and describes the
 //!   full response (RFC 9110 section 14.2; next start answers HEAD with
 //!   206 headers);

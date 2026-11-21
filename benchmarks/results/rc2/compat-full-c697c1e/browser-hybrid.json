@@ -1,0 +1,124 @@
+{
+  "results": [
+    {
+      "name": "app-to-pages",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "from": "app",
+          "to": "pages",
+          "url": "/pages-page",
+          "errors": []
+        },
+        "candidate": {
+          "from": "app",
+          "to": "pages",
+          "url": "/pages-page",
+          "errors": []
+        }
+      }
+    },
+    {
+      "name": "pages-to-app",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "from": "pages",
+          "to": "app",
+          "url": "/app-page",
+          "errors": []
+        },
+        "candidate": {
+          "from": "pages",
+          "to": "app",
+          "url": "/app-page",
+          "errors": []
+        }
+      }
+    },
+    {
+      "name": "dynamic-across-routers",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/app-items/4",
+          "slug": "4",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/app-items/4",
+          "slug": "4",
+          "errors": []
+        }
+      }
+    },
+    {
+      "name": "back-forward-across-routers",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "url": "/app-page",
+          "title": "App Router page",
+          "errors": []
+        },
+        "candidate": {
+          "url": "/app-page",
+          "title": "App Router page",
+          "errors": []
+        }
+      }
+    },
+    {
+      "name": "cookie-continuity",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "app": "user=u-cookie",
+          "pages": "user=u-cookie",
+          "errors": []
+        },
+        "candidate": {
+          "app": "user=u-cookie",
+          "pages": "user=u-cookie",
+          "errors": []
+        }
+      }
+    },
+    {
+      "name": "authenticated-both-routers",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "anonymous": "/pages-page?login=required",
+          "pages": "pages-top-secret",
+          "app": "app-top-secret",
+          "errors": []
+        },
+        "candidate": {
+          "anonymous": "/pages-page?login=required",
+          "pages": "pages-top-secret",
+          "app": "app-top-secret",
+          "errors": []
+        }
+      }
+    },
+    {
+      "name": "image-loads",
+      "verdict": "MATCH",
+      "observed": {
+        "baseline": {
+          "width": 64,
+          "height": 48,
+          "optimized": true,
+          "errors": []
+        },
+        "candidate": {
+          "width": 64,
+          "height": 48,
+          "optimized": true,
+          "errors": []
+        }
+      }
+    }
+  ]
+}

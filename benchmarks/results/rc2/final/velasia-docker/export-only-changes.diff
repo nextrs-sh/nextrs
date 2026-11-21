@@ -1,0 +1,107 @@
+--- a/Dockerfile.nextrs
++++ b/Dockerfile.nextrs
+@@ -82,22 +82,13 @@
+ # ---------------------------------------------------------------------------------------------
+ 
+ FROM ${NODE_IMAGE} AS nextrs-install
++# NextRS 0.1.0-rc.2 VALIDATION ONLY (exported copy, not the repository): the local candidate
++# binary (commit c697c1e) instead of @nextrs/cli@0.1.0-rc.1 from npm.
+ WORKDIR /nextrs
+-COPY docker/nextrs/package.json docker/nextrs/package-lock.json ./
+-# --ignore-scripts: the package declares none; this guarantees nothing runs on install.
+-RUN npm ci --no-audit --no-fund --ignore-scripts --registry=https://registry.npmjs.org/
+-# bin/nextrs is a shell launcher; native/nextrs is the binary that BUILD-INFO.json describes.
+-RUN set -eu; pkg=node_modules/@nextrs/cli; \
+-    v=$(node -p "require('./$pkg/package.json').version"); \
+-    [ "$v" = "0.1.0-rc.1" ] || { echo "expected @nextrs/cli 0.1.0-rc.1, got $v" >&2; exit 1; }; \
+-    echo "$(node -p "require('./$pkg/BUILD-INFO.json').binary_sha256")  $pkg/native/nextrs" | sha256sum -c -; \
+-    out=$("$pkg/native/nextrs" --version); echo "$out"; \
+-    [ "$out" = "nextrs 0.1.0-rc.1" ] || { echo "unexpected --version: $out" >&2; exit 1; }; \
+-    mkdir -p /out/doc; \
+-    install -m 0755 "$pkg/native/nextrs" /out/nextrs; \
+-    cp "$pkg/package.json" /out/doc/npm-package.json; \
+-    cp "$pkg/BUILD-INFO.json" "$pkg/LICENSE-MIT" "$pkg/LICENSE-APACHE" \
+-       "$pkg/THIRD-PARTY.md" "$pkg/THIRD-PARTY-LICENSES.txt" /out/doc/
++COPY docker/nextrs/nextrs-rc2-candidate /out/nextrs
++RUN set -eu; chmod 0755 /out/nextrs; mkdir -p /out/doc; /out/nextrs --version; \
++    sha256sum /out/nextrs | tee /out/doc/binary.sha256; \
++    echo '{"name":"@nextrs/cli","version":"0.1.0-rc.2-candidate-c697c1e"}' > /out/doc/npm-package.json
+ 
+ # ---------------------------------------------------------------------------------------------
+ FROM ${RUNTIME_IMAGE} AS nextrs-inspect
+@@ -109,11 +100,7 @@
+ RUN set -eu; mkdir -p /out; \
+     /usr/local/bin/nextrs inspect /app/apps/web > /out/inspect.txt 2>&1 \
+       || { cat /out/inspect.txt; echo "nextrs inspect failed" >&2; exit 1; }; \
+-    cat /out/inspect.txt; \
+-    if tr -d '[:space:]' < /app/apps/web/.next/routes-manifest.json | grep -q '"onMatchHeaders":\[{'; then \
+-      echo "VELASIA_DEPLOYMENT_ID (Next.js deploymentId) is not supported by NextRS 0.1.0-rc.1:" \
+-           "build without it (see docs/deployment/runtime-parity-report.md)" >&2; exit 1; \
+-    fi
++    cat /out/inspect.txt
+ 
+ # ---------------------------------------------------------------------------------------------
+ FROM ${RUNTIME_IMAGE} AS runtime
+--- a/compose.dual-runtime.yaml
++++ b/compose.dual-runtime.yaml
+@@ -35,6 +35,7 @@
+   SITE_URL: ${SITE_URL:-http://localhost:8080}
+   VELASIA_TODAY: ${VELASIA_TODAY:-}
+   VELASIA_NEXT_COMPRESS: ${VELASIA_NEXT_COMPRESS:-}
++  VELASIA_DEPLOYMENT_ID: ${VELASIA_DEPLOYMENT_ID:-}
+ 
+ x-storefront-env: &storefront-env
+   NODE_ENV: production
+@@ -56,7 +57,7 @@
+     build:
+       context: .
+       dockerfile: docker/Dockerfile.api
+-    image: velasia-api:${VELASIA_TAG:-m8}
++    image: velasia-api:${VELASIA_TAG:-rc2c}
+     platform: linux/amd64
+     environment:
+       NODE_ENV: production
+@@ -81,7 +82,7 @@
+       context: .
+       dockerfile: Dockerfile.node
+       args: *storefront-build-args
+-    image: velasia-node:${VELASIA_TAG:-m8}
++    image: velasia-node:${VELASIA_TAG:-rc2c}
+     platform: linux/amd64
+     environment:
+       <<: *storefront-env
+@@ -100,13 +101,13 @@
+       context: .
+       dockerfile: Dockerfile.nextrs
+       args: *storefront-build-args
+-    image: velasia-nextrs:${VELASIA_TAG:-m8}
++    image: velasia-nextrs:${VELASIA_TAG:-rc2c}
+     platform: linux/amd64
+     environment:
+       <<: *storefront-env
+       # The API resolves to a private address here (on App Platform it is a public HTTPS host
+       # and this is not needed). NextRS refuses private destinations unless listed.
+-      NEXTRS_NET_ALLOW_ADDR: 172.30.48.0/24
++      NEXTRS_NET_ALLOW_ADDR: 172.30.58.0/24
+       NEXTRS_ISOLATES: ${NEXTRS_ISOLATES:-1}
+     depends_on:
+       velasia-api:
+@@ -123,7 +124,7 @@
+     internal: true
+     ipam:
+       config:
+-        - subnet: 172.30.48.0/24
++        - subnet: 172.30.58.0/24
+   # Storefronts only: carries the published ports.
+   frontend: {}
+ 
+--- a/tests/parity/compare.spec.ts
++++ b/tests/parity/compare.spec.ts
+@@ -220,7 +220,6 @@
+    * if NextRS starts compressing, this test "unexpectedly passes" and must be updated.
+    */
+   test('both runtimes compress HTML, JSON and static assets for gzip clients', async () => {
+-    test.fail(true, 'NextRS 0.1.0-rc.1 does not compress responses');
+     const html = await (await node.get('/')).text();
+     const chunk = html.match(/\/_next\/static\/chunks\/[^"]+\.js/)![0];
+     for (const path of ['/', '/api/airports', chunk]) {
