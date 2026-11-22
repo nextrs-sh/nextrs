@@ -75,13 +75,13 @@ Download the archive and its checksum from the GitHub release, verify the
 checksum, and put the binary on your `PATH`:
 
 ```bash
-V=0.1.0-rc.2
+V=0.1.0-rc.3
 curl -LO https://github.com/nextrs-sh/nextrs/releases/download/v$V/nextrs-v$V-linux-x86_64.tar.gz
 curl -LO https://github.com/nextrs-sh/nextrs/releases/download/v$V/nextrs-v$V-linux-x86_64.tar.gz.sha256
 sha256sum -c nextrs-v$V-linux-x86_64.tar.gz.sha256
 tar -xzf nextrs-v$V-linux-x86_64.tar.gz
 sudo install -m 0755 nextrs-v$V-linux-x86_64/nextrs /usr/local/bin/nextrs
-nextrs --version        # nextrs 0.1.0-rc.2
+nextrs --version        # nextrs 0.1.0-rc.3
 ```
 
 The archive contains:
@@ -101,7 +101,7 @@ The archive contains:
 Next.js application as a development dependency:
 
 ```bash
-npm install -D @nextrs/cli@0.1.0-rc.2      # or: pnpm add -D @nextrs/cli@0.1.0-rc.2
+npm install -D @nextrs/cli@0.1.0-rc.3      # or: pnpm add -D @nextrs/cli@0.1.0-rc.3
 npx next build                              # Node.js builds the application
 npx nextrs start . --js-runtime embedded-v8
 ```
@@ -133,7 +133,12 @@ The application is served at <http://127.0.0.1:3000>. Then run:
 
 ```bash
 nextrs inspect .   # how each route will be served, and anything unsupported
+nextrs doctor .    # environment, build, Node.js APIs and runtime options: what to change
 ```
+
+`nextrs doctor` (from 0.1.0-rc.3) reads files only: it runs no
+JavaScript, no build and no server. Exit code `0` means no confirmed
+blockers, not that the application works; compare it with `next start`.
 
 **`--js-runtime embedded-v8` is required** for anything dynamic: server
 rendering, route handlers, Server Actions, ISR, `proxy.ts` and middleware.
@@ -520,7 +525,7 @@ through GitHub's private vulnerability reporting on the repository
 Verify the download against the published checksum:
 
 ```bash
-sha256sum -c nextrs-v0.1.0-rc.2-linux-x86_64.tar.gz.sha256
+sha256sum -c nextrs-v0.1.0-rc.3-linux-x86_64.tar.gz.sha256
 ```
 
 `BUILD-INFO.json` records the commit, compiler and profile the binary was
@@ -528,7 +533,7 @@ built from, and the binary's own SHA-256. To build the same source
 yourself:
 
 ```bash
-git checkout v0.1.0-rc.2
+git checkout v0.1.0-rc.3
 cargo +1.98.0 build --locked --profile dist -p nextrs-cli
 ```
 

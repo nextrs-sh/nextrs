@@ -1,13 +1,10 @@
 # nextrs doctor
 
-> **Availability: v0.1.0, from 0.1.0-rc.3 (not yet published).**
-> `nextrs doctor` is part of the v0.1.0 release series and is planned for
-> the next release candidate, 0.1.0-rc.3. The published prereleases
-> `@nextrs/cli@0.1.0-rc.1` and `0.1.0-rc.2`, and their GitHub Release
-> binaries, do **not** include it: there `nextrs doctor` is an unknown
-> subcommand. Until rc.3 is published, build the CLI from source
-> (`cargo build --release -p nextrs-cli`) to try it. Doctor was first
-> developed for v0.2.0; it moved into v0.1.0 with its checks unchanged.
+> **Availability: v0.1.0, from 0.1.0-rc.3.** `nextrs doctor` ships in
+> `@nextrs/cli@0.1.0-rc.3` and its GitHub Release binary. The earlier
+> prereleases, 0.1.0-rc.1 and 0.1.0-rc.2, do **not** include it: there
+> `nextrs doctor` is an unknown subcommand. Doctor was first developed for
+> v0.2.0; it moved into v0.1.0 with its checks unchanged.
 
 `nextrs doctor` checks whether an existing Next.js application and its
 production build suit NextRS, and says what to change. It reads files only.
