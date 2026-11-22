@@ -26,6 +26,7 @@ compiler: every channel delivers the same precompiled binary.
 9. [Docker](#docker)
 10. [Verifying what you installed](#verifying-what-you-installed)
 11. [Troubleshooting](#troubleshooting)
+12. [Build from source](#build-from-source)
 
 ## Requirements
 
@@ -281,3 +282,39 @@ integrity in the lockfile. A tarball that changed afterwards fails
 
 For runtime errors, such as startup refusals, `501`, `fetch` failures or
 proxies, see [`release/README.md`, Troubleshooting](../release/README.md#16-troubleshooting).
+
+## Build from source
+
+For contributors, or to try a change before it is released. The release
+channels above never build from source.
+
+**You need:** Linux x86_64 (the tested platform; other platforms may build
+but are untested), Rust 1.98.0 (the toolchain CI and releases use), Node.js
+20.9 or later for `next build`, and network access for the first build,
+which downloads a prebuilt V8 library.
+
+```bash
+# 1. Build the CLI (V8 is linked statically, so this takes a while)
+git clone https://github.com/nextrs-sh/nextrs.git
+cd nextrs
+cargo build --release -p nextrs-cli
+
+# 2. Build the example application with Next.js
+(cd fixtures/next-app && npm ci && npx next build)
+
+# 3. Serve it
+./target/release/nextrs start fixtures/next-app --port 3001 --js-runtime embedded-v8
+```
+
+Then try `curl -i http://127.0.0.1:3001/` (a prerendered page, served from
+Rust) and `curl -i http://127.0.0.1:3001/books/42` (a dynamic page, rendered
+by Next.js in V8).
+
+- **If the build runs out of memory,** limit parallel jobs:
+  `cargo build --release -j 2 -p nextrs-cli`.
+- **A source build includes unreleased work,** such as `nextrs doctor`
+  before 0.1.0-rc.3 is published.
+- **Release binaries** are built with `cargo build --locked --profile dist`;
+  see [testing](testing.md) for the checks every change must pass.
+- NextRS is not published on crates.io; the crate named `nextrs` there is
+  an unrelated project.
