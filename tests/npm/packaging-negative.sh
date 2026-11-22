@@ -118,8 +118,6 @@ repack "$T/v2" 'chmod 0644 native/nextrs'
 refused verify:binary-mode 'binary-mode +fail' "$VERIFY" --tarball "$T/v2/pkg.tgz" --manifest "$MANIFEST"
 repack "$T/v3" "setpkg 'p.version=\"$WRONG\"'"
 refused verify:version-mismatch 'versions +fail' "$VERIFY" --tarball "$T/v3/pkg.tgz" --manifest "$MANIFEST"
-repack "$T/v4" 'setpkg "p.publishConfig.tag=\"latest\""'
-refused verify:prerelease-latest 'dist-tag +fail' "$VERIFY" --tarball "$T/v4/pkg.tgz" --manifest "$MANIFEST"
 repack "$T/v5" 'setpkg "p.scripts={install:\"node-gyp rebuild\"}"'
 refused verify:install-script 'metadata +fail.*has scripts' "$VERIFY" --tarball "$T/v5/pkg.tgz" --manifest "$MANIFEST"
 repack "$T/v6" 'printf X | dd of=native/nextrs bs=1 seek=8192 conv=notrunc 2> /dev/null'

@@ -58,8 +58,11 @@ for crate in nextrs-adapter nextrs-cli nextrs-image nextrs-runtime nextrs-server
   v=$(awk -v n="$crate" '$0=="name = \""n"\"" {getline; gsub(/version = |"/,""); print; exit}' Cargo.lock)
   [[ $v == "$VERSION" ]] || { echo "Cargo.lock has $crate $v, not $VERSION" >&2; exit 1; }
 done
+# Release notes are optional: without release/v<version>-release-notes.md the
+# archive gets a short pointer to the GitHub release.
 notes="release/v$VERSION-release-notes.md"
-[[ -f $notes ]] || { echo "missing $notes" >&2; exit 1; }
+[[ -f $notes ]] || notes=""
+docs=(release/README.md ${notes:+"$notes"})
 for f in release/README.md LICENSE-MIT LICENSE-APACHE; do [[ -f $f ]] || { echo "missing $f" >&2; exit 1; }; done
 
 # 1b. Never a withdrawn build, and no withdrawn checksum in what is shipped.
@@ -68,8 +71,8 @@ if [[ -f release/WITHDRAWN.txt ]]; then
   while read -r sha _; do
     [[ $sha =~ ^[0-9a-f]{64}$ ]] || continue
     [[ $bin_sha != "$sha" ]] || { echo "the binary is the withdrawn build $sha (release/WITHDRAWN.txt)" >&2; exit 1; }
-    if grep -l -e "$sha" -e "${sha:0:8}" "$notes" release/README.md > /dev/null 2>&1; then
-      echo "a release document names the withdrawn checksum ${sha:0:12}: $(grep -l -e "$sha" -e "${sha:0:8}" "$notes" release/README.md | tr '\n' ' ')" >&2; exit 1
+    if grep -l -e "$sha" -e "${sha:0:8}" "${docs[@]}" > /dev/null 2>&1; then
+      echo "a release document names the withdrawn checksum ${sha:0:12}: $(grep -l -e "$sha" -e "${sha:0:8}" "${docs[@]}" | tr '\n' ' ')" >&2; exit 1
     fi
   done < release/WITHDRAWN.txt
 fi
@@ -109,7 +112,12 @@ trap 'rm -rf "$stage"' EXIT
 mkdir "$stage/$name"
 install -m 0755 "$BIN" "$stage/$name/nextrs"
 install -m 0644 release/README.md "$stage/$name/README.md"
-install -m 0644 "$notes" "$stage/$name/RELEASE-NOTES.md"
+if [[ -n $notes ]]; then
+  install -m 0644 "$notes" "$stage/$name/RELEASE-NOTES.md"
+else
+  printf '# NextRS v%s\n\nSee https://github.com/nextrs-sh/nextrs/releases/tag/v%s\n' "$VERSION" "$VERSION" > "$stage/$name/RELEASE-NOTES.md"
+  chmod 0644 "$stage/$name/RELEASE-NOTES.md"
+fi
 install -m 0644 LICENSE-MIT "$stage/$name/LICENSE-MIT"
 install -m 0644 LICENSE-APACHE "$stage/$name/LICENSE-APACHE"
 cat > "$stage/$name/BUILD-INFO.json" <<EOF

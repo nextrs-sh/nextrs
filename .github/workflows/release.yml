@@ -1,64 +1,38 @@
-name: Release build
+name: Release
 
-# Builds, tests and packages a release candidate or release. It publishes
-# nothing: no tag is pushed, no GitHub release is created, nothing goes to
-# crates.io or a container registry. The archive, its checksum and manifest
-# are uploaded as workflow artifacts, to verify the pipeline and clean
-# installs. Builds are not bit-for-bit reproducible, so the archive that is
-# published is the one whose binary passed the release gates, packaged by a
-# maintainer with authorization (the maintainers' internal publishing
-# runbook).
+# Push a tag on main and this publishes the release:
 #
-# Run it from the Actions tab (workflow_dispatch) with the version, e.g.
-# 0.1.0-rc.1, on the commit to be tagged; or it runs when a maintainer
-# pushes a v* tag. It also runs on pull requests that change the release
-# tooling, packaging the workspace version, so the pipeline (and the
-# clean-install containers) are exercised before a release is cut.
+#   scripts/bump-version.sh 0.1.0      # pull request, merge into main
+#   git tag v0.1.0 origin/main && git push origin v0.1.0
 #
-# Candidate mode (workflow_dispatch with binary_run_id and binary_sha256)
-# compiles nothing: it packages the gated binary from an earlier run at this
-# commit (package-release.sh --built-from), so every job here validates the
-# exact bytes that would be published, including the npm package.
+# check -> test -> build -> publish:
+#   - the tag must be on main and equal the version in Cargo.toml,
+#     Cargo.lock and packages/cli/package.json;
+#   - fmt, clippy, tests and cargo audit;
+#   - build the binary, package the archive and the npm tarball (both are
+#     verified by their scripts);
+#   - create the GitHub release with the archive, and publish @nextrs/cli
+#     to npm as `latest`.
+#
+# Release notes are optional: release/v<version>-release-notes.md when it
+# exists, otherwise GitHub generates them from the merged pull requests.
+#
+# Publishing uses the `npm-publish` environment and its NPM_TOKEN secret.
+#
+# On a pull request that changes the release tooling, it runs everything
+# except publish.
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version without the v prefix, e.g. 0.1.0-rc.1 (must equal the Cargo workspace version)"
-        required: true
-      # Candidate mode: instead of compiling, package the binary that an
-      # earlier successful release.yml run on main built and that went
-      # through the release gates. Every later job (runtime audit, compat,
-      # clean installs, npm, Docker) then runs on those exact bytes.
-      binary_run_id:
-        description: "Optional: ID of the earlier release.yml run whose binary to package (no compilation), e.g. 44646067537"
-        required: false
-        default: ""
-      binary_sha256:
-        description: "Required with binary_run_id: the gated binary's SHA-256"
-        required: false
-        default: ""
   push:
     tags: ["v*"]
   pull_request:
     paths:
       - ".github/workflows/release.yml"
-      - "release/**"
       - "scripts/package-release.sh"
-      - "scripts/release-smoke.sh"
-      - "scripts/clean-install-*.sh"
-      - "scripts/runtime-file-audit.sh"
-      - "scripts/third-party-licenses.mjs"
-      - "LICENSE-*"
-      - "packages/cli/**"
       - "scripts/package-npm.sh"
       - "scripts/verify-npm-package.sh"
-      - "scripts/npm-*.sh"
-      - "tests/npm/**"
-      - "examples/docker/**"
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "crates/nextrs-runtime/js/**"
+      - "packages/cli/**"
+      - "release/**"
 
 permissions:
   contents: read
@@ -69,43 +43,45 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  NEXT_TELEMETRY_DISABLED: "1"
   # The CI toolchain; the release binary is built with the same one.
   RUST_TOOLCHAIN: "1.98.0"
 
 jobs:
-  version:
-    name: version consistency
+  check:
+    name: version and tag
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.v.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - id: v
-        name: Tag, input and Cargo workspace agree
         env:
-          # Through the environment, never interpolated into the script.
-          INPUT_VERSION: ${{ inputs.version }}
           EVENT: ${{ github.event_name }}
         run: |
+          set -eu
           ws=$(sed -n '/^\[workspace.package\]/,/^\[/{s/^version = "\(.*\)"/\1/p}' Cargo.toml)
-          case "$EVENT" in
-            push) v="${GITHUB_REF_NAME#v}" ;;
-            workflow_dispatch) v="$INPUT_VERSION" ;;
-            *) v="$ws" ;;
-          esac
+          if [ "$EVENT" = push ]; then
+            v="${GITHUB_REF_NAME#v}"
+            git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "tag $GITHUB_REF_NAME is not on main"; exit 1; }
+          else
+            v="$ws"
+          fi
           echo "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.[0-9]+)?$' || { echo "not a release version: $v"; exit 1; }
-          [ "$ws" = "$v" ] || { echo "Cargo workspace version is $ws, release is $v"; exit 1; }
+          [ "$ws" = "$v" ] || { echo "Cargo.toml is $ws, tag is $v: run scripts/bump-version.sh $v first"; exit 1; }
           for crate in nextrs-adapter nextrs-cli nextrs-image nextrs-runtime nextrs-server; do
             lv=$(awk -v n="$crate" '$0=="name = \""n"\"" {getline; gsub(/version = |"/,""); print; exit}' Cargo.lock)
-            [ "$lv" = "$v" ] || { echo "Cargo.lock: $crate is $lv"; exit 1; }
+            [ "$lv" = "$v" ] || { echo "Cargo.lock: $crate is $lv, tag is $v"; exit 1; }
           done
-          [ -f "release/v$v-release-notes.md" ] || { echo "missing release/v$v-release-notes.md"; exit 1; }
+          pv=$(node -p "require('./packages/cli/package.json').version")
+          [ "$pv" = "$v" ] || { echo "packages/cli/package.json is $pv, tag is $v"; exit 1; }
+          echo "version $v"
           echo "version=$v" >> "$GITHUB_OUTPUT"
 
   test:
     name: fmt, clippy, tests, audit
-    needs: version
+    needs: check
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -123,18 +99,13 @@ jobs:
 
   build:
     name: build and package (linux x86_64)
-    needs: version
+    needs: check
     # The oldest supported runner: the binary's glibc floor follows it.
     runs-on: ubuntu-22.04
-    permissions:
-      contents: read
-      actions: read # candidate mode downloads an earlier run's artifact
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          # package-release.sh --built-from checks the binary's commit is an
-          # ancestor and that Cargo.toml, Cargo.lock and crates/ are unchanged.
-          fetch-depth: 0
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
@@ -142,280 +113,57 @@ jobs:
         with:
           node-version: "22.20.0"
       # No cache: a release is built from a clean target directory.
-      - name: Build (dist profile, portable, no target-cpu)
-        if: inputs.binary_run_id == ''
-        run: |
-          cargo build --locked --profile dist -p nextrs-cli
-          echo "BINARY=target/dist/nextrs" >> "$GITHUB_ENV"
-      - name: Candidate binary from run ${{ inputs.binary_run_id }} (no compilation)
-        if: inputs.binary_run_id != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RUN_ID: ${{ inputs.binary_run_id }}
-          WANT: ${{ inputs.binary_sha256 }}
-          VERSION: ${{ needs.version.outputs.version }}
-        run: |
-          set -euo pipefail
-          [[ $RUN_ID =~ ^[0-9]+$ ]] || { echo "binary_run_id must be a run ID"; exit 1; }
-          [[ $WANT =~ ^[0-9a-f]{64}$ ]] || { echo "binary_sha256 must be the gated binary's 64-hex SHA-256"; exit 1; }
-          # The run must be a successful release.yml run of this repository on main.
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID" \
-            --jq '[.path, .conclusion, .head_branch, .head_repository.full_name, .head_sha] | @tsv' > run.tsv
-          IFS=$'\t' read -r path conclusion branch repo sha < run.tsv
-          [[ $path == .github/workflows/release.yml && $conclusion == success && $branch == main && $repo == "$GITHUB_REPOSITORY" ]] ||
-            { echo "run $RUN_ID is not a successful release.yml run on main of $GITHUB_REPOSITORY: $(cat run.tsv)"; exit 1; }
-          a="nextrs-v$VERSION-linux-x86_64"
-          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -n "$a" -D candidate
-          (cd candidate && sha256sum -c "$a.tar.gz.sha256")
-          tar -xzf "candidate/$a.tar.gz" -C candidate
-          got=$(sha256sum "candidate/$a/nextrs" | cut -d' ' -f1)
-          [[ $got == "$WANT" ]] || { echo "run $RUN_ID's binary is $got, not $WANT"; exit 1; }
-          echo "candidate binary $got, built at $sha by run $RUN_ID"
-          { echo "BINARY=candidate/$a/nextrs"; echo "BUILT_FROM=$sha"; } >> "$GITHUB_ENV"
-      - name: Package
-        env:
-          VERSION: ${{ needs.version.outputs.version }}
-          WANT: ${{ inputs.binary_sha256 }}
-        run: |
-          set -euo pipefail
-          scripts/package-release.sh --binary "$BINARY" --version "$VERSION" --out dist --toolchain "$RUST_TOOLCHAIN" \
-            ${BUILT_FROM:+--built-from "$BUILT_FROM"}
-          got=$(node -p "require('./dist/nextrs-v$VERSION-linux-x86_64.manifest.json').binary_sha256")
-          [[ -z $WANT || $got == "$WANT" ]] || { echo "packaged binary $got, not $WANT"; exit 1; }
-          echo "binary $got"; cat "dist/nextrs-v$VERSION-linux-x86_64.tar.gz.sha256"
-      # The bundle step runs `next build` on the fixtures (in place), which the
-      # audit below needs: it serves fixtures/next-app.
-      - name: Clean-install bundle (official next build outputs; Node.js builds them, nothing serves them with it)
-        run: |
-          scripts/clean-install-bundle.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --out bundle
-          tar -czf clean-install-bundle.tar.gz bundle
-      # The build machine still has the Cargo registry and this checkout, so
-      # every read below would succeed: the audit fails on any attempt.
-      - name: Runtime file audit (no build-machine path is touched at run time)
-        run: |
-          sudo apt-get install -y -qq strace > /dev/null
-          scripts/runtime-file-audit.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" \
-            --app fixtures/next-app --isolates 2 --out audit
+      - name: Build (dist profile)
+        run: cargo build --locked --profile dist -p nextrs-cli
+      - name: Package the archive
+        run: scripts/package-release.sh --binary target/dist/nextrs --version "$VERSION" --out dist --toolchain "$RUST_TOOLCHAIN"
+      - name: Pack the npm tarball from the archive
+        run: scripts/package-npm.sh --archive "dist/nextrs-v$VERSION-linux-x86_64.tar.gz" --out dist/npm
       - uses: actions/upload-artifact@v4
         with:
-          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
+          name: release
           path: |
             dist/*.tar.gz
             dist/*.sha256
             dist/*.manifest.json
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        with:
-          name: clean-install-bundle
-          path: clean-install-bundle.tar.gz
-          retention-days: 7
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: runtime-file-audit
-          path: |
-            audit/summary.json
-            audit/paths.txt
-            audit/violations.txt
-            audit/server.log
-          if-no-files-found: ignore
-
-  compat:
-    name: compatibility suites on the release binary (pinned, ${{ matrix.isolates }} isolate(s))
-    needs: [version, build]
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        isolates: [1, 4]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22.20.0"
-      - uses: actions/download-artifact@v4
-        with:
-          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
-          path: dist
-      - name: Verify and unpack the release archive
-        run: |
-          cd dist && sha256sum -c *.tar.gz.sha256 && tar -xzf *.tar.gz
-          echo "NEXTRS_BIN=$PWD/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64/nextrs" >> "$GITHUB_ENV"
-      - name: HTTP comparison against next start
-        run: scripts/compat-suite.sh --isolates ${{ matrix.isolates }} --out compat-out --cache-components --proxy --images --pages --adapter
-      - name: Real-world proxy applications against next start
-        run: scripts/realworld-suite.sh --isolates ${{ matrix.isolates }} --out realworld-out
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-compat-i${{ matrix.isolates }}
-          path: |
-            compat-out
-            realworld-out
-          if-no-files-found: ignore
-
-  clean-install:
-    name: clean install on ${{ matrix.image }}
-    needs: [version, build]
-    runs-on: ubuntu-24.04
-    # No checkout: the runner gets only the bundle (the archive, prebuilt
-    # applications and the curl-only test scripts). The test runs in a
-    # fresh container of a bare distribution image whose only mounts are
-    # that bundle (read-only) and an empty results directory, so no Rust,
-    # no Node.js, no Cargo registry and no source tree is visible inside.
-    # Only curl is installed, without recommended packages (so no
-    # ca-certificates): TLS must work from NextRS's bundled roots. The
-    # server runs as an unprivileged user.
-    strategy:
-      fail-fast: false
-      matrix:
-        image: ["ubuntu:22.04", "ubuntu:24.04", "debian:12-slim"]
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: clean-install-bundle
-          path: .
-      - name: Unpack the bundle
-        run: tar -xzf clean-install-bundle.tar.gz && rm clean-install-bundle.tar.gz && ls bundle
-      - name: Install, isolation and feature checks in a fresh container
-        run: bash bundle/scripts/clean-install-containers.sh --engine docker --bundle bundle --results results --image "${{ matrix.image }}"
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: clean-install-${{ strategy.job-index }}
-          path: results
-          if-no-files-found: ignore
-
-  # ------------------------------------------------------------------ npm
-  # The npm package is a second channel for the same binary: it is packed
-  # from the archive built above (never from a separate build), verified
-  # byte for byte against it, and installed with npm and pnpm in clean
-  # containers. Nothing is published: see npm-publish.yml.
-  npm-package:
-    name: npm package (pack, verify, negative tests)
-    needs: [version, build]
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22.20.0"
-      - uses: actions/download-artifact@v4
-        with:
-          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
-          path: dist
-      - name: Pack from the release archive and verify against it
-        run: scripts/package-npm.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --out dist/npm
-      - name: Packing is deterministic
-        run: |
-          scripts/package-npm.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --out repack > /dev/null
-          cmp dist/npm/*.tgz repack/*.tgz && echo "identical: $(cat dist/npm/*.tgz.sha256)"
-      - name: Refusals (version mismatch, checksums, withdrawn build, scripts, permissions, extra files)
-        run: tests/npm/packaging-negative.sh --archive "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.tar.gz" --tarball dist/npm/nextrs-cli-${{ needs.version.outputs.version }}.tgz --json dist/npm/packaging-negative.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: nextrs-cli-${{ needs.version.outputs.version }}-npm
-          path: |
             dist/npm/*.tgz
-            dist/npm/*.tgz.sha256
-            dist/npm/*.npm.json
-            dist/npm/*.verify.json
-            dist/npm/packaging-negative.json
           if-no-files-found: error
 
-  npm-install:
-    name: npm and pnpm install on ${{ matrix.image }}
-    needs: [version, build, npm-package]
+  publish:
+    name: GitHub release and npm
+    needs: [check, test, build]
+    if: github.event_name == 'push'
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        image: ["ubuntu:22.04", "ubuntu:24.04", "debian:12-slim"]
+    environment: npm-publish
+    permissions:
+      contents: write # create the GitHub release
+      id-token: write # npm provenance
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22.20.0"
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/download-artifact@v4
         with:
-          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
+          name: release
           path: dist
-      - uses: actions/download-artifact@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          name: nextrs-cli-${{ needs.version.outputs.version }}-npm
-          path: dist/npm
-      # The containers get only the bundle: the tarball, Node.js and pnpm
-      # (checksum-verified), and the application source. Its dependencies are
-      # installed with the network; the NextRS package, next build and the
-      # server run with --network none. No Rust is visible anywhere.
-      - name: Bundle
-        run: scripts/npm-install-bundle.sh --tarball dist/npm/nextrs-cli-${{ needs.version.outputs.version }}.tgz --manifest "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json" --out bundle --node-version 22.20.0
-      - name: Install, build, serve, signals, failure cases
-        run: scripts/npm-install-containers.sh --engine docker --bundle bundle --results results --image "${{ matrix.image }}" --no-unsupported
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: npm-install-${{ strategy.job-index }}
-          path: results
-          if-no-files-found: ignore
-
-  npm-unsupported:
-    name: npm on unsupported platforms (glibc 2.31, musl)
-    needs: [version, build, npm-package]
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22.20.0"
-      - uses: actions/download-artifact@v4
-        with:
-          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
-          path: dist
-      - uses: actions/download-artifact@v4
-        with:
-          name: nextrs-cli-${{ needs.version.outputs.version }}-npm
-          path: dist/npm
-      - name: Bundle
-        run: scripts/npm-install-bundle.sh --tarball dist/npm/nextrs-cli-${{ needs.version.outputs.version }}.tgz --manifest "dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json" --out bundle --node-version 22.20.0
-      - name: Ubuntu 20.04 (glibc 2.31) and Alpine (musl) refuse clearly
-        run: scripts/npm-install-containers.sh --engine docker --bundle bundle --results results --only-unsupported
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: npm-unsupported
-          path: results
-          if-no-files-found: ignore
-
-  docker-example:
-    name: documented Dockerfile (examples/docker)
-    needs: [version, build, npm-package]
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22.20.0"
-      - uses: actions/download-artifact@v4
-        with:
-          name: nextrs-v${{ needs.version.outputs.version }}-linux-x86_64
-          path: dist
-      - uses: actions/download-artifact@v4
-        with:
-          name: nextrs-cli-${{ needs.version.outputs.version }}-npm
-          path: dist/npm
-      - name: Build the image from the npm package, run it without Node.js, stop it
+          node-version: "24.18.0"
+          registry-url: "https://registry.npmjs.org"
+      - name: GitHub release
         run: |
-          sha=$(node -p "require('./dist/nextrs-v${{ needs.version.outputs.version }}-linux-x86_64.manifest.json').binary_sha256")
-          scripts/npm-docker-example.sh --engine docker --tarball dist/npm/nextrs-cli-${{ needs.version.outputs.version }}.tgz --expect-sha256 "$sha" --out docker-example
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-example
-          path: |
-            docker-example/docker-example.json
-            docker-example/Dockerfile.diff
-            docker-example/inventory.txt
-            docker-example/server.log
-            docker-example/build.log
-          if-no-files-found: ignore
+          set -eu
+          a="dist/nextrs-v$VERSION-linux-x86_64"
+          notes="release/v$VERSION-release-notes.md"
+          if [ -f "$notes" ]; then set -- --notes-file "$notes"; else set -- --generate-notes; fi
+          gh release create "v$VERSION" --verify-tag --latest --title "NextRS v$VERSION" "$@" \
+            "$a.tar.gz" "$a.tar.gz.sha256" "$a.manifest.json"
+      - name: npm publish (latest)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -eu
+          # "./": without it npm reads "dist/npm/<file>" as a GitHub repository.
+          npm publish "./dist/npm/nextrs-cli-$VERSION.tgz" --tag latest --access public --provenance
+          npm view @nextrs/cli dist-tags
