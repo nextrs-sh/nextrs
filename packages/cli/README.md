@@ -9,7 +9,7 @@ in Rust and embedded V8.** This package installs a precompiled binary, so you
 need no Rust toolchain.
 
 > [!WARNING]
-> **Experimental prerelease.** Version 0.1.0-rc.2 is a release candidate,
+> **Experimental prerelease.** Version 0.1.0-rc.3 is a release candidate,
 > published under the `next` dist-tag. It is tested on Next.js 16.4.5 and
 > 16.4.6 and on one real application, and has not run in production yet.
 > Read the [known limitations](https://github.com/nextrs-sh/nextrs/blob/main/release/README.md#18-known-limitations)
@@ -20,7 +20,7 @@ need no Rust toolchain.
 **npm**
 
 ```bash
-npm install --save-dev @nextrs/cli@0.1.0-rc.2
+npm install --save-dev @nextrs/cli@0.1.0-rc.3
 npx next build
 npx nextrs start . --js-runtime embedded-v8
 ```
@@ -28,7 +28,7 @@ npx nextrs start . --js-runtime embedded-v8
 **pnpm**
 
 ```bash
-pnpm add -D @nextrs/cli@0.1.0-rc.2
+pnpm add -D @nextrs/cli@0.1.0-rc.3
 pnpm exec next build
 pnpm exec nextrs start . --js-runtime embedded-v8
 ```
@@ -37,7 +37,7 @@ pnpm exec nextrs start . --js-runtime embedded-v8
 run `next build`):
 
 ```bash
-npx --yes @nextrs/cli@0.1.0-rc.2 start . --js-runtime embedded-v8
+npx --yes @nextrs/cli@0.1.0-rc.3 start . --js-runtime embedded-v8
 ```
 
 The application is served at <http://127.0.0.1:3000>.
@@ -46,9 +46,9 @@ The application is served at <http://127.0.0.1:3000>.
   handlers, Server Actions, ISR and middleware. Without it NextRS serves only
   prerendered pages and static files.
 - **Check the build first.** `nextrs inspect .` lists how each route will be
-  served, and anything that is not supported. From 0.1.0-rc.3 (not in
-  0.1.0-rc.2), `npx nextrs doctor .` also checks the environment, Node.js
-  APIs and runtime options, and says what to change
+  served, and anything that is not supported. `npx nextrs doctor .`
+  (from 0.1.0-rc.3) also checks the environment, Node.js APIs and runtime
+  options, and says what to change
   ([doctor.md](https://github.com/nextrs-sh/nextrs/blob/main/engineering/doctor.md)).
 
 ## What the package contains

@@ -68,7 +68,7 @@ compiler: every channel delivers the same precompiled binary.
 Add NextRS as a development dependency of the application:
 
 ```bash
-npm install --save-dev @nextrs/cli@0.1.0-rc.2
+npm install --save-dev @nextrs/cli@0.1.0-rc.3
 npx next build
 npx nextrs start . --js-runtime embedded-v8
 ```
@@ -90,8 +90,8 @@ npx nextrs inspect .
 
 It reports how each route will be served, and anything unsupported.
 
-From 0.1.0-rc.3 (not yet published; rc.1 and rc.2 do not have it),
-`npx nextrs doctor .` also checks the environment, the installed Next.js,
+From 0.1.0-rc.3 (rc.1 and rc.2 do not have it), `npx nextrs doctor .`
+also checks the environment, the installed Next.js,
 Node.js APIs in the server code and the runtime options you plan to use,
 and says what to change. It runs nothing and changes nothing. See
 [doctor.md](doctor.md).
@@ -108,7 +108,7 @@ process, see [Running in production](#running-in-production).
 ## Install with pnpm
 
 ```bash
-pnpm add -D @nextrs/cli@0.1.0-rc.2
+pnpm add -D @nextrs/cli@0.1.0-rc.3
 pnpm exec next build
 pnpm exec nextrs start . --js-runtime embedded-v8
 ```
@@ -121,8 +121,8 @@ they are allowed. NextRS has none, so nothing needs to be allowed.
 In an application that has already run `next build`:
 
 ```bash
-npx --yes @nextrs/cli@0.1.0-rc.2 start . --js-runtime embedded-v8
-pnpm --package=@nextrs/cli@0.1.0-rc.2 dlx nextrs start . --js-runtime embedded-v8
+npx --yes @nextrs/cli@0.1.0-rc.3 start . --js-runtime embedded-v8
+pnpm --package=@nextrs/cli@0.1.0-rc.3 dlx nextrs start . --js-runtime embedded-v8
 ```
 
 ## Install the standalone binary
@@ -131,7 +131,7 @@ Without npm, download the archive from GitHub Releases, verify it and put
 the binary on your `PATH`:
 
 ```bash
-V=0.1.0-rc.2
+V=0.1.0-rc.3
 curl -LO https://github.com/nextrs-sh/nextrs/releases/download/v$V/nextrs-v$V-linux-x86_64.tar.gz
 curl -LO https://github.com/nextrs-sh/nextrs/releases/download/v$V/nextrs-v$V-linux-x86_64.tar.gz.sha256
 sha256sum -c nextrs-v$V-linux-x86_64.tar.gz.sha256
