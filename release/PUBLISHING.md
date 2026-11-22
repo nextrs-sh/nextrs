@@ -160,8 +160,8 @@ Check the dry run's log before the real run.
 
 ## npm authentication
 
-- **Trusted publishing (OIDC)** is the only mode for `@nextrs/cli` now that
-  it exists. No token is passed. On npmjs.com, `@nextrs/cli` → Settings →
+- **Trusted publishing (OIDC)** is the default mode for `@nextrs/cli` now
+  that it exists. No token is passed. On npmjs.com, `@nextrs/cli` → Settings →
   Trusted publishing → GitHub Actions: organization `nextrs-sh`,
   repository `nextrs`, workflow `npm-publish.yml`, environment
   `npm-publish` (all case-sensitive). npm documents that a new trusted
@@ -169,12 +169,18 @@ Check the dry run's log before the real run.
   check the configuration when it is saved.
 - It needs npm 11.5.1 or later and Node.js 22.14.0 or later. The workflow
   uses Node.js 24.18.0 (npm 11.16.0) and checks both.
-- **`bootstrap-token`** exists only for a package's very first publish
-  (npm can configure trusted publishing only for an existing package). It
-  was used once, for v0.1.0-rc.1, and the workflow refuses it now. The
-  `NPM_TOKEN` environment secret should be deleted and the token revoked;
-  `@nextrs/cli` → Settings → Publishing access → "Require two-factor
-  authentication and disallow tokens" keeps trusted publishing working.
+- **`bootstrap-token`** publishes with the `npm-publish` environment's
+  `NPM_TOKEN` secret. It is required for a package's very first publish
+  (npm can configure trusted publishing only for an existing package), and
+  was used for v0.1.0-rc.1. It is also accepted for an existing package, as
+  a fallback while trusted publishing fails: the first trusted-publishing
+  run, for v0.1.0-rc.2, failed with `ENEEDAUTH` (npm falls back to a token
+  when the OIDC exchange fails, and none was passed), which points at the
+  trusted publisher configuration on npmjs.com. The token must be a
+  granular token with publish rights on `@nextrs/cli`, and the package must
+  not be set to "Require two-factor authentication and disallow tokens".
+  Once trusted publishing works, delete the secret, revoke the token, and
+  set "disallow tokens" again.
 
 ## After publication
 
