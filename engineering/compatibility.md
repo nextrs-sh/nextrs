@@ -91,6 +91,7 @@ The suites that compare these fixtures are described in
 | `next.config` headers, redirects, rewrites (beforeFiles, afterFiles, fallback; `has`/`missing`) | 🧪 Experimental | Applied in Rust in `next start`'s order from `routes-manifest.json`; no executor needed |
 | Rewrites to another origin (config or proxy) | 🧪 Experimental | Forwarded as `next start` forwards them, only to destinations `--net-allow` permits (the same policy as `fetch`, checked for every connection); otherwise `502` (`external-rewrite-denied`) and nothing is sent. WebSocket upgrades answer `501` |
 | Response compression (`compress`) | 🧪 Experimental | gzip, decided as `next start`'s compression middleware decides it; on unless `compress: false`. Streaming is preserved. `/_next/static` files and prerendered pages are compressed once and the copy reused (bounded by `--compression-cache`). Differences from `next start` under [Known gaps](#known-gaps); details in [configuration.md](configuration.md#response-compression) |
+| Preconditions (`If-Match`, `If-Unmodified-Since`) on `/_next/static` and `public/` files | 🧪 Experimental | `412` when they fail (RFC 9110; `next start` answers `500`), evaluated before `304` and ranges. Differences under [Known gaps](#known-gaps) |
 | Byte ranges (`Range`, `If-Range`) on `/_next/static` and `public/` files | 🧪 Experimental | A single byte range gets `206`, as with `next start`; `416` for unsatisfiable ranges; several ranges get the full response. Differences under [Known gaps](#known-gaps); details in [configuration.md](configuration.md#byte-ranges) |
 | `deploymentId` (and `NEXT_DEPLOYMENT_ID` at build time) | 🧪 Experimental | The routes-manifest `onMatchHeaders` rules Next writes for it are applied as `next start` applies them (`x-nextjs-deployment-id` on RSC and `/_next/data` responses that matched a route or file); the JavaScript runtime gets `NEXT_DEPLOYMENT_ID` as `next start` sets it. Client navigation stays client-side; a response from another deployment makes the client load the page in full, as with `next start`. Malformed or unknown `onMatchHeaders` entries are refused at startup. No server-side skew routing (neither does `next start`) |
 | `basePath`, `trailingSlash`, `assetPrefix`, `experimental.caseSensitiveRoutes` | 🧪 Experimental | Tested in separate fixture builds, including `basePath` with `trailingSlash` |
@@ -264,9 +265,18 @@ with Server Actions, ISR or a proxy is refused at startup (unless
   never matches (`next start` matches it); a range is always served from
   the uncompressed bytes. See [configuration.md](configuration.md#byte-ranges).
   `multipart/byteranges` is not implemented (several ranges get the full
-  response, as with `next start`). `If-Match` and `If-Unmodified-Since`
-  are not evaluated for static files (`next start` answers `500` when they
-  fail).
+  response, as with `next start`).
+- **Preconditions on static files (`If-Match`, `If-Unmodified-Since`):**
+  evaluated for `/_next/static` and `public/` files as RFC 9110 specifies,
+  before `If-None-Match`, `If-Modified-Since` and `Range`. A failed one is
+  a `412 Precondition Failed` (plain text, no `Cache-Control`); `next start`
+  answers it with its `500` error page. `If-Match` uses the strong
+  comparison, so the weak ETag every static file has (`W/"<size>-<mtime>"`,
+  as with `next start`) never satisfies it and only `*` does; `next start`
+  compares weakly. `If-Unmodified-Since` accepts HTTP-dates only (other
+  date formats are ignored; `next start` reads anything `Date.parse`
+  reads). Pages, route handlers and `/_next/image` are unchanged: as with
+  `next start`, their revalidation ignores both headers.
 - **Deployment ID source:** NextRS uses the `deploymentId` recorded in the
   build. `next start` evaluates `next.config` again when it starts, so a
   `NEXT_DEPLOYMENT_ID` different from the build's at start time changes

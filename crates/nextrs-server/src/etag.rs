@@ -59,15 +59,7 @@ pub(crate) fn fresh(
     last_modified: Option<&str>,
 ) -> bool {
     use axum::http::header;
-    let joined = |name: header::HeaderName| -> Option<String> {
-        let values: Vec<&str> = request
-            .get_all(name)
-            .iter()
-            .filter_map(|v| v.to_str().ok())
-            .collect();
-        // Node joins repeated headers with ", "; an empty value is falsy.
-        Some(values.join(", ")).filter(|v| !v.is_empty())
-    };
+    let joined = |name: header::HeaderName| joined(request, &name);
     let since = joined(header::IF_MODIFIED_SINCE);
     let none_match = joined(header::IF_NONE_MATCH);
     if since.is_none() && none_match.is_none() {
@@ -102,6 +94,74 @@ pub(crate) fn fresh(
         }
     }
     true
+}
+
+/// A request header's values joined with ", " as Node joins repeated
+/// headers; `None` when absent or empty (falsy in JavaScript).
+fn joined(request: &axum::http::HeaderMap, name: &axum::http::HeaderName) -> Option<String> {
+    let values: Vec<&str> = request
+        .get_all(name)
+        .iter()
+        .filter_map(|v| v.to_str().ok())
+        .collect();
+    Some(values.join(", ")).filter(|v| !v.is_empty())
+}
+
+/// RFC 9110 section 8.8.3.2, the strong comparison: both entity tags
+/// strong (no `W/`) and identical.
+pub(crate) fn strong_eq(a: &str, b: &str) -> bool {
+    !a.starts_with("W/") && !b.starts_with("W/") && a == b
+}
+
+/// Whether a file request's preconditions fail (RFC 9110 sections 13.1.1,
+/// 13.1.4 and 13.2.2 steps 1 and 2), so the answer is 412.
+///
+/// - `If-Match` takes precedence: `*` holds for any existing file;
+///   otherwise one listed entity tag must equal the file's with the strong
+///   comparison. Static files carry a weak ETag (`W/"<size>-<mtime>"`, as
+///   with next start), so a listed tag never matches them and only `*`
+///   passes.
+/// - Without `If-Match`, `If-Unmodified-Since` holds when the file was
+///   modified no later than the date (compared in whole seconds, the
+///   resolution of `Last-Modified`). A value that is not an HTTP-date is
+///   ignored; a file without a modification time fails it.
+///
+/// next start (`send`) compares `If-Match` weakly, accepts any date
+/// `Date.parse` reads, and turns the resulting 412 into a 500 error page;
+/// NextRS answers 412 (engineering/compatibility.md, intended differences).
+pub(crate) fn precondition_failed(
+    request: &axum::http::HeaderMap,
+    etag: Option<&str>,
+    modified: Option<std::time::SystemTime>,
+) -> bool {
+    use axum::http::header;
+    if let Some(if_match) = joined(request, &header::IF_MATCH) {
+        let tokens: Vec<&str> = if_match
+            .split(',')
+            .map(|t| t.trim_matches(|c| c == ' ' || c == '\t'))
+            .filter(|t| !t.is_empty())
+            .collect();
+        if !tokens.is_empty() {
+            let matched = tokens
+                .iter()
+                .any(|token| *token == "*" || etag.is_some_and(|etag| strong_eq(token, etag)));
+            return !matched;
+        }
+    }
+    let Some(since) = joined(request, &header::IF_UNMODIFIED_SINCE) else {
+        return false;
+    };
+    let Ok(since) = httpdate::parse_http_date(since.trim()) else {
+        return false;
+    };
+    let seconds = |t: std::time::SystemTime| {
+        t.duration_since(std::time::UNIX_EPOCH)
+            .map_or(0, |d| d.as_secs())
+    };
+    match modified {
+        Some(modified) => seconds(modified) > seconds(since),
+        None => true,
+    }
 }
 
 /// `/(?:^|,)\s*?no-cache\s*?(?:,|$)/` from `fresh`.
@@ -226,5 +286,77 @@ mod tests {
         // "…" is one UTF-16 unit but three UTF-8 bytes; "😀" is two units.
         assert_eq!(generate_etag("Loading…"), "\"yy15vje2q08\"");
         assert_eq!(generate_etag("😀"), "\"c26v2dkjuu2\"");
+    }
+
+    #[test]
+    fn if_match_uses_the_strong_comparison() {
+        let weak = Some("W/\"13e69-1a201c1de77\"");
+        let strong = Some("\"abc\"");
+        let failed =
+            |pairs: &[(&str, &str)], etag| precondition_failed(&request(pairs), etag, None);
+        // Strong tags: equal passes, different fails, lists pass on any.
+        assert!(!failed(&[("if-match", "\"abc\"")], strong));
+        assert!(failed(&[("if-match", "\"abd\"")], strong));
+        assert!(!failed(&[("if-match", "\"x\", \"abc\"")], strong));
+        assert!(!failed(
+            &[("if-match", "\"x\""), ("if-match", "\"abc\"")],
+            strong
+        ));
+        // Weak tags never match, in either position, even when identical.
+        assert!(failed(&[("if-match", "W/\"abc\"")], strong));
+        assert!(failed(&[("if-match", "W/\"13e69-1a201c1de77\"")], weak));
+        assert!(failed(&[("if-match", "\"13e69-1a201c1de77\"")], weak));
+        // `*` holds for an existing representation, with or without a tag.
+        assert!(!failed(&[("if-match", "*")], weak));
+        assert!(!failed(&[("if-match", "*")], None));
+        // No validator: only `*` can hold.
+        assert!(failed(&[("if-match", "\"abc\"")], None));
+        // An empty value is no precondition.
+        assert!(!failed(&[("if-match", " ")], strong));
+        assert!(!failed(&[], strong));
+    }
+
+    #[test]
+    fn if_unmodified_since_compares_whole_seconds() {
+        let modified = httpdate::parse_http_date("Sun, 08 Nov 2026 10:00:00 GMT").unwrap()
+            + std::time::Duration::from_millis(700);
+        let failed = |since: &str, modified| {
+            precondition_failed(&request(&[("if-unmodified-since", since)]), None, modified)
+        };
+        assert!(!failed("Sun, 08 Nov 2026 10:00:00 GMT", Some(modified)));
+        assert!(!failed("Mon, 09 Nov 2026 10:00:00 GMT", Some(modified)));
+        assert!(failed("Sun, 08 Nov 2026 09:59:59 GMT", Some(modified)));
+        // The obsolete HTTP-date formats are dates too (RFC 9110 5.6.7).
+        assert!(failed("Sunday, 08-Nov-26 09:59:59 GMT", Some(modified)));
+        assert!(failed("Sun Nov  8 09:59:59 2026", Some(modified)));
+        // Not an HTTP-date: ignored (next start's Date.parse reads ISO dates).
+        assert!(!failed("2000-01-01", Some(modified)));
+        assert!(!failed("garbage", Some(modified)));
+        // No modification time: the condition cannot hold.
+        assert!(failed("Sun, 08 Nov 2026 10:00:00 GMT", None));
+    }
+
+    #[test]
+    fn if_match_takes_precedence_over_if_unmodified_since() {
+        let modified = Some(httpdate::parse_http_date("Sun, 08 Nov 2026 10:00:00 GMT").unwrap());
+        let past = ("if-unmodified-since", "Sat, 01 Jan 2000 00:00:00 GMT");
+        let future = ("if-unmodified-since", "Fri, 01 Jan 2100 00:00:00 GMT");
+        let strong = Some("\"abc\"");
+        // A passing If-Match ignores a failing date, a failing one a passing date.
+        assert!(!precondition_failed(
+            &request(&[("if-match", "\"abc\""), past]),
+            strong,
+            modified
+        ));
+        assert!(precondition_failed(
+            &request(&[("if-match", "\"x\""), future]),
+            strong,
+            modified
+        ));
+        assert!(!precondition_failed(
+            &request(&[("if-match", "*"), past]),
+            strong,
+            modified
+        ));
     }
 }

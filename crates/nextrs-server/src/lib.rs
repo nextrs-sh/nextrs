@@ -2113,7 +2113,9 @@ fn may_cache_gzip(state: &AppState, request: &HeaderMap) -> bool {
 }
 
 /// Mirrors the `send` package used by `next start`: weak ETag
-/// `W/"<size hex>-<mtime ms hex>"`, Last-Modified, 304 revalidation and
+/// `W/"<size hex>-<mtime ms hex>"`, Last-Modified, 412 for failed
+/// `If-Match` / `If-Unmodified-Since` (`etag::precondition_failed`; next
+/// start answers those with a 500 error page), 304 revalidation and
 /// single byte ranges (`range.rs`: 206 over the identity bytes, 416, and
 /// where NextRS follows RFC 9110 instead of `send`). `immutable`: build
 /// output, whose gzip copy the compression cache may hold.
@@ -2131,6 +2133,8 @@ async fn file_response(
     // blocking pool). It gets only the headers it reads.
     let mut conditional = HeaderMap::new();
     for name in [
+        header::IF_MATCH,
+        header::IF_UNMODIFIED_SINCE,
         header::IF_MODIFIED_SINCE,
         header::IF_NONE_MATCH,
         header::CACHE_CONTROL,
@@ -2161,7 +2165,8 @@ async fn file_response(
 
     let mut response = Response::new(Body::empty());
     let headers = response.headers_mut();
-    if loaded.selection != range::Selection::Unsatisfiable {
+    // An error is not the file: never `immutable` (a cache would keep it).
+    if loaded.selection != range::Selection::Unsatisfiable && !loaded.precondition_failed {
         headers.insert(
             header::CACHE_CONTROL,
             HeaderValue::from_static(cache_control),
@@ -2173,6 +2178,15 @@ async fn file_response(
     }
     if let Some(last_modified) = loaded.last_modified {
         headers.insert(header::LAST_MODIFIED, last_modified);
+    }
+    if loaded.precondition_failed {
+        *response.status_mut() = StatusCode::PRECONDITION_FAILED;
+        response.headers_mut().insert(
+            header::CONTENT_TYPE,
+            HeaderValue::from_static("text/plain; charset=utf-8"),
+        );
+        *response.body_mut() = Body::from("Precondition Failed");
+        return response;
     }
     if loaded.fresh {
         *response.status_mut() = StatusCode::NOT_MODIFIED;
@@ -2240,6 +2254,8 @@ struct FileRead {
 struct LoadedFile {
     etag: Option<HeaderValue>,
     last_modified: Option<HeaderValue>,
+    /// `If-Match` / `If-Unmodified-Since` failed: 412, nothing read.
+    precondition_failed: bool,
     fresh: bool,
     len: u64,
     selection: range::Selection,
@@ -2268,8 +2284,25 @@ fn load_file(path: &Path, conditional: &HeaderMap, read: FileRead) -> Option<Loa
         });
     let last_modified =
         modified.and_then(|m| HeaderValue::from_str(&httpdate::fmt_http_date(m)).ok());
-    // RFC 9110 section 13.2.2: If-None-Match / If-Modified-Since before
-    // Range (a 304 whatever the range).
+    // RFC 9110 section 13.2.2: If-Match / If-Unmodified-Since first (a 412
+    // is never turned into a 304 or a range), then If-None-Match /
+    // If-Modified-Since before Range (a 304 whatever the range).
+    if etag::precondition_failed(
+        conditional,
+        etag.as_ref().and_then(|e| e.to_str().ok()),
+        modified,
+    ) {
+        return Some(LoadedFile {
+            etag,
+            last_modified,
+            precondition_failed: true,
+            fresh: false,
+            len,
+            selection: range::Selection::Full,
+            body: None,
+            key: None,
+        });
+    }
     let fresh = etag::fresh(
         conditional,
         etag.as_ref().and_then(|e| e.to_str().ok()),
@@ -2339,6 +2372,7 @@ fn load_file(path: &Path, conditional: &HeaderMap, read: FileRead) -> Option<Loa
     Some(LoadedFile {
         etag,
         last_modified,
+        precondition_failed: false,
         fresh,
         len,
         selection,
