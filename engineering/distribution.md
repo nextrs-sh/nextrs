@@ -27,7 +27,14 @@ must carry the bytes that passed the release gates, never a rebuild.
 5. `scripts/verify-npm-package.sh --archive` compares the packed binary with
    the archive's (`cmp`), and both checksums with the manifest.
 6. The same run attaches the archive to the GitHub release and publishes
-   the tarball to npm as `latest`.
+   the tarball to npm (`scripts/publish-release.sh`), after checking both
+   against their `.sha256` files and manifests. The version sets the
+   channel:
+
+   | Version | GitHub release | npm dist-tag |
+   |---|---|---|
+   | `x.y.z` | latest release | `latest` |
+   | `x.y.z-alpha.N`, `-beta.N`, `-rc.N` | prerelease, never latest | `next` |
 
 ```text
 cargo build (once) ──► binary 44f04e58…
@@ -36,7 +43,7 @@ cargo build (once) ──► binary 44f04e58…
               nextrs-v<v>-linux-x86_64.tar.gz ──────────► GitHub release
                             │ (extract, copy bytes)
               package-npm.sh▼
-              nextrs-cli-<v>.tgz ── verify (cmp) ────► npm registry (latest)
+              nextrs-cli-<v>.tgz ── verify (cmp) ────► npm registry (next or latest)
 ```
 
 **The tarball is deterministic.** `npm pack` writes fixed timestamps and
@@ -74,9 +81,13 @@ package/
   - There, the launcher refuses at the first run instead.
 - **The glibc version cannot be declared** in `package.json`. The launcher
   checks it at run time.
-- **`publishConfig`:** `access: public`, `tag: next` and `provenance: true`.
-  A prerelease must never become `latest`, and `verify-npm-package.sh`
-  rejects a prerelease that names `latest`.
+- **`publishConfig`:** `access: public` and `provenance: true`. The
+  dist-tag is not in `package.json`: `publish-release.sh` passes `--tag`
+  from the version. A prerelease must never become `latest`: the script
+  refuses to publish one whose packed metadata (`dist_tag` in
+  `nextrs-cli-<v>.npm.json`) says otherwise, and
+  `scripts/test-publish-release.sh` (run by `release.yml`) checks the
+  classification and the publish commands.
 
 ## Why a launcher, and why it is a shell script
 
