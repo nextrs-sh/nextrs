@@ -19,6 +19,9 @@
 #   bin-link           how node_modules/.bin/nextrs reaches it (npm symlink,
 #                      pnpm shim that execs)
 #   version, help, inspect   through `npx`/`pnpm exec`
+#   doctor-text, doctor-json, doctor-no-node, doctor-invocation-error
+#                      `nextrs doctor` through `npx`/`pnpm exec` and the native
+#                      binary without Node.js (0.1.0-rc.3 and later)
 #   next-build         the official `next build`, with the package installed
 #   serve-pm:*         `npx nextrs start` / `pnpm exec nextrs start`: ready,
 #                      SSR, RSC, Server Action, static file (tests/npm/probe.mjs)
@@ -111,6 +114,19 @@ if [[ $PM == npm ]]; then npx --no-install next build > "$LOGS/build.log" 2>&1; 
 rc=$?
 check next-build "$([[ $rc == 0 && -f .next/BUILD_ID ]]; echo $?)" "next build exit $rc, Next.js $(node -p "require('next/package.json').version"), BUILD_ID $(cat .next/BUILD_ID 2>/dev/null)"
 out=$("${RUN[@]}" nextrs inspect . 2>&1); check inspect $? "$(echo "$out" | head -3 | tr '\n' ' ')"
+# Doctor (0.1.0-rc.3): text and JSON through the package manager, with
+# consistent exit codes; the native binary alone with no Node.js on PATH (it
+# only reads the existing build); a missing path is an invocation error (2).
+out=$("${RUN[@]}" nextrs doctor . 2>&1); rc=$?
+check doctor-text "$([[ ($rc == 0 || $rc == 1) && $out == *"NextRS Doctor"* ]]; echo $?)" "${RUN[*]} nextrs doctor . exit $rc: $(echo "$out" | grep -m1 '^Result:')"
+"${RUN[@]}" nextrs doctor . --json > "$LOGS/doctor.json" 2> "$LOGS/doctor.err"; jrc=$?
+summary=$(node -e 'const r=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); console.log(`${r.exitCode} ${r.status} errors=${r.summary.errors} warnings=${r.summary.warnings}`)' "$LOGS/doctor.json" 2>/dev/null)
+check doctor-json "$([[ -n $summary && ${summary%% *} == "$jrc" && $jrc == "$rc" ]]; echo $?)" "--json exit $jrc: exitCode/status $summary"
+nonode=$(env -i PATH=/usr/bin:/bin HOME="${HOME:-/tmp}" sh -c 'command -v node > /dev/null && echo "node-on-path "; "$0" doctor . --json > /dev/null 2>&1; echo $?' "$native")
+check doctor-no-node "$([[ $nonode == "$jrc" ]]; echo $?)" "native/nextrs doctor . --json, no Node.js on PATH: exit $nonode (through ${RUN[0]}: $jrc)"
+./node_modules/.bin/nextrs doctor /nonexistent-app > /dev/null 2>&1; a=$?
+"${RUN[@]}" nextrs doctor /nonexistent-app > /dev/null 2>&1; b=$?
+check doctor-invocation-error "$([[ $a == 2 && $b == 2 ]]; echo $?)" "nextrs doctor /nonexistent-app: .bin $a, ${RUN[0]} $b"
 
 # serve LABEL CMD...: starts the server in the background, waits for readiness.
 serve() {

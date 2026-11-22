@@ -126,6 +126,27 @@ of compressed copies described below.
   requests for one response compress it once. Hits, misses, evictions and
   the bytes held are on the metrics endpoint
   (`nextrs_compression_cache_*`).
+- **Sizing the cache:** the cache helps only when it holds the gzip copies
+  of the responses clients keep asking for. The gzip size of the build's
+  JavaScript and CSS is an upper bound for `/_next/static`:
+  `find .next/static -type f \( -name '*.js' -o -name '*.css' \) -size -4194305c -exec gzip -6 -c {} + | wc -c`
+  (add the prerendered pages if they are large). The default 32 MiB holds
+  that for most applications. If `nextrs_compression_cache_evictions`
+  rises about as fast as `nextrs_compression_cache_misses` while
+  `nextrs_compression_cache_hits` barely moves, the cache is smaller than
+  the set in use. Every gzip request then compresses its response again,
+  bodies over 64 KiB on the blocking thread pool. Throughput is close to
+  that of `--compression-cache 0` on a mixed workload and lower on static
+  files alone, and the process memory is much higher.
+  The native allocator keeps the memory freed by the many pool threads:
+  `nextrs_malloc_free_bytes` and the resident memory rise while
+  `nextrs_malloc_in_use_bytes` stays flat. In a 90-minute test with a
+  1 MiB cache against a 3.4 MiB gzip set, resident memory reached about
+  870 MiB, against about 185 MiB with the cache off and about 220 MiB with
+  the default size in 20-minute runs (`benchmarks/results/rc3`). It was still rising slowly
+  when the test ended. Raise the size above the set in use, or set `0`.
+  Lowering `--malloc-mmap-threshold` does not avoid it, and costs
+  throughput.
 - **Streaming:** each chunk a route writes is compressed and flushed
   before the next, so streamed HTML, RSC and Partial Prerendering responses
   arrive as progressively as without compression.
