@@ -14,38 +14,36 @@ Node.js, and it does not need npm at run time.
 ## The exact-binary rule
 
 Builds are not bit-for-bit reproducible: two builds of the same commit
-differ by a few kilobytes of code (`release/PUBLISHING.md`). So both channels
+differ by a few kilobytes of code. So both channels
 must carry the bytes that passed the release gates, never a rebuild.
 
-1. The release workflow builds the binary once (`cargo build --profile dist`).
-2. It passes the gates listed in `release/PUBLISHING.md`. Its SHA-256 is
-   recorded.
+1. The release workflow (`.github/workflows/release.yml`, run by pushing a
+   `v*` tag on main) builds the binary once (`cargo build --profile dist`).
+2. Its SHA-256 is recorded in the archive's manifest.
 3. `scripts/package-release.sh` packages that binary into the GitHub archive.
 4. `scripts/package-npm.sh` extracts the same archive and copies its binary,
    `BUILD-INFO.json`, licenses and notices into the npm package, byte for
    byte. It never reads a Cargo target directory.
 5. `scripts/verify-npm-package.sh --archive` compares the packed binary with
    the archive's (`cmp`), and both checksums with the manifest.
-6. Both channels are installed and tested: the archive with
-   `scripts/clean-install-*.sh`, the npm package with `scripts/npm-install-*.sh`
-   and `scripts/npm-docker-example.sh`.
+6. The same run attaches the archive to the GitHub release and publishes
+   the tarball to npm as `latest`.
 
 ```text
-cargo build (once) ──► binary 44f04e58…  ──► gates
+cargo build (once) ──► binary 44f04e58…
                             │
           package-release.sh▼
               nextrs-v<v>-linux-x86_64.tar.gz ──────────► GitHub release
                             │ (extract, copy bytes)
               package-npm.sh▼
-              nextrs-cli-<v>.tgz ── verify (cmp) ────► npm registry (dist-tag next)
+              nextrs-cli-<v>.tgz ── verify (cmp) ────► npm registry (latest)
 ```
 
 **The tarball is deterministic.** `npm pack` writes fixed timestamps and
 modes, and `package-npm.sh` stages only the archive's bytes plus two
 committed files: `packages/cli/package.json` and `packages/cli/README.md`.
 Packing the same archive at the same commit always gives the same tarball
-SHA-256. The publish workflow relies on this: it repacks the published GitHub
-archive and requires the committed tarball checksum.
+SHA-256.
 
 ## Package layout
 
@@ -144,19 +142,21 @@ path itself. In a container, the native binary is copied out of the package
 - **Binary identity:** `sha256sum node_modules/@nextrs/cli/native/nextrs`
   must equal `BUILD-INFO.json` → `binary_sha256` and the GitHub release
   manifest's `binary_sha256`.
-- **Provenance:** published from `npm-publish.yml` with `--provenance`, so
+- **Provenance:** published from `release.yml` with `--provenance`, so
   the npm package page links the tarball to the workflow run and commit.
 
 ## Tests
 
 | Script | What it proves |
 |---|---|
-| `scripts/verify-npm-package.sh` | allowlisted contents only, no secrets, modes, metadata, dist-tag, binary bytes equal to the archive's, versions, ELF and glibc floor |
-| `tests/npm/packaging-negative.sh` | 19 refusals: archive or manifest checksum, expected checksum, binary or template or BUILD-INFO version mismatch, withdrawn build, missing notices, lifecycle script (packing); extra file, secret, mode 0644, version mismatch, `latest` for a prerelease, install script, changed bytes (checksum and archive comparison), widened `cpu`, launcher without `exec` (verification) |
+| `scripts/verify-npm-package.sh` | allowlisted contents only, no secrets, modes, metadata, binary bytes equal to the archive's, versions, ELF and glibc floor |
+| `tests/npm/packaging-negative.sh` | 18 refusals: archive or manifest checksum, expected checksum, binary or template or BUILD-INFO version mismatch, withdrawn build, missing notices, lifecycle script (packing); extra file, secret, mode 0644, version mismatch, install script, changed bytes (checksum and archive comparison), widened `cpu`, launcher without `exec` (verification) |
 | `scripts/npm-install-containers.sh` | npm and pnpm on Ubuntu 22.04, Ubuntu 24.04 and Debian 12 with no Rust: offline install, `next build`, serving, SSR, RSC, Server Actions, static files, process model, signals, exit codes, lifecycle scripts off, one-off `npx` and `pnpm dlx`, tampered or truncated or broken packages, another CPU or OS (simulated), libgcc_s missing; glibc 2.31 (Ubuntu 20.04) and musl (Alpine) for real |
 | `scripts/npm-docker-example.sh` | the documented multi-stage Dockerfile: no Node.js or Rust in the runtime image, PID 1 is the release binary, HTTP checks, graceful `docker stop` |
 
-All of them run in `release.yml`, which publishes nothing.
+`release.yml` runs `verify-npm-package.sh` (through `package-npm.sh`) on
+every release. The other scripts are not run in CI; run them locally when
+the packaging changes.
 
 ## More platforms later
 

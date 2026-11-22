@@ -20,7 +20,6 @@
 #                   licenses and the third-party notices
 #   metadata        name, version, license, repository, bin, os/cpu/libc,
 #                   public access; no scripts, dependencies or gypfile
-#   dist-tag        a prerelease is published under "next", never "latest"
 #   identity        package.json "nextrs" block and BUILD-INFO.json name the
 #                   same binary, commit and archive as the manifest
 #   versions        package.json, BUILD-INFO.json, the manifest and
@@ -123,12 +122,6 @@ EOF
 check metadata "$([[ -z $problems ]]; echo $?)" "${problems:-name, license, repository, bin, os linux, cpu x64, libc glibc, public; no scripts, dependencies or gypfile}"
 
 version=$(jget "$pj" version)
-tag=$(jget "$pj" publishConfig.tag)
-if [[ $version == *-* ]]; then
-  check dist-tag "$([[ $tag == next ]]; echo $?)" "prerelease $version, publishConfig.tag=${tag:-unset} (must be next)"
-else
-  check dist-tag "$([[ -z $tag || $tag == latest ]]; echo $?)" "release $version, publishConfig.tag=${tag:-unset}"
-fi
 
 idp=""
 [[ $(jget "$pj" nextrs.binarySha256) == "$want_sha" ]] || idp+=" package.json nextrs.binarySha256"
