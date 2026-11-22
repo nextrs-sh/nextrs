@@ -34,7 +34,7 @@ name: npm publish (maintainers)
 #                       publish rights on @nextrs/cli, and the package must
 #                       not be set to "disallow tokens".
 # dry_run (the default) stops before uploading: it runs `npm publish --dry-run`.
-# See release/PUBLISHING.md.
+# The full procedure is in the maintainers' internal publishing runbook.
 
 on:
   workflow_dispatch:
@@ -186,7 +186,7 @@ jobs:
           fi
           case "$AUTH" in
             trusted-publishing)
-              [ "$exists" = true ] || { echo "$PACKAGE does not exist yet, and npm cannot configure trusted publishing for it: use auth=bootstrap-token once (release/PUBLISHING.md)"; exit 1; } ;;
+              [ "$exists" = true ] || { echo "$PACKAGE does not exist yet, and npm cannot configure trusted publishing for it: use auth=bootstrap-token once"; exit 1; } ;;
             bootstrap-token)
               # Also allowed for an existing package, as a fallback while
               # trusted publishing is not working (see the header).
