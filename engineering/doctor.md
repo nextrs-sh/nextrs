@@ -1,10 +1,13 @@
 # nextrs doctor
 
-> **Unreleased.** `nextrs doctor` is developed for v0.2.0 on the
-> `feat/v0.2.0-doctor` branch. It is **not** in the published
-> `@nextrs/cli` prereleases (0.1.0-rc.1, 0.1.0-rc.2) or their GitHub
-> Release binaries. Until it is released, build the CLI from that branch
-> (`cargo build --release -p nextrs-cli`) to try it.
+> **Availability: v0.1.0, from 0.1.0-rc.3 (not yet published).**
+> `nextrs doctor` is part of the v0.1.0 release series and is planned for
+> the next release candidate, 0.1.0-rc.3. The published prereleases
+> `@nextrs/cli@0.1.0-rc.1` and `0.1.0-rc.2`, and their GitHub Release
+> binaries, do **not** include it: there `nextrs doctor` is an unknown
+> subcommand. Until rc.3 is published, build the CLI from source
+> (`cargo build --release -p nextrs-cli`) to try it. Doctor was first
+> developed for v0.2.0; it moved into v0.1.0 with its checks unchanged.
 
 `nextrs doctor` checks whether an existing Next.js application and its
 production build suit NextRS, and says what to change. It reads files only.
@@ -26,6 +29,26 @@ nextrs doctor ./my-next-app    # a project directory (or its .next directory)
 nextrs doctor . --json         # one JSON document on stdout, for CI
 nextrs doctor . --strict       # warnings fail too
 ```
+
+Through npm, with `@nextrs/cli` 0.1.0-rc.3 or later installed as a
+development dependency of the application:
+
+```bash
+npx nextrs doctor
+npx nextrs doctor . --json
+npx nextrs doctor . --strict
+pnpm exec nextrs doctor .
+```
+
+Without adding a dependency, name the package and its version:
+
+```bash
+npx --yes @nextrs/cli@0.1.0-rc.3 doctor .
+```
+
+Bare `npx nextrs` runs the `nextrs` command of the project's installed
+`@nextrs/cli`. Where that package is not installed, npx looks for an npm
+package called `nextrs`, which is not NextRS, so use the scoped form above.
 
 Run `next build` first. Without a production build, Doctor still checks the
 environment and the installed Next.js, but it reports the assessment as
@@ -74,6 +97,28 @@ Doctor reuses what `nextrs start` runs, so the two cannot disagree:
   rules, route patterns, stored responses and image configuration, with no
   executor, no socket and no cache directory.
 - **Runtime options:** `start`'s own flag parsers and directory checks.
+
+The project may be someone else's checkout, `.next` included, so Doctor
+does not let it point elsewhere:
+
+- **Build metadata through a link out of `.next`.** If `.next/BUILD_ID`,
+  or a link among the files directly in `.next`, `.next/server` or
+  `.next/nextrs`, resolves outside `.next`, Doctor does not read the build
+  (`NEXTRS-DOC-108`, a warning; the assessment is incomplete). Otherwise a
+  link to `/proc/self/environ` or a credentials file would be printed as
+  the build ID. `nextrs start` and `nextrs inspect` do follow such links.
+- **Doctor's own reads** (`package.json`, `.env` files, file traces,
+  `required-server-files.json`) are made only from regular files inside the
+  project, its `.next` or its monorepo root, with a size limit. The
+  installed `node_modules/next/package.json` may be linked from a package
+  store; only a version-shaped value is kept from it.
+- **The startup checks** load every prerendered response into memory and
+  list `public/`. Doctor runs them only when each stored response is a
+  regular file inside `.next`, they total at most 1 GiB, and `public/`
+  has no linked directories. Otherwise it reports them as not run
+  (`NEXTRS-DOC-107`, unknown).
+- **Text output** shows control characters from the project (in a package
+  name, a route) escaped, so they cannot drive the terminal.
 
 | Section | Checks |
 |---|---|
@@ -149,7 +194,7 @@ name, and `.env` files are read only for their names.
 ```json
 {
   "schemaVersion": 1,
-  "cliVersion": "0.1.0-rc.2",
+  "cliVersion": "0.1.0-rc.3",
   "status": "incomplete",
   "complete": false,
   "strict": false,
@@ -211,9 +256,10 @@ version.
 | `NEXTRS-DOC-104` | Next.js version unsupported (error) or untested (warning) | Build with Next.js 16.4.x, the tested line |
 | `NEXTRS-DOC-006` | The version has published security advisories | Upgrade to 16.4.5 or later |
 | `NEXTRS-DOC-105` | `node_modules/next` missing | Install production dependencies next to the build, or ship the standalone output with its `node_modules` |
-| `NEXTRS-DOC-107` | `nextrs start` would fail to start | Fix the rule, route or file the message names |
+| `NEXTRS-DOC-107` | `nextrs start` would fail to start (error), or its startup checks were not run (unknown) | Fix the rule, route or file the message names; when not run, start the build with `nextrs start` |
+| `NEXTRS-DOC-108` | Build metadata links outside the build | Run Doctor on a build whose `.next` holds its own files |
 | `NEXTRS-DOC-207`, `-212`, `-217` | Edge-runtime Server Actions, middleware or routes | Use the Node.js runtime (`proxy.ts` instead of edge middleware) |
-| `NEXTRS-DOC-218` | Interception routes | Not supported by the executor; their dynamic routes answer `501` |
+| `NEXTRS-DOC-218` | Interception routes (an error when the build runs JavaScript, a warning otherwise) | Not supported by the executor: every route it serves answers `501` |
 | `NEXTRS-DOC-219` | `i18n` config with App Router routes | Use `next-intl`'s middleware instead of Next's `i18n` config |
 | `NEXTRS-DOC-301`, `-302`, `-303` | Native addons, TCP clients, process spawners in server code | Use pure-JavaScript, WebAssembly or `fetch`-based alternatives, or move the work behind an HTTP service |
 | `NEXTRS-DOC-401` | Dynamic routes require `--js-runtime embedded-v8` | Start with `--js-runtime embedded-v8` |
@@ -240,8 +286,9 @@ through unchanged: `NEXTRS-DOC-190` (unsupported, an error), `-191`
 - **Runtime behavior under load:** memory, isolate stalls, timeouts.
 - **Environment variables read at runtime** that are defined nowhere in
   `.env` files.
-- **Builds it cannot read:** an unsupported platform, or a corrupted
-  `.next` (reported as a blocker).
+- **Builds it cannot read:** an unsupported platform, a corrupted `.next`
+  (reported as a blocker), or build metadata linked from outside `.next`
+  (reported as incomplete).
 
 A `--deep` mode, with more static analysis that still runs nothing, is
 future work. It is not implemented.

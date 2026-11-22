@@ -90,6 +90,12 @@ npx nextrs inspect .
 
 It reports how each route will be served, and anything unsupported.
 
+From 0.1.0-rc.3 (not yet published; rc.1 and rc.2 do not have it),
+`npx nextrs doctor .` also checks the environment, the installed Next.js,
+Node.js APIs in the server code and the runtime options you plan to use,
+and says what to change. It runs nothing and changes nothing. See
+[doctor.md](doctor.md).
+
 **Using an npm script.** For `npm run`, add:
 
 ```json
