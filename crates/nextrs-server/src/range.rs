@@ -143,8 +143,7 @@ pub(crate) fn if_range_holds(
     };
     if value.starts_with('"') || value.starts_with("W/") {
         // Strong comparison: both strong and identical.
-        return !value.starts_with("W/")
-            && etag.is_some_and(|etag| !etag.starts_with("W/") && etag == value);
+        return etag.is_some_and(|etag| crate::etag::strong_eq(value, etag));
     }
     let (Some(modified), Ok(date)) = (modified, httpdate::parse_http_date(value)) else {
         return false;

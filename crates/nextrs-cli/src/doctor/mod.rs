@@ -153,8 +153,18 @@ impl Sanitizer {
     }
 }
 
+/// An environment variable of the process Doctor runs in, read as
+/// `nextrs start` reads `--js-env` names (`std::env::var`: a value that is
+/// not Unicode counts as unset). The value itself is never kept.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EnvVar {
+    Unset,
+    Empty,
+    Set,
+}
+
 /// Runs every check. `Err` is an invocation error (exit 2).
-pub fn diagnose(args: &DoctorArgs, env_is_set: &dyn Fn(&str) -> bool) -> Result<Report, String> {
+pub fn diagnose(args: &DoctorArgs, env: &dyn Fn(&str) -> EnvVar) -> Result<Report, String> {
     let given = args.path.display().to_string();
     let path = args
         .path
@@ -238,7 +248,7 @@ pub fn diagnose(args: &DoctorArgs, env_is_set: &dyn Fn(&str) -> bool) -> Result<
         info: info.as_ref(),
         project_dir: &project_dir,
         network: &network,
-        env_is_set,
+        env,
     }));
 
     let sanitizer = Sanitizer::new(&project_dir, workspace.as_deref());
@@ -286,8 +296,12 @@ pub fn diagnose(args: &DoctorArgs, env_is_set: &dyn Fn(&str) -> bool) -> Result<
 
 /// `nextrs doctor`: prints the report and returns its exit code.
 pub fn run(args: DoctorArgs) -> ExitCode {
-    let env_is_set = |name: &str| std::env::var_os(name).is_some_and(|v| !v.is_empty());
-    match diagnose(&args, &env_is_set) {
+    let env = |name: &str| match std::env::var(name) {
+        Ok(value) if value.is_empty() => EnvVar::Empty,
+        Ok(_) => EnvVar::Set,
+        Err(_) => EnvVar::Unset,
+    };
+    match diagnose(&args, &env) {
         Ok(report) => {
             let out = if args.json {
                 render::json(&report) + "\n"
