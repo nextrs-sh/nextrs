@@ -13,12 +13,14 @@
 //! - `compat`: framework features, classified with the capability matrix;
 //! - `node`: Node.js APIs, from Next's file traces;
 //! - `config`: runtime flags;
-//! - `report`: findings, status and exit code; `render`: text and JSON.
+//! - `report`: findings, status and exit code; `render`: text and JSON;
+//! - `fsread`: reading project files without leaving the project.
 
 mod build;
 mod compat;
 mod config;
 mod environment;
+mod fsread;
 mod node;
 mod render;
 mod report;
@@ -135,7 +137,7 @@ impl Sanitizer {
     }
 
     fn apply(&self, text: &str) -> String {
-        let mut text = text.to_owned();
+        let mut text = fsread::printable(text);
         for (from, to) in &self.0 {
             text = text.replace(from.as_str(), to);
         }
@@ -173,20 +175,30 @@ pub fn diagnose(args: &DoctorArgs, env_is_set: &dyn Fn(&str) -> bool) -> Result<
     findings.extend(environment::platform_findings(
         std::env::consts::OS,
         std::env::consts::ARCH,
+        environment::libc_family(),
         glibc.as_deref(),
     ));
 
-    let inspected = nextrs_adapter::inspect_with(
-        &path,
-        &InspectOptions {
-            ignore_adapter_output: args.ignore_adapter_output,
-        },
-    );
-    let (info, complete) = match inspected {
-        Ok(info) => (Some(info), true),
-        Err(error) => {
-            findings.push(build::inspect_failure(&error));
-            (None, false)
+    let dist = if build::is_dist_dir(&path) {
+        path.clone()
+    } else {
+        path.join(".next")
+    };
+    let (info, complete) = if let Some(file) = build::metadata_outside_build(&dist) {
+        findings.push(build::metadata_outside_build_finding(&file));
+        (None, false)
+    } else {
+        match nextrs_adapter::inspect_with(
+            &path,
+            &InspectOptions {
+                ignore_adapter_output: args.ignore_adapter_output,
+            },
+        ) {
+            Ok(info) => (Some(info), true),
+            Err(error) => {
+                findings.push(build::inspect_failure(&error));
+                (None, false)
+            }
         }
     };
     let workspace = info.as_ref().and_then(|i| i.workspace_root.clone());
@@ -213,10 +225,10 @@ pub fn diagnose(args: &DoctorArgs, env_is_set: &dyn Fn(&str) -> bool) -> Result<
             installed.as_deref(),
             args.runtime.js_runtime == Some(crate::JsRuntime::None),
         ));
-        findings.push(build::preflight(
-            info,
-            network.as_ref().ok().cloned().flatten(),
-        ));
+        findings.push(match build::preflight_guard(info) {
+            Ok(()) => build::preflight(info, network.as_ref().ok().cloned().flatten()),
+            Err(reason) => build::preflight_skipped(&reason),
+        });
         findings.extend(info.diagnostics.iter().filter_map(build::passthrough));
         findings.extend(compat::findings(info));
         findings.extend(node::findings(info));
@@ -231,12 +243,16 @@ pub fn diagnose(args: &DoctorArgs, env_is_set: &dyn Fn(&str) -> bool) -> Result<
 
     let sanitizer = Sanitizer::new(&project_dir, workspace.as_deref());
     let findings = findings.into_iter().map(|f| sanitizer.finding(f)).collect();
+    let printable = |s: &String| fsread::printable(s);
     let project = ProjectInfo {
-        path: given,
-        name: package.as_ref().and_then(|p| p.name.clone()),
+        path: fsread::printable(&given),
+        name: package
+            .as_ref()
+            .and_then(|p| p.name.as_ref())
+            .map(printable),
         nextjs_project: package.as_ref().is_some_and(|p| p.next_range.is_some()),
         build_found: info.is_some(),
-        build_id: info.as_ref().map(|i| i.build_id.clone()),
+        build_id: info.as_ref().map(|i| printable(&i.build_id)),
         metadata_source: info.as_ref().map(|i| match i.source {
             MetadataSource::AdapterApi => "adapter-api",
             MetadataSource::InternalManifests => "internal-manifests",
@@ -253,11 +269,11 @@ pub fn diagnose(args: &DoctorArgs, env_is_set: &dyn Fn(&str) -> bool) -> Result<
         next_build: info
             .as_ref()
             .and_then(|i| i.next_version.as_ref())
-            .map(|v| v.version.clone()),
+            .map(|v| printable(&v.version)),
         next_build_source: info
             .as_ref()
             .and_then(|i| i.next_version.as_ref())
-            .map(|v| v.source.clone()),
+            .map(|v| printable(&v.source)),
     };
     Ok(Report::finish(
         project,
@@ -273,12 +289,30 @@ pub fn run(args: DoctorArgs) -> ExitCode {
     let env_is_set = |name: &str| std::env::var_os(name).is_some_and(|v| !v.is_empty());
     match diagnose(&args, &env_is_set) {
         Ok(report) => {
-            if args.json {
-                println!("{}", render::json(&report));
+            let out = if args.json {
+                render::json(&report) + "\n"
             } else {
-                print!("{}", render::text(&report, render::Style::detect()));
+                render::text(&report, render::Style::detect())
+            };
+            // Not print!: it panics when stdout is closed early
+            // (`nextrs doctor --json | head -c1`). A reader that stopped
+            // reading is not an error; the exit code still reports the
+            // findings. Any other write failure means no report was given.
+            use std::io::Write;
+            let mut stdout = std::io::stdout().lock();
+            match stdout
+                .write_all(out.as_bytes())
+                .and_then(|()| stdout.flush())
+            {
+                Ok(()) => ExitCode::from(report.exit_code),
+                Err(error) if error.kind() == std::io::ErrorKind::BrokenPipe => {
+                    ExitCode::from(report.exit_code)
+                }
+                Err(error) => {
+                    eprintln!("error: nextrs doctor: writing the report: {error}");
+                    ExitCode::from(EXIT_INVOCATION)
+                }
             }
-            ExitCode::from(report.exit_code)
         }
         Err(error) => {
             eprintln!("error: nextrs doctor: {error}");

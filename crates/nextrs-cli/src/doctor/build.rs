@@ -221,9 +221,154 @@ pub fn runtime_files_findings(
     findings
 }
 
+/// The first build metadata file (`.next/BUILD_ID`, or a link among the
+/// files directly in `.next`, `.next/server` and `.next/nextrs`, where the
+/// adapter reads its manifests) that resolves outside `dist`. Inspection
+/// prints what these files contain, the build ID verbatim: Doctor does not
+/// read them through a link that leaves the build (to `/proc/self/environ`
+/// or a credentials file, say).
+pub fn metadata_outside_build(dist: &Path) -> Option<String> {
+    let real = dist.canonicalize().ok()?;
+    let roots = [real];
+    let mut candidates = vec![dist.join("BUILD_ID")];
+    for sub in ["", "server", "nextrs"] {
+        let Ok(entries) = std::fs::read_dir(dist.join(sub)) else {
+            continue;
+        };
+        candidates.extend(
+            entries
+                .flatten()
+                .filter(|e| e.file_type().is_ok_and(|t| t.is_symlink()))
+                .map(|e| e.path()),
+        );
+    }
+    candidates.sort();
+    candidates.dedup();
+    candidates
+        .into_iter()
+        // A dangling link is left to inspection, which reports it.
+        .find(|p| p.exists() && !super::fsread::contained(p, &roots))
+        .map(|p| match p.strip_prefix(dist) {
+            Ok(rel) => format!(".next/{}", rel.display()),
+            Err(_) => ".next".to_owned(),
+        })
+}
+
+pub fn metadata_outside_build_finding(file: &str) -> Finding {
+    Finding::new(
+        "NEXTRS-DOC-108",
+        Level::Warning,
+        Category::Build,
+        "Build metadata links outside the build",
+        format!(
+            "{file} resolves outside .next. Doctor does not read build files through such a link, \
+             because their content would appear in this report, so the build was not checked. \
+             nextrs start and nextrs inspect do follow it."
+        ),
+    )
+    .component(file.to_owned())
+    .suggest("Run Doctor on a build whose .next holds its own files, such as a fresh next build.")
+}
+
+/// Total size of the stored responses the startup checks may load into
+/// memory before Doctor declines to run them.
+const PREFLIGHT_BUDGET: u64 = 1 << 30;
+/// Entries of `public/` the startup checks list, at most.
+const PUBLIC_ENTRY_LIMIT: usize = 500_000;
+
+/// Why the startup checks should not run here, if they should not: they
+/// read every prerendered response into memory and list `public/`, both
+/// from paths the build metadata names. A stored response must be a regular
+/// file inside `.next` (not `/dev/zero`, a FIFO, or a file elsewhere whose
+/// read error would name it), they must fit a memory budget, and `public/`
+/// must have no linked directories (a link back to `public/` makes the
+/// listing loop).
+pub fn preflight_guard(info: &BuildInfo) -> Result<(), String> {
+    let dist = &info.dist_dir;
+    let real_dist = dist
+        .canonicalize()
+        .map_err(|_| ".next could not be resolved".to_owned())?;
+    let roots = [real_dist];
+    let mut total: u64 = 0;
+    for prerender in &info.prerenders {
+        let stored = [&prerender.html, &prerender.rsc, &prerender.data]
+            .into_iter()
+            .flatten()
+            .chain(prerender.segments.iter().map(|(_, s)| s));
+        for response in stored {
+            let file = &response.file;
+            let outside = format!(
+                "the stored response of {} is not a file inside .next",
+                prerender.pathname
+            );
+            if !super::fsread::lexically_below(file, dist) {
+                return Err(outside);
+            }
+            // A missing file is reported by the startup checks themselves,
+            // with its path inside .next.
+            let Ok(meta) = std::fs::metadata(file) else {
+                continue;
+            };
+            if !meta.is_file() || !super::fsread::contained(file, &roots) {
+                return Err(outside);
+            }
+            total = total.saturating_add(meta.len());
+        }
+    }
+    if total > PREFLIGHT_BUDGET {
+        return Err(format!(
+            "the prerendered responses total {} MiB, more than Doctor loads into memory",
+            total >> 20
+        ));
+    }
+    if let Some(public) = &info.public_dir {
+        let mut stack = vec![public.clone()];
+        let mut seen = 0usize;
+        while let Some(dir) = stack.pop() {
+            let Ok(entries) = std::fs::read_dir(&dir) else {
+                continue;
+            };
+            for entry in entries.flatten() {
+                seen = seen.saturating_add(1);
+                if seen > PUBLIC_ENTRY_LIMIT {
+                    return Err(format!(
+                        "public/ has more than {PUBLIC_ENTRY_LIMIT} entries"
+                    ));
+                }
+                let Ok(kind) = entry.file_type() else {
+                    continue;
+                };
+                if kind.is_dir() {
+                    stack.push(entry.path());
+                } else if kind.is_symlink() && entry.path().is_dir() {
+                    let rel = entry.path();
+                    let rel = rel.strip_prefix(public).unwrap_or(&rel);
+                    return Err(format!("public/{} is a link to a directory", rel.display()));
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+pub fn preflight_skipped(reason: &str) -> Finding {
+    Finding::new(
+        "NEXTRS-DOC-107",
+        Level::Unknown,
+        Category::Build,
+        "nextrs start's startup checks not run",
+        format!(
+            "Doctor did not run them because {reason}. They load stored responses and list \
+             public/ from paths the build names."
+        ),
+    )
+    .suggest("Start the build with nextrs start to see whether its startup checks pass.")
+}
+
 /// `nextrs start`'s own startup checks (routing rules, route patterns,
 /// stored responses, the image configuration), run without an executor,
-/// without binding a socket and without a cache directory.
+/// without binding a socket and without a cache directory. Call
+/// [`preflight_guard`] first.
 pub fn preflight(info: &BuildInfo, network: Option<nextrs_runtime::NetworkConfig>) -> Finding {
     let options = nextrs_server::ServerOptions {
         // Refusals are reported feature by feature instead.
