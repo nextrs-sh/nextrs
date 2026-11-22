@@ -7,7 +7,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use clap::Parser;
 
 use super::report::{Level, Report, Status};
-use super::{DoctorArgs, diagnose, render};
+use super::{DoctorArgs, EnvVar, diagnose, render};
 
 fn snapshot(name: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -79,7 +79,7 @@ fn args(dir: &Path, extra: &[&str]) -> DoctorArgs {
 }
 
 fn run(dir: &Path, extra: &[&str]) -> Report {
-    diagnose(&args(dir, extra), &|_| false).unwrap()
+    diagnose(&args(dir, extra), &|_| EnvVar::Unset).unwrap()
 }
 
 fn level(report: &Report, code: &str) -> Option<Level> {
@@ -386,8 +386,15 @@ fn env_files_are_reported_by_name_only() {
     assert_eq!(level(&passed, "NEXTRS-DOC-407"), Some(Level::Pass));
     // Not set where Doctor runs (the test environment sets nothing).
     assert_eq!(level(&passed, "NEXTRS-DOC-408"), Some(Level::Warning));
-    let set = diagnose(&args(&dir, &["--js-env", "DATABASE_URL"]), &|_| true).unwrap();
+    let set = diagnose(&args(&dir, &["--js-env", "DATABASE_URL"]), &|_| EnvVar::Set).unwrap();
     assert_eq!(level(&set, "NEXTRS-DOC-408"), None);
+    // Set to an empty string: nextrs start passes it without a warning
+    // (found on Velasia Airways, whose optional tokens are empty).
+    let empty = diagnose(&args(&dir, &["--js-env", "DATABASE_URL"]), &|_| {
+        EnvVar::Empty
+    })
+    .unwrap();
+    assert_eq!(level(&empty, "NEXTRS-DOC-408"), None);
 }
 
 #[test]
@@ -504,10 +511,10 @@ fn a_dist_directory_is_accepted() {
 #[test]
 fn invocation_errors_are_not_reports() {
     let missing = std::env::temp_dir().join("nextrs-doctor-does-not-exist");
-    assert!(diagnose(&args(&missing, &[]), &|_| false).is_err());
+    assert!(diagnose(&args(&missing, &[]), &|_| EnvVar::Unset).is_err());
     let file = scratch(None).join("file");
     write(&file, "x");
-    assert!(diagnose(&args(&file, &[]), &|_| false).is_err());
+    assert!(diagnose(&args(&file, &[]), &|_| EnvVar::Unset).is_err());
 }
 
 /// An untrusted checkout cannot make the report print a file from outside

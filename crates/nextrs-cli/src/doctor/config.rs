@@ -139,9 +139,9 @@ pub struct Inputs<'a> {
     pub project_dir: &'a Path,
     /// `NetArgs::config()`, the parser `nextrs start` uses.
     pub network: &'a Result<Option<NetworkConfig>, String>,
-    /// Whether an environment variable is set where Doctor runs. Only
-    /// presence is reported, never a value.
-    pub env_is_set: &'a dyn Fn(&str) -> bool,
+    /// An environment variable where Doctor runs, as nextrs start reads
+    /// it. Only presence is reported, never a value.
+    pub env: &'a dyn Fn(&str) -> super::EnvVar,
 }
 
 pub fn findings(inputs: &Inputs) -> Vec<Finding> {
@@ -150,8 +150,11 @@ pub fn findings(inputs: &Inputs) -> Vec<Finding> {
         info,
         project_dir,
         network,
-        env_is_set,
+        env,
     } = *inputs;
+    // Set to a value: what the deployment ID and the Server Actions key need
+    // (nextrs start treats an empty one as missing).
+    let env_is_set = |name: &str| env(name) == super::EnvVar::Set;
     let runtime = &args.runtime;
     let r = Category::RuntimeConfig;
     let mut out = Vec::new();
@@ -473,10 +476,12 @@ pub fn findings(inputs: &Inputs) -> Vec<Finding> {
             .docs(DOCS_CONFIG)
         });
     }
+    // nextrs start passes a variable that is set, even to an empty string,
+    // and warns only about one that is not set at all.
     let unset: Vec<String> = runtime
         .js_env
         .iter()
-        .filter(|n| !env_is_set(n))
+        .filter(|n| env(n) == super::EnvVar::Unset)
         .cloned()
         .collect();
     if !unset.is_empty() {

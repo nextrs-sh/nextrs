@@ -248,3 +248,33 @@ fn a_reader_that_stops_early_does_not_crash_doctor() {
     assert!(matches!(code(&output), 0 | 1), "{}", code(&output));
     std::fs::remove_dir_all(&dir).unwrap();
 }
+
+/// nextrs start passes a --js-env variable set to an empty string without a
+/// warning; Doctor must not report it as unset (Velasia Airways sets its
+/// optional tokens to empty strings).
+#[test]
+fn empty_js_env_variables_count_as_set() {
+    let dir = scratch("empty-env", Some("next-16.4.6-static-params"));
+    let path = dir.to_str().unwrap();
+    let flags = [
+        "--json",
+        "--js-env",
+        "NEXTRS_DOCTOR_TEST_EMPTY",
+        "--js-env",
+        "NEXTRS_DOCTOR_TEST_UNSET",
+    ];
+    let mut args = vec![path];
+    args.extend_from_slice(&flags);
+    let output = doctor(&args, &[("NEXTRS_DOCTOR_TEST_EMPTY", "")]);
+    let report: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    let unset = report["findings"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|f| f["code"] == "NEXTRS-DOC-408")
+        .expect("the unset variable is reported");
+    let message = unset["message"].as_str().unwrap();
+    assert!(message.contains("NEXTRS_DOCTOR_TEST_UNSET"), "{message}");
+    assert!(!message.contains("NEXTRS_DOCTOR_TEST_EMPTY"), "{message}");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
