@@ -103,10 +103,43 @@ Through all 90 minutes:
 - The cache recorded 6,063,394 misses and 107,238 hits. Evictions matched
   misses.
 
+## Interleaved rc.2 / rc.3 (`interleaved/`)
+
+In the first 15 minutes, B0 (rc.2) ran at 1,366 req/s median per segment
+and B1 (rc.3) at 1,111. The compression code is identical in both, and rc.3
+reached 1,309–1,338 req/s later (B1's end, B2). To separate binary from
+host drift, the two binaries were run alternately with the full mix and 64
+connections:
+
+- I runs: 4 rounds of 3 minutes each at 1 MiB.
+- J runs: 4 rounds of 2 minutes each at the default 32 MiB.
+
+Each value is the mean of the segments after the first.
+
+| Round | I: rc.2, 1 MiB | I: rc.3, 1 MiB | J: rc.2, 32 MiB | J: rc.3, 32 MiB |
+|---|---|---|---|---|
+| 1 | 808 | 896 | 6,045 | 4,937 |
+| 2 | 614 | 731 | 8,464 | 7,563 |
+| 3 | 524 | 831 | 4,101 | 6,898 |
+| 4 | 612 | 715 | 5,892 | 7,196 |
+| Median | 613 | 781 | 5,968 | 7,047 |
+
+The host ran slower overall during these runs than during the soaks, and
+varied from round to round (32 MiB: 4,100–8,460 req/s). Only paired values
+are meaningful:
+
+- At 1 MiB, rc.3 was faster in 4 of 4 rounds.
+- At 32 MiB, rc.3 was faster in 2 of 4 rounds.
+- No request failed.
+
+Neither result shows rc.3 slower than rc.2. The B0/B1 difference was host
+variation.
+
 ## Findings
 
 1. **Not a regression.** The compression code is unchanged since rc.2, and
-   rc.2 under the same churn (B0) shows the same memory curve.
+   rc.2 under the same churn (B0) shows the same memory curve. The
+   interleaved runs show no throughput loss either.
 2. **Not a leak in the live heap.** Live heap stays flat at about 30 MiB.
    What grows is memory the allocator has freed and keeps: glibc
    `free_bytes` rose from 319 to 730 MiB. `malloc_trim` cannot report it,
