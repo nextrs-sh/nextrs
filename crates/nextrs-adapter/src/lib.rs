@@ -107,6 +107,12 @@ pub fn below_security_baseline(version: &str) -> bool {
 /// The diagnostic code for a build of an unsupported Next.js version.
 pub const UNSUPPORTED_VERSION_CODE: &str = "unsupported-next-version";
 
+/// [`Severity::Unsupported`] diagnostics that the embedded V8 executor
+/// resolves: `nextrs start` refuses them only without
+/// `--js-runtime embedded-v8`. Shared by the server's startup check and
+/// `nextrs doctor`.
+pub const EXECUTOR_FEATURES: &[&str] = &["server-actions", "isr", "proxy"];
+
 #[derive(Debug, Clone, Default)]
 pub struct InspectOptions {
     /// Ignore `.next/nextrs/build-output.json` even when it is present.

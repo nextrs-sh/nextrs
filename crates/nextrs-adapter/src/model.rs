@@ -249,6 +249,12 @@ impl BuildInfo {
         self.routes.iter().find(|r| r.page == page)
     }
 
+    /// Whether the build has interception routes (`(.)`, `(..)`,
+    /// `(...)` segments). The executor answers its dynamic routes `501`.
+    pub fn has_interception_routes(&self) -> bool {
+        self.routes.iter().any(|route| route.page.contains("/(."))
+    }
+
     pub fn has_unsupported(&self) -> bool {
         self.diagnostics
             .iter()
