@@ -12,7 +12,11 @@ name: Release
 #   - build the binary, package the archive and the npm tarball (both are
 #     verified by their scripts);
 #   - create the GitHub release with the archive, and publish @nextrs/cli
-#     to npm as `latest`.
+#     to npm. The version decides the channel (scripts/publish-release.sh):
+#       x.y.z                        GitHub latest release, npm `latest`
+#       x.y.z-alpha.N, -beta.N, -rc.N  GitHub prerelease, npm `next`
+#     Before publishing, the downloaded artifacts are checked against their
+#     .sha256 files and manifests (version, channel, same archive).
 #
 # Release notes are optional: release/v<version>-release-notes.md when it
 # exists, otherwise GitHub generates them from the merged pull requests.
@@ -31,6 +35,8 @@ on:
       - "scripts/package-release.sh"
       - "scripts/package-npm.sh"
       - "scripts/verify-npm-package.sh"
+      - "scripts/publish-release.sh"
+      - "scripts/test-publish-release.sh"
       - "packages/cli/**"
       - "release/**"
 
@@ -52,6 +58,8 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.v.outputs.version }}
+      npm_tag: ${{ steps.v.outputs.npm_tag }}
+      prerelease: ${{ steps.v.outputs.prerelease }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,7 +76,8 @@ jobs:
           else
             v="$ws"
           fi
-          echo "$v" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)\.[0-9]+)?$' || { echo "not a release version: $v"; exit 1; }
+          # Refuses anything but x.y.z and x.y.z-(alpha|beta|rc).N.
+          channel=$(scripts/publish-release.sh channel "$v")
           [ "$ws" = "$v" ] || { echo "Cargo.toml is $ws, tag is $v: run scripts/bump-version.sh $v first"; exit 1; }
           for crate in nextrs-adapter nextrs-cli nextrs-image nextrs-runtime nextrs-server; do
             lv=$(awk -v n="$crate" '$0=="name = \""n"\"" {getline; gsub(/version = |"/,""); print; exit}' Cargo.lock)
@@ -76,8 +85,10 @@ jobs:
           done
           pv=$(node -p "require('./packages/cli/package.json').version")
           [ "$pv" = "$v" ] || { echo "packages/cli/package.json is $pv, tag is $v"; exit 1; }
-          echo "version $v"
-          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "version $v"; echo "$channel"
+          { echo "version=$v"; echo "$channel"; } >> "$GITHUB_OUTPUT"
+      - name: Publish script tests (channel, commands, artifact checks)
+        run: scripts/test-publish-release.sh
 
   test:
     name: fmt, clippy, tests, audit
@@ -127,7 +138,14 @@ jobs:
             dist/*.sha256
             dist/*.manifest.json
             dist/npm/*.tgz
+            dist/npm/*.tgz.sha256
+            dist/npm/*.npm.json
           if-no-files-found: error
+      # What the publish job will run, on these artifacts (never publishes).
+      - name: Publish commands (dry run)
+        run: |
+          scripts/publish-release.sh github "$VERSION" --dry-run
+          scripts/publish-release.sh npm "$VERSION" --dry-run
 
   publish:
     name: GitHub release and npm
@@ -151,19 +169,11 @@ jobs:
         with:
           node-version: "24.18.0"
           registry-url: "https://registry.npmjs.org"
-      - name: GitHub release
-        run: |
-          set -eu
-          a="dist/nextrs-v$VERSION-linux-x86_64"
-          notes="release/v$VERSION-release-notes.md"
-          if [ -f "$notes" ]; then set -- --notes-file "$notes"; else set -- --generate-notes; fi
-          gh release create "v$VERSION" --verify-tag --latest --title "NextRS v$VERSION" "$@" \
-            "$a.tar.gz" "$a.tar.gz.sha256" "$a.manifest.json"
-      - name: npm publish (latest)
+      - name: Verify the artifacts
+        run: scripts/publish-release.sh verify "$VERSION"
+      - name: GitHub release (prerelease=${{ needs.check.outputs.prerelease }})
+        run: scripts/publish-release.sh github "$VERSION"
+      - name: npm publish (${{ needs.check.outputs.npm_tag }})
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          set -eu
-          # "./": without it npm reads "dist/npm/<file>" as a GitHub repository.
-          npm publish "./dist/npm/nextrs-cli-$VERSION.tgz" --tag latest --access public --provenance
-          npm view @nextrs/cli dist-tags
+        run: scripts/publish-release.sh npm "$VERSION"
