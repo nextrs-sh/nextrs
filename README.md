@@ -148,6 +148,10 @@ curl -i http://127.0.0.1:3001/books/42   # dynamic page, rendered by Next.js in 
   ISR, like this one) is refused at startup.
 - **`./target/release/nextrs inspect fixtures/next-app`** shows how each
   route will be served.
+- **`./target/release/nextrs doctor fixtures/next-app`** checks, without
+  running anything, whether an application and its build suit NextRS, and
+  says what to change ([doctor.md](engineering/doctor.md); in release
+  binaries from 0.1.0-rc.3).
 - **`./target/release/nextrs start --help`** lists every option; the
   [configuration reference](engineering/configuration.md) explains limits,
   network access, caching and reverse proxies.
