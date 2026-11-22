@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="arch-title arch-desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="880" viewBox="0 0 1280 880" role="img" aria-labelledby="arch-title arch-desc">
 <title id="arch-title">How NextRS serves a Next.js build</title>
-<desc id="arch-desc">On the left, a Next.js app is compiled by next build into the .next output: manifests, static assets, prerendered HTML and RSC payloads, and compiled server handlers. Node.js is needed for the build, not for serving. The NextRS runtime, a single Rust process, reads that output. Its Rust HTTP server applies routing and next.config rules, then sends each request one of two ways. Static files, prerendered HTML and RSC, and image optimization are served directly from Rust. Dynamic rendering, React Server Components, Route Handlers, Server Actions and proxy.ts run Next.js's own compiled JavaScript handlers in embedded V8 isolates, enabled with --js-runtime embedded-v8. Those handlers use a shared cache held in Rust for the data cache, ISR pages and "use cache" entries.</desc>
+<desc id="arch-desc">On the left, a Next.js app (App Router, Pages Router) is compiled by next build into the .next output: manifests, static assets, prerendered HTML and RSC payloads, and compiled server handlers. Node.js is needed for the build, not for serving. The NextRS runtime, a single Rust process, reads that output. Its Rust HTTP server applies routing and next.config rules, then sends each request one of two ways. Static files, prerendered HTML and RSC, and image optimization are served directly from Rust. Dynamic rendering, React Server Components, Route Handlers, Server Actions and proxy.ts run Next.js's own compiled JavaScript handlers in embedded V8 isolates, enabled with --js-runtime embedded-v8. Those handlers use a shared cache held in Rust for the data cache, ISR pages and "use cache" entries. Below the runtime, your backends (APIs, databases, authentication services) stay separate processes, unchanged, reached with fetch only where --net-allow permits.</desc>
 <style>
   .sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
   .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
@@ -70,14 +70,14 @@
 </defs>
 
 <!-- Canvas: the same surface as the banner -->
-<rect x="1" y="1" width="1278" height="758" rx="24" fill="#0D1117" stroke="#21262D" stroke-width="2"/>
+<rect x="1" y="1" width="1278" height="878" rx="24" fill="#0D1117" stroke="#21262D" stroke-width="2"/>
 
 <!-- ============ Build: Next.js (unchanged) ============ -->
 <text x="48" y="76" class="mono eyebrow" fill="#8B949E">BUILD WITH NEXT.JS</text>
 
 <rect x="48" y="100" width="340" height="104" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5"/>
 <text x="72" y="144" class="sans h2">Your Next.js app</text>
-<text x="72" y="178" class="sans muted">App Router · unchanged</text>
+<text x="72" y="178" class="sans muted">App Router · Pages Router</text>
 
 <line x1="218" y1="204" x2="218" y2="232" stroke="#30363D" stroke-width="2"/>
 <rect x="148" y="232" width="140" height="40" rx="20" fill="#0D1117" stroke="#30363D" stroke-width="1.5"/>
@@ -157,6 +157,13 @@
 <circle cx="500" cy="654" r="6" fill="#E8762D"/>
 <text x="518" y="661" class="sans h3">Shared cache</text>
 <text x="664" y="661" class="sans muted">data cache · ISR pages · <tspan class="mono" font-size="17">"use cache"</tspan> · every isolate</text>
+
+<!-- ============ Your backends: separate, unchanged ============ -->
+<line x1="1024" y1="720" x2="1024" y2="768" stroke="#8B949E" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#arrow)"/>
+<text x="1040" y="750" class="mono code">fetch · --net-allow</text>
+<rect x="440" y="774" width="792" height="72" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5" stroke-dasharray="8 6"/>
+<text x="472" y="818" class="sans h3">Your backends</text>
+<text x="634" y="818" class="sans muted">APIs · databases · auth · separate processes, unchanged</text>
 
 <!-- ============ Motion (hidden when motion is reduced or unsupported) ============ -->
 <circle class="dot build-a" cx="218" cy="206" r="5" fill="#C9D1D9"/>

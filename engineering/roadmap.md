@@ -4,6 +4,10 @@ NextRS is developed in phases. Each phase ends with a verdict based on the
 comparison suites, soaks and CI, not on a date. No release dates are planned,
 and scope changes as the experiments produce evidence.
 
+This page records the engineering phases. The public, theme-based roadmap
+(developer experience, compatibility, performance, reliability, testing,
+platforms) is in the [project README](../README.md#roadmap).
+
 ## Completed and experimental phases
 
 | Phase | Scope | Status |
