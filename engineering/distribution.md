@@ -14,11 +14,11 @@ Node.js, and it does not need npm at run time.
 ## The exact-binary rule
 
 Builds are not bit-for-bit reproducible: two builds of the same commit
-differ by a few kilobytes of code (`release/PUBLISHING.md`). So both channels
+differ by a few kilobytes of code. So both channels
 must carry the bytes that passed the release gates, never a rebuild.
 
 1. The release workflow builds the binary once (`cargo build --profile dist`).
-2. It passes the gates listed in `release/PUBLISHING.md`. Its SHA-256 is
+2. It passes the release gates (`.github/workflows/release.yml`). Its SHA-256 is
    recorded.
 3. `scripts/package-release.sh` packages that binary into the GitHub archive.
 4. `scripts/package-npm.sh` extracts the same archive and copies its binary,

@@ -6,7 +6,8 @@ name: Release build
 # are uploaded as workflow artifacts, to verify the pipeline and clean
 # installs. Builds are not bit-for-bit reproducible, so the archive that is
 # published is the one whose binary passed the release gates, packaged by a
-# maintainer with authorization: see release/PUBLISHING.md.
+# maintainer with authorization (the maintainers' internal publishing
+# runbook).
 #
 # Run it from the Actions tab (workflow_dispatch) with the version, e.g.
 # 0.1.0-rc.1, on the commit to be tagged; or it runs when a maintainer

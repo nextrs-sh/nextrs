@@ -24,14 +24,17 @@ name: npm publish (maintainers)
 #
 # Authentication (input `auth`):
 #   trusted-publishing  npm trusted publishing (OIDC); no token exists. The
-#                       default, and the only mode once the package exists.
-#   bootstrap-token     the first publish only: npm can configure a trusted
-#                       publisher only for a package that already exists.
-#                       Uses the `npm-publish` environment's NPM_TOKEN secret
-#                       and refuses to run if the package is already on the
-#                       registry. Revoke the token right after.
+#                       default.
+#   bootstrap-token     uses the `npm-publish` environment's NPM_TOKEN
+#                       secret. Needed for the first publish (npm can
+#                       configure a trusted publisher only for a package that
+#                       already exists), and allowed as a fallback for an
+#                       existing package while trusted publishing fails
+#                       (ENEEDAUTH). The token must be a granular token with
+#                       publish rights on @nextrs/cli, and the package must
+#                       not be set to "disallow tokens".
 # dry_run (the default) stops before uploading: it runs `npm publish --dry-run`.
-# See release/PUBLISHING.md.
+# The full procedure is in the maintainers' internal publishing runbook.
 
 on:
   workflow_dispatch:
@@ -44,7 +47,7 @@ on:
         type: boolean
         default: true
       auth:
-        description: "trusted-publishing (OIDC), or bootstrap-token for the package's very first publish"
+        description: "trusted-publishing (OIDC), or bootstrap-token (the npm-publish environment's NPM_TOKEN secret: first publish, or fallback when OIDC fails)"
         type: choice
         options: [trusted-publishing, bootstrap-token]
         default: trusted-publishing
@@ -183,15 +186,17 @@ jobs:
           fi
           case "$AUTH" in
             trusted-publishing)
-              [ "$exists" = true ] || { echo "$PACKAGE does not exist yet, and npm cannot configure trusted publishing for it: use auth=bootstrap-token once (release/PUBLISHING.md)"; exit 1; } ;;
+              [ "$exists" = true ] || { echo "$PACKAGE does not exist yet, and npm cannot configure trusted publishing for it: use auth=bootstrap-token once"; exit 1; } ;;
             bootstrap-token)
-              [ "$exists" = false ] || { echo "$PACKAGE already exists: publish with trusted-publishing, then revoke the bootstrap token and delete NPM_TOKEN"; exit 1; }
+              # Also allowed for an existing package, as a fallback while
+              # trusted publishing is not working (see the header).
+              [ "$exists" = false ] || echo "::warning::$PACKAGE already exists: publishing with the NPM_TOKEN secret instead of trusted publishing"
               [ "$HAVE_TOKEN" = true ] || { echo "the npm-publish environment has no NPM_TOKEN secret"; exit 1; } ;;
           esac
           echo "package exists: $exists; auth: $AUTH"
       - name: npm publish
         env:
-          # Set only for the one-time bootstrap. With trusted publishing no
+          # Set only with auth=bootstrap-token. With trusted publishing no
           # token is passed at all, so a leftover secret is never used.
           NODE_AUTH_TOKEN: ${{ inputs.auth == 'bootstrap-token' && secrets.NPM_TOKEN || '' }}
         run: |
