@@ -117,6 +117,9 @@ pub struct TraceEvidence {
 
 pub fn analyze(dist_dir: &Path) -> TraceEvidence {
     let server_dir = dist_dir.join("server");
+    // Traces are files next build wrote inside .next: never read one that
+    // resolves elsewhere.
+    let roots: Vec<_> = dist_dir.canonicalize().into_iter().collect();
     let mut evidence = TraceEvidence::default();
     for file in trace_files(&server_dir) {
         let entry = file
@@ -125,8 +128,7 @@ pub fn analyze(dist_dir: &Path) -> TraceEvidence {
             .to_string_lossy()
             .trim_end_matches(".nft.json")
             .to_owned();
-        let parsed = std::fs::read_to_string(&file)
-            .ok()
+        let parsed = super::fsread::read_contained(&file, &roots, super::fsread::LARGE)
             .and_then(|text| serde_json::from_str::<serde_json::Value>(&text).ok());
         let Some(files) = parsed
             .as_ref()

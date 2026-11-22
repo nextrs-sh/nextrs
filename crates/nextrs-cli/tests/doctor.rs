@@ -229,3 +229,22 @@ fn piped_output_is_plain_text() {
         assert!(!stdout.contains('\x1b'));
     }
 }
+
+#[test]
+fn a_reader_that_stops_early_does_not_crash_doctor() {
+    let dir = scratch("closed-stdout", Some("next-16.4.6-static-params"));
+    let mut child = Command::new(env!("CARGO_BIN_EXE_nextrs"))
+        .args(["doctor", dir.to_str().unwrap(), "--json"])
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+    // Close the read end before Doctor writes its report.
+    drop(child.stdout.take());
+    let output = child.wait_with_output().unwrap();
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!stderr.contains("panicked"), "{stderr}");
+    // The findings' exit code, not a panic's 101.
+    assert!(matches!(code(&output), 0 | 1), "{}", code(&output));
+    std::fs::remove_dir_all(&dir).unwrap();
+}

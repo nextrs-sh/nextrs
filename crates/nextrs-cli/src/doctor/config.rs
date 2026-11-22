@@ -314,7 +314,8 @@ pub fn findings(inputs: &Inputs) -> Vec<Finding> {
                 .docs(DOCS_CACHE),
             );
         }
-        if let Some(dir) = &runtime.cache_dir {
+        // nextrs start reads --cache-dir only for the embedded executor.
+        if let Some(dir) = runtime.cache_dir.as_ref().filter(|_| executor) {
             let mut config = nextrs_runtime::ExecutorConfig::new(
                 info.project_dir.clone(),
                 info.dist_dir.clone(),
@@ -553,7 +554,9 @@ pub fn findings(inputs: &Inputs) -> Vec<Finding> {
             // The two body limits.
             let max_request_body = runtime
                 .max_request_body
-                .map_or(nextrs_server::DEFAULT_MAX_REQUEST_BODY, |m| m * 1024 * 1024);
+                .map_or(nextrs_server::DEFAULT_MAX_REQUEST_BODY, |m| {
+                    m.saturating_mul(1024 * 1024)
+                });
             if info.server_actions.body_size_limit > max_request_body {
                 out.push(
                     Finding::new(
@@ -616,7 +619,9 @@ fn network_findings(
             .iter()
             .filter_map(|d| {
                 let (scheme, rest) = d.split_once("://")?;
-                let authority = rest.split('/').next()?;
+                let authority = rest.split(['/', '?', '#']).next()?;
+                // Never print credentials a destination carries.
+                let authority = authority.rsplit('@').next()?;
                 (!authority.contains(':') || authority.rsplit(':').next()?.parse::<u16>().is_ok())
                     .then(|| format!("{scheme}://{authority}"))
             })

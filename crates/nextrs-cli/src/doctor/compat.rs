@@ -48,7 +48,12 @@ fn pages(info: &BuildInfo, keep: impl Fn(&nextrs_adapter::Route) -> bool) -> Vec
 
 /// `required-server-files.json#config.<key>`: the resolved next.config.
 fn next_config(info: &BuildInfo, key: &str) -> Option<serde_json::Value> {
-    let text = std::fs::read_to_string(info.dist_dir.join("required-server-files.json")).ok()?;
+    let roots: Vec<_> = info.dist_dir.canonicalize().into_iter().collect();
+    let text = super::fsread::read_contained(
+        &info.dist_dir.join("required-server-files.json"),
+        &roots,
+        super::fsread::LARGE,
+    )?;
     let value: serde_json::Value = serde_json::from_str(&text).ok()?;
     value.get("config")?.get(key).cloned()
 }
@@ -446,7 +451,13 @@ pub fn findings(info: &BuildInfo) -> Vec<Finding> {
         out.push(
             Finding::new(
                 "NEXTRS-DOC-218",
-                Level::Error,
+                // Only executor-served routes answer 501: a build that runs
+                // no JavaScript is served as before.
+                if super::needs_javascript(info) {
+                    Level::Error
+                } else {
+                    Level::Warning
+                },
                 c,
                 "Interception routes",
                 format!(

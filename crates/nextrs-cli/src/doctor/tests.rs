@@ -107,7 +107,28 @@ fn a_supported_build_has_no_blockers() {
     assert_eq!(errors(&report), Vec::<String>::new());
     assert_eq!(report.exit_code, 0);
     assert!(report.complete);
-    assert_eq!(report.status, Status::Ok, "{:#?}", report.findings);
+    // Off the release platform (a developer's macOS), the only warnings are
+    // the platform's own.
+    if cfg!(all(
+        target_os = "linux",
+        target_arch = "x86_64",
+        target_env = "gnu"
+    )) {
+        assert_eq!(report.status, Status::Ok, "{:#?}", report.findings);
+    } else {
+        let warnings: Vec<&str> = report
+            .findings
+            .iter()
+            .filter(|f| f.level == Level::Warning)
+            .map(|f| f.code)
+            .collect();
+        assert!(
+            warnings
+                .iter()
+                .all(|c| ["NEXTRS-DOC-001", "NEXTRS-DOC-002"].contains(c)),
+            "{warnings:?}"
+        );
+    }
     for code in [
         "NEXTRS-DOC-004",
         "NEXTRS-DOC-005",
@@ -487,4 +508,139 @@ fn invocation_errors_are_not_reports() {
     let file = scratch(None).join("file");
     write(&file, "x");
     assert!(diagnose(&args(&file, &[]), &|_| false).is_err());
+}
+
+/// An untrusted checkout cannot make the report print a file from outside
+/// the project through a symlinked build file.
+#[cfg(unix)]
+#[test]
+fn a_build_id_linked_outside_the_build_is_not_read() {
+    let dir = scratch(Some("next-16.4.6-static-params"));
+    installed(&dir, "16.4.6");
+    let secret = scratch(None).join("credentials");
+    write(&secret, "ghp_SECRETTOKEN");
+    std::fs::remove_file(dir.join(".next/BUILD_ID")).unwrap();
+    std::os::unix::fs::symlink(&secret, dir.join(".next/BUILD_ID")).unwrap();
+    let report = run(&dir, &[]);
+    assert_eq!(level(&report, "NEXTRS-DOC-108"), Some(Level::Warning));
+    assert!(!report.complete);
+    assert_eq!(report.status, Status::Incomplete);
+    assert_eq!(report.exit_code, 0);
+    assert_eq!(report.project.build_id, None);
+    let json = render::json(&report);
+    let text = render::text(&report, render::Style { color: false });
+    assert!(!json.contains("SECRETTOKEN") && !text.contains("SECRETTOKEN"));
+    // A manifest linked outside is refused the same way.
+    let dir = scratch(Some("next-16.4.6-static-params"));
+    installed(&dir, "16.4.6");
+    let outside = scratch(None).join("routes-manifest.json");
+    std::fs::rename(dir.join(".next/routes-manifest.json"), &outside).unwrap();
+    std::os::unix::fs::symlink(&outside, dir.join(".next/routes-manifest.json")).unwrap();
+    let report = run(&dir, &[]);
+    assert_eq!(level(&report, "NEXTRS-DOC-108"), Some(Level::Warning));
+    // A link that stays inside the build is fine.
+    let dir = scratch(Some("next-16.4.6-static-params"));
+    installed(&dir, "16.4.6");
+    std::fs::rename(dir.join(".next/BUILD_ID"), dir.join(".next/BUILD_ID.real")).unwrap();
+    std::os::unix::fs::symlink("BUILD_ID.real", dir.join(".next/BUILD_ID")).unwrap();
+    let report = run(&dir, &[]);
+    assert_eq!(level(&report, "NEXTRS-DOC-108"), None);
+    assert!(report.complete);
+}
+
+#[cfg(unix)]
+#[test]
+fn env_files_linked_outside_the_project_are_not_read() {
+    let dir = scratch(Some("next-16.4.3-default"));
+    installed(&dir, "16.4.3");
+    let key = scratch(None).join("id_ed25519");
+    write(
+        &key,
+        "b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW=\n",
+    );
+    std::os::unix::fs::symlink(&key, dir.join(".env")).unwrap();
+    let report = run(&dir, &[]);
+    assert_eq!(level(&report, "NEXTRS-DOC-407"), None);
+    assert!(!render::json(&report).contains("b3BlbnNzaC1rZXk"));
+}
+
+/// The startup checks read stored responses and list public/: Doctor does
+/// not run them on a build that points them elsewhere or loops.
+#[cfg(unix)]
+#[test]
+fn startup_checks_are_skipped_for_builds_that_point_outside() {
+    let dir = scratch(Some("next-16.4.6-static-params"));
+    installed(&dir, "16.4.6");
+    let html = walk(&dir.join(".next/server/app"))
+        .into_iter()
+        .find(|p| p.extension().is_some_and(|e| e == "html"))
+        .expect("the snapshot has a prerendered page");
+    let outside = scratch(None).join("page.html");
+    std::fs::rename(&html, &outside).unwrap();
+    std::os::unix::fs::symlink(&outside, &html).unwrap();
+    let report = run(&dir, &[]);
+    assert_eq!(level(&report, "NEXTRS-DOC-107"), Some(Level::Unknown));
+    let json = render::json(&report);
+    assert!(!json.contains(outside.to_str().unwrap()));
+
+    let dir = scratch(Some("next-16.4.6-static-params"));
+    installed(&dir, "16.4.6");
+    std::fs::create_dir_all(dir.join("public")).unwrap();
+    std::os::unix::fs::symlink(".", dir.join("public/a")).unwrap();
+    std::os::unix::fs::symlink(".", dir.join("public/b")).unwrap();
+    let report = run(&dir, &[]);
+    let finding = report
+        .findings
+        .iter()
+        .find(|f| f.code == "NEXTRS-DOC-107")
+        .unwrap();
+    assert_eq!(finding.level, Level::Unknown);
+    assert!(finding.message.contains("is a link to a directory"));
+}
+
+fn walk(dir: &Path) -> Vec<PathBuf> {
+    let mut out = Vec::new();
+    for entry in std::fs::read_dir(dir).unwrap().flatten() {
+        if entry.file_type().unwrap().is_dir() {
+            out.extend(walk(&entry.path()));
+        } else {
+            out.push(entry.path());
+        }
+    }
+    out.sort();
+    out
+}
+
+#[test]
+fn project_text_cannot_drive_the_terminal() {
+    let dir = scratch(Some("next-16.4.6-static-params"));
+    write(
+        &dir.join("package.json"),
+        "{\"name\":\"app\\u001b]52;c;ZXZpbA==\\u0007\\u001b[2K\",\"dependencies\":{\"next\":\"16.4.6\"}}",
+    );
+    write(
+        &dir.join("node_modules/next/package.json"),
+        r#"{"name":"next","version":"16.4.6"}"#,
+    );
+    let report = run(&dir, &[]);
+    let text = render::text(&report, render::Style { color: false });
+    assert!(
+        !text.contains('\u{1b}') && !text.contains('\u{7}'),
+        "{text}"
+    );
+    assert!(text.contains("app\\u{1b}]52;c;ZXZpbA=="));
+}
+
+#[test]
+fn the_cache_directory_is_not_checked_without_the_executor() {
+    let dir = scratch(Some("next-16.4.6-static-params"));
+    installed(&dir, "16.4.6");
+    // Inside the build: refused with the executor, ignored by nextrs start
+    // without it.
+    let inside = dir.join(".next/cache-dir");
+    let inside = inside.to_str().unwrap();
+    let with = run(&dir, &["--cache-dir", inside]);
+    assert_eq!(level(&with, "NEXTRS-DOC-404"), Some(Level::Error));
+    let without = run(&dir, &["--js-runtime", "none", "--cache-dir", inside]);
+    assert_eq!(level(&without, "NEXTRS-DOC-404"), None);
 }

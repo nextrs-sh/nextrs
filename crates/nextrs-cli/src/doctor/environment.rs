@@ -53,7 +53,9 @@ fn parse_glibc(version: &str) -> Option<(u32, u32)> {
 }
 
 /// Platform, C library and NextRS version.
-pub fn platform_findings(os: &str, arch: &str, glibc: Option<&str>) -> Vec<Finding> {
+/// `libc` is [`libc_family`] of the running binary (a parameter so the
+/// checks do not depend on the machine the tests run on).
+pub fn platform_findings(os: &str, arch: &str, libc: &str, glibc: Option<&str>) -> Vec<Finding> {
     let mut findings = Vec::new();
     let platform = format!("{} {arch}", os_name(os));
     findings.push(if os == PUBLISHED_OS && arch == PUBLISHED_ARCH {
@@ -80,7 +82,7 @@ pub fn platform_findings(os: &str, arch: &str, glibc: Option<&str>) -> Vec<Findi
     });
 
     let (min_major, min_minor) = PUBLISHED_MIN_GLIBC;
-    findings.push(match (libc_family(), glibc) {
+    findings.push(match (libc, glibc) {
         ("glibc", Some(version)) => match parse_glibc(version) {
             Some(found) if found >= PUBLISHED_MIN_GLIBC => Finding::new(
                 "NEXTRS-DOC-002",
@@ -154,7 +156,12 @@ pub struct Package {
 }
 
 pub fn read_package(project_dir: &Path) -> Option<Package> {
-    let text = std::fs::read_to_string(project_dir.join("package.json")).ok()?;
+    let roots: Vec<_> = project_dir.canonicalize().into_iter().collect();
+    let text = super::fsread::read_contained(
+        &project_dir.join("package.json"),
+        &roots,
+        super::fsread::SMALL,
+    )?;
     let value: serde_json::Value = serde_json::from_str(&text).ok()?;
     let next_range = ["dependencies", "devDependencies"]
         .iter()
@@ -170,10 +177,23 @@ pub fn read_package(project_dir: &Path) -> Option<Package> {
 }
 
 /// `<dir>/node_modules/next/package.json#version`.
+///
+/// Package managers may link `node_modules/next` from outside the project
+/// (a pnpm store), so the file is not required to be inside it; only a
+/// version-shaped value is kept from it.
 pub fn installed_next(dir: &Path) -> Option<String> {
-    let text = std::fs::read_to_string(dir.join("node_modules/next/package.json")).ok()?;
+    let text = super::fsread::read_regular(
+        &dir.join("node_modules/next/package.json"),
+        super::fsread::SMALL,
+    )?;
     let value: serde_json::Value = serde_json::from_str(&text).ok()?;
-    value.get("version")?.as_str().map(str::to_owned)
+    let version = value.get("version")?.as_str()?;
+    let version_shaped = !version.is_empty()
+        && version.len() <= 64
+        && version
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '+'));
+    version_shaped.then(|| version.to_owned())
 }
 
 /// Is this a Next.js project, and which Next.js is installed. With a build,
@@ -324,8 +344,13 @@ pub const ENV_FILES: [&str; 4] = [
 pub fn env_file_names(project_dir: &Path) -> (Vec<&'static str>, Vec<String>) {
     let mut files = Vec::new();
     let mut names = Vec::new();
+    // A `.env` that resolves outside the project is not read: its lines
+    // would otherwise be reported as variable names.
+    let roots: Vec<_> = project_dir.canonicalize().into_iter().collect();
     for file in ENV_FILES {
-        let Ok(text) = std::fs::read_to_string(project_dir.join(file)) else {
+        let Some(text) =
+            super::fsread::read_contained(&project_dir.join(file), &roots, super::fsread::SMALL)
+        else {
             continue;
         };
         let found = dotenv_names(&text);
@@ -398,12 +423,12 @@ mod tests {
         assert_eq!(parse_glibc("2.4"), Some((2, 4)));
         assert!(parse_glibc("2.4").unwrap() < PUBLISHED_MIN_GLIBC);
         assert_eq!(parse_glibc("garbage"), None);
-        let old = platform_findings("linux", "x86_64", Some("2.31"));
+        let old = platform_findings("linux", "x86_64", "glibc", Some("2.31"));
         assert_eq!(old[1].level, Level::Warning);
-        let new = platform_findings("linux", "x86_64", Some("2.39"));
+        let new = platform_findings("linux", "x86_64", "glibc", Some("2.39"));
         assert_eq!(new[0].level, Level::Pass);
         assert_eq!(new[1].level, Level::Pass);
-        let other = platform_findings("linux", "aarch64", Some("2.39"));
+        let other = platform_findings("linux", "aarch64", "glibc", Some("2.39"));
         assert_eq!(other[0].level, Level::Warning);
     }
 
