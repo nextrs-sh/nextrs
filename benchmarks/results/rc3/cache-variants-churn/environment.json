@@ -1,0 +1,58 @@
+{
+ "environment": {
+  "date": "2026-11-22T07:27:17.288Z",
+  "host_kind": "single-host (load generator and server on the same machine, pinned to disjoint CPUs)",
+  "cpu_model": "Intel(R) Core(TM) i5-8259U CPU @ 2.30GHz",
+  "logical_cpus": 8,
+  "cpu_governors": [
+   null
+  ],
+  "cpu_max_mhz": 0,
+  "turbo_disabled": null,
+  "mem_total_mib": 3911,
+  "mem_available_mib_at_start": 3072,
+  "swap_total_mib": 1024,
+  "swap_used_mib_at_start": 0,
+  "loadavg_at_start": [
+   2.72,
+   9.09,
+   7.78
+  ],
+  "os": "Debian GNU/Linux 12 (bookworm)",
+  "kernel": "7.0.12-linuxkit",
+  "rustc": null,
+  "node": "v22.20.0",
+  "nextrs_binary": "/b/nextrs-rc3",
+  "nextrs_binary_sha256": "4477180ce6f232e40f9afe26a5bc2d9c67e83e33768d8e94f06e20368976b70e",
+  "nextrs_commit": null,
+  "nextrs_dirty": false,
+  "loadgen": "/b/nextrs-loadgen",
+  "loadgen_sha256": "f7f498f32891f10b3c4493eb62588bba8bd2afea73c065cc605338081f690dca",
+  "server_cpus": "0-3",
+  "load_cpus": "4-5",
+  "memory_limit": "none (no cgroup limit applied); RSS is reported per process tree"
+ },
+ "chunk": {
+  "path": "/_next/static/chunks/39_j1bdzreq0m.js",
+  "size": 229288
+ },
+ "project": "/work/fixtures/next-app",
+ "configs": [
+  {
+   "label": "base-gzip",
+   "bin": "/b/nextrs-rc2"
+  },
+  {
+   "label": "cand-gzip",
+   "bin": "/b/nextrs-rc3"
+  },
+  {
+   "label": "cand-nocache-gzip",
+   "bin": "/b/nextrs-rc3"
+  },
+  {
+   "label": "cand-tiny-gzip",
+   "bin": "/b/nextrs-rc3"
+  }
+ ]
+}
