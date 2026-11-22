@@ -1,3 +1,5 @@
+mod doctor;
+
 use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
 use std::process::ExitCode;
@@ -27,7 +29,10 @@ struct Cli {
     /// Log line format on stderr: text, or json (one object per line, for
     /// log collectors). NEXTRS_LOG_FORMAT sets the default. Levels and
     /// targets come from RUST_LOG (default nextrs=info).
-    #[arg(long, global = true, value_enum)]
+    // The display slot it had before `doctor` was added (clap numbers
+    // subcommands and this global option together), so `nextrs start
+    // --help` keeps its order.
+    #[arg(long, global = true, value_enum, display_order = 2)]
     log_format: Option<LogFormat>,
 }
 
@@ -84,6 +89,11 @@ enum Command {
         #[command(flatten)]
         images: ImageArgs,
     },
+    /// Check, without running anything, whether a Next.js project and its
+    /// production build suit NextRS. Exit 0: no confirmed blockers (not a
+    /// guarantee of compatibility); 1: blockers (with --strict, warnings
+    /// too); 2: invalid arguments or the check could not run.
+    Doctor(doctor::DoctorArgs),
 }
 
 /// `/_next/image`: transformations in Rust, a bounded pool, a cache.
@@ -576,8 +586,13 @@ fn main() -> ExitCode {
                 Ok("json") => LogFormat::Json,
                 _ => LogFormat::Text,
             });
+    // Doctor reports through its findings; startup logs would repeat them.
+    let default_filter = match cli.command {
+        Command::Doctor(_) => "off",
+        _ => "nextrs=info",
+    };
     let filter = tracing_subscriber::EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| "nextrs=info".into());
+        .unwrap_or_else(|_| default_filter.into());
     let builder = tracing_subscriber::fmt()
         .with_env_filter(filter)
         .with_writer(std::io::stderr);
@@ -590,6 +605,9 @@ fn main() -> ExitCode {
             .init(),
     }
 
+    if let Command::Doctor(args) = cli.command {
+        return doctor::run(args);
+    }
     match run(cli) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
@@ -601,6 +619,7 @@ fn main() -> ExitCode {
 
 fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
     match cli.command {
+        Command::Doctor(_) => unreachable!("dispatched in main"),
         Command::Inspect {
             path,
             json,
