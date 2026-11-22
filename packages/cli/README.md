@@ -46,7 +46,10 @@ The application is served at <http://127.0.0.1:3000>.
   handlers, Server Actions, ISR and middleware. Without it NextRS serves only
   prerendered pages and static files.
 - **Check the build first.** `nextrs inspect .` lists how each route will be
-  served, and anything that is not supported.
+  served, and anything that is not supported. From 0.1.0-rc.3 (not in
+  0.1.0-rc.2), `npx nextrs doctor .` also checks the environment, Node.js
+  APIs and runtime options, and says what to change
+  ([doctor.md](https://github.com/nextrs-sh/nextrs/blob/main/engineering/doctor.md)).
 
 ## What the package contains
 

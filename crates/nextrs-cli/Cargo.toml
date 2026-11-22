@@ -14,10 +14,14 @@ path = "src/main.rs"
 [dependencies]
 axum.workspace = true
 clap.workspace = true
+# glibc's version for `nextrs doctor` (already linked through the runtime).
+libc = "0.2"
 nextrs-adapter.workspace = true
 nextrs-runtime.workspace = true
 nextrs-server.workspace = true
+serde.workspace = true
 serde_json.workspace = true
 tokio.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
+url.workspace = true

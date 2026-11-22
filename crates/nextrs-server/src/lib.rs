@@ -44,6 +44,10 @@ use axum::extract::{Request, State};
 use axum::http::header::{self, HeaderName, HeaderValue};
 use axum::http::{HeaderMap, Method, StatusCode};
 use axum::response::{IntoResponse, Response};
+// Build features that are unsupported without JavaScript but that the
+// embedded executor runs (ISR: Next's handler regenerates pages and keeps
+// them in the shared cache).
+use nextrs_adapter::EXECUTOR_FEATURES;
 use nextrs_adapter::{
     BuildInfo, Diagnostic, Matcher, Rendering, RouteKind, RoutingConfig, RscConfig, Runtime,
     Severity, StoredResponse,
@@ -60,10 +64,6 @@ const IMMUTABLE: &str = "public, max-age=31536000, immutable";
 const PUBLIC_FILE: &str = "public, max-age=0";
 const HTML: &str = "text/html; charset=utf-8";
 const UNSUPPORTED_HEADER: &str = "x-nextrs-unsupported";
-/// Build features that are unsupported without JavaScript but that the
-/// embedded executor runs (ISR: Next's handler regenerates pages and keeps
-/// them in the shared cache).
-const EXECUTOR_FEATURES: &[&str] = &["server-actions", "isr", "proxy"];
 /// Headers in stored prerenders that `next start` does not send to clients.
 const INTERNAL_HEADERS: &[&str] = &["x-next-cache-tags"];
 
@@ -754,7 +754,7 @@ impl AppState {
             public_root,
             pages,
             not_found,
-            has_interception_routes: info.routes.iter().any(|route| route.page.contains("/(.")),
+            has_interception_routes: info.has_interception_routes(),
             routes,
             executor: None,
             max_request_body: DEFAULT_MAX_REQUEST_BODY,
