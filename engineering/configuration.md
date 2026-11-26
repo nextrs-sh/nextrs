@@ -201,15 +201,70 @@ timeout.
 | `--request-timeout` | `60` | Deadline per dynamic request, including `after()` work: `504`, or an aborted response if it already started |
 | `--js-stall-timeout` | `10` | Terminate and replace an isolate whose JavaScript runs this long **on the CPU** without yielding (affects every request in it). A turn that is blocked rather than computing (a slow disk, page faults, CPU throttling) is logged and ended only after 6 times this in wall time. Without a per-thread CPU clock (non-Linux), wall time decides |
 | `--js-bootstrap-timeout` | `60` | Longest an isolate may take to start (loading Next's bundles); not judged by the stall limit. On the first start, expiry fails startup; later, the isolate is restarted with backoff |
-| `--js-heap-limit` | V8 default | Heap limit per isolate, in MiB; reaching it replaces the isolate. Lower values trade throughput for memory |
+| `--js-heap-limit` | V8 default | Heap limit per isolate, in MiB, or `auto` (see [Memory](#memory)); reaching it replaces the isolate. Lower values trade throughput for memory |
 | `--response-buffer` | `64` | Response KiB buffered per request before the renderer waits for the client |
 | `--max-request-body` | `10` | Request body limit in MiB (`413`), whether a length is declared or the body is chunked |
-| `--compression-cache` | `32` | MiB of gzip copies of immutable responses (see [Response compression](#response-compression)); `0` compresses every response per request |
+| `--compression-cache` | `32` (`8` with `--profile low-memory`) | MiB of gzip copies of immutable responses (see [Response compression](#response-compression)); `0` compresses every response per request |
 | `--max-connections`, `--write-timeout` | `1024`, `30` | Open connections; close clients that stop reading |
 | `--shutdown-grace` | `10` | On SIGINT/SIGTERM, time for in-flight requests to finish |
 | `--metrics-addr` | off | See [Metrics](#metrics) |
 | `--ready-min-isolates` | `1` | `/readyz` reports ready only with at least this many ready isolates |
 | `--v8-flags` | none | Experimental: V8 flags for tuning experiments (e.g. `"--max-semi-space-size=8"`). Unknown flags are refused; some flags weaken the sandbox |
+| `--profile` | none (`performance`) | Presets for the memory settings below; see [Memory](#memory) |
+| `--memory-reclaim-idle` | `0` (off) | Seconds without requests after which every isolate collects garbage and the native allocator returns its free memory, once per idle period |
+| `--memory-pressure-reclaim` | `0` (off) | Percentage of the container's memory limit at which the same happens under load (at most every 10 s) |
+| `--malloc-arena-max` | `0` (glibc default) | glibc malloc arenas; `MALLOC_ARENA_MAX` in the environment wins |
+
+## Memory
+
+Two budgets apply and they are different things:
+
+- the **container's memory limit** (cgroup) covers the whole process: the
+  V8 heaps, the native heap that Rust and V8 allocate from, thread stacks
+  and the page cache of files read. The kernel enforces it by killing the
+  process (OOM);
+- a **V8 heap limit** covers one isolate's JavaScript heap. NextRS
+  enforces it by replacing the isolate.
+
+By default V8 sizes each heap from the machine's memory and does not see a
+container limit: in a small container the heap can grow past what the
+container allows, and the process is OOM-killed before V8 collects
+garbage harder. `next start` does not have this problem because Node.js
+sizes its heap from the container limit.
+
+- `--js-heap-limit auto` sizes each isolate's heap as V8 would on a machine
+  with the container's memory limit (or the machine's memory, whichever is
+  lower) divided by `--isolates`. With one isolate this is what Node.js
+  does. `nextrs_executor_heap_limit_bytes` reports the result.
+- `--memory-reclaim-idle SECONDS`: after load, V8 shrinks its heaps on its
+  own within a minute or two, but glibc keeps freed native memory in its
+  arenas. After this many seconds without requests, each isolate runs a
+  full, compacting collection and the allocator's free pages are released
+  (`malloc_trim`). Once per idle period; the first request after it runs
+  as usual.
+- `--memory-pressure-reclaim PERCENT`: when the container's working set
+  (usage minus inactive page cache) reaches this share of its limit, the
+  same happens under load, with V8's critical memory-pressure response,
+  at most every 10 s. Requests in an isolate wait for its collection, as
+  for any full collection.
+- `--malloc-arena-max N` caps glibc's arenas (default: 8 per CPU of the
+  machine, not of the container). Fewer arenas retain less free memory.
+
+None of these is a process memory limit: they reduce what the process
+holds, and the kernel still enforces the container's limit.
+
+| Profile | `--js-heap-limit` | `--memory-reclaim-idle` | `--memory-pressure-reclaim` | `--malloc-arena-max` | `--compression-cache` |
+|---|---|---|---|---|---|
+| `performance` (the default behaviour) | V8 default | off | off | glibc default | 32 |
+| `balanced` | `auto` | 30 | 90 | glibc default | 32 |
+| `low-memory` | `auto` | 10 | 85 | 2 | 8 |
+
+Flags given explicitly win over the profile's values. Metrics:
+`nextrs_memory_reclaims_total{trigger}`,
+`nextrs_executor_memory_reclaims_total{trigger}`,
+`nextrs_executor_memory_reclaim_heap_released_bytes_total`,
+`nextrs_memory_reclaim_last_anon_{before,after}_bytes`,
+`nextrs_cgroup_memory_{limit,working_set}_bytes`.
 
 ## Outbound network
 
