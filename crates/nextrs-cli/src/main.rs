@@ -15,7 +15,10 @@ use nextrs_runtime::{
     AddrRange, AllowRule, CacheConfig, Executor, ExecutorConfig, Limits, NetworkConfig,
     NetworkLimits, NetworkPolicy,
 };
-use nextrs_server::{ForwardedHeaders, HttpMetrics, MetricsSources, ServeOptions, ServerOptions};
+use nextrs_server::{
+    ForwardedHeaders, HttpMetrics, MetricsSources, ReclaimPolicy, ReclaimStats, ServeOptions,
+    ServerOptions,
+};
 
 #[derive(Parser)]
 #[command(
@@ -477,10 +480,14 @@ struct LimitArgs {
     /// backoff after a failure.
     #[arg(long, value_name = "SECONDS", default_value_t = 60.0)]
     js_bootstrap_timeout: f64,
-    /// V8 heap limit per isolate; reaching it replaces the isolate.
-    /// Default: V8's own limit.
-    #[arg(long, value_name = "MIB")]
-    js_heap_limit: Option<usize>,
+    /// V8 heap limit per isolate; reaching it replaces the isolate. A
+    /// number of MiB, or `auto`: size each isolate's heap as V8 would on a
+    /// machine with the container's memory limit divided by --isolates (as
+    /// Node.js sizes its heap from the container limit). Default: V8's own
+    /// limit, from the machine's memory (`auto` with --profile balanced or
+    /// low-memory). Bounds the JavaScript heap only, not the process.
+    #[arg(long, value_name = "MIB|auto")]
+    js_heap_limit: Option<HeapLimit>,
     /// Response bytes buffered per request before backpressure applies.
     #[arg(long, value_name = "KIB", default_value_t = 64)]
     response_buffer: usize,
@@ -491,8 +498,9 @@ struct LimitArgs {
     /// and prerendered pages), each compressed once instead of per
     /// request; least recently used copies are dropped beyond it. 0 turns
     /// the cache off.
-    #[arg(long, value_name = "MIB", default_value_t = 32)]
-    compression_cache: usize,
+    /// [default: 32; 8 with --profile low-memory]
+    #[arg(long, value_name = "MIB")]
+    compression_cache: Option<usize>,
     /// Open connections; more wait in the accept backlog.
     #[arg(long, default_value_t = 1024)]
     max_connections: usize,
@@ -516,6 +524,105 @@ struct LimitArgs {
     /// (and never once shutdown has begun).
     #[arg(long, value_name = "N", default_value_t = 1)]
     ready_min_isolates: usize,
+    /// Preset values for the memory settings below and for
+    /// --js-heap-limit and --compression-cache; flags given explicitly
+    /// win. `performance` is the default behaviour. See
+    /// engineering/configuration.md for what each profile sets.
+    #[arg(long, value_enum, value_name = "PROFILE")]
+    profile: Option<Profile>,
+    /// After this long without requests, every isolate collects garbage
+    /// and the native allocator returns its free memory to the system,
+    /// once per idle period. 0 disables it. [default: 0; 30 with
+    /// --profile balanced, 10 with low-memory]
+    #[arg(long, value_name = "SECONDS")]
+    memory_reclaim_idle: Option<f64>,
+    /// The same, also under load (at most every 10 s), while the
+    /// container's working set is at least this percentage of its memory
+    /// limit; no effect without a limit. Not a memory limit: the kernel
+    /// still enforces the container's. 0 disables it. [default: 0; 90
+    /// with --profile balanced, 85 with low-memory]
+    #[arg(long, value_name = "PERCENT")]
+    memory_pressure_reclaim: Option<f64>,
+    /// Native allocator (glibc) arenas; fewer retain less free memory, at
+    /// some cost under highly concurrent allocation. 0 keeps glibc's
+    /// default (8 per CPU of the machine). MALLOC_ARENA_MAX in the
+    /// environment takes precedence. [default: 0; 2 with --profile
+    /// low-memory]
+    #[arg(long, value_name = "N")]
+    malloc_arena_max: Option<usize>,
+}
+
+/// `--js-heap-limit`: MiB, or `auto` (from the container's memory).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum HeapLimit {
+    Auto,
+    Mib(usize),
+}
+
+impl std::str::FromStr for HeapLimit {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.eq_ignore_ascii_case("auto") {
+            return Ok(Self::Auto);
+        }
+        match s.parse::<usize>() {
+            Ok(mib) if mib > 0 && mib <= 1 << 20 => Ok(Self::Mib(mib)),
+            _ => Err(format!("{s}: a number of MiB (1 to 1048576) or `auto`")),
+        }
+    }
+}
+
+/// `--profile`: documented presets for the memory settings.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+enum Profile {
+    /// Today's defaults: V8's own heap sizing, no reclamation, glibc's
+    /// arenas, a 32 MiB compression cache.
+    Performance,
+    /// Heap sized from the container's memory, idle (30 s) and pressure
+    /// (90 %) reclamation.
+    Balanced,
+    /// As balanced with earlier reclamation (10 s, 85 %), 2 allocator
+    /// arenas and an 8 MiB compression cache.
+    LowMemory,
+}
+
+/// The memory settings in effect: the profile's values, then explicit flags.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct MemorySettings {
+    heap_limit: Option<HeapLimit>,
+    compression_cache_mib: usize,
+    reclaim_idle: Option<Duration>,
+    pressure_percent: Option<f64>,
+    malloc_arena_max: usize,
+}
+
+impl MemorySettings {
+    fn profile(profile: Profile) -> Self {
+        match profile {
+            Profile::Performance => Self {
+                heap_limit: None,
+                compression_cache_mib: 32,
+                reclaim_idle: None,
+                pressure_percent: None,
+                malloc_arena_max: 0,
+            },
+            Profile::Balanced => Self {
+                heap_limit: Some(HeapLimit::Auto),
+                compression_cache_mib: 32,
+                reclaim_idle: Some(Duration::from_secs(30)),
+                pressure_percent: Some(90.0),
+                malloc_arena_max: 0,
+            },
+            Profile::LowMemory => Self {
+                heap_limit: Some(HeapLimit::Auto),
+                compression_cache_mib: 8,
+                reclaim_idle: Some(Duration::from_secs(10)),
+                pressure_percent: Some(85.0),
+                malloc_arena_max: 2,
+            },
+        }
+    }
 }
 
 fn seconds(value: f64) -> Option<Duration> {
@@ -523,6 +630,34 @@ fn seconds(value: f64) -> Option<Duration> {
 }
 
 impl LimitArgs {
+    fn memory(&self) -> Result<MemorySettings, String> {
+        let mut m = MemorySettings::profile(self.profile.unwrap_or(Profile::Performance));
+        if let Some(limit) = self.js_heap_limit {
+            m.heap_limit = Some(limit);
+        }
+        if let Some(mib) = self.compression_cache {
+            m.compression_cache_mib = mib;
+        }
+        if let Some(secs) = self.memory_reclaim_idle {
+            if !secs.is_finite() || secs < 0.0 {
+                return Err(format!("--memory-reclaim-idle {secs}: seconds, 0 or more"));
+            }
+            m.reclaim_idle = seconds(secs);
+        }
+        if let Some(percent) = self.memory_pressure_reclaim {
+            if !percent.is_finite() || !(0.0..=100.0).contains(&percent) {
+                return Err(format!(
+                    "--memory-pressure-reclaim {percent}: a percentage, 0 to 100"
+                ));
+            }
+            m.pressure_percent = (percent > 0.0).then_some(percent);
+        }
+        if let Some(arenas) = self.malloc_arena_max {
+            m.malloc_arena_max = arenas;
+        }
+        Ok(m)
+    }
+
     fn executor_limits(&self) -> Limits {
         Limits {
             isolates: self.isolates.max(1),
@@ -532,7 +667,7 @@ impl LimitArgs {
             request_timeout: seconds(self.request_timeout),
             stall_timeout: seconds(self.js_stall_timeout),
             bootstrap_timeout: seconds(self.js_bootstrap_timeout),
-            heap_limit_bytes: self.js_heap_limit.map(|mib| mib * 1024 * 1024),
+            // `--js-heap-limit` (or the profile) is applied by the caller.
             response_buffer_bytes: self.response_buffer.max(1) * 1024,
             shutdown_grace: seconds(self.shutdown_grace).unwrap_or(Duration::ZERO),
             ..Limits::default()
@@ -652,7 +787,16 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             proxy,
             images,
         } => {
+            let memory = limits.memory()?;
             // Before any thread allocates (glibc's arenas are per thread).
+            if memory.malloc_arena_max > 0 {
+                let applied = nextrs_runtime::set_malloc_arena_max(memory.malloc_arena_max);
+                tracing::debug!(
+                    applied,
+                    arenas = memory.malloc_arena_max,
+                    "malloc arena max"
+                );
+            }
             if images.malloc_mmap_threshold > 0 {
                 let applied = nextrs_runtime::set_malloc_mmap_threshold(
                     images.malloc_mmap_threshold.saturating_mul(1024),
@@ -728,6 +872,25 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     let mut config =
                         ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
                     config.limits = limits.executor_limits();
+                    match memory.heap_limit {
+                        Some(HeapLimit::Mib(mib)) => {
+                            config.limits.heap_limit_bytes = Some(mib.saturating_mul(1024 * 1024));
+                        }
+                        Some(HeapLimit::Auto) => {
+                            let isolates = config.limits.isolates.max(1) as u64;
+                            let total = nextrs_runtime::constrained_memory();
+                            config.limits.heap_memory_bytes = total.map(|t| t / isolates);
+                            tracing::info!(
+                                memory = total.unwrap_or(0),
+                                per_isolate = config.limits.heap_memory_bytes.unwrap_or(0),
+                                container_limit = nextrs_runtime::CgroupMemory::current()
+                                    .and_then(|m| m.limit)
+                                    .unwrap_or(0),
+                                "V8 heaps sized from the available memory (--js-heap-limit auto)"
+                            );
+                        }
+                        None => {}
+                    }
                     config.build_route_cache = info.route_cache_files();
                     if let Some(root) = &info.workspace_root {
                         tracing::info!(
@@ -873,10 +1036,30 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             let compression_cache = Arc::new(nextrs_server::CompressionCache::with_capacity(
-                limits.compression_cache.saturating_mul(1024 * 1024),
+                memory.compression_cache_mib.saturating_mul(1024 * 1024),
             ));
+            let reclaim_policy = ReclaimPolicy {
+                idle_after: memory.reclaim_idle,
+                pressure_percent: memory.pressure_percent,
+                ..ReclaimPolicy::default()
+            };
+            if reclaim_policy.is_enabled() {
+                tracing::info!(
+                    profile = ?limits.profile,
+                    idle_seconds = memory.reclaim_idle.map_or(0.0, |d| d.as_secs_f64()),
+                    pressure_percent = memory.pressure_percent.unwrap_or(0.0),
+                    "memory reclamation enabled"
+                );
+            }
             runtime.block_on(async move {
                 let http_metrics = HttpMetrics::new();
+                let reclaim_stats = Arc::new(ReclaimStats::default());
+                let _reclaimer = nextrs_server::reclaim::spawn(
+                    reclaim_policy,
+                    http_metrics.clone(),
+                    executor.clone(),
+                    reclaim_stats.clone(),
+                );
                 let options = ServerOptions {
                     allow_unsupported,
                     executor: executor.clone(),
@@ -895,6 +1078,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                         compression: Some(compression_cache.clone()),
                         http: http_metrics.clone(),
                         ready_min_isolates: limits.ready_min_isolates,
+                        reclaim: reclaim_policy.is_enabled().then(|| reclaim_stats.clone()),
                     };
                     if !metrics_addr.ip().is_loopback() {
                         tracing::warn!(%metrics_addr, "serving metrics on a non-loopback address");
@@ -1087,5 +1271,90 @@ mod tests {
         create_private_dir(&existing).unwrap();
         assert_eq!(mode(&existing), 0o750);
         std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    mod memory_settings {
+        use super::super::{Cli, Command, HeapLimit, MemorySettings, Profile};
+        use clap::Parser;
+        use std::time::Duration;
+
+        fn settings(args: &[&str]) -> Result<MemorySettings, String> {
+            let mut argv = vec!["nextrs", "start", "."];
+            argv.extend_from_slice(args);
+            let cli = Cli::try_parse_from(argv).map_err(|e| e.to_string())?;
+            match cli.command {
+                Command::Start { limits, .. } => limits.memory(),
+                _ => unreachable!("parsed a start command"),
+            }
+        }
+
+        #[test]
+        fn without_a_profile_nothing_changes() {
+            let m = settings(&[]).unwrap();
+            assert_eq!(m, MemorySettings::profile(Profile::Performance));
+            assert_eq!(m.heap_limit, None);
+            assert_eq!(m.compression_cache_mib, 32);
+            assert_eq!(m.reclaim_idle, None);
+            assert_eq!(m.pressure_percent, None);
+            assert_eq!(m.malloc_arena_max, 0);
+        }
+
+        #[test]
+        fn profiles_set_documented_values() {
+            let b = settings(&["--profile", "balanced"]).unwrap();
+            assert_eq!(b.heap_limit, Some(HeapLimit::Auto));
+            assert_eq!(b.reclaim_idle, Some(Duration::from_secs(30)));
+            assert_eq!(b.pressure_percent, Some(90.0));
+            let l = settings(&["--profile", "low-memory"]).unwrap();
+            assert_eq!(l.compression_cache_mib, 8);
+            assert_eq!(l.malloc_arena_max, 2);
+            assert_eq!(l.reclaim_idle, Some(Duration::from_secs(10)));
+        }
+
+        #[test]
+        fn explicit_flags_win_over_the_profile() {
+            let m = settings(&[
+                "--profile",
+                "low-memory",
+                "--js-heap-limit",
+                "512",
+                "--compression-cache",
+                "64",
+                "--memory-reclaim-idle",
+                "0",
+                "--memory-pressure-reclaim",
+                "0",
+                "--malloc-arena-max",
+                "0",
+            ])
+            .unwrap();
+            assert_eq!(m.heap_limit, Some(HeapLimit::Mib(512)));
+            assert_eq!(m.compression_cache_mib, 64);
+            assert_eq!(m.reclaim_idle, None);
+            assert_eq!(m.pressure_percent, None);
+            assert_eq!(m.malloc_arena_max, 0);
+        }
+
+        #[test]
+        fn heap_limit_takes_mib_or_auto() {
+            assert_eq!(
+                settings(&["--js-heap-limit", "auto"]).unwrap().heap_limit,
+                Some(HeapLimit::Auto)
+            );
+            assert_eq!(
+                settings(&["--js-heap-limit", "AUTO"]).unwrap().heap_limit,
+                Some(HeapLimit::Auto)
+            );
+            assert!(settings(&["--js-heap-limit", "0"]).is_err());
+            assert!(settings(&["--js-heap-limit", "lots"]).is_err());
+        }
+
+        #[test]
+        fn invalid_reclaim_values_are_refused() {
+            assert!(settings(&["--memory-reclaim-idle", "-1"]).is_err());
+            assert!(settings(&["--memory-reclaim-idle", "NaN"]).is_err());
+            assert!(settings(&["--memory-pressure-reclaim", "150"]).is_err());
+            assert!(settings(&["--profile", "turbo"]).is_err());
+        }
     }
 }

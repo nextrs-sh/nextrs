@@ -92,6 +92,64 @@ pub(crate) enum Termination {
     Shutdown,
 }
 
+/// Why the isolates are asked to give memory back
+/// ([`Executor::reclaim_memory`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ReclaimLevel {
+    /// The server has been idle: V8's `LowMemoryNotification`, a full,
+    /// compacting collection that also releases unused heap pages.
+    Idle,
+    /// The container is near its memory limit: V8's critical memory
+    /// pressure response (an immediate full collection, shrinking the
+    /// heap), possibly while requests run.
+    Pressure,
+}
+
+impl ReclaimLevel {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Idle => "idle",
+            Self::Pressure => "pressure",
+        }
+    }
+
+    fn index(self) -> usize {
+        match self {
+            Self::Idle => 0,
+            Self::Pressure => 1,
+        }
+    }
+}
+
+/// What a memory reclamation did.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct ReclaimReport {
+    /// Isolates that collected garbage in time.
+    pub isolates: usize,
+    /// Committed V8 heap memory given back, summed over the isolates.
+    pub heap_released_bytes: u64,
+    /// Collection time, summed over the isolates.
+    pub gc_time: Duration,
+}
+
+/// One isolate's part of a reclamation, sent back by its thread.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct Reclaimed {
+    pub heap_released_bytes: u64,
+    pub gc_time: Duration,
+}
+
+/// Reclamations an isolate has yet to perform: the strongest level asked
+/// for, and everyone waiting for it.
+pub(crate) struct ReclaimRequest {
+    pub level: ReclaimLevel,
+    pub done: Vec<oneshot::Sender<Reclaimed>>,
+}
+
+/// How long `reclaim_memory` waits for an isolate busy in JavaScript; the
+/// request stays queued and is performed when it next yields.
+const RECLAIM_TIMEOUT: Duration = Duration::from_secs(10);
+
 const STARTING: u8 = 0;
 const READY: u8 = 1;
 const FAILED: u8 = 2;
@@ -129,6 +187,9 @@ pub(crate) struct WorkerShared {
     heap_used: AtomicUsize,
     heap_total: AtomicUsize,
     heap_external: AtomicUsize,
+    /// The heap limit V8 enforces (its configuration, plus any headroom
+    /// granted at the near-limit callback).
+    heap_limit: AtomicUsize,
     /// Heap in use right after the latest full (mark-sweep) collection:
     /// the live-data floor. 0 until the first full GC (`record_full_gc`).
     heap_after_gc: AtomicUsize,
@@ -137,6 +198,10 @@ pub(crate) struct WorkerShared {
     termination: Mutex<Option<Termination>>,
     stop: Notify,
     stopping: AtomicBool,
+    /// Memory reclamation asked of this isolate, taken by its thread
+    /// between turns of the event loop.
+    reclaim: Mutex<Option<ReclaimRequest>>,
+    reclaim_signal: Notify,
     #[cfg(feature = "fault-injection")]
     pub fault_panic: Notify,
 }
@@ -156,12 +221,15 @@ impl WorkerShared {
             heap_used: AtomicUsize::new(0),
             heap_total: AtomicUsize::new(0),
             heap_external: AtomicUsize::new(0),
+            heap_limit: AtomicUsize::new(0),
             heap_after_gc: AtomicUsize::new(0),
             full_gcs: AtomicU64::new(0),
             isolate: OnceLock::new(),
             termination: Mutex::new(None),
             stop: Notify::new(),
             stopping: AtomicBool::new(false),
+            reclaim: Mutex::new(None),
+            reclaim_signal: Notify::new(),
             #[cfg(feature = "fault-injection")]
             fault_panic: Notify::new(),
         }
@@ -210,6 +278,8 @@ impl WorkerShared {
             .store(stats.total_heap_size(), Ordering::Relaxed);
         self.heap_external
             .store(stats.external_memory(), Ordering::Relaxed);
+        self.heap_limit
+            .store(stats.heap_size_limit(), Ordering::Relaxed);
     }
 
     /// Called from V8's GC epilogue after every full collection.
@@ -277,6 +347,44 @@ impl WorkerShared {
 
     fn termination(&self) -> Option<Termination> {
         *self.termination.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    /// Asks the isolate thread to collect garbage at `level` (or the
+    /// stronger level already pending) and to report on `done`.
+    fn request_reclaim(&self, level: ReclaimLevel, done: oneshot::Sender<Reclaimed>) {
+        {
+            let mut pending = self.reclaim.lock().unwrap_or_else(|e| e.into_inner());
+            match pending.as_mut() {
+                Some(request) => {
+                    request.level = request.level.max(level);
+                    request.done.push(done);
+                }
+                None => {
+                    *pending = Some(ReclaimRequest {
+                        level,
+                        done: vec![done],
+                    });
+                }
+            }
+        }
+        self.reclaim_signal.notify_one();
+    }
+
+    /// Resolves with the next reclamation request (isolate thread).
+    /// Cancel-safe: a request is only taken in the poll that returns it.
+    pub async fn reclaim_requested(&self) -> ReclaimRequest {
+        loop {
+            let signal = self.reclaim_signal.notified();
+            if let Some(request) = self
+                .reclaim
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .take()
+            {
+                return request;
+            }
+            signal.await;
+        }
     }
 
     /// Resolves once `terminate` was called.
@@ -548,6 +656,7 @@ impl PoolInner {
                     heap_used_bytes: worker.map_or(0, |w| w.heap_used.load(Ordering::Relaxed)),
                     heap_total_bytes: worker.map_or(0, |w| w.heap_total.load(Ordering::Relaxed)),
                     external_bytes: worker.map_or(0, |w| w.heap_external.load(Ordering::Relaxed)),
+                    heap_limit_bytes: worker.map_or(0, |w| w.heap_limit.load(Ordering::Relaxed)),
                     heap_used_after_gc_bytes: worker
                         .map_or(0, |w| w.heap_after_gc.load(Ordering::Relaxed)),
                     full_gcs: worker.map_or(0, |w| w.full_gcs.load(Ordering::Relaxed)),
@@ -711,6 +820,70 @@ impl Executor {
             "request dispatched"
         );
         Ok(stream)
+    }
+
+    /// Asks every ready isolate to collect garbage and give unused heap
+    /// memory back (V8's low-memory or critical memory-pressure response,
+    /// by `level`), and waits for them, at most `RECLAIM_TIMEOUT` (an
+    /// isolate busy in JavaScript does it when it next yields). Each
+    /// isolate collects on its own thread between turns of its event loop:
+    /// requests running in it wait for the collection, as for any full GC.
+    /// For idle periods and memory pressure, never per request. The native
+    /// allocator's free memory is the caller's to release afterwards
+    /// ([`crate::release_free_memory`]).
+    pub async fn reclaim_memory(&self, level: ReclaimLevel) -> ReclaimReport {
+        let workers: Vec<Arc<WorkerShared>> = {
+            let state = self.inner.lock();
+            state
+                .workers
+                .iter()
+                .flatten()
+                .filter(|w| w.state() == READY)
+                .cloned()
+                .collect()
+        };
+        let receivers: Vec<_> = workers
+            .iter()
+            .map(|worker| {
+                let (done, receiver) = oneshot::channel();
+                worker.request_reclaim(level, done);
+                receiver
+            })
+            .collect();
+        let counters = &self.inner.counters;
+        metrics::add(&counters.memory_reclaims[level.index()], 1);
+        let deadline = tokio::time::Instant::now() + RECLAIM_TIMEOUT;
+        let mut report = ReclaimReport::default();
+        for receiver in receivers {
+            // A dropped sender is an isolate that exited first.
+            if let Ok(Ok(done)) = tokio::time::timeout_at(deadline, receiver).await {
+                report.isolates += 1;
+                report.heap_released_bytes = report
+                    .heap_released_bytes
+                    .saturating_add(done.heap_released_bytes);
+                report.gc_time = report.gc_time.saturating_add(done.gc_time);
+            }
+        }
+        metrics::add(
+            &counters.memory_reclaim_micros,
+            u64::try_from(report.gc_time.as_micros()).unwrap_or(u64::MAX),
+        );
+        metrics::add(
+            &counters.memory_reclaim_heap_released,
+            report.heap_released_bytes,
+        );
+        report
+    }
+
+    /// Whether no request is executing in an isolate or waiting for one.
+    pub fn is_idle(&self) -> bool {
+        let state = self.inner.lock();
+        state.waiters.is_empty()
+            && state
+                .workers
+                .iter()
+                .flatten()
+                .all(|w| w.active.load(Ordering::Relaxed) == 0)
     }
 
     pub fn metrics(&self) -> MetricsSnapshot {

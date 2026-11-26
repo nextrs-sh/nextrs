@@ -37,6 +37,12 @@ pub(crate) struct Counters {
     pub queue_wait_micros: AtomicU64,
     pub queue_waits: AtomicU64,
     pub execution_micros: AtomicU64,
+    /// Memory reclamations requested from the isolates, by level
+    /// (`ReclaimLevel::index`), the isolates' GC time spent on them, and
+    /// the V8 heap memory they gave back.
+    pub memory_reclaims: [AtomicU64; 2],
+    pub memory_reclaim_micros: AtomicU64,
+    pub memory_reclaim_heap_released: AtomicU64,
     /// Outbound fetches started (including ones the policy refused).
     pub fetch_requests: AtomicU64,
     /// Fetches currently held by an isolate (not yet closed).
@@ -340,6 +346,14 @@ pub struct MetricsSnapshot {
     pub queue_wait_seconds_total: f64,
     pub queue_waits: u64,
     pub execution_seconds_total: f64,
+    /// Memory reclamations (see `Executor::reclaim_memory`): requested
+    /// because the server was idle, and because the container was near its
+    /// memory limit; the isolates' collection time; the committed V8 heap
+    /// memory they gave back.
+    pub memory_reclaims_idle: u64,
+    pub memory_reclaims_pressure: u64,
+    pub memory_reclaim_seconds_total: f64,
+    pub memory_reclaim_heap_released_bytes: u64,
     pub fetch: FetchSnapshot,
     pub upstream: UpstreamSnapshot,
     /// `None` when the shared cache is disabled.
@@ -438,6 +452,9 @@ pub struct ExecutorSnapshot {
     pub heap_used_bytes: usize,
     pub heap_total_bytes: usize,
     pub external_bytes: usize,
+    /// The heap limit V8 enforces for this isolate (`--js-heap-limit`, or
+    /// V8's default for the memory it was sized from). 0 before sampling.
+    pub heap_limit_bytes: usize,
     /// Heap in use right after the latest full (mark-sweep) GC of the
     /// current isolate: live data, without the garbage `heap_used_bytes`
     /// includes between collections. 0 before the first full GC.
@@ -474,6 +491,10 @@ impl MetricsSnapshot {
             queue_wait_seconds_total: get(&counters.queue_wait_micros) as f64 / 1e6,
             queue_waits: get(&counters.queue_waits),
             execution_seconds_total: get(&counters.execution_micros) as f64 / 1e6,
+            memory_reclaims_idle: get(&counters.memory_reclaims[0]),
+            memory_reclaims_pressure: get(&counters.memory_reclaims[1]),
+            memory_reclaim_seconds_total: get(&counters.memory_reclaim_micros) as f64 / 1e6,
+            memory_reclaim_heap_released_bytes: get(&counters.memory_reclaim_heap_released),
             fetch: FetchSnapshot {
                 requests: get(&counters.fetch_requests),
                 in_flight: get(&counters.fetch_in_flight),
@@ -666,6 +687,11 @@ impl MetricsSnapshot {
                 |e: &ExecutorSnapshot| e.external_bytes,
             ),
             (
+                "nextrs_executor_heap_limit_bytes",
+                "V8 heap limit, per isolate slot.",
+                |e: &ExecutorSnapshot| e.heap_limit_bytes,
+            ),
+            (
                 "nextrs_executor_heap_used_after_gc_bytes",
                 "V8 heap in use after the latest full GC, per isolate slot.",
                 |e: &ExecutorSnapshot| e.heap_used_after_gc_bytes,
@@ -716,6 +742,24 @@ impl MetricsSnapshot {
         if let Some(cache) = &self.cache {
             cache.write_prometheus(&mut out);
         }
+        let _ = writeln!(
+            out,
+            "# HELP nextrs_executor_memory_reclaims_total Memory reclamations requested from the isolates, by trigger.\n\
+             # TYPE nextrs_executor_memory_reclaims_total counter\n\
+             nextrs_executor_memory_reclaims_total{{trigger=\"idle\"}} {}\n\
+             nextrs_executor_memory_reclaims_total{{trigger=\"pressure\"}} {}",
+            self.memory_reclaims_idle, self.memory_reclaims_pressure
+        );
+        let _ = writeln!(
+            out,
+            "# HELP nextrs_executor_memory_reclaim_seconds_total Garbage collection time the isolates spent on memory reclamations.\n\
+             # TYPE nextrs_executor_memory_reclaim_seconds_total counter\n\
+             nextrs_executor_memory_reclaim_seconds_total {:.6}\n\
+             # HELP nextrs_executor_memory_reclaim_heap_released_bytes_total Committed V8 heap memory given back by memory reclamations.\n\
+             # TYPE nextrs_executor_memory_reclaim_heap_released_bytes_total counter\n\
+             nextrs_executor_memory_reclaim_heap_released_bytes_total {}",
+            self.memory_reclaim_seconds_total, self.memory_reclaim_heap_released_bytes
+        );
         out
     }
 }
