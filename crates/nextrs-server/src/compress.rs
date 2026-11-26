@@ -58,6 +58,61 @@ use http_body::{Body as _, Frame, SizeHint};
 
 use crate::compress_cache::{Cacheable, CompressionCache};
 
+/// Process-wide counters of streamed gzip ([`GzipBody`]), for the metrics
+/// endpoint.
+struct StreamCounters {
+    responses: std::sync::atomic::AtomicU64,
+    input_bytes: std::sync::atomic::AtomicU64,
+    output_bytes: std::sync::atomic::AtomicU64,
+    input_frames: std::sync::atomic::AtomicU64,
+    encode_nanos: std::sync::atomic::AtomicU64,
+}
+
+static STREAM: StreamCounters = StreamCounters {
+    responses: std::sync::atomic::AtomicU64::new(0),
+    input_bytes: std::sync::atomic::AtomicU64::new(0),
+    output_bytes: std::sync::atomic::AtomicU64::new(0),
+    input_frames: std::sync::atomic::AtomicU64::new(0),
+    encode_nanos: std::sync::atomic::AtomicU64::new(0),
+};
+
+/// A reading of the streamed gzip counters.
+#[derive(Debug, Clone, Copy, Default)]
+pub(crate) struct StreamStats {
+    pub responses: u64,
+    pub input_bytes: u64,
+    pub output_bytes: u64,
+    pub input_frames: u64,
+    pub encode_nanos: u64,
+}
+
+impl StreamStats {
+    pub(crate) fn to_json(self) -> serde_json::Value {
+        serde_json::json!({
+            "responses": self.responses,
+            "input_bytes": self.input_bytes,
+            "output_bytes": self.output_bytes,
+            "input_frames": self.input_frames,
+            "encode_seconds": self.encode_nanos as f64 / 1e9,
+        })
+    }
+}
+
+pub(crate) fn stream_stats() -> StreamStats {
+    use std::sync::atomic::Ordering::Relaxed;
+    StreamStats {
+        responses: STREAM.responses.load(Relaxed),
+        input_bytes: STREAM.input_bytes.load(Relaxed),
+        output_bytes: STREAM.output_bytes.load(Relaxed),
+        input_frames: STREAM.input_frames.load(Relaxed),
+        encode_nanos: STREAM.encode_nanos.load(Relaxed),
+    }
+}
+
+fn stream_add(counter: &std::sync::atomic::AtomicU64, value: u64) {
+    counter.fetch_add(value, std::sync::atomic::Ordering::Relaxed);
+}
+
 /// The middleware's default `threshold` (`bytes.parse('1kb')`).
 pub(crate) const THRESHOLD: u64 = 1024;
 /// How much of a chunk is handed to zlib at a time: bounds the work done in
@@ -529,6 +584,7 @@ pub(crate) struct GzipBody {
 
 impl GzipBody {
     pub(crate) fn new(inner: Body) -> Self {
+        stream_add(&STREAM.responses, 1);
         Self {
             inner,
             encoder: Some(GzEncoder::new(Vec::new(), Compression::default())),
@@ -541,8 +597,15 @@ impl GzipBody {
     fn take_output(&mut self) -> Option<Bytes> {
         let encoder = self.encoder.as_mut()?;
         let out = std::mem::take(encoder.get_mut());
+        stream_add(&STREAM.output_bytes, out.len() as u64);
         (!out.is_empty()).then(|| Bytes::from(out))
     }
+}
+
+/// Time spent in the encoder (`started` was read just before it ran).
+fn encoder_time(started: std::time::Instant) {
+    let nanos = u64::try_from(started.elapsed().as_nanos()).unwrap_or(u64::MAX);
+    stream_add(&STREAM.encode_nanos, nanos);
 }
 
 fn io_error(error: std::io::Error) -> axum::Error {
@@ -568,9 +631,11 @@ impl http_body::Body for GzipBody {
                 let slice = this.pending.split_to(take);
                 let last = this.pending.is_empty();
                 let encoder = this.encoder.as_mut().expect("encoder until done");
+                let started = std::time::Instant::now();
                 let written = encoder
                     .write_all(&slice)
                     .and_then(|()| if last { encoder.flush() } else { Ok(()) });
+                encoder_time(started);
                 if let Err(error) = written {
                     this.done = true;
                     return Poll::Ready(Some(Err(io_error(error))));
@@ -582,7 +647,11 @@ impl http_body::Body for GzipBody {
             }
             match ready!(Pin::new(&mut this.inner).poll_frame(cx)) {
                 Some(Ok(frame)) => match frame.into_data() {
-                    Ok(data) => this.pending = data,
+                    Ok(data) => {
+                        stream_add(&STREAM.input_frames, 1);
+                        stream_add(&STREAM.input_bytes, data.len() as u64);
+                        this.pending = data;
+                    }
                     Err(frame) => {
                         if let Ok(trailers) = frame.into_trailers() {
                             this.trailers = Some(trailers);
@@ -600,7 +669,13 @@ impl http_body::Body for GzipBody {
                 None => {
                     this.done = true;
                     let encoder = this.encoder.take().expect("encoder until done");
-                    match encoder.finish() {
+                    let started = std::time::Instant::now();
+                    let finished = encoder.finish();
+                    encoder_time(started);
+                    if let Ok(out) = &finished {
+                        stream_add(&STREAM.output_bytes, out.len() as u64);
+                    }
+                    match finished {
                         Ok(out) if !out.is_empty() => {
                             return Poll::Ready(Some(Ok(Frame::data(Bytes::from(out)))));
                         }

@@ -876,6 +876,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                 limits.compression_cache.saturating_mul(1024 * 1024),
             ));
             runtime.block_on(async move {
+                let http_metrics = HttpMetrics::new();
                 let options = ServerOptions {
                     allow_unsupported,
                     executor: executor.clone(),
@@ -884,9 +885,9 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     listen: SocketAddr::new(host, port),
                     images: image_options,
                     compression_cache: compression_cache.clone(),
+                    metrics: http_metrics.clone(),
                 };
                 let (app, image_stats) = nextrs_server::app_with_stats(&info, &options).await?;
-                let http_metrics = HttpMetrics::new();
                 if let Some(metrics_addr) = limits.metrics_addr {
                     let sources = MetricsSources {
                         executor: executor.clone(),

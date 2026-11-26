@@ -138,6 +138,9 @@ pub struct ServerOptions {
     /// Gzip copies of immutable responses (`/_next/static` files and
     /// prerendered pages), shared with the metrics endpoint.
     pub compression_cache: Arc<CompressionCache>,
+    /// Request counters and serving-stage timings, shared with the
+    /// listener (`ServeOptions::metrics`) and the metrics endpoint.
+    pub metrics: Arc<HttpMetrics>,
 }
 
 impl Default for ServerOptions {
@@ -150,6 +153,7 @@ impl Default for ServerOptions {
             listen: SocketAddr::from(([127, 0, 0, 1], 3000)),
             images: ImageOptions::default(),
             compression_cache: Arc::new(CompressionCache::default()),
+            metrics: HttpMetrics::new(),
         }
     }
 }
@@ -257,6 +261,7 @@ pub async fn app_with_stats(
         listen: Listen::from(options.listen),
         images,
         compression_cache: options.compression_cache.clone(),
+        metrics: options.metrics.clone(),
         ..state
     });
     if let Some(images) = &state.images {
@@ -451,6 +456,8 @@ struct AppState {
     /// unless it is `false`).
     compress: bool,
     compression_cache: Arc<CompressionCache>,
+    /// Serving-stage timings (`HttpMetrics::stages`).
+    metrics: Arc<HttpMetrics>,
     /// Files in `public/` (relative, decoded), listed at startup as next
     /// start's `publicFolderItems`.
     public_files: std::collections::HashSet<String>,
@@ -731,6 +738,7 @@ impl AppState {
         Ok(Self {
             compress: info.config.compress,
             compression_cache: Arc::new(CompressionCache::disabled()),
+            metrics: HttpMetrics::new(),
             needs_node_headers: proxy.is_some()
                 || [
                     &rules.headers,
@@ -868,6 +876,7 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
         headers.remove(*name);
     }
 
+    let started = std::time::Instant::now();
     let request = resolve::RouteRequest {
         method: &method,
         uri: &uri,
@@ -881,6 +890,12 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
     } else {
         resolve::resolve(&state, request).await
     };
+    // Next's requests to its own server (image sources, revalidations,
+    // forwarded actions) are not client requests: not counted.
+    if !internal {
+        state.metrics.stages.routed(started.elapsed());
+    }
+    let via = via_of(&outcome);
     let res_headers = resolved.res_headers.clone();
     let response = serve_resolved(
         &state,
@@ -895,6 +910,14 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
         image_source,
     )
     .await;
+    if !internal {
+        let via = if response.extensions().get::<dynamic::Executed>().is_some() {
+            http_metrics::Via::Executor
+        } else {
+            via
+        };
+        state.metrics.stages.served(via, started.elapsed());
+    }
     // HTTP/1.0 framing for every response, the proxy's direct responses
     // included (a body without a length then closes the connection).
     let response = dynamic::frame_for(version, with_routing_headers(response, &res_headers));
@@ -907,6 +930,22 @@ async fn handle(State(state): State<Arc<AppState>>, request: Request) -> Respons
             .await
     } else {
         response
+    }
+}
+
+/// What answers a routed request when Next's handler does not (a response
+/// it produced is counted as `Via::Executor` instead).
+fn via_of(outcome: &resolve::Outcome) -> http_metrics::Via {
+    use http_metrics::Via;
+    use resolve::{Outcome, Output};
+    match outcome {
+        Outcome::Redirect { .. } => Via::Redirect,
+        Outcome::NotFound => Via::NotFound,
+        Outcome::Output(Output::Static(_)) => Via::Static,
+        Outcome::Output(Output::Public(_)) => Via::Public,
+        Outcome::Output(Output::Image) => Via::Image,
+        Outcome::Output(Output::App { .. } | Output::EncodedApp) => Via::Prerendered,
+        Outcome::ProxyFailed | Outcome::External(_) | Outcome::Respond(_) => Via::Other,
     }
 }
 

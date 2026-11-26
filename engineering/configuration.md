@@ -300,8 +300,10 @@ The metrics cover:
 | Group | Metrics |
 |---|---|
 | HTTP | `nextrs_http_requests_total{class}`, `nextrs_http_response_head_seconds` and `nextrs_http_request_duration_seconds` histograms, `nextrs_http_requests_in_flight`, `nextrs_http_response_bodies_total{outcome=completed,aborted,failed}`, `nextrs_http_connections_open`/`_total`, `nextrs_http_draining` |
+| Serving stages | `nextrs_http_served_total{via}`: what answered each client request (`static`, `public`, `image`, `prerendered` from memory, `executor` for Next's handler in an isolate, `redirect`, `not_found`, `other`); `nextrs_http_routing_seconds` and `nextrs_http_served_head_seconds{via}` histograms with buckets from 25 µs; `nextrs_http_proxy_runs_total` |
+| Compression | `nextrs_compression_cache_*` (hits, misses, coalesced, bypassed, evictions, entries, held bytes, `fills_in_flight`, `fill_micros`); `nextrs_compression_stream_*` for responses compressed as they stream (responses, input and output bytes, input frames, encoder seconds) |
 | Executor | Isolates, ready isolates, queue, rejections by reason, restarts and failures per slot, heap gauges and `nextrs_executor_full_gcs_total` per slot, execution and queue time |
-| Shared cache | Hits, misses, entries, memory and storage bytes, evictions, errors by reason |
+| Shared cache | Hits, misses, entries, memory and storage bytes, evictions, errors by reason; `nextrs_cache_value_bytes_total` (entry bytes copied to JavaScript) and `nextrs_cache_reused_total` (lookups served from an isolate's decoded copy of an unchanged entry) |
 | Images | `nextrs_image_*`: queue, in flight, transforms, rejections, memory reservations, cache |
 | Process | `nextrs_process_resident_memory_bytes`, `_anon_bytes`, `_file_bytes`, `_peak_bytes`, `nextrs_process_swap_bytes`, `nextrs_process_cpu_seconds_total`, `_threads`, `_open_fds`, `_uptime_seconds`, and `nextrs_malloc_in_use_bytes`/`_free_bytes`/`_releasable_bytes` |
 

@@ -1,0 +1,48 @@
+{
+ "command": "matrix --runtimes node,rc2,head,instr,optA --rounds 3 --seconds 30 --static-rates 10,100,200 --rsc-rates 10,50,100 --out benchmarks/results/series1/matrix-20261126",
+ "commit": "91a7729",
+ "started": "2026-11-26T10:28:45.885Z",
+ "limits": {
+  "sfCpus": "2",
+  "sfCpuset": "2,3",
+  "sfMemory": "1g",
+  "toolsCpuset": "4,5",
+  "apiCpuset": "6"
+ },
+ "images": {
+  "node": "velasia-node:s1",
+  "rc2": "velasia-nextrs:s1",
+  "head": "nextrs-s1:head",
+  "instr": "nextrs-s1:instr",
+  "optA": "nextrs-s1:optA"
+ },
+ "host": {
+  "docker": "29.7.2",
+  "dockerCpus": "8",
+  "dockerMemory": "4101238784",
+  "kernel": "7.0.12-linuxkit",
+  "host": "Darwin 24.6.0 x86_64",
+  "hostLoad": "18:28  up 4 days,  8:15, 1 user, load averages: 12.45 10.16 10.29"
+ },
+ "rounds": 3,
+ "seconds": 30,
+ "staticRates": [
+  10,
+  100,
+  200
+ ],
+ "rscRates": [
+  10,
+  50,
+  100
+ ],
+ "finished": "2026-11-26T12:05:38.936Z",
+ "hostAfter": {
+  "docker": "29.7.2",
+  "dockerCpus": "8",
+  "dockerMemory": "4101238784",
+  "kernel": "7.0.12-linuxkit",
+  "host": "Darwin 24.6.0 x86_64",
+  "hostLoad": "20:05  up 4 days,  9:52, 1 user, load averages: 8.35 23.90 50.74"
+ }
+}

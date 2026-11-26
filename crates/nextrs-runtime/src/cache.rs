@@ -181,10 +181,17 @@ impl State {
 pub(crate) struct Hit {
     /// `None` for a response entry that left memory without a disk copy:
     /// a newer value existed, so the caller must not fall back to the
-    /// build-time prerender.
+    /// build-time prerender. Also `None` when `unchanged`.
     pub value: Option<String>,
     /// Milliseconds since the epoch.
     pub last_modified: f64,
+    /// Which `set` stored this value (unique per key for the life of the
+    /// store). A caller that keeps what it decoded from a value names the
+    /// generation on its next lookup (`known`).
+    pub generation: f64,
+    /// The entry is still the generation the caller named: its value is
+    /// left out, the caller's own copy of it is current.
+    pub unchanged: bool,
 }
 
 /// What `lookup` found without touching the disk.
@@ -395,7 +402,18 @@ fn write_atomic(tmp: &Path, path: &Path, contents: &[u8]) -> io::Result<()> {
     result
 }
 
+/// The most decoded response-entry bytes one isolate keeps for reuse.
+const MAX_REUSE_BYTES: u64 = 16 * 1024 * 1024;
+
 impl CacheStore {
+    /// Per isolate: decoded copies of response entries kept for reuse
+    /// while unchanged (`js/03_server.js`), at most the store's own memory
+    /// budget and at most 16 MiB. Next's FileSystemCache keeps up to 50 MB
+    /// of decoded entries under `next start`.
+    pub(crate) fn reuse_budget(&self) -> u64 {
+        self.config.max_memory_bytes.min(MAX_REUSE_BYTES)
+    }
+
     /// Opens the store; with a directory, loads the namespace's index
     /// (headers only), removes leftover temporary files and the namespaces
     /// of other builds or environments.
@@ -516,8 +534,11 @@ impl CacheStore {
         )
     }
 
-    /// Looks a key up in memory.
-    pub fn lookup(&self, key: &str) -> Lookup {
+    /// Looks a key up in memory. With `known` (a generation the caller
+    /// already holds the value of) an entry still at that generation is
+    /// answered `unchanged`, without its value, and without reading the
+    /// disk when it is only there.
+    pub fn lookup(&self, key: &str, known: Option<u64>) -> Lookup {
         if key.len() > MAX_KEY_BYTES {
             metrics::add(&self.counters.cache_misses, 1);
             return Lookup::Miss;
@@ -529,16 +550,36 @@ impl CacheStore {
             return Lookup::Miss;
         };
         let last_modified = entry.last_modified as f64;
+        let generation = entry.generation;
+        let unchanged = known == Some(generation);
         match (&entry.value, entry.on_disk) {
-            (Some(value), _) => {
-                let hit = Hit {
-                    value: Some(String::from_utf8_lossy(value).into_owned()),
-                    last_modified,
-                };
+            // The caller's copy is current: no value to copy out.
+            (Some(_), _) | (None, true) if unchanged => {
                 state.touch(key);
                 drop(state);
                 metrics::add(&self.counters.cache_hits, 1);
-                Lookup::Hit(hit)
+                metrics::add(&self.counters.cache_reused, 1);
+                Lookup::Hit(Hit {
+                    value: None,
+                    last_modified,
+                    generation: generation as f64,
+                    unchanged: true,
+                })
+            }
+            (Some(value), _) => {
+                // A reference to the bytes: the copy into a String is made
+                // after the lock is released.
+                let value = value.clone();
+                state.touch(key);
+                drop(state);
+                metrics::add(&self.counters.cache_hits, 1);
+                metrics::add(&self.counters.cache_value_bytes, value.len() as u64);
+                Lookup::Hit(Hit {
+                    value: Some(String::from_utf8_lossy(&value).into_owned()),
+                    last_modified,
+                    generation: generation as f64,
+                    unchanged: false,
+                })
             }
             (None, true) => {
                 let generation = entry.generation;
@@ -558,6 +599,8 @@ impl CacheStore {
                 Lookup::Hit(Hit {
                     value: None,
                     last_modified,
+                    generation: generation as f64,
+                    unchanged: false,
                 })
             }
         }
@@ -590,7 +633,7 @@ impl CacheStore {
         if current != Some(generation) {
             // A newer set replaced it while we read: ask again.
             drop(state);
-            return match self.lookup(key) {
+            return match self.lookup(key, None) {
                 Lookup::Hit(hit) => Some(hit),
                 _ => None,
             };
@@ -608,9 +651,12 @@ impl CacheStore {
         drop(state);
         self.delete_files(removed);
         metrics::add(&self.counters.cache_hits, 1);
+        metrics::add(&self.counters.cache_value_bytes, value.len() as u64);
         Some(Hit {
             value: Some(String::from_utf8_lossy(&value).into_owned()),
             last_modified: last_modified as f64,
+            generation: generation as f64,
+            unchanged: false,
         })
     }
 
@@ -1055,7 +1101,7 @@ mod tests {
     }
 
     fn hit(store: &CacheStore, key: &str) -> Option<Hit> {
-        match store.lookup(key) {
+        match store.lookup(key, None) {
             Lookup::Hit(hit) => Some(hit),
             Lookup::Miss => None,
             Lookup::OnDisk { path, generation } => store.load(key, &path, generation),
@@ -1163,6 +1209,99 @@ mod tests {
         s.delete("other");
         set_kind(&s, "page", "new", &[], EntryKind::Response);
         assert_eq!(get(&s, "page", &[]).as_deref(), Some("new"));
+    }
+
+    fn lookup_known(store: &CacheStore, key: &str, known: u64) -> Option<Hit> {
+        match store.lookup(key, Some(known)) {
+            Lookup::Hit(hit) => Some(hit),
+            Lookup::Miss => None,
+            Lookup::OnDisk { path, generation } => store.load(key, &path, generation),
+        }
+    }
+
+    /// A caller naming the generation it holds gets `unchanged` (no value
+    /// copied) only while the entry is exactly that generation; a new
+    /// value, an eviction or a removal is never answered `unchanged`.
+    #[test]
+    fn a_known_generation_is_answered_unchanged_only_while_current() {
+        let s = store(None, "ns", 1 << 20, 1 << 20);
+        set_kind(&s, "page", "one", &[], EntryKind::Response);
+        let first = hit(&s, "page").unwrap();
+        assert_eq!(first.value.as_deref(), Some("one"));
+        assert!(!first.unchanged);
+        let gen1 = first.generation as u64;
+
+        let again = lookup_known(&s, "page", gen1).unwrap();
+        assert!(again.unchanged);
+        assert!(again.value.is_none(), "no copy for an unchanged entry");
+        assert_eq!(again.generation as u64, gen1);
+        assert_eq!(again.last_modified, first.last_modified);
+        assert_eq!(
+            s.counters
+                .cache_reused
+                .load(std::sync::atomic::Ordering::Relaxed),
+            1
+        );
+        let copied = s
+            .counters
+            .cache_value_bytes
+            .load(std::sync::atomic::Ordering::Relaxed);
+        assert_eq!(copied, 3, "only the first lookup copied the value");
+
+        // A new value: a new generation, sent in full to the old holder.
+        set_kind(&s, "page", "two", &[], EntryKind::Response);
+        let changed = lookup_known(&s, "page", gen1).unwrap();
+        assert!(!changed.unchanged);
+        assert_eq!(changed.value.as_deref(), Some("two"));
+        assert_ne!(changed.generation as u64, gen1);
+
+        // A generation that never existed is not current either.
+        let gen2 = changed.generation as u64;
+        let other = lookup_known(&s, "page", gen2 + 1000).unwrap();
+        assert!(!other.unchanged);
+        assert_eq!(other.value.as_deref(), Some("two"));
+
+        // Removed: a miss, whatever the caller holds.
+        s.delete("page");
+        assert!(lookup_known(&s, "page", gen2).is_none());
+    }
+
+    /// An entry evicted without a disk copy is a miss for its holder too:
+    /// the store no longer vouches for it.
+    #[test]
+    fn an_evicted_entry_is_never_unchanged() {
+        let s = store(None, "ns", 10, 1 << 20);
+        set_kind(&s, "page", "aaaa", &[], EntryKind::Response);
+        let generation = hit(&s, "page").unwrap().generation as u64;
+        set(&s, "other", "cccccccc", &[]);
+        let marker = lookup_known(&s, "page", generation).expect("marker");
+        assert!(!marker.unchanged);
+        assert!(marker.value.is_none());
+    }
+
+    /// With a directory, an entry held only on disk is answered
+    /// `unchanged` without reading its file.
+    #[test]
+    fn an_unchanged_entry_on_disk_is_not_read() {
+        let dir = temp_dir("reuse-disk");
+        let s = store(Some(dir.clone()), "ns", 10, 1 << 20);
+        set_kind(&s, "page", "aaaa", &[], EntryKind::Response);
+        let generation = hit(&s, "page").unwrap().generation as u64;
+        // Pushed out of memory; still on disk.
+        set(&s, "other", "cccccccc", &[]);
+        assert!(matches!(s.lookup("page", None), Lookup::OnDisk { .. }));
+        // Its file is gone: a read would miss. `unchanged` does not read.
+        for entry in fs::read_dir(dir.join("ns").join("entries"))
+            .unwrap()
+            .flatten()
+        {
+            let _ = fs::remove_file(entry.path());
+        }
+        match s.lookup("page", Some(generation)) {
+            Lookup::Hit(hit) => assert!(hit.unchanged),
+            _ => panic!("expected an unchanged hit"),
+        }
+        let _ = fs::remove_dir_all(&dir);
     }
 
     #[test]

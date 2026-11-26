@@ -90,6 +90,10 @@ fn run(
             fault_injection: cfg!(feature = "fault-injection"),
             network: services.net.is_some(),
             cache: services.cache.is_some(),
+            cache_reuse_bytes: services
+                .cache
+                .as_ref()
+                .map_or(0, |cache| cache.reuse_budget()),
             build_route_cache: config
                 .build_route_cache
                 .iter()

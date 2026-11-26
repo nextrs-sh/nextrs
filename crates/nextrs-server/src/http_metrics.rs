@@ -77,6 +77,184 @@ fn class(status: u16) -> usize {
 /// How a response body ended.
 pub const OUTCOMES: [&str; 3] = ["completed", "aborted", "failed"];
 
+/// Upper bounds of the serving-stage histogram buckets, in seconds (`+Inf`
+/// is implicit): finer than [`BUCKETS`], since routing and in-memory
+/// answers take microseconds.
+pub const STAGE_BUCKETS: [f64; 14] = [
+    0.000_025, 0.000_05, 0.000_1, 0.000_25, 0.000_5, 0.001, 0.002_5, 0.005, 0.01, 0.025, 0.05, 0.1,
+    0.25, 1.0,
+];
+
+/// A fixed-bucket histogram over [`STAGE_BUCKETS`] (cumulative on export).
+#[derive(Default)]
+pub struct StageHistogram {
+    buckets: [AtomicU64; STAGE_BUCKETS.len() + 1],
+    sum_nanos: AtomicU64,
+}
+
+impl StageHistogram {
+    pub fn observe(&self, elapsed: std::time::Duration) {
+        let seconds = elapsed.as_secs_f64();
+        let index = STAGE_BUCKETS
+            .iter()
+            .position(|bound| seconds <= *bound)
+            .unwrap_or(STAGE_BUCKETS.len());
+        self.buckets[index].fetch_add(1, Ordering::Relaxed);
+        let nanos = u64::try_from(elapsed.as_nanos()).unwrap_or(u64::MAX);
+        self.sum_nanos.fetch_add(nanos, Ordering::Relaxed);
+    }
+
+    /// (cumulative counts per bucket including `+Inf`, sum in seconds).
+    pub fn snapshot(&self) -> (Vec<u64>, f64) {
+        let mut total = 0u64;
+        let counts = self
+            .buckets
+            .iter()
+            .map(|b| {
+                total = total.saturating_add(b.load(Ordering::Relaxed));
+                total
+            })
+            .collect();
+        (counts, self.sum_nanos.load(Ordering::Relaxed) as f64 / 1e9)
+    }
+
+    fn write(&self, out: &mut String, name: &str, labels: &str) {
+        use std::fmt::Write;
+        let (counts, sum) = self.snapshot();
+        let total = counts.last().copied().unwrap_or(0);
+        if total == 0 {
+            return;
+        }
+        let sep = if labels.is_empty() { "" } else { "," };
+        for (bound, count) in STAGE_BUCKETS.iter().zip(&counts) {
+            let _ = writeln!(out, "{name}_bucket{{{labels}{sep}le=\"{bound}\"}} {count}");
+        }
+        let _ = writeln!(out, "{name}_bucket{{{labels}{sep}le=\"+Inf\"}} {total}");
+        let braces = |s: &str| {
+            if s.is_empty() {
+                String::new()
+            } else {
+                format!("{{{s}}}")
+            }
+        };
+        let _ = writeln!(out, "{name}_sum{} {sum}", braces(labels));
+        let _ = writeln!(out, "{name}_count{} {total}", braces(labels));
+    }
+}
+
+/// What answered a request (label values of `nextrs_http_served_total`):
+/// a `/_next/static` file, a `public/` file, the image optimizer, a
+/// response Rust held in memory (prerendered HTML or RSC, the not-found
+/// page), Next's handler in an isolate, a redirect, a not-found answer
+/// without JavaScript, or anything else (the proxy's own answers, external
+/// rewrites, errors). Bounded by construction.
+pub const VIA: [&str; 8] = [
+    "static",
+    "public",
+    "image",
+    "prerendered",
+    "executor",
+    "redirect",
+    "not_found",
+    "other",
+];
+
+/// Index into [`VIA`].
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Via {
+    Static = 0,
+    Public = 1,
+    Image = 2,
+    Prerendered = 3,
+    Executor = 4,
+    Redirect = 5,
+    NotFound = 6,
+    Other = 7,
+}
+
+/// Where the server spends a request's time before the response head:
+/// routing (next.config rules and, when there is one, the proxy), then
+/// serving, by what answered. Low overhead (two clock reads and a few
+/// relaxed atomic adds per request) and always on.
+#[derive(Default)]
+pub struct ServeStages {
+    served: [AtomicU64; VIA.len()],
+    /// The routing phases (`resolve`), proxy included.
+    routing: StageHistogram,
+    /// From the request reaching the application to its response head,
+    /// before compression, by [`VIA`].
+    head: [StageHistogram; VIA.len()],
+    /// Requests the proxy (`proxy.ts` / middleware) ran for.
+    proxy_runs: AtomicU64,
+}
+
+impl ServeStages {
+    pub(crate) fn routed(&self, elapsed: std::time::Duration) {
+        self.routing.observe(elapsed);
+    }
+
+    pub(crate) fn served(&self, via: Via, elapsed: std::time::Duration) {
+        let i = via as usize;
+        self.served[i].fetch_add(1, Ordering::Relaxed);
+        self.head[i].observe(elapsed);
+    }
+
+    pub(crate) fn proxy_ran(&self) {
+        self.proxy_runs.fetch_add(1, Ordering::Relaxed);
+    }
+
+    fn write_prometheus(&self, out: &mut String) {
+        use std::fmt::Write;
+        let _ = writeln!(
+            out,
+            "# HELP nextrs_http_served_total Requests by what answered them (static file, public file, image optimizer, response held in memory, Next's handler in an isolate, redirect, not-found without JavaScript, other).\n\
+             # TYPE nextrs_http_served_total counter"
+        );
+        for (i, via) in VIA.iter().enumerate() {
+            let _ = writeln!(
+                out,
+                "nextrs_http_served_total{{via=\"{via}\"}} {}",
+                self.served[i].load(Ordering::Relaxed)
+            );
+        }
+        let _ = writeln!(
+            out,
+            "# HELP nextrs_http_proxy_runs_total Requests the proxy (middleware) ran for.\n\
+             # TYPE nextrs_http_proxy_runs_total counter\n\
+             nextrs_http_proxy_runs_total {}",
+            self.proxy_runs.load(Ordering::Relaxed)
+        );
+        let name = "nextrs_http_routing_seconds";
+        let _ = writeln!(
+            out,
+            "# HELP {name} Time in the routing phases (next.config rules, the proxy, filesystem and route matching).\n# TYPE {name} histogram"
+        );
+        self.routing.write(out, name, "");
+        let name = "nextrs_http_served_head_seconds";
+        let _ = writeln!(
+            out,
+            "# HELP {name} Time from request to response head before compression, by what answered.\n# TYPE {name} histogram"
+        );
+        for (i, via) in VIA.iter().enumerate() {
+            self.head[i].write(out, name, &format!("via=\"{via}\""));
+        }
+    }
+
+    fn to_json(&self) -> serde_json::Value {
+        let hist = |h: &StageHistogram| {
+            let (counts, sum) = h.snapshot();
+            serde_json::json!({ "count": counts.last().copied().unwrap_or(0), "sum_seconds": sum, "buckets": counts })
+        };
+        serde_json::json!({
+            "served": VIA.iter().zip(&self.served).map(|(v, n)| ((*v).to_owned(), n.load(Ordering::Relaxed).into())).collect::<serde_json::Map<_, _>>(),
+            "proxy_runs": self.proxy_runs.load(Ordering::Relaxed),
+            "routing_seconds": hist(&self.routing),
+            "served_head_seconds": VIA.iter().zip(&self.head).map(|(v, h)| ((*v).to_owned(), hist(h))).collect::<serde_json::Map<_, _>>(),
+            "bucket_bounds_seconds": STAGE_BUCKETS,
+        })
+    }
+}
+
 #[derive(Default)]
 pub struct HttpMetrics {
     pub requests: [AtomicU64; 6],
@@ -93,6 +271,8 @@ pub struct HttpMetrics {
     /// readiness turns false from then on.
     pub draining: AtomicBool,
     pub started: std::sync::OnceLock<Instant>,
+    /// Routing and serving stages (see [`ServeStages`]).
+    pub stages: ServeStages,
 }
 
 impl std::fmt::Debug for HttpMetrics {
@@ -217,6 +397,8 @@ impl HttpMetrics {
             self.connections_total.load(Ordering::Relaxed),
             u8::from(self.draining.load(Ordering::Relaxed)),
         );
+        self.stages.write_prometheus(&mut out);
+        write_stream_compression(&mut out);
         out
     }
 
@@ -252,8 +434,55 @@ impl HttpMetrics {
             "connections_open": self.connections_open.load(Ordering::Relaxed).max(0),
             "connections_total": self.connections_total.load(Ordering::Relaxed),
             "draining": self.draining.load(Ordering::Relaxed),
+            "stages": self.stages.to_json(),
+            "stream_compression": crate::compress::stream_stats().to_json(),
         })
     }
+}
+
+/// Streamed gzip (responses compressed as they are produced: everything
+/// Next's handler answers, and bodies the compression cache does not hold).
+fn write_stream_compression(out: &mut String) {
+    use std::fmt::Write;
+    let stats = crate::compress::stream_stats();
+    for (name, kind, help, value) in [
+        (
+            "nextrs_compression_stream_responses_total",
+            "counter",
+            "Responses gzip-compressed as they streamed.",
+            stats.responses,
+        ),
+        (
+            "nextrs_compression_stream_input_bytes_total",
+            "counter",
+            "Identity bytes fed to streamed gzip.",
+            stats.input_bytes,
+        ),
+        (
+            "nextrs_compression_stream_output_bytes_total",
+            "counter",
+            "Gzip bytes produced by streamed compression.",
+            stats.output_bytes,
+        ),
+        (
+            "nextrs_compression_stream_input_frames_total",
+            "counter",
+            "Body frames fed to streamed gzip (each ends in a sync flush).",
+            stats.input_frames,
+        ),
+    ] {
+        let _ = writeln!(
+            out,
+            "# HELP {name} {help}\n# TYPE {name} {kind}\n{name} {value}"
+        );
+    }
+    let _ = writeln!(
+        out,
+        "# HELP nextrs_compression_stream_seconds_total Time spent in the gzip encoder for streamed responses.\n\
+         # TYPE nextrs_compression_stream_seconds_total counter\n\
+         nextrs_compression_stream_seconds_total {}",
+        stats.encode_nanos as f64 / 1e9
+    );
 }
 
 /// One request's timing. Dropped without `respond` (the handler future was

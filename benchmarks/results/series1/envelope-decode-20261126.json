@@ -1,0 +1,9 @@
+{
+ "note": "Output of benchmarks/series1/envelope-decode.mjs in velasia-node:s1 (Node.js 24.18.0), --cpus 1, on 2026-11-26 with the host's 1-minute load average at about 9. Two later reruns during heavy host load (load averages 20-150) gave 2.5-9.3 ms and are not used.",
+ "node": "v24.18.0",
+ "rows": [
+  { "page": "index", "envelopeKiB": 489, "postponed": false, "segments": 4, "stringMs": 1.117, "stringParseDecodeMs": 2.879 },
+  { "page": "destinations", "envelopeKiB": 326, "postponed": false, "segments": 4, "stringMs": 0.562, "stringParseDecodeMs": 1.661 },
+  { "page": "destinations/tokyo", "envelopeKiB": 305, "postponed": false, "segments": 4, "stringMs": 0.559, "stringParseDecodeMs": 1.687 }
+ ]
+}

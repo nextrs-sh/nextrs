@@ -54,6 +54,12 @@ pub(crate) struct Counters {
     /// expired by its tags) and lookups that found none.
     pub cache_hits: AtomicU64,
     pub cache_misses: AtomicU64,
+    /// Entry value bytes handed to JavaScript by lookups (each one a copy
+    /// JavaScript then parses).
+    pub cache_value_bytes: AtomicU64,
+    /// Lookups answered `unchanged`: the isolate's decoded copy of the
+    /// entry was current, so no value was copied or parsed.
+    pub cache_reused: AtomicU64,
     pub cache_sets: AtomicU64,
     pub cache_evictions: AtomicU64,
     pub cache_revalidations: AtomicU64,
@@ -151,6 +157,8 @@ pub struct CacheSnapshot {
     pub storage_bytes: u64,
     pub hits: u64,
     pub misses: u64,
+    pub value_bytes: u64,
+    pub reused: u64,
     pub sets: u64,
     pub evictions: u64,
     pub revalidated_tags: u64,
@@ -171,6 +179,8 @@ impl CacheSnapshot {
             storage_bytes: gauges.2,
             hits: get(&counters.cache_hits),
             misses: get(&counters.cache_misses),
+            value_bytes: get(&counters.cache_value_bytes),
+            reused: get(&counters.cache_reused),
             sets: get(&counters.cache_sets),
             evictions: get(&counters.cache_evictions),
             revalidated_tags: get(&counters.cache_revalidations),
@@ -214,6 +224,18 @@ impl CacheSnapshot {
                 "counter",
                 "Data cache lookups without a usable entry.",
                 self.misses,
+            ),
+            (
+                "nextrs_cache_value_bytes_total",
+                "counter",
+                "Entry value bytes copied to JavaScript by cache lookups.",
+                self.value_bytes,
+            ),
+            (
+                "nextrs_cache_reused_total",
+                "counter",
+                "Lookups answered from the isolate's own decoded copy of an unchanged entry (no copy, no parse).",
+                self.reused,
             ),
             (
                 "nextrs_cache_sets_total",
