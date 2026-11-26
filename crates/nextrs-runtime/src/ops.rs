@@ -38,6 +38,9 @@ pub(crate) struct BootConfig {
     pub network: bool,
     /// The shared data cache is offered to Next.js as its cache handler.
     pub cache: bool,
+    /// Bytes of decoded response-cache entries one isolate keeps for reuse
+    /// while the store's entry is unchanged (0: no reuse).
+    pub cache_reuse_bytes: u64,
     /// See `ExecutorConfig::build_route_cache`.
     pub build_route_cache: Vec<String>,
 }
@@ -1079,9 +1082,15 @@ fn blocking_failed(error: tokio::task::JoinError) -> JsErrorBox {
 async fn op_nextrs_cache_get(
     state: Rc<RefCell<OpState>>,
     #[string] key: String,
+    known: f64,
 ) -> Result<Option<Hit>, JsErrorBox> {
     let store = cache_store(&state)?;
-    match store.lookup(&key) {
+    // `known`: the generation whose decoded value this isolate still holds
+    // (negative: none). Generations are counters below 2^53, so the f64
+    // round trip is exact; anything else names no generation.
+    let known = (known >= 0.0 && known.fract() == 0.0 && known < 9_007_199_254_740_992.0)
+        .then_some(known as u64);
+    match store.lookup(&key, known) {
         Lookup::Hit(hit) => Ok(Some(hit)),
         Lookup::Miss => Ok(None),
         Lookup::OnDisk { path, generation } => {

@@ -361,6 +361,102 @@ async fn page_entries_are_shared_persisted_and_tag_expired() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+/// An isolate serves its decoded copy of an unchanged page entry again
+/// (no copy, no parse), never a stale one: a new value replaces it at
+/// once, and tags are judged on a reused copy as on a fresh read.
+#[tokio::test(flavor = "multi_thread")]
+async fn unchanged_page_entries_are_reused_never_stale() {
+    let executor = start(1, None, &[]);
+    let key = "/route-cache/APP_PAGE/x/$/reuse";
+    let set_page = |value: &'static str| {
+        let executor = executor.clone();
+        async move {
+            let r = op(
+                &executor,
+                &[
+                    ("op", "set-page"),
+                    ("key", key),
+                    ("value", value),
+                    ("tags", "reuse-tag"),
+                ],
+            )
+            .await;
+            assert!(r.get("error").is_none(), "{r}");
+        }
+    };
+    let get_page = || {
+        let executor = executor.clone();
+        async move { op(&executor, &[("op", "get-page"), ("key", key)]).await }
+    };
+    let stats = || executor.metrics().cache.unwrap();
+
+    set_page("<p>one</p>").await;
+    for _ in 0..3 {
+        let r = get_page().await;
+        assert_eq!(r["entry"]["html"], "<p>one</p>", "{r}");
+        assert_eq!(r["entry"]["rsc"], "rsc:<p>one</p>");
+        assert_eq!(r["entry"]["segment"], serde_json::json!([0, 255, 1]));
+        assert_eq!(r["entry"]["revalidate"], 60);
+    }
+    // The first read decoded the entry; the next two reused it.
+    assert_eq!(stats().reused, 2);
+    let copied = stats().value_bytes;
+
+    // A new value is served at once, then reused in its turn.
+    set_page("<p>two</p>").await;
+    let r = get_page().await;
+    assert_eq!(r["entry"]["html"], "<p>two</p>", "{r}");
+    assert_eq!(r["entry"]["rsc"], "rsc:<p>two</p>");
+    assert!(stats().value_bytes > copied, "the new value was copied");
+    assert_eq!(stats().reused, 2);
+    assert_eq!(get_page().await["entry"]["html"], "<p>two</p>");
+    assert_eq!(stats().reused, 3);
+
+    // A revalidated tag expires a reused copy like a fresh one.
+    tokio::time::sleep(Duration::from_millis(2)).await;
+    op(&executor, &[("op", "revalidate"), ("tags", "reuse-tag")]).await;
+    let r = get_page().await;
+    assert!(r["entry"].is_null(), "{r}");
+    executor.shutdown();
+}
+
+/// A value stored by one isolate replaces what another isolate decoded:
+/// the store's generation, not the isolate, decides.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_page_written_elsewhere_replaces_a_reused_copy() {
+    let executor = start(4, None, &[]);
+    let key = "/route-cache/APP_PAGE/x/$/shared";
+    for (round, value) in ["<p>a</p>", "<p>b</p>", "<p>c</p>"].into_iter().enumerate() {
+        let r = op(
+            &executor,
+            &[
+                ("op", "set-page"),
+                ("key", key),
+                ("value", value),
+                ("tags", ""),
+            ],
+        )
+        .await;
+        assert!(r.get("error").is_none(), "{r}");
+        // Many reads, spread over the isolates (each decodes once, then
+        // reuses): every one sees this round's value.
+        let readers: Vec<_> = (0..24)
+            .map(|_| {
+                let executor = executor.clone();
+                tokio::spawn(
+                    async move { op(&executor, &[("op", "get-page"), ("key", key)]).await },
+                )
+            })
+            .collect();
+        for reader in readers {
+            let r = reader.await.unwrap();
+            assert_eq!(r["entry"]["html"], value, "round {round}: {r}");
+        }
+    }
+    assert!(executor.metrics().cache.unwrap().reused > 0);
+    executor.shutdown();
+}
+
 /// A blocking regeneration in one isolate makes another isolate's miss wait
 /// for its result instead of rendering again.
 #[tokio::test(flavor = "multi_thread")]

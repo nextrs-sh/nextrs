@@ -995,6 +995,42 @@
     scope.leases = null;
   }
 
+  // Decoded response entries (ISR and PPR pages, route handler output) this
+  // isolate served, by key, with the store generation they were decoded
+  // from. A lookup names the generation; while the store still holds it,
+  // the store answers `unchanged` and the decoded copy is served again,
+  // without copying, parsing and base64-decoding the entry (several
+  // hundred KB for a page with its RSC payload and segments) on every
+  // request. Any other answer (a new value, an eviction, a miss) drops the
+  // copy. Bounded by `boot.cacheReuseBytes` (the size of the stored
+  // envelopes), least recently used first.
+  const reusable = new Map();
+  let reusableBytes = 0;
+  const REUSE_LIMIT = Number(boot.cacheReuseBytes) || 0;
+  function dropReusable(key) {
+    const held = reusable.get(key);
+    if (held === undefined) return;
+    reusable.delete(key);
+    reusableBytes -= held.cost;
+  }
+  function keepReusable(key, entry) {
+    if (reusable.get(key) === entry) {
+      // Most recently used: move to the end of the Map's order.
+      reusable.delete(key);
+      reusable.set(key, entry);
+      return;
+    }
+    dropReusable(key);
+    if (entry.cost > REUSE_LIMIT / 4) return;
+    reusable.set(key, entry);
+    reusableBytes += entry.cost;
+    for (const [oldest, held] of reusable) {
+      if (reusableBytes <= REUSE_LIMIT) break;
+      reusable.delete(oldest);
+      reusableBytes -= held.cost;
+    }
+  }
+
   let SeedCache;
   class NextRSCacheHandler {
     #ctx;
@@ -1039,7 +1075,7 @@
     }
 
     async #fetchEntry(key, context) {
-      const hit = await ops.op_nextrs_cache_get(key);
+      const hit = await ops.op_nextrs_cache_get(key, -1);
       const tags = syncTags();
       if (hit === null || hit.value === null) return null;
       let stored;
@@ -1058,26 +1094,44 @@
 
     async #responseEntry(key, context) {
       const kind = context.kind;
-      const hit = await ops.op_nextrs_cache_get(key);
+      const held = reusable.get(key);
+      const hit = await ops.op_nextrs_cache_get(key, held ? held.generation : -1);
       const tags = syncTags();
-      if (hit === null) return this.#readSeed(key, context);
-      // A response entry that left memory without a disk copy: a miss,
-      // never the (older) build prerender.
-      if (hit.value === null) return null;
-      let stored;
-      try {
-        stored = JSON.parse(hit.value);
-      } catch {
-        return null;
+      let value;
+      let cacheControl;
+      if (hit !== null && hit.unchanged && held && hit.generation === held.generation) {
+        // The store still holds the value this isolate decoded: serve that
+        // decoded copy, as Next's FileSystemCache serves the object in its
+        // memory cache. Tags and times are judged below, as for a fresh read.
+        // (Another request of this isolate may have kept a newer copy while
+        // this one waited: that one stays.)
+        if (reusable.get(key) === held) keepReusable(key, held);
+        ({ value, cacheControl } = held);
+      } else {
+        dropReusable(key);
+        if (hit === null) return this.#readSeed(key, context);
+        // A response entry that left memory without a disk copy: a miss,
+        // never the (older) build prerender.
+        if (hit.value === null) return null;
+        let stored;
+        try {
+          stored = JSON.parse(hit.value);
+        } catch {
+          return null;
+        }
+        if (stored?.v !== ENVELOPE) return null;
+        value = decodeResponse(stored.value);
+        cacheControl = stored.cacheControl;
+        if (value !== null) {
+          keepReusable(key, { generation: hit.generation, value, cacheControl, cost: hit.value.length });
+        }
       }
-      if (stored?.v !== ENVELOPE) return null;
-      const value = decodeResponse(stored.value);
       // A Pages Router entry is a page or the redirect its getStaticProps
       // returned.
       if (value !== null && value.kind !== kind && !(value.kind === "REDIRECT" && kind === "PAGES")) return null;
       const cacheTags = responseTags(value);
       if (cacheTags.length > 0 && tags.areTagsExpired(cacheTags, hit.lastModified)) return null;
-      return { value, lastModified: hit.lastModified, cacheControl: stored.cacheControl };
+      return { value, lastModified: hit.lastModified, cacheControl };
     }
 
     async set(key, data, context) {
@@ -1086,6 +1140,8 @@
       // stands for (next start keeps it in its memory cache only).
       const response = !context?.fetchCache && (RESPONSE_KINDS.has(data?.kind ?? context?.kind) || data?.kind === "REDIRECT");
       if (response) {
+        // The store's next generation replaces whatever was decoded before.
+        dropReusable(key);
         try {
           await storeResponse(key, data ?? null, context?.cacheControl);
         } finally {
@@ -1161,7 +1217,7 @@
     async get(cacheKey) {
       const pending = pendingUseCacheSets.get(cacheKey);
       if (pending) await pending;
-      const hit = await ops.op_nextrs_cache_get(USE_CACHE_PREFIX + cacheKey);
+      const hit = await ops.op_nextrs_cache_get(USE_CACHE_PREFIX + cacheKey, -1);
       const tags = syncTags();
       if (hit === null || hit.value === null) return undefined;
       let stored;
