@@ -56,7 +56,24 @@ pub(crate) struct Incoming<'a> {
     pub listen: &'a crate::Listen,
 }
 
+/// Marks a response routed to Next's handler in an isolate (its own
+/// answers and the refusals and errors around it), for the serving
+/// metrics (`via="executor"`).
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct Executed;
+
 pub(crate) async fn render(
+    executor: &Executor,
+    entry: &Path,
+    policy: &AppPathPolicy<'_>,
+    incoming: Incoming<'_>,
+) -> Response {
+    let mut response = render_in_isolate(executor, entry, policy, incoming).await;
+    response.extensions_mut().insert(Executed);
+    response
+}
+
+async fn render_in_isolate(
     executor: &Executor,
     entry: &Path,
     policy: &AppPathPolicy<'_>,

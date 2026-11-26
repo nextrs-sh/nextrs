@@ -538,6 +538,10 @@ impl CacheStore {
                 state.touch(key);
                 drop(state);
                 metrics::add(&self.counters.cache_hits, 1);
+                metrics::add(
+                    &self.counters.cache_value_bytes,
+                    hit.value.as_ref().map_or(0, |v| v.len() as u64),
+                );
                 Lookup::Hit(hit)
             }
             (None, true) => {
@@ -608,6 +612,7 @@ impl CacheStore {
         drop(state);
         self.delete_files(removed);
         metrics::add(&self.counters.cache_hits, 1);
+        metrics::add(&self.counters.cache_value_bytes, value.len() as u64);
         Some(Hit {
             value: Some(String::from_utf8_lossy(&value).into_owned()),
             last_modified: last_modified as f64,

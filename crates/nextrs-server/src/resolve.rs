@@ -582,6 +582,7 @@ pub(crate) async fn resolve(
             router.res_headers = JsMap::new();
             return done(Outcome::NotFound, Some(router), body);
         }
+        state.metrics.stages.proxy_ran();
         match run_proxy(state, &mut router, method, &raw_url, version, client, body).await {
             ProxyStep::Continue(rest) => body = rest,
             ProxyStep::Finish(outcome, rest) => {

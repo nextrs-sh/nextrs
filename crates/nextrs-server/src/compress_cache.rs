@@ -154,6 +154,10 @@ pub struct CompressionCache {
     coalesced: AtomicU64,
     bypassed: AtomicU64,
     evictions: AtomicU64,
+    /// Fills compressing right now (a gauge).
+    filling: AtomicU64,
+    /// Time spent compressing fills, in microseconds.
+    fill_micros: AtomicU64,
 }
 
 impl std::fmt::Debug for CompressionCache {
@@ -189,6 +193,8 @@ impl CompressionCache {
             coalesced: AtomicU64::new(0),
             bypassed: AtomicU64::new(0),
             evictions: AtomicU64::new(0),
+            filling: AtomicU64::new(0),
+            fill_micros: AtomicU64::new(0),
         }
     }
 
@@ -221,6 +227,8 @@ impl CompressionCache {
             ("coalesced", self.coalesced.load(Ordering::Relaxed)),
             ("bypassed", self.bypassed.load(Ordering::Relaxed)),
             ("evictions", self.evictions.load(Ordering::Relaxed)),
+            ("fills_in_flight", self.filling.load(Ordering::Relaxed)),
+            ("fill_micros", self.fill_micros.load(Ordering::Relaxed)),
         ]
     }
 
@@ -264,9 +272,16 @@ impl CompressionCache {
         let filled = AtomicBool::new(false);
         let result = slot
             .gzip
-            .get_or_try_init(|| {
+            .get_or_try_init(|| async {
                 filled.store(true, Ordering::Relaxed);
-                compress(identity)
+                // Decremented on drop: a fill whose request went away
+                // (cancelled at the await) leaves the gauge too.
+                let _filling = InFlight::enter(&self.filling);
+                let started = std::time::Instant::now();
+                let compressed = compress(identity).await;
+                let micros = u64::try_from(started.elapsed().as_micros()).unwrap_or(u64::MAX);
+                self.fill_micros.fetch_add(micros, Ordering::Relaxed);
+                compressed
             })
             .await;
         let Ok(gzip) = result else {
@@ -325,6 +340,22 @@ impl CompressionCache {
             inner.held -= victim_cost;
             self.evictions.fetch_add(1, Ordering::Relaxed);
         }
+    }
+}
+
+/// One unit of a gauge for as long as it lives.
+struct InFlight<'a>(&'a AtomicU64);
+
+impl<'a> InFlight<'a> {
+    fn enter(gauge: &'a AtomicU64) -> Self {
+        gauge.fetch_add(1, Ordering::Relaxed);
+        Self(gauge)
+    }
+}
+
+impl Drop for InFlight<'_> {
+    fn drop(&mut self) {
+        self.0.fetch_sub(1, Ordering::Relaxed);
     }
 }
 
