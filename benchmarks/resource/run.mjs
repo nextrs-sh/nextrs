@@ -28,7 +28,9 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import * as L from "../series1/lib.mjs";
 
-const PROBE = "re-probe";
+// A second lane sets S1_SF, S1_TOOLS, RE_PROBE and the S1_*_CPUSET
+// variables (series1/lib.mjs) to run beside the first.
+const PROBE = process.env.RE_PROBE ?? "re-probe";
 const SPECS = "/work/specs";
 
 const argv = process.argv.slice(2);
@@ -192,7 +194,7 @@ async function one(variant, config, round, workload, out) {
     run.error = `not ready: ${String(error.message).slice(0, 300)}`;
   }
   const info = inspect(L.SF);
-  const samples = `/work/re/${file}.jsonl`;
+  const samples = `/work/re/${L.SF}-${file}.jsonl`;
   if (info) {
     L.docker(["exec", PROBE, "rm", "-f", samples], { allowFail: true });
     L.docker(["exec", "-d", PROBE, "node", "/re/sampler.mjs", `/cg/docker/${info.id}`, String(info.state.Pid), samples, "1000", "5"]);

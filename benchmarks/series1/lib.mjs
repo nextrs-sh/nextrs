@@ -16,8 +16,10 @@ export const REPO = resolve(HERE, "../..");
 export const NET = process.env.S1_NET ?? "nextrs-s1";
 export const SUBNET = process.env.S1_SUBNET ?? "172.31.77.0/24";
 export const API = "s1-api";
-export const SF = "s1-sf";
-export const TOOLS = "s1-tools";
+// Container names: overridable so that a second measurement lane (its own
+// storefront and tools on other CPUs) can share the network and the API.
+export const SF = process.env.S1_SF ?? "s1-sf";
+export const TOOLS = process.env.S1_TOOLS ?? "s1-tools";
 
 // Railway Series 1 gave each storefront 2 vCPU and 1 GB: the same here,
 // pinned to two CPUs of the Docker VM so that runs see the same cores.

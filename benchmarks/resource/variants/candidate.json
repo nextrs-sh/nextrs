@@ -1,0 +1,8 @@
+[
+  { "label": "base", "runtime": "base" },
+  { "label": "re1", "runtime": "re1" },
+  { "label": "re1-heapauto", "runtime": "re1", "args": "--js-heap-limit auto" },
+  { "label": "re1-idle10", "runtime": "re1", "args": "--memory-reclaim-idle 10" },
+  { "label": "re1-balanced", "runtime": "re1", "args": "--profile balanced" },
+  { "label": "re1-lowmem", "runtime": "re1", "args": "--profile low-memory" }
+]
