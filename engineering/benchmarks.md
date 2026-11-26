@@ -17,6 +17,7 @@ with their method, conditions and raw data.
 > Results are specific to the tested workloads, hardware, and runtime
 > configurations. They are not guarantees of production performance.
 
+- [Series 1 investigation (2026-11-26)](#series-1-investigation-2026-11-26)
 - [README chart (NextRS f5c480d, 2026-11-18)](#readme-chart-nextrs-f5c480d-2026-11-18)
 - [Image capacity (Phase 3D, 2026-11-19)](#image-capacity-phase-3d-2026-11-19)
 - [Full matrix (Phase 3A, 2026-11-16)](#full-matrix-phase-3a-2026-11-16)
@@ -26,6 +27,16 @@ with their method, conditions and raw data.
   - [Where NextRS is not ahead](#where-nextrs-is-not-ahead)
   - [Reproducing](#reproducing)
 - [Historical results (Phase 1A, 2026-11-03)](#historical-results-phase-1a-2026-11-03)
+
+## Series 1 investigation (2026-11-26)
+
+A local reproduction of Velasia Airways' first Railway series (static
+assets and RSC payloads of one real application, `next start` against
+NextRS, 2 CPUs and 1 GiB each), with the investigation of NextRS's slower
+RSC payloads and the change that resolved it. Method, environment
+(a shared host, with contention gated out), results and limitations:
+[performance/series1](performance/series1/README.md). Raw data:
+[`benchmarks/results/series1/`](../benchmarks/results/series1/).
 
 ## README chart (NextRS f5c480d, 2026-11-18)
 

@@ -15,6 +15,7 @@ For an introduction, see the [project README](../README.md).
 | [Security](security.md) | The full security notice: isolation limits, network policy, Server Actions, trusted proxies, unsupported-feature bypass |
 | [Testing](testing.md) | Rust checks, comparison suites against `next start`, negative controls, CI |
 | [Benchmarks](benchmarks.md) | Preliminary results against `next start`, method, environment, limitations, raw data, drivers |
+| [Performance: Series 1](performance/series1/README.md) | Investigation of Velasia Airways' first Railway series: RSC latency cause and fix, compression cache, memory per isolate, CPU per request |
 | [Roadmap](roadmap.md) | Phase-by-phase history and candidate milestones |
 
 The command-line help (`nextrs --help`, `nextrs start --help`) is the
