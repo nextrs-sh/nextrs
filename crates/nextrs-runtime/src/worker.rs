@@ -11,8 +11,11 @@ use std::time::{Duration, Instant};
 use deno_core::{JsRuntime, PollEventLoopOptions, RuntimeOptions, v8};
 use tokio::sync::mpsc;
 
-use crate::pool::{FailureReason, Job, Termination, WorkerExit, WorkerShared};
-use crate::{ExecutorConfig, REPORTED_NODE_VERSION, ops};
+use crate::pool::{
+    FailureReason, Job, ReclaimLevel, ReclaimRequest, Reclaimed, Termination, WorkerExit,
+    WorkerShared,
+};
+use crate::{ExecutorConfig, Limits, REPORTED_NODE_VERSION, ops};
 
 /// How often the isolate's event loop proves it is not stuck in JavaScript.
 const HEARTBEAT: Duration = Duration::from_millis(25);
@@ -100,10 +103,7 @@ fn run(
                 .map(|path| path.to_string_lossy().into_owned())
                 .collect(),
         };
-        let create_params = config
-            .limits
-            .heap_limit_bytes
-            .map(|max| v8::CreateParams::default().heap_limits(0, max));
+        let create_params = heap_params(&config.limits);
         let mut web = deno_web::deno_web::init(
             Arc::new(deno_web::BlobStore::default()),
             None,
@@ -186,6 +186,54 @@ fn run(
     })
 }
 
+/// The isolate's heap constraints: an explicit limit, or V8's defaults for
+/// a machine with `heap_memory_bytes` of memory (as Node.js configures its
+/// isolate from its cgroup-constrained memory), or V8's own defaults.
+fn heap_params(limits: &Limits) -> Option<v8::CreateParams> {
+    match (limits.heap_limit_bytes, limits.heap_memory_bytes) {
+        (Some(max), _) => Some(v8::CreateParams::default().heap_limits(0, max)),
+        (None, Some(memory)) => {
+            Some(v8::CreateParams::default().heap_limits_from_system_memory(memory, 0))
+        }
+        (None, None) => None,
+    }
+}
+
+/// Performs a memory reclamation on the isolate's own thread, between
+/// turns of its event loop, and reports to everyone waiting for it.
+fn reclaim(runtime: &mut JsRuntime, worker: &WorkerShared, request: ReclaimRequest) {
+    let isolate = runtime.v8_isolate();
+    let before = isolate.get_heap_statistics().total_heap_size();
+    let started = Instant::now();
+    match request.level {
+        ReclaimLevel::Idle => isolate.low_memory_notification(),
+        ReclaimLevel::Pressure => {
+            isolate.memory_pressure_notification(v8::MemoryPressureLevel::Critical);
+        }
+    }
+    let gc_time = started.elapsed();
+    let stats = isolate.get_heap_statistics();
+    worker.record_heap(&stats);
+    let done = Reclaimed {
+        heap_released_bytes: u64::try_from(before.saturating_sub(stats.total_heap_size()))
+            .unwrap_or(0),
+        gc_time,
+    };
+    tracing::debug!(
+        target: "nextrs::executor",
+        slot = worker.slot,
+        level = request.level.as_str(),
+        gc_ms = gc_time.as_secs_f64() * 1e3,
+        heap_before = before,
+        heap_after = stats.total_heap_size(),
+        "memory reclaimed"
+    );
+    for waiter in request.done {
+        // The requester may have stopped waiting (timeout); nothing to do.
+        let _ = waiter.send(done);
+    }
+}
+
 /// V8 GC epilogue for full collections: records the heap still in use.
 unsafe extern "C" fn after_full_gc(
     isolate: v8::UnsafeRawIsolatePtr,
@@ -237,10 +285,16 @@ async fn drive(runtime: &mut JsRuntime, worker: &WorkerShared) -> WorkerExit {
     let fault_panic = worker.fault_panic.notified();
     #[cfg(not(feature = "fault-injection"))]
     let fault_panic = std::future::pending::<()>();
-    tokio::select! {
-        biased;
-        () = worker.stopped() => Ok(()),
-        () = fault_panic => panic!("fault injection: executor thread panic"),
-        result = event_loop(runtime, worker) => result.map_err(|e| format!("{e}")),
+    let mut fault_panic = std::pin::pin!(fault_panic);
+    loop {
+        // The event loop future only borrows the runtime between polls, so
+        // leaving it for a reclamation and polling it again is safe.
+        tokio::select! {
+            biased;
+            () = worker.stopped() => return Ok(()),
+            () = &mut fault_panic => panic!("fault injection: executor thread panic"),
+            request = worker.reclaim_requested() => reclaim(runtime, worker, request),
+            result = event_loop(runtime, worker) => return result.map_err(|e| format!("{e}")),
+        }
     }
 }

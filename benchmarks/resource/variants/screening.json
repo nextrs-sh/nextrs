@@ -1,0 +1,10 @@
+[
+  { "label": "base", "runtime": "base" },
+  { "label": "base-arena2", "runtime": "base", "env": ["MALLOC_ARENA_MAX=2"] },
+  { "label": "base-jemalloc", "runtime": "base", "image": "nextrs-s1:base-jemalloc",
+    "env": ["LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"] },
+  { "label": "base-mimalloc", "runtime": "base", "image": "nextrs-s1:base-mimalloc",
+    "env": ["LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libmimalloc.so.2"] },
+  { "label": "base-semi2", "runtime": "base", "args": "--v8-flags --max-semi-space-size=2" },
+  { "label": "base-ofs", "runtime": "base", "args": "--v8-flags --optimize-for-size" }
+]

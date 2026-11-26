@@ -26,7 +26,10 @@ below are the ones Phase 3C tested. For every option, see
 5. Size it.
    - `--isolates`: about one per CPU core you give to rendering.
    - `--js-heap-limit` so that `isolates × limit`, plus a few hundred MiB
-     of native memory, fits the container.
+     of native memory, fits the container, or `--js-heap-limit auto` to
+     size the heaps from the container's limit as Node.js does.
+   - In containers of 512 MiB or less, start with `--profile balanced` or
+     `--profile low-memory` ([Memory](configuration.md#memory)).
 
 ## Example
 

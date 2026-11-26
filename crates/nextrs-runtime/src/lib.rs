@@ -21,6 +21,7 @@
 mod cache;
 mod embedded_js;
 mod internal;
+mod memory;
 mod metrics;
 mod multipart;
 mod net;
@@ -44,6 +45,9 @@ pub use crate::cache::CacheConfig;
 pub use crate::internal::{
     InternalBody, InternalDispatch, InternalRequest, InternalResponse, MAX_INTERNAL_REQUESTS,
 };
+pub use crate::memory::{
+    CgroupMemory, constrained_memory, physical_memory, release_free_memory, set_malloc_arena_max,
+};
 pub use crate::metrics::{
     CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MallocSnapshot, MemorySnapshot,
     MetricsSnapshot, UpstreamSnapshot, set_malloc_mmap_threshold,
@@ -52,7 +56,7 @@ pub use crate::net::{
     AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy, Upstream,
     UpstreamBody, UpstreamBodyStream, UpstreamError, UpstreamRequest, UpstreamResponse,
 };
-pub use crate::pool::{Executor, FailureReason};
+pub use crate::pool::{Executor, FailureReason, ReclaimLevel, ReclaimReport};
 pub use crate::response::{ResponseEvent, ResponseStream};
 pub use crate::sandbox::{FsDenied, FsPolicy};
 
@@ -183,8 +187,18 @@ pub struct Limits {
     pub bootstrap_timeout: Option<Duration>,
     /// V8 heap limit per isolate. Reaching it terminates and replaces the
     /// isolate instead of aborting the process. `None` keeps V8's default
-    /// limit (the near-limit handler is installed either way).
+    /// limit (the near-limit handler is installed either way). Takes
+    /// precedence over `heap_memory_bytes`.
     pub heap_limit_bytes: Option<usize>,
+    /// Size each isolate's heap as V8 would on a machine with this much
+    /// memory (V8's `ResourceConstraints::ConfigureDefaults`): the heap
+    /// limit, the young generation and the growth heuristics all follow it.
+    /// Node.js passes its cgroup-constrained memory here; NextRS passes the
+    /// container's memory divided among the isolates. `None` keeps V8's own
+    /// defaults, which follow the machine's physical memory and ignore any
+    /// container limit. Only the JavaScript heap follows it: it is not a
+    /// process memory limit.
+    pub heap_memory_bytes: Option<u64>,
     /// Response body bytes buffered per response between JavaScript and
     /// the socket before `res.write()` applies backpressure.
     pub response_buffer_bytes: usize,
@@ -208,6 +222,7 @@ impl Default for Limits {
             stall_timeout: Some(Duration::from_secs(10)),
             bootstrap_timeout: Some(Duration::from_secs(60)),
             heap_limit_bytes: None,
+            heap_memory_bytes: None,
             response_buffer_bytes: 64 * 1024,
             restart_backoff_initial: Duration::from_millis(100),
             restart_backoff_max: Duration::from_secs(30),

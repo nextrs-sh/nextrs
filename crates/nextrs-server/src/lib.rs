@@ -17,6 +17,7 @@ mod pages;
 #[cfg(feature = "negative-controls")]
 mod pages_controls;
 mod range;
+pub mod reclaim;
 mod resolve;
 #[doc(hidden)]
 pub mod routing;
@@ -28,6 +29,7 @@ pub use crate::compress_cache::CompressionCache;
 pub use crate::dynamic::DEFAULT_MAX_REQUEST_BODY;
 pub use crate::http_metrics::HttpMetrics;
 pub use crate::image::{ImageCacheOptions, ImageFault, ImageFaults, ImageOptions};
+pub use crate::reclaim::{ReclaimPolicy, ReclaimStats};
 pub use crate::serve::{ClientAddr, ServeOptions, serve};
 
 use std::borrow::Cow;
@@ -1783,6 +1785,8 @@ pub struct MetricsSources {
     pub http: Arc<HttpMetrics>,
     /// `/readyz` answers 200 only with at least this many ready isolates.
     pub ready_min_isolates: usize,
+    /// The memory reclaimer, when enabled.
+    pub reclaim: Option<Arc<ReclaimStats>>,
 }
 
 impl MetricsSources {
@@ -1846,6 +1850,9 @@ pub fn metrics_app(sources: MetricsSources) -> Router {
                     }
                 }
                 out.push_str(&text.http.to_prometheus());
+                if let Some(reclaim) = &text.reclaim {
+                    out.push_str(&reclaim.to_prometheus());
+                }
                 let malloc = text
                     .executor
                     .as_ref()
@@ -1882,6 +1889,9 @@ pub fn metrics_app(sources: MetricsSources) -> Router {
                         object.insert("compression_cache".into(), map.into());
                     }
                     object.insert("http".into(), json.http.to_json());
+                    if let Some(reclaim) = &json.reclaim {
+                        object.insert("reclaim".into(), reclaim.to_json());
+                    }
                     object.insert(
                         "process".into(),
                         http_metrics::process_json(json.http.uptime_seconds()),
