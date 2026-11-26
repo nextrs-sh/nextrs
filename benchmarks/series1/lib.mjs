@@ -153,17 +153,25 @@ export async function waitHttp(url, timeoutMs, statuses = [200]) {
  * `robots.txt`, a route handler), so readiness is the first static asset
  * of the discovered manifest (`discover.mjs` must have run). Routes that
  * need JavaScript answer 501 there.
+ *
+ * `memory`, `cpus` and `cpuset` override the container limits (default
+ * `LIMITS`); `env` adds `NAME=value` entries (allocator and runtime
+ * experiments); `image` replaces the runtime's image; `readyTimeoutMs`
+ * bounds the wait for readiness.
  */
-export async function storefrontUp(runtime, { isolates = 1, extraArgs = "", noJs = false } = {}) {
+export async function storefrontUp(runtime, {
+  isolates = 1, extraArgs = "", noJs = false, memory = LIMITS.sfMemory, cpus = LIMITS.sfCpus,
+  cpuset = LIMITS.sfCpuset, env: extraEnv = [], image: imageOverride, readyTimeoutMs = 180_000,
+} = {}) {
   remove(SF);
+  const limits = ["--cpus", cpus, "--cpuset-cpus", cpuset, "--memory", memory, "--memory-swap", memory];
   if (noJs) {
     const started = Date.now();
     docker([
       "run", "-d", "--name", SF, "--network", NET, ...HARDENING,
-      "--cpus", LIMITS.sfCpus, "--cpuset-cpus", LIMITS.sfCpuset,
-      "--memory", LIMITS.sfMemory, "--memory-swap", LIMITS.sfMemory,
-      "-e", "NEXTRS_LOG_FORMAT=json",
-      "--entrypoint", "/usr/local/bin/nextrs", image(runtime),
+      ...limits,
+      "-e", "NEXTRS_LOG_FORMAT=json", ...extraEnv.flatMap((e) => ["-e", e]),
+      "--entrypoint", "/usr/local/bin/nextrs", imageOverride ?? image(runtime),
       "start", "/app/apps/web", "--host", "0.0.0.0", "--port", "8080",
       "--metrics-addr", "0.0.0.0:9100", "--allow-unsupported",
     ]);
@@ -184,15 +192,14 @@ export async function storefrontUp(runtime, { isolates = 1, extraArgs = "", noJs
     );
     if (extraArgs) env.push(`NEXTRS_EXTRA_ARGS=${extraArgs}`);
   }
+  env.push(...extraEnv);
   const started = Date.now();
   docker([
-    "run", "-d", "--name", SF, "--network", NET, ...HARDENING,
-    "--cpus", LIMITS.sfCpus, "--cpuset-cpus", LIMITS.sfCpuset,
-    "--memory", LIMITS.sfMemory, "--memory-swap", LIMITS.sfMemory,
+    "run", "-d", "--name", SF, "--network", NET, ...HARDENING, ...limits,
     ...env.flatMap((e) => ["-e", e]),
-    image(runtime),
+    imageOverride ?? image(runtime),
   ]);
-  await waitHttp(`http://${SF}:8080/api/internal/health/ready`, 180_000, [200]);
+  await waitHttp(`http://${SF}:8080/api/internal/health/ready`, readyTimeoutMs, [200]);
   return { readyMs: Date.now() - started };
 }
 
