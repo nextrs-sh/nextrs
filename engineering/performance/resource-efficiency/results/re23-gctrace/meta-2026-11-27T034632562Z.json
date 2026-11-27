@@ -1,0 +1,64 @@
+{
+ "command": "profile --variants benchmarks/resource/variants/re23-gctrace.json --workload memory --configs 256m:1,512m:1 --rounds 1 --recovery 10,30,60,120 --save-logs --out engineering/performance/resource-efficiency/results/re23-gctrace",
+ "commit": "79e4fe5",
+ "started": "2026-11-27T03:46:32.656Z",
+ "host": {
+  "docker": "29.7.2",
+  "dockerCpus": "8",
+  "dockerMemory": "4101230592",
+  "kernel": "7.0.12-linuxkit",
+  "host": "Darwin 24.6.0 x86_64",
+  "hostLoad": "11:46  up 5 days,  1:33, 1 user, load averages: 6.08 3.81 4.21"
+ },
+ "variants": [
+  {
+   "label": "base-gc",
+   "runtime": "base",
+   "args": "--v8-flags --trace-gc"
+  },
+  {
+   "label": "re2b-heap-gc",
+   "runtime": "re2b",
+   "args": "--js-heap-limit auto --v8-flags --trace-gc"
+  },
+  {
+   "label": "re2b-combo-gc",
+   "runtime": "re2b",
+   "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90 --v8-flags --trace-gc"
+  }
+ ],
+ "configs": [
+  "256m:1",
+  "512m:1"
+ ],
+ "rounds": 1,
+ "workload": "memory",
+ "phases": [
+  {
+   "name": "steady-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 30,
+   "connections": 32,
+   "duration": 60
+  },
+  {
+   "name": "burst-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 0,
+   "connections": 16,
+   "duration": 30,
+   "perIsolate": true
+  }
+ ],
+ "recoveryMarks": [
+  10,
+  30,
+  60,
+  120
+ ],
+ "images": {
+  "base-gc": "sha256:f4c803b301a02eb9b3ceb9c826c0ff095f92cc6e24f134db556f60129c39c21b",
+  "re2b-heap-gc": "sha256:34dfb51024314df92d8d0b4d10b8540e23279fbad4c7befc9b35078563e7da60",
+  "re2b-combo-gc": "sha256:34dfb51024314df92d8d0b4d10b8540e23279fbad4c7befc9b35078563e7da60"
+ }
+}

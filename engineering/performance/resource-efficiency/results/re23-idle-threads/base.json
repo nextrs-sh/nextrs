@@ -1,0 +1,46 @@
+{
+ "variant": {
+  "label": "base",
+  "runtime": "base"
+ },
+ "memory": "512m",
+ "cpus": "1",
+ "readyMs": 1926,
+ "settle": 60,
+ "seconds": 300.308,
+ "containerMillicores": 14.886479880655862,
+ "processMillicores": 9.257162646349748,
+ "threads": {
+  "nextrs-v8-0": {
+   "threads": 1,
+   "millicores": 6.926222411657365
+  },
+  "nextrs-supervis": {
+   "threads": 1,
+   "millicores": 2.031247918803362
+  },
+  "V8 DefaultWorke": {
+   "threads": 1,
+   "millicores": 0.19979487725934708
+  },
+  "tokio-rt-worker": {
+   "threads": 1,
+   "millicores": 0.06659829241978237
+  },
+  "nextrs": {
+   "threads": 1,
+   "millicores": 0.03329914620989118
+  },
+  "nextrs-net": {
+   "threads": 4,
+   "millicores": 0
+  }
+ },
+ "contention": {
+  "hostLoad1": 1.74,
+  "vmLoad1": 0.1,
+  "vmBusyTicks": 4373699,
+  "vmTotalTicks": 71039733,
+  "vmStealTicks": 0
+ }
+}

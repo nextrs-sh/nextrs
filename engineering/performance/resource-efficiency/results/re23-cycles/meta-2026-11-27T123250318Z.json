@@ -1,0 +1,100 @@
+{
+ "command": "profile --variants benchmarks/resource/variants/re23-matrix.json --workload cycles --configs 256m:1,512m:1 --rounds 1 --only base,re2b-combo --out engineering/performance/resource-efficiency/results/re23-cycles",
+ "commit": "79e4fe5",
+ "started": "2026-11-27T12:32:50.391Z",
+ "host": {
+  "docker": "29.7.2",
+  "dockerCpus": "8",
+  "dockerMemory": "4101230592",
+  "kernel": "7.0.12-linuxkit",
+  "host": "Darwin 24.6.0 x86_64",
+  "hostLoad": "20:33  up 5 days, 10:19, 1 user, load averages: 47.01 40.00 21.38"
+ },
+ "variants": [
+  {
+   "label": "base",
+   "runtime": "base"
+  },
+  {
+   "label": "re2b-combo",
+   "runtime": "re2b",
+   "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90"
+  }
+ ],
+ "configs": [
+  "256m:1",
+  "512m:1"
+ ],
+ "rounds": 1,
+ "workload": "cycles",
+ "phases": [
+  {
+   "name": "cycle1-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 30,
+   "connections": 32,
+   "duration": 45
+  },
+  {
+   "name": "cycle1-burst",
+   "spec": "mixed-gzip.json",
+   "rate": 0,
+   "connections": 16,
+   "duration": 20,
+   "perIsolate": true
+  },
+  {
+   "name": "cycle1-idle",
+   "idle": 60
+  },
+  {
+   "name": "cycle2-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 30,
+   "connections": 32,
+   "duration": 45
+  },
+  {
+   "name": "cycle2-burst",
+   "spec": "mixed-gzip.json",
+   "rate": 0,
+   "connections": 16,
+   "duration": 20,
+   "perIsolate": true
+  },
+  {
+   "name": "cycle2-idle",
+   "idle": 60
+  },
+  {
+   "name": "cycle3-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 30,
+   "connections": 32,
+   "duration": 45
+  },
+  {
+   "name": "cycle3-burst",
+   "spec": "mixed-gzip.json",
+   "rate": 0,
+   "connections": 16,
+   "duration": 20,
+   "perIsolate": true
+  },
+  {
+   "name": "cycle3-idle",
+   "idle": 60
+  }
+ ],
+ "recoveryMarks": [
+  10,
+  30,
+  60,
+  120,
+  300
+ ],
+ "images": {
+  "base": "sha256:f4c803b301a02eb9b3ceb9c826c0ff095f92cc6e24f134db556f60129c39c21b",
+  "re2b-combo": "sha256:34dfb51024314df92d8d0b4d10b8540e23279fbad4c7befc9b35078563e7da60"
+ }
+}

@@ -1,0 +1,206 @@
+01:39:09 base-256m-1cpu-r1
+01:39:57   check-ssr: 8/8 ok, 1.3/s, p50 203.263 p99 4427.775 ms, cpu 691.126 ms/ok
+01:39:59   check-api: 8/8 ok, 15.5/s, p50 25.519 p99 161.151 ms, cpu 69.634 ms/ok
+01:40:02   check-action: 1/1 ok, 4.1/s, p50 233.599 p99 233.599 ms, cpu 317.775 ms/ok
+01:40:10   cold-mixed: 80/80 ok, 12.4/s, p50 18.383 p99 1694.719 ms, cpu 80.640 ms/ok
+01:41:12   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.783 p99 2015.231 ms, cpu 15.381 ms/ok
+01:42:11   burst-mixed: 1766/1766 ok, 58.9/s, p50 68.863 p99 1442.815 ms, cpu undefined ms/ok, FAILED 246
+01:42:23   done: ready 6015 ms, OOM (oom_kill null)
+01:42:25 base-arena2-256m-1cpu-r1
+01:43:07   check-ssr: 8/8 ok, 2.9/s, p50 158.079 p99 1574.911 ms, cpu 357.185 ms/ok
+01:43:10   check-api: 8/8 ok, 21.3/s, p50 18.879 p99 203.519 ms, cpu 76.743 ms/ok
+01:43:12   check-action: 1/1 ok, 6.5/s, p50 149.119 p99 149.119 ms, cpu 238.299 ms/ok
+01:43:17   cold-mixed: 80/80 ok, 22.9/s, p50 10.823 p99 373.759 ms, cpu 43.769 ms/ok
+01:44:19   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.267 p99 139.007 ms, cpu 12.183 ms/ok
+01:45:09   burst-mixed: 1256/1256 ok, 41.9/s, p50 62.207 p99 774.143 ms, cpu undefined ms/ok, FAILED 112
+01:45:21   done: ready 3774 ms, OOM (oom_kill null)
+01:45:21 base-jemalloc-256m-1cpu-r1
+01:45:57   check-ssr: 8/8 ok, 5.2/s, p50 91.839 p99 893.439 ms, cpu 197.926 ms/ok
+01:45:59   check-api: 8/8 ok, 25.2/s, p50 19.599 p99 135.039 ms, cpu 50.680 ms/ok
+01:46:01   check-action: 1/1 ok, 10.6/s, p50 86.847 p99 86.847 ms, cpu 143.720 ms/ok
+01:46:05   cold-mixed: 80/80 ok, 30.3/s, p50 8.287 p99 333.823 ms, cpu 33.073 ms/ok
+01:47:07   steady-mixed: 1797/1797 ok, 29.9/s, p50 5.179 p99 71.039 ms, cpu undefined ms/ok, FAILED 4
+01:47:19   done: ready 2131 ms, OOM (oom_kill null)
+01:47:19 base-mimalloc-256m-1cpu-r1
+01:47:56   check-ssr: 8/8 ok, 5.1/s, p50 101.055 p99 929.279 ms, cpu 199.653 ms/ok
+01:47:57   check-api: 8/8 ok, 31.9/s, p50 19.503 p99 125.951 ms, cpu 48.491 ms/ok
+01:48:03   check-action: 1/1 ok, 10.6/s, p50 89.727 p99 89.727 ms, cpu 1448.744 ms/ok
+01:48:12   cold-mixed: 80/80 ok, 14.7/s, p50 21.727 p99 792.063 ms, cpu 68.404 ms/ok
+01:49:13   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.163 p99 64.703 ms, cpu 10.678 ms/ok
+01:50:31   burst-mixed: 681/681 ok, 22.7/s, p50 51.455 p99 712.191 ms, cpu undefined ms/ok, FAILED 135
+01:50:43   done: ready 2201 ms, OOM (oom_kill null)
+01:50:43 base-semi2-256m-1cpu-r1
+01:51:22   check-ssr: 8/8 ok, 2.3/s, p50 270.335 p99 1307.647 ms, cpu 408.521 ms/ok
+01:51:24   check-api: 8/8 ok, 26.4/s, p50 19.007 p99 156.671 ms, cpu 43.328 ms/ok
+01:51:26   check-action: 1/1 ok, 9.4/s, p50 99.775 p99 99.775 ms, cpu 155.274 ms/ok
+01:51:33   cold-mixed: 80/80 ok, 15.6/s, p50 13.287 p99 1207.295 ms, cpu 59.595 ms/ok
+01:52:34   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.319 p99 67.775 ms, cpu 10.952 ms/ok
+01:53:06   burst-mixed: 3749/3749 ok, 125.0/s, p50 70.271 p99 915.967 ms, cpu 8.034 ms/ok
+01:55:09   done: ready 1969 ms
+01:55:09 re1-sizing-256m-1cpu-r1
+01:55:48   check-ssr: 8/8 ok, 4.7/s, p50 96.511 p99 943.615 ms, cpu 216.839 ms/ok
+01:55:50   check-api: 8/8 ok, 22.0/s, p50 20.911 p99 145.663 ms, cpu 51.476 ms/ok
+01:55:52   check-action: 1/1 ok, 7.5/s, p50 131.199 p99 131.199 ms, cpu 186.233 ms/ok
+01:55:58   cold-mixed: 80/80 ok, 21.9/s, p50 9.695 p99 417.023 ms, cpu 45.939 ms/ok
+01:56:59   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.959 p99 279.039 ms, cpu 14.900 ms/ok
+01:57:31   burst-mixed: 3847/3847 ok, 128.2/s, p50 68.095 p99 871.935 ms, cpu 7.886 ms/ok
+01:59:34   done: ready 4298 ms
+01:59:34 re2-256m-1cpu-r1
+02:00:11   check-ssr: 8/8 ok, 4.7/s, p50 97.151 p99 1024.511 ms, cpu 214.941 ms/ok
+02:00:13   check-api: 8/8 ok, 34.4/s, p50 11.831 p99 120.767 ms, cpu 49.546 ms/ok
+02:00:15   check-action: 1/1 ok, 11.5/s, p50 84.351 p99 84.351 ms, cpu 148.592 ms/ok
+02:00:19   cold-mixed: 80/80 ok, 29.9/s, p50 8.623 p99 368.895 ms, cpu 33.708 ms/ok
+02:01:20   steady-mixed: 627/627 ok, 10.4/s, p50 5.735 p99 63.423 ms, cpu undefined ms/ok, FAILED 1174
+02:01:33   done: ready 2934 ms, OOM (oom_kill null)
+02:01:33 re2-heap-256m-1cpu-r1
+02:02:09   check-ssr: 8/8 ok, 4.9/s, p50 90.367 p99 866.303 ms, cpu 204.455 ms/ok
+02:02:10   check-api: 8/8 ok, 25.4/s, p50 20.543 p99 131.967 ms, cpu 47.236 ms/ok
+02:02:12   check-action: 1/1 ok, 12.1/s, p50 79.295 p99 79.295 ms, cpu 111.777 ms/ok
+02:02:16   cold-mixed: 80/80 ok, 25.6/s, p50 9.127 p99 412.415 ms, cpu 39.518 ms/ok
+02:03:18   steady-mixed: 1801/1801 ok, 30.0/s, p50 6.371 p99 345.087 ms, cpu 15.490 ms/ok
+02:03:50   burst-mixed: 3606/3606 ok, 120.2/s, p50 72.127 p99 889.343 ms, cpu 8.414 ms/ok
+02:05:52   done: ready 1829 ms
+02:05:53 re2-trim-256m-1cpu-r1
+02:06:29   check-ssr: 8/8 ok, 4.8/s, p50 105.279 p99 885.759 ms, cpu 209.087 ms/ok
+02:06:34   check-api: 8/8 ok, 8.6/s, p50 55.679 p99 518.911 ms, cpu 169.494 ms/ok
+02:06:36   check-action: 1/1 ok, 10.0/s, p50 91.839 p99 91.839 ms, cpu 159.365 ms/ok
+02:06:40   cold-mixed: 80/80 ok, 26.4/s, p50 9.751 p99 314.879 ms, cpu 38.043 ms/ok
+02:07:42   steady-mixed: 1801/1801 ok, 30.0/s, p50 4.399 p99 93.695 ms, cpu 11.012 ms/ok
+02:09:14   burst-mixed: loadgen exit 137 (killed after 90 s): 
+02:09:26   done: ready 1896 ms, OOM (oom_kill null)
+02:09:26 re2-native-256m-1cpu-r1
+02:10:03   check-ssr: 8/8 ok, 4.8/s, p50 105.791 p99 876.543 ms, cpu 212.912 ms/ok
+02:10:05   check-api: 8/8 ok, 28.0/s, p50 11.375 p99 120.575 ms, cpu 48.239 ms/ok
+02:10:06   check-action: 1/1 ok, 13.4/s, p50 70.591 p99 70.591 ms, cpu 136.350 ms/ok
+02:10:12   cold-mixed: 80/80 ok, 22.9/s, p50 8.583 p99 486.911 ms, cpu 44.060 ms/ok
+02:11:14   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.283 p99 174.335 ms, cpu 13.349 ms/ok
+02:11:48   burst-mixed: 1847/1847 ok, 61.6/s, p50 100.351 p99 2453.503 ms, cpu 16.922 ms/ok
+02:13:54   done: ready 2055 ms
+02:13:54 re2-balanced-256m-1cpu-r1
+02:14:43   check-ssr: 8/8 ok, 1.6/s, p50 336.127 p99 2547.711 ms, cpu 613.679 ms/ok
+02:14:46   check-api: 8/8 ok, 9.6/s, p50 88.703 p99 289.535 ms, cpu 114.702 ms/ok
+02:14:49   check-action: 1/1 ok, 7.1/s, p50 137.087 p99 137.087 ms, cpu 182.088 ms/ok
+02:14:55   cold-mixed: 80/80 ok, 17.9/s, p50 11.095 p99 542.207 ms, cpu 55.944 ms/ok
+02:15:58   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.559 p99 157.311 ms, cpu 15.808 ms/ok
+02:16:30   burst-mixed: 2332/2332 ok, 77.7/s, p50 92.863 p99 1628.159 ms, cpu 12.931 ms/ok
+02:18:33   done: ready 7102 ms
+02:18:33 re2-lowmem-256m-1cpu-r1
+02:19:09   check-ssr: 8/8 ok, 4.5/s, p50 125.119 p99 900.095 ms, cpu 222.431 ms/ok
+02:19:11   check-api: 8/8 ok, 25.0/s, p50 11.887 p99 131.839 ms, cpu 51.080 ms/ok
+02:19:13   check-action: 1/1 ok, 8.9/s, p50 105.983 p99 105.983 ms, cpu 179.028 ms/ok
+02:19:18   cold-mixed: 80/80 ok, 26.9/s, p50 8.239 p99 386.047 ms, cpu 37.574 ms/ok
+02:20:19   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.431 p99 538.623 ms, cpu 14.366 ms/ok
+02:20:51   burst-mixed: 3389/3389 ok, 113.0/s, p50 76.287 p99 997.887 ms, cpu 8.947 ms/ok
+02:22:54   done: ready 1909 ms
+02:22:54 node-256m-1cpu-r1
+02:23:32   check-ssr: 8/8 ok, 2.8/s, p50 145.023 p99 1676.287 ms, cpu 352.595 ms/ok
+02:23:34   check-api: 8/8 ok, 17.8/s, p50 21.503 p99 244.607 ms, cpu 58.179 ms/ok
+02:23:35   check-action: 1/1 ok, 7.8/s, p50 121.471 p99 121.471 ms, cpu 155.476 ms/ok
+02:23:40   cold-mixed: 80/80 ok, 19.8/s, p50 26.639 p99 356.607 ms, cpu 50.504 ms/ok
+02:24:41   steady-mixed: 1801/1801 ok, 30.0/s, p50 13.655 p99 949.759 ms, cpu 20.856 ms/ok
+02:25:12   burst-mixed: 2001/2001 ok, 66.7/s, p50 158.975 p99 998.399 ms, cpu 14.977 ms/ok
+02:27:16   done: ready 3950 ms
+02:27:16 base-512m-1cpu-r1
+02:27:58   check-ssr: 8/8 ok, 3.6/s, p50 119.935 p99 1366.015 ms, cpu 281.925 ms/ok
+02:28:01   check-api: 8/8 ok, 14.7/s, p50 20.239 p99 313.343 ms, cpu 83.863 ms/ok
+02:28:03   check-action: 1/1 ok, 9.3/s, p50 105.279 p99 105.279 ms, cpu 169.449 ms/ok
+02:28:09   cold-mixed: 80/80 ok, 22.3/s, p50 10.495 p99 599.039 ms, cpu 44.312 ms/ok
+02:29:11   steady-mixed: 1801/1801 ok, 30.0/s, p50 10.407 p99 1399.807 ms, cpu 21.436 ms/ok
+02:29:43   burst-mixed: 3186/3186 ok, 106.2/s, p50 77.247 p99 1132.543 ms, cpu 9.480 ms/ok
+02:31:46   done: ready 4661 ms
+02:31:46 base-arena2-512m-1cpu-r1
+02:32:24   check-ssr: 8/8 ok, 4.0/s, p50 97.919 p99 1187.839 ms, cpu 251.850 ms/ok
+02:32:26   check-api: 8/8 ok, 28.0/s, p50 15.727 p99 122.623 ms, cpu 52.162 ms/ok
+02:32:28   check-action: 1/1 ok, 9.4/s, p50 99.199 p99 99.199 ms, cpu 176.762 ms/ok
+02:32:32   cold-mixed: 80/80 ok, 25.4/s, p50 9.055 p99 422.655 ms, cpu 39.547 ms/ok
+02:33:34   steady-mixed: 1801/1801 ok, 30.0/s, p50 4.659 p99 78.335 ms, cpu 10.867 ms/ok
+02:34:06   burst-mixed: 3430/3430 ok, 114.3/s, p50 76.287 p99 1006.591 ms, cpu 8.812 ms/ok
+02:36:09   done: ready 3119 ms
+02:36:09 base-jemalloc-512m-1cpu-r1
+02:36:48   check-ssr: 8/8 ok, 4.1/s, p50 103.871 p99 1096.703 ms, cpu 244.261 ms/ok
+02:36:50   check-api: 8/8 ok, 30.8/s, p50 11.935 p99 124.991 ms, cpu 48.356 ms/ok
+02:36:51   check-action: 1/1 ok, 12.3/s, p50 75.711 p99 75.711 ms, cpu 134.281 ms/ok
+02:36:55   cold-mixed: 80/80 ok, 30.5/s, p50 7.839 p99 281.599 ms, cpu 32.964 ms/ok
+02:37:57   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.091 p99 63.199 ms, cpu 10.535 ms/ok
+02:38:28   burst-mixed: 4448/4448 ok, 148.3/s, p50 58.623 p99 721.919 ms, cpu 6.843 ms/ok
+02:40:31   done: ready 4262 ms
+02:40:31 base-mimalloc-512m-1cpu-r1
+02:41:07   check-ssr: 8/8 ok, 5.4/s, p50 97.983 p99 810.495 ms, cpu 186.755 ms/ok
+02:41:10   check-api: 8/8 ok, 30.1/s, p50 16.671 p99 139.519 ms, cpu 61.135 ms/ok
+02:41:12   check-action: 1/1 ok, 9.3/s, p50 102.271 p99 102.271 ms, cpu 205.008 ms/ok
+02:41:17   cold-mixed: 80/80 ok, 25.0/s, p50 9.503 p99 344.831 ms, cpu 41.511 ms/ok
+02:42:22   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.919 p99 1427.455 ms, cpu 14.171 ms/ok
+02:42:54   burst-mixed: 3386/3386 ok, 112.9/s, p50 74.047 p99 1083.391 ms, cpu 8.941 ms/ok
+02:44:57   done: ready 1891 ms
+02:44:57 base-semi2-512m-1cpu-r1
+02:45:34   check-ssr: 8/8 ok, 3.9/s, p50 135.679 p99 886.271 ms, cpu 256.279 ms/ok
+02:45:35   check-api: 8/8 ok, 30.7/s, p50 15.279 p99 129.727 ms, cpu 39.029 ms/ok
+02:45:37   check-action: 1/1 ok, 12.0/s, p50 77.823 p99 77.823 ms, cpu 145.033 ms/ok
+02:45:42   cold-mixed: 80/80 ok, 23.2/s, p50 8.743 p99 453.119 ms, cpu 42.392 ms/ok
+02:46:44   steady-mixed: 1801/1801 ok, 30.0/s, p50 4.803 p99 136.319 ms, cpu 13.277 ms/ok
+02:47:16   burst-mixed: 3204/3204 ok, 106.8/s, p50 80.895 p99 1084.415 ms, cpu 9.397 ms/ok
+02:49:19   done: ready 2055 ms
+02:49:19 re1-sizing-512m-1cpu-r1
+02:49:57   check-ssr: 8/8 ok, 3.3/s, p50 99.263 p99 1332.223 ms, cpu 300.966 ms/ok
+02:49:59   check-api: 8/8 ok, 27.5/s, p50 18.463 p99 133.503 ms, cpu 50.794 ms/ok
+02:50:00   check-action: 1/1 ok, 11.6/s, p50 84.991 p99 84.991 ms, cpu 119.894 ms/ok
+02:50:05   cold-mixed: 80/80 ok, 27.5/s, p50 7.343 p99 279.807 ms, cpu 36.079 ms/ok
+02:51:06   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.467 p99 115.263 ms, cpu 12.813 ms/ok
+02:51:38   burst-mixed: 3537/3537 ok, 117.9/s, p50 74.495 p99 932.351 ms, cpu 8.638 ms/ok
+02:53:42   done: ready 2476 ms
+02:53:43 re2-512m-1cpu-r1
+02:54:25   check-ssr: 8/8 ok, 2.1/s, p50 188.799 p99 2275.327 ms, cpu 483.502 ms/ok
+02:54:29   check-api: 8/8 ok, 12.1/s, p50 67.519 p99 223.487 ms, cpu 91.734 ms/ok
+02:54:32   check-action: 1/1 ok, 7.0/s, p50 139.263 p99 139.263 ms, cpu 227.306 ms/ok
+02:54:41   cold-mixed: 80/80 ok, 13.1/s, p50 17.151 p99 778.239 ms, cpu 76.195 ms/ok
+02:55:44   steady-mixed: 1801/1801 ok, 30.0/s, p50 6.879 p99 177.151 ms, cpu 15.206 ms/ok
+02:56:16   burst-mixed: 3182/3182 ok, 106.1/s, p50 81.215 p99 1075.199 ms, cpu 9.504 ms/ok
+02:58:20   done: ready 3438 ms
+02:58:20 re2-heap-512m-1cpu-r1
+02:58:57   check-ssr: 8/8 ok, 3.6/s, p50 120.127 p99 1091.583 ms, cpu 266.436 ms/ok
+02:58:59   check-api: 8/8 ok, 24.8/s, p50 14.215 p99 156.031 ms, cpu 52.111 ms/ok
+02:59:01   check-action: 1/1 ok, 9.5/s, p50 99.839 p99 99.839 ms, cpu 152.548 ms/ok
+02:59:06   cold-mixed: 80/80 ok, 24.3/s, p50 10.703 p99 376.831 ms, cpu 41.638 ms/ok
+03:00:07   steady-mixed: 1801/1801 ok, 30.0/s, p50 4.287 p99 106.943 ms, cpu 11.881 ms/ok
+03:00:39   burst-mixed: 2812/2812 ok, 93.7/s, p50 89.151 p99 1215.487 ms, cpu 10.743 ms/ok
+03:02:42   done: ready 2031 ms
+03:02:42 re2-trim-512m-1cpu-r1
+03:03:18   check-ssr: 8/8 ok, 5.4/s, p50 100.159 p99 817.151 ms, cpu 187.456 ms/ok
+03:03:20   check-api: 8/8 ok, 26.2/s, p50 10.743 p99 131.455 ms, cpu 48.780 ms/ok
+03:03:21   check-action: 1/1 ok, 13.4/s, p50 71.871 p99 71.871 ms, cpu 132.444 ms/ok
+03:03:25   cold-mixed: 80/80 ok, 29.6/s, p50 7.999 p99 298.239 ms, cpu 33.959 ms/ok
+03:04:27   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.279 p99 61.279 ms, cpu 10.430 ms/ok
+03:04:59   burst-mixed: 4272/4272 ok, 142.4/s, p50 58.303 p99 831.487 ms, cpu 7.065 ms/ok
+03:07:01   done: ready 1912 ms
+03:07:01 re2-native-512m-1cpu-r1
+03:07:38   check-ssr: 8/8 ok, 5.2/s, p50 91.199 p99 835.071 ms, cpu 198.339 ms/ok
+03:07:39   check-api: 8/8 ok, 26.9/s, p50 11.847 p99 116.287 ms, cpu 46.251 ms/ok
+03:07:41   check-action: 1/1 ok, 12.0/s, p50 80.447 p99 80.447 ms, cpu 145.475 ms/ok
+03:07:45   cold-mixed: 80/80 ok, 30.2/s, p50 7.751 p99 290.303 ms, cpu 33.375 ms/ok
+03:08:46   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.335 p99 59.007 ms, cpu 10.313 ms/ok
+03:09:18   burst-mixed: 4237/4237 ok, 141.2/s, p50 60.511 p99 816.127 ms, cpu 7.137 ms/ok
+03:11:21   done: ready 2129 ms
+03:11:21 re2-balanced-512m-1cpu-r1
+03:11:57   check-ssr: 8/8 ok, 4.8/s, p50 83.391 p99 932.863 ms, cpu 210.631 ms/ok
+03:11:59   check-api: 8/8 ok, 30.4/s, p50 13.007 p99 135.039 ms, cpu 49.660 ms/ok
+03:12:01   check-action: 1/1 ok, 9.3/s, p50 103.743 p99 103.743 ms, cpu 135.740 ms/ok
+03:12:05   cold-mixed: 80/80 ok, 27.6/s, p50 8.615 p99 290.559 ms, cpu 36.632 ms/ok
+03:13:07   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.339 p99 61.311 ms, cpu 10.920 ms/ok
+03:13:38   burst-mixed: 3876/3876 ok, 129.2/s, p50 66.431 p99 864.767 ms, cpu 7.806 ms/ok
+03:15:42   done: ready 2019 ms
+03:15:43 re2-lowmem-512m-1cpu-r1
+03:16:19   check-ssr: 8/8 ok, 4.6/s, p50 114.367 p99 869.887 ms, cpu 220.068 ms/ok
+03:16:21   check-api: 8/8 ok, 19.3/s, p50 18.911 p99 185.983 ms, cpu 58.544 ms/ok
+03:16:23   check-action: 1/1 ok, 11.1/s, p50 85.503 p99 85.503 ms, cpu 126.299 ms/ok
+03:16:28   cold-mixed: 80/80 ok, 25.8/s, p50 10.311 p99 394.239 ms, cpu 39.205 ms/ok
+03:17:29   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.299 p99 71.999 ms, cpu 11.091 ms/ok
+03:18:01   burst-mixed: 3776/3776 ok, 125.9/s, p50 70.079 p99 898.559 ms, cpu 8.020 ms/ok
+03:20:04   done: ready 2315 ms
+03:20:04 node-512m-1cpu-r1
+03:20:40   check-ssr: 8/8 ok, 4.2/s, p50 147.455 p99 919.551 ms, cpu 236.592 ms/ok
+03:20:42   check-api: 8/8 ok, 22.9/s, p50 16.735 p99 183.423 ms, cpu 49.224 ms/ok
+03:20:43   check-action: 1/1 ok, 10.0/s, p50 94.975 p99 94.975 ms, cpu 121.552 ms/ok
+03:20:47   cold-mixed: 80/80 ok, 21.5/s, p50 21.487 p99 271.615 ms, cpu 46.362 ms/ok
+03:21:48   steady-mixed: 1801/1801 ok, 30.0/s, p50 10.335 p99 223.487 ms, cpu 17.614 ms/ok
+03:22:19   burst-mixed: 2130/2130 ok, 71.0/s, p50 146.815 p99 964.607 ms, cpu 14.093 ms/ok
+03:24:21   done: ready 2959 ms

@@ -16,6 +16,7 @@ For an introduction, see the [project README](../README.md).
 | [Testing](testing.md) | Rust checks, comparison suites against `next start`, negative controls, CI |
 | [Benchmarks](benchmarks.md) | Preliminary results against `next start`, method, environment, limitations, raw data, drivers |
 | [Performance: Series 1](performance/series1/README.md) | Investigation of Velasia Airways' first Railway series: RSC latency cause and fix, compression cache, memory per isolate, CPU per request |
+| [Performance: resource efficiency](performance/resource-efficiency/README.md) | RE-1 to RE-3: memory and CPU in small containers, glibc retention and reclamation, container-aware V8 heap budget, the RE-2/3 gate (soaks pending) |
 | [Roadmap](roadmap.md) | Phase-by-phase history and candidate milestones |
 
 The command-line help (`nextrs --help`, `nextrs start --help`) is the

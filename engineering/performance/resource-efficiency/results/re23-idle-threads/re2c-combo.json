@@ -1,0 +1,47 @@
+{
+ "variant": {
+  "label": "re2c-combo",
+  "runtime": "re2c",
+  "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90"
+ },
+ "memory": "512m",
+ "cpus": "1",
+ "readyMs": 1889,
+ "settle": 60,
+ "seconds": 300.284,
+ "containerMillicores": 14.75168174128492,
+ "processMillicores": 9.257902518948729,
+ "threads": {
+  "nextrs-v8-0": {
+   "threads": 1,
+   "millicores": 6.593757909179311
+  },
+  "nextrs-supervis": {
+   "threads": 1,
+   "millicores": 2.0314102649491814
+  },
+  "tokio-rt-worker": {
+   "threads": 1,
+   "millicores": 0.49952711433176594
+  },
+  "V8 DefaultWorke": {
+   "threads": 1,
+   "millicores": 0.1332072304884709
+  },
+  "nextrs": {
+   "threads": 1,
+   "millicores": 0
+  },
+  "nextrs-net": {
+   "threads": 4,
+   "millicores": 0
+  }
+ },
+ "contention": {
+  "hostLoad1": 1.91,
+  "vmLoad1": 0.08,
+  "vmBusyTicks": 4377876,
+  "vmTotalTicks": 71326807,
+  "vmStealTicks": 0
+ }
+}

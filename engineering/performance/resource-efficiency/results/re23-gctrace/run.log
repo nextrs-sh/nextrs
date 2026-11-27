@@ -1,0 +1,48 @@
+03:46:37 base-gc-256m-1cpu-r1
+03:47:16   check-ssr: 8/8 ok, 4.4/s, p50 123.391 p99 943.103 ms, cpu 235.770 ms/ok
+03:47:18   check-api: 8/8 ok, 30.1/s, p50 17.183 p99 132.351 ms, cpu 73.673 ms/ok
+03:47:35   check-action: 1/1 ok, 0.3/s, p50 2930.687 p99 2930.687 ms, cpu 4514.251 ms/ok
+03:47:56   cold-mixed: 80/80 ok, 4.9/s, p50 27.663 p99 3874.815 ms, cpu 188.981 ms/ok
+03:49:00   steady-mixed: 1794/1794 ok, 29.9/s, p50 28.815 p99 5865.471 ms, cpu 25.759 ms/ok
+03:50:33   burst-mixed: loadgen exit 137 (killed after 90 s): 
+03:50:45   done: ready 3544 ms, OOM (oom_kill null)
+03:50:46 re2b-heap-gc-256m-1cpu-r1
+03:51:30   check-ssr: 8/8 ok, 3.0/s, p50 117.055 p99 1552.383 ms, cpu 326.611 ms/ok
+03:51:33   check-api: 8/8 ok, 18.8/s, p50 39.327 p99 157.951 ms, cpu 64.278 ms/ok
+03:51:35   check-action: 1/1 ok, 4.7/s, p50 206.335 p99 206.335 ms, cpu 274.093 ms/ok
+03:51:41   cold-mixed: 80/80 ok, 22.0/s, p50 14.503 p99 466.687 ms, cpu 47.281 ms/ok
+03:52:44   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.475 p99 338.175 ms, cpu 14.716 ms/ok
+03:53:17   burst-mixed: 2424/2424 ok, 80.8/s, p50 91.583 p99 1619.967 ms, cpu 12.560 ms/ok
+03:55:20   done: ready 6170 ms
+03:55:21 re2b-combo-gc-256m-1cpu-r1
+03:55:58   check-ssr: 8/8 ok, 4.4/s, p50 107.967 p99 978.943 ms, cpu 230.950 ms/ok
+03:56:00   check-api: 8/8 ok, 21.9/s, p50 15.455 p99 228.479 ms, cpu 52.333 ms/ok
+03:56:02   check-action: 1/1 ok, 9.8/s, p50 101.375 p99 101.375 ms, cpu 163.398 ms/ok
+03:56:06   cold-mixed: 80/80 ok, 25.2/s, p50 9.151 p99 452.863 ms, cpu 39.857 ms/ok
+03:57:09   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.539 p99 208.511 ms, cpu 15.246 ms/ok
+03:57:41   burst-mixed: 2797/2797 ok, 93.2/s, p50 84.287 p99 1274.879 ms, cpu 10.871 ms/ok
+03:59:44   done: ready 2589 ms
+03:59:44 base-gc-512m-1cpu-r1
+04:00:23   check-ssr: 8/8 ok, 3.5/s, p50 155.647 p99 1298.431 ms, cpu 289.127 ms/ok
+04:00:24   check-api: 8/8 ok, 25.1/s, p50 12.223 p99 133.887 ms, cpu 52.733 ms/ok
+04:00:26   check-action: 1/1 ok, 10.6/s, p50 88.767 p99 88.767 ms, cpu 166.383 ms/ok
+04:00:31   cold-mixed: 80/80 ok, 28.2/s, p50 8.351 p99 288.511 ms, cpu 35.792 ms/ok
+04:01:33   steady-mixed: 1806/1806 ok, 30.1/s, p50 5.019 p99 535.551 ms, cpu 13.726 ms/ok
+04:02:06   burst-mixed: 2587/2587 ok, 86.2/s, p50 86.463 p99 1561.599 ms, cpu 11.056 ms/ok
+04:04:09   done: ready 3215 ms
+04:04:10 re2b-heap-gc-512m-1cpu-r1
+04:04:46   check-ssr: 8/8 ok, 4.6/s, p50 108.095 p99 927.231 ms, cpu 218.051 ms/ok
+04:04:48   check-api: 8/8 ok, 27.2/s, p50 12.743 p99 161.279 ms, cpu 56.544 ms/ok
+04:04:50   check-action: 1/1 ok, 11.1/s, p50 86.783 p99 86.783 ms, cpu 307.828 ms/ok
+04:04:55   cold-mixed: 80/80 ok, 23.3/s, p50 10.471 p99 555.519 ms, cpu 43.103 ms/ok
+04:05:57   steady-mixed: 1801/1801 ok, 30.0/s, p50 4.691 p99 67.327 ms, cpu 11.098 ms/ok
+04:06:29   burst-mixed: 2867/2867 ok, 95.6/s, p50 82.559 p99 1383.423 ms, cpu 10.632 ms/ok
+04:08:34   done: ready 1963 ms
+04:08:34 re2b-combo-gc-512m-1cpu-r1
+04:09:16   check-ssr: 8/8 ok, 2.9/s, p50 148.479 p99 1308.671 ms, cpu 344.228 ms/ok
+04:09:18   check-api: 8/8 ok, 19.2/s, p50 17.599 p99 173.055 ms, cpu 63.471 ms/ok
+04:09:21   check-action: 1/1 ok, 7.9/s, p50 120.767 p99 120.767 ms, cpu 207.356 ms/ok
+04:09:28   cold-mixed: 80/80 ok, 16.3/s, p50 13.535 p99 1130.495 ms, cpu 62.635 ms/ok
+04:10:30   steady-mixed: 1801/1801 ok, 30.0/s, p50 5.419 p99 102.591 ms, cpu 12.844 ms/ok
+04:11:01   burst-mixed: 3852/3852 ok, 128.4/s, p50 68.159 p99 867.839 ms, cpu 7.844 ms/ok
+04:13:05   done: ready 4031 ms
