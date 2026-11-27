@@ -259,6 +259,10 @@ impl ServeStages {
 pub struct HttpMetrics {
     pub requests: [AtomicU64; 6],
     pub in_flight: AtomicI64,
+    /// Requests that reached the application, counted on arrival (the
+    /// memory reclaimer's activity signal; `requests` counts by status
+    /// once the head is sent).
+    pub arrivals: AtomicU64,
     pub head: [Histogram; 6],
     pub duration: [Histogram; 6],
     /// completed: the body was delivered to the end; aborted: dropped
@@ -303,6 +307,7 @@ impl HttpMetrics {
 
     /// Called when a request reaches the application.
     pub(crate) fn start(self: &Arc<Self>) -> RequestTimer {
+        self.arrivals.fetch_add(1, Ordering::Relaxed);
         self.in_flight.fetch_add(1, Ordering::Relaxed);
         RequestTimer {
             metrics: self.clone(),

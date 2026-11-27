@@ -44,6 +44,12 @@ exports.handler = async (req, res) => {
       const hoard = [];
       for (;;) hoard.push(new Array(100000).fill(Math.random()));
     }
+    // Reaches the heap limit with one allocation much larger than the
+    // pages around it: 24 MiB arrays, each a single large object.
+    case "oom-large": {
+      const hoard = [];
+      for (;;) hoard.push(new Array(3 * 1024 * 1024).fill(Math.random()));
+    }
     // Never settles; only the request deadline ends it.
     case "never":
       return new Promise(() => {});

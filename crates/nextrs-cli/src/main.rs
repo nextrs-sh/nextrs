@@ -481,11 +481,12 @@ struct LimitArgs {
     #[arg(long, value_name = "SECONDS", default_value_t = 60.0)]
     js_bootstrap_timeout: f64,
     /// V8 heap limit per isolate; reaching it replaces the isolate. A
-    /// number of MiB, or `auto`: size each isolate's heap as V8 would on a
-    /// machine with the container's memory limit divided by --isolates (as
-    /// Node.js sizes its heap from the container limit). Default: V8's own
-    /// limit, from the machine's memory (`auto` with --profile balanced or
-    /// low-memory). Bounds the JavaScript heap only, not the process.
+    /// number of MiB, or `auto`: budget the container's memory limit (or
+    /// the machine's memory) over all --isolates after reserving NextRS's
+    /// native memory, and size the rest of each heap as V8 would for that
+    /// share. Default: V8's own limit, from the machine's memory (`auto`
+    /// with --profile balanced or low-memory). Bounds the JavaScript heap
+    /// only, not the process.
     #[arg(long, value_name = "MIB|auto")]
     js_heap_limit: Option<HeapLimit>,
     /// Response bytes buffered per request before backpressure applies.
@@ -532,8 +533,9 @@ struct LimitArgs {
     profile: Option<Profile>,
     /// After this long without requests, every isolate collects garbage
     /// and the native allocator returns its free memory to the system,
-    /// once per idle period. 0 disables it. [default: 0; 30 with
-    /// --profile balanced, 10 with low-memory]
+    /// once per idle period. Up to about one request per 3 s (health
+    /// checks) still counts as idle. 0 disables it; at most 86400. [default: 0;
+    /// 30 with --profile balanced, 10 with low-memory]
     #[arg(long, value_name = "SECONDS")]
     memory_reclaim_idle: Option<f64>,
     /// The same, also under load (at most every 10 s), while the
@@ -543,11 +545,11 @@ struct LimitArgs {
     /// with --profile balanced, 85 with low-memory]
     #[arg(long, value_name = "PERCENT")]
     memory_pressure_reclaim: Option<f64>,
-    /// Native allocator (glibc) arenas; fewer retain less free memory, at
-    /// some cost under highly concurrent allocation. 0 keeps glibc's
-    /// default (8 per CPU of the machine). MALLOC_ARENA_MAX in the
-    /// environment takes precedence. [default: 0; 2 with --profile
-    /// low-memory]
+    /// Native allocator (glibc) arenas. Fewer can mean less retained
+    /// memory with many allocating threads, or more (on Velasia, 2 arenas
+    /// retained more than the default); measure before using it. 0 keeps
+    /// glibc's default (8 per CPU of the machine). MALLOC_ARENA_MAX in the
+    /// environment takes precedence. [default: 0]
     #[arg(long, value_name = "N")]
     malloc_arena_max: Option<usize>,
 }
@@ -582,8 +584,8 @@ enum Profile {
     /// Heap sized from the container's memory, idle (30 s) and pressure
     /// (90 %) reclamation.
     Balanced,
-    /// As balanced with earlier reclamation (10 s, 85 %), 2 allocator
-    /// arenas and an 8 MiB compression cache.
+    /// As balanced with earlier reclamation (10 s, 85 %) and an 8 MiB
+    /// compression cache.
     LowMemory,
 }
 
@@ -614,14 +616,96 @@ impl MemorySettings {
                 pressure_percent: Some(90.0),
                 malloc_arena_max: 0,
             },
+            // No arena cap: two arenas retained more memory than glibc's
+            // default in the RE-2 screening (RE-2-ALLOCATOR-COMPARISON).
             Profile::LowMemory => Self {
                 heap_limit: Some(HeapLimit::Auto),
                 compression_cache_mib: 8,
                 reclaim_idle: Some(Duration::from_secs(10)),
                 pressure_percent: Some(85.0),
-                malloc_arena_max: 2,
+                malloc_arena_max: 0,
             },
         }
+    }
+}
+
+/// Applies `--js-heap-limit` (or the profile's) to the executor's limits.
+/// `auto` budgets the container's memory over the whole isolate pool
+/// ([`nextrs_runtime::heap_budget`]); a number is a per-isolate limit, as
+/// given. Logs what was decided and warns when the heaps cannot fit.
+fn apply_heap_limit(limits: &mut Limits, memory: &MemorySettings) {
+    const MIB: u64 = 1024 * 1024;
+    let isolates = limits.isolates.max(1);
+    let cgroup = nextrs_runtime::Cgroup::locate();
+    let cgroup_memory = cgroup.as_ref().and_then(nextrs_runtime::Cgroup::read);
+    let container_limit = cgroup_memory.and_then(|m| m.limit);
+    match memory.heap_limit {
+        Some(HeapLimit::Mib(mib)) => {
+            limits.heap_limit_bytes = Some(mib.saturating_mul(1024 * 1024));
+            let pool = u64::try_from(mib)
+                .unwrap_or(u64::MAX)
+                .saturating_mul(MIB)
+                .saturating_mul(u64::try_from(isolates).unwrap_or(u64::MAX));
+            if let Some(limit) = container_limit
+                && pool >= limit
+            {
+                tracing::warn!(
+                    heap_limit_mib = mib,
+                    isolates,
+                    container_limit_mib = limit / MIB,
+                    "--js-heap-limit: the isolates' heaps together may grow past the container's \
+                     memory limit, which the kernel enforces by killing the process; \
+                     consider --js-heap-limit auto"
+                );
+            }
+        }
+        Some(HeapLimit::Auto) => {
+            let physical = nextrs_runtime::physical_memory();
+            let available = match (container_limit, physical) {
+                (Some(l), Some(p)) => Some(l.min(p)),
+                (l, p) => l.or(p),
+            };
+            let Some(available) = available else {
+                tracing::warn!(
+                    "--js-heap-limit auto: neither a container limit nor the machine's memory \
+                     could be read; V8's default heap sizing applies"
+                );
+                return;
+            };
+            let cache = u64::try_from(memory.compression_cache_mib)
+                .unwrap_or(u64::MAX)
+                .saturating_mul(MIB);
+            let budget = nextrs_runtime::heap_budget(available, isolates, cache);
+            limits.heap_memory_bytes = Some(budget.sizing_memory);
+            limits.heap_limit_bytes =
+                Some(usize::try_from(budget.heap_limit).unwrap_or(usize::MAX));
+            tracing::info!(
+                available_mib = budget.available / MIB,
+                source = match (container_limit, cgroup_memory.and_then(|m| m.limit_kind)) {
+                    (Some(_), Some(nextrs_runtime::LimitKind::High)) => "cgroup memory.high",
+                    (Some(l), _) if physical.is_none_or(|p| l <= p) => "cgroup limit",
+                    _ => "physical memory",
+                },
+                cgroup = %cgroup.as_ref().map_or_else(|| "none".into(), |c| c.dir.display().to_string()),
+                isolates,
+                reserved_mib = budget.reserved / MIB,
+                heap_limit_mib = budget.heap_limit / MIB,
+                sizing_memory_mib = budget.sizing_memory / MIB,
+                "V8 heaps budgeted from the available memory (--js-heap-limit auto)"
+            );
+            if budget.clamped {
+                tracing::warn!(
+                    available_mib = budget.available / MIB,
+                    isolates,
+                    reserved_mib = budget.reserved / MIB,
+                    heap_limit_mib = budget.heap_limit / MIB,
+                    "--js-heap-limit auto: the memory left after NextRS's native reserve is too \
+                     small for this many isolates; each gets the minimum heap and the process \
+                     may not fit the container (use fewer --isolates or more memory)"
+                );
+            }
+        }
+        None => {}
     }
 }
 
@@ -639,8 +723,8 @@ impl LimitArgs {
             m.compression_cache_mib = mib;
         }
         if let Some(secs) = self.memory_reclaim_idle {
-            if !secs.is_finite() || secs < 0.0 {
-                return Err(format!("--memory-reclaim-idle {secs}: seconds, 0 or more"));
+            if !secs.is_finite() || !(0.0..=86_400.0).contains(&secs) {
+                return Err(format!("--memory-reclaim-idle {secs}: seconds, 0 to 86400"));
             }
             m.reclaim_idle = seconds(secs);
         }
@@ -872,25 +956,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     let mut config =
                         ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
                     config.limits = limits.executor_limits();
-                    match memory.heap_limit {
-                        Some(HeapLimit::Mib(mib)) => {
-                            config.limits.heap_limit_bytes = Some(mib.saturating_mul(1024 * 1024));
-                        }
-                        Some(HeapLimit::Auto) => {
-                            let isolates = config.limits.isolates.max(1) as u64;
-                            let total = nextrs_runtime::constrained_memory();
-                            config.limits.heap_memory_bytes = total.map(|t| t / isolates);
-                            tracing::info!(
-                                memory = total.unwrap_or(0),
-                                per_isolate = config.limits.heap_memory_bytes.unwrap_or(0),
-                                container_limit = nextrs_runtime::CgroupMemory::current()
-                                    .and_then(|m| m.limit)
-                                    .unwrap_or(0),
-                                "V8 heaps sized from the available memory (--js-heap-limit auto)"
-                            );
-                        }
-                        None => {}
-                    }
+                    apply_heap_limit(&mut config.limits, &memory);
                     config.build_route_cache = info.route_cache_files();
                     if let Some(root) = &info.workspace_root {
                         tracing::info!(
@@ -966,6 +1032,20 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                             return Err(format!("unknown V8 flags: {}", unknown.join(" ")).into());
                         }
                         tracing::warn!(flags = %flags.join(" "), "experimental V8 flags set");
+                        // V8 applies these after the embedder's constraints.
+                        if memory.heap_limit.is_some()
+                            && flags.iter().any(|f| {
+                                let f = f.trim_start_matches('-').replace('_', "-");
+                                ["max-old-space-size", "max-semi-space-size", "max-heap-size"]
+                                    .iter()
+                                    .any(|k| f.starts_with(k))
+                            })
+                        {
+                            tracing::warn!(
+                                "--v8-flags heap sizing overrides --js-heap-limit; the log line \
+                                 'V8 heap limit in effect' shows the result"
+                            );
+                        }
                     }
                     let executor = Executor::start(config)?;
                     tracing::info!(
@@ -1307,7 +1387,7 @@ mod tests {
             assert_eq!(b.pressure_percent, Some(90.0));
             let l = settings(&["--profile", "low-memory"]).unwrap();
             assert_eq!(l.compression_cache_mib, 8);
-            assert_eq!(l.malloc_arena_max, 2);
+            assert_eq!(l.malloc_arena_max, 0);
             assert_eq!(l.reclaim_idle, Some(Duration::from_secs(10)));
         }
 
@@ -1353,6 +1433,7 @@ mod tests {
         fn invalid_reclaim_values_are_refused() {
             assert!(settings(&["--memory-reclaim-idle", "-1"]).is_err());
             assert!(settings(&["--memory-reclaim-idle", "NaN"]).is_err());
+            assert!(settings(&["--memory-reclaim-idle", "86401"]).is_err());
             assert!(settings(&["--memory-pressure-reclaim", "150"]).is_err());
             assert!(settings(&["--profile", "turbo"]).is_err());
         }
