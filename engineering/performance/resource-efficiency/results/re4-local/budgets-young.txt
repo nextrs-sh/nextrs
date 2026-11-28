@@ -1,0 +1,25 @@
+label=budgets-young flags=--js-external-memory-limit 16 --native-buffer-budget 1 --js-heap-limit auto --js-young-semi-space 8
+readyz 200
+healthz 200
+GET / 200
+GET /dynamic 200
+GET /books/42 200
+GET /api/health 200
+GET /data-fetch 500
+GET /request-info 200
+GET /_next/static/chunks/39_j1bdzreq0m.js 200
+concurrent-status 200 24
+static-after 200 health-after 200
+nextrs_executor_heap_limit_bytes{slot="0"} 4395630592
+nextrs_external_memory_limit_bytes 16777216
+nextrs_external_memory_used_bytes 1349876
+nextrs_external_memory_peak_bytes 1349876
+nextrs_native_buffer_budget_bytes 1048576
+nextrs_native_buffer_peak_bytes 229376
+nextrs_native_buffer_reserved_bytes_total{kind="static_file"} 458576
+VmHWM:	   85044 kB
+VmRSS:	   85044 kB
+RssAnon:	   45540 kB
+2026-11-28T07:04:18.304812Z  INFO nextrs::executor: V8 heap limit in effect slot=0 heap_limit_mib=4192
+2026-11-28T07:04:18.417666Z  INFO nextrs: native buffer budget enabled (static files, proxy request bodies) budget_mib=1 wait_ms=2000
+Error: NEXTRS_UPSTREAM is not set

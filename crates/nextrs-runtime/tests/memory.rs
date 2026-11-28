@@ -163,3 +163,29 @@ async fn heap_sized_from_memory_follows_v8s_defaults_for_that_memory() {
     .await;
     assert!(explicit <= 110 * MIB, "{explicit}");
 }
+
+/// RE-4G: a young-generation floor takes its room from the old generation;
+/// the heap limit V8 enforces stays where the budget put it, and requests
+/// still run.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_young_generation_floor_keeps_the_heap_limit() {
+    const MIB: usize = 1024 * 1024;
+    let budget = nextrs_runtime::heap_budget(256 * 1024 * 1024, 1, 32 * 1024 * 1024);
+    let sized = |floor: Option<usize>| Limits {
+        heap_limit_bytes: Some(usize::try_from(budget.heap_limit).unwrap()),
+        heap_memory_bytes: Some(budget.sizing_memory),
+        young_semi_space_floor_bytes: floor,
+        ..limits(1)
+    };
+    let base = heap_limit(&executor(sized(None))).await;
+    for floor in [4 * MIB, 8 * MIB, 16 * MIB] {
+        let executor = executor(sized(Some(floor)));
+        let floored = heap_limit(&executor).await;
+        assert!(
+            floored.abs_diff(base) <= 2 * MIB,
+            "semi-space floor {} MiB: limit {floored} vs {base}",
+            floor / MIB
+        );
+        assert!(!whoami(&executor).await.is_empty());
+    }
+}

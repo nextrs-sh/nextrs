@@ -18,8 +18,10 @@
 //! `js/` (NextRS-owned) and `js/node-polyfills.js` (vendored npm packages),
 //! and host capabilities only through the ops in `ops.rs`.
 
+mod admission;
 mod cache;
 mod embedded_js;
+mod external;
 mod internal;
 mod memory;
 mod metrics;
@@ -41,7 +43,12 @@ use std::time::Duration;
 
 use bytes::Bytes;
 
+pub use crate::admission::{
+    CgroupProbe, MemoryAdmission, MemoryProbe, MemoryReading, MemoryState, ProcessProbe,
+    RequestClass,
+};
 pub use crate::cache::CacheConfig;
+pub use crate::external::{ExternalSnapshot, REFUSABLE_MIN as EXTERNAL_REFUSABLE_MIN};
 pub use crate::internal::{
     InternalBody, InternalDispatch, InternalRequest, InternalResponse, MAX_INTERNAL_REQUESTS,
 };
@@ -51,8 +58,8 @@ pub use crate::memory::{
     release_free_memory, set_malloc_arena_max,
 };
 pub use crate::metrics::{
-    CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MallocSnapshot, MemorySnapshot,
-    MetricsSnapshot, UpstreamSnapshot, set_malloc_mmap_threshold,
+    AdmissionSnapshot, CacheSnapshot, ExecutorSnapshot, FetchSnapshot, HeapLimitEpisode,
+    MallocSnapshot, MemorySnapshot, MetricsSnapshot, UpstreamSnapshot, set_malloc_mmap_threshold,
 };
 pub use crate::net::{
     AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy, Upstream,
@@ -214,6 +221,30 @@ pub struct Limits {
     /// On shutdown, how long in-flight requests may run before their
     /// isolates are terminated.
     pub shutdown_grace: Duration,
+    /// Memory-aware admission ([`MemoryAdmission`]): requests are refused
+    /// ([`RenderError::MemoryPressure`]) or wait while the container is
+    /// near its memory budget. Best effort, on measured memory and
+    /// per-request estimates: not a memory limit. `None` (the default):
+    /// admission by concurrency only.
+    pub memory_admission: Option<MemoryAdmission>,
+    /// Limit on ArrayBuffer backing stores V8 allocates for JavaScript
+    /// (`new ArrayBuffer`, typed arrays, `Buffer`), over all isolates
+    /// together. An allocation of 64 KiB or more that would cross it fails
+    /// with a `RangeError` in JavaScript, after V8 has collected garbage and
+    /// retried; smaller ones are always granted. Buffers handed to
+    /// JavaScript from Rust (request bodies, fetch chunks, file reads) are
+    /// not counted. `None` (the default): V8's own allocator, no limit.
+    pub external_memory_limit_bytes: Option<usize>,
+    /// Experimental (RE-4G): a floor for each isolate's semi-space size.
+    /// The young generation (two semi-spaces and the new large-object
+    /// space, 3 × the semi-space) is raised to at least 3 × this, rounded
+    /// down to a power of two, and the old generation is reduced by the
+    /// same amount, so the heap's total stays as configured; the young
+    /// generation never takes more than half of it. Applies only with a
+    /// configured heap (`heap_limit_bytes` or `heap_memory_bytes`); a
+    /// young generation V8 already sized larger is kept. Through V8's
+    /// supported `ResourceConstraints`, no V8 flags. `None`: V8's sizing.
+    pub young_semi_space_floor_bytes: Option<usize>,
 }
 
 impl Default for Limits {
@@ -232,6 +263,9 @@ impl Default for Limits {
             restart_backoff_initial: Duration::from_millis(100),
             restart_backoff_max: Duration::from_secs(30),
             shutdown_grace: Duration::from_secs(10),
+            memory_admission: None,
+            external_memory_limit_bytes: None,
+            young_semi_space_floor_bytes: None,
         }
     }
 }
@@ -387,6 +421,9 @@ pub enum RenderError {
     ShuttingDown,
     /// The chosen isolate failed before the request could be delivered.
     Unavailable,
+    /// Memory-aware admission: the container is at its critical memory
+    /// level while other requests run.
+    MemoryPressure,
 }
 
 impl fmt::Display for RenderError {
@@ -396,6 +433,7 @@ impl fmt::Display for RenderError {
             Self::QueueTimeout => "timed out waiting for a JavaScript isolate",
             Self::ShuttingDown => "the JavaScript executor is shutting down",
             Self::Unavailable => "the JavaScript isolate became unavailable",
+            Self::MemoryPressure => "the server is near its memory limit",
         })
     }
 }
@@ -410,6 +448,17 @@ impl RenderError {
             Self::QueueTimeout => "executor-queue-timeout",
             Self::ShuttingDown => "executor-shutting-down",
             Self::Unavailable => "executor-unavailable",
+            Self::MemoryPressure => "executor-memory-pressure",
+        }
+    }
+
+    /// Seconds a client should wait before retrying (`Retry-After`).
+    /// Longer under memory pressure: the state needs its cooldown (1 s)
+    /// and a fresh reading to clear.
+    pub fn retry_after_secs(self) -> u64 {
+        match self {
+            Self::MemoryPressure => 2,
+            _ => 1,
         }
     }
 }

@@ -47,6 +47,29 @@ closed. Process-level fault tests ran.
 | [RE-23B-FINAL-MILESTONE-GATE](RE-23B-FINAL-MILESTONE-GATE.md) | Status by section, the nine questions, owner decisions |
 | `RE-23B-CONTROLLED-BENCHMARKS`, `-YOUNG-GENERATION-TUNING`, `-CONTINUOUS-TRAFFIC`, `-POST-TRIM-REGROWTH` | not written: blocked, nothing measured |
 
+### RE-4: resource-aware admission and memory exhaustion resilience
+
+**RE-4 gate: see [RE-4-MILESTONE-GATE](RE-4-MILESTONE-GATE.md)** (separate
+verdicts for implementation, compatibility, resource safety, benchmark
+validation and release). Every new control is opt-in. No default or
+profile changed. No container benchmark ran: the Linux host is still
+blocked, and the [runbook](RE-4-LINUX-BENCHMARK-RUNBOOK.md) is for the
+owner.
+
+| Report | Contents |
+|---|---|
+| [RE-4-RESOURCE-ACCOUNTING](RE-4-RESOURCE-ACCOUNTING.md) | What holds memory, which numbers overlap, what NextRS can and cannot enforce (written before the implementation) |
+| [RE-4-ADMISSION-CONTROL-DESIGN](RE-4-ADMISSION-CONTROL-DESIGN.md) | `--memory-admission`: states, reservations, hysteresis, overload responses, failure of measurements |
+| [RE-4-NATIVE-BUFFER-BUDGETS](RE-4-NATIVE-BUFFER-BUDGETS.md) | The 31-site native buffer audit; `--native-buffer-budget` for whole-file reads and proxy bodies |
+| [RE-4-EXTERNAL-MEMORY-ANALYSIS](RE-4-EXTERNAL-MEMORY-ANALYSIS.md) | How ArrayBuffers are allocated; `--js-external-memory-limit` through a budgeted `ArrayBuffer::Allocator`; hard vs best-effort limits |
+| [RE-4-V8-HEAP-OVERSHOOT](RE-4-V8-HEAP-OVERSHOOT.md) | Why one allocation reaches 6× the heap limit (repeated grants); the fatal boundary; child-process regression tests |
+| [RE-4-FAULT-CONTAINMENT-ADR](RE-4-FAULT-CONTAINMENT-ADR.md) | In-process isolates vs worker processes: decision to stay in-process for now |
+| [RE-4-YOUNG-GENERATION-EXPERIMENT](RE-4-YOUNG-GENERATION-EXPERIMENT.md) | `--js-young-semi-space`: a cap-preserving young-generation floor, and the experiment plan |
+| [RE-4-CORRECTNESS-AND-FAULT-TESTS](RE-4-CORRECTNESS-AND-FAULT-TESTS.md) | Every local test, what it covers, what is blocked on a container engine |
+| [RE-4-LINUX-BENCHMARK-RUNBOOK](RE-4-LINUX-BENCHMARK-RUNBOOK.md) | Native Docker Engine on Fedora, reproducible rebuilds, the decisive campaign, fault tests, soaks |
+| [RE-4-INDEPENDENT-REVIEW](RE-4-INDEPENDENT-REVIEW.md) | Review findings and their resolution |
+| [RE-4-MILESTONE-GATE](RE-4-MILESTONE-GATE.md) | The five verdicts and the eight questions |
+
 ## Data and reproduction
 
 [`results/`](results/) has one directory per stage, holding:
@@ -76,3 +99,4 @@ in [`benchmarks/resource/`](../../../benchmarks/resource/README.md).
 | `re23-idle-threads` | none (health checks only) | 512 MiB / 1 vCPU, 300 s |
 | `re23b-ci` | local gate, streaming-test reproduction and sweeps | Fedora host, no container, `79e4fe5` and `c65731b` |
 | `re23b-safety` | heap-limit and external-memory fault cases, one process each | Fedora host, no container, 64 and 128 MiB heap limits |
+| `re4-heap-overshoot` | the same heap-limit cases with near-heap-limit instrumentation (callback calls, limits, unwind and replacement time) | Fedora host, no container, 64 and 128 MiB heap limits |

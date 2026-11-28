@@ -84,6 +84,8 @@ enum Command {
         #[command(flatten)]
         limits: LimitArgs,
         #[command(flatten)]
+        resources: ResourceArgs,
+        #[command(flatten)]
         net: NetArgs,
         #[command(flatten)]
         cache: CacheArgs,
@@ -554,6 +556,159 @@ struct LimitArgs {
     malloc_arena_max: Option<usize>,
 }
 
+/// RE-4 resource controls. All off by default and in every profile; for
+/// validation on the target hardware before any becomes a default.
+#[derive(clap::Args)]
+#[command(next_help_heading = "Resource controls (experimental, opt-in)")]
+struct ResourceArgs {
+    /// Memory-aware admission: while the container's working set is near
+    /// its memory budget, JavaScript requests wait (elevated) or get a 503
+    /// with Retry-After (critical); one request is always admitted when
+    /// none runs. Static files, prerendered pages and health checks are
+    /// not affected (unless the build's proxy/middleware runs for them).
+    /// Best effort, on measured memory and per-request estimates: not a
+    /// memory limit.
+    #[arg(long)]
+    memory_admission: bool,
+    /// Budget admission compares against [default: the container's memory
+    /// limit]. Required without a memory cgroup. Set it below the limit
+    /// when other processes share the container's cgroup.
+    #[arg(long, value_name = "MIB", requires = "memory_admission")]
+    memory_admission_budget: Option<u64>,
+    /// Working set, as a percentage of the budget, from which concurrency
+    /// is capped (--memory-admission-max-active) and the rest wait.
+    #[arg(
+        long,
+        value_name = "PERCENT",
+        default_value_t = 85.0,
+        requires = "memory_admission"
+    )]
+    memory_admission_pressure: f64,
+    /// Working set from which new requests are refused (503).
+    #[arg(
+        long,
+        value_name = "PERCENT",
+        default_value_t = 95.0,
+        requires = "memory_admission"
+    )]
+    memory_admission_critical: f64,
+    /// Memory each admitted request is assumed to need until the next
+    /// reading (uploads add their declared length). An estimate.
+    #[arg(
+        long,
+        value_name = "MIB",
+        default_value_t = 2,
+        requires = "memory_admission"
+    )]
+    memory_admission_reserve: u64,
+    /// JavaScript requests allowed at once, over all isolates, under
+    /// memory pressure [default: 4 per isolate].
+    #[arg(long, value_name = "N", requires = "memory_admission")]
+    memory_admission_max_active: Option<usize>,
+    /// Limit on ArrayBuffer memory (new ArrayBuffer, typed arrays, Buffer)
+    /// over all isolates. An allocation of 64 KiB or more past it fails
+    /// with a RangeError in the request that made it, after V8 has
+    /// collected garbage; the isolate keeps serving. Buffers made from
+    /// Rust (request bodies, fetch chunks, file reads) are not counted.
+    #[arg(long, value_name = "MIB")]
+    js_external_memory_limit: Option<usize>,
+    /// Byte budget for native buffers held whole, over all requests:
+    /// static and public/ files read for a response, and request bodies
+    /// buffered for the proxy (middleware). Requests wait for room up to
+    /// --native-buffer-wait, then get a 503 with Retry-After. A file larger
+    /// than the budget is served alone, taking all of it.
+    #[arg(long, value_name = "MIB")]
+    native_buffer_budget: Option<u64>,
+    /// Experimental: a floor for each isolate's semi-space (MiB, rounded
+    /// down to a power of two). The young generation (3 × this) takes its
+    /// room from the old generation, so --js-heap-limit is unchanged; at
+    /// most half the heap. Needs --js-heap-limit (or a profile that sets
+    /// it). For CPU measurements; not validated as a default.
+    #[arg(long, value_name = "MIB")]
+    js_young_semi_space: Option<usize>,
+    /// Longest wait for room in --native-buffer-budget.
+    #[arg(
+        long,
+        value_name = "SECONDS",
+        default_value_t = 2.0,
+        requires = "native_buffer_budget"
+    )]
+    native_buffer_wait: f64,
+}
+
+impl ResourceArgs {
+    /// Checks the server-side settings (also without an executor).
+    fn validate(&self) -> Result<(), String> {
+        if self.native_buffer_budget == Some(0) {
+            return Err(
+                "--native-buffer-budget: at least 1 MiB (omit the flag to turn it off)".into(),
+            );
+        }
+        if !self.native_buffer_wait.is_finite() || !(0.0..=60.0).contains(&self.native_buffer_wait)
+        {
+            return Err("--native-buffer-wait: seconds, 0 to 60".into());
+        }
+        Ok(())
+    }
+
+    fn native_buffer_budget(&self) -> Option<Arc<nextrs_server::NativeBufferBudget>> {
+        let mib = self.native_buffer_budget.filter(|m| *m > 0)?;
+        // Checked in `apply`: finite, 0 to 60.
+        let wait = Duration::from_secs_f64(self.native_buffer_wait.clamp(0.0, 60.0));
+        tracing::info!(
+            budget_mib = mib,
+            wait_ms = wait.as_millis() as u64,
+            "native buffer budget enabled (static files, proxy request bodies)"
+        );
+        Some(nextrs_server::NativeBufferBudget::new(
+            mib.saturating_mul(1024 * 1024),
+            wait,
+        ))
+    }
+
+    fn apply(&self, limits: &mut Limits) -> Result<(), String> {
+        const MIB: u64 = 1024 * 1024;
+        if self.memory_admission {
+            if self.memory_admission_budget == Some(0) {
+                return Err("--memory-admission-budget: at least 1 MiB".into());
+            }
+            let admission = nextrs_runtime::MemoryAdmission {
+                budget_bytes: self.memory_admission_budget.map(|m| m.saturating_mul(MIB)),
+                pressure_percent: self.memory_admission_pressure,
+                critical_percent: self.memory_admission_critical,
+                request_reserve_bytes: self.memory_admission_reserve.saturating_mul(MIB),
+                pressure_max_active: self.memory_admission_max_active.map(|n| n.max(1)),
+                ..nextrs_runtime::MemoryAdmission::default()
+            };
+            admission
+                .validate()
+                .map_err(|e| format!("--memory-admission: {e}"))?;
+            limits.memory_admission = Some(admission);
+        }
+        if let Some(mib) = self.js_external_memory_limit {
+            if mib == 0 {
+                return Err("--js-external-memory-limit: at least 1 MiB".into());
+            }
+            limits.external_memory_limit_bytes = Some(mib.saturating_mul(1024 * 1024));
+        }
+        self.validate()?;
+        if let Some(mib) = self.js_young_semi_space {
+            if !(1..=64).contains(&mib) {
+                return Err("--js-young-semi-space: 1 to 64 MiB".into());
+            }
+            if limits.heap_limit_bytes.is_none() && limits.heap_memory_bytes.is_none() {
+                tracing::warn!(
+                    "--js-young-semi-space has no effect without --js-heap-limit (or a profile \
+                     that sets it): V8 sizes the heap itself"
+                );
+            } else {
+                limits.young_semi_space_floor_bytes = Some(mib * 1024 * 1024);
+            }
+        }
+        Ok(())
+    }
+}
+
 /// `--js-heap-limit`: MiB, or `auto` (from the container's memory).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum HeapLimit {
@@ -866,12 +1021,14 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             js_runtime,
             js_env,
             limits,
+            resources,
             net,
             cache,
             proxy,
             images,
         } => {
             let memory = limits.memory()?;
+            resources.validate()?;
             // Before any thread allocates (glibc's arenas are per thread).
             if memory.malloc_arena_max > 0 {
                 let applied = nextrs_runtime::set_malloc_arena_max(memory.malloc_arena_max);
@@ -957,6 +1114,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                         ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
                     config.limits = limits.executor_limits();
                     apply_heap_limit(&mut config.limits, &memory);
+                    resources.apply(&mut config.limits)?;
                     config.build_route_cache = info.route_cache_files();
                     if let Some(root) = &info.workspace_root {
                         tracing::info!(
@@ -1140,6 +1298,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     executor.clone(),
                     reclaim_stats.clone(),
                 );
+                let native_buffers = resources.native_buffer_budget();
                 let options = ServerOptions {
                     allow_unsupported,
                     executor: executor.clone(),
@@ -1149,6 +1308,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     images: image_options,
                     compression_cache: compression_cache.clone(),
                     metrics: http_metrics.clone(),
+                    native_buffer_budget: native_buffers.clone(),
                 };
                 let (app, image_stats) = nextrs_server::app_with_stats(&info, &options).await?;
                 if let Some(metrics_addr) = limits.metrics_addr {
@@ -1159,6 +1319,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                         http: http_metrics.clone(),
                         ready_min_isolates: limits.ready_min_isolates,
                         reclaim: reclaim_policy.is_enabled().then(|| reclaim_stats.clone()),
+                        native_buffers: native_buffers.clone(),
                     };
                     if !metrics_addr.ip().is_loopback() {
                         tracing::warn!(%metrics_addr, "serving metrics on a non-loopback address");
@@ -1351,6 +1512,108 @@ mod tests {
         create_private_dir(&existing).unwrap();
         assert_eq!(mode(&existing), 0o750);
         std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    mod resource_controls {
+        use super::super::{Cli, Command};
+        use clap::Parser;
+        use nextrs_runtime::Limits;
+
+        fn limits(args: &[&str]) -> Result<Limits, String> {
+            let mut argv = vec!["nextrs", "start", "."];
+            argv.extend_from_slice(args);
+            let cli = Cli::try_parse_from(argv).map_err(|e| e.to_string())?;
+            match cli.command {
+                Command::Start { resources, .. } => {
+                    let mut limits = Limits::default();
+                    resources.apply(&mut limits)?;
+                    Ok(limits)
+                }
+                _ => unreachable!("parsed a start command"),
+            }
+        }
+
+        #[test]
+        fn everything_is_off_by_default() {
+            let l = limits(&[]).unwrap();
+            assert!(l.memory_admission.is_none());
+            assert!(l.external_memory_limit_bytes.is_none());
+        }
+
+        #[test]
+        fn the_native_buffer_budget_is_off_unless_given() {
+            let parse = |args: &[&str]| {
+                let mut argv = vec!["nextrs", "start", "."];
+                argv.extend_from_slice(args);
+                match Cli::try_parse_from(argv).map(|c| c.command) {
+                    Ok(Command::Start { resources, .. }) => {
+                        Ok(resources.native_buffer_budget().map(|b| b.total_bytes()))
+                    }
+                    Ok(_) => unreachable!(),
+                    Err(e) => Err(e.to_string()),
+                }
+            };
+            assert_eq!(parse(&[]).unwrap(), None);
+            assert_eq!(
+                parse(&["--native-buffer-budget", "32"]).unwrap(),
+                Some(32 * 1024 * 1024)
+            );
+            assert!(parse(&["--native-buffer-wait", "1"]).is_err());
+            assert!(limits(&["--native-buffer-budget", "0"]).is_err());
+            assert!(
+                limits(&["--native-buffer-budget", "8", "--native-buffer-wait", "NaN"]).is_err()
+            );
+            assert!(limits(&["--memory-admission", "--memory-admission-budget", "0"]).is_err());
+        }
+
+        #[test]
+        fn the_young_semi_space_floor_needs_a_configured_heap() {
+            // `limits()` starts from Limits::default(): no heap configured.
+            assert!(
+                limits(&["--js-young-semi-space", "8"])
+                    .unwrap()
+                    .young_semi_space_floor_bytes
+                    .is_none()
+            );
+            assert!(limits(&["--js-young-semi-space", "0"]).is_err());
+            assert!(limits(&["--js-young-semi-space", "128"]).is_err());
+        }
+
+        #[test]
+        fn the_external_memory_limit_is_in_mib() {
+            let l = limits(&["--js-external-memory-limit", "48"]).unwrap();
+            assert_eq!(l.external_memory_limit_bytes, Some(48 * 1024 * 1024));
+            assert!(limits(&["--js-external-memory-limit", "0"]).is_err());
+        }
+
+        #[test]
+        fn memory_admission_takes_its_settings() {
+            let l = limits(&[
+                "--memory-admission",
+                "--memory-admission-budget",
+                "200",
+                "--memory-admission-pressure",
+                "80",
+                "--memory-admission-critical",
+                "90",
+                "--memory-admission-reserve",
+                "3",
+                "--memory-admission-max-active",
+                "6",
+            ])
+            .unwrap();
+            let a = l.memory_admission.unwrap();
+            assert_eq!(a.budget_bytes, Some(200 * 1024 * 1024));
+            assert_eq!((a.pressure_percent, a.critical_percent), (80.0, 90.0));
+            assert_eq!(a.request_reserve_bytes, 3 * 1024 * 1024);
+            assert_eq!(a.pressure_max_active, Some(6));
+        }
+
+        #[test]
+        fn memory_admission_settings_need_the_switch_and_valid_thresholds() {
+            assert!(limits(&["--memory-admission-budget", "200"]).is_err());
+            assert!(limits(&["--memory-admission", "--memory-admission-pressure", "96"]).is_err());
+        }
     }
 
     mod memory_settings {

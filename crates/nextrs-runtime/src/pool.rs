@@ -14,6 +14,12 @@
 //!   whether it failed. A failed isolate is removed from dispatch at once,
 //!   its in-flight requests fail with it, and a fresh isolate replaces it
 //!   after an exponential backoff. Requests are never replayed.
+//! * **Memory admission** (optional, `Limits::memory_admission`). A gate
+//!   in the pool state, used under the same lock, decides from the
+//!   container's memory whether a request is admitted, waits, or is
+//!   refused ([`crate::admission`]). With it on, a newcomer never
+//!   overtakes the queue, and isolates near their heap limit are skipped
+//!   while they have requests in flight.
 
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU64, AtomicUsize, Ordering};
@@ -25,9 +31,10 @@ use std::time::{Duration, Instant};
 use deno_core::v8;
 use tokio::sync::{Notify, mpsc, oneshot};
 
+use crate::admission::{Decision, Gate, Ticket};
 use crate::cache::CacheStore;
 use crate::metrics::CacheSnapshot;
-use crate::metrics::{self, Counters, ExecutorSnapshot, MetricsSnapshot};
+use crate::metrics::{self, AdmissionSnapshot, Counters, ExecutorSnapshot, MetricsSnapshot};
 use crate::net::NetClient;
 use crate::response::{self, ResponseSender};
 use crate::{ExecutorConfig, ExecutorError, RenderError, RenderRequest, ResponseStream, worker};
@@ -194,6 +201,17 @@ pub(crate) struct WorkerShared {
     /// the live-data floor. 0 until the first full GC (`record_full_gc`).
     heap_after_gc: AtomicUsize,
     full_gcs: AtomicU64,
+    /// Near-heap-limit callback calls (RE-4E): all of them, those declined
+    /// (V8's last-resort collection after a refused ArrayBuffer
+    /// allocation, not a full heap), and the limit V8 passed at the latest
+    /// and the first call (0: none).
+    near_limit_calls: AtomicU64,
+    near_limit_declined: AtomicU64,
+    near_limit_last_bytes: AtomicUsize,
+    near_limit_first_bytes: AtomicUsize,
+    /// When the first granted call asked for termination (ms since
+    /// `epoch`, 0: never), for the time to unwind and replace.
+    near_limit_terminated_ms: AtomicU64,
     pub isolate: OnceLock<v8::IsolateHandle>,
     termination: Mutex<Option<Termination>>,
     stop: Notify,
@@ -224,6 +242,11 @@ impl WorkerShared {
             heap_limit: AtomicUsize::new(0),
             heap_after_gc: AtomicUsize::new(0),
             full_gcs: AtomicU64::new(0),
+            near_limit_calls: AtomicU64::new(0),
+            near_limit_declined: AtomicU64::new(0),
+            near_limit_last_bytes: AtomicUsize::new(0),
+            near_limit_first_bytes: AtomicUsize::new(0),
+            near_limit_terminated_ms: AtomicU64::new(0),
             isolate: OnceLock::new(),
             termination: Mutex::new(None),
             stop: Notify::new(),
@@ -280,6 +303,100 @@ impl WorkerShared {
             .store(stats.external_memory(), Ordering::Relaxed);
         self.heap_limit
             .store(stats.heap_size_limit(), Ordering::Relaxed);
+    }
+
+    /// V8's near-heap-limit callback, on the isolate thread: `current` is
+    /// the old-generation limit V8 enforces now, `initial` the configured
+    /// one. Returns the new limit.
+    ///
+    /// Normally: terminate the isolate (it is replaced) and grant
+    /// `headroom` so that the termination can unwind instead of V8 aborting
+    /// the process. Every call is counted and logged; V8 may call it more
+    /// than once per episode, and each granted call raises the limit again
+    /// (RE-4-V8-HEAP-OVERSHOOT).
+    ///
+    /// Declined (limit unchanged, isolate kept) only when this thread's
+    /// ArrayBuffer budget refused an allocation (and none succeeded since,
+    /// within a second) *and* the heap is clearly not at its limit: the
+    /// committed old generation below 90 % of `current` and all committed
+    /// heap below `current`. V8's last-resort collection for that refusal
+    /// calls this whatever the heap's size, and the refusal must reach
+    /// JavaScript as a RangeError, not replace the isolate. V8's other two
+    /// calls (a heap that reached its limit, ineffective mark-compacts)
+    /// happen only when the old generation's capacity is at the limit,
+    /// which committed memory bounds from above: they are never declined
+    /// (declining them would abort the process).
+    pub fn on_near_heap_limit(
+        &self,
+        current: usize,
+        initial: usize,
+        headroom: usize,
+        heap: CommittedHeap,
+    ) -> usize {
+        let call = self.near_limit_calls.fetch_add(1, Ordering::Relaxed) + 1;
+        self.near_limit_last_bytes.store(current, Ordering::Relaxed);
+        let _ = self.near_limit_first_bytes.compare_exchange(
+            0,
+            current,
+            Ordering::Relaxed,
+            Ordering::Relaxed,
+        );
+        let live = self.heap_after_gc.load(Ordering::Relaxed);
+        let clearly_below = heap.old < current / 10 * 9 && heap.total < current;
+        if clearly_below && crate::external::take_refusal() {
+            self.near_limit_declined.fetch_add(1, Ordering::Relaxed);
+            tracing::debug!(
+                target: "nextrs::executor",
+                slot = self.slot,
+                call,
+                limit_mib = current / (1024 * 1024),
+                committed_old_mib = heap.old / (1024 * 1024),
+                live_mib = live / (1024 * 1024),
+                "near-heap-limit call after a refused ArrayBuffer allocation; heap not full, \
+                 limit kept"
+            );
+            return current;
+        }
+        let granted = current.saturating_add(headroom);
+        let now = self.epoch.elapsed().as_millis() as u64;
+        let _ = self.near_limit_terminated_ms.compare_exchange(
+            0,
+            now.max(1),
+            Ordering::Relaxed,
+            Ordering::Relaxed,
+        );
+        // Once at warn per isolate; V8's further calls in the episode at
+        // debug (the episode summary follows when the isolate exits).
+        macro_rules! near_limit_event {
+            ($level:ident) => {
+                tracing::$level!(
+                    target: "nextrs::executor",
+                    slot = self.slot,
+                    call,
+                    limit_mib = current / (1024 * 1024),
+                    initial_mib = initial / (1024 * 1024),
+                    granted_mib = granted / (1024 * 1024),
+                    committed_old_mib = heap.old / (1024 * 1024),
+                    live_after_gc_mib = live / (1024 * 1024),
+                    external_mib = self.heap_external.load(Ordering::Relaxed) / (1024 * 1024),
+                    "V8 heap near its limit: terminating the isolate"
+                )
+            };
+        }
+        if call == 1 + self.near_limit_declined.load(Ordering::Relaxed) {
+            near_limit_event!(warn);
+        } else {
+            near_limit_event!(debug);
+        }
+        self.terminate(Termination::Failed(FailureReason::HeapLimit));
+        granted
+    }
+
+    /// Whether the sampled heap use is at least `percent` of the limit.
+    fn near_heap_limit(&self, percent: f64) -> bool {
+        let limit = self.heap_limit.load(Ordering::Relaxed);
+        limit > 0
+            && (self.heap_used.load(Ordering::Relaxed) as f64) >= limit as f64 * percent / 100.0
     }
 
     /// Called from V8's GC epilogue after every full collection.
@@ -398,6 +515,15 @@ impl WorkerShared {
     }
 }
 
+/// Committed heap memory at a near-heap-limit call (`worker::committed_heap`).
+#[derive(Debug, Clone, Copy, Default)]
+pub(crate) struct CommittedHeap {
+    /// Every space except the young generation's.
+    pub old: usize,
+    /// All spaces.
+    pub total: usize,
+}
+
 /// A request on its way to (or inside) an isolate.
 pub(crate) struct Job {
     pub request: RenderRequest,
@@ -434,7 +560,8 @@ impl Drop for Slot {
 
 struct Waiter {
     id: u64,
-    slot: oneshot::Sender<Slot>,
+    slot: oneshot::Sender<Result<Slot, RenderError>>,
+    ticket: Ticket,
 }
 
 #[derive(Default)]
@@ -443,6 +570,10 @@ struct SlotHistory {
     restarts: u64,
     failures: [u64; FailureReason::ALL.len()],
     last_failure: Option<String>,
+    /// Near-heap-limit calls of the slot's earlier isolates.
+    near_limit_calls: u64,
+    near_limit_declined: u64,
+    last_heap_limit: Option<crate::metrics::HeapLimitEpisode>,
 }
 
 #[derive(Default)]
@@ -452,6 +583,10 @@ struct PoolState {
     history: Vec<SlotHistory>,
     waiters: VecDeque<Waiter>,
     next_waiter: u64,
+    /// Header and URL bytes the queued requests hold (`Ticket::queued_bytes`).
+    queued_bytes: usize,
+    /// Memory-aware admission, when enabled.
+    gate: Option<Gate>,
 }
 
 pub(crate) struct PoolInner {
@@ -465,6 +600,8 @@ pub(crate) struct PoolInner {
     pub cache: Option<Arc<CacheStore>>,
     /// Next.js requests to its own server, served in-process.
     pub internal: crate::internal::InternalRoute,
+    /// The ArrayBuffer budget all isolates allocate from, when limited.
+    pub external: Option<Arc<crate::external::ExternalBudget>>,
     state: Mutex<PoolState>,
     shutting_down: AtomicBool,
     /// Wakes supervisors sleeping in a restart backoff.
@@ -494,16 +631,27 @@ impl PoolInner {
     /// spreading sequential requests round-robin left every isolate's JIT
     /// and caches lukewarm (4 isolates at concurrency 1: 313 against 441
     /// req/s on /books/42). Claims the slot. Requires the pool lock.
-    fn claim(&self, state: &mut PoolState) -> Option<Arc<WorkerShared>> {
+    fn claim(&self, state: &mut PoolState, gated: bool) -> Option<Arc<WorkerShared>> {
         let limit = self.config.limits.max_active_per_isolate;
-        let n = state.workers.len();
+        let heap_percent = state
+            .gate
+            .as_ref()
+            .filter(|_| gated)
+            .and_then(|gate| gate.config().heap_percent);
         let mut best: Option<((bool, usize), &Arc<WorkerShared>)> = None;
-        for index in 0..n {
-            let Some(worker) = &state.workers[index] else {
-                continue;
-            };
+        for worker in state.workers.iter().flatten() {
             let active = worker.active.load(Ordering::Relaxed);
             if worker.state() != READY || active >= limit {
+                continue;
+            }
+            // With memory admission: an isolate about to reach its heap
+            // limit takes no more requests while it has some (a heap-limit
+            // termination fails all of them). An idle one always may.
+            if let Some(percent) = heap_percent
+                && active > 0
+                && worker.near_heap_limit(percent)
+            {
+                metrics::add(&self.counters.admission_heap_skips, 1);
                 continue;
             }
             let key = (worker.busy_for() > BUSY_HINT, active);
@@ -516,16 +664,66 @@ impl PoolInner {
         Some(worker)
     }
 
-    /// Hands free capacity to queued requests, oldest first.
+    /// Requests active over all isolates. Requires the pool lock.
+    fn total_active(state: &PoolState) -> usize {
+        state
+            .workers
+            .iter()
+            .flatten()
+            .map(|w| w.active.load(Ordering::Relaxed))
+            .sum()
+    }
+
+    /// Hands free capacity to queued requests, oldest first. With memory
+    /// admission, the oldest waiter also needs the gate's consent: while it
+    /// must wait, everyone behind it waits too (no overtaking); in the
+    /// critical state queued requests are refused rather than held.
     fn dispatch_waiters(&self, state: &mut PoolState) {
-        while !state.waiters.is_empty() {
-            let Some(worker) = self.claim(state) else {
+        while let Some(front) = state.waiters.front() {
+            let ticket = front.ticket;
+            let active = Self::total_active(state);
+            let decision = if ticket.nested {
+                None
+            } else {
+                state
+                    .gate
+                    .as_mut()
+                    .map(|gate| gate.decide(Instant::now(), ticket.reserve, active))
+            };
+            let progress = decision == Some(Decision::Progress);
+            match decision {
+                None | Some(Decision::Admit | Decision::Progress) => {}
+                Some(Decision::Defer) => return,
+                Some(Decision::Refuse) => {
+                    let waiter = state.waiters.pop_front().expect("not empty");
+                    state.queued_bytes = state.queued_bytes.saturating_sub(ticket.queued_bytes);
+                    metrics::add(
+                        &self.counters.rejected_memory_pressure[ticket.class.index()],
+                        1,
+                    );
+                    let _ = waiter.slot.send(Err(RenderError::MemoryPressure));
+                    continue;
+                }
+            }
+            let Some(worker) = self.claim(state, !ticket.nested) else {
                 return;
             };
             let waiter = state.waiters.pop_front().expect("not empty");
-            if let Err(slot) = waiter.slot.send(self.slot(&worker)) {
+            state.queued_bytes = state.queued_bytes.saturating_sub(ticket.queued_bytes);
+            match waiter.slot.send(Ok(self.slot(&worker))) {
+                Ok(()) => {
+                    if let Some(gate) = state.gate.as_mut().filter(|_| !ticket.nested) {
+                        gate.admitted(ticket.reserve);
+                        if progress {
+                            metrics::add(&self.counters.admission_progress, 1);
+                        }
+                    }
+                }
                 // The waiter timed out meanwhile; take the claim back.
-                slot.disarm().active.fetch_sub(1, Ordering::Relaxed);
+                Err(Ok(slot)) => {
+                    slot.disarm().active.fetch_sub(1, Ordering::Relaxed);
+                }
+                Err(Err(_)) => {}
             }
         }
     }
@@ -536,24 +734,82 @@ impl PoolInner {
         self.dispatch_waiters(&mut state);
     }
 
-    async fn acquire(&self) -> Result<Slot, RenderError> {
+    async fn acquire(&self, ticket: Ticket) -> Result<Slot, RenderError> {
         let (id, receiver) = {
             let mut state = self.lock();
             if self.is_shutting_down() {
                 metrics::add(&self.counters.rejected_shutting_down, 1);
                 return Err(RenderError::ShuttingDown);
             }
-            if let Some(worker) = self.claim(&mut state) {
-                return Ok(self.slot(&worker));
+            let active = Self::total_active(&state);
+            let queued = !state.waiters.is_empty();
+            // Next.js's requests to its own server belong to an admitted
+            // request: not gated (see `admission::nested`).
+            let decision = if ticket.nested {
+                None
+            } else {
+                state
+                    .gate
+                    .as_mut()
+                    .map(|gate| gate.decide(Instant::now(), ticket.reserve, active))
+            };
+            let mut deferred = false;
+            match decision {
+                None => {
+                    if let Some(worker) = self.claim(&mut state, false) {
+                        return Ok(self.slot(&worker));
+                    }
+                }
+                Some(Decision::Refuse) => {
+                    metrics::add(
+                        &self.counters.rejected_memory_pressure[ticket.class.index()],
+                        1,
+                    );
+                    return Err(RenderError::MemoryPressure);
+                }
+                // Behind earlier waiters, a newcomer queues (FIFO).
+                Some(Decision::Admit | Decision::Progress) if queued => deferred = true,
+                Some(decision @ (Decision::Admit | Decision::Progress)) => {
+                    if let Some(worker) = self.claim(&mut state, true) {
+                        if let Some(gate) = state.gate.as_mut() {
+                            gate.admitted(ticket.reserve);
+                        }
+                        if decision == Decision::Progress {
+                            metrics::add(&self.counters.admission_progress, 1);
+                        }
+                        return Ok(self.slot(&worker));
+                    }
+                }
+                Some(Decision::Defer) => {
+                    deferred = true;
+                    metrics::add(&self.counters.admission_deferred, 1);
+                }
             }
             if state.waiters.len() >= self.config.limits.max_queued {
+                metrics::add(&self.counters.rejected_overloaded, 1);
+                return Err(RenderError::Overloaded);
+            }
+            if let Some(gate) = &state.gate
+                && state.queued_bytes.saturating_add(ticket.queued_bytes)
+                    > gate.config().max_queued_bytes
+            {
                 metrics::add(&self.counters.rejected_overloaded, 1);
                 return Err(RenderError::Overloaded);
             }
             let (sender, receiver) = oneshot::channel();
             state.next_waiter += 1;
             let id = state.next_waiter;
-            state.waiters.push_back(Waiter { id, slot: sender });
+            state.queued_bytes = state.queued_bytes.saturating_add(ticket.queued_bytes);
+            state.waiters.push_back(Waiter {
+                id,
+                slot: sender,
+                ticket,
+            });
+            if deferred {
+                // The head may be dispatchable now (a newcomer behind it
+                // must not be the only one checking).
+                self.dispatch_waiters(&mut state);
+            }
             (id, receiver)
         };
         // A caller that gives up (client gone) leaves the queue at once
@@ -567,7 +823,8 @@ impl PoolInner {
             started.elapsed().as_micros() as u64,
         );
         match outcome {
-            Ok(Ok(slot)) => Ok(slot),
+            Ok(Ok(Ok(slot))) => Ok(slot),
+            Ok(Ok(Err(error))) => Err(error),
             // The pool dropped the waiter: shutdown.
             Ok(Err(_)) => {
                 metrics::add(&self.counters.rejected_shutting_down, 1);
@@ -580,16 +837,32 @@ impl PoolInner {
         }
     }
 
-    fn install(&self, worker: &Arc<WorkerShared>) {
+    fn install(&self, worker: &Arc<WorkerShared>, heap_limit_at: Option<Instant>) {
         let mut state = self.lock();
         worker.set_state(READY);
         state.workers[worker.slot] = Some(worker.clone());
         state.history[worker.slot].generation = worker.generation;
+        if let Some(at) = heap_limit_at
+            && let Some(episode) = state.history[worker.slot].last_heap_limit.as_mut()
+        {
+            episode.replacement_ms = at.elapsed().as_millis() as u64;
+            tracing::info!(
+                target: "nextrs::executor",
+                slot = worker.slot,
+                replacement_ms = episode.replacement_ms,
+                "isolate replaced after reaching its heap limit"
+            );
+        }
         self.dispatch_waiters(&mut state);
     }
 
     fn uninstall(&self, worker: &Arc<WorkerShared>, failure: Option<(FailureReason, &str)>) {
         let mut state = self.lock();
+        {
+            let history = &mut state.history[worker.slot];
+            history.near_limit_calls += worker.near_limit_calls.load(Ordering::Relaxed);
+            history.near_limit_declined += worker.near_limit_declined.load(Ordering::Relaxed);
+        }
         let current = &mut state.workers[worker.slot];
         if current
             .as_ref()
@@ -620,7 +893,11 @@ impl PoolInner {
 
     fn begin_shutdown(&self) {
         self.shutting_down.store(true, Ordering::Release);
-        let waiters = std::mem::take(&mut self.lock().waiters);
+        let waiters = {
+            let mut state = self.lock();
+            state.queued_bytes = 0;
+            std::mem::take(&mut state.waiters)
+        };
         drop(waiters);
         let (lock, condvar) = &self.shutdown;
         *lock.lock().unwrap_or_else(|e| e.into_inner()) = true;
@@ -629,6 +906,7 @@ impl PoolInner {
 
     fn snapshot(&self) -> MetricsSnapshot {
         let mut snapshot = MetricsSnapshot::from_counters(&self.counters);
+        snapshot.external_memory = self.external.as_ref().map(|budget| budget.snapshot());
         snapshot.cache = self.cache.as_ref().map(|cache| {
             CacheSnapshot::new(
                 &self.counters,
@@ -642,6 +920,9 @@ impl PoolInner {
         snapshot.max_queued = limits.max_queued;
         let state = self.lock();
         snapshot.queued = state.waiters.len();
+        snapshot.admission = state.gate.as_ref().map(|gate| {
+            AdmissionSnapshot::new(&self.counters, gate, state.queued_bytes, Instant::now())
+        });
         snapshot.executors = state
             .history
             .iter()
@@ -666,6 +947,11 @@ impl PoolInner {
                         .map(|r| (r.as_str(), history.failures[r.index()]))
                         .collect(),
                     last_failure: history.last_failure.clone(),
+                    near_heap_limit_calls: history.near_limit_calls
+                        + worker.map_or(0, |w| w.near_limit_calls.load(Ordering::Relaxed)),
+                    near_heap_limit_declined: history.near_limit_declined
+                        + worker.map_or(0, |w| w.near_limit_declined.load(Ordering::Relaxed)),
+                    last_heap_limit: history.last_heap_limit,
                 }
             })
             .collect();
@@ -680,7 +966,17 @@ struct LeaveQueue<'a> {
 
 impl Drop for LeaveQueue<'_> {
     fn drop(&mut self) {
-        self.pool.lock().waiters.retain(|w| w.id != self.id);
+        let mut state = self.pool.lock();
+        if let Some(index) = state.waiters.iter().position(|w| w.id == self.id) {
+            let waiter = state.waiters.remove(index).expect("found");
+            state.queued_bytes = state
+                .queued_bytes
+                .saturating_sub(waiter.ticket.queued_bytes);
+            // A waiter that left at the head may have been blocking others.
+            if index == 0 {
+                self.pool.dispatch_waiters(&mut state);
+            }
+        }
     }
 }
 
@@ -724,6 +1020,31 @@ impl Executor {
             }
             None => None,
         };
+        let gate = match &config.limits.memory_admission {
+            Some(admission) => match Gate::new(admission.clone(), isolates) {
+                Ok(gate) => {
+                    tracing::info!(
+                        target: "nextrs::admission",
+                        source = %gate.probe_description(),
+                        budget_mib = gate.budget().map(|b| b / (1024 * 1024)),
+                        state = gate.state().as_str(),
+                        pressure_percent = admission.pressure_percent,
+                        critical_percent = admission.critical_percent,
+                        "memory-aware admission enabled"
+                    );
+                    Some(gate)
+                }
+                Err(reason) => {
+                    tracing::warn!(
+                        target: "nextrs::admission",
+                        "memory-aware admission is off: {reason}"
+                    );
+                    None
+                }
+            },
+            None => None,
+        };
+        let external_limit = config.limits.external_memory_limit_bytes;
         let inner = Arc::new_cyclic(|me| PoolInner {
             me: me.clone(),
             config,
@@ -731,9 +1052,11 @@ impl Executor {
             net,
             cache,
             internal: crate::internal::InternalRoute::default(),
+            external: external_limit.map(crate::external::ExternalBudget::new),
             state: Mutex::new(PoolState {
                 workers: vec![None; isolates],
                 history: (0..isolates).map(|_| SlotHistory::default()).collect(),
+                gate,
                 ..PoolState::default()
             }),
             shutting_down: AtomicBool::new(false),
@@ -784,10 +1107,17 @@ impl Executor {
         let limits = &self.inner.config.limits;
         let (sender, stream) =
             response::channel(limits.response_buffer_bytes, self.inner.counters.clone());
+        let ticket = Ticket::for_request(
+            &request,
+            limits
+                .memory_admission
+                .as_ref()
+                .map_or(0, |a| a.request_reserve_bytes),
+        );
         let mut job = Box::new(Job {
             request,
             response: sender,
-            slot: self.inner.acquire().await?,
+            slot: self.inner.acquire(ticket).await?,
             timeout_ms: limits.request_timeout.map(|t| t.as_millis() as u64),
             queued_at,
         });
@@ -807,7 +1137,7 @@ impl Executor {
                         return Err(RenderError::Unavailable);
                     }
                     // Replacing the slot releases the dead isolate's one.
-                    job.slot = self.inner.acquire().await?;
+                    job.slot = self.inner.acquire(ticket).await?;
                 }
             }
         };
@@ -978,6 +1308,8 @@ fn supervise(
     let limits = inner.config.limits.clone();
     let mut recent_failures: VecDeque<Instant> = VecDeque::new();
     let mut generation = 0;
+    // When the previous isolate's heap-limit termination was requested.
+    let mut heap_limit_at: Option<Instant> = None;
     loop {
         if inner.is_shutting_down() {
             break;
@@ -997,6 +1329,7 @@ fn supervise(
                 cache: inner.cache.clone(),
                 internal: inner.internal.clone(),
             },
+            inner.external.clone(),
             jobs,
             ready_tx,
             exit_tx,
@@ -1018,7 +1351,7 @@ fn supervise(
             match wait_ready(&inner, &worker, &ready_rx, started) {
                 Ok(()) => {
                     // Dispatchable before start() returns.
-                    inner.install(&worker);
+                    inner.install(&worker, heap_limit_at.take());
                     if let Some(first) = first_boot.take() {
                         let _ = first.send(Ok(()));
                     }
@@ -1059,6 +1392,33 @@ fn supervise(
         }
         worker.close_inbox();
         let panicked = thread.is_some_and(|t| t.join().is_err());
+        let terminated_ms = worker.near_limit_terminated_ms.load(Ordering::Relaxed);
+        if terminated_ms > 0 {
+            let unwind = worker
+                .epoch
+                .elapsed()
+                .saturating_sub(Duration::from_millis(terminated_ms));
+            heap_limit_at = Instant::now().checked_sub(unwind);
+            let episode = crate::metrics::HeapLimitEpisode {
+                generation,
+                callback_calls: worker.near_limit_calls.load(Ordering::Relaxed),
+                first_limit_bytes: worker.near_limit_first_bytes.load(Ordering::Relaxed),
+                last_limit_bytes: worker.near_limit_last_bytes.load(Ordering::Relaxed),
+                unwind_ms: unwind.as_millis() as u64,
+                replacement_ms: 0,
+            };
+            tracing::warn!(
+                target: "nextrs::executor",
+                slot,
+                generation,
+                callback_calls = episode.callback_calls,
+                first_limit_mib = episode.first_limit_bytes / (1024 * 1024),
+                last_limit_mib = episode.last_limit_bytes / (1024 * 1024),
+                unwind_ms = episode.unwind_ms,
+                "heap-limit termination finished"
+            );
+            inner.lock().history[slot].last_heap_limit = Some(episode);
+        }
         if failure.is_none() {
             failure = classify(&inner, &worker, exit, panicked);
         }

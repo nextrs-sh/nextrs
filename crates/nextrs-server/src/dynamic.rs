@@ -372,15 +372,20 @@ fn executor_gone(events: &ResponseStream) -> Response {
 
 /// Requests refused before reaching JavaScript: 503 with `Retry-After`,
 /// which tells clients a retry is safe whatever the method.
+/// Memory pressure (memory-aware admission) asks for a longer wait.
 fn refused(error: RenderError) -> Response {
-    retry_later(error.code(), &error.to_string())
+    retry_after(error.code(), &error.to_string(), error.retry_after_secs())
 }
 
 fn retry_later(code: &'static str, message: &str) -> Response {
+    retry_after(code, message, 1)
+}
+
+fn retry_after(code: &'static str, message: &str, seconds: u64) -> Response {
     let mut response = error_response(StatusCode::SERVICE_UNAVAILABLE, code, message);
     response
         .headers_mut()
-        .insert(header::RETRY_AFTER, HeaderValue::from_static("1"));
+        .insert(header::RETRY_AFTER, HeaderValue::from(seconds));
     response
 }
 
@@ -425,4 +430,27 @@ pub(crate) fn error_response(status: StatusCode, code: &'static str, message: &s
         format!("NextRS: {message}\n"),
     )
         .into_response()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn refusals_are_retryable_503s_and_memory_pressure_asks_for_longer() {
+        for (error, retry) in [
+            (RenderError::Overloaded, "1"),
+            (RenderError::QueueTimeout, "1"),
+            (RenderError::MemoryPressure, "2"),
+        ] {
+            let response = refused(error);
+            assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
+            assert_eq!(response.headers()[header::RETRY_AFTER], retry);
+            assert_eq!(response.headers()["x-nextrs-error"], error.code());
+        }
+        assert_eq!(
+            RenderError::MemoryPressure.code(),
+            "executor-memory-pressure"
+        );
+    }
 }

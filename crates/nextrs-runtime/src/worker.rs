@@ -11,10 +11,7 @@ use std::time::{Duration, Instant};
 use deno_core::{JsRuntime, PollEventLoopOptions, RuntimeOptions, v8};
 use tokio::sync::mpsc;
 
-use crate::pool::{
-    FailureReason, Job, ReclaimLevel, ReclaimRequest, Reclaimed, Termination, WorkerExit,
-    WorkerShared,
-};
+use crate::pool::{Job, ReclaimLevel, ReclaimRequest, Reclaimed, WorkerExit, WorkerShared};
 use crate::{ExecutorConfig, Limits, REPORTED_NODE_VERSION, ops};
 
 /// How often the isolate's event loop proves it is not stuck in JavaScript.
@@ -57,6 +54,7 @@ pub(crate) fn spawn(
     config: ExecutorConfig,
     worker: Arc<WorkerShared>,
     services: ops::HostServices,
+    external: Option<Arc<crate::external::ExternalBudget>>,
     jobs: mpsc::UnboundedReceiver<Box<Job>>,
     ready: Sender<Result<(), String>>,
     exit: Sender<WorkerExit>,
@@ -64,7 +62,14 @@ pub(crate) fn spawn(
     std::thread::Builder::new()
         .name(format!("nextrs-v8-{}", worker.slot))
         .spawn(move || {
-            let outcome = run(config, worker.clone(), services, jobs, ready.clone());
+            let outcome = run(
+                config,
+                worker.clone(),
+                services,
+                external,
+                jobs,
+                ready.clone(),
+            );
             worker.mark_exited();
             if let Err(error) = &outcome {
                 // Only reaches the supervisor if bootstrap had not reported.
@@ -78,6 +83,7 @@ fn run(
     config: ExecutorConfig,
     worker: Arc<WorkerShared>,
     services: ops::HostServices,
+    external: Option<Arc<crate::external::ExternalBudget>>,
     jobs: mpsc::UnboundedReceiver<Box<Job>>,
     ready: Sender<Result<(), String>>,
 ) -> WorkerExit {
@@ -110,7 +116,14 @@ fn run(
                 .map(|path| path.to_string_lossy().into_owned())
                 .collect(),
         };
-        let create_params = heap_params(&config.limits);
+        let mut create_params = heap_params(&config.limits);
+        if let Some(budget) = &external {
+            create_params = Some(
+                create_params
+                    .unwrap_or_default()
+                    .array_buffer_allocator(budget.allocator()),
+            );
+        }
         let mut web = deno_web::deno_web::init(
             Arc::new(deno_web::BlobStore::default()),
             None,
@@ -155,9 +168,16 @@ fn run(
         worker.interrupt();
         {
             let worker = worker.clone();
-            runtime.add_near_heap_limit_callback(move |current, _initial| {
-                worker.terminate(Termination::Failed(FailureReason::HeapLimit));
-                current.saturating_add(HEAP_HEADROOM)
+            // SAFETY: a non-owning handle to this thread's isolate, used only
+            // inside V8's near-heap-limit callback, which V8 calls on this
+            // thread while the isolate exists.
+            let isolate = unsafe { runtime.v8_isolate().as_raw_isolate_ptr() };
+            runtime.add_near_heap_limit_callback(move |current, initial| {
+                // SAFETY: see above. Reading heap statistics from this
+                // callback is permitted (Node.js's does the same).
+                let mut isolate = unsafe { v8::Isolate::from_raw_isolate_ptr(isolate) };
+                let heap = committed_heap(&mut isolate);
+                worker.on_near_heap_limit(current, initial, HEAP_HEADROOM, heap)
             });
         }
         if config.limits.heap_limit_bytes.is_some() || config.limits.heap_memory_bytes.is_some() {
@@ -210,6 +230,35 @@ fn run(
 /// explicit limit (V8 derives the young generation from it); or V8's own
 /// defaults, from the machine's memory.
 fn heap_params(limits: &Limits) -> Option<v8::CreateParams> {
+    let params = configured_heap(limits)?;
+    Some(match limits.young_semi_space_floor_bytes {
+        Some(semi) => young_floor(params, semi),
+        None => params,
+    })
+}
+
+/// Raises the young generation to `3 × semi` (semi rounded down to a power
+/// of two), taking the difference from the old generation so that their
+/// total is unchanged, and never giving the young generation more than
+/// half of it (RE-4G). A larger young generation is kept as it is.
+fn young_floor(params: v8::CreateParams, semi: usize) -> v8::CreateParams {
+    let young = params.max_young_generation_size_in_bytes();
+    let old = params.max_old_generation_size_in_bytes();
+    let total = young.saturating_add(old);
+    let mut semi = 1usize << semi.max(1).ilog2();
+    while semi > 1 && semi.saturating_mul(3) > total / 2 {
+        semi /= 2;
+    }
+    let floor = semi.saturating_mul(3);
+    if floor <= young {
+        return params;
+    }
+    params
+        .set_max_young_generation_size_in_bytes(floor)
+        .set_max_old_generation_size_in_bytes(total - floor)
+}
+
+fn configured_heap(limits: &Limits) -> Option<v8::CreateParams> {
     match (limits.heap_limit_bytes, limits.heap_memory_bytes) {
         (Some(max), None) => Some(v8::CreateParams::default().heap_limits(0, max)),
         (cap, Some(memory)) => {
@@ -237,6 +286,28 @@ fn heap_params(limits: &Limits) -> Option<v8::CreateParams> {
         }
         (None, None) => None,
     }
+}
+
+/// Committed heap memory, for the near-heap-limit callback: the old
+/// generation (every space but the young generation's) and all spaces.
+/// V8 reports a heap as having reached its limit when the old generation's
+/// capacity exceeds the limit, or the memory it has reserved exceeds
+/// `MaxReserved` (heap.cc `CanExpandOldGeneration`); committed sizes are at
+/// least those, so they bound V8's test from above.
+fn committed_heap(isolate: &mut v8::Isolate) -> crate::pool::CommittedHeap {
+    let mut heap = crate::pool::CommittedHeap::default();
+    for index in 0..isolate.number_of_heap_spaces() {
+        let Some(space) = isolate.get_heap_space_statistics(index) else {
+            continue;
+        };
+        let size = space.space_size();
+        heap.total = heap.total.saturating_add(size);
+        let name = space.space_name().to_bytes();
+        if name != b"new_space" && name != b"new_large_object_space" {
+            heap.old = heap.old.saturating_add(size);
+        }
+    }
+    heap
 }
 
 /// Performs a memory reclamation on the isolate's own thread, between
@@ -340,5 +411,85 @@ async fn drive(runtime: &mut JsRuntime, worker: &WorkerShared) -> WorkerExit {
             request = worker.reclaim_requested() => reclaim(runtime, worker, request),
             result = event_loop(runtime, worker) => return result.map_err(|e| format!("{e}")),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const MIB: usize = 1024 * 1024;
+
+    fn sizes(limits: &Limits) -> Option<(usize, usize)> {
+        heap_params(limits).map(|p| {
+            (
+                p.max_young_generation_size_in_bytes(),
+                p.max_old_generation_size_in_bytes(),
+            )
+        })
+    }
+
+    fn limits(limit: Option<usize>, memory: Option<u64>, floor: Option<usize>) -> Limits {
+        Limits {
+            heap_limit_bytes: limit,
+            heap_memory_bytes: memory,
+            young_semi_space_floor_bytes: floor,
+            ..Limits::default()
+        }
+    }
+
+    #[test]
+    fn the_floor_takes_its_room_from_the_old_generation() {
+        // `--js-heap-limit auto` at 256 MiB with one isolate: a 112 MiB cap,
+        // V8 sized for 256 MiB (2 MiB semi-spaces).
+        let base = sizes(&limits(Some(112 * MIB), Some(256 << 20), None)).unwrap();
+        assert_eq!(base.0, 6 * MIB);
+        let floored = sizes(&limits(Some(112 * MIB), Some(256 << 20), Some(8 * MIB))).unwrap();
+        assert_eq!(
+            floored.0,
+            24 * MIB,
+            "two semi-spaces and the large-object space"
+        );
+        assert_eq!(
+            floored.0 + floored.1,
+            base.0 + base.1,
+            "the total is unchanged"
+        );
+    }
+
+    #[test]
+    fn a_larger_young_generation_from_v8_is_kept() {
+        let base = sizes(&limits(None, Some(1 << 30), None)).unwrap();
+        assert_eq!(
+            sizes(&limits(None, Some(1 << 30), Some(2 * MIB))).unwrap(),
+            base
+        );
+    }
+
+    #[test]
+    fn the_young_generation_never_takes_more_than_half() {
+        let (young, old) = sizes(&limits(Some(32 * MIB), Some(256 << 20), Some(16 * MIB))).unwrap();
+        assert!(young <= (young + old) / 2, "{young} of {}", young + old);
+        assert_eq!(young, 12 * MIB, "16 MiB halved to 4 MiB semi-spaces");
+        assert_eq!(young + old, 32 * MIB);
+    }
+
+    #[test]
+    fn the_floor_is_rounded_down_to_a_power_of_two() {
+        let (young, _) = sizes(&limits(Some(256 * MIB), Some(1 << 30), Some(12 * MIB))).unwrap();
+        assert_eq!(young, 24 * MIB, "12 MiB rounds down to 8 MiB semi-spaces");
+    }
+
+    #[test]
+    fn with_an_explicit_limit_only_the_total_is_kept() {
+        let base = sizes(&limits(Some(128 * MIB), None, None)).unwrap();
+        let floored = sizes(&limits(Some(128 * MIB), None, Some(8 * MIB))).unwrap();
+        assert_eq!(floored.0, base.0.max(24 * MIB));
+        assert_eq!(floored.0 + floored.1, base.0 + base.1);
+    }
+
+    #[test]
+    fn without_a_configured_heap_nothing_is_set() {
+        assert!(sizes(&limits(None, None, Some(8 * MIB))).is_none());
     }
 }

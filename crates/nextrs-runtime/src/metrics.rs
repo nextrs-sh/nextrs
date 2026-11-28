@@ -19,6 +19,14 @@ pub(crate) struct Counters {
     pub rejected_queue_timeout: AtomicU64,
     pub rejected_shutting_down: AtomicU64,
     pub rejected_unavailable: AtomicU64,
+    /// Memory-aware admission: refusals by request class
+    /// (`RequestClass::index`), requests that had to wait for memory,
+    /// admissions made only because nothing else ran, and isolates
+    /// skipped for being near their heap limit.
+    pub rejected_memory_pressure: [AtomicU64; 4],
+    pub admission_deferred: AtomicU64,
+    pub admission_progress: AtomicU64,
+    pub admission_heap_skips: AtomicU64,
     /// The consumer dropped a delivered response before `End`/`Error`:
     /// client disconnects and server-side cancellation.
     pub responses_cancelled: AtomicU64,
@@ -335,6 +343,8 @@ pub struct MetricsSnapshot {
     pub rejected_queue_timeout: u64,
     pub rejected_shutting_down: u64,
     pub rejected_unavailable: u64,
+    /// Refused by memory-aware admission (all classes).
+    pub rejected_memory_pressure: u64,
     pub responses_cancelled: u64,
     pub backpressure_waits: u64,
     pub response_events: u64,
@@ -358,6 +368,10 @@ pub struct MetricsSnapshot {
     pub upstream: UpstreamSnapshot,
     /// `None` when the shared cache is disabled.
     pub cache: Option<CacheSnapshot>,
+    /// `None` when memory-aware admission is off.
+    pub admission: Option<AdmissionSnapshot>,
+    /// `None` without an external-memory limit.
+    pub external_memory: Option<crate::ExternalSnapshot>,
     /// Memory outside the V8 heaps (for soaks; not in the Prometheus text).
     pub memory: MemorySnapshot,
     pub executors: Vec<ExecutorSnapshot>,
@@ -465,6 +479,31 @@ pub struct ExecutorSnapshot {
     /// Failures by reason, over the life of the pool.
     pub failures: Vec<(&'static str, u64)>,
     pub last_failure: Option<String>,
+    /// V8 near-heap-limit callback calls over the life of the slot, and
+    /// those declined (last-resort collections after a refused ArrayBuffer
+    /// allocation, with the heap not full).
+    pub near_heap_limit_calls: u64,
+    pub near_heap_limit_declined: u64,
+    /// The latest heap-limit termination of this slot, if any.
+    pub last_heap_limit: Option<HeapLimitEpisode>,
+}
+
+/// One heap-limit termination (RE-4E): how often V8 called the callback
+/// for the terminated isolate, the limits it passed, and how long the
+/// termination took to unwind and the slot to be served again.
+#[derive(Debug, Clone, Copy, Default, Serialize)]
+pub struct HeapLimitEpisode {
+    pub generation: u64,
+    pub callback_calls: u64,
+    /// Old-generation limit V8 passed at the first and the latest call:
+    /// each granted call raised it by the headroom.
+    pub first_limit_bytes: usize,
+    pub last_limit_bytes: usize,
+    /// From the termination request to the isolate thread's exit.
+    pub unwind_ms: u64,
+    /// From the termination request to a replacement isolate being ready
+    /// (0 until it is).
+    pub replacement_ms: u64,
 }
 
 impl MetricsSnapshot {
@@ -480,6 +519,7 @@ impl MetricsSnapshot {
             rejected_queue_timeout: get(&counters.rejected_queue_timeout),
             rejected_shutting_down: get(&counters.rejected_shutting_down),
             rejected_unavailable: get(&counters.rejected_unavailable),
+            rejected_memory_pressure: counters.rejected_memory_pressure.iter().map(get).sum(),
             responses_cancelled: get(&counters.responses_cancelled),
             backpressure_waits: get(&counters.backpressure_waits),
             response_events: get(&counters.response_events),
@@ -524,6 +564,8 @@ impl MetricsSnapshot {
                     .collect(),
             },
             cache: None,
+            admission: None,
+            external_memory: None,
             memory: MemorySnapshot {
                 crypto_keys: crate::webcrypto::live_keys(),
                 malloc: MallocSnapshot::current(),
@@ -653,6 +695,7 @@ impl MetricsSnapshot {
             ("queue_timeout", self.rejected_queue_timeout),
             ("shutting_down", self.rejected_shutting_down),
             ("unavailable", self.rejected_unavailable),
+            ("memory_pressure", self.rejected_memory_pressure),
         ] {
             let _ = writeln!(
                 out,
@@ -742,6 +785,48 @@ impl MetricsSnapshot {
         if let Some(cache) = &self.cache {
             cache.write_prometheus(&mut out);
         }
+        if let Some(admission) = &self.admission {
+            admission.write_prometheus(&mut out);
+        }
+        if let Some(external) = &self.external_memory {
+            for (name, kind, help, value) in [
+                (
+                    "nextrs_external_memory_limit_bytes",
+                    "gauge",
+                    "Limit on ArrayBuffer memory allocated for JavaScript, all isolates.",
+                    external.limit_bytes,
+                ),
+                (
+                    "nextrs_external_memory_used_bytes",
+                    "gauge",
+                    "ArrayBuffer memory allocated through the budgeted allocator, live.",
+                    external.used_bytes,
+                ),
+                (
+                    "nextrs_external_memory_peak_bytes",
+                    "gauge",
+                    "Highest ArrayBuffer memory allocated through the budgeted allocator.",
+                    external.peak_bytes,
+                ),
+                (
+                    "nextrs_external_memory_refused_total",
+                    "counter",
+                    "ArrayBuffer allocations refused by the limit (each a RangeError in JavaScript).",
+                    external.refused,
+                ),
+                (
+                    "nextrs_external_memory_refused_bytes_total",
+                    "counter",
+                    "Bytes of refused ArrayBuffer allocations.",
+                    external.refused_bytes,
+                ),
+            ] {
+                let _ = writeln!(
+                    out,
+                    "# HELP {name} {help}\n# TYPE {name} {kind}\n{name} {value}"
+                );
+            }
+        }
         let _ = writeln!(
             out,
             "# HELP nextrs_executor_memory_reclaims_total Memory reclamations requested from the isolates, by trigger.\n\
@@ -761,6 +846,151 @@ impl MetricsSnapshot {
             self.memory_reclaim_seconds_total, self.memory_reclaim_heap_released_bytes
         );
         out
+    }
+}
+
+/// Memory-aware admission ([`crate::MemoryAdmission`]).
+#[derive(Debug, Clone, Serialize)]
+pub struct AdmissionSnapshot {
+    /// `normal`, `elevated`, `critical` or `degraded`.
+    pub state: &'static str,
+    pub budget_bytes: u64,
+    /// The latest measured total (usage minus inactive page cache).
+    pub working_set_bytes: u64,
+    /// Estimated cost of requests admitted since that reading.
+    pub reserved_bytes: u64,
+    pub reading_age_seconds: f64,
+    pub queued_bytes: u64,
+    pub state_transitions: u64,
+    pub sample_failures: u64,
+    pub deferred: u64,
+    pub progress_admissions: u64,
+    pub heap_skips: u64,
+    /// Refusals by request class.
+    pub rejected: Vec<(&'static str, u64)>,
+}
+
+impl AdmissionSnapshot {
+    pub(crate) fn new(
+        counters: &Counters,
+        gate: &crate::admission::Gate,
+        queued_bytes: usize,
+        now: std::time::Instant,
+    ) -> Self {
+        Self {
+            state: gate.state().as_str(),
+            budget_bytes: gate.budget().unwrap_or(0),
+            working_set_bytes: gate.working_set(),
+            reserved_bytes: gate.reserved(),
+            reading_age_seconds: gate.reading_age(now).map_or(-1.0, |a| a.as_secs_f64()),
+            queued_bytes: u64::try_from(queued_bytes).unwrap_or(u64::MAX),
+            state_transitions: gate.transitions,
+            sample_failures: gate.sample_failures,
+            deferred: get(&counters.admission_deferred),
+            progress_admissions: get(&counters.admission_progress),
+            heap_skips: get(&counters.admission_heap_skips),
+            rejected: crate::admission::RequestClass::ALL
+                .iter()
+                .map(|c| {
+                    (
+                        c.as_str(),
+                        get(&counters.rejected_memory_pressure[c.index()]),
+                    )
+                })
+                .collect(),
+        }
+    }
+
+    fn write_prometheus(&self, out: &mut String) {
+        let _ = writeln!(
+            out,
+            "# HELP nextrs_admission_state Memory admission state (1 for the current one).
+# TYPE nextrs_admission_state gauge"
+        );
+        for state in ["normal", "elevated", "critical", "degraded"] {
+            let _ = writeln!(
+                out,
+                "nextrs_admission_state{{state=\"{state}\"}} {}",
+                u8::from(self.state == state)
+            );
+        }
+        for (name, kind, help, value) in [
+            (
+                "nextrs_admission_budget_bytes",
+                "gauge",
+                "Memory budget admission compares against.",
+                self.budget_bytes.to_string(),
+            ),
+            (
+                "nextrs_admission_working_set_bytes",
+                "gauge",
+                "Latest measured working set (usage minus inactive page cache).",
+                self.working_set_bytes.to_string(),
+            ),
+            (
+                "nextrs_admission_reserved_bytes",
+                "gauge",
+                "Estimated memory of requests admitted since the latest reading.",
+                self.reserved_bytes.to_string(),
+            ),
+            (
+                "nextrs_admission_reading_age_seconds",
+                "gauge",
+                "Age of the latest memory reading (-1: none).",
+                format!("{:.3}", self.reading_age_seconds),
+            ),
+            (
+                "nextrs_admission_queued_bytes",
+                "gauge",
+                "Header and URL bytes held by queued requests.",
+                self.queued_bytes.to_string(),
+            ),
+            (
+                "nextrs_admission_state_transitions_total",
+                "counter",
+                "Memory admission state changes.",
+                self.state_transitions.to_string(),
+            ),
+            (
+                "nextrs_admission_sample_failures_total",
+                "counter",
+                "Memory readings that failed.",
+                self.sample_failures.to_string(),
+            ),
+            (
+                "nextrs_admission_deferred_total",
+                "counter",
+                "Requests that waited in the queue for memory.",
+                self.deferred.to_string(),
+            ),
+            (
+                "nextrs_admission_progress_total",
+                "counter",
+                "Requests admitted under pressure because no other request was running.",
+                self.progress_admissions.to_string(),
+            ),
+            (
+                "nextrs_admission_heap_skips_total",
+                "counter",
+                "Times an isolate near its heap limit was passed over.",
+                self.heap_skips.to_string(),
+            ),
+        ] {
+            let _ = writeln!(
+                out,
+                "# HELP {name} {help}\n# TYPE {name} {kind}\n{name} {value}"
+            );
+        }
+        let _ = writeln!(
+            out,
+            "# HELP nextrs_admission_rejected_total Requests refused for memory pressure, by request class.\n# TYPE nextrs_admission_rejected_total counter"
+        );
+        for (class, value) in &self.rejected {
+            let _ = writeln!(
+                out,
+                "nextrs_admission_rejected_total{{class=\"{class}\"}} {value}"
+            );
+        }
     }
 }
 

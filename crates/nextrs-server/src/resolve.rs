@@ -1094,6 +1094,32 @@ async fn run_proxy(
     // The body is buffered whole for the proxy and kept for the route.
     let has_body = *method != Method::GET && *method != Method::HEAD;
     let limit = proxy.body_limit.min(state.max_request_body);
+    // With a native buffer budget, the most the body can hold (its
+    // declared length, else the limit) is reserved before buffering, and
+    // stays reserved until both copies (the proxy's and the route's) are
+    // dropped.
+    let permit = match &state.native_buffer_budget {
+        Some(budget) if has_body => {
+            use http_body::Body as _;
+            let bound = body
+                .size_hint()
+                .upper()
+                .map_or(limit, |upper| upper.min(limit));
+            match budget
+                .reserve(crate::native_budget::BufferKind::ProxyBody, bound.max(1))
+                .await
+            {
+                Some(permit) => Some(std::sync::Arc::new(permit)),
+                None => {
+                    return ProxyStep::Finish(
+                        Outcome::Respond(crate::native_budget_exhausted()),
+                        Body::empty(),
+                    );
+                }
+            }
+        }
+        _ => None,
+    };
     let bytes = if has_body {
         match buffer_body(body, limit).await {
             Ok(bytes) => bytes,
@@ -1104,10 +1130,14 @@ async fn run_proxy(
         Bytes::new()
     };
     let rest = || {
-        if bytes.is_empty() {
+        let body = if bytes.is_empty() {
             Body::empty()
         } else {
             Body::from(bytes.clone())
+        };
+        match &permit {
+            Some(permit) => crate::native_budget::PermitBody::wrap(body, permit.clone()),
+            None => body,
         }
     };
 
