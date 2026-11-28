@@ -5,90 +5,90 @@
   .sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
   .mono { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; }
   .eyebrow { font-size: 17px; letter-spacing: 2.4px; font-weight: 600; }
-  .h1 { font-size: 36px; font-weight: 700; fill: #F0F6FC; }
-  .h2 { font-size: 30px; font-weight: 600; fill: #F0F6FC; }
-  .h3 { font-size: 27px; font-weight: 600; fill: #F0F6FC; }
-  .body { font-size: 24px; fill: #C9D1D9; }
-  .muted { font-size: 23px; fill: #8B949E; }
-  .code { font-size: 19px; fill: #8B949E; }
+  .h1 { font-size: 36px; font-weight: 700; fill: #0F172A; }
+  .h2 { font-size: 30px; font-weight: 600; fill: #0F172A; }
+  .h3 { font-size: 27px; font-weight: 600; fill: #0F172A; }
+  .body { font-size: 24px; fill: #334155; }
+  .muted { font-size: 23px; fill: #475569; }
+  .code { font-size: 19px; fill: #475569; }
 </style>
 <defs>
   <marker id="m-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-    <path d="M1 1L9 5L1 9" fill="none" stroke="#8B949E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#475569" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
   </marker>
   <marker id="m-arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-    <path d="M1 1L9 5L1 9" fill="none" stroke="#E8762D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M1 1L9 5L1 9" fill="none" stroke="#2563EB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
   </marker>
 </defs>
 
-<rect x="1" y="1" width="718" height="1558" rx="24" fill="#0D1117" stroke="#21262D" stroke-width="2"/>
+<rect x="1" y="1" width="718" height="1558" rx="24" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
 
 <!-- Build with Next.js -->
-<text x="40" y="64" class="mono eyebrow" fill="#8B949E">BUILD WITH NEXT.JS</text>
-<rect x="40" y="88" width="640" height="104" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5"/>
+<text x="40" y="64" class="mono eyebrow" fill="#475569">BUILD WITH NEXT.JS</text>
+<rect x="40" y="88" width="640" height="104" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
 <text x="68" y="134" class="sans h2">Your Next.js app</text>
 <text x="68" y="170" class="sans muted">App Router · Pages Router</text>
 
-<line x1="360" y1="192" x2="360" y2="214" stroke="#30363D" stroke-width="2"/>
-<rect x="270" y="214" width="180" height="46" rx="23" fill="#0D1117" stroke="#30363D" stroke-width="1.5"/>
-<text x="360" y="244" class="mono" font-size="21" fill="#F0F6FC" text-anchor="middle">next build</text>
-<line x1="360" y1="260" x2="360" y2="284" stroke="#30363D" stroke-width="2" marker-end="url(#m-arrow)"/>
+<line x1="360" y1="192" x2="360" y2="214" stroke="#CBD5E1" stroke-width="2"/>
+<rect x="270" y="214" width="180" height="46" rx="23" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+<text x="360" y="244" class="mono" font-size="21" fill="#0F172A" text-anchor="middle">next build</text>
+<line x1="360" y1="260" x2="360" y2="284" stroke="#CBD5E1" stroke-width="2" marker-end="url(#m-arrow)"/>
 
-<rect x="40" y="290" width="640" height="150" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5"/>
+<rect x="40" y="290" width="640" height="150" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
 <text x="68" y="336" class="sans h2">.next output</text>
 <text x="68" y="376" class="sans muted">manifests · static assets</text>
 <text x="68" y="412" class="sans muted">prerendered HTML · RSC · server handlers</text>
 
-<text x="40" y="486" class="sans muted">Node.js runs <tspan class="mono" font-size="21" fill="#C9D1D9">next build</tspan>. Serving needs</text>
+<text x="40" y="486" class="sans muted">Node.js runs <tspan class="mono" font-size="21" fill="#334155">next build</tspan>. Serving needs</text>
 <text x="40" y="518" class="sans muted">no Node.js server process.</text>
 
-<line x1="360" y1="540" x2="360" y2="578" stroke="#8B949E" stroke-width="2" marker-end="url(#m-arrow)"/>
+<line x1="360" y1="540" x2="360" y2="578" stroke="#475569" stroke-width="2" marker-end="url(#m-arrow)"/>
 
 <!-- Run with Rust -->
-<rect x="20" y="584" width="680" height="826" rx="20" fill="#11161D" stroke="#E8762D" stroke-opacity=".55" stroke-width="2"/>
-<text x="48" y="630" class="mono eyebrow" fill="#E8762D">RUN WITH RUST</text>
+<rect x="20" y="584" width="680" height="826" rx="20" fill="#EFF6FF" stroke="#2563EB" stroke-opacity=".55" stroke-width="2"/>
+<text x="48" y="630" class="mono eyebrow" fill="#2563EB">RUN WITH RUST</text>
 <text x="48" y="676" class="sans h1">NextRS runtime</text>
 <text x="48" y="712" class="sans muted">One Rust process · axum + Tokio</text>
 
-<rect x="40" y="740" width="640" height="76" rx="14" fill="#0D1117" stroke="#30363D" stroke-width="1.5"/>
-<circle cx="66" cy="778" r="6" fill="#E8762D"/>
+<rect x="40" y="740" width="640" height="76" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+<circle cx="66" cy="778" r="6" fill="#2563EB"/>
 <text x="84" y="786" class="sans h3" font-size="24">HTTP server · routing · <tspan class="mono" font-size="22">next.config</tspan></text>
 
-<line x1="200" y1="816" x2="200" y2="846" stroke="#E8762D" stroke-width="2" marker-end="url(#m-arrow-orange)"/>
-<path d="M40 790 H28 V1186 H34" fill="none" stroke="#8B949E" stroke-width="2" marker-end="url(#m-arrow)"/>
+<line x1="200" y1="816" x2="200" y2="846" stroke="#2563EB" stroke-width="2" marker-end="url(#m-arrow-orange)"/>
+<path d="M40 790 H28 V1186 H34" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#m-arrow)"/>
 
 <!-- Served from Rust -->
-<rect x="40" y="852" width="640" height="218" rx="16" fill="#0D1117" stroke="#E8762D" stroke-width="1.5"/>
+<rect x="40" y="852" width="640" height="218" rx="16" fill="#F8FAFC" stroke="#2563EB" stroke-width="1.5"/>
 <text x="64" y="894" class="sans h3">Served from Rust</text>
 <text x="64" y="926" class="mono code">no JavaScript · always on</text>
-<rect x="64" y="954" width="10" height="10" rx="2" fill="#E8762D"/>
+<rect x="64" y="954" width="10" height="10" rx="2" fill="#2563EB"/>
 <text x="88" y="966" class="sans body">Static and public files</text>
-<rect x="64" y="994" width="10" height="10" rx="2" fill="#E8762D"/>
+<rect x="64" y="994" width="10" height="10" rx="2" fill="#2563EB"/>
 <text x="88" y="1006" class="sans body">Prerendered HTML and RSC</text>
-<rect x="64" y="1034" width="10" height="10" rx="2" fill="#E8762D"/>
+<rect x="64" y="1034" width="10" height="10" rx="2" fill="#2563EB"/>
 <text x="88" y="1046" class="sans body">Image optimization</text>
 
 <!-- Embedded V8 -->
-<rect x="40" y="1090" width="640" height="218" rx="16" fill="#0D1117" stroke="#C9D1D9" stroke-opacity=".55" stroke-width="1.5"/>
+<rect x="40" y="1090" width="640" height="218" rx="16" fill="#F8FAFC" stroke="#334155" stroke-opacity=".55" stroke-width="1.5"/>
 <text x="64" y="1132" class="sans h3">Embedded V8</text>
 <text x="64" y="1164" class="mono code">Next.js's handlers · --js-runtime embedded-v8</text>
-<rect x="64" y="1192" width="10" height="10" rx="2" fill="#C9D1D9"/>
+<rect x="64" y="1192" width="10" height="10" rx="2" fill="#334155"/>
 <text x="88" y="1204" class="sans body">Dynamic SSR and RSC</text>
-<rect x="64" y="1232" width="10" height="10" rx="2" fill="#C9D1D9"/>
+<rect x="64" y="1232" width="10" height="10" rx="2" fill="#334155"/>
 <text x="88" y="1244" class="sans body">Route Handlers</text>
-<rect x="64" y="1272" width="10" height="10" rx="2" fill="#C9D1D9"/>
+<rect x="64" y="1272" width="10" height="10" rx="2" fill="#334155"/>
 <text x="88" y="1284" class="sans body">Server Actions · <tspan class="mono" font-size="22">proxy.ts</tspan></text>
 
-<line x1="360" y1="1308" x2="360" y2="1326" stroke="#8B949E" stroke-width="2" marker-end="url(#m-arrow)" marker-start="url(#m-arrow)"/>
-<rect x="40" y="1328" width="640" height="62" rx="14" fill="#0D1117" stroke="#30363D" stroke-width="1.5"/>
-<circle cx="66" cy="1359" r="6" fill="#E8762D"/>
+<line x1="360" y1="1308" x2="360" y2="1326" stroke="#475569" stroke-width="2" marker-end="url(#m-arrow)" marker-start="url(#m-arrow)"/>
+<rect x="40" y="1328" width="640" height="62" rx="14" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+<circle cx="66" cy="1359" r="6" fill="#2563EB"/>
 <text x="84" y="1367" class="sans h3" font-size="24">Shared cache</text>
 <text x="276" y="1367" class="sans muted" font-size="20">data · ISR · "use cache"</text>
 
 <!-- Your backends -->
-<line x1="360" y1="1410" x2="360" y2="1452" stroke="#8B949E" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#m-arrow)"/>
+<line x1="360" y1="1410" x2="360" y2="1452" stroke="#475569" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#m-arrow)"/>
 <text x="378" y="1438" class="mono code">fetch · --net-allow</text>
-<rect x="20" y="1458" width="680" height="78" rx="16" fill="#161B22" stroke="#30363D" stroke-width="1.5" stroke-dasharray="8 6"/>
+<rect x="20" y="1458" width="680" height="78" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="8 6"/>
 <text x="48" y="1492" class="sans h3" font-size="24">Your backends</text>
 <text x="48" y="1522" class="sans muted" font-size="20">APIs · databases · auth · separate, unchanged</text>
 </svg>
