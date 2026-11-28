@@ -558,6 +558,12 @@ struct LimitArgs {
 
 /// RE-4 resource controls. All off by default and in every profile; for
 /// validation on the target hardware before any becomes a default.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, clap::ValueEnum)]
+enum AdmissionAccounting {
+    Sampled,
+    Committed,
+}
+
 #[derive(clap::Args)]
 #[command(next_help_heading = "Resource controls (experimental, opt-in)")]
 struct ResourceArgs {
@@ -592,8 +598,9 @@ struct ResourceArgs {
         requires = "memory_admission"
     )]
     memory_admission_critical: f64,
-    /// Memory each admitted request is assumed to need until the next
-    /// reading (uploads add their declared length). An estimate.
+    /// Memory each admitted request is assumed to need (uploads add their
+    /// declared length). An estimate; how long it counts is
+    /// --memory-admission-accounting.
     #[arg(
         long,
         value_name = "MIB",
@@ -605,6 +612,47 @@ struct ResourceArgs {
     /// memory pressure [default: 4 per isolate].
     #[arg(long, value_name = "N", requires = "memory_admission")]
     memory_admission_max_active: Option<usize>,
+    /// How long an admitted request's estimate counts: `sampled`, until the
+    /// next memory reading (50 ms); `committed`, until the request ends,
+    /// less the working-set growth measured since, at most
+    /// --memory-admission-commitment-ttl. `committed` also counts requests
+    /// that allocate after waiting (on a backend, a body), and holds more
+    /// requests back while estimates are outstanding.
+    #[arg(
+        long,
+        value_name = "POLICY",
+        value_enum,
+        default_value_t = AdmissionAccounting::Sampled,
+        requires = "memory_admission"
+    )]
+    memory_admission_accounting: AdmissionAccounting,
+    /// With committed accounting, the longest one request's estimate
+    /// counts (long-lived streams must not hold the headroom).
+    #[arg(
+        long,
+        value_name = "SECONDS",
+        default_value_t = 2.0,
+        requires = "memory_admission"
+    )]
+    memory_admission_commitment_ttl: f64,
+    /// Working set from which new JavaScript requests are refused even
+    /// when none runs, except one per
+    /// --memory-admission-emergency-interval [default: no such state;
+    /// critical admits one whenever none runs]. At least the critical
+    /// threshold.
+    #[arg(long, value_name = "PERCENT", requires = "memory_admission")]
+    memory_admission_emergency: Option<f64>,
+    /// In the emergency state, least time between two requests admitted
+    /// while none runs; 0: none until memory falls (an application whose
+    /// resident memory alone is above the threshold then serves no
+    /// JavaScript).
+    #[arg(
+        long,
+        value_name = "SECONDS",
+        default_value_t = 5.0,
+        requires = "memory_admission_emergency"
+    )]
+    memory_admission_emergency_interval: f64,
     /// Limit on ArrayBuffer memory (new ArrayBuffer, typed arrays, Buffer)
     /// over all isolates. An allocation of 64 KiB or more past it fails
     /// with a RangeError in the request that made it, after V8 has
@@ -612,11 +660,12 @@ struct ResourceArgs {
     /// Rust (request bodies, fetch chunks, file reads) are not counted.
     #[arg(long, value_name = "MIB")]
     js_external_memory_limit: Option<usize>,
-    /// Byte budget for native buffers held whole, over all requests:
-    /// static and public/ files read for a response, and request bodies
-    /// buffered for the proxy (middleware). Requests wait for room up to
-    /// --native-buffer-wait, then get a 503 with Retry-After. A file larger
-    /// than the budget is served alone, taking all of it.
+    /// Byte budget for native buffers, over all requests: static and
+    /// public/ file bytes read for a response, and request bodies buffered
+    /// for the proxy (middleware). Requests wait for room up to
+    /// --native-buffer-wait, then get a 503 with Retry-After. Files above a
+    /// quarter of the budget (or 4 MiB) are streamed in chunks; a proxy
+    /// request body that cannot fit in the budget gets a 413.
     #[arg(long, value_name = "MIB")]
     native_buffer_budget: Option<u64>,
     /// Experimental: a floor for each isolate's semi-space (MiB, rounded
@@ -672,12 +721,35 @@ impl ResourceArgs {
             if self.memory_admission_budget == Some(0) {
                 return Err("--memory-admission-budget: at least 1 MiB".into());
             }
+            let seconds = |value: f64, flag: &str| {
+                if value.is_finite() && (0.0..=3600.0).contains(&value) {
+                    Ok(Duration::from_secs_f64(value))
+                } else {
+                    Err(format!("{flag}: seconds, 0 to 3600"))
+                }
+            };
+            let interval = seconds(
+                self.memory_admission_emergency_interval,
+                "--memory-admission-emergency-interval",
+            )?;
             let admission = nextrs_runtime::MemoryAdmission {
                 budget_bytes: self.memory_admission_budget.map(|m| m.saturating_mul(MIB)),
                 pressure_percent: self.memory_admission_pressure,
                 critical_percent: self.memory_admission_critical,
                 request_reserve_bytes: self.memory_admission_reserve.saturating_mul(MIB),
                 pressure_max_active: self.memory_admission_max_active.map(|n| n.max(1)),
+                accounting: match self.memory_admission_accounting {
+                    AdmissionAccounting::Sampled => nextrs_runtime::AdmissionAccounting::Sampled,
+                    AdmissionAccounting::Committed => {
+                        nextrs_runtime::AdmissionAccounting::Committed
+                    }
+                },
+                commitment_ttl: seconds(
+                    self.memory_admission_commitment_ttl,
+                    "--memory-admission-commitment-ttl",
+                )?,
+                emergency_percent: self.memory_admission_emergency,
+                emergency_progress_interval: (!interval.is_zero()).then_some(interval),
                 ..nextrs_runtime::MemoryAdmission::default()
             };
             admission
@@ -1518,6 +1590,7 @@ mod tests {
         use super::super::{Cli, Command};
         use clap::Parser;
         use nextrs_runtime::Limits;
+        use std::time::Duration;
 
         fn limits(args: &[&str]) -> Result<Limits, String> {
             let mut argv = vec!["nextrs", "start", "."];
@@ -1607,6 +1680,74 @@ mod tests {
             assert_eq!((a.pressure_percent, a.critical_percent), (80.0, 90.0));
             assert_eq!(a.request_reserve_bytes, 3 * 1024 * 1024);
             assert_eq!(a.pressure_max_active, Some(6));
+            // RE-4.1 settings keep RE-4's behaviour unless given.
+            assert_eq!(a.accounting, nextrs_runtime::AdmissionAccounting::Sampled);
+            assert_eq!(a.emergency_percent, None);
+        }
+
+        #[test]
+        fn accounting_and_emergency_settings() {
+            let l = limits(&[
+                "--memory-admission",
+                "--memory-admission-budget",
+                "200",
+                "--memory-admission-accounting",
+                "committed",
+                "--memory-admission-commitment-ttl",
+                "1.5",
+                "--memory-admission-emergency",
+                "98",
+                "--memory-admission-emergency-interval",
+                "0",
+            ])
+            .unwrap();
+            let a = l.memory_admission.unwrap();
+            assert_eq!(a.accounting, nextrs_runtime::AdmissionAccounting::Committed);
+            assert_eq!(a.commitment_ttl, Duration::from_millis(1500));
+            assert_eq!(a.emergency_percent, Some(98.0));
+            assert_eq!(a.emergency_progress_interval, None);
+            let b = limits(&[
+                "--memory-admission",
+                "--memory-admission-budget",
+                "200",
+                "--memory-admission-emergency",
+                "97",
+            ])
+            .unwrap()
+            .memory_admission
+            .unwrap();
+            assert_eq!(b.emergency_progress_interval, Some(Duration::from_secs(5)));
+            // Below critical, a zero lifetime, a lone interval, NaN.
+            for bad in [
+                &[
+                    "--memory-admission",
+                    "--memory-admission-budget",
+                    "200",
+                    "--memory-admission-emergency",
+                    "90",
+                ][..],
+                &[
+                    "--memory-admission",
+                    "--memory-admission-budget",
+                    "200",
+                    "--memory-admission-commitment-ttl",
+                    "0",
+                ][..],
+                &[
+                    "--memory-admission",
+                    "--memory-admission-emergency-interval",
+                    "3",
+                ][..],
+                &[
+                    "--memory-admission",
+                    "--memory-admission-budget",
+                    "200",
+                    "--memory-admission-commitment-ttl",
+                    "NaN",
+                ][..],
+            ] {
+                assert!(limits(bad).is_err(), "{bad:?}");
+            }
         }
 
         #[test]

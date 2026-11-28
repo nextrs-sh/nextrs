@@ -406,3 +406,144 @@ async fn shutdown_with_deferred_waiters_does_not_hang() {
         .expect("shutdown finishes")
         .unwrap();
 }
+
+// ---- Commitment lifecycle (RE-4.1B) -------------------------------------
+
+/// Live commitments: count and bytes.
+fn commitments(executor: &Executor) -> (u64, u64) {
+    let admission = executor.metrics().admission.expect("admission on");
+    (admission.commitments, admission.committed_bytes)
+}
+
+async fn settles(executor: &Executor) -> bool {
+    eventually(Duration::from_secs(5), async || {
+        commitments(executor) == (0, 0)
+    })
+    .await
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn commitments_end_with_their_requests_on_every_path() {
+    let probe = Probe::at(100);
+    let executor = start(&probe, |_, limits| {
+        limits.request_timeout = Some(Duration::from_millis(300));
+        limits.max_active_per_isolate = 8;
+    });
+    // Completed.
+    let running = executor.render(job("done", 200)).await.unwrap();
+    assert_eq!(commitments(&executor), (1, 2 * MIB), "held while it runs");
+    drain(running).await;
+    assert!(
+        settles(&executor).await,
+        "completed: {:?}",
+        commitments(&executor)
+    );
+    // Client gone: the stream is dropped while JavaScript still runs; the
+    // commitment lasts as long as the request does, then goes.
+    drop(executor.render(job("cancelled", 200)).await.unwrap());
+    assert!(
+        settles(&executor).await,
+        "cancelled: {:?}",
+        commitments(&executor)
+    );
+    // Request timeout.
+    let timed_out = collect(&executor, job("slow", 5000)).await;
+    assert!(timed_out.error.is_some() || timed_out.status == 504);
+    assert!(
+        settles(&executor).await,
+        "timed out: {:?}",
+        commitments(&executor)
+    );
+    // Isolate replaced by the stall watchdog (500 ms in small_limits).
+    let looping = collect(&executor, request("faults.js", &[("x-mode", "loop")])).await;
+    assert!(looping.error.is_some() || looping.status != 200);
+    assert!(
+        settles(&executor).await,
+        "replaced: {:?}",
+        commitments(&executor)
+    );
+    assert!(!whoami(&executor).await.is_empty(), "serving again");
+    assert!(settles(&executor).await);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn a_waiter_that_times_out_leaves_no_commitment() {
+    let probe = Probe::at(880);
+    let executor = start(&probe, |gate, limits| {
+        gate.pressure_max_active = Some(1);
+        limits.max_active_per_isolate = 8;
+        limits.queue_timeout = Duration::from_millis(150);
+    });
+    let blocker = executor.render(job("blocker", 400)).await.unwrap();
+    let waiter = executor.render(job("late", 0)).await;
+    assert_eq!(waiter.err(), Some(RenderError::QueueTimeout));
+    assert_eq!(commitments(&executor), (1, 2 * MIB), "only the blocker's");
+    drain(blocker).await;
+    assert!(settles(&executor).await);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn shutdown_releases_every_commitment() {
+    let probe = Probe::at(100);
+    let executor = start(&probe, |_, limits| limits.max_active_per_isolate = 8);
+    let streams: Vec<_> =
+        futures_join((0..4).map(|i| executor.render(job(&format!("s{i}"), 300)))).await;
+    assert_eq!(commitments(&executor).0, 4);
+    let stopper = {
+        let executor = executor.clone();
+        tokio::task::spawn_blocking(move || executor.shutdown())
+    };
+    for stream in streams {
+        drain(stream.unwrap()).await;
+    }
+    tokio::time::timeout(Duration::from_secs(10), stopper)
+        .await
+        .expect("shutdown finishes")
+        .unwrap();
+    assert_eq!(commitments(&executor), (0, 0));
+}
+
+async fn futures_join<F: std::future::Future>(futures: impl Iterator<Item = F>) -> Vec<F::Output> {
+    let mut out = Vec::new();
+    for future in futures {
+        out.push(future.await);
+    }
+    out
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn committed_accounting_holds_back_requests_whose_estimates_are_outstanding() {
+    // 900 MiB of a 1000 MiB budget, 2 MiB estimates, critical at 950:
+    // with sampled accounting a fresh reading forgets the estimates of the
+    // requests still waiting (here: on a timer, as for a backend) and
+    // admits more; with committed accounting the estimates stay.
+    for (accounting, admitted) in [
+        (nextrs_runtime::AdmissionAccounting::Sampled, 40),
+        (nextrs_runtime::AdmissionAccounting::Committed, 25),
+    ] {
+        let probe = Probe::at(900);
+        let executor = start(&probe, |gate, limits| {
+            gate.accounting = accounting;
+            gate.pressure_percent = 95.0;
+            gate.critical_percent = 95.0;
+            gate.hysteresis_percent = 1.0;
+            gate.pressure_max_active = Some(1000);
+            limits.max_active_per_isolate = 64;
+            limits.isolates = 1;
+            limits.queue_timeout = Duration::from_millis(100);
+        });
+        let mut streams = Vec::new();
+        let mut refused = 0;
+        for i in 0..40 {
+            match executor.render(job(&format!("w{i}"), 1500)).await {
+                Ok(stream) => streams.push(stream),
+                Err(_) => refused += 1,
+            }
+        }
+        assert_eq!(streams.len(), admitted, "{accounting:?}: {refused} refused");
+        for stream in streams {
+            drain(stream).await;
+        }
+        assert!(settles(&executor).await);
+    }
+}

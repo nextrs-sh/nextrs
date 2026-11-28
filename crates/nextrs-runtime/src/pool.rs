@@ -31,7 +31,7 @@ use std::time::{Duration, Instant};
 use deno_core::v8;
 use tokio::sync::{Notify, mpsc, oneshot};
 
-use crate::admission::{Decision, Gate, Ticket};
+use crate::admission::{CommitmentId, Decision, Gate, Ticket};
 use crate::cache::CacheStore;
 use crate::metrics::CacheSnapshot;
 use crate::metrics::{self, AdmissionSnapshot, Counters, ExecutorSnapshot, MetricsSnapshot};
@@ -539,21 +539,34 @@ pub(crate) struct Job {
 pub(crate) struct Slot {
     pool: Option<Arc<PoolInner>>,
     worker: Arc<WorkerShared>,
+    /// With memory admission, the request's commitment, released with the
+    /// slot (RE-4.1B): its lifetime is the request's.
+    commitment: Option<CommitmentId>,
 }
 
 impl Slot {
     /// Gives the claim back without going through `release` (which takes
-    /// the pool lock), for use while that lock is held.
-    fn disarm(mut self) -> Arc<WorkerShared> {
+    /// the pool lock), for use while that lock is held: the caller undoes
+    /// the claim and the commitment.
+    fn disarm(mut self) -> (Arc<WorkerShared>, Option<CommitmentId>) {
         self.pool = None;
-        self.worker.clone()
+        (self.worker.clone(), self.commitment.take())
+    }
+
+    /// Releases the claim and the commitment now (the drop then does
+    /// nothing): for a request about to acquire a replacement slot, which
+    /// must not count its dead one as active or keep its estimate twice.
+    fn release_now(&mut self) {
+        if let Some(pool) = self.pool.take() {
+            pool.release(&self.worker, self.commitment.take());
+        }
     }
 }
 
 impl Drop for Slot {
     fn drop(&mut self) {
         if let Some(pool) = self.pool.take() {
-            pool.release(&self.worker);
+            pool.release(&self.worker, self.commitment.take());
         }
     }
 }
@@ -617,11 +630,21 @@ impl PoolInner {
         self.shutting_down.load(Ordering::Acquire)
     }
 
-    fn slot(&self, worker: &Arc<WorkerShared>) -> Slot {
+    fn slot(&self, worker: &Arc<WorkerShared>, commitment: Option<CommitmentId>) -> Slot {
         Slot {
             pool: self.me.upgrade(),
             worker: worker.clone(),
+            commitment,
         }
+    }
+
+    /// Records the admission of `ticket` with the gate, if there is one.
+    /// Requires the pool lock.
+    fn commit(state: &mut PoolState, ticket: &Ticket) -> Option<CommitmentId> {
+        state
+            .gate
+            .as_mut()
+            .map(|gate| gate.admit(Instant::now(), ticket))
     }
 
     /// Least outstanding requests among ready isolates with a free slot,
@@ -710,27 +733,33 @@ impl PoolInner {
             };
             let waiter = state.waiters.pop_front().expect("not empty");
             state.queued_bytes = state.queued_bytes.saturating_sub(ticket.queued_bytes);
-            match waiter.slot.send(Ok(self.slot(&worker))) {
+            let commitment = Self::commit(state, &ticket);
+            match waiter.slot.send(Ok(self.slot(&worker, commitment))) {
                 Ok(()) => {
-                    if let Some(gate) = state.gate.as_mut().filter(|_| !ticket.nested) {
-                        gate.admitted(ticket.reserve);
-                        if progress {
-                            metrics::add(&self.counters.admission_progress, 1);
-                        }
+                    if progress {
+                        metrics::add(&self.counters.admission_progress, 1);
                     }
                 }
-                // The waiter timed out meanwhile; take the claim back.
+                // The waiter timed out meanwhile; take the claim and the
+                // commitment back.
                 Err(Ok(slot)) => {
-                    slot.disarm().active.fetch_sub(1, Ordering::Relaxed);
+                    let (worker, commitment) = slot.disarm();
+                    worker.active.fetch_sub(1, Ordering::Relaxed);
+                    if let (Some(gate), Some(id)) = (state.gate.as_mut(), commitment) {
+                        gate.withdraw(id);
+                    }
                 }
                 Err(Err(_)) => {}
             }
         }
     }
 
-    fn release(&self, worker: &Arc<WorkerShared>) {
+    fn release(&self, worker: &Arc<WorkerShared>, commitment: Option<CommitmentId>) {
         let mut state = self.lock();
         worker.active.fetch_sub(1, Ordering::Relaxed);
+        if let (Some(gate), Some(id)) = (state.gate.as_mut(), commitment) {
+            gate.complete(id);
+        }
         self.dispatch_waiters(&mut state);
     }
 
@@ -757,7 +786,10 @@ impl PoolInner {
             match decision {
                 None => {
                     if let Some(worker) = self.claim(&mut state, false) {
-                        return Ok(self.slot(&worker));
+                        // A nested request's estimate is recorded (not
+                        // gated): its memory is as real as its parent's.
+                        let commitment = Self::commit(&mut state, &ticket);
+                        return Ok(self.slot(&worker, commitment));
                     }
                 }
                 Some(Decision::Refuse) => {
@@ -771,13 +803,11 @@ impl PoolInner {
                 Some(Decision::Admit | Decision::Progress) if queued => deferred = true,
                 Some(decision @ (Decision::Admit | Decision::Progress)) => {
                     if let Some(worker) = self.claim(&mut state, true) {
-                        if let Some(gate) = state.gate.as_mut() {
-                            gate.admitted(ticket.reserve);
-                        }
+                        let commitment = Self::commit(&mut state, &ticket);
                         if decision == Decision::Progress {
                             metrics::add(&self.counters.admission_progress, 1);
                         }
-                        return Ok(self.slot(&worker));
+                        return Ok(self.slot(&worker, commitment));
                     }
                 }
                 Some(Decision::Defer) => {
@@ -1136,8 +1166,17 @@ impl Executor {
                         metrics::add(&self.inner.counters.rejected_unavailable, 1);
                         return Err(RenderError::Unavailable);
                     }
-                    // Replacing the slot releases the dead isolate's one.
-                    job.slot = self.inner.acquire(ticket).await?;
+                    // The dead isolate's slot and commitment go first, so
+                    // that the retry neither counts it as active nor keeps
+                    // its estimate twice (RE-4 review finding 5).
+                    job.slot.release_now();
+                    job.slot = self
+                        .inner
+                        .acquire(Ticket {
+                            retry: true,
+                            ..ticket
+                        })
+                        .await?;
                 }
             }
         };
@@ -1214,6 +1253,17 @@ impl Executor {
                 .iter()
                 .flatten()
                 .all(|w| w.active.load(Ordering::Relaxed) == 0)
+    }
+
+    /// Whether memory admission moved up into `critical` or `emergency`
+    /// since the last call: the reclaimer then reclaims without waiting
+    /// for its interval (RE-4.1C). `false` without admission.
+    pub fn take_reclaim_request(&self) -> bool {
+        self.inner
+            .lock()
+            .gate
+            .as_mut()
+            .is_some_and(|gate| gate.take_reclaim_request())
     }
 
     pub fn metrics(&self) -> MetricsSnapshot {

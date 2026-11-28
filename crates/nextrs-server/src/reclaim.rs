@@ -25,6 +25,13 @@
 //!   simply runs near its limit is not collected over and over; it resets
 //!   once the working set drops below the threshold.
 //!
+//! * **Admission** (RE-4.1C): when memory-aware admission moves up into
+//!   its critical or emergency state, a pressure reclamation runs at the
+//!   next tick instead of waiting for the backed-off interval, though never
+//!   within `pressure_interval` of the previous one. Admission is refusing
+//!   requests then; garbage the isolates hold is the memory it can get
+//!   back without running any.
+//!
 //! Neither is a memory limit: the kernel's OOM killer still applies at the
 //! container's limit. Requests are never refused or delayed by this, except
 //! by the collection itself (requests in an isolate wait for its GC, as
@@ -97,6 +104,9 @@ pub struct ReclaimStats {
     pub last_anon_after: AtomicU64,
     /// Reclamations that ran with the pressure interval backed off.
     pub pressure_backoffs: AtomicU64,
+    /// Pressure reclamations that admission asked for (also counted in
+    /// `pressure`).
+    pub admission_requested: AtomicU64,
     /// The container's memory limit and working set at the latest tick
     /// that read them (0: unknown or no limit).
     pub cgroup_limit: AtomicU64,
@@ -127,6 +137,9 @@ impl ReclaimStats {
              # HELP nextrs_memory_reclaim_pressure_backoffs_total Pressure reclamations that found the working set still above the threshold after the previous one.\n\
              # TYPE nextrs_memory_reclaim_pressure_backoffs_total counter\n\
              nextrs_memory_reclaim_pressure_backoffs_total {}\n\
+             # HELP nextrs_memory_reclaim_admission_requested_total Pressure reclamations run early because memory admission became critical.\n\
+             # TYPE nextrs_memory_reclaim_admission_requested_total counter\n\
+             nextrs_memory_reclaim_admission_requested_total {}\n\
              # HELP nextrs_cgroup_memory_limit_bytes The container's memory limit (0: none or unknown).\n\
              # TYPE nextrs_cgroup_memory_limit_bytes gauge\n\
              nextrs_cgroup_memory_limit_bytes {}\n\
@@ -140,6 +153,7 @@ impl ReclaimStats {
             get(&self.last_anon_after_gc),
             get(&self.last_anon_after),
             get(&self.pressure_backoffs),
+            get(&self.admission_requested),
             get(&self.cgroup_limit),
             get(&self.cgroup_working_set),
         )
@@ -155,6 +169,7 @@ impl ReclaimStats {
             "last_anon_after_gc_bytes": get(&self.last_anon_after_gc),
             "last_anon_after_bytes": get(&self.last_anon_after),
             "pressure_backoffs": get(&self.pressure_backoffs),
+            "admission_requested": get(&self.admission_requested),
             "cgroup_limit_bytes": get(&self.cgroup_limit),
             "cgroup_working_set_bytes": get(&self.cgroup_working_set),
         })
@@ -278,6 +293,24 @@ impl Tracker {
     }
 }
 
+impl Tracker {
+    /// Admission moved up into critical or emergency: a pressure
+    /// reclamation now, unless pressure reclamation is off or one ran
+    /// within `pressure_interval` (the backoff does not apply).
+    fn admission_reclaim(&mut self, now: Instant) -> Option<ReclaimLevel> {
+        self.policy.pressure_percent?;
+        if self
+            .last_pressure
+            .is_some_and(|at| now.duration_since(at) < self.policy.pressure_interval)
+        {
+            return None;
+        }
+        self.last_pressure = Some(now);
+        self.pressure_unhelpful = true;
+        Some(ReclaimLevel::Pressure)
+    }
+}
+
 /// Requests received so far (counted on arrival), and whether any is in
 /// flight.
 fn requests_received(http: &HttpMetrics) -> (u64, bool) {
@@ -326,7 +359,18 @@ pub fn spawn(
                 None
             };
             let backoff_before = tracker.pressure_backoff;
-            let Some(level) = tracker.tick(Instant::now(), requests, busy, memory) else {
+            let now = Instant::now();
+            let mut level = tracker.tick(now, requests, busy, memory);
+            // Taken every tick, so that a request seen while a reclamation
+            // is not allowed does not fire one later, out of date.
+            let requested = executor.as_ref().is_some_and(|e| e.take_reclaim_request());
+            if level.is_none() && requested {
+                level = tracker.admission_reclaim(now);
+                if level.is_some() {
+                    stats.admission_requested.fetch_add(1, Ordering::Relaxed);
+                }
+            }
+            let Some(level) = level else {
                 continue;
             };
             if level == ReclaimLevel::Pressure && tracker.pressure_backoff > backoff_before {
@@ -532,5 +576,23 @@ mod tests {
             Some(ReclaimLevel::Pressure)
         );
         assert_eq!(t.tick(s(20), 5, false, Some((100, 1000))), None);
+    }
+
+    #[test]
+    fn admission_asks_for_a_reclaim_within_the_interval_not_the_backoff() {
+        let t0 = Instant::now();
+        let s = |n: u64| t0 + Duration::from_secs(n);
+        let policy = ReclaimPolicy {
+            pressure_percent: Some(85.0),
+            pressure_interval: Duration::from_secs(10),
+            ..ReclaimPolicy::default()
+        };
+        let mut t = Tracker::new(policy, t0);
+        assert_eq!(t.admission_reclaim(s(1)), Some(ReclaimLevel::Pressure));
+        assert_eq!(t.admission_reclaim(s(5)), None, "within the interval");
+        assert_eq!(t.admission_reclaim(s(11)), Some(ReclaimLevel::Pressure));
+        // Without pressure reclamation configured, admission asks nothing.
+        let mut off = Tracker::new(ReclaimPolicy::default(), t0);
+        assert_eq!(off.admission_reclaim(s(1)), None);
     }
 }
