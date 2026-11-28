@@ -5,7 +5,7 @@ use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
 use std::rc::Rc;
 use std::sync::Arc;
-use std::time::{Instant, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use bytes::Bytes;
 use deno_core::{OpState, ToJsBuffer, op2, v8};
@@ -138,6 +138,7 @@ deno_core::extension!(
         op_nextrs_zlib,
         op_nextrs_utf8_length,
         op_nextrs_cpu_usage,
+        op_nextrs_time_origin,
         op_nextrs_random_fill,
         op_nextrs_vm_run_in_new_context,
         op_nextrs_fetch_start,
@@ -714,6 +715,61 @@ fn op_nextrs_cpu_usage(#[buffer] out: &mut [f64]) {
     out[1] = micros(usage.ru_stime);
 }
 
+/// `performance.timeOrigin`, in place of deno_web's `op_time_origin` (see
+/// web_patches.rs): the Unix time at which this isolate's monotonic clock
+/// (`deno_web::StartTime`, which `performance.now()` counts from) read
+/// zero. The buffer layout is deno_web's: seconds and nanoseconds, u32 each.
+#[op2(fast)]
+fn op_nextrs_time_origin(state: &mut OpState, #[buffer] buf: &mut [u8]) {
+    let start: Instant = **state.borrow::<deno_web::StartTime>();
+    let origin = time_origin(
+        || {
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap_or_default()
+        },
+        || start.elapsed(),
+    );
+    if buf.len() >= 8 {
+        buf[0..4].copy_from_slice(&(origin.as_secs() as u32).to_ne_bytes());
+        buf[4..8].copy_from_slice(&origin.subsec_nanos().to_ne_bytes());
+    }
+}
+
+/// A bracket at most this wide puts the origin within half of it.
+const ORIGIN_BRACKET: Duration = Duration::from_micros(20);
+const ORIGIN_ATTEMPTS: usize = 16;
+
+/// The wall-clock time (since the Unix epoch) at which `mono` read zero.
+///
+/// deno_web reads the wall clock, then the monotonic clock, and subtracts.
+/// A delay between the two reads (the thread preempted under CPU
+/// contention) makes the origin early by that delay, and every later
+/// `performance.timeOrigin + performance.now()` of the isolate lags the
+/// wall clock by as much: RE-4.1 measured lags of up to 23 ms in one
+/// isolate in 280 to 550 started under contention, enough for an isolate to
+/// judge a tag that Rust stamped as expired a moment ago as not expired. Here
+/// each wall reading is taken between two monotonic readings and the
+/// narrowest of a few such brackets is used, at its midpoint.
+fn time_origin(mut wall: impl FnMut() -> Duration, mut mono: impl FnMut() -> Duration) -> Duration {
+    // (bracket width, origin)
+    let mut best: Option<(Duration, Duration)> = None;
+    for _ in 0..ORIGIN_ATTEMPTS {
+        let before = mono();
+        let now = wall();
+        let after = mono();
+        let width = after.saturating_sub(before);
+        let origin = now.saturating_sub(before + width / 2);
+        if best.is_none_or(|(narrowest, _)| width < narrowest) {
+            best = Some((width, origin));
+        }
+        if width <= ORIGIN_BRACKET {
+            break;
+        }
+    }
+    best.map_or(Duration::ZERO, |(_, origin)| origin)
+}
+
 #[op2(fast)]
 fn op_nextrs_random_fill(#[buffer] buf: &mut [u8]) -> Result<(), JsErrorBox> {
     getrandom::fill(buf).map_err(|e| JsErrorBox::generic(format!("getrandom failed: {e}")))
@@ -1250,4 +1306,75 @@ async fn op_nextrs_cache_revalidate(
             .map_err(blocking_failed)?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use std::cell::{Cell, RefCell};
+    use std::collections::VecDeque;
+
+    use super::*;
+
+    const ORIGIN: Duration = Duration::from_secs(1_700_000_000);
+    const STEP: Duration = Duration::from_micros(1);
+
+    /// Clocks that agree exactly (wall = ORIGIN + monotonic). Each read
+    /// advances time by the next scripted delay (or STEP): a delay after
+    /// read n is a preemption between read n and read n + 1.
+    struct Clocks {
+        mono: Cell<Duration>,
+        delays: RefCell<VecDeque<Duration>>,
+    }
+
+    impl Clocks {
+        fn new(delays: &[Duration]) -> Self {
+            Self {
+                mono: Cell::new(Duration::from_millis(3)),
+                delays: RefCell::new(delays.iter().copied().collect()),
+            }
+        }
+
+        fn read(&self) -> Duration {
+            let now = self.mono.get();
+            let delay = self.delays.borrow_mut().pop_front().unwrap_or(STEP);
+            self.mono.set(now + delay);
+            now
+        }
+
+        fn origin(&self) -> Duration {
+            time_origin(|| ORIGIN + self.read(), || self.read())
+        }
+    }
+
+    fn error(origin: Duration) -> Duration {
+        origin.abs_diff(ORIGIN)
+    }
+
+    #[test]
+    fn a_preempted_clock_read_does_not_shift_the_time_origin() {
+        let preempted = Duration::from_millis(10);
+        // deno_web's order, wall then monotonic, with the same preemption
+        // between the reads: the origin is early by the whole delay.
+        let clocks = Clocks::new(&[preempted]);
+        let wall = ORIGIN + clocks.read();
+        let deno = wall - clocks.read();
+        assert_eq!(ORIGIN - deno, preempted);
+        // Preempted before the wall read or after it: the wide bracket is
+        // passed over for the next one.
+        for delays in [[STEP, preempted], [preempted, STEP]] {
+            let origin = Clocks::new(&delays).origin();
+            assert!(error(origin) <= STEP, "{:?}", error(origin));
+        }
+    }
+
+    #[test]
+    fn without_a_tight_bracket_the_narrowest_one_is_used() {
+        // Three reads per attempt. Every bracket is 2 ms wide except the
+        // fifth (100 us before the wall read, 200 us after it).
+        let mut delays = vec![Duration::from_millis(1); ORIGIN_ATTEMPTS * 3];
+        delays[4 * 3] = Duration::from_micros(100);
+        delays[4 * 3 + 1] = Duration::from_micros(200);
+        let origin = Clocks::new(&delays).origin();
+        assert_eq!(error(origin), Duration::from_micros(50));
+    }
 }

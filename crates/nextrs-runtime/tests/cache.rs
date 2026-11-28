@@ -155,6 +155,96 @@ async fn every_isolate_sees_one_cache() {
     assert!(metrics.hits >= 80, "{metrics:?}");
 }
 
+/// For each isolate reached, how far (ms) its `performance.timeOrigin +
+/// performance.now()` was behind `Date.now()` at most: `executors` pools of
+/// four isolates, started at once.
+async fn isolate_clock_lags(executors: usize) -> Vec<f64> {
+    let pools: Vec<_> = (0..executors)
+        .map(|_| {
+            tokio::spawn(async move {
+                let executor = start(4, None, &[]);
+                let reads: Vec<_> = (0..32)
+                    .map(|_| {
+                        let executor = executor.clone();
+                        tokio::spawn(async move { op(&executor, &[("op", "clock")]).await })
+                    })
+                    .collect();
+                let mut lags = std::collections::HashMap::new();
+                for read in reads {
+                    let r = read.await.unwrap();
+                    let lag = r["wall"].as_f64().unwrap() - r["performance"].as_f64().unwrap();
+                    let max = lags
+                        .entry(r["isolate"].as_str().unwrap().to_owned())
+                        .or_insert(f64::MIN);
+                    *max = lag.max(*max);
+                }
+                executor.shutdown();
+                lags.into_values().collect::<Vec<_>>()
+            })
+        })
+        .collect();
+    let mut lags = Vec::new();
+    for pool in pools {
+        lags.extend(pool.await.unwrap());
+    }
+    lags
+}
+
+/// The store stamps tag revalidations with the wall clock; each isolate
+/// judges them (Next's areTagsExpired) on its performance clock. An isolate
+/// whose clock lags would serve a revalidated entry until the lag passed
+/// (RE-4.1: a time origin taken while the isolate's thread was preempted).
+/// Without contention the old origin was rarely off: this guards the
+/// invariant; the stress test below and ops.rs's unit tests reproduce it.
+#[tokio::test(flavor = "multi_thread")]
+async fn every_isolate_judges_tags_on_the_wall_clock() {
+    for lag in isolate_clock_lags(3).await {
+        assert!(
+            lag < 1.0,
+            "an isolate's clock lags the wall clock by {lag} ms"
+        );
+    }
+}
+
+/// The RE-4.1 reproduction: isolates started under CPU contention. Before
+/// the time-origin fix about one isolate in 300 lagged by 2 to 23 ms.
+/// `NEXTRS_CLOCK_ROUNDS` (default 30) rounds of six pools.
+#[tokio::test(flavor = "multi_thread")]
+#[ignore = "stress test (RE-4.1), run on demand"]
+async fn isolate_clocks_agree_under_cpu_contention() {
+    let rounds = std::env::var("NEXTRS_CLOCK_ROUNDS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(30);
+    let stop = Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let cores = std::thread::available_parallelism().map_or(4, |n| n.get());
+    let spinners: Vec<_> = (0..2 * cores)
+        .map(|_| {
+            let stop = stop.clone();
+            std::thread::spawn(move || {
+                while !stop.load(std::sync::atomic::Ordering::Relaxed) {
+                    std::hint::spin_loop();
+                }
+            })
+        })
+        .collect();
+    let mut lags = Vec::new();
+    for _ in 0..rounds {
+        lags.extend(isolate_clock_lags(6).await);
+    }
+    stop.store(true, std::sync::atomic::Ordering::Relaxed);
+    for spinner in spinners {
+        spinner.join().unwrap();
+    }
+    let lagging: Vec<_> = lags.iter().filter(|&&lag| lag >= 1.0).collect();
+    eprintln!(
+        "{} isolates, {} lagging by 1 ms or more: {lagging:?}",
+        lags.len(),
+        lagging.len()
+    );
+    assert!(lagging.is_empty());
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn entries_outlive_an_isolate_restart() {
     let executor = start(1, None, &[]);

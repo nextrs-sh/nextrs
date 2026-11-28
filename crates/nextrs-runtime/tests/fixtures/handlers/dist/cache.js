@@ -1,7 +1,7 @@
 // Drives the cache handler NextRS offers to Next.js
 // (globalThis[Symbol.for("@next/cache-handlers")].FetchCache) the way
 // IncrementalCache does, for tests/cache.rs. ?op=set|get|revalidate|
-// handler|read-file|set-page|get-page|lease, with key/value/tags/kind/
+// handler|read-file|set-page|get-page|lease|clock, with key/value/tags/kind/
 // expire/path parameters.
 globalThis.__isolateId ??= Math.random().toString(36).slice(2);
 const fs = require("node:fs");
@@ -90,6 +90,13 @@ exports.handler = async (req, res) => {
         await new Handler({}).revalidateTag(tags, expire === null ? undefined : { expire: Number(expire) });
         break;
       }
+      // The clock Next judges tag times on, against the wall clock the
+      // store stamps them with. Wall clock first: a delay between the two
+      // reads can only hide a lag, never show one.
+      case "clock":
+        out.wall = Date.now();
+        out.performance = performance.timeOrigin + performance.now();
+        break;
       case "read-file":
         out.content = fs.readFileSync(p.get("path"), "utf8").slice(0, 20);
         break;
