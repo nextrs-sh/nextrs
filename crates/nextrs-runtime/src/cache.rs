@@ -227,7 +227,10 @@ pub(crate) struct PendingWrite {
     key: String,
     generation: u64,
     path: PathBuf,
-    contents: Vec<u8>,
+    /// The file is `header` followed by `value` (`encode_header`); the
+    /// value is the entry's own bytes, not a copy (RE-5D).
+    header: Vec<u8>,
+    value: Bytes,
 }
 
 struct Disk {
@@ -300,7 +303,10 @@ pub(crate) fn namespace(build_id: &str, env: &BTreeMap<String, String>) -> Strin
     format!("v{FORMAT_VERSION}-{}", &hex(&hash.finalize())[..24])
 }
 
-fn encode(
+/// Everything of an entry file before its value: magic, version, the
+/// header's length and the header (with the value's checksum). The value
+/// follows it in the file.
+fn encode_header(
     key: &str,
     value: &[u8],
     last_modified: u64,
@@ -315,12 +321,11 @@ fn encode(
         kind,
     })
     .expect("header serializes");
-    let mut out = Vec::with_capacity(9 + header.len() + value.len());
+    let mut out = Vec::with_capacity(9 + header.len());
     out.extend_from_slice(MAGIC);
     out.push(FORMAT_VERSION);
     out.extend_from_slice(&(header.len() as u32).to_le_bytes());
     out.extend_from_slice(&header);
-    out.extend_from_slice(value);
     out
 }
 
@@ -382,6 +387,12 @@ fn private_dir(path: &Path) -> io::Result<()> {
 /// Writes `contents` to `path` atomically: a temporary file in `tmp`, then
 /// a rename (same filesystem).
 fn write_atomic(tmp: &Path, path: &Path, contents: &[u8]) -> io::Result<()> {
+    write_atomic_parts(tmp, path, &[contents])
+}
+
+/// Writes `parts`, one after another, to a temporary file renamed into
+/// place.
+fn write_atomic_parts(tmp: &Path, path: &Path, parts: &[&[u8]]) -> io::Result<()> {
     use std::os::unix::fs::OpenOptionsExt;
     let mut nonce = [0u8; 8];
     getrandom::fill(&mut nonce).map_err(|e| io::Error::other(e.to_string()))?;
@@ -392,7 +403,9 @@ fn write_atomic(tmp: &Path, path: &Path, contents: &[u8]) -> io::Result<()> {
             .create_new(true)
             .mode(0o600)
             .open(&temp)?;
-        file.write_all(contents)?;
+        for part in parts {
+            file.write_all(part)?;
+        }
         file.flush()?;
         fs::rename(&temp, path)
     })();
@@ -698,6 +711,13 @@ impl CacheStore {
             return None;
         }
         let last_modified = options.last_modified.unwrap_or_else(now_ms);
+        // The file header (with the value's SHA-256) is made before taking
+        // the store's lock, which every isolate's lookups share (RE-5D): it
+        // depends on nothing the lock guards.
+        let header = self
+            .disk
+            .as_ref()
+            .map(|_| encode_header(key, &value, last_modified, &tags, kind));
         let mut state = self.lock();
         if options.if_absent && state.entries.contains_key(key) {
             return None;
@@ -709,12 +729,17 @@ impl CacheStore {
         state.next_generation += 1;
         let stamp = state.next_stamp;
         state.next_stamp += 1;
-        let write = self.disk.as_ref().map(|disk| PendingWrite {
-            key: key.to_owned(),
-            generation,
-            path: disk.entries.join(file_name(key)),
-            contents: encode(key, &value, last_modified, &tags, kind),
-        });
+        let write = self
+            .disk
+            .as_ref()
+            .zip(header)
+            .map(|(disk, header)| PendingWrite {
+                key: key.to_owned(),
+                generation,
+                path: disk.entries.join(file_name(key)),
+                header,
+                value: value.clone(),
+            });
         state.memory_bytes += size;
         state.lru.insert(stamp, key.to_owned());
         state.entries.insert(
@@ -749,7 +774,9 @@ impl CacheStore {
         if self.lock().entries.get(&write.key).map(|e| e.generation) != Some(write.generation) {
             return;
         }
-        if let Err(error) = write_atomic(&disk.tmp, &write.path, &write.contents) {
+        if let Err(error) =
+            write_atomic_parts(&disk.tmp, &write.path, &[&write.header, &write.value])
+        {
             metrics::add(&self.counters.cache_io_errors, 1);
             tracing::warn!(target: "nextrs::cache", %error, "cannot persist a cache entry");
             // An older file for this key would come back after a restart
@@ -758,7 +785,7 @@ impl CacheStore {
             return;
         }
         let mut state = self.lock();
-        let size = write.contents.len() as u64;
+        let size = (write.header.len() + write.value.len()) as u64;
         match state.entries.get_mut(&write.key) {
             Some(entry) if entry.generation == write.generation => {
                 // The file is the value plus a small header; account the file.
