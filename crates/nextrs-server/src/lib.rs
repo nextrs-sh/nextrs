@@ -451,6 +451,11 @@ fn internal_failure(status: StatusCode) -> nextrs_runtime::InternalResponse {
 struct AppState {
     config: RoutingConfig,
     rsc: RscConfig,
+    /// `rsc.vary_header` and `rsc.content_type` as header values, made
+    /// once: prerendered responses sent them per request (RE-5A: two of
+    /// the dozen allocations of a prerendered response).
+    rsc_vary: Option<HeaderValue>,
+    rsc_content_type: Option<HeaderValue>,
     static_root: Option<PathBuf>,
     public_root: Option<PathBuf>,
     /// Prerendered pages that never revalidate on a timer, served from
@@ -855,6 +860,8 @@ impl AppState {
             config: info.config.clone(),
             i18n: info.config.i18n.clone().map(i18n::I18n::new),
             rsc: info.rsc.clone(),
+            rsc_vary: HeaderValue::from_str(&info.rsc.vary_header).ok(),
+            rsc_content_type: HeaderValue::from_str(&info.rsc.content_type).ok(),
             static_root: canonical_dir(&info.static_dir).await,
             public_root,
             pages,
@@ -2235,9 +2242,12 @@ async fn prerendered(
     method: &Method,
 ) -> Response {
     let mut response = Response::new(Body::empty());
+    // Sized once for what follows (the stored headers, Vary, the cache
+    // and type headers, ETag, length, X-Powered-By), instead of growing.
+    *response.headers_mut() = HeaderMap::with_capacity(cached.headers.len() + 8);
     let headers = response.headers_mut();
-    if let Ok(vary) = HeaderValue::from_str(&state.rsc.vary_header) {
-        headers.insert(header::VARY, vary);
+    if let Some(vary) = &state.rsc_vary {
+        headers.insert(header::VARY, vary.clone());
     }
     headers.insert("x-nextjs-cache", HeaderValue::from_static("HIT"));
     for (name, value) in &cached.headers {
@@ -2270,7 +2280,14 @@ async fn prerendered(
         *response.status_mut() = StatusCode::NOT_MODIFIED;
         return response;
     }
-    if let Ok(value) = HeaderValue::from_str(content_type) {
+    let content_type = if content_type == HTML {
+        Some(HeaderValue::from_static(HTML))
+    } else if content_type == state.rsc.content_type {
+        state.rsc_content_type.clone()
+    } else {
+        HeaderValue::from_str(content_type).ok()
+    };
+    if let Some(value) = content_type {
         headers.insert(header::CONTENT_TYPE, value);
     }
     headers.insert(header::CONTENT_LENGTH, HeaderValue::from(cached.len));
