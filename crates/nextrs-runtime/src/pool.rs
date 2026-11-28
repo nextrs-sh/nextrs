@@ -50,6 +50,9 @@ use crate::{ExecutorConfig, ExecutorError, RenderError, RenderRequest, ResponseS
 
 /// How often supervisors check heartbeats and shutdown progress.
 const WATCH_INTERVAL: Duration = Duration::from_millis(50);
+/// Turn-start heartbeats closer together than this are skipped
+/// (`WorkerShared::beat_turn`).
+const HEARTBEAT_GRANULARITY_MS: u64 = 5;
 /// An isolate whose event loop has not turned for this long is busy on the
 /// CPU; dispatch prefers others while any is responsive.
 const BUSY_HINT: Duration = Duration::from_millis(200);
@@ -208,6 +211,9 @@ pub(crate) struct WorkerShared {
     heap_used: AtomicUsize,
     heap_total: AtomicUsize,
     heap_external: AtomicUsize,
+    /// The isolate thread is parked: its runtime had nothing to run (no
+    /// JavaScript turn in progress) and waits for I/O, a timer or a job.
+    parked: AtomicBool,
     /// The heap limit V8 enforces (its configuration, plus any headroom
     /// granted at the near-limit callback).
     heap_limit: AtomicUsize,
@@ -254,6 +260,7 @@ impl WorkerShared {
             heap_total: AtomicUsize::new(0),
             heap_external: AtomicUsize::new(0),
             heap_limit: AtomicUsize::new(0),
+            parked: AtomicBool::new(false),
             heap_after_gc: AtomicUsize::new(0),
             full_gcs: AtomicU64::new(0),
             near_limit_calls: AtomicU64::new(0),
@@ -285,6 +292,33 @@ impl WorkerShared {
         let now = self.epoch.elapsed().as_millis() as u64;
         if let Some(clock) = self.cpu_clock.get()
             && let Some(cpu) = clock.now_ns()
+    /// The isolate thread is about to park (its runtime's park hook): no
+    /// turn is in progress, so it cannot be stalled until it unparks.
+    pub fn on_park(&self) {
+        self.beat();
+        self.parked.store(true, Ordering::Release);
+    }
+
+    /// The isolate thread woke up (its runtime's unpark hook). The beat
+    /// comes first, so the supervisor never sees it unparked with the
+    /// heartbeat of before it parked.
+    pub fn on_unpark(&self) {
+        self.beat();
+        self.parked.store(false, Ordering::Release);
+    }
+
+    /// A beat at the start of an event-loop turn, unless there was one in
+    /// the last `HEARTBEAT_GRANULARITY_MS` (reading the thread's CPU clock
+    /// is a system call; a few milliseconds are nothing against the stall
+    /// limit).
+    pub fn beat_turn(&self) {
+        let now = self.epoch.elapsed().as_millis() as u64;
+        if now.saturating_sub(self.heartbeat_ms.load(Ordering::Relaxed)) >= HEARTBEAT_GRANULARITY_MS
+        {
+            self.beat();
+        }
+    }
+
         {
             self.heartbeat_cpu_ns.store(cpu, Ordering::Relaxed);
         }
@@ -302,7 +336,11 @@ impl WorkerShared {
     /// CPU time the isolate thread has used since its event loop last had
     /// control, if a per-thread CPU clock is available.
     fn busy_cpu_for(&self) -> Option<Duration> {
-        let now = self.cpu_clock.get()?.now_ns()?;
+        let clock = self.cpu_clock.get()?;
+        if self.parked.load(Ordering::Acquire) {
+            return Some(Duration::ZERO);
+        }
+        let now = clock.now_ns()?;
         Some(Duration::from_nanos(now.saturating_sub(
             self.heartbeat_cpu_ns.load(Ordering::Relaxed),
         )))
@@ -419,13 +457,17 @@ impl WorkerShared {
         self.full_gcs.fetch_add(1, Ordering::Relaxed);
     }
 
-    /// Time since the isolate's event loop last got control back.
+    /// Time since the isolate's event loop last got control back; zero
+    /// while its thread is parked (nothing running).
     fn busy_for(&self) -> Duration {
         let now = self.epoch.elapsed().as_millis() as u64;
         Duration::from_millis(now.saturating_sub(self.heartbeat_ms.load(Ordering::Relaxed)))
     }
 
     fn send(&self, job: Box<Job>) -> Result<(), Box<Job>> {
+        if self.parked.load(Ordering::Acquire) {
+            return Duration::ZERO;
+        }
         let inbox = self.inbox.lock().unwrap_or_else(|e| e.into_inner());
         match inbox.as_ref() {
             Some(sender) => sender.send(job).map_err(|e| e.0),

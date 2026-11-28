@@ -35,6 +35,19 @@ exports.handler = async (req, res) => {
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
       return res.end(`${globalThis.__isolateId}:blocked`);
     }
+    // Busy for x-delay ms in all, in 2 ms slices that each yield to the
+    // event loop (a timer): many short turns, never one long one (RE-5F).
+    case "yielding": {
+      const until = Date.now() + Number(req.headers["x-delay"] ?? 2000);
+      let slices = 0;
+      while (Date.now() < until) {
+        const slice = Date.now() + 2;
+        while (Date.now() < slice) {}
+        slices++;
+        await new Promise((resolve) => setTimeout(resolve, 1));
+      }
+      return res.end(`${globalThis.__isolateId}:yielded:${slices}`);
+    }
     // CPU-bound: only the stall watchdog stops these.
     case "loop":
       for (;;) {}
