@@ -1,0 +1,35 @@
+stage=re23-confirm variants=benchmarks/resource/variants/re23-confirm.json workload=full configs=256m:1,512m:1 rounds=2 args=--only base,re2c-combo
+2026-11-27T15:18:33Z
+nextrs-s1:base af994c15e3c6d6a438cfece9e753cf651598f31b050dea40b693bc5ed06548a2
+nextrs-s1:re1 926af1f6b077f0636d4e857f3c9127369835b80ed743b00486f377b7adb8edb3
+nextrs-s1:re2 2d70295d8d8c23c92f0061235d95c8df3f19e99f417d6774dcd036566aa53499
+nextrs-s1:re2b be739569be1451d973933980c69351e98fb4f9e7e50da82b71c409e304f33559
+nextrs-s1:re2c 052d741d4fc4659201da20679a9505e79e100f05dc51e9b5d1cdd25017191902
+nextrs-s1:base-jemalloc af994c15e3c6d6a438cfece9e753cf651598f31b050dea40b693bc5ed06548a2
+nextrs-s1:base-mimalloc af994c15e3c6d6a438cfece9e753cf651598f31b050dea40b693bc5ed06548a2
+sha256:4cac18800cc879e50f1873f815a00a93209a9ca0f16e3186e9955e429962f526
+sha256:08f6ae32937d2bf64c976519c94af06eac3b237096baaf19bec209e59e7c5639
+166b0d705c4204964170965ed5c7c16443c1f5e0a846cd56e44a765d527f02ab  /usr/local/bin/nextrs-loadgen
+79e4fe5719934306ee670a479bd07066ebdfda7e
+ M benchmarks/resource/README.md
+ M benchmarks/resource/run.mjs
+ M benchmarks/resource/summarize.mjs
+ M benchmarks/series1/lib.mjs
+ M crates/nextrs-cli/src/main.rs
+ M crates/nextrs-runtime/src/lib.rs
+ M crates/nextrs-runtime/src/memory.rs
+ M crates/nextrs-runtime/src/worker.rs
+ M crates/nextrs-runtime/tests/fixtures/handlers/dist/faults.js
+ M crates/nextrs-runtime/tests/memory.rs
+ M crates/nextrs-runtime/tests/supervision.rs
+ M crates/nextrs-server/src/http_metrics.rs
+ M crates/nextrs-server/src/reclaim.rs
+ M engineering/configuration.md
+?? benchmarks/resource/discover-action.mjs
+?? benchmarks/resource/gc-summary.mjs
+?? benchmarks/resource/idle-threads.mjs
+?? benchmarks/resource/soak-summary.mjs
+?? benchmarks/resource/variants/re23-confirm.json
+?? benchmarks/resource/variants/re23-gctrace.json
+?? benchmarks/resource/variants/re23-matrix.json
+?? benchmarks/resource/variants/re23-screening.json

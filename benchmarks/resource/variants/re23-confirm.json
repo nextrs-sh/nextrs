@@ -1,0 +1,8 @@
+[
+  { "label": "node", "runtime": "node" },
+  { "label": "base", "runtime": "base" },
+  { "label": "re2c-combo", "runtime": "re2c", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90" },
+  { "label": "re2c-balanced", "runtime": "re2c", "args": "--profile balanced" },
+  { "label": "re2c-combo-semi8", "runtime": "re2c", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90 --v8-flags --max-semi-space-size=8" },
+  { "label": "re2c-combo-semi16", "runtime": "re2c", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90 --v8-flags --max-semi-space-size=16" }
+]

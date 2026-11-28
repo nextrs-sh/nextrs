@@ -7,7 +7,8 @@
 //   node benchmarks/resource/run.mjs discover
 //   node benchmarks/resource/run.mjs profile --variants FILE \
 //        [--configs 1g:2,512m:1,256m:1,256m:0.5] [--rounds 2] \
-//        [--workload full|memory] [--only LABEL,...] [--first-round N] --out DIR
+//        [--workload full|memory|cycles|envelope|soak] [--soak-minutes N] [--only LABEL,...] [--first-round N]
+//        [--recovery 10,30,60,120,300] [--save-logs] --out DIR
 //   node benchmarks/resource/summarize.mjs DIR
 //   node benchmarks/resource/run.mjs teardown
 //
@@ -67,6 +68,8 @@ async function discover() {
   log(L.toolsNode("discover.mjs", [`http://${L.SF}:8080`, SPECS]).trim());
   L.docker(["cp", join(L.HERE, "../resource/discover-dynamic.mjs"), `${L.TOOLS}:/tmp/discover-dynamic.mjs`]);
   log(L.docker(["exec", L.TOOLS, "node", "/tmp/discover-dynamic.mjs", `http://${L.SF}:8080`, SPECS]).stdout.trim());
+  L.docker(["cp", join(L.HERE, "../resource/discover-action.mjs"), `${L.TOOLS}:/tmp/discover-action.mjs`]);
+  log(L.docker(["exec", L.TOOLS, "node", "/tmp/discover-action.mjs", `http://${L.SF}:8080`, SPECS]).stdout.trim());
   L.remove(L.SF);
 }
 
@@ -77,9 +80,27 @@ function inspect(name) {
   return { state: JSON.parse(state), id };
 }
 
+/**
+ * The container's cgroup directory as the probe sees it: `docker/ID`
+ * (Docker Desktop, cgroupfs driver) or `system.slice/docker-ID.scope`
+ * (Linux hosts with the systemd driver). Cached per container.
+ */
+const cgDirs = new Map();
+function cgDir(id) {
+  if (!cgDirs.has(id)) {
+    const r = L.docker(["exec", PROBE, "sh", "-c",
+      `for d in /cg/docker/${id} /cg/system.slice/docker-${id}.scope; do [ -f $d/memory.current ] && echo $d && break; done`],
+    { allowFail: true });
+    const dir = r.stdout.trim();
+    if (!dir) return `/cg/docker/${id}`; // gone already: readings fail as before
+    cgDirs.set(id, dir);
+  }
+  return cgDirs.get(id);
+}
+
 /** One reading of the container's cgroup, from the probe. */
 function cgroup(id) {
-  const dir = `/cg/docker/${id}`;
+  const dir = cgDir(id);
   const r = L.docker(["exec", PROBE, "sh", "-c",
     `cat ${dir}/cpu.stat; echo memory.current $(cat ${dir}/memory.current); echo memory.peak $(cat ${dir}/memory.peak); cat ${dir}/memory.events`],
   { allowFail: true });
@@ -99,9 +120,11 @@ function metrics(runtime) {
   return {
     ...pick(m, ["isolates", "queued", "requests_admitted", "requests_completed", "execution_seconds_total",
       "queue_wait_seconds_total", "queue_waits", "rejected_queue_full", "rejected_queue_timeout",
-      "rejected_unavailable", "request_timeouts", "memory", "cache", "compression_cache"]),
+      "rejected_unavailable", "request_timeouts", "memory", "cache", "compression_cache", "reclaim",
+      "memory_reclaims_idle", "memory_reclaims_pressure", "memory_reclaim_seconds_total"]),
     executors: (m.executors ?? []).map((e) => pick(e, ["slot", "state", "generation", "heap_used_bytes",
-      "heap_total_bytes", "external_bytes", "heap_used_after_gc_bytes", "full_gcs", "restarts", "failures"])),
+      "heap_total_bytes", "external_bytes", "heap_limit_bytes", "heap_used_after_gc_bytes", "full_gcs",
+      "restarts", "failures"])),
     process: m.process,
   };
 }
@@ -133,17 +156,53 @@ const WORKLOADS = {
     { name: "steady-api", spec: "api-gzip.json", rate: 15, connections: 16, duration: 45 },
     { name: "steady-mixed", spec: "mixed-gzip.json", rate: 30, connections: 32, duration: 60 },
     { name: "burst-mixed", spec: "mixed-gzip.json", rate: 0, connections: 16, duration: 30, perIsolate: true },
+    // Server Actions (discover-action.mjs), after the RE-1 phases so those
+    // stay comparable with the RE-1 baseline.
+    { name: "steady-action", spec: "action-gzip.json", rate: 5, connections: 8, duration: 45 },
   ],
   // Screening for configuration experiments: the mixed workload only.
   memory: [
     { name: "steady-mixed", spec: "mixed-gzip.json", rate: 30, connections: 32, duration: 60 },
     { name: "burst-mixed", spec: "mixed-gzip.json", rate: 0, connections: 16, duration: 30, perIsolate: true },
   ],
+  // Repeated traffic and idle: does memory return to the same level after
+  // every cycle (reclamation works, nothing accumulates)?
+  cycles: [1, 2, 3].flatMap((n) => [
+    { name: `cycle${n}-mixed`, spec: "mixed-gzip.json", rate: 30, connections: 32, duration: 45 },
+    { name: `cycle${n}-burst`, spec: "mixed-gzip.json", rate: 0, connections: 16, duration: 20, perIsolate: true },
+    { name: `cycle${n}-idle`, idle: 60 },
+  ]),
+  // Sustainable throughput: the mixed workload at rising fixed rates (open
+  // loop, latency from the scheduled send time) until the storefront fails
+  // or falls behind; then the closed-loop saturation phase.
+  envelope: [
+    ...[15, 30, 45, 60, 80, 100, 120].map((rate) => (
+      { name: `rate-${rate}`, spec: "mixed-gzip.json", rate, connections: 64, duration: 40, ladder: true })),
+    { name: "burst-mixed", spec: "mixed-gzip.json", rate: 0, connections: 16, duration: 30, perIsolate: true },
+  ],
+  // Soak (`--soak-minutes N`): 6-minute blocks of steady mixed traffic, a
+  // burst, a Server Action phase and an idle gap, for N minutes. Whether
+  // warmed-up memory settles in a range or keeps climbing shows in the
+  // samples; a short soak cannot rule out a slow leak.
+  soak: Array.from({ length: Math.max(1, Math.round(num(opts["soak-minutes"], 30) / 6)) }, (_, i) => [
+    { name: `soak${i + 1}-mixed`, spec: "mixed-gzip.json", rate: 30, connections: 32, duration: 210 },
+    { name: `soak${i + 1}-burst`, spec: "mixed-gzip.json", rate: 0, connections: 16, duration: 30, perIsolate: true },
+    { name: `soak${i + 1}-action`, spec: "action-gzip.json", rate: 5, connections: 8, duration: 30 },
+    { name: `soak${i + 1}-idle`, idle: 90 },
+  ]).flat(),
 };
-const RECOVERY_MARKS = [10, 30, 60, 120];
+const RECOVERY_MARKS = list(opts.recovery, "10,30,60,120,300").map(Number);
 
 async function phase(run, id, runtime, p, isolates) {
+  if (p.idle) {
+    const started = Date.now();
+    await L.sleep(p.idle * 1000);
+    run.phases.push({ name: p.name, idle: p.idle, started, ended: Date.now(), after: cgroup(id), metricsAfter: metrics(runtime) });
+    log(`  ${p.name}: idle ${p.idle} s`);
+    return null;
+  }
   const connections = p.perIsolate ? p.connections * Math.max(isolates, 1) : p.connections;
+  const contentionBefore = L.contention();
   const before = cgroup(id);
   const mBefore = metrics(runtime);
   const started = Date.now();
@@ -157,6 +216,7 @@ async function phase(run, id, runtime, p, isolates) {
   const entry = {
     name: p.name, spec: p.spec, rate: p.rate, connections, duration: p.duration, started, ended: Date.now(),
     before, after, metricsBefore: mBefore, metricsAfter: metrics(runtime),
+    contention: { before: contentionBefore, after: L.contention() },
   };
   if (result.error) {
     entry.error = result.error;
@@ -197,15 +257,21 @@ async function one(variant, config, round, workload, out) {
   const samples = `/work/re/${L.SF}-${file}.jsonl`;
   if (info) {
     L.docker(["exec", PROBE, "rm", "-f", samples], { allowFail: true });
-    L.docker(["exec", "-d", PROBE, "node", "/re/sampler.mjs", `/cg/docker/${info.id}`, String(info.state.Pid), samples, "1000", "5"]);
+    L.docker(["exec", "-d", PROBE, "node", "/re/sampler.mjs", cgDir(info.id), String(info.state.Pid), samples, "1000", "5"]);
   }
   run.marks.start = started;
+  if (info) {
+    // Which allocator libraries the process actually mapped: an
+    // LD_PRELOAD that did not load would make an allocator run a baseline.
+    const maps = L.docker(["exec", PROBE, "sh", "-c", `grep -oE '[^ /]*(jemalloc|mimalloc|tcmalloc)[^ ]*' /proc/${info.state.Pid}/maps | sort -u`], { allowFail: true });
+    run.mappedAllocators = maps.stdout.trim().split("\n").filter(Boolean);
+  }
   if (!run.error) {
     await L.sleep(30_000);
     run.marks.idle = Date.now();
     run.idle = { cgroup: cgroup(info.id), metrics: metrics(variant.runtime) };
     // Correctness: every SSR and route-handler request once, body-checked.
-    for (const spec of ["ssr-identity.json", "api-identity.json"]) {
+    for (const spec of ["ssr-identity.json", "api-identity.json", "action-identity.json"]) {
       const n = JSON.parse(L.docker(["exec", L.TOOLS, "cat", `${SPECS}/${spec}`]).stdout).requests.length;
       await phase(run, info.id, variant.runtime, { name: `check-${spec.split("-")[0]}`, spec, rate: 0, connections: 1, duration: 60, requests: n }, isolates);
     }
@@ -214,20 +280,30 @@ async function one(variant, config, round, workload, out) {
     await phase(run, info.id, variant.runtime, { name: "cold-mixed", spec: "mixed-gzip.json", rate: 0, connections: 1, duration: 120, requests: n }, isolates);
     for (const p of WORKLOADS[workload]) {
       if (!inspect(L.SF)?.state.Running) break;
-      await phase(run, info.id, variant.runtime, p, isolates);
+      const entry = await phase(run, info.id, variant.runtime, p, isolates);
+      // The ladder stops at the first rate the storefront cannot sustain.
+      if (p.ladder && entry && (entry.error || entry.failed > 0 || (entry.result?.achieved_rps ?? 0) < p.rate * 0.95)) {
+        run.ladderStop = p.name;
+        break;
+      }
     }
     run.marks.loadEnd = Date.now();
     run.recovery = [];
     for (const mark of RECOVERY_MARKS) {
       await L.sleep(Math.max(0, run.marks.loadEnd + mark * 1000 - Date.now()));
       if (!inspect(L.SF)?.state.Running) break;
-      run.recovery.push({ after_s: mark, cgroup: cgroup(info.id), metrics: mark === RECOVERY_MARKS.at(-1) ? metrics(variant.runtime) : undefined });
+      run.recovery.push({ after_s: mark, cgroup: cgroup(info.id), metrics: metrics(variant.runtime) });
     }
   }
   const end = inspect(L.SF);
   run.final = end && { running: end.state.Running, oomKilled: end.state.OOMKilled, exitCode: end.state.ExitCode, restarts: end.state.RestartCount ?? 0 };
   run.lastCgroup = info && cgroup(info.id);
   if (end && !end.state.Running) run.logTail = L.docker(["logs", "--tail", "20", L.SF], { allowFail: true }).stderr.slice(-4000);
+  // --save-logs: the container's whole log (e.g. V8's --trace-gc lines).
+  if (opts["save-logs"] && end) {
+    const logs = L.docker(["logs", L.SF], { allowFail: true });
+    writeFileSync(join(out, `${file}.log`), `${logs.stdout}${logs.stderr}`);
+  }
   run.contention.after = L.contention();
   L.remove(L.SF);
   await L.sleep(1500); // the sampler stops when the cgroup disappears

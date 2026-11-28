@@ -1,0 +1,47 @@
+{
+ "variant": {
+  "label": "re2c-balanced",
+  "runtime": "re2c",
+  "args": "--profile balanced"
+ },
+ "memory": "512m",
+ "cpus": "1",
+ "readyMs": 1838,
+ "settle": 60,
+ "seconds": 300.326,
+ "containerMillicores": 14.845264812237367,
+ "processMillicores": 9.190013518643074,
+ "threads": {
+  "nextrs-v8-0": {
+   "threads": 1,
+   "millicores": 6.526241484253777
+  },
+  "nextrs-supervis": {
+   "threads": 1,
+   "millicores": 1.9978290257919726
+  },
+  "tokio-rt-worker": {
+   "threads": 1,
+   "millicores": 0.49945725644799316
+  },
+  "V8 DefaultWorke": {
+   "threads": 1,
+   "millicores": 0.16648575214933103
+  },
+  "nextrs": {
+   "threads": 1,
+   "millicores": 0
+  },
+  "nextrs-net": {
+   "threads": 4,
+   "millicores": 0
+  }
+ },
+ "contention": {
+  "hostLoad1": 1.23,
+  "vmLoad1": 0.17,
+  "vmBusyTicks": 4382145,
+  "vmTotalTicks": 71613852,
+  "vmStealTicks": 0
+ }
+}

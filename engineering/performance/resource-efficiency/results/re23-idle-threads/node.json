@@ -1,0 +1,42 @@
+{
+ "variant": {
+  "label": "node",
+  "runtime": "node"
+ },
+ "memory": "512m",
+ "cpus": "1",
+ "readyMs": 2679,
+ "settle": 60,
+ "seconds": 300.32,
+ "containerMillicores": 27.067611214704314,
+ "processMillicores": 0.7991475759190197,
+ "threads": {
+  "next-server (v1": {
+   "threads": 1,
+   "millicores": 0.6659563132658498
+  },
+  "V8Worker": {
+   "threads": 4,
+   "millicores": 0.13319126265316997
+  },
+  "DelayedTaskSche": {
+   "threads": 1,
+   "millicores": 0
+  },
+  "SignalInspector": {
+   "threads": 1,
+   "millicores": 0
+  },
+  "libuv-worker": {
+   "threads": 4,
+   "millicores": 0
+  }
+ },
+ "contention": {
+  "hostLoad1": 1.7,
+  "vmLoad1": 0.32,
+  "vmBusyTicks": 4369417,
+  "vmTotalTicks": 70752608,
+  "vmStealTicks": 0
+ }
+}

@@ -46,7 +46,9 @@ pub use crate::internal::{
     InternalBody, InternalDispatch, InternalRequest, InternalResponse, MAX_INTERNAL_REQUESTS,
 };
 pub use crate::memory::{
-    CgroupMemory, constrained_memory, physical_memory, release_free_memory, set_malloc_arena_max,
+    Cgroup, CgroupMemory, CgroupVersion, HEAP_BUDGET_BASE_RESERVE, HEAP_BUDGET_ISOLATE_RESERVE,
+    HEAP_BUDGET_MIN, HeapBudget, LimitKind, constrained_memory, heap_budget, physical_memory,
+    release_free_memory, set_malloc_arena_max,
 };
 pub use crate::metrics::{
     CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MallocSnapshot, MemorySnapshot,
@@ -187,17 +189,20 @@ pub struct Limits {
     pub bootstrap_timeout: Option<Duration>,
     /// V8 heap limit per isolate. Reaching it terminates and replaces the
     /// isolate instead of aborting the process. `None` keeps V8's default
-    /// limit (the near-limit handler is installed either way). Takes
-    /// precedence over `heap_memory_bytes`.
+    /// limit (the near-limit handler is installed either way). With
+    /// `heap_memory_bytes` it caps the limit V8 derives from that memory
+    /// (never raises it); alone, V8 derives the young generation from the
+    /// limit itself.
     pub heap_limit_bytes: Option<usize>,
     /// Size each isolate's heap as V8 would on a machine with this much
     /// memory (V8's `ResourceConstraints::ConfigureDefaults`): the heap
-    /// limit, the young generation and the growth heuristics all follow it.
-    /// Node.js passes its cgroup-constrained memory here; NextRS passes the
-    /// container's memory divided among the isolates. `None` keeps V8's own
-    /// defaults, which follow the machine's physical memory and ignore any
-    /// container limit. Only the JavaScript heap follows it: it is not a
-    /// process memory limit.
+    /// limit, the young generation, the initial limit and the growth
+    /// heuristics all follow it. `--js-heap-limit auto` passes the
+    /// container's memory divided among the isolates here and a budgeted
+    /// limit in `heap_limit_bytes` ([`crate::heap_budget`]). `None` keeps
+    /// V8's own defaults, which follow the machine's physical memory and
+    /// ignore any container limit. Only the JavaScript heap follows it: it
+    /// is not a process memory limit.
     pub heap_memory_bytes: Option<u64>,
     /// Response body bytes buffered per response between JavaScript and
     /// the socket before `res.write()` applies backpressure.

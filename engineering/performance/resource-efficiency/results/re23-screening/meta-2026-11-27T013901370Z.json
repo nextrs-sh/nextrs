@@ -1,0 +1,129 @@
+{
+ "command": "profile --variants benchmarks/resource/variants/re23-screening.json --workload memory --configs 256m:1,512m:1 --rounds 1 --recovery 10,30,60,120 --out engineering/performance/resource-efficiency/results/re23-screening",
+ "commit": "79e4fe5",
+ "started": "2026-11-27T01:39:01.414Z",
+ "host": {
+  "docker": "29.7.2",
+  "dockerCpus": "8",
+  "dockerMemory": "4101230592",
+  "kernel": "7.0.12-linuxkit",
+  "host": "Darwin 24.6.0 x86_64",
+  "hostLoad": "9:39  up 4 days, 23:25, 1 user, load averages: 7.56 7.14 7.50"
+ },
+ "variants": [
+  {
+   "label": "base",
+   "runtime": "base"
+  },
+  {
+   "label": "base-arena2",
+   "runtime": "base",
+   "env": [
+    "MALLOC_ARENA_MAX=2"
+   ]
+  },
+  {
+   "label": "base-jemalloc",
+   "runtime": "base",
+   "image": "nextrs-s1:base-jemalloc",
+   "env": [
+    "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"
+   ]
+  },
+  {
+   "label": "base-mimalloc",
+   "runtime": "base",
+   "image": "nextrs-s1:base-mimalloc",
+   "env": [
+    "LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libmimalloc.so.2"
+   ]
+  },
+  {
+   "label": "base-semi2",
+   "runtime": "base",
+   "args": "--v8-flags --max-semi-space-size=2"
+  },
+  {
+   "label": "re1-sizing",
+   "runtime": "re1",
+   "args": "--js-heap-limit auto"
+  },
+  {
+   "label": "re2",
+   "runtime": "re2"
+  },
+  {
+   "label": "re2-heap",
+   "runtime": "re2",
+   "args": "--js-heap-limit auto"
+  },
+  {
+   "label": "re2-trim",
+   "runtime": "re2",
+   "args": "--memory-reclaim-idle 10"
+  },
+  {
+   "label": "re2-native",
+   "runtime": "re2",
+   "args": "--malloc-arena-max 2 --memory-reclaim-idle 10 --memory-pressure-reclaim 85"
+  },
+  {
+   "label": "re2-balanced",
+   "runtime": "re2",
+   "args": "--profile balanced"
+  },
+  {
+   "label": "re2-lowmem",
+   "runtime": "re2",
+   "args": "--profile low-memory"
+  },
+  {
+   "label": "node",
+   "runtime": "node"
+  }
+ ],
+ "configs": [
+  "256m:1",
+  "512m:1"
+ ],
+ "rounds": 1,
+ "workload": "memory",
+ "phases": [
+  {
+   "name": "steady-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 30,
+   "connections": 32,
+   "duration": 60
+  },
+  {
+   "name": "burst-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 0,
+   "connections": 16,
+   "duration": 30,
+   "perIsolate": true
+  }
+ ],
+ "recoveryMarks": [
+  10,
+  30,
+  60,
+  120
+ ],
+ "images": {
+  "base": "sha256:f4c803b301a02eb9b3ceb9c826c0ff095f92cc6e24f134db556f60129c39c21b",
+  "base-arena2": "sha256:f4c803b301a02eb9b3ceb9c826c0ff095f92cc6e24f134db556f60129c39c21b",
+  "base-jemalloc": "sha256:a90155b0a5cb6b80461dacd4d68436554ae07888158b6339ab03f3a6409f8f59",
+  "base-mimalloc": "sha256:cb8a21d4bd7e2400835b16de765e3c5547c3c08b874eb99090b76663f6cd0aaa",
+  "base-semi2": "sha256:f4c803b301a02eb9b3ceb9c826c0ff095f92cc6e24f134db556f60129c39c21b",
+  "re1-sizing": "sha256:845422ddd397c94c2666cc68b26fbbf9662948a5f2fdc58c4d104b1b5beba0cf",
+  "re2": "sha256:7396586ca1ce7f87db98dcc4af50a3e60ff2d1e703e74f95e7e8b30d6552bb30",
+  "re2-heap": "sha256:7396586ca1ce7f87db98dcc4af50a3e60ff2d1e703e74f95e7e8b30d6552bb30",
+  "re2-trim": "sha256:7396586ca1ce7f87db98dcc4af50a3e60ff2d1e703e74f95e7e8b30d6552bb30",
+  "re2-native": "sha256:7396586ca1ce7f87db98dcc4af50a3e60ff2d1e703e74f95e7e8b30d6552bb30",
+  "re2-balanced": "sha256:7396586ca1ce7f87db98dcc4af50a3e60ff2d1e703e74f95e7e8b30d6552bb30",
+  "re2-lowmem": "sha256:7396586ca1ce7f87db98dcc4af50a3e60ff2d1e703e74f95e7e8b30d6552bb30",
+  "node": "sha256:4cac18800cc879e50f1873f815a00a93209a9ca0f16e3186e9955e429962f526"
+ }
+}

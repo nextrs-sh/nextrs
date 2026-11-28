@@ -1,0 +1,100 @@
+{
+ "command": "profile --variants benchmarks/resource/variants/re23-confirm.json --workload full --configs 512m:1,1g:2 --rounds 1 --only re2c-combo,re2c-combo-semi8,re2c-combo-semi16 --out engineering/performance/resource-efficiency/results/re23-confirm-young",
+ "commit": "79e4fe5",
+ "started": "2026-11-27T16:39:23.718Z",
+ "host": {
+  "docker": "29.7.2",
+  "dockerCpus": "8",
+  "dockerMemory": "4101230592",
+  "kernel": "7.0.12-linuxkit",
+  "host": "Darwin 24.6.0 x86_64",
+  "hostLoad": "0:39  up 5 days, 14:25, 1 user, load averages: 3.41 2.38 2.23"
+ },
+ "variants": [
+  {
+   "label": "re2c-combo",
+   "runtime": "re2c",
+   "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90"
+  },
+  {
+   "label": "re2c-combo-semi8",
+   "runtime": "re2c",
+   "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90 --v8-flags --max-semi-space-size=8"
+  },
+  {
+   "label": "re2c-combo-semi16",
+   "runtime": "re2c",
+   "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90 --v8-flags --max-semi-space-size=16"
+  }
+ ],
+ "configs": [
+  "512m:1",
+  "1g:2"
+ ],
+ "rounds": 1,
+ "workload": "full",
+ "phases": [
+  {
+   "name": "steady-static",
+   "spec": "static-gzip.json",
+   "rate": 200,
+   "connections": 32,
+   "duration": 45
+  },
+  {
+   "name": "steady-rsc",
+   "spec": "rsc-gzip.json",
+   "rate": 30,
+   "connections": 16,
+   "duration": 45
+  },
+  {
+   "name": "steady-ssr",
+   "spec": "ssr-gzip.json",
+   "rate": 5,
+   "connections": 16,
+   "duration": 45
+  },
+  {
+   "name": "steady-api",
+   "spec": "api-gzip.json",
+   "rate": 15,
+   "connections": 16,
+   "duration": 45
+  },
+  {
+   "name": "steady-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 30,
+   "connections": 32,
+   "duration": 60
+  },
+  {
+   "name": "burst-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 0,
+   "connections": 16,
+   "duration": 30,
+   "perIsolate": true
+  },
+  {
+   "name": "steady-action",
+   "spec": "action-gzip.json",
+   "rate": 5,
+   "connections": 8,
+   "duration": 45
+  }
+ ],
+ "recoveryMarks": [
+  10,
+  30,
+  60,
+  120,
+  300
+ ],
+ "images": {
+  "re2c-combo": "sha256:8beaca63b4631bc30f70f9606e9bb03371e57a766551194ebfbad1f4bc05a7a6",
+  "re2c-combo-semi8": "sha256:8beaca63b4631bc30f70f9606e9bb03371e57a766551194ebfbad1f4bc05a7a6",
+  "re2c-combo-semi16": "sha256:8beaca63b4631bc30f70f9606e9bb03371e57a766551194ebfbad1f4bc05a7a6"
+ }
+}

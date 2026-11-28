@@ -1,0 +1,109 @@
+{
+ "command": "profile --variants benchmarks/resource/variants/re23-matrix.json --workload envelope --configs 256m:1,256m:0.5 --rounds 1 --only node,base,re2b-combo --recovery 10,60 --out engineering/performance/resource-efficiency/results/re23-envelope",
+ "commit": "79e4fe5",
+ "started": "2026-11-27T12:01:17.436Z",
+ "host": {
+  "docker": "29.7.2",
+  "dockerCpus": "8",
+  "dockerMemory": "4101230592",
+  "kernel": "7.0.12-linuxkit",
+  "host": "Darwin 24.6.0 x86_64",
+  "hostLoad": "20:01  up 5 days,  9:47, 1 user, load averages: 3.69 2.63 2.47"
+ },
+ "variants": [
+  {
+   "label": "node",
+   "runtime": "node"
+  },
+  {
+   "label": "base",
+   "runtime": "base"
+  },
+  {
+   "label": "re2b-combo",
+   "runtime": "re2b",
+   "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90"
+  }
+ ],
+ "configs": [
+  "256m:1",
+  "256m:0.5"
+ ],
+ "rounds": 1,
+ "workload": "envelope",
+ "phases": [
+  {
+   "name": "rate-15",
+   "spec": "mixed-gzip.json",
+   "rate": 15,
+   "connections": 64,
+   "duration": 40,
+   "ladder": true
+  },
+  {
+   "name": "rate-30",
+   "spec": "mixed-gzip.json",
+   "rate": 30,
+   "connections": 64,
+   "duration": 40,
+   "ladder": true
+  },
+  {
+   "name": "rate-45",
+   "spec": "mixed-gzip.json",
+   "rate": 45,
+   "connections": 64,
+   "duration": 40,
+   "ladder": true
+  },
+  {
+   "name": "rate-60",
+   "spec": "mixed-gzip.json",
+   "rate": 60,
+   "connections": 64,
+   "duration": 40,
+   "ladder": true
+  },
+  {
+   "name": "rate-80",
+   "spec": "mixed-gzip.json",
+   "rate": 80,
+   "connections": 64,
+   "duration": 40,
+   "ladder": true
+  },
+  {
+   "name": "rate-100",
+   "spec": "mixed-gzip.json",
+   "rate": 100,
+   "connections": 64,
+   "duration": 40,
+   "ladder": true
+  },
+  {
+   "name": "rate-120",
+   "spec": "mixed-gzip.json",
+   "rate": 120,
+   "connections": 64,
+   "duration": 40,
+   "ladder": true
+  },
+  {
+   "name": "burst-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 0,
+   "connections": 16,
+   "duration": 30,
+   "perIsolate": true
+  }
+ ],
+ "recoveryMarks": [
+  10,
+  60
+ ],
+ "images": {
+  "node": "sha256:4cac18800cc879e50f1873f815a00a93209a9ca0f16e3186e9955e429962f526",
+  "base": "sha256:f4c803b301a02eb9b3ceb9c826c0ff095f92cc6e24f134db556f60129c39c21b",
+  "re2b-combo": "sha256:34dfb51024314df92d8d0b4d10b8540e23279fbad4c7befc9b35078563e7da60"
+ }
+}

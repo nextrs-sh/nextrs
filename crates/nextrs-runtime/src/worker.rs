@@ -21,8 +21,15 @@ use crate::{ExecutorConfig, Limits, REPORTED_NODE_VERSION, ops};
 const HEARTBEAT: Duration = Duration::from_millis(25);
 /// How often the event loop records V8 heap statistics.
 const HEAP_SAMPLE: Duration = Duration::from_secs(1);
-/// Extra heap granted after the near-limit callback fires, so the
-/// termination can unwind instead of V8 aborting the process.
+
+/// Extra heap granted when the near-limit callback fires, so the
+/// termination can unwind instead of V8 aborting the process. Not smaller
+/// for small heaps: on its last-resort path V8 calls the callback once and
+/// retries the failed allocation once, so a single object larger than the
+/// grant would abort the whole process instead of replacing one isolate
+/// (v8/src/heap/heap-allocator.cc `RetryCustomAllocate`). The grant is a
+/// permission, not memory: V8 uses only what it allocates before the
+/// termination takes effect.
 const HEAP_HEADROOM: usize = 64 * 1024 * 1024;
 
 const SCRIPTS: &[(&str, &str)] = &[
@@ -150,8 +157,19 @@ fn run(
             let worker = worker.clone();
             runtime.add_near_heap_limit_callback(move |current, _initial| {
                 worker.terminate(Termination::Failed(FailureReason::HeapLimit));
-                current + HEAP_HEADROOM
+                current.saturating_add(HEAP_HEADROOM)
             });
+        }
+        if config.limits.heap_limit_bytes.is_some() || config.limits.heap_memory_bytes.is_some() {
+            // What V8 applied, which can be below the budget (V8's own
+            // default for the memory) or overridden by --v8-flags.
+            let stats = runtime.v8_isolate().get_heap_statistics();
+            tracing::info!(
+                target: "nextrs::executor",
+                slot = worker.slot,
+                heap_limit_mib = stats.heap_size_limit() / (1024 * 1024),
+                "V8 heap limit in effect"
+            );
         }
         // The callback's data pointer owns one reference to `worker`. It is
         // released below only after the callback is removed; if this thread
@@ -186,14 +204,36 @@ fn run(
     })
 }
 
-/// The isolate's heap constraints: an explicit limit, or V8's defaults for
-/// a machine with `heap_memory_bytes` of memory (as Node.js configures its
-/// isolate from its cgroup-constrained memory), or V8's own defaults.
+/// The isolate's heap constraints: V8's defaults for a machine with
+/// `heap_memory_bytes` of memory (young generation, growth factor, initial
+/// limit), with the heap limit capped at `heap_limit_bytes`; or only an
+/// explicit limit (V8 derives the young generation from it); or V8's own
+/// defaults, from the machine's memory.
 fn heap_params(limits: &Limits) -> Option<v8::CreateParams> {
     match (limits.heap_limit_bytes, limits.heap_memory_bytes) {
-        (Some(max), _) => Some(v8::CreateParams::default().heap_limits(0, max)),
-        (None, Some(memory)) => {
-            Some(v8::CreateParams::default().heap_limits_from_system_memory(memory, 0))
+        (Some(max), None) => Some(v8::CreateParams::default().heap_limits(0, max)),
+        (cap, Some(memory)) => {
+            let params = v8::CreateParams::default().heap_limits_from_system_memory(memory, 0);
+            let young = params.max_young_generation_size_in_bytes();
+            let old = params.max_old_generation_size_in_bytes();
+            match cap {
+                // The young generation stays as V8 sized it for the memory,
+                // up to a quarter of the cap; the old generation gets the
+                // rest. V8 raises sizes below its minimums to the minimums.
+                Some(max) if max < young.saturating_add(old) => {
+                    // V8 rounds a semi-space (a third of the young
+                    // generation) up to a power of two; round down first so
+                    // the cap holds.
+                    let semi = (young.min(max / 4) / 3).max(1);
+                    let young = (1usize << semi.ilog2()).saturating_mul(3);
+                    Some(
+                        params
+                            .set_max_young_generation_size_in_bytes(young)
+                            .set_max_old_generation_size_in_bytes(max.saturating_sub(young)),
+                    )
+                }
+                _ => Some(params),
+            }
         }
         (None, None) => None,
     }
@@ -202,6 +242,9 @@ fn heap_params(limits: &Limits) -> Option<v8::CreateParams> {
 /// Performs a memory reclamation on the isolate's own thread, between
 /// turns of its event loop, and reports to everyone waiting for it.
 fn reclaim(runtime: &mut JsRuntime, worker: &WorkerShared, request: ReclaimRequest) {
+    // The collection runs between turns: start the stall clock here, not
+    // at the previous turn, and again after it.
+    worker.beat();
     let isolate = runtime.v8_isolate();
     let before = isolate.get_heap_statistics().total_heap_size();
     let started = Instant::now();
@@ -212,6 +255,7 @@ fn reclaim(runtime: &mut JsRuntime, worker: &WorkerShared, request: ReclaimReque
         }
     }
     let gc_time = started.elapsed();
+    worker.beat();
     let stats = isolate.get_heap_statistics();
     worker.record_heap(&stats);
     let done = Reclaimed {

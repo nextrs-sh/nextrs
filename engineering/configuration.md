@@ -232,23 +232,56 @@ container allows, and the process is OOM-killed before V8 collects
 garbage harder. `next start` does not have this problem because Node.js
 sizes its heap from the container limit.
 
-- `--js-heap-limit auto` sizes each isolate's heap as V8 would on a machine
-  with the container's memory limit (or the machine's memory, whichever is
-  lower) divided by `--isolates`. With one isolate this is what Node.js
-  does. `nextrs_executor_heap_limit_bytes` reports the result.
+- `--js-heap-limit auto` budgets the memory the process may use over the
+  whole isolate pool. The memory is the container's limit: the lowest
+  `memory.max` or `memory.high` from the process's cgroup up to the top
+  of the hierarchy it can see (v1: `hierarchical_memory_limit`), found
+  through `/proc/self/cgroup` and `/proc/self/mountinfo`; or the
+  machine's memory, whichever is lower. NextRS first reserves its own
+  native memory (64 MiB for the binary's pages, the server and headroom,
+  plus `--compression-cache`, plus 48 MiB per isolate for V8's external
+  memory, the isolate's native allocations and the headroom granted when a
+  heap reaches its limit), then divides the rest among the isolates:
+  each heap's limit, never below 64 MiB (a warning says so when the
+  container is too small for that many isolates). The heap's other
+  defaults (young generation, growth, initial limit) are V8's own for a
+  machine with the container's memory divided by `--isolates`. In a
+  256 MiB container with one isolate this is a 112 MiB heap limit (136
+  with `--profile low-memory`); without any limit, V8's default. The
+  decision is logged at startup and `nextrs_executor_heap_limit_bytes`
+  reports the result. This differs from Node.js, which gives V8 the whole
+  container (a 259 MiB heap limit in a 256 MiB container).
+- Reaching a heap limit (explicit or `auto`) terminates and replaces that
+  isolate: its in-flight requests fail, the others continue, and the
+  process and its other isolates keep serving. V8 is allowed 64 MiB past
+  the limit while the isolate unwinds (V8 retries a failed allocation only
+  once, so a smaller grant could abort the process on one large object).
+  A container OOM kill, by contrast, ends every request and restarts the
+  process. An explicit `--js-heap-limit` larger than the container's
+  limit across all isolates is logged as a warning, and so are
+  `--v8-flags` heap-size flags, which override `--js-heap-limit`. The
+  limit V8 applied is logged per isolate (`V8 heap limit in effect`).
+- The budget is computed once, at startup. A container whose limit is
+  changed while it runs (Kubernetes in-place resize) keeps its heaps'
+  sizes until restarted; pressure reclamation reads the current limit.
 - `--memory-reclaim-idle SECONDS`: after load, V8 shrinks its heaps on its
   own within a minute or two, but glibc keeps freed native memory in its
-  arenas. After this many seconds without requests, each isolate runs a
-  full, compacting collection and the allocator's free pages are released
-  (`malloc_trim`). Once per idle period; the first request after it runs
-  as usual.
+  arenas. After this many quiet seconds, each isolate runs a full,
+  compacting collection and the allocator's free pages are released
+  (`malloc_trim`). Quiet means at most about one request per 3 s (at
+  least 3 in the window), so health checks and load-balancer probes do not
+  keep a server from counting as idle. Once per idle period: only traffic
+  above twice that rate re-arms it. The first request after it runs as
+  usual.
 - `--memory-pressure-reclaim PERCENT`: when the container's working set
   (usage minus inactive page cache) reaches this share of its limit, the
   same happens under load, with V8's critical memory-pressure response,
   at most every 10 s. Requests in an isolate wait for its collection, as
   for any full collection.
 - `--malloc-arena-max N` caps glibc's arenas (default: 8 per CPU of the
-  machine, not of the container). Fewer arenas retain less free memory.
+  machine, not of the container). Measure before using it: on Velasia,
+  two arenas retained more memory than the default, and the idle trim
+  returned most of the retained memory without a cap.
 
 None of these is a process memory limit: they reduce what the process
 holds, and the kernel still enforces the container's limit.
@@ -257,13 +290,18 @@ holds, and the kernel still enforces the container's limit.
 |---|---|---|---|---|---|
 | `performance` (the default behaviour) | V8 default | off | off | glibc default | 32 |
 | `balanced` | `auto` | 30 | 90 | glibc default | 32 |
-| `low-memory` | `auto` | 10 | 85 | 2 | 8 |
+| `low-memory` | `auto` | 10 | 85 | glibc default | 8 |
 
-Flags given explicitly win over the profile's values. Metrics:
+Flags given explicitly win over the profile's values. When a pressure
+reclamation leaves the working set above the threshold (the container is
+full of live data, not garbage), the next one waits twice as long, up to
+80 s, until the working set drops below the threshold again. Metrics:
 `nextrs_memory_reclaims_total{trigger}`,
 `nextrs_executor_memory_reclaims_total{trigger}`,
 `nextrs_executor_memory_reclaim_heap_released_bytes_total`,
-`nextrs_memory_reclaim_last_anon_{before,after}_bytes`,
+`nextrs_memory_reclaim_last_anon_{before,after_gc,after}_bytes` (before
+the reclamation, after its V8 collections, after the allocator trim),
+`nextrs_memory_reclaim_pressure_backoffs_total`,
 `nextrs_cgroup_memory_{limit,working_set}_bytes`.
 
 ## Outbound network

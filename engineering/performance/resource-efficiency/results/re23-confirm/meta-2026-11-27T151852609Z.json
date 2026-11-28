@@ -1,0 +1,93 @@
+{
+ "command": "profile --variants benchmarks/resource/variants/re23-confirm.json --workload full --configs 256m:1,512m:1 --rounds 2 --only base,re2c-combo --out engineering/performance/resource-efficiency/results/re23-confirm",
+ "commit": "79e4fe5",
+ "started": "2026-11-27T15:18:52.726Z",
+ "host": {
+  "docker": "29.7.2",
+  "dockerCpus": "8",
+  "dockerMemory": "4101230592",
+  "kernel": "7.0.12-linuxkit",
+  "host": "Darwin 24.6.0 x86_64",
+  "hostLoad": "23:18  up 5 days, 13:05, 1 user, load averages: 12.19 5.94 5.64"
+ },
+ "variants": [
+  {
+   "label": "base",
+   "runtime": "base"
+  },
+  {
+   "label": "re2c-combo",
+   "runtime": "re2c",
+   "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90"
+  }
+ ],
+ "configs": [
+  "256m:1",
+  "512m:1"
+ ],
+ "rounds": 2,
+ "workload": "full",
+ "phases": [
+  {
+   "name": "steady-static",
+   "spec": "static-gzip.json",
+   "rate": 200,
+   "connections": 32,
+   "duration": 45
+  },
+  {
+   "name": "steady-rsc",
+   "spec": "rsc-gzip.json",
+   "rate": 30,
+   "connections": 16,
+   "duration": 45
+  },
+  {
+   "name": "steady-ssr",
+   "spec": "ssr-gzip.json",
+   "rate": 5,
+   "connections": 16,
+   "duration": 45
+  },
+  {
+   "name": "steady-api",
+   "spec": "api-gzip.json",
+   "rate": 15,
+   "connections": 16,
+   "duration": 45
+  },
+  {
+   "name": "steady-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 30,
+   "connections": 32,
+   "duration": 60
+  },
+  {
+   "name": "burst-mixed",
+   "spec": "mixed-gzip.json",
+   "rate": 0,
+   "connections": 16,
+   "duration": 30,
+   "perIsolate": true
+  },
+  {
+   "name": "steady-action",
+   "spec": "action-gzip.json",
+   "rate": 5,
+   "connections": 8,
+   "duration": 45
+  }
+ ],
+ "recoveryMarks": [
+  10,
+  30,
+  60,
+  120,
+  300
+ ],
+ "images": {
+  "base": "sha256:f4c803b301a02eb9b3ceb9c826c0ff095f92cc6e24f134db556f60129c39c21b",
+  "re2c-combo": "sha256:8beaca63b4631bc30f70f9606e9bb03371e57a766551194ebfbad1f4bc05a7a6"
+ }
+}

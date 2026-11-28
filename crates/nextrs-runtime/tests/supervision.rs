@@ -146,6 +146,19 @@ async fn reaching_the_heap_limit_replaces_the_isolate_instead_of_aborting() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn a_large_allocation_at_the_heap_limit_replaces_the_isolate_instead_of_aborting() {
+    // V8 calls the near-limit callback once on its last-resort path and
+    // retries the allocation once: the grant must fit a large object, or
+    // V8 aborts the whole process (this test binary) instead.
+    let limits = Limits {
+        heap_limit_bytes: Some(64 * 1024 * 1024),
+        stall_timeout: None,
+        ..small_limits()
+    };
+    fails_and_recovers("oom-large", FailureReason::HeapLimit, limits).await;
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn an_executor_thread_panic_is_recovered() {
     fails_and_recovers("panic", FailureReason::Panic, small_limits()).await;
 }
