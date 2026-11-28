@@ -5,6 +5,15 @@
 //!   at most `max_queued` entries for at most `queue_timeout`. A released
 //!   slot is handed directly to the oldest waiter, so nothing can overtake
 //!   the queue.
+//! * **Nested requests** (Next.js fetching its own server for an admitted
+//!   request, [`crate::admission::nested`]) that find no free slot take an
+//!   *overdraft* slot above `max_active_per_isolate`, from a separate
+//!   pool-wide allowance of [`NESTED_OVERDRAFT`]. Their parents hold the
+//!   ordinary slots while they wait for them, so queueing them behind
+//!   other parents stalled the action until `queue_timeout` (RE-4.1D §3).
+//!   External requests never use the allowance; the allowance equals the
+//!   process-wide bound on internal requests in flight, so every nested
+//!   request can be placed while an isolate is ready.
 //! * **Dispatch.** Least outstanding requests among ready isolates, ties
 //!   to the lowest slot (light load stays on one warm isolate); isolates
 //!   busy on the CPU (event loop not turned for 200 ms) only when no other
@@ -46,6 +55,11 @@ const WATCH_INTERVAL: Duration = Duration::from_millis(50);
 const BUSY_HINT: Duration = Duration::from_millis(200);
 /// Failures within this window count towards the restart backoff.
 const FAILURE_WINDOW: Duration = Duration::from_secs(60);
+/// Slots above `max_active_per_isolate` that nested requests may hold at
+/// once, over all isolates. Equal to the bound on internal requests in
+/// flight (each holds at most one slot at a time), so the allowance is
+/// never the reason a nested request waits.
+pub(crate) const NESTED_OVERDRAFT: usize = crate::internal::MAX_INTERNAL_REQUESTS;
 
 /// Why an isolate was taken out of service.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -542,15 +556,17 @@ pub(crate) struct Slot {
     /// With memory admission, the request's commitment, released with the
     /// slot (RE-4.1B): its lifetime is the request's.
     commitment: Option<CommitmentId>,
+    /// Taken from the nested-request allowance ([`NESTED_OVERDRAFT`]).
+    overdraft: bool,
 }
 
 impl Slot {
     /// Gives the claim back without going through `release` (which takes
     /// the pool lock), for use while that lock is held: the caller undoes
     /// the claim and the commitment.
-    fn disarm(mut self) -> (Arc<WorkerShared>, Option<CommitmentId>) {
+    fn disarm(mut self) -> (Arc<WorkerShared>, Option<CommitmentId>, bool) {
         self.pool = None;
-        (self.worker.clone(), self.commitment.take())
+        (self.worker.clone(), self.commitment.take(), self.overdraft)
     }
 
     /// Releases the claim and the commitment now (the drop then does
@@ -558,7 +574,7 @@ impl Slot {
     /// must not count its dead one as active or keep its estimate twice.
     fn release_now(&mut self) {
         if let Some(pool) = self.pool.take() {
-            pool.release(&self.worker, self.commitment.take());
+            pool.release(&self.worker, self.commitment.take(), self.overdraft);
         }
     }
 }
@@ -566,7 +582,7 @@ impl Slot {
 impl Drop for Slot {
     fn drop(&mut self) {
         if let Some(pool) = self.pool.take() {
-            pool.release(&self.worker, self.commitment.take());
+            pool.release(&self.worker, self.commitment.take(), self.overdraft);
         }
     }
 }
@@ -598,6 +614,8 @@ struct PoolState {
     next_waiter: u64,
     /// Header and URL bytes the queued requests hold (`Ticket::queued_bytes`).
     queued_bytes: usize,
+    /// Overdraft slots nested requests hold ([`NESTED_OVERDRAFT`]).
+    overdraft: usize,
     /// Memory-aware admission, when enabled.
     gate: Option<Gate>,
 }
@@ -630,11 +648,17 @@ impl PoolInner {
         self.shutting_down.load(Ordering::Acquire)
     }
 
-    fn slot(&self, worker: &Arc<WorkerShared>, commitment: Option<CommitmentId>) -> Slot {
+    fn slot(
+        &self,
+        worker: &Arc<WorkerShared>,
+        commitment: Option<CommitmentId>,
+        overdraft: bool,
+    ) -> Slot {
         Slot {
             pool: self.me.upgrade(),
             worker: worker.clone(),
             commitment,
+            overdraft,
         }
     }
 
@@ -687,6 +711,85 @@ impl PoolInner {
         Some(worker)
     }
 
+    /// For a nested request that found no free slot: a slot above
+    /// `max_active_per_isolate` on the ready isolate with the fewest
+    /// requests (preferring responsive ones), from the pool-wide
+    /// allowance. Not memory-gated, like any nested request. Requires the
+    /// pool lock.
+    fn claim_overdraft(state: &mut PoolState) -> Option<Arc<WorkerShared>> {
+        if state.overdraft >= NESTED_OVERDRAFT {
+            return None;
+        }
+        let worker = state
+            .workers
+            .iter()
+            .flatten()
+            .filter(|w| w.state() == READY)
+            .min_by_key(|w| (w.busy_for() > BUSY_HINT, w.active.load(Ordering::Relaxed)))?
+            .clone();
+        worker.active.fetch_add(1, Ordering::Relaxed);
+        state.overdraft += 1;
+        Some(worker)
+    }
+
+    /// An ordinary slot, or for a nested request an overdraft one. The
+    /// flag says which. Requires the pool lock.
+    fn claim_for(
+        &self,
+        state: &mut PoolState,
+        ticket: &Ticket,
+        gated: bool,
+    ) -> Option<(Arc<WorkerShared>, bool)> {
+        if let Some(worker) = self.claim(state, gated) {
+            return Some((worker, false));
+        }
+        if ticket.nested
+            && let Some(worker) = Self::claim_overdraft(state)
+        {
+            metrics::add(&self.counters.nested_overdraft, 1);
+            return Some((worker, true));
+        }
+        None
+    }
+
+    /// Gives queued nested requests overdraft slots, wherever they are in
+    /// the queue: the head is waiting for an ordinary slot (or the gate),
+    /// which they do not take from it. Requires the pool lock.
+    fn dispatch_nested_waiters(&self, state: &mut PoolState) {
+        let mut index = 0;
+        while index < state.waiters.len() {
+            if !state.waiters[index].ticket.nested {
+                index += 1;
+                continue;
+            }
+            let Some(worker) = Self::claim_overdraft(state) else {
+                return;
+            };
+            let waiter = state.waiters.remove(index).expect("in range");
+            let ticket = waiter.ticket;
+            state.queued_bytes = state.queued_bytes.saturating_sub(ticket.queued_bytes);
+            let commitment = Self::commit(state, &ticket);
+            match waiter.slot.send(Ok(self.slot(&worker, commitment, true))) {
+                Ok(()) => metrics::add(&self.counters.nested_overdraft, 1),
+                Err(Ok(slot)) => self.undo(state, slot),
+                Err(Err(_)) => {}
+            }
+        }
+    }
+
+    /// Takes back a claim (and its commitment) that its waiter did not
+    /// receive. Requires the pool lock.
+    fn undo(&self, state: &mut PoolState, slot: Slot) {
+        let (worker, commitment, overdraft) = slot.disarm();
+        worker.active.fetch_sub(1, Ordering::Relaxed);
+        if overdraft {
+            state.overdraft -= 1;
+        }
+        if let (Some(gate), Some(id)) = (state.gate.as_mut(), commitment) {
+            gate.withdraw(id);
+        }
+    }
+
     /// Requests active over all isolates. Requires the pool lock.
     fn total_active(state: &PoolState) -> usize {
         state
@@ -716,7 +819,7 @@ impl PoolInner {
             let progress = decision == Some(Decision::Progress);
             match decision {
                 None | Some(Decision::Admit | Decision::Progress) => {}
-                Some(Decision::Defer) => return,
+                Some(Decision::Defer) => return self.dispatch_nested_waiters(state),
                 Some(Decision::Refuse) => {
                     let waiter = state.waiters.pop_front().expect("not empty");
                     state.queued_bytes = state.queued_bytes.saturating_sub(ticket.queued_bytes);
@@ -728,13 +831,18 @@ impl PoolInner {
                     continue;
                 }
             }
-            let Some(worker) = self.claim(state, !ticket.nested && !ticket.retry) else {
-                return;
+            let Some((worker, overdraft)) =
+                self.claim_for(state, &ticket, !ticket.nested && !ticket.retry)
+            else {
+                return self.dispatch_nested_waiters(state);
             };
             let waiter = state.waiters.pop_front().expect("not empty");
             state.queued_bytes = state.queued_bytes.saturating_sub(ticket.queued_bytes);
             let commitment = Self::commit(state, &ticket);
-            match waiter.slot.send(Ok(self.slot(&worker, commitment))) {
+            match waiter
+                .slot
+                .send(Ok(self.slot(&worker, commitment, overdraft)))
+            {
                 Ok(()) => {
                     if progress {
                         metrics::add(&self.counters.admission_progress, 1);
@@ -742,21 +850,23 @@ impl PoolInner {
                 }
                 // The waiter timed out meanwhile; take the claim and the
                 // commitment back.
-                Err(Ok(slot)) => {
-                    let (worker, commitment) = slot.disarm();
-                    worker.active.fetch_sub(1, Ordering::Relaxed);
-                    if let (Some(gate), Some(id)) = (state.gate.as_mut(), commitment) {
-                        gate.withdraw(id);
-                    }
-                }
+                Err(Ok(slot)) => self.undo(state, slot),
                 Err(Err(_)) => {}
             }
         }
     }
 
-    fn release(&self, worker: &Arc<WorkerShared>, commitment: Option<CommitmentId>) {
+    fn release(
+        &self,
+        worker: &Arc<WorkerShared>,
+        commitment: Option<CommitmentId>,
+        overdraft: bool,
+    ) {
         let mut state = self.lock();
         worker.active.fetch_sub(1, Ordering::Relaxed);
+        if overdraft {
+            state.overdraft -= 1;
+        }
         if let (Some(gate), Some(id)) = (state.gate.as_mut(), commitment) {
             gate.complete(id);
         }
@@ -787,11 +897,11 @@ impl PoolInner {
             let mut deferred = false;
             match decision {
                 None => {
-                    if let Some(worker) = self.claim(&mut state, false) {
+                    if let Some((worker, overdraft)) = self.claim_for(&mut state, &ticket, false) {
                         // A nested request's estimate is recorded (not
                         // gated): its memory is as real as its parent's.
                         let commitment = Self::commit(&mut state, &ticket);
-                        return Ok(self.slot(&worker, commitment));
+                        return Ok(self.slot(&worker, commitment, overdraft));
                     }
                 }
                 Some(Decision::Refuse) => {
@@ -809,7 +919,7 @@ impl PoolInner {
                         if decision == Decision::Progress {
                             metrics::add(&self.counters.admission_progress, 1);
                         }
-                        return Ok(self.slot(&worker, commitment));
+                        return Ok(self.slot(&worker, commitment, false));
                     }
                 }
                 Some(Decision::Defer) => {
