@@ -496,12 +496,8 @@ impl PoolInner {
     /// req/s on /books/42). Claims the slot. Requires the pool lock.
     fn claim(&self, state: &mut PoolState) -> Option<Arc<WorkerShared>> {
         let limit = self.config.limits.max_active_per_isolate;
-        let n = state.workers.len();
         let mut best: Option<((bool, usize), &Arc<WorkerShared>)> = None;
-        for index in 0..n {
-            let Some(worker) = &state.workers[index] else {
-                continue;
-            };
+        for worker in state.workers.iter().flatten() {
             let active = worker.active.load(Ordering::Relaxed);
             if worker.state() != READY || active >= limit {
                 continue;
