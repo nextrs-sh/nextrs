@@ -1,0 +1,7 @@
+error: the loop variable `index` is only used to index `state.workers`
+   --> crates/nextrs-runtime/src/pool.rs:501:22
+   --> crates/nextrs-runtime/src/pool.rs:502:33
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.100.0/index.html#needless_range_loop
+    = note: `-D clippy::needless-range-loop` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::needless_range_loop)]`
+error: could not compile `nextrs-runtime` (lib) due to 1 previous error

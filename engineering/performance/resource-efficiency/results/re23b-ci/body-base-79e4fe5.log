@@ -1,0 +1,15 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 36.73s
+     Running tests/body.rs (target/debug/deps/body-93d8a72e2bd993b9)
+
+running 8 tests
+test a_body_over_the_limit_fails_with_413_semantics ... ok
+test an_aborted_upload_reaches_the_handler_as_econnreset ... ok
+test an_unread_body_is_not_pulled ... ok
+test a_streamed_body_can_be_streamed_back ... ok
+test small_buffered_body ... ok
+test slow_uploads_are_consumed_as_they_arrive ... ok
+test simultaneous_uploads_stay_separate ... ok
+test large_streamed_body_arrives_intact_in_many_reads ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.95s
+

@@ -48,4 +48,15 @@ figures.
 
 ## Results
 
-*Pending.*
+*Pending.* No soak has run.
+
+RE-23B (2026-11-28) tried to run them on the Fedora host and was
+blocked before the first run, for three reasons:
+
+- the host's Docker is Docker Desktop, which runs containers in a VM;
+- the tools' sandbox could not reach the host;
+- the images were not on the host.
+
+See [RE-23B-LINUX-ENVIRONMENT](RE-23B-LINUX-ENVIRONMENT.md) and
+[RE-23B-FINAL-MILESTONE-GATE](RE-23B-FINAL-MILESTONE-GATE.md). The plan
+and pass criteria above are unchanged. The 24-hour soak remains in RE-8.

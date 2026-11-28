@@ -1,0 +1,19 @@
+stall 500ms (uncontended): pass=10 fail=0
+stall 200ms (uncontended): pass=0 fail=10
+stall 100ms (uncontended): pass=0 fail=10
+stall 50ms (uncontended): pass=0 fail=10
+stall 25ms (uncontended): pass=0 fail=10
+stall 10ms (uncontended): pass=0 fail=10
+stall 5ms (uncontended): pass=0 fail=10
+stall 100ms (1 core): pass=0 fail=10
+stall 50ms (1 core): pass=0 fail=10
+stall 25ms (1 core): pass=0 fail=10
+stall 450ms (uncontended): pass=10 fail=0
+stall 400ms (uncontended): pass=10 fail=0
+stall 350ms (uncontended): pass=10 fail=0
+stall 300ms (uncontended): pass=0 fail=10
+stall 250ms (uncontended): pass=0 fail=10
+RE23B failures=[("cpu_stall", 1)]
+RE23B bytes=6291456 stall_ms=200 status=0 reads=null sha_ok=false restarts=1
+RE23B failures=[]
+RE23B bytes=6291456 stall_ms=350 status=200 reads=96 sha_ok=true restarts=0
