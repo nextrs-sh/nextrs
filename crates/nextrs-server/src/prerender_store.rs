@@ -23,8 +23,9 @@
 //! * **Bounded.** The cache never holds more than `capacity` bytes; an
 //!   entry larger than the whole cache is read for its response and not
 //!   kept. Evicted bytes stay alive only while a response still sends
-//!   them. Reads that are not kept are reserved in the native buffer
-//!   budget when there is one, as static files are.
+//!   them. With a native buffer budget, every body handed out (kept or
+//!   not) is reserved in it, as static files are, except one larger than
+//!   the whole budget.
 //! * **Compression cache.** Entries keep the id they were given at
 //!   startup, so gzip copies stay valid across reloads (the bytes are the
 //!   same, as above).
@@ -51,6 +52,26 @@ pub(crate) struct FileSource {
     pub path: PathBuf,
     pub len: u64,
     pub modified: Option<SystemTime>,
+    /// Inode and status-change time (Unix): a replacement that keeps the
+    /// length and the modification time (`cp -p`, `rsync -a`, image
+    /// layers) still changes these (review F5).
+    pub identity: (u64, i64, i64),
+}
+
+impl FileSource {
+    pub fn new(path: PathBuf, metadata: &std::fs::Metadata) -> Self {
+        Self {
+            path,
+            len: metadata.len(),
+            modified: metadata.modified().ok(),
+            identity: identity(metadata),
+        }
+    }
+}
+
+fn identity(metadata: &std::fs::Metadata) -> (u64, i64, i64) {
+    use std::os::unix::fs::MetadataExt;
+    (metadata.ino(), metadata.ctime(), metadata.ctime_nsec())
 }
 
 #[derive(Debug)]
@@ -195,15 +216,32 @@ impl PrerenderStore {
         } else {
             None
         };
-        // Kept bytes are bounded by the cache; a transient read is reserved
-        // in the native buffer budget, when there is one.
-        let permit = match (keep, budget) {
-            (false, Some(budget)) => Some(
-                budget
-                    .reserve(BufferKind::Prerender, source.len)
-                    .await
-                    .ok_or(LoadError::Busy)?,
-            ),
+        // With a native buffer budget, every body the store hands out is
+        // reserved in it, kept or not (review F3): evicted bytes that a slow
+        // response still sends stay counted, and the cache's contents are
+        // part of the budget. A kept entry that finds no room at once is
+        // served (reserved, after the budget's wait) but not kept. A body
+        // larger than the whole budget is the one exception, read without
+        // a reservation (it could never get one; review F6).
+        let mut keep = keep;
+        let permit = match budget {
+            Some(budget) if source.len <= budget.total_bytes() => {
+                let quick = keep
+                    .then(|| budget.try_reserve(BufferKind::Prerender, source.len))
+                    .flatten();
+                match quick {
+                    Some(permit) => Some(permit),
+                    None => {
+                        keep = false;
+                        Some(
+                            budget
+                                .reserve(BufferKind::Prerender, source.len)
+                                .await
+                                .ok_or(LoadError::Busy)?,
+                        )
+                    }
+                }
+            }
             _ => None,
         };
         let file = source.clone();
@@ -303,7 +341,10 @@ impl PrerenderStore {
 fn read_exact(source: &FileSource) -> Result<Vec<u8>, LoadError> {
     let mut file = std::fs::File::open(&source.path).map_err(LoadError::Io)?;
     let metadata = file.metadata().map_err(LoadError::Io)?;
-    if metadata.len() != source.len || metadata.modified().ok() != source.modified {
+    if metadata.len() != source.len
+        || metadata.modified().ok() != source.modified
+        || identity(&metadata) != source.identity
+    {
         return Err(LoadError::Changed);
     }
     let len = usize::try_from(source.len).map_err(|_| LoadError::Changed)?;
@@ -327,11 +368,7 @@ mod tests {
         let path = dir.join(name);
         std::fs::write(&path, body).unwrap();
         let metadata = std::fs::metadata(&path).unwrap();
-        FileSource {
-            path,
-            len: metadata.len(),
-            modified: metadata.modified().ok(),
-        }
+        FileSource::new(path, &metadata)
     }
 
     fn tempdir() -> PathBuf {
@@ -444,6 +481,67 @@ mod tests {
         ));
         assert_eq!(store.failures.load(Ordering::Relaxed), 3);
         assert_eq!(store.cached_bytes(), 0);
+    }
+
+    #[tokio::test]
+    async fn with_a_budget_kept_entries_are_reserved_until_evicted() {
+        let dir = tempdir();
+        let budget = NativeBufferBudget::new(1024 * 1024, std::time::Duration::from_millis(10));
+        let store = PrerenderStore::new(64 * 1024);
+        let a = source(&dir, "a", &vec![1u8; 40 * 1024]);
+        let b = source(&dir, "b", &vec![2u8; 40 * 1024]);
+        drop(store.body(1, &a, Some(&budget)).await.unwrap());
+        assert_eq!(store.cached_entries(), 1);
+        let held = budget.reserved_bytes();
+        assert!(
+            held >= 40 * 1024,
+            "the cached body is in the budget: {held}"
+        );
+        // b evicts a: a's reservation goes with its last reference.
+        drop(store.body(2, &b, Some(&budget)).await.unwrap());
+        assert_eq!(store.cached_entries(), 1);
+        assert!(budget.reserved_bytes() <= held + 1024);
+        // A response still sending an evicted body keeps it counted.
+        let sending = store.body(1, &a, Some(&budget)).await.unwrap();
+        drop(store.body(2, &b, Some(&budget)).await.unwrap());
+        assert!(budget.reserved_bytes() >= 80 * 1024);
+        drop(sending);
+    }
+
+    #[tokio::test]
+    async fn a_body_larger_than_the_whole_budget_is_served_unreserved() {
+        let dir = tempdir();
+        let budget = NativeBufferBudget::new(1024 * 1024, std::time::Duration::from_millis(10));
+        let store = PrerenderStore::new(0);
+        let big = source(&dir, "big", &vec![3u8; 2 * 1024 * 1024]);
+        let bytes = store.body(1, &big, Some(&budget)).await.unwrap();
+        assert_eq!(bytes.len(), 2 * 1024 * 1024);
+        assert_eq!(budget.reserved_bytes(), 0);
+    }
+
+    #[tokio::test]
+    async fn a_replacement_with_the_same_length_and_mtime_is_refused() {
+        let dir = tempdir();
+        let store = PrerenderStore::new(1024);
+        let a = source(&dir, "a", b"original");
+        // As `cp -p` or an image layer would: a new file, renamed over the
+        // old one, with the old modification time.
+        let other = dir.join("other");
+        std::fs::write(&other, b"replaced").unwrap();
+        std::fs::File::options()
+            .write(true)
+            .open(&other)
+            .unwrap()
+            .set_modified(a.modified.unwrap())
+            .unwrap();
+        std::fs::rename(&other, &a.path).unwrap();
+        let metadata = std::fs::metadata(&a.path).unwrap();
+        assert_eq!(metadata.len(), a.len);
+        assert_eq!(metadata.modified().ok(), a.modified);
+        assert!(matches!(
+            store.body(1, &a, None).await,
+            Err(LoadError::Changed)
+        ));
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]

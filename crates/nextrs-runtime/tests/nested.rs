@@ -17,8 +17,8 @@ use std::time::{Duration, Instant};
 use common::*;
 use futures_util::StreamExt;
 use nextrs_runtime::{
-    Executor, InternalDispatch, InternalRequest, InternalResponse, Limits, MAX_INTERNAL_REQUESTS,
-    MemoryAdmission, MemoryProbe, MemoryReading, RenderRequest, ResponseEvent,
+    Executor, InternalDispatch, InternalRequest, InternalResponse, Limits, MemoryAdmission,
+    MemoryProbe, MemoryReading, RenderRequest, ResponseEvent,
 };
 
 const MIB: u64 = 1024 * 1024;
@@ -174,28 +174,29 @@ async fn external_requests_never_use_the_allowance() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn recursion_stays_bounded_by_the_internal_request_permits() {
-    // A route that fetches itself 100 deep, with one slot: the overdraft
-    // places each level, and the 65th internal request in flight fails at
-    // once (MAX_INTERNAL_REQUESTS), so the chain ends instead of growing.
+async fn overdraft_is_bounded_per_isolate_and_recursion_ends() {
+    // One slot: the parent holds it and its child takes the isolate's one
+    // overdraft slot (at most `max_active_per_isolate` more). A grandchild
+    // queues for a slot, as before RE-5, and fails at the queue timeout:
+    // a self-fetching route 100 deep ends instead of growing.
     let executor = start(limits(1, 1));
+    let reply = collect(&executor, get("/recurse?depth=1", &[])).await;
+    assert_eq!(reply.status, 200, "{}", reply.text());
+    assert_eq!(reply.text(), "1>bottom");
     let started = Instant::now();
     let reply = collect(&executor, get("/recurse?depth=100", &[])).await;
     let elapsed = started.elapsed();
-    assert!(elapsed < Duration::from_secs(10), "{elapsed:?}");
     assert_ne!(reply.status, 200, "{}", reply.text());
-    // Levels 100 down to 37 each hold one of the 64 permits; level 36's
-    // fetch is the 65th and fails.
-    let text = reply.text();
-    assert_eq!(text.matches('>').count(), MAX_INTERNAL_REQUESTS, "{text}");
-    assert!(text.ends_with("36!fetch failed"), "{text}");
-    // A shallow chain still completes.
-    let reply = collect(&executor, get("/recurse?depth=10", &[])).await;
-    assert_eq!(reply.status, 200);
-    assert!(reply.text().ends_with("1>bottom"), "{}", reply.text());
-    assert!(idle(&executor).await);
+    assert!(elapsed < Duration::from_secs(10), "{elapsed:?}");
+    assert!(executor.metrics().rejected_queue_timeout >= 1);
+    // With room for two levels of overdraft (two slots), depth 2 is fine.
+    let executor2 = start(limits(1, 2));
+    let reply = collect(&executor2, get("/recurse?depth=3", &[])).await;
+    assert_eq!(reply.status, 200, "{}", reply.text());
+    assert!(idle(&executor).await && idle(&executor2).await);
     assert_eq!(active(&executor), 0);
     executor.shutdown();
+    executor2.shutdown();
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -223,9 +224,12 @@ async fn cancelled_parents_and_shutdown_leave_no_slot_behind() {
     let (first, second) = tokio::join!(drain(first), async { drain(second.await.unwrap()).await });
     assert_eq!(first.text(), "200:child");
     assert_eq!(second.text(), "200:child");
-    // Shutdown with a parent in flight: it finishes.
+    // Shutdown with a parent in flight, its child in the isolate's one
+    // overdraft slot: both finish. (A second concurrent child would queue
+    // and, shutdown having begun, be refused: the allowance is one slot per
+    // ordinary slot.)
     let running = executor
-        .render(get("/parent?children=2", &[("x-delay", "200")]))
+        .render(get("/parent?children=1", &[("x-delay", "200")]))
         .await
         .unwrap();
     tokio::time::sleep(Duration::from_millis(50)).await;
@@ -236,7 +240,7 @@ async fn cancelled_parents_and_shutdown_leave_no_slot_behind() {
     let reply = drain(running).await;
     shutdown.await.unwrap();
     assert!(reply.ended, "{reply:?}");
-    assert_eq!(reply.text(), "200:child,200:child");
+    assert_eq!(reply.text(), "200:child");
 }
 
 /// A memory probe fixed at `usage` of a 1000 MiB limit.

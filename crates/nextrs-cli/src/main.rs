@@ -510,8 +510,11 @@ struct LimitArgs {
     /// used bodies dropped beyond it, instead of reading all of them into
     /// memory at startup. Startup and idle memory then stop growing with
     /// the size of the prerendered output. A file changed since startup is
-    /// refused (500), never served. 0 keeps none in memory. Without the
-    /// flag every prerendered page is read at startup, as before.
+    /// refused (500), never served: deploy a new build to a new directory,
+    /// not over the running one. With --native-buffer-budget, the cached
+    /// and in-flight bodies are part of that budget. 0 keeps none in
+    /// memory. Without the flag every prerendered page is read at startup,
+    /// as before.
     #[arg(long, value_name = "MIB")]
     prerender_cache: Option<u64>,
     /// Open connections; more wait in the accept backlog.

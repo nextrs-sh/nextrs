@@ -40,10 +40,10 @@ fn type_error(message: impl std::fmt::Display) -> JsErrorBox {
 ///
 /// Synchronous (RE-5C): JavaScript cannot run, so nothing can change the
 /// body's buffer, until the parse returns, and the parser reads the body in
-/// place instead of a copy of it (one copy of the whole body less per
-/// call). The parse never waits: its only input is the body, already
-/// complete. Each part is still copied out into its own buffer for
-/// JavaScript.
+/// place instead of an extra copy of it (one copy of the whole body less
+/// per call; multer still buffers its input internally). The parse never
+/// waits: its only input is the body, already complete. Each part is still
+/// copied out into its own buffer for JavaScript.
 #[op2]
 #[serde]
 pub(crate) fn op_nextrs_multipart_parse(

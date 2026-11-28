@@ -7,13 +7,13 @@
 //!   the queue.
 //! * **Nested requests** (Next.js fetching its own server for an admitted
 //!   request, [`crate::admission::nested`]) that find no free slot take an
-//!   *overdraft* slot above `max_active_per_isolate`, from a separate
-//!   pool-wide allowance of [`NESTED_OVERDRAFT`]. Their parents hold the
+//!   *overdraft* slot above `max_active_per_isolate`. Their parents hold the
 //!   ordinary slots while they wait for them, so queueing them behind
 //!   other parents stalled the action until `queue_timeout` (RE-4.1D §3).
-//!   External requests never use the allowance; the allowance equals the
-//!   process-wide bound on internal requests in flight, so every nested
-//!   request can be placed while an isolate is ready.
+//!   The allowance is bounded over the pool ([`NESTED_OVERDRAFT`]) and per
+//!   isolate (`max_active_per_isolate` more, at most), and prefers isolates
+//!   not near their heap limit. External requests never use it. Nesting
+//!   deeper (or wider) than one isolate's allowance queues as before.
 //! * **Dispatch.** Least outstanding requests among ready isolates, ties
 //!   to the lowest slot (light load stays on one warm isolate); isolates
 //!   busy on the CPU (event loop not turned for 200 ms) only when no other
@@ -59,9 +59,10 @@ const BUSY_HINT: Duration = Duration::from_millis(200);
 /// Failures within this window count towards the restart backoff.
 const FAILURE_WINDOW: Duration = Duration::from_secs(60);
 /// Slots above `max_active_per_isolate` that nested requests may hold at
-/// once, over all isolates. Equal to the bound on internal requests in
-/// flight (each holds at most one slot at a time), so the allowance is
-/// never the reason a nested request waits.
+/// once, over all isolates: the bound on internal requests in flight. (A
+/// nested render whose fetch was abandoned keeps its slot until it ends,
+/// at most `request_timeout`, after its permit is released.) Each isolate
+/// also takes at most `max_active_per_isolate` of them.
 pub(crate) const NESTED_OVERDRAFT: usize = crate::internal::MAX_INTERNAL_REQUESTS;
 
 /// Why an isolate was taken out of service.
@@ -198,6 +199,9 @@ pub(crate) struct WorkerShared {
     state: AtomicU8,
     /// Slots in use. Changed only under the pool lock.
     active: AtomicUsize,
+    /// Of those, overdraft slots of nested requests (`NESTED_OVERDRAFT`).
+    /// Changed only under the pool lock.
+    overdraft: AtomicUsize,
     inbox: Mutex<Option<mpsc::UnboundedSender<Box<Job>>>>,
     epoch: Instant,
     heartbeat_ms: AtomicU64,
@@ -207,13 +211,13 @@ pub(crate) struct WorkerShared {
     /// wall time alone.
     heartbeat_cpu_ns: AtomicU64,
     cpu_clock: OnceLock<CpuClock>,
+    /// The isolate thread is parked: its runtime had nothing to run (no
+    /// JavaScript turn in progress) and waits for I/O, a timer or a job.
+    parked: AtomicBool,
     /// V8 heap statistics, sampled by the isolate thread (`record_heap`).
     heap_used: AtomicUsize,
     heap_total: AtomicUsize,
     heap_external: AtomicUsize,
-    /// The isolate thread is parked: its runtime had nothing to run (no
-    /// JavaScript turn in progress) and waits for I/O, a timer or a job.
-    parked: AtomicBool,
     /// The heap limit V8 enforces (its configuration, plus any headroom
     /// granted at the near-limit callback).
     heap_limit: AtomicUsize,
@@ -251,16 +255,17 @@ impl WorkerShared {
             generation,
             state: AtomicU8::new(STARTING),
             active: AtomicUsize::new(0),
+            overdraft: AtomicUsize::new(0),
             inbox: Mutex::new(Some(inbox)),
             epoch: Instant::now(),
             heartbeat_ms: AtomicU64::new(0),
             heartbeat_cpu_ns: AtomicU64::new(0),
+            parked: AtomicBool::new(false),
             cpu_clock: OnceLock::new(),
             heap_used: AtomicUsize::new(0),
             heap_total: AtomicUsize::new(0),
             heap_external: AtomicUsize::new(0),
             heap_limit: AtomicUsize::new(0),
-            parked: AtomicBool::new(false),
             heap_after_gc: AtomicUsize::new(0),
             full_gcs: AtomicU64::new(0),
             near_limit_calls: AtomicU64::new(0),
@@ -287,11 +292,6 @@ impl WorkerShared {
         self.state.store(state, Ordering::Release);
     }
 
-    /// Called on the isolate thread whenever its event loop has control.
-    pub fn beat(&self) {
-        let now = self.epoch.elapsed().as_millis() as u64;
-        if let Some(clock) = self.cpu_clock.get()
-            && let Some(cpu) = clock.now_ns()
     /// The isolate thread is about to park (its runtime's park hook): no
     /// turn is in progress, so it cannot be stalled until it unparks.
     pub fn on_park(&self) {
@@ -319,6 +319,11 @@ impl WorkerShared {
         }
     }
 
+    /// Called on the isolate thread whenever its event loop has control.
+    pub fn beat(&self) {
+        let now = self.epoch.elapsed().as_millis() as u64;
+        if let Some(clock) = self.cpu_clock.get()
+            && let Some(cpu) = clock.now_ns()
         {
             self.heartbeat_cpu_ns.store(cpu, Ordering::Relaxed);
         }
@@ -460,14 +465,14 @@ impl WorkerShared {
     /// Time since the isolate's event loop last got control back; zero
     /// while its thread is parked (nothing running).
     fn busy_for(&self) -> Duration {
+        if self.parked.load(Ordering::Acquire) {
+            return Duration::ZERO;
+        }
         let now = self.epoch.elapsed().as_millis() as u64;
         Duration::from_millis(now.saturating_sub(self.heartbeat_ms.load(Ordering::Relaxed)))
     }
 
     fn send(&self, job: Box<Job>) -> Result<(), Box<Job>> {
-        if self.parked.load(Ordering::Acquire) {
-            return Duration::ZERO;
-        }
         let inbox = self.inbox.lock().unwrap_or_else(|e| e.into_inner());
         match inbox.as_ref() {
             Some(sender) => sender.send(job).map_err(|e| e.0),
@@ -758,18 +763,35 @@ impl PoolInner {
     /// requests (preferring responsive ones), from the pool-wide
     /// allowance. Not memory-gated, like any nested request. Requires the
     /// pool lock.
-    fn claim_overdraft(state: &mut PoolState) -> Option<Arc<WorkerShared>> {
+    ///
+    /// Bounded twice (RE-5 review F1): at most `NESTED_OVERDRAFT` over the
+    /// pool, and at most `max_active_per_isolate` on any one isolate, so an
+    /// isolate never runs more than twice its configured concurrency. With
+    /// memory admission, isolates near their heap limit are taken last.
+    fn claim_overdraft(&self, state: &mut PoolState) -> Option<Arc<WorkerShared>> {
         if state.overdraft >= NESTED_OVERDRAFT {
             return None;
         }
+        let per_isolate = self.config.limits.max_active_per_isolate.max(1);
+        let heap_percent = state
+            .gate
+            .as_ref()
+            .and_then(|gate| gate.config().heap_percent);
         let worker = state
             .workers
             .iter()
             .flatten()
-            .filter(|w| w.state() == READY)
-            .min_by_key(|w| (w.busy_for() > BUSY_HINT, w.active.load(Ordering::Relaxed)))?
+            .filter(|w| w.state() == READY && w.overdraft.load(Ordering::Relaxed) < per_isolate)
+            .min_by_key(|w| {
+                (
+                    heap_percent.is_some_and(|p| w.near_heap_limit(p)),
+                    w.busy_for() > BUSY_HINT,
+                    w.active.load(Ordering::Relaxed),
+                )
+            })?
             .clone();
         worker.active.fetch_add(1, Ordering::Relaxed);
+        worker.overdraft.fetch_add(1, Ordering::Relaxed);
         state.overdraft += 1;
         Some(worker)
     }
@@ -786,7 +808,7 @@ impl PoolInner {
             return Some((worker, false));
         }
         if ticket.nested
-            && let Some(worker) = Self::claim_overdraft(state)
+            && let Some(worker) = self.claim_overdraft(state)
         {
             metrics::add(&self.counters.nested_overdraft, 1);
             return Some((worker, true));
@@ -804,15 +826,25 @@ impl PoolInner {
                 index += 1;
                 continue;
             }
-            let Some(worker) = Self::claim_overdraft(state) else {
-                return;
+            // An ordinary slot first (one may be free while the head waits
+            // for the gate), then the allowance (review F10).
+            let (worker, overdraft) = match self.claim(state, false) {
+                Some(worker) => (worker, false),
+                None => match self.claim_overdraft(state) {
+                    Some(worker) => (worker, true),
+                    None => return,
+                },
             };
             let waiter = state.waiters.remove(index).expect("in range");
             let ticket = waiter.ticket;
             state.queued_bytes = state.queued_bytes.saturating_sub(ticket.queued_bytes);
             let commitment = Self::commit(state, &ticket);
-            match waiter.slot.send(Ok(self.slot(&worker, commitment, true))) {
-                Ok(()) => metrics::add(&self.counters.nested_overdraft, 1),
+            match waiter
+                .slot
+                .send(Ok(self.slot(&worker, commitment, overdraft)))
+            {
+                Ok(()) if overdraft => metrics::add(&self.counters.nested_overdraft, 1),
+                Ok(()) => {}
                 Err(Ok(slot)) => self.undo(state, slot),
                 Err(Err(_)) => {}
             }
@@ -826,6 +858,7 @@ impl PoolInner {
         worker.active.fetch_sub(1, Ordering::Relaxed);
         if overdraft {
             state.overdraft -= 1;
+            worker.overdraft.fetch_sub(1, Ordering::Relaxed);
         }
         if let (Some(gate), Some(id)) = (state.gate.as_mut(), commitment) {
             gate.withdraw(id);
@@ -908,6 +941,7 @@ impl PoolInner {
         worker.active.fetch_sub(1, Ordering::Relaxed);
         if overdraft {
             state.overdraft -= 1;
+            worker.overdraft.fetch_sub(1, Ordering::Relaxed);
         }
         if let (Some(gate), Some(id)) = (state.gate.as_mut(), commitment) {
             gate.complete(id);

@@ -921,11 +921,7 @@ async fn load_cached(
     let etag = std::sync::OnceLock::new();
     let (len, body) = if file_backed {
         let metadata = tokio::fs::metadata(&stored.file).await.map_err(io)?;
-        let source = prerender_store::FileSource {
-            path: stored.file.clone(),
-            len: metadata.len(),
-            modified: metadata.modified().ok(),
-        };
+        let source = prerender_store::FileSource::new(stored.file.clone(), &metadata);
         (source.len, CachedBody::File(source))
     } else {
         let body = tokio::fs::read(&stored.file).await.map_err(io)?;
