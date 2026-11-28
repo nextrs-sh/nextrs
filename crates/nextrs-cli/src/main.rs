@@ -1401,6 +1401,15 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     prerender_store: prerender_store.clone(),
                 };
                 let (app, image_stats) = nextrs_server::app_with_stats(&info, &options).await?;
+                // The server keeps what it needs from the build's metadata;
+                // the parsed manifests (paths and headers of every
+                // prerendered file, routes, rules) are not used again.
+                // Freeing them, and returning that memory to the system once,
+                // keeps idle memory from holding a second copy (RE-5B:
+                // about half of the per-route metadata at 10 000 routes).
+                let build_id = info.build_id.clone();
+                drop(info);
+                nextrs_runtime::release_free_memory();
                 if let Some(metrics_addr) = limits.metrics_addr {
                     let sources = MetricsSources {
                         executor: executor.clone(),
@@ -1428,7 +1437,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                 let listener = tokio::net::TcpListener::bind(addr).await?;
                 tracing::info!(
                     %addr,
-                    build_id = %info.build_id,
+                    %build_id,
                     ready_ms = started.elapsed().as_millis() as u64,
                     "nextrs ready"
                 );
