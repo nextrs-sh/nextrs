@@ -2,8 +2,9 @@
 
 Resource-aware admission control and memory exhaustion resilience.
 Branch `feat/re-4-resource-admission`, on `main` `0d2a742` (RE-23B
-reports merged as PR #53). Issue #52's test-only fix is in its own PR,
-#54.
+reports merged as PR #53). Issue #52's test-only fix went in as its own
+PR, #54, merged into `main` as `c805f52` (CI green, compatibility suites
+included).
 
 Implementation readiness and release readiness are judged separately.
 The Linux benchmark host is still blocked
@@ -112,9 +113,8 @@ the same embedder policies. V8 stays the default.
 
 ## Owner decisions requested
 
-1. Review and merge PR #54 (issue #52, test-only).
-2. Review the RE-4 PR; it is not to be merged without approval.
-3. Install the native Docker Engine and run the runbook (§1–§7) from a
+1. Review the RE-4 PR (#56); it is not to be merged without approval.
+2. Install the native Docker Engine and run the runbook (§1–§7) from a
    host terminal, or authorize host command access for the tools.
-4. Keep all RE-4 controls opt-in until the campaign reports. No default
+3. Keep all RE-4 controls opt-in until the campaign reports. No default
    or profile change is proposed.
