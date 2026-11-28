@@ -618,6 +618,13 @@ struct ResourceArgs {
     /// than the budget is served alone, taking all of it.
     #[arg(long, value_name = "MIB")]
     native_buffer_budget: Option<u64>,
+    /// Experimental: a floor for each isolate's semi-space (MiB, rounded
+    /// down to a power of two). The young generation (3 × this) takes its
+    /// room from the old generation, so --js-heap-limit is unchanged; at
+    /// most half the heap. Needs --js-heap-limit (or a profile that sets
+    /// it). For CPU measurements; not validated as a default.
+    #[arg(long, value_name = "MIB")]
+    js_young_semi_space: Option<usize>,
     /// Longest wait for room in --native-buffer-budget.
     #[arg(
         long,
@@ -664,6 +671,19 @@ impl ResourceArgs {
                 return Err("--js-external-memory-limit: at least 1 MiB".into());
             }
             limits.external_memory_limit_bytes = Some(mib.saturating_mul(1024 * 1024));
+        }
+        if let Some(mib) = self.js_young_semi_space {
+            if !(1..=64).contains(&mib) {
+                return Err("--js-young-semi-space: 1 to 64 MiB".into());
+            }
+            if limits.heap_limit_bytes.is_none() && limits.heap_memory_bytes.is_none() {
+                tracing::warn!(
+                    "--js-young-semi-space has no effect without --js-heap-limit (or a profile \
+                     that sets it): V8 sizes the heap itself"
+                );
+            } else {
+                limits.young_semi_space_floor_bytes = Some(mib * 1024 * 1024);
+            }
         }
         Ok(())
     }
@@ -1518,6 +1538,19 @@ mod tests {
                 Some(32 * 1024 * 1024)
             );
             assert!(parse(&["--native-buffer-wait", "1"]).is_err());
+        }
+
+        #[test]
+        fn the_young_semi_space_floor_needs_a_configured_heap() {
+            // `limits()` starts from Limits::default(): no heap configured.
+            assert!(
+                limits(&["--js-young-semi-space", "8"])
+                    .unwrap()
+                    .young_semi_space_floor_bytes
+                    .is_none()
+            );
+            assert!(limits(&["--js-young-semi-space", "0"]).is_err());
+            assert!(limits(&["--js-young-semi-space", "128"]).is_err());
         }
 
         #[test]

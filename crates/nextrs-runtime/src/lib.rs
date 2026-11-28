@@ -235,6 +235,16 @@ pub struct Limits {
     /// JavaScript from Rust (request bodies, fetch chunks, file reads) are
     /// not counted. `None` (the default): V8's own allocator, no limit.
     pub external_memory_limit_bytes: Option<usize>,
+    /// Experimental (RE-4G): a floor for each isolate's semi-space size.
+    /// The young generation (two semi-spaces and the new large-object
+    /// space, 3 × the semi-space) is raised to at least 3 × this, rounded
+    /// down to a power of two, and the old generation is reduced by the
+    /// same amount, so the heap's total stays as configured; the young
+    /// generation never takes more than half of it. Applies only with a
+    /// configured heap (`heap_limit_bytes` or `heap_memory_bytes`); a
+    /// young generation V8 already sized larger is kept. Through V8's
+    /// supported `ResourceConstraints`, no V8 flags. `None`: V8's sizing.
+    pub young_semi_space_floor_bytes: Option<usize>,
 }
 
 impl Default for Limits {
@@ -255,6 +265,7 @@ impl Default for Limits {
             shutdown_grace: Duration::from_secs(10),
             memory_admission: None,
             external_memory_limit_bytes: None,
+            young_semi_space_floor_bytes: None,
         }
     }
 }

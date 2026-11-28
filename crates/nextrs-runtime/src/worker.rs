@@ -222,6 +222,35 @@ fn run(
 /// explicit limit (V8 derives the young generation from it); or V8's own
 /// defaults, from the machine's memory.
 fn heap_params(limits: &Limits) -> Option<v8::CreateParams> {
+    let params = configured_heap(limits)?;
+    Some(match limits.young_semi_space_floor_bytes {
+        Some(semi) => young_floor(params, semi),
+        None => params,
+    })
+}
+
+/// Raises the young generation to `3 × semi` (semi rounded down to a power
+/// of two), taking the difference from the old generation so that their
+/// total is unchanged, and never giving the young generation more than
+/// half of it (RE-4G). A larger young generation is kept as it is.
+fn young_floor(params: v8::CreateParams, semi: usize) -> v8::CreateParams {
+    let young = params.max_young_generation_size_in_bytes();
+    let old = params.max_old_generation_size_in_bytes();
+    let total = young.saturating_add(old);
+    let mut semi = 1usize << semi.max(1).ilog2();
+    while semi > 1 && semi.saturating_mul(3) > total / 2 {
+        semi /= 2;
+    }
+    let floor = semi.saturating_mul(3);
+    if floor <= young {
+        return params;
+    }
+    params
+        .set_max_young_generation_size_in_bytes(floor)
+        .set_max_old_generation_size_in_bytes(total - floor)
+}
+
+fn configured_heap(limits: &Limits) -> Option<v8::CreateParams> {
     match (limits.heap_limit_bytes, limits.heap_memory_bytes) {
         (Some(max), None) => Some(v8::CreateParams::default().heap_limits(0, max)),
         (cap, Some(memory)) => {
@@ -352,5 +381,85 @@ async fn drive(runtime: &mut JsRuntime, worker: &WorkerShared) -> WorkerExit {
             request = worker.reclaim_requested() => reclaim(runtime, worker, request),
             result = event_loop(runtime, worker) => return result.map_err(|e| format!("{e}")),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const MIB: usize = 1024 * 1024;
+
+    fn sizes(limits: &Limits) -> Option<(usize, usize)> {
+        heap_params(limits).map(|p| {
+            (
+                p.max_young_generation_size_in_bytes(),
+                p.max_old_generation_size_in_bytes(),
+            )
+        })
+    }
+
+    fn limits(limit: Option<usize>, memory: Option<u64>, floor: Option<usize>) -> Limits {
+        Limits {
+            heap_limit_bytes: limit,
+            heap_memory_bytes: memory,
+            young_semi_space_floor_bytes: floor,
+            ..Limits::default()
+        }
+    }
+
+    #[test]
+    fn the_floor_takes_its_room_from_the_old_generation() {
+        // `--js-heap-limit auto` at 256 MiB with one isolate: a 112 MiB cap,
+        // V8 sized for 256 MiB (2 MiB semi-spaces).
+        let base = sizes(&limits(Some(112 * MIB), Some(256 << 20), None)).unwrap();
+        assert_eq!(base.0, 6 * MIB);
+        let floored = sizes(&limits(Some(112 * MIB), Some(256 << 20), Some(8 * MIB))).unwrap();
+        assert_eq!(
+            floored.0,
+            24 * MIB,
+            "two semi-spaces and the large-object space"
+        );
+        assert_eq!(
+            floored.0 + floored.1,
+            base.0 + base.1,
+            "the total is unchanged"
+        );
+    }
+
+    #[test]
+    fn a_larger_young_generation_from_v8_is_kept() {
+        let base = sizes(&limits(None, Some(1 << 30), None)).unwrap();
+        assert_eq!(
+            sizes(&limits(None, Some(1 << 30), Some(2 * MIB))).unwrap(),
+            base
+        );
+    }
+
+    #[test]
+    fn the_young_generation_never_takes_more_than_half() {
+        let (young, old) = sizes(&limits(Some(32 * MIB), Some(256 << 20), Some(16 * MIB))).unwrap();
+        assert!(young <= (young + old) / 2, "{young} of {}", young + old);
+        assert_eq!(young, 12 * MIB, "16 MiB halved to 4 MiB semi-spaces");
+        assert_eq!(young + old, 32 * MIB);
+    }
+
+    #[test]
+    fn the_floor_is_rounded_down_to_a_power_of_two() {
+        let (young, _) = sizes(&limits(Some(256 * MIB), Some(1 << 30), Some(12 * MIB))).unwrap();
+        assert_eq!(young, 24 * MIB, "12 MiB rounds down to 8 MiB semi-spaces");
+    }
+
+    #[test]
+    fn with_an_explicit_limit_only_the_total_is_kept() {
+        let base = sizes(&limits(Some(128 * MIB), None, None)).unwrap();
+        let floored = sizes(&limits(Some(128 * MIB), None, Some(8 * MIB))).unwrap();
+        assert_eq!(floored.0, base.0.max(24 * MIB));
+        assert_eq!(floored.0 + floored.1, base.0 + base.1);
+    }
+
+    #[test]
+    fn without_a_configured_heap_nothing_is_set() {
+        assert!(sizes(&limits(None, None, Some(8 * MIB))).is_none());
     }
 }
