@@ -589,6 +589,19 @@ async fn a_write_is_visible_to_every_isolate_before_it_is_persisted() {
     let dir = temp_dir("visibility");
     {
         let executor = start(2, Some(&dir), &[]);
+        // Both isolates ready first: requests only go to ready isolates,
+        // so with the second still booting the read below would run in the
+        // writer's isolate after its hold (RE-4.1-CACHE-CORRECTNESS).
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
+        while executor
+            .metrics()
+            .executors
+            .iter()
+            .any(|e| e.state != "ready")
+        {
+            assert!(std::time::Instant::now() < deadline, "isolates ready");
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        }
         let mut writer = request("cache.js", &[]);
         writer.url = "/cache?op=set-then-answer&key=vis&value=written&hold=300".into();
         let mut events = executor.render(writer).await.expect("admitted");
