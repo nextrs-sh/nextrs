@@ -327,6 +327,30 @@ for d in "$OUT"/decisive-* "$OUT"/gctrace; do "$NODE" benchmarks/resource/summar
 "$NODE" benchmarks/resource/gc-summary.mjs "$OUT/gctrace" > "$OUT/gctrace/GC.md"
 ```
 
+**Optional, RE-4.1 accounting comparison** (owner decision; not in the
+decisive set). `RE4_COMMIT` must include RE-4.1 (the flags are checked
+against that commit). The admission counters record both totals in every
+run (`commitments`, `committed_bytes`, `unrealized_bytes` next to
+`reserved_bytes`), so the decisive runs already show what `committed`
+accounting would have seen. This pair measures what it does:
+
+```bash
+VARS="$NEXTRS_SRC/benchmarks/resource/variants"
+"$NODE" benchmarks/resource/run.mjs gate --variants "$VARS/re41-gate.json" --baseline node --reference re23 \
+  --candidates re41-sampled,re41-committed --gate-configs 1g:2,256m:1 "${BINS[@]}" --out "$OUT/gate-re41"
+G41=(--gate "$OUT/gate-re41/gate.json" "${BINS[@]}")
+"$NODE" benchmarks/resource/run.mjs profile --variants "$VARS/re41-accounting.json" "${G41[@]}" \
+  --configs 256m:1,512m:1 --rounds 3 --workload full --out "$OUT/re41-accounting-full"
+"$NODE" benchmarks/resource/run.mjs profile --variants "$VARS/re41-accounting.json" "${G41[@]}" \
+  --configs 256m:1 --rounds 3 --workload faults-concurrent-ssr --out "$OUT/re41-accounting-ssr"
+```
+
+`re41-gate.json` is the same pair with `node` and `re23` for the gate's
+comparison. Compare OOM kills, peak working set, 503 share and p99
+between `re41-sampled` and `re41-committed`
+([RE-4.1-ADMISSION-ACCOUNTING](RE-4.1-ADMISSION-ACCOUNTING.md)). Add
+`--dry-run` to any of these first.
+
 (The Mac `re23-gctrace.json` names the `base` and `re2b` binaries, which
 this series does not build: `validate` fails it. `re4-gctrace.json` is the
 same set for `rc3`, `re23` and RE-4.)

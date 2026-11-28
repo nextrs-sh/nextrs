@@ -67,9 +67,26 @@ owner.
 | [RE-4-YOUNG-GENERATION-EXPERIMENT](RE-4-YOUNG-GENERATION-EXPERIMENT.md) | `--js-young-semi-space`: a cap-preserving young-generation floor, and the experiment plan |
 | [RE-4-CORRECTNESS-AND-FAULT-TESTS](RE-4-CORRECTNESS-AND-FAULT-TESTS.md) | Every local test, what it covers, what is blocked on a container engine |
 | [RE-4-LINUX-BENCHMARK-RUNBOOK](RE-4-LINUX-BENCHMARK-RUNBOOK.md) | Native Docker Engine on Fedora, reproducible rebuilds, the decisive campaign, fault tests, soaks |
-| [RE-4.1-BENCHMARK-READINESS](RE-4.1-BENCHMARK-READINESS.md) | Runbook corrections, harness validation and dry runs, the fault workloads, preflight: what was checked statically and what remains for the owner |
 | [RE-4-INDEPENDENT-REVIEW](RE-4-INDEPENDENT-REVIEW.md) | Review findings and their resolution |
 | [RE-4-MILESTONE-GATE](RE-4-MILESTONE-GATE.md) | The five verdicts and the eight questions |
+
+### RE-4.1: resource control correctness and memory safety hardening
+
+**RE-4.1 gate: see [RE-4.1-MILESTONE-GATE](RE-4.1-MILESTONE-GATE.md).**
+Every control stays opt-in; no default or profile changed. No container
+benchmark ran.
+
+| Report | Contents |
+|---|---|
+| [RE-4.1-NATIVE-BUFFER-HARDENING](RE-4.1-NATIVE-BUFFER-HARDENING.md) | Large static files streamed in budgeted chunks; reservations owned by the bytes; 413 for proxy bodies above the budget; the budget is now the bound |
+| [RE-4.1-ADMISSION-ACCOUNTING](RE-4.1-ADMISSION-ACCOUNTING.md) | Commitment lifecycle; sampled vs committed accounting under delayed allocation (model and real isolates); the emergency state; reclaim coordination |
+| [RE-4.1-NESTED-REQUEST-COMPATIBILITY](RE-4.1-NESTED-REQUEST-COMPATIBILITY.md) | Server Actions with in-process nested requests under pressure, and proxy-read bodies, end to end on real builds; the slot-exhaustion stall |
+| [RE-4.1-EXTERNAL-MEMORY-COVERAGE](RE-4.1-EXTERNAL-MEMORY-COVERAGE.md) | Which allocation paths the ArrayBuffer budget enforces, which it does not, and why |
+| [RE-4.1-CACHE-CORRECTNESS](RE-4.1-CACHE-CORRECTNESS.md) | The intermittent `every_isolate_sees_one_cache` failure: a time-origin race, fixed |
+| [RE-4.1-RESOURCE-BUDGET-COORDINATION](RE-4.1-RESOURCE-BUDGET-COORDINATION.md) | What each limit bounds, overlaps, a coordinated-profile proposal, unvalidated 256/512 MiB starting points |
+| [RE-4.1-BENCHMARK-READINESS](RE-4.1-BENCHMARK-READINESS.md) | Runbook corrections, harness validation and dry runs, the fault workloads, preflight: what was checked statically and what remains for the owner |
+| [RE-4.1-INDEPENDENT-REVIEW](RE-4.1-INDEPENDENT-REVIEW.md) | Review findings and their resolution |
+| [RE-4.1-MILESTONE-GATE](RE-4.1-MILESTONE-GATE.md) | The five verdicts and the seven questions |
 
 ## Data and reproduction
 

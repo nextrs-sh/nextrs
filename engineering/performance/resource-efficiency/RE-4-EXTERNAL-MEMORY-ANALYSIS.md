@@ -101,7 +101,7 @@ be caught):** no API aborted the process.
 | `new Uint8Array(16).buffer`, `Buffer.alloc(1024)`, `Buffer.from(string)`, `Buffer.concat` of small buffers, `ArrayBuffer.prototype.slice` (small), `structuredClone` of 32 bytes, `crypto.getRandomValues(64 KiB)`, `JSON.stringify` of 100 kB | works: below 64 KiB never refused; the 64 KiB `getRandomValues` buffer is refusable, but fitted in the headroom left when the fill stopped at its first refused 1 MiB buffer |
 | `new Uint8Array(1 MiB)`, `Buffer.alloc(1 MiB)`, `Buffer.allocUnsafe(1 MiB)`, `Buffer.concat` reaching 1 MiB, `structuredClone` of 1 MiB, `new DataView(new ArrayBuffer(1 MiB))` | `RangeError` |
 | `new ArrayBuffer(10, { maxByteLength: 4 MiB })` | works (only the 10 bytes are committed) |
-| `new TextEncoder().encode(200 kB)`, `Response.arrayBuffer()` and `Blob.arrayBuffer()` of 200 kB | **work**: their bytes come from Rust ops (`from_vec`), outside the budget |
+| `new TextEncoder().encode(200 kB)`, `Response.arrayBuffer()` and `Blob.arrayBuffer()` of 200 kB | **work**: their bytes come from Rust ops (`from_vec`), outside the budget. *Corrected in RE-4.1: this sweep left up to 1 MiB of headroom; with under 64 KiB left, `Response`/`Blob` `.arrayBuffer()` (and `fs.readFileSync`, zlib) are refused, `TextEncoder.encode` is not ([RE-4.1-EXTERNAL-MEMORY-COVERAGE](RE-4.1-EXTERNAL-MEMORY-COVERAGE.md))* |
 
 ## 5. Hard, best-effort, V8 and kernel limits
 
