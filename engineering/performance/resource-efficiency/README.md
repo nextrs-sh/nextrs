@@ -67,6 +67,7 @@ owner.
 | [RE-4-YOUNG-GENERATION-EXPERIMENT](RE-4-YOUNG-GENERATION-EXPERIMENT.md) | `--js-young-semi-space`: a cap-preserving young-generation floor, and the experiment plan |
 | [RE-4-CORRECTNESS-AND-FAULT-TESTS](RE-4-CORRECTNESS-AND-FAULT-TESTS.md) | Every local test, what it covers, what is blocked on a container engine |
 | [RE-4-LINUX-BENCHMARK-RUNBOOK](RE-4-LINUX-BENCHMARK-RUNBOOK.md) | Native Docker Engine on Fedora, reproducible rebuilds, the decisive campaign, fault tests, soaks |
+| [RE-4.1-BENCHMARK-READINESS](RE-4.1-BENCHMARK-READINESS.md) | Runbook corrections, harness validation and dry runs, the fault workloads, preflight: what was checked statically and what remains for the owner |
 | [RE-4-INDEPENDENT-REVIEW](RE-4-INDEPENDENT-REVIEW.md) | Review findings and their resolution |
 | [RE-4-MILESTONE-GATE](RE-4-MILESTONE-GATE.md) | The five verdicts and the eight questions |
 
