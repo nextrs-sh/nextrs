@@ -1,0 +1,44 @@
+#
+# The fault app's runtime images, both from ONE build image (Dockerfile.fault-build):
+#
+#   docker build -f benchmarks/resource/docker/Dockerfile.fault-runtime --target node \
+#     --build-arg BUILD_IMAGE=nextrs-fault-build:s1 -t nextrs-fault:node benchmarks/resource/fault-app
+#   docker build -f benchmarks/resource/docker/Dockerfile.fault-runtime --target nextrs \
+#     --build-arg BUILD_IMAGE=nextrs-fault-build:s1 -t nextrs-fault-base:s1 benchmarks/resource/fault-app
+#
+# `nextrs-fault-base:s1` has no nextrs binary: `run.mjs setup-faults --bin LABEL=PATH` adds
+# one per benchmarked build (nextrs-fault:LABEL) and runs `nextrs inspect` on the app. The
+# layout mirrors the Velasia images: /app is the standalone output, Node.js runs
+# `node server.js` as `node`, NextRS runs as uid 10001 with /app read-only.
+
+ARG BUILD_IMAGE=nextrs-fault-build:s1
+ARG NODE_IMAGE=node:24.18.0-bookworm-slim@sha256:6f7b03f7c2c8e2e784dcf9295400527b9b1270fd37b7e9a7285cf83b6951452d
+ARG RUNTIME_IMAGE=debian:12-slim@sha256:734a72b3d6142a71993b4bc580ca01d8ca687f77a2c422d96a961d3376b179bc
+
+FROM ${BUILD_IMAGE} AS build
+
+FROM ${NODE_IMAGE} AS node
+ENV NODE_ENV=production \
+    PORT=8080 \
+    HOSTNAME=0.0.0.0 \
+    NEXT_TELEMETRY_DISABLED=1
+WORKDIR /app
+COPY --from=build /src/.next/standalone ./
+RUN mkdir -p .next/cache && chown node:node .next/cache \
+ && node --version > /app/node-version.txt
+USER node
+EXPOSE 8080
+STOPSIGNAL SIGTERM
+CMD ["node", "server.js"]
+
+FROM ${RUNTIME_IMAGE} AS nextrs
+RUN useradd --system --uid 10001 --user-group --home-dir /nonexistent --shell /usr/sbin/nologin nextrs
+ENV PORT=8080 \
+    NEXTRS_LOG_FORMAT=json
+COPY --from=build /src/.next/standalone /app
+COPY docker-start.sh /usr/local/bin/fault-nextrs-start
+RUN chmod 0755 /usr/local/bin/fault-nextrs-start
+USER nextrs
+EXPOSE 8080
+STOPSIGNAL SIGTERM
+ENTRYPOINT ["/usr/local/bin/fault-nextrs-start"]

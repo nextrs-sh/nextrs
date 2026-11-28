@@ -1,0 +1,54 @@
+#
+# velasia-node:s1 for the resource benchmarks: the `runtime` stage of Velasia Airways'
+# Dockerfile.node at d04127a, unchanged, over a build output made ONCE beforehand.
+#
+#   docker build --target build -f "$VELASIA_SRC/Dockerfile.node" -t velasia-web-build:s1 "$VELASIA_SRC"
+#   docker build -f benchmarks/resource/docker/Dockerfile.velasia-node \
+#     --build-arg BUILD_IMAGE=velasia-web-build:s1 -t velasia-node:s1 "$VELASIA_SRC"
+#
+# Velasia's own Dockerfile.node and Dockerfile.nextrs each run `next build` in identical
+# `build` stages and share one output only through the BuildKit layer cache (a pruned cache,
+# another builder or `--no-cache` silently gives the two images different builds). Here the
+# build stage is an image (`BUILD_IMAGE`: Velasia's own `build` stage, built with --target
+# build), and both runtime images copy from it. build-images.sh builds all of them and
+# `run.mjs verify-build` checks that every image carries the same files.
+#
+# The context is the Velasia checkout (read only); its .dockerignore applies. Keep the stage
+# below byte-for-byte the `runtime` stage of Velasia's Dockerfile.node at the pinned commit.
+
+ARG BUILD_IMAGE=velasia-web-build:s1
+ARG NODE_IMAGE=node:24.18.0-bookworm-slim@sha256:6f7b03f7c2c8e2e784dcf9295400527b9b1270fd37b7e9a7285cf83b6951452d
+
+FROM ${BUILD_IMAGE} AS build
+
+FROM ${NODE_IMAGE} AS runtime
+LABEL org.opencontainers.image.title="velasia-node" \
+      org.opencontainers.image.description="Velasia Airways storefront on the official Next.js server (fictional demo; no real reservations or payments)" \
+      org.opencontainers.image.source="https://github.com/nextrs-sh/velasia-airways" \
+      org.opencontainers.image.licenses="MIT" \
+      dev.velasia.runtime="nodejs"
+ENV NODE_ENV=production \
+    PORT=8080 \
+    HOSTNAME=0.0.0.0 \
+    NEXT_TELEMETRY_DISABLED=1
+WORKDIR /app
+# Security updates from Debian for the base image's packages (the Node.js image lags behind
+# Debian point releases), then package managers are removed: none in the runtime image.
+RUN apt-get update \
+ && apt-get -y --no-install-recommends upgrade \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+           /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+           /opt/yarn-* /usr/local/bin/yarn /usr/local/bin/yarnpkg
+# Application files belong to root (read-only for `node`); only the cache is writable.
+COPY --from=build /repo/apps/web/.next/standalone ./
+RUN mkdir -p apps/web/.next/cache && chown node:node apps/web/.next/cache \
+ && node --version > /app/node-version.txt
+USER node
+EXPOSE 8080
+# Docker's own health check (App Platform uses its HTTP health check instead; same path).
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
+  CMD ["node", "-e", "fetch('http://127.0.0.1:' + (process.env.PORT || 8080) + '/api/internal/health/live').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
+STOPSIGNAL SIGTERM
+CMD ["node", "apps/web/server.js"]

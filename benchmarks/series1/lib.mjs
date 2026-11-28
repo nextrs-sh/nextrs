@@ -161,25 +161,38 @@ export async function waitHttp(url, timeoutMs, statuses = [200]) {
  * experiments); `image` replaces the runtime's image; `readyTimeoutMs`
  * bounds the wait for readiness.
  */
-export async function storefrontUp(runtime, {
-  isolates = 1, extraArgs = "", noJs = false, memory = LIMITS.sfMemory, cpus = LIMITS.sfCpus,
-  cpuset = LIMITS.sfCpuset, env: extraEnv = [], image: imageOverride, readyTimeoutMs = 180_000,
-} = {}) {
+export async function storefrontUp(runtime, options = {}) {
+  const { noJs = false, readyTimeoutMs = 180_000 } = options;
   remove(SF);
+  const started = Date.now();
+  docker(storefrontRunArgs(runtime, options));
+  if (noJs) {
+    const manifest = JSON.parse(docker(["exec", TOOLS, "cat", "/work/specs/manifest.json"]).stdout);
+    await waitHttp(`http://${SF}:8080${manifest.assets[0].path}`, 120_000, [200]);
+    return { readyMs: Date.now() - started };
+  }
+  await waitHttp(`http://${SF}:8080/api/internal/health/ready`, readyTimeoutMs, [200]);
+  return { readyMs: Date.now() - started };
+}
+
+/**
+ * The `docker run` arguments `storefrontUp` uses (same options), without
+ * running anything: the resource harness prints them in its dry runs.
+ */
+export function storefrontRunArgs(runtime, {
+  isolates = 1, extraArgs = "", noJs = false, memory = LIMITS.sfMemory, cpus = LIMITS.sfCpus,
+  cpuset = LIMITS.sfCpuset, env: extraEnv = [], image: imageOverride,
+} = {}) {
   const limits = ["--cpus", cpus, "--cpuset-cpus", cpuset, "--memory", memory, "--memory-swap", memory];
   if (noJs) {
-    const started = Date.now();
-    docker([
+    return [
       "run", "-d", "--name", SF, "--network", NET, ...HARDENING,
       ...limits,
       "-e", "NEXTRS_LOG_FORMAT=json", ...extraEnv.flatMap((e) => ["-e", e]),
       "--entrypoint", "/usr/local/bin/nextrs", imageOverride ?? image(runtime),
       "start", "/app/apps/web", "--host", "0.0.0.0", "--port", "8080",
       "--metrics-addr", "0.0.0.0:9100", "--allow-unsupported",
-    ]);
-    const manifest = JSON.parse(docker(["exec", TOOLS, "cat", "/work/specs/manifest.json"]).stdout);
-    await waitHttp(`http://${SF}:8080${manifest.assets[0].path}`, 120_000, [200]);
-    return { readyMs: Date.now() - started };
+    ];
   }
   const env = [
     "NODE_ENV=production", "PORT=8080",
@@ -195,14 +208,11 @@ export async function storefrontUp(runtime, {
     if (extraArgs) env.push(`NEXTRS_EXTRA_ARGS=${extraArgs}`);
   }
   env.push(...extraEnv);
-  const started = Date.now();
-  docker([
+  return [
     "run", "-d", "--name", SF, "--network", NET, ...HARDENING, ...limits,
     ...env.flatMap((e) => ["-e", e]),
     imageOverride ?? image(runtime),
-  ]);
-  await waitHttp(`http://${SF}:8080/api/internal/health/ready`, readyTimeoutMs, [200]);
-  return { readyMs: Date.now() - started };
+  ];
 }
 
 /**
@@ -296,7 +306,10 @@ export function hostInfo() {
  * container.
  */
 export function contention() {
-  const host = sh("sysctl", ["-n", "vm.loadavg"], { allowFail: true }).stdout.trim();
+  // macOS: `sysctl -n vm.loadavg` ("{ 1.2 1.3 1.4 }"). Linux has no such
+  // key; its /proc/loadavg is the host's own (no VM in between).
+  let host = sh("sysctl", ["-n", "vm.loadavg"], { allowFail: true }).stdout.trim();
+  if (!host && existsSync("/proc/loadavg")) host = sh("cat", ["/proc/loadavg"], { allowFail: true }).stdout.trim();
   const vm = docker(["exec", TOOLS, "sh", "-c", "cat /proc/loadavg; head -1 /proc/stat"], { allowFail: true }).stdout.split("\n");
   const ticks = (vm[1] ?? "").trim().split(/\s+/).slice(1).map(Number);
   return {

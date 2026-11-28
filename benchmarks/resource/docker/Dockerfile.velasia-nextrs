@@ -1,0 +1,88 @@
+#
+# velasia-nextrs:s1 for the resource benchmarks: the `nextrs-install`, `nextrs-inspect` and
+# `runtime` stages of Velasia Airways' Dockerfile.nextrs at d04127a, unchanged, over the
+# build output made ONCE beforehand (see Dockerfile.velasia-node for why).
+#
+#   docker build -f benchmarks/resource/docker/Dockerfile.velasia-nextrs \
+#     --build-arg BUILD_IMAGE=velasia-web-build:s1 -t velasia-nextrs:s1 "$VELASIA_SRC"
+#
+# The image carries NextRS 0.1.0-rc.2 from npm (integrity-pinned, as in Velasia); the
+# benchmarked builds are this image with only /usr/local/bin/nextrs replaced
+# (`series1/run.mjs setup --bin LABEL=PATH` -> nextrs-s1:LABEL).
+#
+# The context is the Velasia checkout (read only): docker/nextrs/package.json,
+# package-lock.json and start.sh come from it. Keep the stages below byte-for-byte those of
+# Velasia's Dockerfile.nextrs at the pinned commit.
+
+ARG BUILD_IMAGE=velasia-web-build:s1
+ARG NODE_IMAGE=node:24.18.0-bookworm-slim@sha256:6f7b03f7c2c8e2e784dcf9295400527b9b1270fd37b7e9a7285cf83b6951452d
+ARG RUNTIME_IMAGE=debian:12-slim@sha256:734a72b3d6142a71993b4bc580ca01d8ca687f77a2c422d96a961d3376b179bc
+
+FROM ${BUILD_IMAGE} AS build
+
+# ---------------------------------------------------------------------------------------------
+FROM ${NODE_IMAGE} AS nextrs-install
+WORKDIR /nextrs
+COPY docker/nextrs/package.json docker/nextrs/package-lock.json ./
+# --ignore-scripts: the package declares none; this guarantees nothing runs on install.
+RUN npm ci --no-audit --no-fund --ignore-scripts --registry=https://registry.npmjs.org/
+# bin/nextrs is a shell launcher; native/nextrs is the binary that BUILD-INFO.json describes.
+RUN set -eu; pkg=node_modules/@nextrs/cli; \
+    v=$(node -p "require('./$pkg/package.json').version"); \
+    [ "$v" = "0.1.0-rc.2" ] || { echo "expected @nextrs/cli 0.1.0-rc.2, got $v" >&2; exit 1; }; \
+    echo "$(node -p "require('./$pkg/BUILD-INFO.json').binary_sha256")  $pkg/native/nextrs" | sha256sum -c -; \
+    out=$("$pkg/native/nextrs" --version); echo "$out"; \
+    [ "$out" = "nextrs 0.1.0-rc.2" ] || { echo "unexpected --version: $out" >&2; exit 1; }; \
+    mkdir -p /out/doc; \
+    install -m 0755 "$pkg/native/nextrs" /out/nextrs; \
+    cp "$pkg/package.json" /out/doc/npm-package.json; \
+    cp "$pkg/BUILD-INFO.json" "$pkg/LICENSE-MIT" "$pkg/LICENSE-APACHE" \
+       "$pkg/THIRD-PARTY.md" "$pkg/THIRD-PARTY-LICENSES.txt" /out/doc/
+
+# ---------------------------------------------------------------------------------------------
+FROM ${RUNTIME_IMAGE} AS nextrs-inspect
+# `nextrs inspect` must read the build, on the runtime base (glibc), or the image build fails.
+COPY --from=nextrs-install /out/nextrs /usr/local/bin/nextrs
+COPY --from=build /repo/apps/web/.next/standalone /app
+RUN set -eu; mkdir -p /out; \
+    /usr/local/bin/nextrs inspect /app/apps/web > /out/inspect.txt 2>&1 \
+      || { cat /out/inspect.txt; echo "nextrs inspect failed" >&2; exit 1; }; \
+    cat /out/inspect.txt
+
+# ---------------------------------------------------------------------------------------------
+FROM ${RUNTIME_IMAGE} AS runtime
+LABEL org.opencontainers.image.title="velasia-nextrs" \
+      org.opencontainers.image.description="Velasia Airways storefront on NextRS @nextrs/cli@0.1.0-rc.2 (fictional demo; no real reservations or payments)" \
+      org.opencontainers.image.source="https://github.com/nextrs-sh/velasia-airways" \
+      org.opencontainers.image.licenses="MIT" \
+      dev.velasia.runtime="nextrs" \
+      dev.nextrs.npm-package="@nextrs/cli@0.1.0-rc.2" \
+      dev.nextrs.binary-sha256="87d9d871a4abd727bf96597959734ada97d173d1ec0ed979616bb2b6fca86d22"
+# Security updates for the base image's packages. NextRS links only libc, libm, libgcc_s and
+# the loader, and carries its own TLS roots (webpki-roots): no extra packages are needed.
+RUN apt-get update \
+ && apt-get -y --no-install-recommends upgrade \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/* \
+ && useradd --system --uid 10001 --user-group --home-dir /nonexistent --shell /usr/sbin/nologin nextrs \
+ && install -d -o nextrs -g nextrs -m 0700 /var/cache/nextrs
+ENV PORT=8080 \
+    NEXTRS_LOG_FORMAT=json
+COPY --from=nextrs-install /out/nextrs /usr/local/bin/nextrs
+COPY --from=nextrs-install /out/doc/ /usr/share/doc/nextrs/
+COPY --from=nextrs-inspect /out/inspect.txt /usr/share/doc/nextrs/velasia-inspect.txt
+COPY docker/nextrs/start.sh /usr/local/bin/velasia-nextrs-start
+# Application files belong to root and are read-only for the `nextrs` user.
+COPY --from=build /repo/apps/web/.next/standalone /app
+RUN chmod 0755 /usr/local/bin/velasia-nextrs-start \
+ && ! command -v node && ! command -v npm && ! command -v pnpm \
+ && echo "no Node.js in the runtime image" \
+ && /usr/local/bin/nextrs --version > /app/nextrs-version.txt
+USER nextrs
+EXPOSE 8080
+# Docker's own health check (App Platform uses its HTTP health check instead; same path). No
+# curl/wget/node here: bash's /dev/tcp asks the storefront's liveness route.
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
+  CMD ["bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/${PORT:-8080} && printf 'GET /api/internal/health/live HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && head -n1 <&3 | grep -q ' 200 '"]
+STOPSIGNAL SIGTERM
+ENTRYPOINT ["/usr/local/bin/velasia-nextrs-start"]
