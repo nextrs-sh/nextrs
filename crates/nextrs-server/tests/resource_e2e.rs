@@ -695,3 +695,59 @@ async fn a_nested_request_waits_for_a_slot_at_most_the_queue_timeout() {
     assert!(server.settles().await);
     server.stop().await;
 }
+
+#[tokio::test(flavor = "multi_thread")]
+#[ignore = "requires fixtures/next-proxy to be built (npm ci && next build)"]
+async fn a_trickling_proxy_body_holds_only_what_it_sent() {
+    // RE-4.1 review F1: a chunked body used to reserve the whole budget
+    // (its maximum) before the first byte, and the reservation waited at
+    // the head of the queue: static and public files got 503 while one
+    // client trickled. Now it holds only what it has sent.
+    let budget = NativeBufferBudget::new(4 * 1024 * 1024, Duration::from_millis(500));
+    let server = Server::start("next-proxy", Limits::default(), Some(budget.clone())).await;
+    let chunk = std::fs::read_dir(fixture("next-proxy").join(".next/static/chunks"))
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .map(|e| e.file_name().to_string_lossy().into_owned())
+        .find(|n| n.ends_with(".js"))
+        .unwrap();
+    let mut trickle = tokio::net::TcpStream::connect(server.addr).await.unwrap();
+    trickle
+        .write_all(b"POST /proxy/body HTTP/1.1\r\nhost: x\r\nconnection: close\r\ntransfer-encoding: chunked\r\n\r\n5\r\nhello\r\n")
+        .await
+        .unwrap();
+    tokio::time::sleep(Duration::from_millis(200)).await;
+    assert!(
+        budget.reserved_bytes() <= 1024,
+        "{}",
+        budget.reserved_bytes()
+    );
+    for path in [
+        format!("/_next/static/chunks/{chunk}"),
+        "/asset.txt".to_owned(),
+    ] {
+        let started = Instant::now();
+        let reply = send(server.addr, "GET", &path, &[], b"").await;
+        assert_eq!(
+            reply.status, 200,
+            "{path} while a body trickles: {}",
+            reply.head
+        );
+        assert!(
+            started.elapsed() < Duration::from_millis(400),
+            "{path}: no wait"
+        );
+    }
+    // The rest arrives: the proxy sees all of it.
+    trickle
+        .write_all(b"6\r\n world\r\n0\r\n\r\n")
+        .await
+        .unwrap();
+    let mut raw = Vec::new();
+    trickle.read_to_end(&mut raw).await.unwrap();
+    let text = String::from_utf8_lossy(&raw);
+    assert!(text.starts_with("HTTP/1.1 200"), "{text}");
+    assert!(text.contains("hello world"), "{text}");
+    assert_eq!(budget.reserved_bytes(), 0);
+    server.stop().await;
+}

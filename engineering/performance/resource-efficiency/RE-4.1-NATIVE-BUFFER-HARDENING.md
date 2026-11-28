@@ -13,9 +13,9 @@ With the flag absent, no code path changed (§5).
 |---|---|---|
 | Static / `public/` file or range up to the whole-read limit | read whole, reserved first | unchanged |
 | Larger than the whole-read limit | read whole; above the budget, took the whole budget and was served alone | **streamed** in chunks, each reserved before it is read |
-| Proxy-buffered request body, declared length ≤ budget | reserved, buffered | unchanged |
+| Proxy-buffered request body, declared length ≤ budget | its declared length reserved before the first byte | **reserved as it arrives**, frame by frame (each step ≤ one hyper frame, ≤ 64 KiB) |
 | Declared length > budget (and ≤ the body limit) | clamped: took the whole budget | **413** `native-buffer-budget-exceeded`, `Connection: close`, nothing read |
-| Unknown length (chunked) | reserved the body limit (10 MiB), clamped to the budget | reserves `min(limit, budget)`; a body growing past the budget gets the same 413 |
+| Unknown length (chunked) | reserved the body limit (10 MiB), clamped to the whole budget, before the first byte | reserved as it arrives; growing past the budget gets the same 413; no room within the wait: 503 with `Connection: close` |
 
 Limits, from the budget `B` (`native_budget.rs:166-183`):
 
@@ -35,6 +35,17 @@ refused again on retry, so a 503 would invite a retry loop. The 413
 carries its own error code, so operators can tell it from
 `request-body-too-large`.
 
+**Incremental proxy reservations** (independent review F1, §4.1 of
+[RE-4.1-INDEPENDENT-REVIEW](RE-4.1-INDEPENDENT-REVIEW.md)). Reserving a
+body's maximum before reading it let one client trickling a chunked
+body hold the whole budget. tokio's semaphore is FIFO, so that large
+reservation also blocked every smaller one queued behind it: static
+files got 503. A body now holds only the bytes it has sent
+(`NativeBufferBudget::grow`, `OwnedSemaphorePermit::merge`), and each
+wait is for one frame's growth. The cost: two growing bodies can wait on
+each other, and both are bounded by `--native-buffer-wait` (a 503,
+retryable).
+
 ## 2. Ownership
 
 The reservation is owned by the buffer's `Bytes` (`BufferPermit::own`,
@@ -47,7 +58,7 @@ clone of the memory is dropped, wherever that happens:
 | hyper's write queue (up to `max_buf_size`, 64 KiB, per connection) | not counted once the body yielded the frame | counted until written |
 | Compression cache fill (`compress_cache::gzip`) | the identity copy outlived the permit (review finding 9) | counted until the fill has compressed it |
 | Streaming gzip (`GzipBody`) | — | the input chunk is held, and counted, until compressed |
-| Proxy body: proxy's copy, route's copy, a JavaScript read in progress | `Arc` permit in two `PermitBody` wrappers | the `Bytes` themselves |
+| Proxy body: the proxy's copy and the route's copy | `Arc` permit in two `PermitBody` wrappers | the `Bytes` themselves. JavaScript's reads copy the bytes into V8 (`Vec::from(Bytes)`); those copies are not in this budget |
 
 `PermitBody` is gone. A streamed chunk's reservation is moved into the
 blocking read task, so a read that is still running when the body is
@@ -111,7 +122,9 @@ unit tests. **20 tests, all passing** (11 integration, 9 unit).
 | updated RE-4 tests | 503 after the wait, waiter served on release, HEAD/304 reserve nothing, a range fits where a whole read does not, 64 concurrent, budget off unchanged |
 | unit | limits arithmetic; `own` releases with the last clone (slices count); one chunk in hand at a time; held chunks hold back the next; truncation fails; growth stops at the length; 50 drops mid-read release everything; the 30 s bound (shortened in the test) |
 
-Proxy bodies, end to end, are in
+Proxy bodies, end to end (including a body trickled while static and
+public files are requested: both 200 without waiting, at most 1 KiB
+reserved), are in
 [RE-4.1-NESTED-REQUEST-COMPATIBILITY](RE-4.1-NESTED-REQUEST-COMPATIBILITY.md)
 §4.
 
@@ -132,8 +145,16 @@ and keeps its limit. Only the body type of the whole-read field changed
   the same granularity as `tokio::fs`. Not measured on the benchmark
   host.
 - **Budgets under 16 MiB** stream files between `B/4` and 4 MiB, which
-  then lose their cached gzip copy and are compressed per request. The
-  runbook's 32 MiB keeps every cacheable file cached.
+  then lose their cached gzip copy and are compressed per request, with
+  a sync flush per chunk (a lower ratio at tiny chunks). The runbook's
+  32 MiB keeps every cacheable file cached.
+- **Streams overcommit:** only the first chunk is reserved before the
+  response starts. Under sustained overload a stream can fail mid-body
+  (after the 30 s chunk wait) instead of getting a 503 up front. About
+  budget / 128 KiB slow readers, each holding hyper's 64 KiB queue plus a
+  chunk until the write timeout, can occupy the budget. That is strictly
+  less than RE-4, which held whole files. A per-connection cap is a
+  possible follow-up.
 - **hyper's flatten mode** copies a frame into its own buffer and drops
   the `Bytes` at once. That copy, at most `max_buf_size` per connection,
   is not counted. In queue mode, which hyper uses for `Bytes` frames,

@@ -19,9 +19,15 @@ by the request's `Slot`. It ends exactly once:
 | Request completes (JavaScript reports done) | `Slot::drop` → `release` → `Gate::complete` |
 | Client gone, request timeout, stall watchdog, heap-limit termination, isolate replaced | the slot is dropped with the request's op state or the isolate → `complete` |
 | Waiter timed out between being granted and receiving the slot | `disarm` → `Gate::withdraw` (also removes the estimate from `reserved`) |
-| Isolate died after being chosen, before taking the job (retry) | `Slot::release_now` before re-acquiring; the retry is admitted again with `Ticket::retry`, which is not added to `reserved` twice (`pool.rs:559`, `:1176`) |
+| Isolate died after being chosen, before taking the job (retry) | `Slot::release_now` before re-acquiring; the retry (`Ticket::retry`) is not gated again (it was admitted; concurrency limits still apply) and is not added to `reserved` twice (`pool.rs:559`, `:1176`) |
 | Shutdown | isolates dropped → slots dropped |
 | Nested in-process request | commitment recorded (its memory is real) but never gated |
+
+**Default-policy differences from RE-4, intentional** (RE-4.1 review
+F3): under `--memory-admission` with `sampled` accounting, a retry is no
+longer charged to `reserved` a second time, nor re-gated, and a waiter
+that had gone when it was granted is taken back out of `reserved`. Both
+were over-counts.
 
 This **fixes RE-4 review finding 5**. Before, the retry re-acquired while
 still holding the dead slot: the dead slot counted as active, and the
@@ -166,8 +172,10 @@ without limit.
   the next one is admitted).
 - **Health endpoints, static files and prerendered pages** never pass the
   gate (unchanged).
-- **Reclamation:** moving up into critical or emergency sets a request
-  that the pressure reclaimer takes at its next 1 s tick. It then
+- **Reclamation:** with the emergency state configured (only then, so
+  RE-4 configurations keep their reclaim schedule), moving up into
+  critical or emergency sets a request that the pressure reclaimer takes
+  at its next 1 s tick. It then
   reclaims without waiting for its backoff, though never within
   `pressure_interval` (10 s) of the previous pressure reclamation, so a
   container oscillating at the threshold is not collected more often

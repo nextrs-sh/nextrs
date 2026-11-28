@@ -4,9 +4,9 @@
 //! (middleware). Each such buffer reserves its size before it is allocated.
 //! The reservation is owned by the buffer's `Bytes` (`Bytes::from_owner`),
 //! so it is given back when the last reference to the memory is dropped:
-//! hyper's write queue, the gzip encoder, the compression cache's fill and
-//! JavaScript's read of a proxy body all keep it alive exactly as long as
-//! they keep the bytes. That covers completion, errors, cancellation,
+//! hyper's write queue, the gzip encoder and the compression cache's fill
+//! keep it alive exactly as long as they keep the bytes. (JavaScript's
+//! reads of a proxy body copy it into V8; the copies are not counted.) That covers completion, errors, cancellation,
 //! timeouts and client disconnects alike, since all of them drop the body.
 //!
 //! Static files up to a whole-read limit (a quarter of the budget, at most
@@ -14,8 +14,9 @@
 //! budget. Larger files and ranges are streamed in chunks (a quarter of the
 //! budget, at most 64 KiB), each chunk reserved before it is read, so no
 //! file is held whole and every reservation fits in the budget. A proxy
-//! body that can never fit (declared larger than the budget, or a body of
-//! unknown length that grows past it) is refused with 413. The aggregate
+//! body is reserved as it arrives, frame by frame (a slow client holds
+//! only what it has sent); one that can never fit (declared larger than
+//! the budget, or growing past it) is refused with 413. The aggregate
 //! of the bytes NextRS holds in these buffers therefore stays within the
 //! budget (RE-4.1-NATIVE-BUFFER-HARDENING).
 //!
@@ -112,7 +113,7 @@ impl std::fmt::Debug for NativeBufferBudget {
 
 /// Bytes reserved from the budget, given back on drop.
 pub(crate) struct BufferPermit {
-    _permit: OwnedSemaphorePermit,
+    permit: OwnedSemaphorePermit,
     bytes: u64,
 }
 
@@ -186,10 +187,7 @@ impl NativeBufferBudget {
         let in_use = self.units - self.permits.available_permits() as u64;
         self.peak_units.fetch_max(in_use, Ordering::Relaxed);
         self.reserved_total[kind.index()].fetch_add(bytes, Ordering::Relaxed);
-        BufferPermit {
-            _permit: permit,
-            bytes,
-        }
+        BufferPermit { permit, bytes }
     }
 
     /// Reserves `bytes` if they are free now (for blocking callers).
@@ -234,6 +232,66 @@ impl NativeBufferBudget {
                 None
             }
         }
+    }
+
+    /// Grows `permit` (or makes it) to cover `bytes`, waiting up to the
+    /// budget's wait for the extra room: for a buffer whose size is only
+    /// known as it arrives (a proxy request body, RE-4.1 review F1). Each
+    /// call asks for the growth alone (at most one received frame), so a
+    /// large reservation never waits at the head of the queue for room it
+    /// does not yet need. `false`: no room in time (nothing changed).
+    pub(crate) async fn grow(
+        &self,
+        permit: &mut Option<BufferPermit>,
+        kind: BufferKind,
+        bytes: u64,
+    ) -> bool {
+        let held = permit.as_ref().map_or(0, |p| p.permit.num_permits() as u64);
+        let wanted = u64::from(self.units_for(bytes));
+        if wanted <= held {
+            if let Some(p) = permit.as_mut() {
+                let more = bytes.saturating_sub(p.bytes);
+                self.reserved_total[kind.index()].fetch_add(more, Ordering::Relaxed);
+                p.bytes = p.bytes.max(bytes);
+            }
+            return true;
+        }
+        let extra = (wanted - held) as u32;
+        let acquired = match self.permits.clone().try_acquire_many_owned(extra) {
+            Ok(acquired) => acquired,
+            Err(_) => {
+                self.waits[kind.index()].fetch_add(1, Ordering::Relaxed);
+                match tokio::time::timeout(
+                    self.wait,
+                    self.permits.clone().acquire_many_owned(extra),
+                )
+                .await
+                {
+                    Ok(Ok(acquired)) => acquired,
+                    _ => {
+                        self.refused[kind.index()].fetch_add(1, Ordering::Relaxed);
+                        return false;
+                    }
+                }
+            }
+        };
+        let before = permit.as_ref().map_or(0, |p| p.bytes);
+        match permit {
+            Some(p) => {
+                p.permit.merge(acquired);
+                p.bytes = bytes;
+            }
+            None => {
+                *permit = Some(BufferPermit {
+                    permit: acquired,
+                    bytes,
+                })
+            }
+        }
+        let in_use = self.units - self.permits.available_permits() as u64;
+        self.peak_units.fetch_max(in_use, Ordering::Relaxed);
+        self.reserved_total[kind.index()].fetch_add(bytes - before, Ordering::Relaxed);
+        true
     }
 
     pub fn total_bytes(&self) -> u64 {
@@ -502,6 +560,40 @@ mod tests {
         assert_eq!(limits(4 * KIB), (KIB, KIB));
         // Below 4 KiB a chunk is still 1 KiB, which still fits.
         assert_eq!(limits(2 * KIB), (KIB, KIB));
+    }
+
+    #[tokio::test]
+    async fn a_growing_reservation_takes_only_its_growth_and_gives_all_back() {
+        let budget = NativeBufferBudget::new(16 * 1024, Duration::from_millis(50));
+        let mut permit = None;
+        assert!(budget.grow(&mut permit, BufferKind::ProxyBody, 100).await);
+        assert_eq!(budget.reserved_bytes(), 1024);
+        assert!(budget.grow(&mut permit, BufferKind::ProxyBody, 900).await);
+        assert_eq!(budget.reserved_bytes(), 1024, "still within its unit");
+        assert!(
+            budget
+                .grow(&mut permit, BufferKind::ProxyBody, 10 * 1024)
+                .await
+        );
+        assert_eq!(budget.reserved_bytes(), 10 * 1024);
+        // Another holder takes the rest: growth past it waits, then fails,
+        // and changes nothing.
+        let other = budget
+            .try_reserve(BufferKind::StaticFile, 6 * 1024)
+            .unwrap();
+        assert!(
+            !budget
+                .grow(&mut permit, BufferKind::ProxyBody, 11 * 1024)
+                .await
+        );
+        assert_eq!(budget.reserved_bytes(), 16 * 1024);
+        // While it waited, smaller requests were not blocked behind a
+        // reservation of the whole budget: only the 1 KiB growth waited.
+        drop(other);
+        let bytes = permit.take().unwrap().own(vec![1u8; 10 * 1024]);
+        assert_eq!(budget.reserved_bytes(), 10 * 1024);
+        drop(bytes);
+        assert_eq!(budget.reserved_bytes(), 0);
     }
 
     #[tokio::test]

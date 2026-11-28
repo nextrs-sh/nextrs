@@ -16,7 +16,8 @@ other server tests that need a build.
 cargo +1.98.0 test -p nextrs-server --test resource_e2e -- --ignored --test-threads=1
 ```
 
-**Local result:** 7 passed, 0 failed. Fedora 45, Node.js 24.18.0 for the
+**Local result:** 8 passed, 0 failed (7, plus the trickling-body case
+added after the independent review). Fedora 45, Node.js 24.18.0 for the
 fixture builds (CI pins 22.20.0), Rust 1.98.0. Memory states are set with
 a scripted probe, so the run is process-level.
 
@@ -82,6 +83,7 @@ that reads the same body again. Budget 256 KiB.
 | 300 KiB (> budget) | 413 `native-buffer-budget-exceeded` |
 | 16 concurrent 60 KiB bodies through both readers | each 200 and intact, or 503 after the wait. None corrupted |
 | client sends 50 of 100 KB, then hangs up | reservation released |
+| chunked body trickled (5 bytes, then a pause), 4 MiB budget (`a_trickling_proxy_body_holds_only_what_it_sent`) | ≤ 1 KiB reserved meanwhile; a static chunk and a public file 200 at once; the rest arrives and the proxy sees `hello world`; 0 after. Before the fix: the whole budget reserved, both 503 (review F1, reproduced) |
 | end | `reserved_bytes` 0; `reserved_bytes_total{kind="proxy_body"}` > 0 |
 
 ## 5. Bounds audit

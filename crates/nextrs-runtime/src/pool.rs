@@ -705,7 +705,7 @@ impl PoolInner {
         while let Some(front) = state.waiters.front() {
             let ticket = front.ticket;
             let active = Self::total_active(state);
-            let decision = if ticket.nested {
+            let decision = if ticket.nested || ticket.retry {
                 None
             } else {
                 state
@@ -728,7 +728,7 @@ impl PoolInner {
                     continue;
                 }
             }
-            let Some(worker) = self.claim(state, !ticket.nested) else {
+            let Some(worker) = self.claim(state, !ticket.nested && !ticket.retry) else {
                 return;
             };
             let waiter = state.waiters.pop_front().expect("not empty");
@@ -773,8 +773,10 @@ impl PoolInner {
             let active = Self::total_active(&state);
             let queued = !state.waiters.is_empty();
             // Next.js's requests to its own server belong to an admitted
-            // request: not gated (see `admission::nested`).
-            let decision = if ticket.nested {
+            // request: not gated (see `admission::nested`); nor is a retry
+            // of a request that was admitted, whose isolate died before
+            // taking it (RE-4.1 review F5). Concurrency limits still apply.
+            let decision = if ticket.nested || ticket.retry {
                 None
             } else {
                 state

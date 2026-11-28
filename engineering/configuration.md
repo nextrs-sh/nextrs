@@ -343,8 +343,9 @@ None of them is a memory guarantee.
     none running, except one per `--memory-admission-emergency-interval`
     (5 s; 0: none until memory falls). Without it, critical admits one
     whenever none runs.
-  - Moving up into critical or emergency asks `--memory-pressure-reclaim`
-    (if on) to reclaim at its next tick, not after its backoff. The budget is the container's limit or
+  - With the emergency state set, moving up into critical or emergency
+    asks `--memory-pressure-reclaim` (if on) to reclaim at its next tick,
+    not after its backoff. The budget is the container's limit or
   `--memory-admission-budget`. Set the budget lower when other processes
   share the container's cgroup: their usage counts, and NextRS cannot see
   it. Static files, prerendered pages and health checks are never gated.

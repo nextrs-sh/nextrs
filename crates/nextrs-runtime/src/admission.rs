@@ -42,9 +42,10 @@
 //!   would turn a full container into an outage. The optional `emergency`
 //!   state (from `emergency_percent`, RE-4.1C) narrows that to one
 //!   request per `emergency_progress_interval`.
-//! * **Reclamation.** Entering `critical` or `emergency` asks the
-//!   pressure reclaimer, when it runs, to reclaim now
-//!   ([`crate::Executor::take_reclaim_request`]).
+//! * **Reclamation.** With the emergency state configured, entering
+//!   `critical` or `emergency` asks the pressure reclaimer, when it runs,
+//!   to reclaim now ([`crate::Executor::take_reclaim_request`]). Without
+//!   it, the reclaimer's own schedule is unchanged (RE-4 behaviour).
 //!
 //! None of this limits memory. A request admitted on an estimate can
 //! allocate far more than it; the kernel still enforces the container's
@@ -369,8 +370,9 @@ pub(crate) struct Ticket {
     /// Part of an admitted request ([`nested`]): never gated.
     pub nested: bool,
     /// The same request again, after the isolate it was given died before
-    /// taking it: its estimate was already added to `reserved` (sampled
-    /// accounting) and is not added twice.
+    /// taking it: it was admitted already, so it is not gated again
+    /// (concurrency limits still apply), and its estimate, already in
+    /// `reserved` (sampled accounting), is not added twice.
     pub retry: bool,
 }
 
@@ -493,6 +495,9 @@ struct Commitment {
     unrealized: u64,
     /// Added to `reserved` (sampled accounting).
     sampled: bool,
+    /// The emergency progress time this admission replaced, if it took the
+    /// interval's one request (restored if it is withdrawn).
+    emergency_before: Option<Option<Instant>>,
 }
 
 /// What the gate decided for one request.
@@ -735,7 +740,10 @@ impl Gate {
             }
         };
         if next != self.state {
-            if next.rank() >= 2 && next.rank() > self.state.rank() {
+            if self.config.emergency_percent.is_some()
+                && next.rank() >= 2
+                && next.rank() > self.state.rank()
+            {
                 self.reclaim_wanted = true;
             }
             tracing::info!(
@@ -809,9 +817,9 @@ impl Gate {
         if sampled {
             self.reserved = self.reserved.saturating_add(reserve);
         }
-        if self.state == MemoryState::Emergency && !ticket.nested {
-            self.emergency_progress_at = Some(now);
-        }
+        let emergency_before =
+            (self.state == MemoryState::Emergency && !ticket.nested && !ticket.retry)
+                .then(|| self.emergency_progress_at.replace(now));
         self.next_commitment += 1;
         let id = self.next_commitment;
         self.commitments.push_back(Commitment {
@@ -820,6 +828,7 @@ impl Gate {
             reserve,
             unrealized: reserve,
             sampled,
+            emergency_before,
         });
         self.committed = self.committed.saturating_add(reserve);
         self.unrealized = self.unrealized.saturating_add(reserve);
@@ -842,15 +851,16 @@ impl Gate {
     /// too (no reading can have happened in between: both run under the
     /// pool lock without reading).
     pub fn withdraw(&mut self, id: CommitmentId) {
-        let sampled = self
-            .commitments
-            .iter()
-            .find(|c| c.id == id)
-            .map(|c| (c.sampled, c.reserve));
-        if self.complete(id)
-            && let Some((true, reserve)) = sampled
-        {
-            self.reserved = self.reserved.saturating_sub(reserve);
+        let Some(commitment) = self.commitments.iter().find(|c| c.id == id).copied() else {
+            return;
+        };
+        self.complete(id);
+        if commitment.sampled {
+            self.reserved = self.reserved.saturating_sub(commitment.reserve);
+        }
+        // Nothing ran: the emergency interval's request is still unused.
+        if let Some(before) = commitment.emergency_before {
+            self.emergency_progress_at = before;
         }
     }
 
@@ -1396,6 +1406,21 @@ mod tests {
     }
 
     #[test]
+    fn a_withdrawn_emergency_admission_gives_the_interval_back() {
+        let probe = Fake::new(100 * MIB, 99 * MIB);
+        let mut cfg = config(probe);
+        cfg.emergency_percent = Some(98.0);
+        let mut gate = Gate::new(cfg, 1).unwrap();
+        let now = Instant::now();
+        assert_eq!(gate.decide(now, MIB, 0), Decision::Progress);
+        let id = gate.admit(now, &ticket(MIB));
+        assert_eq!(gate.decide(now, MIB, 0), Decision::Refuse);
+        // The waiter had gone: nothing ran, the interval is unused.
+        gate.withdraw(id);
+        assert_eq!(gate.decide(now, MIB, 0), Decision::Progress);
+    }
+
+    #[test]
     fn emergency_without_an_interval_admits_nothing_until_memory_falls() {
         let probe = Fake::new(100 * MIB, 99 * MIB);
         let mut cfg = config(probe.clone());
@@ -1417,8 +1442,18 @@ mod tests {
 
     #[test]
     fn moving_up_into_critical_asks_for_one_reclaim() {
+        // Without the emergency state, admission never asks (RE-4).
+        let quiet = Fake::new(100 * MIB, 50 * MIB);
+        let mut gate = Gate::new(config(quiet.clone()), 1).unwrap();
+        quiet.set_usage(97 * MIB);
+        gate.decide(Instant::now(), 0, 1);
+        assert_eq!(gate.state(), MemoryState::Critical);
+        assert!(!gate.take_reclaim_request());
+
         let probe = Fake::new(100 * MIB, 50 * MIB);
-        let mut gate = Gate::new(config(probe.clone()), 1).unwrap();
+        let mut cfg = config(probe.clone());
+        cfg.emergency_percent = Some(99.0);
+        let mut gate = Gate::new(cfg, 1).unwrap();
         let now = Instant::now();
         assert!(!gate.take_reclaim_request());
         probe.set_usage(88 * MIB);

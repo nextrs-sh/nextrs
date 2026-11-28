@@ -25,9 +25,11 @@
 //!   simply runs near its limit is not collected over and over; it resets
 //!   once the working set drops below the threshold.
 //!
-//! * **Admission** (RE-4.1C): when memory-aware admission moves up into
-//!   its critical or emergency state, a pressure reclamation runs at the
-//!   next tick instead of waiting for the backed-off interval, though never
+//! * **Admission** (RE-4.1C): with memory-aware admission's emergency
+//!   state configured (`--memory-admission-emergency`), when admission
+//!   moves up into its critical or emergency state, a pressure reclamation
+//!   runs at the next tick instead of waiting for the backed-off interval,
+//!   though never
 //!   within `pressure_interval` of the previous one. Admission is refusing
 //!   requests then; garbage the isolates hold is the memory it can get
 //!   back without running any.
