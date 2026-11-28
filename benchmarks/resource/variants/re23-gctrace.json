@@ -1,0 +1,5 @@
+[
+  { "label": "base-gc", "runtime": "base", "args": "--v8-flags --trace-gc" },
+  { "label": "re2b-heap-gc", "runtime": "re2b", "args": "--js-heap-limit auto --v8-flags --trace-gc" },
+  { "label": "re2b-combo-gc", "runtime": "re2b", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90 --v8-flags --trace-gc" }
+]

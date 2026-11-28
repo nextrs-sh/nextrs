@@ -304,6 +304,8 @@ export function contention() {
     vmLoad1: Number((vm[0] ?? "").split(" ")[0]),
     vmBusyTicks: ticks.length ? ticks.reduce((a, b) => a + b, 0) - (ticks[3] ?? 0) - (ticks[4] ?? 0) : null,
     vmTotalTicks: ticks.length ? ticks.reduce((a, b) => a + b, 0) : null,
+    // Time the hypervisor ran something else while a VM CPU wanted to run.
+    vmStealTicks: ticks.length > 7 ? ticks[7] : null,
   };
 }
 

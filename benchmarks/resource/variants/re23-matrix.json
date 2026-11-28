@@ -1,0 +1,7 @@
+[
+  { "label": "node", "runtime": "node" },
+  { "label": "base", "runtime": "base" },
+  { "label": "re2b-heap", "runtime": "re2b", "args": "--js-heap-limit auto" },
+  { "label": "re2b-trim", "runtime": "re2b", "args": "--memory-reclaim-idle 10" },
+  { "label": "re2b-combo", "runtime": "re2b", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 90" }
+]

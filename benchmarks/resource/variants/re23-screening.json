@@ -1,0 +1,15 @@
+[
+  {"label": "base", "runtime": "base"},
+  {"label": "base-arena2", "runtime": "base", "env": ["MALLOC_ARENA_MAX=2"]},
+  {"label": "base-jemalloc", "runtime": "base", "image": "nextrs-s1:base-jemalloc", "env": ["LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2"]},
+  {"label": "base-mimalloc", "runtime": "base", "image": "nextrs-s1:base-mimalloc", "env": ["LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libmimalloc.so.2"]},
+  {"label": "base-semi2", "runtime": "base", "args": "--v8-flags --max-semi-space-size=2"},
+  {"label": "re1-sizing", "runtime": "re1", "args": "--js-heap-limit auto"},
+  {"label": "re2", "runtime": "re2"},
+  {"label": "re2-heap", "runtime": "re2", "args": "--js-heap-limit auto"},
+  {"label": "re2-trim", "runtime": "re2", "args": "--memory-reclaim-idle 10"},
+  {"label": "re2-native", "runtime": "re2", "args": "--malloc-arena-max 2 --memory-reclaim-idle 10 --memory-pressure-reclaim 85"},
+  {"label": "re2-balanced", "runtime": "re2", "args": "--profile balanced"},
+  {"label": "re2-lowmem", "runtime": "re2", "args": "--profile low-memory"},
+  {"label": "node", "runtime": "node"}
+]

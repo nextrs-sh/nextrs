@@ -41,6 +41,14 @@ function loadSamples(file) {
   }
 }
 
+/** Steal time over a phase, as a percentage of the VM's CPU time. */
+function steal(c) {
+  const b = c?.before, a = c?.after;
+  if (!b || !a || b.vmStealTicks == null || a.vmStealTicks == null) return null;
+  const total = a.vmTotalTicks - b.vmTotalTicks;
+  return total > 0 ? (100 * (a.vmStealTicks - b.vmStealTicks)) / total : null;
+}
+
 function window(samples, from, to) {
   return samples.filter((s) => s.t >= from && s.t <= to);
 }
@@ -70,6 +78,8 @@ function summarizeRun(run, samples) {
       p999: r?.latency?.p999_ms ?? null, cpuMsPerOk: p.cpu_ms_per_ok ?? null,
       cpuCores: p.cpu_usec && p.ended > p.started ? p.cpu_usec / 1000 / (p.ended - p.started) : null,
       throttledMs: p.throttled_usec != null ? p.throttled_usec / 1000 : null,
+      hostLoad: p.contention ? Math.max(p.contention.before?.hostLoad1 ?? 0, p.contention.after?.hostLoad1 ?? 0) : null,
+      stealPct: steal(p.contention),
       peakMiB: w.length ? Math.max(...w.map((s) => s.memory_current)) / MiB : null,
       endMiB: p.after?.["memory.current"] ? p.after["memory.current"] / MiB : null,
       heapUsedMiB: p.metricsAfter?.executors?.[0]?.heap_used_bytes / MiB,
@@ -78,6 +88,30 @@ function summarizeRun(run, samples) {
     };
   }
   out.recovery = Object.fromEntries((run.recovery ?? []).map((r) => [r.after_s, r.cgroup ? r.cgroup["memory.current"] / MiB : null]));
+  // Time series after the load: container, anonymous memory, V8 heaps and
+  // the allocator, at every recovery mark.
+  out.recoverySeries = (run.recovery ?? []).map((r) => {
+    const s = r.cgroup ? at(r.cgroup.t) : null;
+    const mm = r.metrics;
+    return {
+      after_s: r.after_s,
+      currentMiB: r.cgroup ? r.cgroup["memory.current"] / MiB : null,
+      anonMiB: s ? s.stat.anon / MiB : null,
+      fileMiB: s ? s.stat.file / MiB : null,
+      heapTotalMiB: mm?.executors ? mm.executors.reduce((a, e) => a + e.heap_total_bytes, 0) / MiB : null,
+      heapUsedMiB: mm?.executors ? mm.executors.reduce((a, e) => a + e.heap_used_bytes, 0) / MiB : null,
+      externalMiB: mm?.executors ? mm.executors.reduce((a, e) => a + (e.external_bytes ?? 0), 0) / MiB : null,
+      mallocInUseMiB: mm?.memory?.malloc ? (mm.memory.malloc.in_use_bytes + mm.memory.malloc.mmap_bytes) / MiB : null,
+      mallocFreeMiB: mm?.memory?.malloc ? mm.memory.malloc.free_bytes / MiB : null,
+    };
+  });
+  out.heapLimitMiB = run.idle?.metrics?.executors?.[0]?.heap_limit_bytes ? run.idle.metrics.executors[0].heap_limit_bytes / MiB : null;
+  out.ladderStop = run.ladderStop ?? null;
+  const loads = (run.phases ?? []).map((p) => p.contention).filter(Boolean);
+  out.maxHostLoad = loads.length ? Math.max(...loads.flatMap((c) => [c.before?.hostLoad1 ?? 0, c.after?.hostLoad1 ?? 0])) : null;
+  out.maxStealPct = loads.length ? Math.max(...loads.map((c) => steal(c) ?? 0)) : null;
+  // Flagged, never dropped: the VM lost CPU to the host during a phase.
+  out.contended = (out.maxStealPct ?? 0) > 5;
   const recEnd = run.recovery?.at(-1);
   const recSample = recEnd ? at(recEnd.cgroup?.t ?? 0) : null;
   out.recoveredAnonMiB = recSample ? recSample.stat.anon / MiB : null;
@@ -86,12 +120,13 @@ function summarizeRun(run, samples) {
   out.recoveredHeapTotalMiB = m?.executors ? m.executors.reduce((a, e) => a + e.heap_total_bytes, 0) / MiB : null;
   out.recoveredMallocFreeMiB = m?.memory?.malloc ? m.memory.malloc.free_bytes / MiB : null;
   out.recoveredMallocInUseMiB = m?.memory?.malloc ? (m.memory.malloc.in_use_bytes + m.memory.malloc.mmap_bytes) / MiB : null;
+  out.reclaim = m?.reclaim ?? null;
   out.restarts = m?.executors ? m.executors.reduce((a, e) => a + (e.restarts ?? 0), 0) : null;
   out.failedRequests = Object.values(out.phases).reduce((a, p) => a + (p.failed || 0), 0);
   return out;
 }
 
-const files = readdirSync(dir).filter((f) => f.endsWith(".json") && !f.startsWith("meta"));
+const files = readdirSync(dir).filter((f) => f.endsWith(".json") && !f.startsWith("meta") && !f.startsWith("summary"));
 const runs = files.map((f) => {
   const run = JSON.parse(readFileSync(join(dir, f), "utf8"));
   return summarizeRun(run, loadSamples(join(dir, f.replace(/\.json$/, ".samples.jsonl"))));
@@ -104,23 +139,25 @@ const phaseNames = [...new Set(runs.flatMap((r) => Object.keys(r.phases)))];
 for (const config of configs) {
   const [memory, cpus] = config.split(":");
   lines.push(`## ${memory} memory, ${cpus} vCPU`, "");
-  lines.push("| Variant | Runs | OOM / failed runs | Failed requests | Ready ms | Idle MiB (anon) | Idle PSS MiB | Peak MiB (anon) | After 10 s | After 60 s | After 120 s (anon) | Heap used/total after 120 s | malloc free after 120 s |");
-  lines.push("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
+  const marks = [...new Set(runs.flatMap((r) => Object.keys(r.recovery).map(Number)))].sort((a, b) => a - b);
+  const last = marks.at(-1);
+  lines.push(`| Variant | Runs | OOM / failed runs | Failed requests | Contended runs | Heap limit MiB | Ready ms | Idle MiB (anon) | Idle PSS MiB | Peak MiB (anon) | ${marks.map((k) => `After ${k} s`).join(" | ")} | Anon after ${last} s | Heap used/total after ${last} s | malloc free after ${last} s |`);
+  lines.push(`|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|${marks.map(() => "---:").join("|")}|---:|---:|---:|`);
   for (const label of labels) {
     const rs = runs.filter((r) => r.label === label && `${r.memory}:${r.cpus}` === config);
     if (!rs.length) continue;
     const bad = rs.filter((r) => r.oom || r.error);
-    lines.push(`| ${label} | ${rs.length} | ${bad.length ? bad.map((r) => `r${r.round}: ${r.oom ? "OOM" : r.error.slice(0, 40)}`).join("; ") : "0"} | ${rs.map((r) => r.failedRequests).join(", ")} | ${fmt(rs.map((r) => r.readyMs), 0)} | ${fmt(rs.map((r) => r.idleMiB))} (${fmt(rs.map((r) => r.idleAnonMiB))}) | ${fmt(rs.map((r) => r.idlePssMiB))} | ${fmt(rs.map((r) => r.peakMiB))} (${fmt(rs.map((r) => r.peakAnonMiB))}) | ${fmt(rs.map((r) => r.recovery[10]))} | ${fmt(rs.map((r) => r.recovery[60]))} | ${fmt(rs.map((r) => r.recovery[120]))} (${fmt(rs.map((r) => r.recoveredAnonMiB))}) | ${fmt(rs.map((r) => r.recoveredHeapUsedMiB))} / ${fmt(rs.map((r) => r.recoveredHeapTotalMiB))} | ${fmt(rs.map((r) => r.recoveredMallocFreeMiB))} |`);
+    lines.push(`| ${label} | ${rs.length} | ${bad.length ? bad.map((r) => `r${r.round}: ${r.oom ? "OOM" : r.error.slice(0, 40)}`).join("; ") : "0"} | ${rs.map((r) => r.failedRequests).join(", ")} | ${rs.filter((r) => r.contended).map((r) => `r${r.round}`).join(", ") || "0"} | ${fmt(rs.map((r) => r.heapLimitMiB), 0)} | ${fmt(rs.map((r) => r.readyMs), 0)} | ${fmt(rs.map((r) => r.idleMiB))} (${fmt(rs.map((r) => r.idleAnonMiB))}) | ${fmt(rs.map((r) => r.idlePssMiB))} | ${fmt(rs.map((r) => r.peakMiB))} (${fmt(rs.map((r) => r.peakAnonMiB))}) | ${marks.map((k) => fmt(rs.map((r) => r.recovery[k]))).join(" | ")} | ${fmt(rs.map((r) => r.recoveredAnonMiB))} | ${fmt(rs.map((r) => r.recoveredHeapUsedMiB))} / ${fmt(rs.map((r) => r.recoveredHeapTotalMiB))} | ${fmt(rs.map((r) => r.recoveredMallocFreeMiB))} |`);
   }
   lines.push("");
-  lines.push("| Variant | Phase | Offered/s | Achieved/s | Failed | p50 ms | p99 ms | p99.9 ms | CPU ms/ok | CPU cores | Peak MiB |");
-  lines.push("|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
-  for (const phase of phaseNames.filter((p) => p.startsWith("steady") || p.startsWith("burst"))) {
+  lines.push("| Variant | Phase | Offered/s | Achieved/s | Failed | p50 ms | p99 ms | p99.9 ms | CPU ms/ok | CPU cores | Throttled ms | Steal % | Peak MiB |");
+  lines.push("|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
+  for (const phase of phaseNames.filter((p) => /^(steady|burst|cycle\d-(mixed|burst)|rate-)/.test(p))) {
     for (const label of labels) {
       const rs = runs.filter((r) => r.label === label && `${r.memory}:${r.cpus}` === config && r.phases[phase]);
       if (!rs.length) continue;
       const ps = rs.map((r) => r.phases[phase]);
-      lines.push(`| ${label} | ${phase} | ${ps[0].offered || "closed"} | ${fmt(ps.map((p) => p.rps))} | ${ps.map((p) => p.failed).join(", ")} | ${fmt(ps.map((p) => p.p50))} | ${fmt(ps.map((p) => p.p99))} | ${fmt(ps.map((p) => p.p999))} | ${fmt(ps.map((p) => p.cpuMsPerOk), 2)} | ${fmt(ps.map((p) => p.cpuCores), 2)} | ${fmt(ps.map((p) => p.peakMiB))} |`);
+      lines.push(`| ${label} | ${phase} | ${ps[0].offered || "closed"} | ${fmt(ps.map((p) => p.rps))} | ${ps.map((p) => p.failed).join(", ")} | ${fmt(ps.map((p) => p.p50))} | ${fmt(ps.map((p) => p.p99))} | ${fmt(ps.map((p) => p.p999))} | ${fmt(ps.map((p) => p.cpuMsPerOk), 2)} | ${fmt(ps.map((p) => p.cpuCores), 2)} | ${fmt(ps.map((p) => p.throttledMs), 0)} | ${fmt(ps.map((p) => p.stealPct))} | ${fmt(ps.map((p) => p.peakMiB))} |`);
     }
   }
   lines.push("");
