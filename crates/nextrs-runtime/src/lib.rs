@@ -21,6 +21,7 @@
 mod admission;
 mod cache;
 mod embedded_js;
+mod external;
 mod internal;
 mod memory;
 mod metrics;
@@ -47,6 +48,7 @@ pub use crate::admission::{
     RequestClass,
 };
 pub use crate::cache::CacheConfig;
+pub use crate::external::{ExternalSnapshot, REFUSABLE_MIN as EXTERNAL_REFUSABLE_MIN};
 pub use crate::internal::{
     InternalBody, InternalDispatch, InternalRequest, InternalResponse, MAX_INTERNAL_REQUESTS,
 };
@@ -56,8 +58,8 @@ pub use crate::memory::{
     release_free_memory, set_malloc_arena_max,
 };
 pub use crate::metrics::{
-    AdmissionSnapshot, CacheSnapshot, ExecutorSnapshot, FetchSnapshot, MallocSnapshot,
-    MemorySnapshot, MetricsSnapshot, UpstreamSnapshot, set_malloc_mmap_threshold,
+    AdmissionSnapshot, CacheSnapshot, ExecutorSnapshot, FetchSnapshot, HeapLimitEpisode,
+    MallocSnapshot, MemorySnapshot, MetricsSnapshot, UpstreamSnapshot, set_malloc_mmap_threshold,
 };
 pub use crate::net::{
     AddrRange, AllowRule, Denied, NetworkConfig, NetworkLimits, NetworkPolicy, Upstream,
@@ -225,6 +227,14 @@ pub struct Limits {
     /// per-request estimates: not a memory limit. `None` (the default):
     /// admission by concurrency only.
     pub memory_admission: Option<MemoryAdmission>,
+    /// Limit on ArrayBuffer backing stores V8 allocates for JavaScript
+    /// (`new ArrayBuffer`, typed arrays, `Buffer`), over all isolates
+    /// together. An allocation of 64 KiB or more that would cross it fails
+    /// with a `RangeError` in JavaScript, after V8 has collected garbage and
+    /// retried; smaller ones are always granted. Buffers handed to
+    /// JavaScript from Rust (request bodies, fetch chunks, file reads) are
+    /// not counted. `None` (the default): V8's own allocator, no limit.
+    pub external_memory_limit_bytes: Option<usize>,
 }
 
 impl Default for Limits {
@@ -244,6 +254,7 @@ impl Default for Limits {
             restart_backoff_max: Duration::from_secs(30),
             shutdown_grace: Duration::from_secs(10),
             memory_admission: None,
+            external_memory_limit_bytes: None,
         }
     }
 }

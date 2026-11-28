@@ -11,10 +11,7 @@ use std::time::{Duration, Instant};
 use deno_core::{JsRuntime, PollEventLoopOptions, RuntimeOptions, v8};
 use tokio::sync::mpsc;
 
-use crate::pool::{
-    FailureReason, Job, ReclaimLevel, ReclaimRequest, Reclaimed, Termination, WorkerExit,
-    WorkerShared,
-};
+use crate::pool::{Job, ReclaimLevel, ReclaimRequest, Reclaimed, WorkerExit, WorkerShared};
 use crate::{ExecutorConfig, Limits, REPORTED_NODE_VERSION, ops};
 
 /// How often the isolate's event loop proves it is not stuck in JavaScript.
@@ -57,6 +54,7 @@ pub(crate) fn spawn(
     config: ExecutorConfig,
     worker: Arc<WorkerShared>,
     services: ops::HostServices,
+    external: Option<Arc<crate::external::ExternalBudget>>,
     jobs: mpsc::UnboundedReceiver<Box<Job>>,
     ready: Sender<Result<(), String>>,
     exit: Sender<WorkerExit>,
@@ -64,7 +62,14 @@ pub(crate) fn spawn(
     std::thread::Builder::new()
         .name(format!("nextrs-v8-{}", worker.slot))
         .spawn(move || {
-            let outcome = run(config, worker.clone(), services, jobs, ready.clone());
+            let outcome = run(
+                config,
+                worker.clone(),
+                services,
+                external,
+                jobs,
+                ready.clone(),
+            );
             worker.mark_exited();
             if let Err(error) = &outcome {
                 // Only reaches the supervisor if bootstrap had not reported.
@@ -78,6 +83,7 @@ fn run(
     config: ExecutorConfig,
     worker: Arc<WorkerShared>,
     services: ops::HostServices,
+    external: Option<Arc<crate::external::ExternalBudget>>,
     jobs: mpsc::UnboundedReceiver<Box<Job>>,
     ready: Sender<Result<(), String>>,
 ) -> WorkerExit {
@@ -110,7 +116,14 @@ fn run(
                 .map(|path| path.to_string_lossy().into_owned())
                 .collect(),
         };
-        let create_params = heap_params(&config.limits);
+        let mut create_params = heap_params(&config.limits);
+        if let Some(budget) = &external {
+            create_params = Some(
+                create_params
+                    .unwrap_or_default()
+                    .array_buffer_allocator(budget.allocator()),
+            );
+        }
         let mut web = deno_web::deno_web::init(
             Arc::new(deno_web::BlobStore::default()),
             None,
@@ -155,9 +168,8 @@ fn run(
         worker.interrupt();
         {
             let worker = worker.clone();
-            runtime.add_near_heap_limit_callback(move |current, _initial| {
-                worker.terminate(Termination::Failed(FailureReason::HeapLimit));
-                current.saturating_add(HEAP_HEADROOM)
+            runtime.add_near_heap_limit_callback(move |current, initial| {
+                worker.on_near_heap_limit(current, initial, HEAP_HEADROOM)
             });
         }
         if config.limits.heap_limit_bytes.is_some() || config.limits.heap_memory_bytes.is_some() {

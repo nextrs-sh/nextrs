@@ -370,6 +370,8 @@ pub struct MetricsSnapshot {
     pub cache: Option<CacheSnapshot>,
     /// `None` when memory-aware admission is off.
     pub admission: Option<AdmissionSnapshot>,
+    /// `None` without an external-memory limit.
+    pub external_memory: Option<crate::ExternalSnapshot>,
     /// Memory outside the V8 heaps (for soaks; not in the Prometheus text).
     pub memory: MemorySnapshot,
     pub executors: Vec<ExecutorSnapshot>,
@@ -477,6 +479,31 @@ pub struct ExecutorSnapshot {
     /// Failures by reason, over the life of the pool.
     pub failures: Vec<(&'static str, u64)>,
     pub last_failure: Option<String>,
+    /// V8 near-heap-limit callback calls over the life of the slot, and
+    /// those declined (last-resort collections after a refused ArrayBuffer
+    /// allocation, with the heap not full).
+    pub near_heap_limit_calls: u64,
+    pub near_heap_limit_declined: u64,
+    /// The latest heap-limit termination of this slot, if any.
+    pub last_heap_limit: Option<HeapLimitEpisode>,
+}
+
+/// One heap-limit termination (RE-4E): how often V8 called the callback
+/// for the terminated isolate, the limits it passed, and how long the
+/// termination took to unwind and the slot to be served again.
+#[derive(Debug, Clone, Copy, Default, Serialize)]
+pub struct HeapLimitEpisode {
+    pub generation: u64,
+    pub callback_calls: u64,
+    /// Old-generation limit V8 passed at the first and the latest call:
+    /// each granted call raised it by the headroom.
+    pub first_limit_bytes: usize,
+    pub last_limit_bytes: usize,
+    /// From the termination request to the isolate thread's exit.
+    pub unwind_ms: u64,
+    /// From the termination request to a replacement isolate being ready
+    /// (0 until it is).
+    pub replacement_ms: u64,
 }
 
 impl MetricsSnapshot {
@@ -538,6 +565,7 @@ impl MetricsSnapshot {
             },
             cache: None,
             admission: None,
+            external_memory: None,
             memory: MemorySnapshot {
                 crypto_keys: crate::webcrypto::live_keys(),
                 malloc: MallocSnapshot::current(),
@@ -759,6 +787,45 @@ impl MetricsSnapshot {
         }
         if let Some(admission) = &self.admission {
             admission.write_prometheus(&mut out);
+        }
+        if let Some(external) = &self.external_memory {
+            for (name, kind, help, value) in [
+                (
+                    "nextrs_external_memory_limit_bytes",
+                    "gauge",
+                    "Limit on ArrayBuffer memory allocated for JavaScript, all isolates.",
+                    external.limit_bytes,
+                ),
+                (
+                    "nextrs_external_memory_used_bytes",
+                    "gauge",
+                    "ArrayBuffer memory allocated through the budgeted allocator, live.",
+                    external.used_bytes,
+                ),
+                (
+                    "nextrs_external_memory_peak_bytes",
+                    "gauge",
+                    "Highest ArrayBuffer memory allocated through the budgeted allocator.",
+                    external.peak_bytes,
+                ),
+                (
+                    "nextrs_external_memory_refused_total",
+                    "counter",
+                    "ArrayBuffer allocations refused by the limit (each a RangeError in JavaScript).",
+                    external.refused,
+                ),
+                (
+                    "nextrs_external_memory_refused_bytes_total",
+                    "counter",
+                    "Bytes of refused ArrayBuffer allocations.",
+                    external.refused_bytes,
+                ),
+            ] {
+                let _ = writeln!(
+                    out,
+                    "# HELP {name} {help}\n# TYPE {name} {kind}\n{name} {value}"
+                );
+            }
         }
         let _ = writeln!(
             out,

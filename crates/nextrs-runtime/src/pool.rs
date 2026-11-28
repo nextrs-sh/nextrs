@@ -201,6 +201,17 @@ pub(crate) struct WorkerShared {
     /// the live-data floor. 0 until the first full GC (`record_full_gc`).
     heap_after_gc: AtomicUsize,
     full_gcs: AtomicU64,
+    /// Near-heap-limit callback calls (RE-4E): all of them, those declined
+    /// (V8's last-resort collection after a refused ArrayBuffer
+    /// allocation, not a full heap), and the limit V8 passed at the latest
+    /// and the first call (0: none).
+    near_limit_calls: AtomicU64,
+    near_limit_declined: AtomicU64,
+    near_limit_last_bytes: AtomicUsize,
+    near_limit_first_bytes: AtomicUsize,
+    /// When the first granted call asked for termination (ms since
+    /// `epoch`, 0: never), for the time to unwind and replace.
+    near_limit_terminated_ms: AtomicU64,
     pub isolate: OnceLock<v8::IsolateHandle>,
     termination: Mutex<Option<Termination>>,
     stop: Notify,
@@ -231,6 +242,11 @@ impl WorkerShared {
             heap_limit: AtomicUsize::new(0),
             heap_after_gc: AtomicUsize::new(0),
             full_gcs: AtomicU64::new(0),
+            near_limit_calls: AtomicU64::new(0),
+            near_limit_declined: AtomicU64::new(0),
+            near_limit_last_bytes: AtomicUsize::new(0),
+            near_limit_first_bytes: AtomicUsize::new(0),
+            near_limit_terminated_ms: AtomicU64::new(0),
             isolate: OnceLock::new(),
             termination: Mutex::new(None),
             stop: Notify::new(),
@@ -287,6 +303,70 @@ impl WorkerShared {
             .store(stats.external_memory(), Ordering::Relaxed);
         self.heap_limit
             .store(stats.heap_size_limit(), Ordering::Relaxed);
+    }
+
+    /// V8's near-heap-limit callback, on the isolate thread: `current` is
+    /// the old-generation limit V8 enforces now, `initial` the configured
+    /// one. Returns the new limit.
+    ///
+    /// Normally: terminate the isolate (it is replaced) and grant
+    /// `headroom` so that the termination can unwind instead of V8 aborting
+    /// the process. Every call is counted and logged; V8 may call it more
+    /// than once per episode, and each granted call raises the limit again
+    /// (RE-4-V8-HEAP-OVERSHOOT).
+    ///
+    /// Declined (limit unchanged, isolate kept) only when this thread's
+    /// ArrayBuffer budget refused an allocation within the last second
+    /// *and* the heap live after the full collection V8 has just run is
+    /// below half the limit: V8's last-resort collection for that refusal
+    /// calls this whatever the heap's size, and the refusal must reach
+    /// JavaScript as a RangeError, not replace the isolate. A heap that has
+    /// really reached its limit holds at least `current` live, so it is
+    /// never declined (declining it would abort the process).
+    pub fn on_near_heap_limit(&self, current: usize, initial: usize, headroom: usize) -> usize {
+        let call = self.near_limit_calls.fetch_add(1, Ordering::Relaxed) + 1;
+        self.near_limit_last_bytes.store(current, Ordering::Relaxed);
+        let _ = self.near_limit_first_bytes.compare_exchange(
+            0,
+            current,
+            Ordering::Relaxed,
+            Ordering::Relaxed,
+        );
+        let live = self.heap_after_gc.load(Ordering::Relaxed);
+        if crate::external::refused_recently() && live < current / 2 {
+            self.near_limit_declined.fetch_add(1, Ordering::Relaxed);
+            tracing::debug!(
+                target: "nextrs::executor",
+                slot = self.slot,
+                call,
+                limit_mib = current / (1024 * 1024),
+                live_mib = live / (1024 * 1024),
+                "near-heap-limit call after a refused ArrayBuffer allocation; heap not full, \
+                 limit kept"
+            );
+            return current;
+        }
+        let granted = current.saturating_add(headroom);
+        let now = self.epoch.elapsed().as_millis() as u64;
+        let _ = self.near_limit_terminated_ms.compare_exchange(
+            0,
+            now.max(1),
+            Ordering::Relaxed,
+            Ordering::Relaxed,
+        );
+        tracing::warn!(
+            target: "nextrs::executor",
+            slot = self.slot,
+            call,
+            limit_mib = current / (1024 * 1024),
+            initial_mib = initial / (1024 * 1024),
+            granted_mib = granted / (1024 * 1024),
+            live_after_gc_mib = live / (1024 * 1024),
+            external_mib = self.heap_external.load(Ordering::Relaxed) / (1024 * 1024),
+            "V8 heap near its limit: terminating the isolate"
+        );
+        self.terminate(Termination::Failed(FailureReason::HeapLimit));
+        granted
     }
 
     /// Whether the sampled heap use is at least `percent` of the limit.
@@ -458,6 +538,10 @@ struct SlotHistory {
     restarts: u64,
     failures: [u64; FailureReason::ALL.len()],
     last_failure: Option<String>,
+    /// Near-heap-limit calls of the slot's earlier isolates.
+    near_limit_calls: u64,
+    near_limit_declined: u64,
+    last_heap_limit: Option<crate::metrics::HeapLimitEpisode>,
 }
 
 #[derive(Default)]
@@ -484,6 +568,8 @@ pub(crate) struct PoolInner {
     pub cache: Option<Arc<CacheStore>>,
     /// Next.js requests to its own server, served in-process.
     pub internal: crate::internal::InternalRoute,
+    /// The ArrayBuffer budget all isolates allocate from, when limited.
+    pub external: Option<Arc<crate::external::ExternalBudget>>,
     state: Mutex<PoolState>,
     shutting_down: AtomicBool,
     /// Wakes supervisors sleeping in a restart backoff.
@@ -708,16 +794,32 @@ impl PoolInner {
         }
     }
 
-    fn install(&self, worker: &Arc<WorkerShared>) {
+    fn install(&self, worker: &Arc<WorkerShared>, heap_limit_at: Option<Instant>) {
         let mut state = self.lock();
         worker.set_state(READY);
         state.workers[worker.slot] = Some(worker.clone());
         state.history[worker.slot].generation = worker.generation;
+        if let Some(at) = heap_limit_at
+            && let Some(episode) = state.history[worker.slot].last_heap_limit.as_mut()
+        {
+            episode.replacement_ms = at.elapsed().as_millis() as u64;
+            tracing::info!(
+                target: "nextrs::executor",
+                slot = worker.slot,
+                replacement_ms = episode.replacement_ms,
+                "isolate replaced after reaching its heap limit"
+            );
+        }
         self.dispatch_waiters(&mut state);
     }
 
     fn uninstall(&self, worker: &Arc<WorkerShared>, failure: Option<(FailureReason, &str)>) {
         let mut state = self.lock();
+        {
+            let history = &mut state.history[worker.slot];
+            history.near_limit_calls += worker.near_limit_calls.load(Ordering::Relaxed);
+            history.near_limit_declined += worker.near_limit_declined.load(Ordering::Relaxed);
+        }
         let current = &mut state.workers[worker.slot];
         if current
             .as_ref()
@@ -761,6 +863,7 @@ impl PoolInner {
 
     fn snapshot(&self) -> MetricsSnapshot {
         let mut snapshot = MetricsSnapshot::from_counters(&self.counters);
+        snapshot.external_memory = self.external.as_ref().map(|budget| budget.snapshot());
         snapshot.cache = self.cache.as_ref().map(|cache| {
             CacheSnapshot::new(
                 &self.counters,
@@ -801,6 +904,11 @@ impl PoolInner {
                         .map(|r| (r.as_str(), history.failures[r.index()]))
                         .collect(),
                     last_failure: history.last_failure.clone(),
+                    near_heap_limit_calls: history.near_limit_calls
+                        + worker.map_or(0, |w| w.near_limit_calls.load(Ordering::Relaxed)),
+                    near_heap_limit_declined: history.near_limit_declined
+                        + worker.map_or(0, |w| w.near_limit_declined.load(Ordering::Relaxed)),
+                    last_heap_limit: history.last_heap_limit,
                 }
             })
             .collect();
@@ -893,6 +1001,7 @@ impl Executor {
             },
             None => None,
         };
+        let external_limit = config.limits.external_memory_limit_bytes;
         let inner = Arc::new_cyclic(|me| PoolInner {
             me: me.clone(),
             config,
@@ -900,6 +1009,7 @@ impl Executor {
             net,
             cache,
             internal: crate::internal::InternalRoute::default(),
+            external: external_limit.map(crate::external::ExternalBudget::new),
             state: Mutex::new(PoolState {
                 workers: vec![None; isolates],
                 history: (0..isolates).map(|_| SlotHistory::default()).collect(),
@@ -1155,6 +1265,8 @@ fn supervise(
     let limits = inner.config.limits.clone();
     let mut recent_failures: VecDeque<Instant> = VecDeque::new();
     let mut generation = 0;
+    // When the previous isolate's heap-limit termination was requested.
+    let mut heap_limit_at: Option<Instant> = None;
     loop {
         if inner.is_shutting_down() {
             break;
@@ -1174,6 +1286,7 @@ fn supervise(
                 cache: inner.cache.clone(),
                 internal: inner.internal.clone(),
             },
+            inner.external.clone(),
             jobs,
             ready_tx,
             exit_tx,
@@ -1195,7 +1308,7 @@ fn supervise(
             match wait_ready(&inner, &worker, &ready_rx, started) {
                 Ok(()) => {
                     // Dispatchable before start() returns.
-                    inner.install(&worker);
+                    inner.install(&worker, heap_limit_at.take());
                     if let Some(first) = first_boot.take() {
                         let _ = first.send(Ok(()));
                     }
@@ -1236,6 +1349,33 @@ fn supervise(
         }
         worker.close_inbox();
         let panicked = thread.is_some_and(|t| t.join().is_err());
+        let terminated_ms = worker.near_limit_terminated_ms.load(Ordering::Relaxed);
+        if terminated_ms > 0 {
+            let unwind = worker
+                .epoch
+                .elapsed()
+                .saturating_sub(Duration::from_millis(terminated_ms));
+            heap_limit_at = Instant::now().checked_sub(unwind);
+            let episode = crate::metrics::HeapLimitEpisode {
+                generation,
+                callback_calls: worker.near_limit_calls.load(Ordering::Relaxed),
+                first_limit_bytes: worker.near_limit_first_bytes.load(Ordering::Relaxed),
+                last_limit_bytes: worker.near_limit_last_bytes.load(Ordering::Relaxed),
+                unwind_ms: unwind.as_millis() as u64,
+                replacement_ms: 0,
+            };
+            tracing::warn!(
+                target: "nextrs::executor",
+                slot,
+                generation,
+                callback_calls = episode.callback_calls,
+                first_limit_mib = episode.first_limit_bytes / (1024 * 1024),
+                last_limit_mib = episode.last_limit_bytes / (1024 * 1024),
+                unwind_ms = episode.unwind_ms,
+                "heap-limit termination finished"
+            );
+            inner.lock().history[slot].last_heap_limit = Some(episode);
+        }
         if failure.is_none() {
             failure = classify(&inner, &worker, exit, panicked);
         }

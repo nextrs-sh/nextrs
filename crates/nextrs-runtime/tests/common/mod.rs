@@ -149,3 +149,31 @@ pub fn small_limits() -> Limits {
         ..Limits::default()
     }
 }
+
+/// Set in a child process started by [`run_in_child`].
+const CHILD: &str = "NEXTRS_TEST_CHILD";
+
+/// Whether this process is a child started by [`run_in_child`] for `case`.
+/// Child-only tests return at once otherwise, so a normal run (including
+/// `--ignored`) never executes a case that may abort the process.
+#[allow(dead_code)]
+pub fn is_child(case: &str) -> bool {
+    std::env::var(CHILD).is_ok_and(|v| v == case)
+}
+
+/// Runs the test `test` of this test binary alone, in a child process,
+/// with `case` and `env` set: for faults that end the whole process (a
+/// fatal V8 out-of-memory abort), which must not take the test runner
+/// with them. Returns the child's output and exit status.
+#[allow(dead_code)]
+pub fn run_in_child(test: &str, case: &str, env: &[(&str, &str)]) -> std::process::Output {
+    let exe = std::env::current_exe().expect("test binary path");
+    let mut command = std::process::Command::new(exe);
+    command
+        .args([test, "--exact", "--nocapture", "--test-threads=1"])
+        .env(CHILD, case);
+    for (name, value) in env {
+        command.env(name, value);
+    }
+    command.output().expect("child test process")
+}

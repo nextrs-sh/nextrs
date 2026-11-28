@@ -604,6 +604,13 @@ struct ResourceArgs {
     /// memory pressure [default: 4 per isolate].
     #[arg(long, value_name = "N", requires = "memory_admission")]
     memory_admission_max_active: Option<usize>,
+    /// Limit on ArrayBuffer memory (new ArrayBuffer, typed arrays, Buffer)
+    /// over all isolates. An allocation of 64 KiB or more past it fails
+    /// with a RangeError in the request that made it, after V8 has
+    /// collected garbage; the isolate keeps serving. Buffers made from
+    /// Rust (request bodies, fetch chunks, file reads) are not counted.
+    #[arg(long, value_name = "MIB")]
+    js_external_memory_limit: Option<usize>,
 }
 
 impl ResourceArgs {
@@ -622,6 +629,12 @@ impl ResourceArgs {
                 .validate()
                 .map_err(|e| format!("--memory-admission: {e}"))?;
             limits.memory_admission = Some(admission);
+        }
+        if let Some(mib) = self.js_external_memory_limit {
+            if mib == 0 {
+                return Err("--js-external-memory-limit: at least 1 MiB".into());
+            }
+            limits.external_memory_limit_bytes = Some(mib.saturating_mul(1024 * 1024));
         }
         Ok(())
     }
@@ -1451,6 +1464,14 @@ mod tests {
         fn everything_is_off_by_default() {
             let l = limits(&[]).unwrap();
             assert!(l.memory_admission.is_none());
+            assert!(l.external_memory_limit_bytes.is_none());
+        }
+
+        #[test]
+        fn the_external_memory_limit_is_in_mib() {
+            let l = limits(&["--js-external-memory-limit", "48"]).unwrap();
+            assert_eq!(l.external_memory_limit_bytes, Some(48 * 1024 * 1024));
+            assert!(limits(&["--js-external-memory-limit", "0"]).is_err());
         }
 
         #[test]
