@@ -69,16 +69,25 @@ pub(crate) enum BufferKind {
     /// One chunk of a streamed static file (or range).
     StaticStream,
     ProxyBody,
+    /// A prerendered body read for its response and not kept by the
+    /// prerender cache (`--prerender-cache`, RE-5B).
+    Prerender,
 }
 
 impl BufferKind {
-    const ALL: [Self; 3] = [Self::StaticFile, Self::StaticStream, Self::ProxyBody];
+    const ALL: [Self; 4] = [
+        Self::StaticFile,
+        Self::StaticStream,
+        Self::ProxyBody,
+        Self::Prerender,
+    ];
 
     fn index(self) -> usize {
         match self {
             Self::StaticFile => 0,
             Self::StaticStream => 1,
             Self::ProxyBody => 2,
+            Self::Prerender => 3,
         }
     }
 
@@ -87,6 +96,7 @@ impl BufferKind {
             Self::StaticFile => "static_file",
             Self::StaticStream => "static_stream",
             Self::ProxyBody => "proxy_body",
+            Self::Prerender => "prerender",
         }
     }
 }
@@ -96,9 +106,9 @@ pub struct NativeBufferBudget {
     units: u64,
     wait: Duration,
     peak_units: AtomicU64,
-    reserved_total: [AtomicU64; 3],
-    waits: [AtomicU64; 3],
-    refused: [AtomicU64; 3],
+    reserved_total: [AtomicU64; 4],
+    waits: [AtomicU64; 4],
+    refused: [AtomicU64; 4],
 }
 
 impl std::fmt::Debug for NativeBufferBudget {

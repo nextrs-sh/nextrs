@@ -4,17 +4,16 @@
 //! and the length suffix is the UTF-16 length, not the byte length.
 
 pub(crate) fn generate_etag(payload: &str) -> String {
-    let units: Vec<u16> = payload.encode_utf16().collect();
-    format!(
-        "\"{}{}\"",
-        to_base36(fnv1a52(&units)),
-        to_base36(units.len() as u64)
-    )
+    // Over the code units as they are produced: collecting them first cost
+    // a temporary of twice the payload's size per prerendered page (RE-5B).
+    let mut length = 0u64;
+    let hash = fnv1a52(payload.encode_utf16().inspect(|_| length += 1));
+    format!("\"{}{}\"", to_base36(hash), to_base36(length))
 }
 
-fn fnv1a52(units: &[u16]) -> u64 {
+fn fnv1a52(units: impl Iterator<Item = u16>) -> u64 {
     let (mut v0, mut v1, mut v2, mut v3): (u64, u64, u64, u64) = (0x2325, 0x8422, 0x9ce4, 0xcbf2);
-    for &unit in units {
+    for unit in units {
         v0 ^= u64::from(unit);
         let t0 = v0 * 435;
         let mut t1 = v1 * 435;

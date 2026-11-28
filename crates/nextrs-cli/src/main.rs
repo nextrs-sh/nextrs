@@ -504,6 +504,16 @@ struct LimitArgs {
     /// [default: 32; 8 with --profile low-memory]
     #[arg(long, value_name = "MIB")]
     compression_cache: Option<usize>,
+    /// Experimental (RE-5B): serve prerendered pages (HTML, RSC payloads,
+    /// segment prefetches, static Pages Router pages) from their build
+    /// files through a cache of at most this much memory, least recently
+    /// used bodies dropped beyond it, instead of reading all of them into
+    /// memory at startup. Startup and idle memory then stop growing with
+    /// the size of the prerendered output. A file changed since startup is
+    /// refused (500), never served. 0 keeps none in memory. Without the
+    /// flag every prerendered page is read at startup, as before.
+    #[arg(long, value_name = "MIB")]
+    prerender_cache: Option<u64>,
     /// Open connections; more wait in the accept backlog.
     #[arg(long, default_value_t = 1024)]
     max_connections: usize,
@@ -1371,6 +1381,13 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     reclaim_stats.clone(),
                 );
                 let native_buffers = resources.native_buffer_budget();
+                let prerender_store = limits.prerender_cache.map(|mib| {
+                    tracing::info!(
+                        cache_mib = mib,
+                        "prerendered output served from the build files (--prerender-cache)"
+                    );
+                    nextrs_server::PrerenderStore::new(mib.saturating_mul(1024 * 1024))
+                });
                 let options = ServerOptions {
                     allow_unsupported,
                     executor: executor.clone(),
@@ -1381,6 +1398,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     compression_cache: compression_cache.clone(),
                     metrics: http_metrics.clone(),
                     native_buffer_budget: native_buffers.clone(),
+                    prerender_store: prerender_store.clone(),
                 };
                 let (app, image_stats) = nextrs_server::app_with_stats(&info, &options).await?;
                 if let Some(metrics_addr) = limits.metrics_addr {
@@ -1392,6 +1410,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                         ready_min_isolates: limits.ready_min_isolates,
                         reclaim: reclaim_policy.is_enabled().then(|| reclaim_stats.clone()),
                         native_buffers: native_buffers.clone(),
+                        prerender: prerender_store.clone(),
                     };
                     if !metrics_addr.ip().is_loopback() {
                         tracing::warn!(%metrics_addr, "serving metrics on a non-loopback address");

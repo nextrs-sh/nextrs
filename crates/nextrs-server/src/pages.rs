@@ -66,7 +66,7 @@ pub(crate) struct PagesState {
 }
 
 impl PagesState {
-    pub(crate) async fn load(info: &BuildInfo) -> Result<Self, StartError> {
+    pub(crate) async fn load(info: &BuildInfo, file_backed: bool) -> Result<Self, StartError> {
         let mut state = Self {
             pages_dir: info.dist_dir.join("server/pages").is_dir(),
             ..Self::default()
@@ -79,7 +79,8 @@ impl PagesState {
             .iter()
             .filter(|p| p.pages && p.data.is_none())
         {
-            let Some(html) = crate::load_cached(prerender.html.as_ref(), true).await? else {
+            let Some(html) = crate::load_cached(prerender.html.as_ref(), true, file_backed).await?
+            else {
                 continue;
             };
             let status = StatusCode::from_u16(prerender.status).unwrap_or(StatusCode::OK);
@@ -319,7 +320,7 @@ pub(crate) fn dynamic_data_page<'s>(
 /// A page Next wrote as plain HTML: next start sends the file with its
 /// ETag and `X-Powered-By`, without Cache-Control (no `x-nextjs-cache`:
 /// it is not a cache entry).
-pub(crate) fn html_response(
+pub(crate) async fn html_response(
     state: &crate::AppState,
     cached: &Cached,
     status: StatusCode,
@@ -338,7 +339,19 @@ pub(crate) fn html_response(
     if state.config.powered_by_header {
         headers.insert("x-powered-by", HeaderValue::from_static("Next.js"));
     }
-    let etag = cached.etag.as_ref().filter(|_| state.config.generate_etags);
+    // A file-backed body not read yet: its ETag needs its bytes.
+    let mut body = None;
+    if state.config.generate_etags && cached.known_etag().is_none() {
+        match cached.body(state).await {
+            Ok(bytes) => body = Some(bytes),
+            Err(failure) => return *failure,
+        }
+    }
+    let headers = response.headers_mut();
+    let etag = cached
+        .known_etag()
+        .flatten()
+        .filter(|_| state.config.generate_etags);
     if let Some(etag) = etag {
         headers.insert(header::ETAG, etag.clone());
     }
@@ -348,10 +361,17 @@ pub(crate) fn html_response(
         return response;
     }
     headers.insert(header::CONTENT_TYPE, HeaderValue::from_static(HTML));
-    headers.insert(header::CONTENT_LENGTH, HeaderValue::from(cached.body.len()));
+    headers.insert(header::CONTENT_LENGTH, HeaderValue::from(cached.len));
     *response.status_mut() = status;
     if method != Method::HEAD {
-        *response.body_mut() = Body::from(cached.body.clone());
+        let body = match body {
+            Some(body) => body,
+            None => match cached.body(state).await {
+                Ok(body) => body,
+                Err(failure) => return *failure,
+            },
+        };
+        *response.body_mut() = Body::from(body);
     }
     response
 }
@@ -406,7 +426,8 @@ pub(crate) async fn not_found(
             cache_control,
             ctx.headers,
             ctx.method,
-        );
+        )
+        .await;
         merge(&mut response, keep);
         add_rsc_vary(state, ctx.headers, &mut response);
         return Some(response);
@@ -459,7 +480,8 @@ async fn server_error(
             None,
             ctx.headers,
             ctx.method,
-        );
+        )
+        .await;
         merge(&mut response, keep);
         response
             .headers_mut()
@@ -617,7 +639,8 @@ pub(crate) async fn serve(
             if !readonly && !status_page {
                 return Next::Done(method_not_allowed());
             }
-            let mut response = html_response(state, html, *status, None, ctx.headers, ctx.method);
+            let mut response =
+                html_response(state, html, *status, None, ctx.headers, ctx.method).await;
             add_rsc_vary(state, ctx.headers, &mut response);
             // Next names the page a data request matched (a data request
             // reaches a page without data only through the proxy's
