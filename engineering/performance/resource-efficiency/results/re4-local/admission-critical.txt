@@ -1,0 +1,27 @@
+label=admission-critical flags=--memory-admission --memory-admission-budget 1000
+readyz 200
+healthz 200
+GET / 200
+GET /dynamic 200
+GET /books/42 200
+GET /api/health 200
+GET /data-fetch 500
+GET /request-info 200
+GET /_next/static/chunks/39_j1bdzreq0m.js 200
+concurrent-status 200 1
+concurrent-status 503 23
+concurrent-error executor-memory-pressure 23
+concurrent-retry-after 2 23
+static-after 200 health-after 200
+nextrs_executor_rejected_total{reason="memory_pressure"} 23
+nextrs_executor_heap_limit_bytes{slot="0"} 1568669696
+nextrs_admission_state{state="critical"} 1
+nextrs_admission_state_transitions_total 1
+nextrs_admission_progress_total 6
+nextrs_admission_rejected_total{class="render"} 23
+VmHWM:	   69168 kB
+VmRSS:	   69168 kB
+RssAnon:	   29828 kB
+2026-11-28T07:04:17.455985Z  INFO nextrs::admission: memory admission state changed from="degraded" to="critical" working_set_mib=3191 reserved_mib=0 budget_mib=1000
+2026-11-28T07:04:17.455995Z  INFO nextrs::admission: memory-aware admission enabled source=cgroup /run/host/root/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/app-flatpak-com.visualstudio.code-2806325839.scope budget_mib=1000 state="critical" pressure_percent=85.0 critical_percent=95.0
+Error: NEXTRS_UPSTREAM is not set

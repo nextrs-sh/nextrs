@@ -1,0 +1,17 @@
+label=off flags=
+readyz 200
+healthz 200
+GET / 200
+GET /dynamic 200
+GET /books/42 200
+GET /api/health 200
+GET /data-fetch 500
+GET /request-info 200
+GET /_next/static/chunks/39_j1bdzreq0m.js 200
+concurrent-status 200 24
+static-after 200 health-after 200
+nextrs_executor_heap_limit_bytes{slot="0"} 1568669696
+VmHWM:	   84852 kB
+VmRSS:	   84852 kB
+RssAnon:	   45288 kB
+Error: NEXTRS_UPSTREAM is not set

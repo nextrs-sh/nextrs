@@ -1,0 +1,7 @@
+[
+  { "label": "node", "runtime": "node" },
+  { "label": "rc3", "runtime": "rc3" },
+  { "label": "re23", "runtime": "re23", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 85" },
+  { "label": "re4-admission", "runtime": "re4", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 85 --memory-admission --js-external-memory-limit 32 --native-buffer-budget 32" },
+  { "label": "re4-admission-young8", "runtime": "re4", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 85 --memory-admission --js-external-memory-limit 32 --native-buffer-budget 32 --js-young-semi-space 8" }
+]

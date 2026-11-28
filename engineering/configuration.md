@@ -254,10 +254,13 @@ sizes its heap from the container limit.
 - Reaching a heap limit (explicit or `auto`) terminates and replaces that
   isolate: its in-flight requests fail, the others continue, and the
   process and its other isolates keep serving. V8 is allowed 64 MiB past
-  the limit while the isolate unwinds (V8 retries a failed allocation only
-  once, so a smaller grant could abort the process on one large object).
-  A container OOM kill, by contrast, ends every request and restarts the
-  process. An explicit `--js-heap-limit` larger than the container's
+  the limit while the isolate unwinds (a smaller grant could abort the
+  process on one large object). V8 may ask again before the termination
+  takes effect, and each time gets another 64 MiB: one large allocation
+  can take the process several times past the heap limit, and one beyond
+  about three grants aborts the whole process (RE-4-V8-HEAP-OVERSHOOT).
+  The heap limit is not a memory bound. A container OOM kill, by
+  contrast, ends every request and restarts the process. An explicit `--js-heap-limit` larger than the container's
   limit across all isolates is logged as a warning, and so are
   `--v8-flags` heap-size flags, which override `--js-heap-limit`. The
   limit V8 applied is logged per isolate (`V8 heap limit in effect`).
@@ -303,6 +306,61 @@ full of live data, not garbage), the next one waits twice as long, up to
 the reclamation, after its V8 collections, after the allocator trim),
 `nextrs_memory_reclaim_pressure_backoffs_total`,
 `nextrs_cgroup_memory_{limit,working_set}_bytes`.
+
+### Resource controls (experimental, opt-in)
+
+Off by default and in every profile, until they are measured on
+dedicated Linux hardware (`engineering/performance/resource-efficiency/RE-4-*`).
+None of them is a memory guarantee.
+
+- `--memory-admission`: before a dynamic request gets an isolate, the
+  container's working set (re-read at most every 50 ms) plus the
+  estimated cost of requests admitted since that reading decide.
+  - **elevated**, from `--memory-admission-pressure` (85 %): at most
+    `--memory-admission-max-active` JavaScript requests (default 4 per
+    isolate), the rest wait in the queue in arrival order.
+  - **critical**, from `--memory-admission-critical` (95 %): new and queued
+    requests get **503** `executor-memory-pressure` with `Retry-After: 2`.
+    They never reach JavaScript, so a refused Server Action did not run.
+  - With no JavaScript request running, one is always admitted.
+  - Leaving a state takes 5 points of hysteresis and 1 s.
+  - Without a reading for 2 s, admission behaves as elevated.
+  - Queued requests are also bounded to 16 MiB of headers.
+  - An isolate at 90 % of its heap limit takes no new requests while it
+    has some.
+
+  Each request is assumed to need `--memory-admission-reserve` (2 MiB,
+  plus an upload's declared length). That is an estimate: an admitted
+  request can use far more. The budget is the container's limit or
+  `--memory-admission-budget`. Set the budget lower when other processes
+  share the container's cgroup: their usage counts, and NextRS cannot see
+  it. Static files, prerendered pages and health checks are never gated.
+  Metrics: `nextrs_admission_*`,
+  `nextrs_executor_rejected_total{reason="memory_pressure"}`.
+- `--js-external-memory-limit MIB`: one limit, over all isolates, on the
+  ArrayBuffer memory JavaScript allocates (`new ArrayBuffer`, typed
+  arrays, `Buffer`). An allocation of 64 KiB or more that would cross it
+  throws `RangeError: Array buffer allocation failed` in the request,
+  after V8 has collected garbage; the isolate keeps serving. Smaller
+  allocations are counted but always granted. Buffers created by NextRS
+  itself (request bodies, fetch responses, `fs.readFileSync`,
+  `TextEncoder`, `Response.arrayBuffer()`) are not counted. Metrics:
+  `nextrs_external_memory_*`.
+- `--native-buffer-budget MIB`: one byte budget for static and `public/`
+  files read into memory for a response, and for request bodies buffered
+  for the proxy. A request without room waits up to
+  `--native-buffer-wait` (2 s), then gets 503 `native-buffer-budget`.
+  The bytes are reserved before the read and released when the response
+  or request body is dropped. A file larger than the budget is served
+  alone. Metrics: `nextrs_native_buffer_*`.
+- `--js-young-semi-space MIB`: raises each isolate's young generation to
+  3 × this (two semi-spaces and the large-object space). The room comes
+  from the old generation, so `--js-heap-limit` is unchanged. Needs
+  `--js-heap-limit`. For CPU measurements; no size is recommended yet.
+
+Process-fatal failures remain possible with all of them on. These
+include a single very large JavaScript allocation, a native crash, and
+the kernel's OOM kill. Run NextRS under a restart policy.
 
 ## Outbound network
 

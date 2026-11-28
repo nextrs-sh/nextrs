@@ -115,6 +115,21 @@ responses as errors).
 | cgroup v1 | supported (same files as `memory.rs`) |
 | Ancestor limit shared with other containers | set `--memory-admission-budget` below it; their usage is not visible (accounting §3) |
 
+## 6a. Nested requests
+
+Next.js's requests to its own server (Server Action redirects and
+forwarding, revalidation) are dispatched in-process (`InternalRoute`) on
+behalf of a request that was already admitted. They bypass the memory
+gate and the heap skip: deferring one would leave its parent waiting on
+a child queued behind it, until `queue_timeout`, and refusing one would
+fail a Server Action half way. A task-local scope marks them, and the
+mark travels on the queued ticket. They remain bounded by the
+concurrency limits and `MAX_INTERNAL_REQUESTS` (64). Added after the
+independent review.
+
+A failed memory reading is not retried more often than the sampling
+interval, because the probe runs under the pool lock.
+
 ## 7. Interaction with reclamation
 
 Pressure reclamation (`--memory-pressure-reclaim`, RE-2/3) frees memory.
