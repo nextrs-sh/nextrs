@@ -1,0 +1,60 @@
+app.prerendered.baseline: valid, 2007 requests, 3799 samples (1/16), ~30.3 allocation calls/request
+
+== by first NextRS frame ==
+ calls/req     bytes  share
+    12.5      2740 B  41.3 %  nextrs_server::prerendered
+     3.1         3 B  10.2 %  nextrs_server::routing::query::decode_uri_component
+     2.1         2 B     7 %  nextrs_server::routing::url::parse_relative_url
+       2       143 B   6.7 %  <http::extensions::Extensions>::insert::<nextrs_server::serve::ClientAddr>
+     1.7      4282 B   5.7 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     1.7         2 B   5.6 %  nextrs_server::handle::{closure#0}
+     1.4        35 B   4.8 %  <hyper::proto::h1::dispatch::Dispatcher<hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::
+     1.1         1 B   3.7 %  nextrs_server::resolve::get_item::{closure#0}
+     0.9         1 B   2.8 %  nextrs_server::serve_resolved::{closure#0}
+     0.9        69 B   2.8 %  <axum_core::body::Body>::new::<nextrs_server::http_metrics::MeteredBody>
+     0.8      6335 B   2.6 %  <hyper::proto::h1::io::Buffered<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::encode
+     0.8         6 B   2.5 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     0.6        70 B   2.1 %  <hyper::proto::h1::conn::Conn<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, bytes::bytes::Bytes, hyper
+     0.6        24 B     2 %  <hyper::proto::h1::io::Buffered<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::encode
+       0         3 B     0 %  <hyper::proto::h1::conn::Conn<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, bytes::bytes::Bytes, hyper
+       0         5 B     0 %  <hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::{closure#0}, hyper::body::incoming::Inc
+       0         0 B     0 %  nextrs_server::serve::serve::<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#0}
+       0         0 B     0 %  <tokio::task::join_set::JoinSet<()>>::spawn::<nextrs_server::serve::serve<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#0}>
+       0         2 B     0 %  <core::future::poll_fn::PollFn<nextrs_server::serve::serve<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#3}> as core::future::future::Future>::po
+
+== by crate of site ==
+     8.9         9 B  29.3 %  nextrs_server
+     7.8      6617 B  25.6 %  alloc_impl_runtime
+     6.2       785 B  20.6 %  http
+     2.8       126 B   9.3 %  axum_core
+     2.5      4288 B   8.3 %  tower
+     1.5      1821 B   4.8 %  grow_impl_runtime
+     0.6        70 B   2.1 %  hyper_util
+       0         5 B     0 %  hyper
+       0         0 B     0 %  tokio
+       0         2 B     0 %  std
+
+== by site ==
+     7.8      6617 B  25.6 %  alloc_impl_runtime
+     3.1         3 B  10.2 %  nextrs_server::routing::query::decode_uri_component
+     2.1         2 B     7 %  nextrs_server::routing::url::parse_relative_url
+       2       641 B   6.7 %  <http::header::map::HeaderMap>::try_reserve_one
+     1.7      4282 B   5.7 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     1.7         2 B   5.6 %  nextrs_server::handle::{closure#0}
+     1.5      1821 B   4.8 %  grow_impl_runtime
+     1.4        44 B   4.5 %  <http::extensions::Extensions>::insert::<nextrs_server::serve::ClientAddr>
+     1.3        40 B   4.2 %  <axum_core::body::Body as core::convert::From<bytes::bytes::Bytes>>::from
+     1.1        22 B   3.7 %  <http::header::value::HeaderValue as core::convert::From<u64>>::from
+     1.1         1 B   3.7 %  nextrs_server::resolve::get_item::{closure#0}
+     0.9        59 B   3.1 %  <http::header::map::HeaderMap>::try_grow
+     0.9         1 B   2.8 %  nextrs_server::serve_resolved::{closure#0}
+     0.9        69 B   2.8 %  <axum_core::body::Body>::new::<nextrs_server::http_metrics::MeteredBody>
+     0.8         6 B   2.5 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     0.8        18 B   2.5 %  <http::extensions::Extensions>::insert::<axum::routing::url_params::UrlParams>
+     0.7        16 B   2.3 %  <axum_core::body::Body>::new::<hyper::body::incoming::Incoming>
+     0.6        70 B   2.1 %  <hyper_util::rt::tokio::TokioTimer as hyper::rt::timer::Timer>::sleep_until
+       0         0 B     0 %  <http::header::map::HeaderMap>::try_reserve
+       0         5 B     0 %  <hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::{closure#0}, hyper::body::incoming::Inc
+       0         0 B     0 %  nextrs_server::serve::serve::<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#0}
+       0         0 B     0 %  <tokio::util::idle_notified_set::IdleNotifiedSet<tokio::runtime::task::join::JoinHandle<()>>>::insert_idle
+       0         2 B     0 %  <std::alloc::System as core::alloc::global::GlobalAlloc>::alloc

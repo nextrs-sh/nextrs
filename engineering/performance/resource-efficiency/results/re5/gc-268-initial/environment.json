@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-28T12:46:40.389Z",
+  "host_kind": "single-host (load generator and server on the same machine, pinned to disjoint CPUs)",
+  "cpu_model": "Intel(R) Core(TM) i5-9400F CPU @ 2.90GHz",
+  "logical_cpus": 6,
+  "cpu_governors": [
+    "performance"
+  ],
+  "cpu_max_mhz": 4100,
+  "turbo_disabled": "0",
+  "mem_total_mib": 15919,
+  "mem_available_mib_at_start": 9182,
+  "swap_total_mib": 8192,
+  "swap_used_mib_at_start": 8192,
+  "loadavg_at_start": [
+    6.48,
+    5.18,
+    4.33
+  ],
+  "os": "Freedesktop SDK 26.08 (Flatpak runtime)",
+  "kernel": "7.3.4-300.fc45.x86_64",
+  "rustc": "rustc 1.100.0 (0ef1bc386 2026-11-09)\nbinary: rustc\ncommit-hash: 0ef1bc386059596dada8fb65b50425aab2ea637a\ncommit-date: 2026-11-09\nhost: x86_64-unknown-linux-gnu\nrelease: 1.100.0\nLLVM version: 23.1.5",
+  "node": "v24.18.0",
+  "nextrs_binary": "target/re5-cand4-rel/release/nextrs",
+  "nextrs_binary_sha256": "f4779b02823e8778a88d6fd2bbb8943c22bd7000d97032103ff35a37e309b7df",
+  "nextrs_commit": "80170430311ef559b560a83a66881b6bb917b61b",
+  "nextrs_dirty": true,
+  "loadgen": "benchmarks/loadgen/target/release/nextrs-loadgen",
+  "loadgen_sha256": "68954d708fe6fa167baf55a1bfacd602875060c04b568b45e5eeed2fbf5d7aa8",
+  "server_cpus": "0-3",
+  "load_cpus": "4-5",
+  "memory_limit": "none (no cgroup limit applied); RSS is reported per process tree",
+  "parameters": {
+    "rounds": 2,
+    "duration": 10,
+    "warmup": 5,
+    "configs": [
+      "default-i1",
+      "semi8-i1",
+      "semi16-i1"
+    ],
+    "workloads": [
+      "ssr",
+      "rsc"
+    ]
+  }
+}

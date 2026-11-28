@@ -1,0 +1,133 @@
+app.rsc.baseline: valid, 2007 requests, 50779 samples (1/16), ~404.8 allocation calls/request
+
+== by first NextRS frame ==
+ calls/req     bytes  share
+   280.5    265768 B  69.3 %  (V8 internal, no NextRS frame)
+    27.4      1452 B   6.8 %  nextrs_server::dynamic::render::{closure#0}
+    13.6      6094 B   3.3 %  <core::future::poll_fn::PollFn<nextrs_runtime::worker::drive::{closure#0}::{closure#2}> as core::future::future::Future>::poll
+    10.7      4619 B   2.6 %  <nextrs_runtime::response::ResponseSender>::write
+    10.1       343 B   2.5 %  <nextrs_runtime::ops::JsRequest as serde_core::ser::Serialize>::serialize::<serde_v8::ser::Serializer>
+     6.2       343 B   1.5 %  <nextrs_runtime::ops::op_nextrs_response_head::op_nextrs_response_head>::slow_function_impl
+     4.8        43 B   1.2 %  nextrs_server::routing::query::decode_uri_component
+     4.7        25 B   1.2 %  <core::iter::adapters::chain::Chain<core::iter::adapters::map::Map<core::iter::adapters::filter::Filter<http::header::map::Iter<http::header::value::HeaderValue
+     4.1       689 B     1 %  nextrs_server::serve_resolved::{closure#0}::{closure#4}::{closure#0}
+     3.8       149 B   0.9 %  nextrs_server::pages::encoded_data_page
+     3.7        31 B   0.9 %  nextrs_server::routing::url::parse_relative_url
+     2.4       167 B   0.6 %  <http::extensions::Extensions>::insert::<nextrs_server::serve::ClientAddr>
+     2.2       193 B   0.6 %  <http::extensions::Extensions>::insert::<nextrs_server::dynamic::Executed>
+     2.2       798 B   0.5 %  <alloc::vec::Vec<(alloc::string::String, alloc::string::String)> as alloc::vec::spec_from_iter::SpecFromIter<(alloc::string::String, alloc::string::String), cor
+     2.1      1991 B   0.5 %  tokio::sync::mpsc::chan::channel::<nextrs_runtime::response::ResponseEvent, tokio::sync::mpsc::unbounded::Semaphore>
+     2.1         7 B   0.5 %  nextrs_server::normalize_dot_segments::{closure#1}
+       2        23 B   0.5 %  nextrs_server::handle::{closure#0}
+     1.9        52 B   0.5 %  <alloc::vec::Vec<(alloc::string::String, nextrs_server::routing::query::Value)> as core::clone::Clone>::clone
+     1.8       123 B   0.4 %  <nextrs_runtime::ops::JsInvocation as serde_core::ser::Serialize>::serialize::<serde_v8::ser::Serializer>
+     1.7        38 B   0.4 %  <hyper::proto::h1::io::Buffered<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::encode
+     1.6        38 B   0.4 %  <hyper::proto::h1::dispatch::Dispatcher<hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::
+     1.6      4706 B   0.4 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     1.4       153 B   0.3 %  nextrs_runtime::response::channel
+     1.1        91 B   0.3 %  <axum_core::body::Body>::new::<nextrs_server::http_metrics::MeteredBody>
+     1.1        10 B   0.3 %  nextrs_server::serve_resolved::{closure#0}
+     1.1       379 B   0.3 %  <axum_core::body::Body>::from_stream::<futures_util::stream::unfold::Unfold<core::option::Option<(nextrs_runtime::response::ResponseStream, u64)>, nextrs_server
+       1      8425 B   0.3 %  <hyper::proto::h1::io::Buffered<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::encode
+       1         4 B   0.3 %  nextrs_server::routing::query::parse_search
+       1       229 B   0.3 %  <alloc::raw_vec::RawVec<(alloc::string::String, nextrs_server::routing::query::Value)>>::grow_one
+       1       112 B   0.2 %  <hyper::proto::h1::conn::Conn<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, bytes::bytes::Bytes, hyper
+     0.9         8 B   0.2 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     0.9         8 B   0.2 %  nextrs_server::resolve::check_true::{closure#0}
+     0.8        77 B   0.2 %  nextrs_server::serve_resolved::{closure#0}::{closure#4}
+     0.8        67 B   0.2 %  <deno_core::runtime::op_driver::futures_unordered_driver::FuturesUnorderedDriver as deno_core::runtime::op_driver::OpDriver>::submit_op_infallible::<bool, false
+     0.7        69 B   0.2 %  <nextrs_runtime::ops::op_nextrs_next_request::op_nextrs_next_request>::call::{closure#0}
+     0.5         9 B   0.1 %  (other, no NextRS frame)
+     0.2        71 B   0.1 %  <deno_core::runtime::op_driver::future_arena::DynFutureInfo<deno_core::runtime::op_driver::op_results::PendingOp<deno_core::runtime::op_driver::op_results::V8Op
+     0.1         8 B     0 %  <deno_core::runtime::op_driver::futures_unordered_driver::FuturesUnorderedDriver as deno_core::runtime::op_driver::OpDriver>::submit_op_infallible::<core::optio
+       0         8 B     0 %  <hyper::proto::h1::conn::Conn<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, bytes::bytes::Bytes, hyper
+       0         5 B     0 %  <hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::{closure#0}, hyper::body::incoming::Inc
+
+== by crate of site ==
+   197.6    249493 B  48.8 %  v8
+    34.5      1133 B   8.5 %  nextrs_server
+    31.9     10600 B   7.9 %  alloc_impl_runtime
+    28.5      1362 B     7 %  deno_core
+    27.5      7972 B   6.8 %  v8__ValueSerializer__Delegate__ReallocateBufferMemory
+    17.9      3112 B   4.4 %  serde_v8
+    12.8      4840 B   3.2 %  nextrs_runtime
+    10.2       727 B   2.5 %  grow_impl_runtime
+       7       210 B   1.7 %  u8 as <[_]>
+       7        74 B   1.7 %  url
+     5.6       764 B   1.4 %  http
+     4.3       212 B   1.1 %  alloc
+     3.8      6595 B   0.9 %  heap
+       3       490 B   0.7 %  axum_core
+     2.5      4714 B   0.6 %  tower
+     2.3       627 B   0.6 %  absl
+     2.1       181 B   0.5 %  _ZNSt4__Cr25__try_key_extraction_implIN2v88internal8compiler10turboshaft7OpIndexENS_4pairINS_15__tree_iteratorINS_12__value_typeIS5_NS1_4base8SmallMapINS_3mapIS
+     1.1      1464 B   0.3 %  tokio
+     1.1        35 B   0.3 %  std__shared_ptr__v8__BackingStore__CONVERT__std__unique_ptr
+       1       538 B   0.3 %  std
+       1       112 B   0.2 %  hyper_util
+       1      1962 B   0.2 %  shrink_impl_runtime
+     0.6        24 B   0.1 %  unsigned long absl
+     0.2       167 B   0.1 %  void std
+     0.1         7 B     0 %  _ZNSt4__Cr25__try_key_extraction_implIPN2v88internal6maglev9ValueNodeENS_4pairINS_15__tree_iteratorINS_12__value_typeIS5_NS3_28LiveRangeAndNextUseProcessor7Node
+
+== by site ==
+    46.3      5827 B  11.4 %  v8::internal::ValueDeserializer::ReadJSObjectProperties(v8::internal::DirectHandle<v8::internal::JSObject>, v8::internal::SerializationTag, bool)
+    31.9     10600 B   7.9 %  alloc_impl_runtime
+    27.5      7972 B   6.8 %  v8__ValueSerializer__Delegate__ReallocateBufferMemory
+    23.2      1116 B   5.7 %  <deno_core::ops_builtin_v8::op_structured_clone::op_structured_clone>::slow_function_impl
+    20.5    206251 B   5.1 %  v8::internal::AllocAtLeastWithRetry(unsigned long)
+    17.3        37 B   4.3 %  v8::internal::Uri::Decode(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::String>, bool)
+    15.1       858 B   3.7 %  nextrs_server::dynamic::render::{closure#0}
+    11.5      3232 B   2.9 %  v8::ValueSerializer::ValueSerializer(v8::Isolate*, v8::ValueSerializer::Delegate*)
+    11.5      1009 B   2.8 %  v8::ValueDeserializer::ValueDeserializer(v8::Isolate*, unsigned char const*, unsigned long, v8::ValueDeserializer::Delegate*)
+    10.9       700 B   2.7 %  <v8::value_serializer::ValueSerializer>::new::<deno_core::ops_builtin_v8::SerializeDeserialize>
+    10.7      4619 B   2.6 %  <nextrs_runtime::response::ResponseSender>::write
+    10.7       512 B   2.6 %  <v8::value_deserializer::ValueDeserializer>::new::<deno_core::ops_builtin_v8::SerializeDeserialize>
+    10.2       727 B   2.5 %  grow_impl_runtime
+     7.9        38 B     2 %  v8::internal::Uri::Encode(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::String>, bool)
+       7       210 B   1.7 %  <u8 as <[_]>::to_vec_in::ConvertVec>::to_vec::<alloc::alloc::Global>
+       7        74 B   1.7 %  <url::ParseOptions>::parse
+     6.8       272 B   1.7 %  v8::internal::JSArrayBuffer::CreateExtension(v8::internal::Isolate*, std::__Cr::shared_ptr<v8::internal::BackingStore>)
+     6.3       100 B   1.5 %  <serde_v8::ser::Serializer as serde_core::ser::Serializer>::serialize_tuple
+     6.2       197 B   1.5 %  v8::internal::(anonymous namespace)::ConstructBuffer(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::JSFunction>, v8::internal::DirectHandle<v8
+     6.2      2653 B   1.5 %  serde_v8::de::to_utf8
+     6.1       393 B   1.5 %  v8::internal::BackingStore::Allocate(v8::internal::Isolate*, unsigned long, v8::internal::SharedFlag, v8::internal::InitializedFlag)
+       6      1004 B   1.5 %  v8::internal::JsonStringifier::StackPush(v8::internal::Handle<v8::internal::Object>, v8::internal::Handle<v8::internal::Object>)
+     5.9     24262 B   1.5 %  v8::internal::Heap::AllocateExternalBackingStore(std::__Cr::function<void* (unsigned long)> const&, unsigned long)
+     5.7       319 B   1.4 %  v8::internal::EphemeronRememberedSet::RecordEphemeronKeyWrites(v8::internal::Tagged<v8::internal::EphemeronHashTable>, absl::flat_hash_set<int, absl::hash_inter
+     4.8        43 B   1.2 %  nextrs_server::routing::query::decode_uri_component
+     4.3       242 B   1.1 %  v8::internal::Scavenger::RememberPromotedEphemeron(v8::internal::Tagged<v8::internal::EphemeronHashTable>, int)
+     4.1        99 B     1 %  <deno_core::gotham_state::GothamState>::put::<deno_web::url::UrlSerialization>
+     3.8       149 B   0.9 %  nextrs_server::pages::encoded_data_page
+     3.7        31 B   0.9 %  nextrs_server::routing::url::parse_relative_url
+     3.4       302 B   0.8 %  <serde_v8::ser::ObjectSerializer>::new
+     3.2        52 B   0.8 %  alloc
+     2.4      1242 B   0.6 %  heap::base::Worklist<v8::internal::Tagged<v8::internal::HeapObject>, (unsigned short)64>::Local::NewSegment() const
+     2.2         4 B   0.5 %  v8::internal::SafepointTable::ResetIteration()
+     2.1         7 B   0.5 %  nextrs_server::normalize_dot_segments::{closure#1}
+     2.1         8 B   0.5 %  <v8::data::String>::to_rust_string_lossy
+     2.1       181 B   0.5 %  _ZNSt4__Cr25__try_key_extraction_implIN2v88internal8compiler10turboshaft7OpIndexENS_4pairINS_15__tree_iteratorINS_12__value_typeIS5_NS1_4base8SmallMapINS_3mapIS
+       2        56 B   0.5 %  <serde_v8::ser::Serializer as serde_core::ser::Serializer>::serialize_seq
+       2       655 B   0.5 %  <http::header::map::HeaderMap>::try_reserve_one
+       2        23 B   0.5 %  nextrs_server::handle::{closure#0}
+     1.9      1990 B   0.5 %  v8::internal::MarkCompactCollector::MarkTransitiveClosureFixpoint()::$_0::operator()() const
+     1.6        51 B   0.4 %  <http::extensions::Extensions>::insert::<nextrs_server::serve::ClientAddr>
+     1.6        75 B   0.4 %  v8::internal::Assembler::emit_mov(v8::internal::Register, v8::internal::Immediate64, int)
+     1.6      4706 B   0.4 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     1.4       153 B   0.3 %  nextrs_runtime::response::channel
+     1.3       527 B   0.3 %  absl::container_internal::(anonymous namespace)::GrowToNextCapacityAndPrepareInsert(absl::container_internal::CommonFields&, absl::container_internal::PolicyFun
+     1.2        77 B   0.3 %  v8::internal::compiler::ZoneStats::NewEmptyZone(char const*)
+     1.2        38 B   0.3 %  <http::extensions::Extensions>::insert::<nextrs_server::dynamic::Executed>
+     1.1        91 B   0.3 %  <axum_core::body::Body>::new::<nextrs_server::http_metrics::MeteredBody>
+     1.1      1464 B   0.3 %  tokio::sync::mpsc::chan::channel::<nextrs_runtime::response::ResponseEvent, tokio::sync::mpsc::unbounded::Semaphore>
+     1.1       160 B   0.3 %  <<alloc::vec::Vec<_> as serde_core::de::Deserialize>::deserialize::VecVisitor<(alloc::string::String, alloc::string::String)> as serde_core::de::Visitor>::visit
+     1.1        35 B   0.3 %  std__shared_ptr__v8__BackingStore__CONVERT__std__unique_ptr
+     1.1        10 B   0.3 %  nextrs_server::serve_resolved::{closure#0}
+     1.1       379 B   0.3 %  <axum_core::body::Body>::from_stream::<futures_util::stream::unfold::Unfold<core::option::Option<(nextrs_runtime::response::ResponseStream, u64)>, nextrs_server
+       1       538 B   0.3 %  <std::alloc::System as core::alloc::global::GlobalAlloc>::alloc
+       1         4 B   0.3 %  nextrs_server::routing::query::parse_search
+       1       112 B   0.2 %  <hyper_util::rt::tokio::TokioTimer as hyper::rt::timer::Timer>::sleep_until
+       1      1962 B   0.2 %  shrink_impl_runtime
+       1        44 B   0.2 %  v8::internal::compiler::EscapeAnalysisReducer::ReduceDeoptState(v8::internal::compiler::Node*, v8::internal::compiler::Node*, v8::internal::compiler::Deduplicat
+     0.9         8 B   0.2 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     0.9        60 B   0.2 %  v8::internal::BackingStore::WrapAllocation(void*, unsigned long, void (*)(void*, unsigned long, void*), void*, v8::internal::SharedFlag)

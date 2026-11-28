@@ -1,0 +1,765 @@
+{
+  "tag": "app.action.baseline",
+  "binary": "target/re5-baseline-prof/release/nextrs",
+  "sample_every": 16,
+  "requests": 2007,
+  "valid": true,
+  "samples": 42563,
+  "estimated_calls_per_req": 339.3,
+  "by_site": [
+    {
+      "site": "alloc_impl_runtime",
+      "calls_per_req": 86.1,
+      "bytes_per_req": 20977,
+      "share": 25.4
+    },
+    {
+      "site": "serde_v8::de::to_utf8",
+      "calls_per_req": 28,
+      "bytes_per_req": 421,
+      "share": 8.2
+    },
+    {
+      "site": "grow_impl_runtime",
+      "calls_per_req": 19.3,
+      "bytes_per_req": 2007,
+      "share": 5.7
+    },
+    {
+      "site": "<serde_v8::ser::Serializer as serde_core::ser::Serializer>::serialize_tuple",
+      "calls_per_req": 16.1,
+      "bytes_per_req": 257,
+      "share": 4.7
+    },
+    {
+      "site": "nextrs_server::dynamic::render::{closure#0}",
+      "calls_per_req": 15.6,
+      "bytes_per_req": 836,
+      "share": 4.6
+    },
+    {
+      "site": "<url::ParseOptions>::parse",
+      "calls_per_req": 13.3,
+      "bytes_per_req": 491,
+      "share": 3.9
+    },
+    {
+      "site": "v8::internal::SafepointTable::ResetIteration()",
+      "calls_per_req": 8.7,
+      "bytes_per_req": 17,
+      "share": 2.6
+    },
+    {
+      "site": "v8::internal::Uri::Decode(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::String>, bool)",
+      "calls_per_req": 7.7,
+      "bytes_per_req": 29,
+      "share": 2.3
+    },
+    {
+      "site": "<u8 as <[_]>::to_vec_in::ConvertVec>::to_vec::<alloc::alloc::Global>",
+      "calls_per_req": 6.2,
+      "bytes_per_req": 526,
+      "share": 1.8
+    },
+    {
+      "site": "v8::internal::JSArrayBuffer::CreateExtension(v8::internal::Isolate*, std::__Cr::shared_ptr<v8::internal::BackingStore>)",
+      "calls_per_req": 6.2,
+      "bytes_per_req": 246,
+      "share": 1.8
+    },
+    {
+      "site": "<serde_v8::ser::ObjectSerializer>::new",
+      "calls_per_req": 5.7,
+      "bytes_per_req": 408,
+      "share": 1.7
+    },
+    {
+      "site": "<deno_core::gotham_state::GothamState>::put::<deno_web::url::UrlSerialization>",
+      "calls_per_req": 4.9,
+      "bytes_per_req": 117,
+      "share": 1.4
+    },
+    {
+      "site": "v8::internal::BackingStore::Allocate(v8::internal::Isolate*, unsigned long, v8::internal::SharedFlag, v8::internal::InitializedFlag)",
+      "calls_per_req": 4.5,
+      "bytes_per_req": 288,
+      "share": 1.3
+    },
+    {
+      "site": "v8::internal::(anonymous namespace)::ConstructBuffer(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::JSFunction>, v8::internal::DirectHandle<v8::internal::JSReceiver>, v8::internal::DirectHandle<v8::internal::Object>, v8::internal::DirectHandle<v8::internal::Object>, v8::internal::InitializedFlag)",
+      "calls_per_req": 4.4,
+      "bytes_per_req": 141,
+      "share": 1.3
+    },
+    {
+      "site": "v8::internal::Heap::AllocateExternalBackingStore(std::__Cr::function<void* (unsigned long)> const&, unsigned long)",
+      "calls_per_req": 4.3,
+      "bytes_per_req": 10100,
+      "share": 1.3
+    },
+    {
+      "site": "<deno_core::ops_builtin_v8::op_structured_clone::op_structured_clone>::slow_function_impl",
+      "calls_per_req": 4.3,
+      "bytes_per_req": 205,
+      "share": 1.3
+    },
+    {
+      "site": "<std::alloc::System as core::alloc::global::GlobalAlloc>::alloc",
+      "calls_per_req": 4.1,
+      "bytes_per_req": 2975,
+      "share": 1.2
+    },
+    {
+      "site": "<nextrs_runtime::response::ResponseSender>::write",
+      "calls_per_req": 4.1,
+      "bytes_per_req": 216,
+      "share": 1.2
+    },
+    {
+      "site": "v8::internal::ValueDeserializer::ReadJSObjectProperties(v8::internal::DirectHandle<v8::internal::JSObject>, v8::internal::SerializationTag, bool)",
+      "calls_per_req": 4,
+      "bytes_per_req": 309,
+      "share": 1.2
+    },
+    {
+      "site": "<http::header::map::HeaderMap>::try_reserve_one",
+      "calls_per_req": 3.8,
+      "bytes_per_req": 1229,
+      "share": 1.1
+    },
+    {
+      "site": "v8::internal::AllocAtLeastWithRetry(unsigned long)",
+      "calls_per_req": 3.6,
+      "bytes_per_req": 49238,
+      "share": 1.1
+    },
+    {
+      "site": "alloc",
+      "calls_per_req": 3.4,
+      "bytes_per_req": 55,
+      "share": 1
+    },
+    {
+      "site": "v8__ValueSerializer__Delegate__ReallocateBufferMemory",
+      "calls_per_req": 3,
+      "bytes_per_req": 321,
+      "share": 0.9
+    },
+    {
+      "site": "nextrs_server::routing::url::parse_relative_url",
+      "calls_per_req": 2.6,
+      "bytes_per_req": 44,
+      "share": 0.8
+    },
+    {
+      "site": "<serde_v8::ser::Serializer as serde_core::ser::Serializer>::serialize_seq",
+      "calls_per_req": 2.5,
+      "bytes_per_req": 106,
+      "share": 0.7
+    },
+    {
+      "site": "<reqwest::async_impl::client::Client>::execute_request",
+      "calls_per_req": 2.2,
+      "bytes_per_req": 1746,
+      "share": 0.7
+    },
+    {
+      "site": "<v8::value_serializer::ValueSerializer>::new::<deno_core::ops_builtin_v8::SerializeDeserialize>",
+      "calls_per_req": 2,
+      "bytes_per_req": 131,
+      "share": 0.6
+    },
+    {
+      "site": "nextrs_server::dynamic::request_body",
+      "calls_per_req": 2,
+      "bytes_per_req": 143,
+      "share": 0.6
+    },
+    {
+      "site": "nextrs_server::routing::query::decode_uri_component",
+      "calls_per_req": 2,
+      "bytes_per_req": 33,
+      "share": 0.6
+    },
+    {
+      "site": "v8::ValueDeserializer::ValueDeserializer(v8::Isolate*, unsigned char const*, unsigned long, v8::ValueDeserializer::Delegate*)",
+      "calls_per_req": 1.9,
+      "bytes_per_req": 170,
+      "share": 0.6
+    },
+    {
+      "site": "<v8::value_deserializer::ValueDeserializer>::new::<deno_core::ops_builtin_v8::SerializeDeserialize>",
+      "calls_per_req": 1.9,
+      "bytes_per_req": 92,
+      "share": 0.6
+    },
+    {
+      "site": "v8::ValueSerializer::ValueSerializer(v8::Isolate*, v8::ValueSerializer::Delegate*)",
+      "calls_per_req": 1.9,
+      "bytes_per_req": 533,
+      "share": 0.6
+    },
+    {
+      "site": "heap::base::Worklist<v8::internal::Tagged<v8::internal::HeapObject>, (unsigned short)64>::Local::NewSegment() const",
+      "calls_per_req": 1.9,
+      "bytes_per_req": 1006,
+      "share": 0.6
+    },
+    {
+      "site": "<<alloc::vec::Vec<_> as serde_core::de::Deserialize>::deserialize::VecVisitor<(alloc::string::String, alloc::string::String)> as serde_core::de::Visitor>::visit_seq::<serde_v8::de::SeqAccess>",
+      "calls_per_req": 1.9,
+      "bytes_per_req": 417,
+      "share": 0.6
+    },
+    {
+      "site": "<deno_core::runtime::op_driver::futures_unordered_driver::SubmissionQueue<futures_util::stream::futures_unordered::FuturesUnordered<deno_core::runtime::op_driver::future_arena::FutureAllocation<deno_core::runtime::op_driver::op_results::PendingOp<deno_core::runtime::op_driver::op_results::V8OpMappingContext>, deno_core::runtime::op_driver::op_results::PendingOpInfo>>>>::spawn",
+      "calls_per_req": 1.9,
+      "bytes_per_req": 165,
+      "share": 0.6
+    },
+    {
+      "site": "nextrs_server::handle::{closure#0}",
+      "calls_per_req": 1.8,
+      "bytes_per_req": 31,
+      "share": 0.5
+    },
+    {
+      "site": "<http::extensions::Extensions>::insert::<hyper_util::client::legacy::connect::http::HttpInfo>",
+      "calls_per_req": 1.8,
+      "bytes_per_req": 82,
+      "share": 0.5
+    },
+    {
+      "site": "<tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>, <tower::util::boxed_clone_sync::BoxCloneSyncService<http::request::Request<axum_core::body::Body>, http::response::Response<axum_core::body::Body>, core::convert::Infallible>>::new<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>>::{closure#0}> as tower_service::Service<http::request::Request<axum_core::body::Body>>>::call",
+      "calls_per_req": 1.7,
+      "bytes_per_req": 5425,
+      "share": 0.5
+    },
+    {
+      "site": "nextrs_server::normalize_dot_segments::{closure#1}",
+      "calls_per_req": 1.7,
+      "bytes_per_req": 13,
+      "share": 0.5
+    },
+    {
+      "site": "<http::extensions::Extensions>::insert::<nextrs_server::serve::ClientAddr>",
+      "calls_per_req": 1.7,
+      "bytes_per_req": 53,
+      "share": 0.5
+    },
+    {
+      "site": "nextrs_runtime::net::header_map",
+      "calls_per_req": 1.6,
+      "bytes_per_req": 520,
+      "share": 0.5
+    },
+    {
+      "site": "<http::header::map::Entry<http::header::value::HeaderValue>>::or_insert_with::<<hyper_util::client::legacy::client::Client<reqwest::connect::Connector, reqwest::async_impl::body::Body>>::try_send_request::{closure#0}::{closure#0}>",
+      "calls_per_req": 1.6,
+      "bytes_per_req": 22,
+      "share": 0.5
+    },
+    {
+      "site": "hyper::body::chan::channel",
+      "calls_per_req": 1.5,
+      "bytes_per_req": 339,
+      "share": 0.4
+    },
+    {
+      "site": "v8::internal::Uri::Encode(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::String>, bool)",
+      "calls_per_req": 1.4,
+      "bytes_per_req": 24,
+      "share": 0.4
+    },
+    {
+      "site": "reqwest::async_impl::body::response::<http_body_util::combinators::box_body::BoxBody<bytes::bytes::Bytes, alloc::boxed::Box<dyn core::error::Error + core::marker::Send + core::marker::Sync>>>",
+      "calls_per_req": 1.3,
+      "bytes_per_req": 21,
+      "share": 0.4
+    },
+    {
+      "site": "nextrs_runtime::response::channel",
+      "calls_per_req": 1.2,
+      "bytes_per_req": 134,
+      "share": 0.4
+    },
+    {
+      "site": "<tokio::time::timeout::Timeout<<nextrs_runtime::net::Shared>::send::{closure#0}> as core::future::future::Future>::poll",
+      "calls_per_req": 1.2,
+      "bytes_per_req": 38,
+      "share": 0.3
+    },
+    {
+      "site": "<reqwest::retry::Policy as tower::retry::policy::Policy<http::request::Request<reqwest::async_impl::body::Body>, http::response::Response<hyper::body::incoming::Incoming>, reqwest::error::Error>>::clone_request",
+      "calls_per_req": 1.2,
+      "bytes_per_req": 37,
+      "share": 0.3
+    },
+    {
+      "site": "<http::extensions::Extensions>::insert::<nextrs_server::dynamic::Executed>",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 36,
+      "share": 0.3
+    },
+    {
+      "site": "tokio::sync::mpsc::chan::channel::<nextrs_runtime::response::ResponseEvent, tokio::sync::mpsc::unbounded::Semaphore>",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 1475,
+      "share": 0.3
+    },
+    {
+      "site": "<hyper_util::rt::tokio::TokioTimer as hyper::rt::timer::Timer>::sleep_until",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 125,
+      "share": 0.3
+    },
+    {
+      "site": "<http::extensions::Extensions>::insert::<tower_http::follow_redirect::RequestUri>",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 98,
+      "share": 0.3
+    },
+    {
+      "site": "<tower_http::follow_redirect::FollowRedirect<tower::retry::Retry<reqwest::retry::Policy, reqwest::async_impl::client::HyperService>, reqwest::redirect::TowerRedirectPolicy> as tower_service::Service<http::request::Request<reqwest::async_impl::body::Body>>>::call",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 35,
+      "share": 0.3
+    },
+    {
+      "site": "tokio::sync::mpsc::bounded::channel::<nextrs_runtime::net::BodyItem>",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 1391,
+      "share": 0.3
+    },
+    {
+      "site": "<axum_core::body::Body>::new::<nextrs_server::http_metrics::MeteredBody>",
+      "calls_per_req": 1,
+      "bytes_per_req": 84,
+      "share": 0.3
+    },
+    {
+      "site": "<reqwest::async_impl::client::PendingRequest as core::future::future::Future>::poll",
+      "calls_per_req": 1,
+      "bytes_per_req": 473,
+      "share": 0.3
+    },
+    {
+      "site": "<nextrs_runtime::net::NetClient>::start",
+      "calls_per_req": 1,
+      "bytes_per_req": 138,
+      "share": 0.3
+    },
+    {
+      "site": "std__shared_ptr__v8__BackingStore__CONVERT__std__unique_ptr",
+      "calls_per_req": 1,
+      "bytes_per_req": 32,
+      "share": 0.3
+    },
+    {
+      "site": "<hyper::client::dispatch::Sender<http::request::Request<reqwest::async_impl::body::Body>, http::response::Response<hyper::body::incoming::Incoming>>>::try_send",
+      "calls_per_req": 1,
+      "bytes_per_req": 316,
+      "share": 0.3
+    },
+    {
+      "site": "<nextrs_runtime::net::NetClient>::start::{closure#0}",
+      "calls_per_req": 1,
+      "bytes_per_req": 2,
+      "share": 0.3
+    }
+  ],
+  "by_nextrs_frame": [
+    {
+      "site": "(V8 internal, no NextRS frame)",
+      "calls_per_req": 91.4,
+      "bytes_per_req": 67181,
+      "share": 26.9
+    },
+    {
+      "site": "poll<nextrs_runtime::net::{impl#17}::send::{async_fn_env#0}>",
+      "calls_per_req": 44.1,
+      "bytes_per_req": 10535,
+      "share": 13
+    },
+    {
+      "site": "nextrs_server::dynamic::render::{closure#0}",
+      "calls_per_req": 35.2,
+      "bytes_per_req": 2094,
+      "share": 10.4
+    },
+    {
+      "site": "<core::iter::adapters::chain::Chain<core::iter::adapters::map::Map<core::iter::adapters::filter::Filter<http::header::map::Iter<http::header::value::HeaderValue>, nextrs_server::dynamic::render_in_isolate::{closure#0}::{closure#8}>, nextrs_server::dynamic::render_in_isolate::{closure#0}::{closure#9}>, alloc::vec::into_iter::IntoIter<(alloc::string::String, alloc::string::String)>> as core::iter::traits::iterator::Iterator>::next",
+      "calls_per_req": 14.5,
+      "bytes_per_req": 204,
+      "share": 4.3
+    },
+    {
+      "site": "<nextrs_runtime::ops::JsRequest as serde_core::ser::Serialize>::serialize::<serde_v8::ser::Serializer>",
+      "calls_per_req": 14.3,
+      "bytes_per_req": 435,
+      "share": 4.2
+    },
+    {
+      "site": "<&mut serde_v8::de::Deserializer as serde_core::de::Deserializer>::deserialize_struct::<<nextrs_runtime::ops::FetchArgs as serde_core::de::Deserialize>::deserialize::__Visitor>",
+      "calls_per_req": 14.1,
+      "bytes_per_req": 304,
+      "share": 4.2
+    },
+    {
+      "site": "<nextrs_runtime::ops::op_nextrs_response_head::op_nextrs_response_head>::slow_function_impl",
+      "calls_per_req": 10.7,
+      "bytes_per_req": 495,
+      "share": 3.1
+    },
+    {
+      "site": "<tokio::time::timeout::Timeout<<nextrs_runtime::net::Shared>::send::{closure#0}> as core::future::future::Future>::poll",
+      "calls_per_req": 10.3,
+      "bytes_per_req": 845,
+      "share": 3
+    },
+    {
+      "site": "(other, no NextRS frame)",
+      "calls_per_req": 9.5,
+      "bytes_per_req": 8538,
+      "share": 2.8
+    },
+    {
+      "site": "<nextrs_runtime::net::FetchHead as serde_core::ser::Serialize>::serialize::<serde_v8::ser::Serializer>",
+      "calls_per_req": 7.9,
+      "bytes_per_req": 204,
+      "share": 2.3
+    },
+    {
+      "site": "nextrs_runtime::net::header_map",
+      "calls_per_req": 6.5,
+      "bytes_per_req": 544,
+      "share": 1.9
+    },
+    {
+      "site": "<core::iter::adapters::map::Map<http::header::map::Iter<http::header::value::HeaderValue>, <nextrs_runtime::net::Shared>::run::{closure#0}::{closure#3}> as core::iter::traits::iterator::Iterator>::next",
+      "calls_per_req": 5.4,
+      "bytes_per_req": 58,
+      "share": 1.6
+    },
+    {
+      "site": "<alloc::string::String as core::iter::traits::collect::FromIterator<char>>::from_iter::<core::iter::adapters::map::Map<core::slice::iter::Iter<u8>, nextrs_runtime::net::latin1::{closure#0}>>",
+      "calls_per_req": 5.1,
+      "bytes_per_req": 73,
+      "share": 1.5
+    },
+    {
+      "site": "<core::marker::PhantomData<<nextrs_runtime::ops::FetchArgs as serde_core::de::Deserialize>::deserialize::__Field> as serde_core::de::DeserializeSeed>::deserialize::<&mut serde_v8::de::Deserializer>",
+      "calls_per_req": 5.1,
+      "bytes_per_req": 39,
+      "share": 1.5
+    },
+    {
+      "site": "<nextrs_runtime::response::ResponseSender>::write",
+      "calls_per_req": 4.1,
+      "bytes_per_req": 216,
+      "share": 1.2
+    },
+    {
+      "site": "<alloc::vec::Vec<u8> as alloc::vec::spec_from_iter::SpecFromIter<u8, core::iter::adapters::GenericShunt<core::iter::adapters::map::Map<core::str::iter::Chars, nextrs_runtime::net::header_map::{closure#1}>, core::result::Result<core::convert::Infallible, core::num::error::TryFromIntError>>>>::from_iter",
+      "calls_per_req": 4,
+      "bytes_per_req": 32,
+      "share": 1.2
+    },
+    {
+      "site": "<nextrs_runtime::ops::op_nextrs_request_read::op_nextrs_request_read>::slow_function_impl",
+      "calls_per_req": 3.1,
+      "bytes_per_req": 138,
+      "share": 0.9
+    },
+    {
+      "site": "<nextrs_runtime::ops::op_nextrs_fetch_start::op_nextrs_fetch_start>::slow_function_impl",
+      "calls_per_req": 3.1,
+      "bytes_per_req": 155,
+      "share": 0.9
+    },
+    {
+      "site": "<core::future::poll_fn::PollFn<nextrs_runtime::worker::drive::{closure#0}::{closure#2}> as core::future::future::Future>::poll",
+      "calls_per_req": 2.8,
+      "bytes_per_req": 2252,
+      "share": 0.8
+    },
+    {
+      "site": "nextrs_server::routing::url::parse_relative_url",
+      "calls_per_req": 2.6,
+      "bytes_per_req": 44,
+      "share": 0.8
+    },
+    {
+      "site": "<alloc::vec::Vec<(alloc::string::String, alloc::string::String)> as alloc::vec::spec_from_iter::SpecFromIter<(alloc::string::String, alloc::string::String), core::iter::adapters::chain::Chain<core::iter::adapters::map::Map<core::iter::adapters::filter::Filter<http::header::map::Iter<http::header::value::HeaderValue>, nextrs_server::dynamic::render_in_isolate::{closure#0}::{closure#8}>, nextrs_server::dynamic::render_in_isolate::{closure#0}::{closure#9}>, alloc::vec::into_iter::IntoIter<(alloc::string::String, alloc::string::String)>>>>::from_iter",
+      "calls_per_req": 2.5,
+      "bytes_per_req": 926,
+      "share": 0.7
+    },
+    {
+      "site": "<http::extensions::Extensions>::insert::<nextrs_server::dynamic::Executed>",
+      "calls_per_req": 2.4,
+      "bytes_per_req": 231,
+      "share": 0.7
+    },
+    {
+      "site": "<http::extensions::Extensions>::insert::<nextrs_server::serve::ClientAddr>",
+      "calls_per_req": 2.4,
+      "bytes_per_req": 159,
+      "share": 0.7
+    },
+    {
+      "site": "<nextrs_runtime::net::NetClient>::start::{closure#0}",
+      "calls_per_req": 2.2,
+      "bytes_per_req": 91,
+      "share": 0.6
+    },
+    {
+      "site": "tokio::sync::mpsc::bounded::channel::<nextrs_runtime::net::BodyItem>",
+      "calls_per_req": 2.1,
+      "bytes_per_req": 1926,
+      "share": 0.6
+    },
+    {
+      "site": "tokio::sync::mpsc::chan::channel::<nextrs_runtime::response::ResponseEvent, tokio::sync::mpsc::unbounded::Semaphore>",
+      "calls_per_req": 2.1,
+      "bytes_per_req": 1969,
+      "share": 0.6
+    },
+    {
+      "site": "<nextrs_runtime::ops::JsInvocation as serde_core::ser::Serialize>::serialize::<serde_v8::ser::Serializer>",
+      "calls_per_req": 2.1,
+      "bytes_per_req": 147,
+      "share": 0.6
+    },
+    {
+      "site": "nextrs_server::dynamic::request_body",
+      "calls_per_req": 2,
+      "bytes_per_req": 143,
+      "share": 0.6
+    },
+    {
+      "site": "nextrs_server::routing::query::decode_uri_component",
+      "calls_per_req": 2,
+      "bytes_per_req": 33,
+      "share": 0.6
+    },
+    {
+      "site": "nextrs_server::handle::{closure#0}",
+      "calls_per_req": 1.8,
+      "bytes_per_req": 31,
+      "share": 0.5
+    },
+    {
+      "site": "<tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>, <tower::util::boxed_clone_sync::BoxCloneSyncService<http::request::Request<axum_core::body::Body>, http::response::Response<axum_core::body::Body>, core::convert::Infallible>>::new<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>>::{closure#0}> as tower_service::Service<http::request::Request<axum_core::body::Body>>>::call",
+      "calls_per_req": 1.7,
+      "bytes_per_req": 5425,
+      "share": 0.5
+    },
+    {
+      "site": "<hyper::proto::h1::dispatch::Dispatcher<hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::{closure#0}, hyper::body::incoming::Incoming>, hyper::body::incoming::Incoming>, axum_core::body::Body, hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::role::Server>>::poll_write",
+      "calls_per_req": 1.7,
+      "bytes_per_req": 41,
+      "share": 0.5
+    },
+    {
+      "site": "nextrs_server::normalize_dot_segments::{closure#1}",
+      "calls_per_req": 1.7,
+      "bytes_per_req": 13,
+      "share": 0.5
+    },
+    {
+      "site": "<hyper::proto::h1::io::Buffered<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::encode::EncodedBuf<bytes::bytes::Bytes>>>::parse::<hyper::proto::h1::role::Server>",
+      "calls_per_req": 1.4,
+      "bytes_per_req": 41,
+      "share": 0.4
+    },
+    {
+      "site": "nextrs_runtime::response::channel",
+      "calls_per_req": 1.2,
+      "bytes_per_req": 134,
+      "share": 0.4
+    },
+    {
+      "site": "<hyper::proto::h1::conn::Conn<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, bytes::bytes::Bytes, hyper::proto::h1::role::Server>>::poll_read_head",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 125,
+      "share": 0.3
+    },
+    {
+      "site": "<alloc::vec::Vec<(alloc::string::String, alloc::string::String)> as alloc::vec::spec_from_iter::SpecFromIter<(alloc::string::String, alloc::string::String), core::iter::adapters::map::Map<http::header::map::Iter<http::header::value::HeaderValue>, <nextrs_runtime::net::Shared>::run::{closure#0}::{closure#3}>>>::from_iter",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 315,
+      "share": 0.3
+    },
+    {
+      "site": "<tokio::runtime::task::core::Cell<<nextrs_runtime::net::NetClient>::start::{closure#0}, alloc::sync::Arc<tokio::runtime::scheduler::multi_thread::handle::Handle>>>::new",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 1804,
+      "share": 0.3
+    },
+    {
+      "site": "<nextrs_runtime::ops::op_nextrs_request_read::op_nextrs_request_read>::call::{closure#0}",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 43,
+      "share": 0.3
+    },
+    {
+      "site": "<axum_core::body::Body>::new::<nextrs_server::http_metrics::MeteredBody>",
+      "calls_per_req": 1,
+      "bytes_per_req": 84,
+      "share": 0.3
+    }
+  ],
+  "by_crate": [
+    {
+      "site": "alloc_impl_runtime",
+      "calls_per_req": 86.1,
+      "bytes_per_req": 20977,
+      "share": 25.4
+    },
+    {
+      "site": "v8",
+      "calls_per_req": 60.7,
+      "bytes_per_req": 63593,
+      "share": 17.9
+    },
+    {
+      "site": "serde_v8",
+      "calls_per_req": 52.2,
+      "bytes_per_req": 1192,
+      "share": 15.4
+    },
+    {
+      "site": "nextrs_server",
+      "calls_per_req": 27.5,
+      "bytes_per_req": 1132,
+      "share": 8.1
+    },
+    {
+      "site": "grow_impl_runtime",
+      "calls_per_req": 19.3,
+      "bytes_per_req": 2007,
+      "share": 5.7
+    },
+    {
+      "site": "url",
+      "calls_per_req": 13.3,
+      "bytes_per_req": 491,
+      "share": 3.9
+    },
+    {
+      "site": "deno_core",
+      "calls_per_req": 12.1,
+      "bytes_per_req": 627,
+      "share": 3.6
+    },
+    {
+      "site": "http",
+      "calls_per_req": 11.8,
+      "bytes_per_req": 1544,
+      "share": 3.5
+    },
+    {
+      "site": "nextrs_runtime",
+      "calls_per_req": 9.6,
+      "bytes_per_req": 1080,
+      "share": 2.8
+    },
+    {
+      "site": "reqwest",
+      "calls_per_req": 7.7,
+      "bytes_per_req": 2857,
+      "share": 2.3
+    },
+    {
+      "site": "u8 as <[_]>",
+      "calls_per_req": 6.2,
+      "bytes_per_req": 526,
+      "share": 1.8
+    },
+    {
+      "site": "alloc",
+      "calls_per_req": 5.3,
+      "bytes_per_req": 472,
+      "share": 1.6
+    },
+    {
+      "site": "std",
+      "calls_per_req": 4.1,
+      "bytes_per_req": 2975,
+      "share": 1.2
+    },
+    {
+      "site": "tokio",
+      "calls_per_req": 3.4,
+      "bytes_per_req": 2903,
+      "share": 1
+    },
+    {
+      "site": "v8__ValueSerializer__Delegate__ReallocateBufferMemory",
+      "calls_per_req": 3,
+      "bytes_per_req": 321,
+      "share": 0.9
+    },
+    {
+      "site": "axum_core",
+      "calls_per_req": 3,
+      "bytes_per_req": 456,
+      "share": 0.9
+    },
+    {
+      "site": "hyper_util",
+      "calls_per_req": 2.9,
+      "bytes_per_req": 3065,
+      "share": 0.9
+    },
+    {
+      "site": "heap",
+      "calls_per_req": 2.9,
+      "bytes_per_req": 4554,
+      "share": 0.9
+    },
+    {
+      "site": "tower",
+      "calls_per_req": 2.6,
+      "bytes_per_req": 5432,
+      "share": 0.8
+    },
+    {
+      "site": "hyper",
+      "calls_per_req": 2.5,
+      "bytes_per_req": 656,
+      "share": 0.7
+    },
+    {
+      "site": "tower_http",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 35,
+      "share": 0.3
+    },
+    {
+      "site": "std__shared_ptr__v8__BackingStore__CONVERT__std__unique_ptr",
+      "calls_per_req": 1,
+      "bytes_per_req": 32,
+      "share": 0.3
+    },
+    {
+      "site": "_ZNSt4__Cr25__try_key_extraction_implIN2v88internal8compiler10turboshaft7OpIndexENS_4pairINS_15__tree_iteratorINS_12__value_typeIS5_NS1_4base8SmallMapINS_3mapIS5_S5_NS_4lessIS5_EENS_9allocatorINS6_IKS5_S5_EEEEEELm4ENS9_8internal16select_equal_keyISI_Lb0EE9equal_keyENSJ_19SmallMapDefaultInitISI_EEEEEEPNS_11__tree_nodeISQ_PvEElEEbEEZNS_6__treeISQ_NS_19__map_value_compareIS5_NS6_ISF_SP_EESD_EENSE_ISZ_EEE16__emplace_uniqueIJRKNS_21piecewise_construct_tENS_5tupleIJRSF_EEENS17_IJEEEEEESW_DpOT_EUlS18_S16_OS19_OS1A_E_ZNS13_IJS16_S19_S1A_EEESW_S1D_EUlS16_S1E_S1F_E_S16_S19_S1A_TnNS_9enable_ifIXaaaaaasr7is_sameIu14__remove_constIu20__remove_reference_tIT3_EES14_EE5value12__is_tuple_vIT4_Eeqsr10tuple_sizeIS1M_EE5valueLi1Esr7is_sameIu14__remove_constIu20__remove_reference_tINS_13tuple_elementILm0ES1M_E4typeEEET_EE5valueEiE4typeELi0EEET0_NS_14__priority_tagILm1EEET1_T2_OS1J_OS1M_OT5_",
+      "calls_per_req": 0.8,
+      "bytes_per_req": 70,
+      "share": 0.2
+    },
+    {
+      "site": "cppgc",
+      "calls_per_req": 0.2,
+      "bytes_per_req": 6,
+      "share": 0
+    },
+    {
+      "site": "void v8",
+      "calls_per_req": 0.1,
+      "bytes_per_req": 5,
+      "share": 0
+    }
+  ]
+}

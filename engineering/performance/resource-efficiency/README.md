@@ -88,6 +88,27 @@ benchmark ran.
 | [RE-4.1-INDEPENDENT-REVIEW](RE-4.1-INDEPENDENT-REVIEW.md) | Review findings and their resolution |
 | [RE-4.1-MILESTONE-GATE](RE-4.1-MILESTONE-GATE.md) | The five verdicts and the seven questions |
 
+### RE-5: CPU efficiency and allocation optimization
+
+**RE-5 gate: see [RE-5-MILESTONE-GATE](RE-5-MILESTONE-GATE.md).**
+New controls are opt-in; no default or profile changed. No container
+benchmark ran: every measurement is process level.
+
+| Report | Contents |
+|---|---|
+| [RE-5-BASELINE-AND-PROFILING](RE-5-BASELINE-AND-PROFILING.md) | Pinned baseline, allocation counts and call sites per route class, CPU per request, baseline against candidate |
+| [RE-5-PRERENDER-MEMORY-OPTIMIZATION](RE-5-PRERENDER-MEMORY-OPTIMIZATION.md) | Idle memory against build size (100–50 000 routes); the opt-in file-backed prerender store; build metadata freed |
+| [RE-5-BUFFER-AND-OWNERSHIP-OPTIMIZATION](RE-5-BUFFER-AND-OWNERSHIP-OPTIMIZATION.md) | Every Rust–V8 copy point, which are required, the multipart copy removed |
+| [RE-5-CACHE-ALLOCATION-OPTIMIZATION](RE-5-CACHE-ALLOCATION-OPTIMIZATION.md) | Data/ISR cache conversions and copies; file encoding moved out of the store lock |
+| [RE-5-COMPRESSION-EFFICIENCY](RE-5-COMPRESSION-EFFICIENCY.md) | Where gzip costs CPU and memory; the small-budget trade-off against Velasia's assets |
+| [RE-5-IDLE-CPU-AND-SUPERVISION](RE-5-IDLE-CPU-AND-SUPERVISION.md) | Every periodic wakeup; the event-driven isolate heartbeat; idle CPU at 0–4 isolates |
+| [RE-5-GC-OPTIMIZATION](RE-5-GC-OPTIMIZATION.md) | `--js-young-semi-space` 4/8/16 against V8's sizing at the 512 MiB and 1 GiB heap caps (process level) |
+| [RE-5-EXTERNAL-MEMORY-EFFICIENCY](RE-5-EXTERNAL-MEMORY-EFFICIENCY.md) | The unenforced ArrayBuffer paths and what bounding each would cost |
+| [RE-5-RESOURCE-PROFILE-DESIGN](RE-5-RESOURCE-PROFILE-DESIGN.md) | Ceilings, reservations, allocations and resident memory kept apart; candidate 256/512 MiB configurations (unvalidated) |
+| [RE-5-CORRECTNESS-VALIDATION](RE-5-CORRECTNESS-VALIDATION.md) | Every test run, new regression tests, what CI and the campaign still need |
+| [RE-5-INDEPENDENT-REVIEW](RE-5-INDEPENDENT-REVIEW.md) | Review findings and their resolution |
+| [RE-5-MILESTONE-GATE](RE-5-MILESTONE-GATE.md) | The seven verdicts and the twelve questions |
+
 ## Data and reproduction
 
 [`results/`](results/) has one directory per stage, holding:
