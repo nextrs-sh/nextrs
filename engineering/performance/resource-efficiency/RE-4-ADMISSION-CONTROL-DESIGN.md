@@ -39,7 +39,7 @@ HTTP ──► native routes (static, prerendered, image, health, metrics) ─�
 | `inactive_file` | cgroup `memory.stat` (larger file) | re-read when older than 500 ms |
 | Recent admissions | reservations made since the current usage reading | exact (under the lock) |
 | Active and queued requests | pool state | exact |
-| Per-isolate heap used and limit | V8 statistics (existing sampling) | ≤ 1 s |
+| Per-isolate heap used and limit | V8 statistics (existing sampling) | ≤ 1 s while the isolate's event loop runs; an isolate parked on one long timer is not sampled until it wakes |
 
 Sampling is **on demand**: whichever admission finds the reading stale
 refreshes it, so an idle server reads nothing. RE-3 measured idle CPU per

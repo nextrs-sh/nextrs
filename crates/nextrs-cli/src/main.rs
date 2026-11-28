@@ -84,6 +84,8 @@ enum Command {
         #[command(flatten)]
         limits: LimitArgs,
         #[command(flatten)]
+        resources: ResourceArgs,
+        #[command(flatten)]
         net: NetArgs,
         #[command(flatten)]
         cache: CacheArgs,
@@ -554,6 +556,77 @@ struct LimitArgs {
     malloc_arena_max: Option<usize>,
 }
 
+/// RE-4 resource controls. All off by default and in every profile; for
+/// validation on the target hardware before any becomes a default.
+#[derive(clap::Args)]
+#[command(next_help_heading = "Resource controls (experimental, opt-in)")]
+struct ResourceArgs {
+    /// Memory-aware admission: while the container's working set is near
+    /// its memory budget, JavaScript requests wait (elevated) or get a 503
+    /// with Retry-After (critical); one request is always admitted when
+    /// none runs. Static files, prerendered pages and health checks are
+    /// not affected. Best effort, on measured memory and per-request
+    /// estimates: not a memory limit.
+    #[arg(long)]
+    memory_admission: bool,
+    /// Budget admission compares against [default: the container's memory
+    /// limit]. Required without a memory cgroup. Set it below the limit
+    /// when other processes share the container's cgroup.
+    #[arg(long, value_name = "MIB", requires = "memory_admission")]
+    memory_admission_budget: Option<u64>,
+    /// Working set, as a percentage of the budget, from which concurrency
+    /// is capped (--memory-admission-max-active) and the rest wait.
+    #[arg(
+        long,
+        value_name = "PERCENT",
+        default_value_t = 85.0,
+        requires = "memory_admission"
+    )]
+    memory_admission_pressure: f64,
+    /// Working set from which new requests are refused (503).
+    #[arg(
+        long,
+        value_name = "PERCENT",
+        default_value_t = 95.0,
+        requires = "memory_admission"
+    )]
+    memory_admission_critical: f64,
+    /// Memory each admitted request is assumed to need until the next
+    /// reading (uploads add their declared length). An estimate.
+    #[arg(
+        long,
+        value_name = "MIB",
+        default_value_t = 2,
+        requires = "memory_admission"
+    )]
+    memory_admission_reserve: u64,
+    /// JavaScript requests allowed at once, over all isolates, under
+    /// memory pressure [default: 4 per isolate].
+    #[arg(long, value_name = "N", requires = "memory_admission")]
+    memory_admission_max_active: Option<usize>,
+}
+
+impl ResourceArgs {
+    fn apply(&self, limits: &mut Limits) -> Result<(), String> {
+        const MIB: u64 = 1024 * 1024;
+        if self.memory_admission {
+            let admission = nextrs_runtime::MemoryAdmission {
+                budget_bytes: self.memory_admission_budget.map(|m| m.saturating_mul(MIB)),
+                pressure_percent: self.memory_admission_pressure,
+                critical_percent: self.memory_admission_critical,
+                request_reserve_bytes: self.memory_admission_reserve.saturating_mul(MIB),
+                pressure_max_active: self.memory_admission_max_active.map(|n| n.max(1)),
+                ..nextrs_runtime::MemoryAdmission::default()
+            };
+            admission
+                .validate()
+                .map_err(|e| format!("--memory-admission: {e}"))?;
+            limits.memory_admission = Some(admission);
+        }
+        Ok(())
+    }
+}
+
 /// `--js-heap-limit`: MiB, or `auto` (from the container's memory).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum HeapLimit {
@@ -866,6 +939,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             js_runtime,
             js_env,
             limits,
+            resources,
             net,
             cache,
             proxy,
@@ -957,6 +1031,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                         ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
                     config.limits = limits.executor_limits();
                     apply_heap_limit(&mut config.limits, &memory);
+                    resources.apply(&mut config.limits)?;
                     config.build_route_cache = info.route_cache_files();
                     if let Some(root) = &info.workspace_root {
                         tracing::info!(
@@ -1351,6 +1426,61 @@ mod tests {
         create_private_dir(&existing).unwrap();
         assert_eq!(mode(&existing), 0o750);
         std::fs::remove_dir_all(&base).unwrap();
+    }
+
+    mod resource_controls {
+        use super::super::{Cli, Command};
+        use clap::Parser;
+        use nextrs_runtime::Limits;
+
+        fn limits(args: &[&str]) -> Result<Limits, String> {
+            let mut argv = vec!["nextrs", "start", "."];
+            argv.extend_from_slice(args);
+            let cli = Cli::try_parse_from(argv).map_err(|e| e.to_string())?;
+            match cli.command {
+                Command::Start { resources, .. } => {
+                    let mut limits = Limits::default();
+                    resources.apply(&mut limits)?;
+                    Ok(limits)
+                }
+                _ => unreachable!("parsed a start command"),
+            }
+        }
+
+        #[test]
+        fn everything_is_off_by_default() {
+            let l = limits(&[]).unwrap();
+            assert!(l.memory_admission.is_none());
+        }
+
+        #[test]
+        fn memory_admission_takes_its_settings() {
+            let l = limits(&[
+                "--memory-admission",
+                "--memory-admission-budget",
+                "200",
+                "--memory-admission-pressure",
+                "80",
+                "--memory-admission-critical",
+                "90",
+                "--memory-admission-reserve",
+                "3",
+                "--memory-admission-max-active",
+                "6",
+            ])
+            .unwrap();
+            let a = l.memory_admission.unwrap();
+            assert_eq!(a.budget_bytes, Some(200 * 1024 * 1024));
+            assert_eq!((a.pressure_percent, a.critical_percent), (80.0, 90.0));
+            assert_eq!(a.request_reserve_bytes, 3 * 1024 * 1024);
+            assert_eq!(a.pressure_max_active, Some(6));
+        }
+
+        #[test]
+        fn memory_admission_settings_need_the_switch_and_valid_thresholds() {
+            assert!(limits(&["--memory-admission-budget", "200"]).is_err());
+            assert!(limits(&["--memory-admission", "--memory-admission-pressure", "96"]).is_err());
+        }
     }
 
     mod memory_settings {

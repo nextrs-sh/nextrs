@@ -14,6 +14,12 @@
 //!   whether it failed. A failed isolate is removed from dispatch at once,
 //!   its in-flight requests fail with it, and a fresh isolate replaces it
 //!   after an exponential backoff. Requests are never replayed.
+//! * **Memory admission** (optional, `Limits::memory_admission`). A gate
+//!   in the pool state, used under the same lock, decides from the
+//!   container's memory whether a request is admitted, waits, or is
+//!   refused ([`crate::admission`]). With it on, a newcomer never
+//!   overtakes the queue, and isolates near their heap limit are skipped
+//!   while they have requests in flight.
 
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, AtomicU8, AtomicU64, AtomicUsize, Ordering};
@@ -25,9 +31,10 @@ use std::time::{Duration, Instant};
 use deno_core::v8;
 use tokio::sync::{Notify, mpsc, oneshot};
 
+use crate::admission::{Decision, Gate, Ticket};
 use crate::cache::CacheStore;
 use crate::metrics::CacheSnapshot;
-use crate::metrics::{self, Counters, ExecutorSnapshot, MetricsSnapshot};
+use crate::metrics::{self, AdmissionSnapshot, Counters, ExecutorSnapshot, MetricsSnapshot};
 use crate::net::NetClient;
 use crate::response::{self, ResponseSender};
 use crate::{ExecutorConfig, ExecutorError, RenderError, RenderRequest, ResponseStream, worker};
@@ -282,6 +289,13 @@ impl WorkerShared {
             .store(stats.heap_size_limit(), Ordering::Relaxed);
     }
 
+    /// Whether the sampled heap use is at least `percent` of the limit.
+    fn near_heap_limit(&self, percent: f64) -> bool {
+        let limit = self.heap_limit.load(Ordering::Relaxed);
+        limit > 0
+            && (self.heap_used.load(Ordering::Relaxed) as f64) >= limit as f64 * percent / 100.0
+    }
+
     /// Called from V8's GC epilogue after every full collection.
     pub fn record_full_gc(&self, used_heap: usize) {
         self.heap_after_gc.store(used_heap, Ordering::Relaxed);
@@ -434,7 +448,8 @@ impl Drop for Slot {
 
 struct Waiter {
     id: u64,
-    slot: oneshot::Sender<Slot>,
+    slot: oneshot::Sender<Result<Slot, RenderError>>,
+    ticket: Ticket,
 }
 
 #[derive(Default)]
@@ -452,6 +467,10 @@ struct PoolState {
     history: Vec<SlotHistory>,
     waiters: VecDeque<Waiter>,
     next_waiter: u64,
+    /// Header and URL bytes the queued requests hold (`Ticket::queued_bytes`).
+    queued_bytes: usize,
+    /// Memory-aware admission, when enabled.
+    gate: Option<Gate>,
 }
 
 pub(crate) struct PoolInner {
@@ -496,10 +515,24 @@ impl PoolInner {
     /// req/s on /books/42). Claims the slot. Requires the pool lock.
     fn claim(&self, state: &mut PoolState) -> Option<Arc<WorkerShared>> {
         let limit = self.config.limits.max_active_per_isolate;
+        let heap_percent = state
+            .gate
+            .as_ref()
+            .and_then(|gate| gate.config().heap_percent);
         let mut best: Option<((bool, usize), &Arc<WorkerShared>)> = None;
         for worker in state.workers.iter().flatten() {
             let active = worker.active.load(Ordering::Relaxed);
             if worker.state() != READY || active >= limit {
+                continue;
+            }
+            // With memory admission: an isolate about to reach its heap
+            // limit takes no more requests while it has some (a heap-limit
+            // termination fails all of them). An idle one always may.
+            if let Some(percent) = heap_percent
+                && active > 0
+                && worker.near_heap_limit(percent)
+            {
+                metrics::add(&self.counters.admission_heap_skips, 1);
                 continue;
             }
             let key = (worker.busy_for() > BUSY_HINT, active);
@@ -512,16 +545,62 @@ impl PoolInner {
         Some(worker)
     }
 
-    /// Hands free capacity to queued requests, oldest first.
+    /// Requests active over all isolates. Requires the pool lock.
+    fn total_active(state: &PoolState) -> usize {
+        state
+            .workers
+            .iter()
+            .flatten()
+            .map(|w| w.active.load(Ordering::Relaxed))
+            .sum()
+    }
+
+    /// Hands free capacity to queued requests, oldest first. With memory
+    /// admission, the oldest waiter also needs the gate's consent: while it
+    /// must wait, everyone behind it waits too (no overtaking); in the
+    /// critical state queued requests are refused rather than held.
     fn dispatch_waiters(&self, state: &mut PoolState) {
-        while !state.waiters.is_empty() {
+        while let Some(front) = state.waiters.front() {
+            let ticket = front.ticket;
+            let active = Self::total_active(state);
+            let decision = state
+                .gate
+                .as_mut()
+                .map(|gate| gate.decide(Instant::now(), ticket.reserve, active));
+            let progress = decision == Some(Decision::Progress);
+            match decision {
+                None | Some(Decision::Admit | Decision::Progress) => {}
+                Some(Decision::Defer) => return,
+                Some(Decision::Refuse) => {
+                    let waiter = state.waiters.pop_front().expect("not empty");
+                    state.queued_bytes = state.queued_bytes.saturating_sub(ticket.queued_bytes);
+                    metrics::add(
+                        &self.counters.rejected_memory_pressure[ticket.class.index()],
+                        1,
+                    );
+                    let _ = waiter.slot.send(Err(RenderError::MemoryPressure));
+                    continue;
+                }
+            }
             let Some(worker) = self.claim(state) else {
                 return;
             };
             let waiter = state.waiters.pop_front().expect("not empty");
-            if let Err(slot) = waiter.slot.send(self.slot(&worker)) {
+            state.queued_bytes = state.queued_bytes.saturating_sub(ticket.queued_bytes);
+            match waiter.slot.send(Ok(self.slot(&worker))) {
+                Ok(()) => {
+                    if let Some(gate) = state.gate.as_mut() {
+                        gate.admitted(ticket.reserve);
+                        if progress {
+                            metrics::add(&self.counters.admission_progress, 1);
+                        }
+                    }
+                }
                 // The waiter timed out meanwhile; take the claim back.
-                slot.disarm().active.fetch_sub(1, Ordering::Relaxed);
+                Err(Ok(slot)) => {
+                    slot.disarm().active.fetch_sub(1, Ordering::Relaxed);
+                }
+                Err(Err(_)) => {}
             }
         }
     }
@@ -532,24 +611,76 @@ impl PoolInner {
         self.dispatch_waiters(&mut state);
     }
 
-    async fn acquire(&self) -> Result<Slot, RenderError> {
+    async fn acquire(&self, ticket: Ticket) -> Result<Slot, RenderError> {
         let (id, receiver) = {
             let mut state = self.lock();
             if self.is_shutting_down() {
                 metrics::add(&self.counters.rejected_shutting_down, 1);
                 return Err(RenderError::ShuttingDown);
             }
-            if let Some(worker) = self.claim(&mut state) {
-                return Ok(self.slot(&worker));
+            let active = Self::total_active(&state);
+            let queued = !state.waiters.is_empty();
+            let decision = state
+                .gate
+                .as_mut()
+                .map(|gate| gate.decide(Instant::now(), ticket.reserve, active));
+            let mut deferred = false;
+            match decision {
+                None => {
+                    if let Some(worker) = self.claim(&mut state) {
+                        return Ok(self.slot(&worker));
+                    }
+                }
+                Some(Decision::Refuse) => {
+                    metrics::add(
+                        &self.counters.rejected_memory_pressure[ticket.class.index()],
+                        1,
+                    );
+                    return Err(RenderError::MemoryPressure);
+                }
+                // Behind earlier waiters, a newcomer queues (FIFO).
+                Some(Decision::Admit | Decision::Progress) if queued => deferred = true,
+                Some(decision @ (Decision::Admit | Decision::Progress)) => {
+                    if let Some(worker) = self.claim(&mut state) {
+                        if let Some(gate) = state.gate.as_mut() {
+                            gate.admitted(ticket.reserve);
+                        }
+                        if decision == Decision::Progress {
+                            metrics::add(&self.counters.admission_progress, 1);
+                        }
+                        return Ok(self.slot(&worker));
+                    }
+                }
+                Some(Decision::Defer) => {
+                    deferred = true;
+                    metrics::add(&self.counters.admission_deferred, 1);
+                }
             }
             if state.waiters.len() >= self.config.limits.max_queued {
+                metrics::add(&self.counters.rejected_overloaded, 1);
+                return Err(RenderError::Overloaded);
+            }
+            if let Some(gate) = &state.gate
+                && state.queued_bytes.saturating_add(ticket.queued_bytes)
+                    > gate.config().max_queued_bytes
+            {
                 metrics::add(&self.counters.rejected_overloaded, 1);
                 return Err(RenderError::Overloaded);
             }
             let (sender, receiver) = oneshot::channel();
             state.next_waiter += 1;
             let id = state.next_waiter;
-            state.waiters.push_back(Waiter { id, slot: sender });
+            state.queued_bytes = state.queued_bytes.saturating_add(ticket.queued_bytes);
+            state.waiters.push_back(Waiter {
+                id,
+                slot: sender,
+                ticket,
+            });
+            if deferred {
+                // The head may be dispatchable now (a newcomer behind it
+                // must not be the only one checking).
+                self.dispatch_waiters(&mut state);
+            }
             (id, receiver)
         };
         // A caller that gives up (client gone) leaves the queue at once
@@ -563,7 +694,8 @@ impl PoolInner {
             started.elapsed().as_micros() as u64,
         );
         match outcome {
-            Ok(Ok(slot)) => Ok(slot),
+            Ok(Ok(Ok(slot))) => Ok(slot),
+            Ok(Ok(Err(error))) => Err(error),
             // The pool dropped the waiter: shutdown.
             Ok(Err(_)) => {
                 metrics::add(&self.counters.rejected_shutting_down, 1);
@@ -616,7 +748,11 @@ impl PoolInner {
 
     fn begin_shutdown(&self) {
         self.shutting_down.store(true, Ordering::Release);
-        let waiters = std::mem::take(&mut self.lock().waiters);
+        let waiters = {
+            let mut state = self.lock();
+            state.queued_bytes = 0;
+            std::mem::take(&mut state.waiters)
+        };
         drop(waiters);
         let (lock, condvar) = &self.shutdown;
         *lock.lock().unwrap_or_else(|e| e.into_inner()) = true;
@@ -638,6 +774,9 @@ impl PoolInner {
         snapshot.max_queued = limits.max_queued;
         let state = self.lock();
         snapshot.queued = state.waiters.len();
+        snapshot.admission = state.gate.as_ref().map(|gate| {
+            AdmissionSnapshot::new(&self.counters, gate, state.queued_bytes, Instant::now())
+        });
         snapshot.executors = state
             .history
             .iter()
@@ -676,7 +815,17 @@ struct LeaveQueue<'a> {
 
 impl Drop for LeaveQueue<'_> {
     fn drop(&mut self) {
-        self.pool.lock().waiters.retain(|w| w.id != self.id);
+        let mut state = self.pool.lock();
+        if let Some(index) = state.waiters.iter().position(|w| w.id == self.id) {
+            let waiter = state.waiters.remove(index).expect("found");
+            state.queued_bytes = state
+                .queued_bytes
+                .saturating_sub(waiter.ticket.queued_bytes);
+            // A waiter that left at the head may have been blocking others.
+            if index == 0 {
+                self.pool.dispatch_waiters(&mut state);
+            }
+        }
     }
 }
 
@@ -720,6 +869,30 @@ impl Executor {
             }
             None => None,
         };
+        let gate = match &config.limits.memory_admission {
+            Some(admission) => match Gate::new(admission.clone(), isolates) {
+                Ok(gate) => {
+                    tracing::info!(
+                        target: "nextrs::admission",
+                        source = %gate.probe_description(),
+                        budget_mib = gate.budget().map(|b| b / (1024 * 1024)),
+                        state = gate.state().as_str(),
+                        pressure_percent = admission.pressure_percent,
+                        critical_percent = admission.critical_percent,
+                        "memory-aware admission enabled"
+                    );
+                    Some(gate)
+                }
+                Err(reason) => {
+                    tracing::warn!(
+                        target: "nextrs::admission",
+                        "memory-aware admission is off: {reason}"
+                    );
+                    None
+                }
+            },
+            None => None,
+        };
         let inner = Arc::new_cyclic(|me| PoolInner {
             me: me.clone(),
             config,
@@ -730,6 +903,7 @@ impl Executor {
             state: Mutex::new(PoolState {
                 workers: vec![None; isolates],
                 history: (0..isolates).map(|_| SlotHistory::default()).collect(),
+                gate,
                 ..PoolState::default()
             }),
             shutting_down: AtomicBool::new(false),
@@ -780,10 +954,17 @@ impl Executor {
         let limits = &self.inner.config.limits;
         let (sender, stream) =
             response::channel(limits.response_buffer_bytes, self.inner.counters.clone());
+        let ticket = Ticket::for_request(
+            &request,
+            limits
+                .memory_admission
+                .as_ref()
+                .map_or(0, |a| a.request_reserve_bytes),
+        );
         let mut job = Box::new(Job {
             request,
             response: sender,
-            slot: self.inner.acquire().await?,
+            slot: self.inner.acquire(ticket).await?,
             timeout_ms: limits.request_timeout.map(|t| t.as_millis() as u64),
             queued_at,
         });
@@ -803,7 +984,7 @@ impl Executor {
                         return Err(RenderError::Unavailable);
                     }
                     // Replacing the slot releases the dead isolate's one.
-                    job.slot = self.inner.acquire().await?;
+                    job.slot = self.inner.acquire(ticket).await?;
                 }
             }
         };

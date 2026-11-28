@@ -151,6 +151,16 @@ impl Cgroup {
             CgroupVersion::V1 => read_v1(&self.dir),
         }
     }
+
+    /// Reads only the memory charged to the cgroup (one small file), for
+    /// callers that re-read it often and take the limit and the page
+    /// cache from a less frequent [`Cgroup::read`].
+    pub fn read_usage(&self) -> Option<u64> {
+        match self.version {
+            CgroupVersion::V2 => read_number(&self.dir.join("memory.current")),
+            CgroupVersion::V1 => read_number(&self.dir.join("memory.usage_in_bytes")),
+        }
+    }
 }
 
 /// One cgroup filesystem mount from `/proc/self/mountinfo`.
