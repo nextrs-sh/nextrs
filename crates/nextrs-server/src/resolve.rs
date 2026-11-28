@@ -1093,23 +1093,34 @@ async fn run_proxy(
 
     // The body is buffered whole for the proxy and kept for the route.
     let has_body = *method != Method::GET && *method != Method::HEAD;
-    let limit = proxy.body_limit.min(state.max_request_body);
+    let mut limit = proxy.body_limit.min(state.max_request_body);
     // With a native buffer budget, the most the body can hold (its
-    // declared length, else the limit) is reserved before buffering, and
-    // stays reserved until both copies (the proxy's and the route's) are
-    // dropped.
+    // declared length, else the limit) is reserved before buffering. The
+    // buffered bytes own the reservation, so it lasts until every copy
+    // (the proxy's, the route's, a read in progress) is dropped. A body
+    // that cannot fit in the whole budget is refused (413) instead of
+    // taking more than the budget (RE-4.1A).
     let permit = match &state.native_buffer_budget {
         Some(budget) if has_body => {
             use http_body::Body as _;
-            let bound = body
-                .size_hint()
-                .upper()
-                .map_or(limit, |upper| upper.min(limit));
+            let total = budget.total_bytes();
+            let declared = body.size_hint().upper();
+            if declared.is_some_and(|d| d <= limit && d > total) {
+                return ProxyStep::Finish(
+                    Outcome::Respond(crate::native_budget::body_exceeds_budget(total)),
+                    Body::empty(),
+                );
+            }
+            // A body of unknown length may hold at most the budget (one
+            // declared above the limit keeps its own 413 below).
+            let budget_bound = limit > total && declared.is_none();
+            limit = limit.min(total);
+            let bound = declared.map_or(limit, |upper| upper.min(limit));
             match budget
                 .reserve(crate::native_budget::BufferKind::ProxyBody, bound.max(1))
                 .await
             {
-                Some(permit) => Some(std::sync::Arc::new(permit)),
+                Some(permit) => Some((permit, budget_bound, total)),
                 None => {
                     return ProxyStep::Finish(
                         Outcome::Respond(crate::native_budget_exhausted()),
@@ -1122,7 +1133,17 @@ async fn run_proxy(
     };
     let bytes = if has_body {
         match buffer_body(body, limit).await {
-            Ok(bytes) => bytes,
+            Ok(bytes) => match permit {
+                Some((permit, ..)) => permit.own(bytes),
+                None => bytes,
+            },
+            Err(_) if matches!(permit, Some((_, true, _))) => {
+                let total = permit.map_or(0, |(_, _, total)| total);
+                return ProxyStep::Finish(
+                    Outcome::Respond(crate::native_budget::body_exceeds_budget(total)),
+                    Body::empty(),
+                );
+            }
             Err(response) => return ProxyStep::Finish(Outcome::Respond(*response), Body::empty()),
         }
     } else {
@@ -1130,14 +1151,10 @@ async fn run_proxy(
         Bytes::new()
     };
     let rest = || {
-        let body = if bytes.is_empty() {
+        if bytes.is_empty() {
             Body::empty()
         } else {
             Body::from(bytes.clone())
-        };
-        match &permit {
-            Some(permit) => crate::native_budget::PermitBody::wrap(body, permit.clone()),
-            None => body,
         }
     };
 
