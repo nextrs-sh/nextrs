@@ -126,6 +126,101 @@ async fn a_turn_blocked_for_good_is_terminated_at_the_wall_backstop() {
     );
 }
 
+/// RE-5F: the isolate proves it is not stuck by its own events (park,
+/// unpark, turn start) instead of a 25 ms timer. A loop that starts after
+/// the isolate has been idle, parked, is still a stall.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_stall_that_starts_after_an_idle_period_is_terminated() {
+    let executor = executor(small_limits());
+    let before = whoami(&executor).await;
+    // Idle long enough for the isolate thread to park many times over.
+    tokio::time::sleep(Duration::from_secs(1)).await;
+    let started = Instant::now();
+    let _ = collect(&executor, request("faults.js", &[("x-mode", "loop")])).await;
+    assert!(
+        eventually(Duration::from_secs(10), async || failures(
+            &executor,
+            FailureReason::CpuStall
+        ) == 1)
+        .await,
+        "not terminated: {:?}",
+        executor.metrics().executors
+    );
+    // 500 ms of CPU, then the supervisor's next check (50 ms).
+    let elapsed = started.elapsed();
+    assert!(elapsed < Duration::from_secs(5), "{elapsed:?}");
+    assert_ne!(whoami(&executor).await, before, "replaced");
+}
+
+/// Many short turns are not one long one: 2 s of work in 2 ms slices,
+/// each yielding to the event loop, with a 500 ms stall limit, completes
+/// and keeps the isolate.
+#[tokio::test(flavor = "multi_thread")]
+async fn many_short_turns_are_not_a_stall() {
+    let executor = executor(small_limits());
+    let response = collect(
+        &executor,
+        request("faults.js", &[("x-mode", "yielding"), ("x-delay", "2000")]),
+    )
+    .await;
+    assert_eq!(response.status, 200, "{}", response.text());
+    assert!(response.text().contains(":yielded:"), "{}", response.text());
+    assert_eq!(failures(&executor, FailureReason::CpuStall), 0);
+    assert_eq!(executor.metrics().executors[0].restarts, 0);
+}
+
+/// Times the thread named `name` of this process was scheduled (each is a
+/// wakeup), from /proc/self/task/*/schedstat; `None` without it.
+#[cfg(target_os = "linux")]
+fn scheduled(name: &str) -> Option<u64> {
+    for task in std::fs::read_dir("/proc/self/task").ok()? {
+        let dir = task.ok()?.path();
+        let comm = std::fs::read_to_string(dir.join("comm")).unwrap_or_default();
+        if comm.trim() == name {
+            let stat = std::fs::read_to_string(dir.join("schedstat")).ok()?;
+            return stat.split_whitespace().nth(2)?.parse().ok();
+        }
+    }
+    None
+}
+
+/// RE-5F: an idle isolate thread is not woken by a timer (the old 25 ms
+/// heartbeat woke it 40 times a second). In a child process, so that no
+/// other test's isolates share the thread name.
+#[cfg(target_os = "linux")]
+#[tokio::test(flavor = "multi_thread")]
+async fn child_idle_isolate_wakeups() {
+    if !is_child("idle-wakeups") {
+        return;
+    }
+    let executor = executor(small_limits());
+    whoami(&executor).await;
+    tokio::time::sleep(Duration::from_millis(500)).await;
+    let a = scheduled("nextrs-v8-0").expect("the isolate thread");
+    tokio::time::sleep(Duration::from_secs(2)).await;
+    let b = scheduled("nextrs-v8-0").expect("the isolate thread");
+    println!("WAKEUPS {}", b - a);
+    executor.shutdown();
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+fn an_idle_isolate_is_not_woken_by_its_watchdog() {
+    let output = run_in_child("child_idle_isolate_wakeups", "idle-wakeups", &[]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let wakeups: u64 = stdout
+        .lines()
+        // libtest may print its "test … ..." prefix on the same line.
+        .find_map(|l| l.split_once("WAKEUPS ").map(|(_, n)| n))
+        .unwrap_or_else(|| panic!("no count: {stdout}"))
+        .trim()
+        .parse()
+        .unwrap();
+    // 2 s idle: 80 with a 25 ms heartbeat; now only V8's own delayed tasks
+    // and the once-a-second heap sample when something else polls.
+    assert!(wakeups < 20, "{wakeups} wakeups in 2 s idle");
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn an_endless_microtask_chain_is_terminated_and_replaced() {
     fails_and_recovers("microtask-loop", FailureReason::CpuStall, small_limits()).await;

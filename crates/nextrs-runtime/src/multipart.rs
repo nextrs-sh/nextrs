@@ -37,13 +37,33 @@ fn type_error(message: impl std::fmt::Display) -> JsErrorBox {
 /// Parses a whole multipart body. Malformed input (bad or missing boundary,
 /// truncated parts, a missing final delimiter) is a TypeError, as in
 /// Node's `formData()`.
+///
+/// Synchronous (RE-5C): JavaScript cannot run, so nothing can change the
+/// body's buffer, until the parse returns, and the parser reads the body in
+/// place instead of an extra copy of it (one copy of the whole body less
+/// per call; multer still buffers its input internally). The parse never
+/// waits: its only input is the body, already complete. Each part is still
+/// copied out into its own buffer for JavaScript.
 #[op2]
 #[serde]
-pub(crate) async fn op_nextrs_multipart_parse(
+pub(crate) fn op_nextrs_multipart_parse(
     #[string] content_type: String,
     #[buffer] body: JsBuffer,
 ) -> Result<Vec<Part>, JsErrorBox> {
-    parse(&content_type, Bytes::copy_from_slice(&body)).await
+    use futures_util::FutureExt;
+    parse(&content_type, Bytes::from_owner(InPlace(body)))
+        .now_or_never()
+        .unwrap_or_else(|| Err(type_error("the parser waited for input")))
+}
+
+/// The body's buffer, owned by the `Bytes` the parser reads (dropped with
+/// the last of them, inside the op).
+struct InPlace(JsBuffer);
+
+impl AsRef<[u8]> for InPlace {
+    fn as_ref(&self) -> &[u8] {
+        &self.0
+    }
 }
 
 pub(crate) async fn parse(content_type: &str, body: Bytes) -> Result<Vec<Part>, JsErrorBox> {

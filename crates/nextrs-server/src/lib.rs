@@ -17,6 +17,7 @@ mod native_budget;
 mod pages;
 #[cfg(feature = "negative-controls")]
 mod pages_controls;
+mod prerender_store;
 mod range;
 pub mod reclaim;
 mod resolve;
@@ -31,6 +32,7 @@ pub use crate::dynamic::DEFAULT_MAX_REQUEST_BODY;
 pub use crate::http_metrics::HttpMetrics;
 pub use crate::image::{ImageCacheOptions, ImageFault, ImageFaults, ImageOptions};
 pub use crate::native_budget::NativeBufferBudget;
+pub use crate::prerender_store::PrerenderStore;
 pub use crate::reclaim::{ReclaimPolicy, ReclaimStats};
 pub use crate::serve::{ClientAddr, ServeOptions, serve};
 
@@ -149,6 +151,10 @@ pub struct ServerOptions {
     /// files read for a response, and request bodies buffered for the
     /// proxy. `None` (the default): no aggregate bound.
     pub native_buffer_budget: Option<Arc<NativeBufferBudget>>,
+    /// Prerendered output served from its files through a bounded cache
+    /// (`--prerender-cache`, RE-5B) instead of read into memory at
+    /// startup. `None` (the default): read at startup, as before.
+    pub prerender_store: Option<Arc<PrerenderStore>>,
 }
 
 impl Default for ServerOptions {
@@ -163,6 +169,7 @@ impl Default for ServerOptions {
             compression_cache: Arc::new(CompressionCache::default()),
             metrics: HttpMetrics::new(),
             native_buffer_budget: None,
+            prerender_store: None,
         }
     }
 }
@@ -250,7 +257,7 @@ pub async fn app_with_stats(
     if !unsupported.is_empty() && !options.allow_unsupported {
         return Err(StartError::Unsupported(unsupported));
     }
-    let state = AppState::load(info).await?;
+    let state = AppState::load(info, options.prerender_store.is_some()).await?;
     let images = match &info.images {
         Some(images) => Some(Arc::new(
             image::Optimizer::new(
@@ -272,6 +279,7 @@ pub async fn app_with_stats(
         compression_cache: options.compression_cache.clone(),
         metrics: options.metrics.clone(),
         native_buffer_budget: options.native_buffer_budget.clone(),
+        prerender_store: options.prerender_store.clone(),
         ..state
     });
     if let Some(images) = &state.images {
@@ -443,6 +451,11 @@ fn internal_failure(status: StatusCode) -> nextrs_runtime::InternalResponse {
 struct AppState {
     config: RoutingConfig,
     rsc: RscConfig,
+    /// `rsc.vary_header` and `rsc.content_type` as header values, made
+    /// once: prerendered responses sent them per request (RE-5A: two of
+    /// the dozen allocations of a prerendered response).
+    rsc_vary: Option<HeaderValue>,
+    rsc_content_type: Option<HeaderValue>,
     static_root: Option<PathBuf>,
     public_root: Option<PathBuf>,
     /// Prerendered pages that never revalidate on a timer, served from
@@ -467,6 +480,8 @@ struct AppState {
     compress: bool,
     compression_cache: Arc<CompressionCache>,
     native_buffer_budget: Option<Arc<NativeBufferBudget>>,
+    /// Where file-backed prerendered bodies are read through (RE-5B).
+    prerender_store: Option<Arc<PrerenderStore>>,
     /// Serving-stage timings (`HttpMetrics::stages`).
     metrics: Arc<HttpMetrics>,
     /// Files in `public/` (relative, decoded), listed at startup as next
@@ -588,9 +603,81 @@ impl Page {
 struct Cached {
     /// Names this body for the compression cache (unique per load).
     id: u64,
-    body: Bytes,
+    /// The body's length (known without reading a file-backed body).
+    len: u64,
+    body: CachedBody,
     headers: Vec<(HeaderName, HeaderValue)>,
-    etag: Option<HeaderValue>,
+    /// Whether the response carries an ETag (HTML).
+    with_etag: bool,
+    /// The ETag, once known: at startup for a resident body, at its first
+    /// read for a file-backed one (`None` inside: none could be made).
+    etag: std::sync::OnceLock<Option<HeaderValue>>,
+}
+
+#[derive(Clone)]
+enum CachedBody {
+    /// Read at startup (the default).
+    Resident(Bytes),
+    /// Read when needed, through the prerender store (`--prerender-cache`).
+    File(prerender_store::FileSource),
+}
+
+impl Cached {
+    /// The ETag, if it is known without reading the body.
+    fn known_etag(&self) -> Option<Option<&HeaderValue>> {
+        if !self.with_etag {
+            return Some(None);
+        }
+        self.etag.get().map(Option::as_ref)
+    }
+
+    /// The body: its bytes, or for a file-backed body its file's bytes
+    /// through the store (which also settles the ETag). An error is the
+    /// response to send instead.
+    async fn body(&self, state: &AppState) -> Result<Bytes, Box<Response>> {
+        let bytes = match &self.body {
+            CachedBody::Resident(bytes) => return Ok(bytes.clone()),
+            CachedBody::File(source) => {
+                let Some(store) = &state.prerender_store else {
+                    return Err(Box::new(prerender_unavailable()));
+                };
+                match store
+                    .body(self.id, source, state.native_buffer_budget.as_ref())
+                    .await
+                {
+                    Ok(bytes) => bytes,
+                    Err(prerender_store::LoadError::Busy) => {
+                        return Err(Box::new(native_budget_exhausted()));
+                    }
+                    Err(error) => {
+                        tracing::error!(
+                            path = %source.path.display(),
+                            %error,
+                            "prerendered output could not be served from the build"
+                        );
+                        return Err(Box::new(prerender_unavailable()));
+                    }
+                }
+            }
+        };
+        if self.with_etag {
+            self.etag.get_or_init(|| etag_for(&bytes));
+        }
+        Ok(bytes)
+    }
+}
+
+/// A file-backed prerendered body that could not be served (logged).
+fn prerender_unavailable() -> Response {
+    dynamic::error_response(
+        StatusCode::INTERNAL_SERVER_ERROR,
+        "prerender-unavailable",
+        "the prerendered response could not be read from the build",
+    )
+}
+
+fn etag_for(body: &[u8]) -> Option<HeaderValue> {
+    HeaderValue::from_str(&etag::generate_etag(&String::from_utf8_lossy(body))).ok()
 }
 
 /// `Cached::id`s.
@@ -621,7 +708,9 @@ impl CompiledRoute {
 }
 
 impl AppState {
-    async fn load(info: &BuildInfo) -> Result<Self, StartError> {
+    /// `file_backed`: prerendered bodies are read when needed, through the
+    /// prerender store, instead of at startup.
+    async fn load(info: &BuildInfo, file_backed: bool) -> Result<Self, StartError> {
         let mut pages = HashMap::new();
         let mut not_found = None;
         for prerender in &info.prerenders {
@@ -641,14 +730,14 @@ impl AppState {
             if prerender.postponed {
                 continue;
             }
-            let html = load_cached(prerender.html.as_ref(), true).await?;
+            let html = load_cached(prerender.html.as_ref(), true, file_backed).await?;
             if prerender.pathname == "/_not-found" {
                 not_found = html;
                 continue;
             }
             let mut segments = HashMap::new();
             for (path, stored) in &prerender.segments {
-                if let Some(cached) = load_cached(Some(stored), false).await? {
+                if let Some(cached) = load_cached(Some(stored), false, file_backed).await? {
                     segments.insert(path.clone(), cached);
                 }
             }
@@ -689,7 +778,7 @@ impl AppState {
                 Page {
                     status,
                     html,
-                    rsc: load_cached(prerender.rsc.as_ref(), false).await?,
+                    rsc: load_cached(prerender.rsc.as_ref(), false, file_backed).await?,
                     segments,
                     tags,
                     written_ms,
@@ -750,6 +839,7 @@ impl AppState {
             compress: info.config.compress,
             compression_cache: Arc::new(CompressionCache::disabled()),
             native_buffer_budget: None,
+            prerender_store: None,
             metrics: HttpMetrics::new(),
             needs_node_headers: proxy.is_some()
                 || [
@@ -770,6 +860,8 @@ impl AppState {
             config: info.config.clone(),
             i18n: info.config.i18n.clone().map(i18n::I18n::new),
             rsc: info.rsc.clone(),
+            rsc_vary: HeaderValue::from_str(&info.rsc.vary_header).ok(),
+            rsc_content_type: HeaderValue::from_str(&info.rsc.content_type).ok(),
             static_root: canonical_dir(&info.static_dir).await,
             public_root,
             pages,
@@ -784,7 +876,7 @@ impl AppState {
                 .map(std::time::Duration::from_millis),
             forwarded: ForwardedHeaders::Pass,
             images: None,
-            pages_router: pages::PagesState::load(info).await?,
+            pages_router: pages::PagesState::load(info, file_backed).await?,
         })
     }
 }
@@ -824,16 +916,27 @@ async fn canonical_dir(dir: &Path) -> Option<PathBuf> {
 async fn load_cached(
     stored: Option<&StoredResponse>,
     with_etag: bool,
+    file_backed: bool,
 ) -> Result<Option<Cached>, StartError> {
     let Some(stored) = stored else {
         return Ok(None);
     };
-    let body = tokio::fs::read(&stored.file)
-        .await
-        .map_err(|source| StartError::Io {
-            path: stored.file.clone(),
-            source,
-        })?;
+    let io = |source| StartError::Io {
+        path: stored.file.clone(),
+        source,
+    };
+    let etag = std::sync::OnceLock::new();
+    let (len, body) = if file_backed {
+        let metadata = tokio::fs::metadata(&stored.file).await.map_err(io)?;
+        let source = prerender_store::FileSource::new(stored.file.clone(), &metadata);
+        (source.len, CachedBody::File(source))
+    } else {
+        let body = tokio::fs::read(&stored.file).await.map_err(io)?;
+        if with_etag {
+            let _ = etag.set(etag_for(&body));
+        }
+        (body.len() as u64, CachedBody::Resident(Bytes::from(body)))
+    };
     let headers = stored
         .headers
         .iter()
@@ -845,13 +948,12 @@ async fn load_cached(
             ))
         })
         .collect();
-    let etag = with_etag
-        .then(|| HeaderValue::from_str(&etag::generate_etag(&String::from_utf8_lossy(&body))).ok())
-        .flatten();
     Ok(Some(Cached {
         id: NEXT_CACHED_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed),
-        body: Bytes::from(body),
+        len,
+        body,
         headers,
+        with_etag,
         etag,
     }))
 }
@@ -1274,6 +1376,7 @@ async fn serve_resolved(
                 headers,
                 method,
             )
+            .await
         }
         Output::Image => {
             let optimizer = state.images.as_ref().filter(|o| !o.images().disabled());
@@ -1488,7 +1591,7 @@ async fn serve_resolved(
                     }
                 }
                 if rsc::is_rsc_request(headers, &state.rsc.header) {
-                    return serve_rsc(state, page, &request_path, query, headers, method);
+                    return serve_rsc(state, page, &request_path, query, headers, method).await;
                 }
                 if let Some(html) = &page.html {
                     let mut response = prerendered(
@@ -1500,7 +1603,8 @@ async fn serve_resolved(
                         true,
                         headers,
                         method,
-                    );
+                    )
+                    .await;
                     // Next's handler names the route a data request matched.
                     if headers.contains_key("x-nextjs-data")
                         && let Ok(value) = HeaderValue::from_str(path)
@@ -1724,16 +1828,19 @@ async fn not_found_render(
         NO_STORE
     };
     match &state.not_found {
-        Some(page) => prerendered(
-            state,
-            page,
-            StatusCode::NOT_FOUND,
-            cache_control,
-            HTML,
-            true,
-            headers,
-            method,
-        ),
+        Some(page) => {
+            prerendered(
+                state,
+                page,
+                StatusCode::NOT_FOUND,
+                cache_control,
+                HTML,
+                true,
+                headers,
+                method,
+            )
+            .await
+        }
         None => not_found_plain(),
     }
 }
@@ -1768,7 +1875,8 @@ pub(crate) async fn render_not_found_for_handler(
             true,
             ctx.headers,
             ctx.method,
-        );
+        )
+        .await;
         let headers = response.headers_mut();
         for (name, value) in keep {
             if name == header::CACHE_CONTROL {
@@ -1799,6 +1907,8 @@ pub struct MetricsSources {
     pub reclaim: Option<Arc<ReclaimStats>>,
     /// The native buffer budget, when enabled.
     pub native_buffers: Option<Arc<NativeBufferBudget>>,
+    /// The file-backed prerender store, when enabled (`--prerender-cache`).
+    pub prerender: Option<Arc<PrerenderStore>>,
 }
 
 impl MetricsSources {
@@ -1867,6 +1977,9 @@ pub fn metrics_app(sources: MetricsSources) -> Router {
                 }
                 if let Some(budget) = &text.native_buffers {
                     out.push_str(&budget.to_prometheus());
+                }
+                if let Some(store) = &text.prerender {
+                    out.push_str(&store.to_prometheus());
                 }
                 let malloc = text
                     .executor
@@ -2073,7 +2186,7 @@ fn rsc_redirect(
     ))
 }
 
-fn serve_rsc(
+async fn serve_rsc(
     state: &AppState,
     page: &Page,
     path: &str,
@@ -2097,16 +2210,19 @@ fn serve_rsc(
         None => page.rsc.as_ref(),
     };
     match stored {
-        Some(cached) => prerendered(
-            state,
-            cached,
-            page.status,
-            CACHE_FOREVER,
-            content_type,
-            false,
-            headers,
-            method,
-        ),
+        Some(cached) => {
+            prerendered(
+                state,
+                cached,
+                page.status,
+                CACHE_FOREVER,
+                content_type,
+                false,
+                headers,
+                method,
+            )
+            .await
+        }
         None => unsupported(
             "javascript-required",
             "this RSC payload was not prerendered; rendering it requires JavaScript",
@@ -2115,7 +2231,7 @@ fn serve_rsc(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn prerendered(
+async fn prerendered(
     state: &AppState,
     cached: &Cached,
     status: StatusCode,
@@ -2126,9 +2242,12 @@ fn prerendered(
     method: &Method,
 ) -> Response {
     let mut response = Response::new(Body::empty());
+    // Sized once for what follows (the stored headers, Vary, the cache
+    // and type headers, ETag, length, X-Powered-By), instead of growing.
+    *response.headers_mut() = HeaderMap::with_capacity(cached.headers.len() + 8);
     let headers = response.headers_mut();
-    if let Ok(vary) = HeaderValue::from_str(&state.rsc.vary_header) {
-        headers.insert(header::VARY, vary);
+    if let Some(vary) = &state.rsc_vary {
+        headers.insert(header::VARY, vary.clone());
     }
     headers.insert("x-nextjs-cache", HeaderValue::from_static("HIT"));
     for (name, value) in &cached.headers {
@@ -2141,7 +2260,19 @@ fn prerendered(
         header::CACHE_CONTROL,
         HeaderValue::from_static(cache_control),
     );
-    let etag = cached.etag.as_ref().filter(|_| state.config.generate_etags);
+    // A file-backed body not read yet: its ETag needs its bytes.
+    let mut body = None;
+    if state.config.generate_etags && cached.known_etag().is_none() {
+        match cached.body(state).await {
+            Ok(bytes) => body = Some(bytes),
+            Err(failure) => return *failure,
+        }
+    }
+    let headers = response.headers_mut();
+    let etag = cached
+        .known_etag()
+        .flatten()
+        .filter(|_| state.config.generate_etags);
     if let Some(etag) = etag {
         headers.insert(header::ETAG, etag.clone());
     }
@@ -2149,20 +2280,35 @@ fn prerendered(
         *response.status_mut() = StatusCode::NOT_MODIFIED;
         return response;
     }
-    if let Ok(value) = HeaderValue::from_str(content_type) {
+    let content_type = if content_type == HTML {
+        Some(HeaderValue::from_static(HTML))
+    } else if content_type == state.rsc.content_type {
+        state.rsc_content_type.clone()
+    } else {
+        HeaderValue::from_str(content_type).ok()
+    };
+    if let Some(value) = content_type {
         headers.insert(header::CONTENT_TYPE, value);
     }
-    headers.insert(header::CONTENT_LENGTH, HeaderValue::from(cached.body.len()));
+    headers.insert(header::CONTENT_LENGTH, HeaderValue::from(cached.len));
     *response.status_mut() = status;
     if method != Method::HEAD {
-        *response.body_mut() = Body::from(cached.body.clone());
-        // Build output loaded at startup: the same bytes for every request
-        // that reaches here (ISR, PPR, Draft Mode and revalidated pages are
-        // rendered by Next's handler instead).
+        let body = match body {
+            Some(body) => body,
+            None => match cached.body(state).await {
+                Ok(body) => body,
+                Err(failure) => return *failure,
+            },
+        };
+        *response.body_mut() = Body::from(body.clone());
+        // Build output: the same bytes for every request that reaches here
+        // (ISR, PPR, Draft Mode and revalidated pages are rendered by
+        // Next's handler instead; a file-backed body is refused if its
+        // file changed since startup).
         if may_cache_gzip(state, request) {
             response.extensions_mut().insert(compress_cache::Cacheable {
                 key: compress_cache::Key::Stored(cached.id),
-                identity: cached.body.clone(),
+                identity: body,
             });
         }
     }

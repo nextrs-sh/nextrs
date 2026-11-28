@@ -50,6 +50,27 @@ async fn web_crypto_and_form_data_match_node() {
     }
 }
 
+/// RE-5C: multipart bodies are parsed in place, without a copy of the
+/// body; the parts are still JavaScript's own (the source array is
+/// overwritten after `formData()` returns and no part changes).
+#[tokio::test(flavor = "multi_thread")]
+async fn multipart_parts_are_independent_of_the_parsed_body() {
+    let executor = executor(Limits::default());
+    let response = collect(&executor, request("multipart-inplace.js", &[])).await;
+    assert_eq!(response.status, 200, "{}", response.text());
+    let actual: Value = serde_json::from_str(&response.text()).unwrap();
+    assert_eq!(
+        actual,
+        json!({
+            "fileIntact": true,
+            "fileSize": 1048576,
+            "text": "café 📚",
+            "wrongFields": [],
+            "keys": 202,
+        })
+    );
+}
+
 /// Asymmetric signatures, key formats, HKDF and AES-CBC, checked against
 /// Node: tests/fixtures/handlers/webcrypto-asym.expected.json is the
 /// `webcrypto` part of `node dist/webcrypto-asym.js` (Node 22). Every

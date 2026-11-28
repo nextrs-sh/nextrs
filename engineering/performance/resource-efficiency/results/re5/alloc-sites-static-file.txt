@@ -1,0 +1,30 @@
+       0        65 B     0 %  hyper
+
+== by site ==
+     4.7      7859 B  12.7 %  alloc_impl_runtime
+     3.4        27 B   9.2 %  nextrs_server::normalize_dot_segments::{closure#1}
+     3.4       279 B   9.1 %  <u8 as <[_]>::to_vec_in::ConvertVec>::to_vec::<alloc::alloc::Global>
+     2.4        88 B   6.4 %  nextrs_server::routing::url::parse_relative_url
+     2.3       860 B   6.1 %  <std::alloc::System as core::alloc::global::GlobalAlloc>::alloc
+     2.1        77 B   5.6 %  nextrs_server::handle::{closure#0}
+     2.1      4862 B   5.6 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     1.7       641 B   4.7 %  <http::header::map::HeaderMap>::try_reserve_one
+     1.7        55 B   4.6 %  <http::extensions::Extensions>::insert::<nextrs_server::serve::ClientAddr>
+     1.3       195 B   3.4 %  <std::sys::os_str::bytes::Buf>::push_slice
+     1.2        43 B   3.1 %  nextrs_server::routing::query::decode_uri_component
+     1.1        27 B     3 %  <axum_core::body::Body>::new::<hyper::body::incoming::Incoming>
+     1.1        42 B     3 %  nextrs_server::serve_resolved::{closure#0}
+     1.1        71 B     3 %  <http::header::map::HeaderMap>::try_grow
+       1      1303 B   2.8 %  grow_impl_runtime
+       1        33 B   2.8 %  <axum_core::body::Body as core::convert::From<bytes::bytes::Bytes>>::from
+       1        24 B   2.7 %  <http::extensions::Extensions>::insert::<axum::routing::url_params::UrlParams>
+       1         2 B   2.6 %  nextrs_server::static_files::content_type
+       1        77 B   2.6 %  <axum_core::body::Body>::new::<nextrs_server::http_metrics::MeteredBody>
+     0.9         8 B   2.5 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     0.9        17 B   2.3 %  <http::header::value::HeaderValue as core::convert::From<u64>>::from
+     0.8        85 B     2 %  <hyper_util::rt::tokio::TokioTimer as hyper::rt::timer::Timer>::sleep_until
+       0         1 B     0 %  <http::header::map::HeaderMap>::try_reserve
+       0         0 B     0 %  nextrs_server::serve::serve::<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#0}
+       0         0 B     0 %  <hyper::proto::h1::dispatch::Dispatcher<hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::
+       0        65 B     0 %  <hyper::server::conn::http1::Builder>::serve_connection::<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>
+

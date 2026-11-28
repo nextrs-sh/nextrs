@@ -1,0 +1,30 @@
+     1.9       533 B   0.6 %  v8::ValueSerializer::ValueSerializer(v8::Isolate*, v8::ValueSerializer::Delegate*)
+     1.9      1006 B   0.6 %  heap::base::Worklist<v8::internal::Tagged<v8::internal::HeapObject>, (unsigned short)64>::Local::NewSegment() const
+     1.9       417 B   0.6 %  <<alloc::vec::Vec<_> as serde_core::de::Deserialize>::deserialize::VecVisitor<(alloc::string::String, alloc::string::String)> as serde_core::de::Visitor>::visit
+     1.9       165 B   0.6 %  <deno_core::runtime::op_driver::futures_unordered_driver::SubmissionQueue<futures_util::stream::futures_unordered::FuturesUnordered<deno_core::runtime::op_drive
+     1.8        31 B   0.5 %  nextrs_server::handle::{closure#0}
+     1.8        82 B   0.5 %  <http::extensions::Extensions>::insert::<hyper_util::client::legacy::connect::http::HttpInfo>
+     1.7      5425 B   0.5 %  <tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaR
+     1.7        13 B   0.5 %  nextrs_server::normalize_dot_segments::{closure#1}
+     1.7        53 B   0.5 %  <http::extensions::Extensions>::insert::<nextrs_server::serve::ClientAddr>
+     1.6       520 B   0.5 %  nextrs_runtime::net::header_map
+     1.6        22 B   0.5 %  <http::header::map::Entry<http::header::value::HeaderValue>>::or_insert_with::<<hyper_util::client::legacy::client::Client<reqwest::connect::Connector, reqwest:
+     1.5       339 B   0.4 %  hyper::body::chan::channel
+     1.4        24 B   0.4 %  v8::internal::Uri::Encode(v8::internal::Isolate*, v8::internal::DirectHandle<v8::internal::String>, bool)
+     1.3        21 B   0.4 %  reqwest::async_impl::body::response::<http_body_util::combinators::box_body::BoxBody<bytes::bytes::Bytes, alloc::boxed::Box<dyn core::error::Error + core::marke
+     1.2       134 B   0.4 %  nextrs_runtime::response::channel
+     1.2        38 B   0.3 %  <tokio::time::timeout::Timeout<<nextrs_runtime::net::Shared>::send::{closure#0}> as core::future::future::Future>::poll
+     1.2        37 B   0.3 %  <reqwest::retry::Policy as tower::retry::policy::Policy<http::request::Request<reqwest::async_impl::body::Body>, http::response::Response<hyper::body::incoming:
+     1.1        36 B   0.3 %  <http::extensions::Extensions>::insert::<nextrs_server::dynamic::Executed>
+     1.1      1475 B   0.3 %  tokio::sync::mpsc::chan::channel::<nextrs_runtime::response::ResponseEvent, tokio::sync::mpsc::unbounded::Semaphore>
+     1.1       125 B   0.3 %  <hyper_util::rt::tokio::TokioTimer as hyper::rt::timer::Timer>::sleep_until
+     1.1        98 B   0.3 %  <http::extensions::Extensions>::insert::<tower_http::follow_redirect::RequestUri>
+     1.1        35 B   0.3 %  <tower_http::follow_redirect::FollowRedirect<tower::retry::Retry<reqwest::retry::Policy, reqwest::async_impl::client::HyperService>, reqwest::redirect::TowerRed
+     1.1      1391 B   0.3 %  tokio::sync::mpsc::bounded::channel::<nextrs_runtime::net::BodyItem>
+       1        84 B   0.3 %  <axum_core::body::Body>::new::<nextrs_server::http_metrics::MeteredBody>
+       1       473 B   0.3 %  <reqwest::async_impl::client::PendingRequest as core::future::future::Future>::poll
+       1       138 B   0.3 %  <nextrs_runtime::net::NetClient>::start
+       1        32 B   0.3 %  std__shared_ptr__v8__BackingStore__CONVERT__std__unique_ptr
+       1       316 B   0.3 %  <hyper::client::dispatch::Sender<http::request::Request<reqwest::async_impl::body::Body>, http::response::Response<hyper::body::incoming::Incoming>>>::try_send
+       1         2 B   0.3 %  <nextrs_runtime::net::NetClient>::start::{closure#0}
+

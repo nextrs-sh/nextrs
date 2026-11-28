@@ -150,6 +150,28 @@ export const groups = [
         label: "Dynamic App Router SSR (/books/[id])",
         spec: { requests: [{ path: "/books/42", headers: [["accept", "text/html"]], expect_body: ["Book <!-- -->42", "id=<!-- -->42", "</html>"] }] },
       },
+      // RE-5E: the same three paths with gzip negotiated. The load generator
+      // does not decompress: these check the status and that the plaintext
+      // markers are absent (the body really is compressed); compression
+      // correctness is tests/compression.rs.
+      {
+        id: "static-gzip",
+        label: "Static file, gzip (cached copy)",
+        spec: (ctx) => {
+          const c = staticChunk(ctx, "fixtures/next-app");
+          return { requests: [{ path: c.path, headers: [["accept-encoding", "gzip"]], forbid_body: c.expect }] };
+        },
+      },
+      {
+        id: "prerendered-gzip",
+        label: "Prerendered page, gzip (cached copy)",
+        spec: { requests: [{ path: "/", headers: [["accept", "text/html"], ["accept-encoding", "gzip"]], forbid_body: ['id="title">NextRS static fixture'] }] },
+      },
+      {
+        id: "ssr-gzip",
+        label: "Dynamic SSR, gzip (streamed, per request)",
+        spec: { requests: [{ path: "/books/42", headers: [["accept", "text/html"], ["accept-encoding", "gzip"]], forbid_body: ["Book <!-- -->42", "</html>"] }] },
+      },
       {
         id: "ssr-identity",
         label: "Dynamic SSR reading headers and cookies",

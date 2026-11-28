@@ -7,6 +7,7 @@
 //!
 //!   (cd fixtures/next-app && npm ci && npx next build)
 //!   (cd fixtures/next-proxy && npm ci && npx next build)
+//!   (cd fixtures/next-pages && npm ci && npx next build)
 //!   cargo test -p nextrs-server --test resource_e2e -- --ignored
 
 use std::net::SocketAddr;
@@ -15,7 +16,8 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use nextrs_runtime::{
-    Executor, ExecutorConfig, Limits, MemoryAdmission, MemoryProbe, MemoryReading,
+    AddrRange, Executor, ExecutorConfig, Limits, MemoryAdmission, MemoryProbe, MemoryReading,
+    NetworkConfig, NetworkLimits, NetworkPolicy,
 };
 use nextrs_server::{HttpMetrics, NativeBufferBudget, ServeOptions, ServerOptions};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -55,9 +57,19 @@ struct Server {
 
 impl Server {
     async fn start(name: &str, limits: Limits, budget: Option<Arc<NativeBufferBudget>>) -> Server {
+        Self::start_with(name, limits, budget, |_| {}).await
+    }
+
+    async fn start_with(
+        name: &str,
+        limits: Limits,
+        budget: Option<Arc<NativeBufferBudget>>,
+        tune: impl FnOnce(&mut ExecutorConfig),
+    ) -> Server {
         let info = nextrs_adapter::inspect(&fixture(name)).expect("fixture is built");
         let mut config = ExecutorConfig::new(info.project_dir.clone(), info.dist_dir.clone());
         config.limits = limits;
+        tune(&mut config);
         let executor = Executor::start(config).expect("executor starts");
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let addr = listener.local_addr().unwrap();
@@ -383,9 +395,10 @@ async fn emergency_admits_one_action_per_interval_and_never_runs_a_refused_one()
 async fn concurrent_redirecting_actions_with_concurrency_exhausted() {
     // One isolate, two concurrent JavaScript requests: eight actions at
     // once, each redirecting to a dynamic page, whose nested request needs
-    // a slot too. Nested requests are not memory-gated but queue behind
-    // other parents. Every action must end (within a few queue timeouts),
-    // and leave nothing behind.
+    // a slot too. Parents queue for the two ordinary slots; their nested
+    // requests take overdraft slots (RE-5) instead of queueing behind
+    // other parents. Every action completes with its target's payload and
+    // leaves nothing behind.
     let probe = Arc::new(Probe(Mutex::new(100)));
     let mut limits = admission(&probe, |_| {});
     limits.isolates = 1;
@@ -428,13 +441,12 @@ async fn concurrent_redirecting_actions_with_concurrency_exhausted() {
     assert!(
         outcomes
             .iter()
-            .all(|(_, status, _)| [200, 503].contains(status))
+            .all(|(_, status, redirected)| *status == 200 && *redirected),
+        "{outcomes:?}"
     );
-    assert!(
-        outcomes
-            .iter()
-            .any(|(_, status, redirected)| *status == 200 && *redirected)
-    );
+    let metrics = server.executor.metrics();
+    assert_eq!(metrics.rejected_queue_timeout, 0);
+    assert!(metrics.nested_overdraft >= 1);
     assert!(server.settles().await, "{:?}", server.commitments());
     // Still serving.
     let after = redirect_action(&server, "/actions/redirect/done").await;
@@ -660,14 +672,13 @@ async fn the_proxy_reads_budgeted_request_bodies_intact() {
 
 #[tokio::test(flavor = "multi_thread")]
 #[ignore = "requires fixtures/next-app to be built (npm ci && next build)"]
-async fn a_nested_request_waits_for_a_slot_at_most_the_queue_timeout() {
-    // Pre-existing, not memory-related (RE-4.1-NESTED-REQUEST-COMPATIBILITY):
-    // a nested request needs an isolate slot of its own. With the only
-    // slot held by its parent, it waits in the queue until the queue
-    // timeout, fails, and Next answers the action without the target's
-    // payload. Bounded, never a deadlock; a prerendered target needs no
-    // slot at all.
-    let probe = Arc::new(Probe(Mutex::new(100)));
+async fn a_nested_request_does_not_wait_for_its_parents_slot() {
+    // RE-4.1-NESTED-REQUEST-COMPATIBILITY §3, fixed in RE-5: with the only
+    // slot held by the parent, a nested request used to wait out the queue
+    // timeout and Next answered the action without the target's payload.
+    // It now takes an overdraft slot. At critical memory, so the parent is
+    // admitted only by the progress rule and the child is not gated.
+    let probe = Arc::new(Probe(Mutex::new(990)));
     let mut limits = admission(&probe, |_| {});
     limits.isolates = 1;
     limits.max_active_per_isolate = 1;
@@ -687,12 +698,191 @@ async fn a_nested_request_waits_for_a_slot_at_most_the_queue_timeout() {
         dynamic.header("x-action-redirect"),
         dynamic.body.len()
     );
+    assert_redirected(&dynamic, "/books/7", "dynamic target");
+    assert!(elapsed < Duration::from_secs(2), "{elapsed:?}");
+    // The target's RSC payload, not only the redirect.
     assert!(
-        elapsed >= Duration::from_secs(2) && elapsed < Duration::from_secs(6),
-        "{elapsed:?}"
+        dynamic.text().contains("\"id=\",\"7\""),
+        "{}",
+        dynamic.text()
     );
-    assert_eq!(dynamic.status, 200);
+    let metrics = server.executor.metrics();
+    assert_eq!(metrics.rejected_queue_timeout, 0);
+    assert_eq!(metrics.rejected_memory_pressure, 0);
+    assert!(metrics.nested_overdraft >= 1);
     assert!(server.settles().await);
+    server.stop().await;
+}
+
+/// The prerendered stamp of /actions/static-time (`stamp-<ms>`).
+fn stamp(text: &str) -> Option<String> {
+    let at = text.find("stamp-")?;
+    Some(
+        text[at..]
+            .chars()
+            .take_while(|c| c.is_ascii_alphanumeric() || *c == '-')
+            .collect(),
+    )
+}
+
+#[tokio::test(flavor = "multi_thread")]
+#[ignore = "requires fixtures/next-app to be built (npm ci && next build)"]
+async fn an_action_that_revalidates_and_redirects_with_one_slot() {
+    // revalidatePath on a prerendered page, then redirect() to it: Next
+    // fetches the target from its own server, which must render it again
+    // in an isolate (a nested request) while the action holds the only
+    // slot. The action answers with the fresh render, at once.
+    let probe = Arc::new(Probe(Mutex::new(100)));
+    let mut limits = admission(&probe, |_| {});
+    limits.isolates = 1;
+    limits.max_active_per_isolate = 1;
+    limits.queue_timeout = Duration::from_secs(2);
+    let server = Server::start("next-app", limits, None).await;
+    let before = send(server.addr, "GET", "/actions/static-time", &[], b"").await;
+    let built = stamp(&before.text()).expect("prerendered stamp");
+    let (content_type, body) = form_reply(&[("to", "/actions/static-time")]);
+    let started = Instant::now();
+    let reply = send(
+        server.addr,
+        "POST",
+        "/actions/redirect",
+        &[
+            ("accept", "text/x-component".into()),
+            ("next-action", action_id("revalidateThenRedirect")),
+            ("origin", format!("http://{}", server.addr)),
+            ("content-type", content_type),
+        ],
+        &body,
+    )
+    .await;
+    let elapsed = started.elapsed();
+    let fresh = stamp(&reply.text());
+    println!(
+        "revalidate then redirect, one slot: {} in {elapsed:?}, built {built}, payload {fresh:?}",
+        reply.status
+    );
+    assert_redirected(&reply, "/actions/static-time", "revalidated target");
+    assert!(elapsed < Duration::from_secs(2), "{elapsed:?}");
+    let fresh = fresh.expect("the target's payload");
+    assert_ne!(fresh, built, "rendered again, not the build's copy");
+    assert_eq!(server.executor.metrics().rejected_queue_timeout, 0);
+    assert!(server.settles().await);
+    server.stop().await;
+}
+
+/// A loopback stand-in for the compatibility suites' upstream: answers
+/// `{"hit": n}` with a counter from 101 (the build saw small numbers),
+/// for the next-pages on-demand page.
+async fn counting_upstream() -> (u16, Arc<std::sync::atomic::AtomicU64>) {
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let port = listener.local_addr().unwrap().port();
+    let hits = Arc::new(std::sync::atomic::AtomicU64::new(100));
+    let counter = hits.clone();
+    tokio::spawn(async move {
+        while let Ok((mut socket, _)) = listener.accept().await {
+            let counter = counter.clone();
+            tokio::spawn(async move {
+                let mut head = Vec::new();
+                let mut buf = [0u8; 1024];
+                while !head.windows(4).any(|w| w == b"\r\n\r\n") {
+                    match socket.read(&mut buf).await {
+                        Ok(0) | Err(_) => return,
+                        Ok(n) => head.extend_from_slice(&buf[..n]),
+                    }
+                }
+                let hit = counter.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1;
+                let body = format!("{{\"hit\":{hit}}}");
+                let reply = format!(
+                    "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}",
+                    body.len()
+                );
+                let _ = socket.write_all(reply.as_bytes()).await;
+            });
+        }
+    });
+    (port, hits)
+}
+
+#[tokio::test(flavor = "multi_thread")]
+#[ignore = "requires fixtures/next-pages to be built (npm ci && next build)"]
+async fn pages_on_demand_revalidation_with_one_slot() {
+    // res.revalidate() in a Pages API route: next-server's revalidate()
+    // sends a nested GET straight to the page (InternalRoute::revalidate)
+    // while the API route holds the only slot.
+    let (port, hits) = counting_upstream().await;
+    let limits = Limits {
+        isolates: 1,
+        max_active_per_isolate: 1,
+        queue_timeout: Duration::from_secs(2),
+        ..Limits::default()
+    };
+    let server = Server::start_with("next-pages", limits, None, |config| {
+        config
+            .env
+            .insert("NEXTRS_UPSTREAM".into(), format!("http://127.0.0.1:{port}"));
+        config.network = Some(NetworkConfig {
+            policy: NetworkPolicy {
+                allow: vec![format!("http://127.0.0.1:{port}").parse().unwrap()],
+                allow_addrs: vec!["127.0.0.1".parse::<AddrRange>().unwrap()],
+            },
+            limits: NetworkLimits {
+                connect_timeout: Duration::from_secs(2),
+                headers_timeout: Duration::from_secs(5),
+                body_idle_timeout: Duration::from_secs(5),
+                max_response_bytes: 1024 * 1024,
+                max_in_flight_per_isolate: 16,
+                pool_idle_timeout: Duration::from_secs(4),
+            },
+            extra_roots: Vec::new(),
+        });
+    })
+    .await;
+    let page = send(server.addr, "GET", "/on-demand", &[], b"").await;
+    assert_eq!(page.status, 200);
+    let generation = |text: &str| {
+        // React separates adjacent text nodes with `<!-- -->`.
+        let text = text.replace("<!-- -->", "");
+        let at = text.find("generation-").expect("generation");
+        text[at + "generation-".len()..]
+            .chars()
+            .take_while(char::is_ascii_digit)
+            .collect::<String>()
+    };
+    let before = generation(&page.text());
+    let hits_before = hits.load(std::sync::atomic::Ordering::SeqCst);
+    let started = Instant::now();
+    let reply = send(
+        server.addr,
+        "GET",
+        "/api/revalidate?path=/on-demand",
+        &[],
+        b"",
+    )
+    .await;
+    let elapsed = started.elapsed();
+    println!(
+        "res.revalidate, one slot: {} {} in {elapsed:?}",
+        reply.status,
+        reply.text()
+    );
+    assert_eq!(reply.status, 200, "{}", reply.text());
+    assert!(
+        reply.text().contains("\"revalidated\":true"),
+        "{}",
+        reply.text()
+    );
+    assert!(elapsed < Duration::from_secs(2), "{elapsed:?}");
+    assert!(hits.load(std::sync::atomic::Ordering::SeqCst) > hits_before);
+    let page = send(server.addr, "GET", "/on-demand", &[], b"").await;
+    let after = generation(&page.text());
+    println!(
+        "generation before {before}, after {after}, upstream hits {}",
+        hits.load(std::sync::atomic::Ordering::SeqCst)
+    );
+    assert_ne!(after, before, "the regenerated page is served");
+    let metrics = server.executor.metrics();
+    assert_eq!(metrics.rejected_queue_timeout, 0);
+    assert!(metrics.nested_overdraft >= 1);
     server.stop().await;
 }
 

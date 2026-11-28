@@ -55,6 +55,14 @@ export async function redirectTo(formData: FormData) {
   redirect(to);
 }
 
+// Revalidates a prerendered page, then redirects to it: Next fetches the
+// target's payload from its own server, which must render it again.
+export async function revalidateThenRedirect(formData: FormData) {
+  const to = String(formData.get('to') ?? '/actions/static-time');
+  revalidatePath(to);
+  redirect(to);
+}
+
 export async function failWith(formData: FormData): Promise<void> {
   const kind = String(formData.get('kind') ?? 'error');
   if (kind === 'not-found') notFound();

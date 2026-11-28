@@ -44,6 +44,8 @@ pub(crate) struct Counters {
     pub request_body_errors: AtomicU64,
     pub queue_wait_micros: AtomicU64,
     pub queue_waits: AtomicU64,
+    /// Nested requests given a slot above `max_active_per_isolate`.
+    pub nested_overdraft: AtomicU64,
     pub execution_micros: AtomicU64,
     /// Memory reclamations requested from the isolates, by level
     /// (`ReclaimLevel::index`), the isolates' GC time spent on them, and
@@ -355,6 +357,9 @@ pub struct MetricsSnapshot {
     pub request_body_errors: u64,
     pub queue_wait_seconds_total: f64,
     pub queue_waits: u64,
+    /// Nested requests (Next.js fetching its own server) given a slot
+    /// above `max_active_per_isolate` because their parents held the rest.
+    pub nested_overdraft: u64,
     pub execution_seconds_total: f64,
     /// Memory reclamations (see `Executor::reclaim_memory`): requested
     /// because the server was idle, and because the container was near its
@@ -530,6 +535,7 @@ impl MetricsSnapshot {
             request_body_errors: get(&counters.request_body_errors),
             queue_wait_seconds_total: get(&counters.queue_wait_micros) as f64 / 1e6,
             queue_waits: get(&counters.queue_waits),
+            nested_overdraft: get(&counters.nested_overdraft),
             execution_seconds_total: get(&counters.execution_micros) as f64 / 1e6,
             memory_reclaims_idle: get(&counters.memory_reclaims[0]),
             memory_reclaims_pressure: get(&counters.memory_reclaims[1]),
@@ -670,6 +676,11 @@ impl MetricsSnapshot {
                 "nextrs_executor_queue_waits_total",
                 "Requests that waited in the admission queue.",
                 self.queue_waits,
+            ),
+            (
+                "nextrs_executor_nested_overdraft_total",
+                "Nested requests given a slot above the per-isolate limit.",
+                self.nested_overdraft,
             ),
         ] {
             metric(name, "counter", help, value.to_string());

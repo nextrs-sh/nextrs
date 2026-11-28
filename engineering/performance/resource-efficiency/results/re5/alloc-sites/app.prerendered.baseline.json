@@ -1,0 +1,327 @@
+{
+  "tag": "app.prerendered.baseline",
+  "binary": "target/re5-baseline-prof/release/nextrs",
+  "sample_every": 16,
+  "requests": 2007,
+  "valid": true,
+  "samples": 3799,
+  "estimated_calls_per_req": 30.3,
+  "by_site": [
+    {
+      "site": "alloc_impl_runtime",
+      "calls_per_req": 7.8,
+      "bytes_per_req": 6617,
+      "share": 25.6
+    },
+    {
+      "site": "nextrs_server::routing::query::decode_uri_component",
+      "calls_per_req": 3.1,
+      "bytes_per_req": 3,
+      "share": 10.2
+    },
+    {
+      "site": "nextrs_server::routing::url::parse_relative_url",
+      "calls_per_req": 2.1,
+      "bytes_per_req": 2,
+      "share": 7
+    },
+    {
+      "site": "<http::header::map::HeaderMap>::try_reserve_one",
+      "calls_per_req": 2,
+      "bytes_per_req": 641,
+      "share": 6.7
+    },
+    {
+      "site": "<tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>, <tower::util::boxed_clone_sync::BoxCloneSyncService<http::request::Request<axum_core::body::Body>, http::response::Response<axum_core::body::Body>, core::convert::Infallible>>::new<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>>::{closure#0}> as tower_service::Service<http::request::Request<axum_core::body::Body>>>::call",
+      "calls_per_req": 1.7,
+      "bytes_per_req": 4282,
+      "share": 5.7
+    },
+    {
+      "site": "nextrs_server::handle::{closure#0}",
+      "calls_per_req": 1.7,
+      "bytes_per_req": 2,
+      "share": 5.6
+    },
+    {
+      "site": "grow_impl_runtime",
+      "calls_per_req": 1.5,
+      "bytes_per_req": 1821,
+      "share": 4.8
+    },
+    {
+      "site": "<http::extensions::Extensions>::insert::<nextrs_server::serve::ClientAddr>",
+      "calls_per_req": 1.4,
+      "bytes_per_req": 44,
+      "share": 4.5
+    },
+    {
+      "site": "<axum_core::body::Body as core::convert::From<bytes::bytes::Bytes>>::from",
+      "calls_per_req": 1.3,
+      "bytes_per_req": 40,
+      "share": 4.2
+    },
+    {
+      "site": "<http::header::value::HeaderValue as core::convert::From<u64>>::from",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 22,
+      "share": 3.7
+    },
+    {
+      "site": "nextrs_server::resolve::get_item::{closure#0}",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 1,
+      "share": 3.7
+    },
+    {
+      "site": "<http::header::map::HeaderMap>::try_grow",
+      "calls_per_req": 0.9,
+      "bytes_per_req": 59,
+      "share": 3.1
+    },
+    {
+      "site": "nextrs_server::serve_resolved::{closure#0}",
+      "calls_per_req": 0.9,
+      "bytes_per_req": 1,
+      "share": 2.8
+    },
+    {
+      "site": "<axum_core::body::Body>::new::<nextrs_server::http_metrics::MeteredBody>",
+      "calls_per_req": 0.9,
+      "bytes_per_req": 69,
+      "share": 2.8
+    },
+    {
+      "site": "<tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>, <tower::util::boxed_clone_sync::BoxCloneSyncService<http::request::Request<axum_core::body::Body>, http::response::Response<axum_core::body::Body>, core::convert::Infallible>>::new<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>>::{closure#0}> as tower::util::boxed_clone_sync::CloneService<http::request::Request<axum_core::body::Body>>>::clone_box",
+      "calls_per_req": 0.8,
+      "bytes_per_req": 6,
+      "share": 2.5
+    },
+    {
+      "site": "<http::extensions::Extensions>::insert::<axum::routing::url_params::UrlParams>",
+      "calls_per_req": 0.8,
+      "bytes_per_req": 18,
+      "share": 2.5
+    },
+    {
+      "site": "<axum_core::body::Body>::new::<hyper::body::incoming::Incoming>",
+      "calls_per_req": 0.7,
+      "bytes_per_req": 16,
+      "share": 2.3
+    },
+    {
+      "site": "<hyper_util::rt::tokio::TokioTimer as hyper::rt::timer::Timer>::sleep_until",
+      "calls_per_req": 0.6,
+      "bytes_per_req": 70,
+      "share": 2.1
+    },
+    {
+      "site": "<http::header::map::HeaderMap>::try_reserve",
+      "calls_per_req": 0,
+      "bytes_per_req": 0,
+      "share": 0
+    },
+    {
+      "site": "<hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::{closure#0}, hyper::body::incoming::Incoming>, hyper::body::incoming::Incoming>>::new",
+      "calls_per_req": 0,
+      "bytes_per_req": 5,
+      "share": 0
+    },
+    {
+      "site": "nextrs_server::serve::serve::<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#0}",
+      "calls_per_req": 0,
+      "bytes_per_req": 0,
+      "share": 0
+    },
+    {
+      "site": "<tokio::util::idle_notified_set::IdleNotifiedSet<tokio::runtime::task::join::JoinHandle<()>>>::insert_idle",
+      "calls_per_req": 0,
+      "bytes_per_req": 0,
+      "share": 0
+    },
+    {
+      "site": "<std::alloc::System as core::alloc::global::GlobalAlloc>::alloc",
+      "calls_per_req": 0,
+      "bytes_per_req": 2,
+      "share": 0
+    }
+  ],
+  "by_nextrs_frame": [
+    {
+      "site": "nextrs_server::prerendered",
+      "calls_per_req": 12.5,
+      "bytes_per_req": 2740,
+      "share": 41.3
+    },
+    {
+      "site": "nextrs_server::routing::query::decode_uri_component",
+      "calls_per_req": 3.1,
+      "bytes_per_req": 3,
+      "share": 10.2
+    },
+    {
+      "site": "nextrs_server::routing::url::parse_relative_url",
+      "calls_per_req": 2.1,
+      "bytes_per_req": 2,
+      "share": 7
+    },
+    {
+      "site": "<http::extensions::Extensions>::insert::<nextrs_server::serve::ClientAddr>",
+      "calls_per_req": 2,
+      "bytes_per_req": 143,
+      "share": 6.7
+    },
+    {
+      "site": "<tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>, <tower::util::boxed_clone_sync::BoxCloneSyncService<http::request::Request<axum_core::body::Body>, http::response::Response<axum_core::body::Body>, core::convert::Infallible>>::new<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>>::{closure#0}> as tower_service::Service<http::request::Request<axum_core::body::Body>>>::call",
+      "calls_per_req": 1.7,
+      "bytes_per_req": 4282,
+      "share": 5.7
+    },
+    {
+      "site": "nextrs_server::handle::{closure#0}",
+      "calls_per_req": 1.7,
+      "bytes_per_req": 2,
+      "share": 5.6
+    },
+    {
+      "site": "<hyper::proto::h1::dispatch::Dispatcher<hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::{closure#0}, hyper::body::incoming::Incoming>, hyper::body::incoming::Incoming>, axum_core::body::Body, hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::role::Server>>::poll_write",
+      "calls_per_req": 1.4,
+      "bytes_per_req": 35,
+      "share": 4.8
+    },
+    {
+      "site": "nextrs_server::resolve::get_item::{closure#0}",
+      "calls_per_req": 1.1,
+      "bytes_per_req": 1,
+      "share": 3.7
+    },
+    {
+      "site": "nextrs_server::serve_resolved::{closure#0}",
+      "calls_per_req": 0.9,
+      "bytes_per_req": 1,
+      "share": 2.8
+    },
+    {
+      "site": "<axum_core::body::Body>::new::<nextrs_server::http_metrics::MeteredBody>",
+      "calls_per_req": 0.9,
+      "bytes_per_req": 69,
+      "share": 2.8
+    },
+    {
+      "site": "<hyper::proto::h1::io::Buffered<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::encode::EncodedBuf<bytes::bytes::Bytes>>>::poll_read_from_io",
+      "calls_per_req": 0.8,
+      "bytes_per_req": 6335,
+      "share": 2.6
+    },
+    {
+      "site": "<tower::util::map_future::MapFuture<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>, <tower::util::boxed_clone_sync::BoxCloneSyncService<http::request::Request<axum_core::body::Body>, http::response::Response<axum_core::body::Body>, core::convert::Infallible>>::new<axum::util::MapIntoResponse<axum::handler::service::HandlerService<nextrs_server::handle, (axum_core::extract::private::ViaRequest, axum::extract::state::State<alloc::sync::Arc<nextrs_server::AppState>>, http::request::Request<axum_core::body::Body>), alloc::sync::Arc<nextrs_server::AppState>>>>::{closure#0}> as tower::util::boxed_clone_sync::CloneService<http::request::Request<axum_core::body::Body>>>::clone_box",
+      "calls_per_req": 0.8,
+      "bytes_per_req": 6,
+      "share": 2.5
+    },
+    {
+      "site": "<hyper::proto::h1::conn::Conn<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, bytes::bytes::Bytes, hyper::proto::h1::role::Server>>::poll_read_head",
+      "calls_per_req": 0.6,
+      "bytes_per_req": 70,
+      "share": 2.1
+    },
+    {
+      "site": "<hyper::proto::h1::io::Buffered<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, hyper::proto::h1::encode::EncodedBuf<bytes::bytes::Bytes>>>::parse::<hyper::proto::h1::role::Server>",
+      "calls_per_req": 0.6,
+      "bytes_per_req": 24,
+      "share": 2
+    },
+    {
+      "site": "<hyper::proto::h1::conn::Conn<hyper_util::rt::tokio::TokioIo<nextrs_server::serve::WriteTimeout<tokio::net::tcp::stream::TcpStream>>, bytes::bytes::Bytes, hyper::proto::h1::role::Server>>::write_body_and_end",
+      "calls_per_req": 0,
+      "bytes_per_req": 3,
+      "share": 0
+    },
+    {
+      "site": "<hyper::proto::h1::dispatch::Server<hyper::service::util::ServiceFn<nextrs_server::serve::serve_connection::{closure#0}::{closure#0}, hyper::body::incoming::Incoming>, hyper::body::incoming::Incoming>>::new",
+      "calls_per_req": 0,
+      "bytes_per_req": 5,
+      "share": 0
+    },
+    {
+      "site": "nextrs_server::serve::serve::<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#0}",
+      "calls_per_req": 0,
+      "bytes_per_req": 0,
+      "share": 0
+    },
+    {
+      "site": "<tokio::task::join_set::JoinSet<()>>::spawn::<nextrs_server::serve::serve<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#0}>",
+      "calls_per_req": 0,
+      "bytes_per_req": 0,
+      "share": 0
+    },
+    {
+      "site": "<core::future::poll_fn::PollFn<nextrs_server::serve::serve<nextrs::shutdown_signal::{closure#0}>::{closure#0}::{closure#3}> as core::future::future::Future>::poll",
+      "calls_per_req": 0,
+      "bytes_per_req": 2,
+      "share": 0
+    }
+  ],
+  "by_crate": [
+    {
+      "site": "nextrs_server",
+      "calls_per_req": 8.9,
+      "bytes_per_req": 9,
+      "share": 29.3
+    },
+    {
+      "site": "alloc_impl_runtime",
+      "calls_per_req": 7.8,
+      "bytes_per_req": 6617,
+      "share": 25.6
+    },
+    {
+      "site": "http",
+      "calls_per_req": 6.2,
+      "bytes_per_req": 785,
+      "share": 20.6
+    },
+    {
+      "site": "axum_core",
+      "calls_per_req": 2.8,
+      "bytes_per_req": 126,
+      "share": 9.3
+    },
+    {
+      "site": "tower",
+      "calls_per_req": 2.5,
+      "bytes_per_req": 4288,
+      "share": 8.3
+    },
+    {
+      "site": "grow_impl_runtime",
+      "calls_per_req": 1.5,
+      "bytes_per_req": 1821,
+      "share": 4.8
+    },
+    {
+      "site": "hyper_util",
+      "calls_per_req": 0.6,
+      "bytes_per_req": 70,
+      "share": 2.1
+    },
+    {
+      "site": "hyper",
+      "calls_per_req": 0,
+      "bytes_per_req": 5,
+      "share": 0
+    },
+    {
+      "site": "tokio",
+      "calls_per_req": 0,
+      "bytes_per_req": 0,
+      "share": 0
+    },
+    {
+      "site": "std",
+      "calls_per_req": 0,
+      "bytes_per_req": 2,
+      "share": 0
+    }
+  ]
+}

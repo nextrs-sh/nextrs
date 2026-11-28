@@ -1,4 +1,4 @@
-import { redirectTo } from '../server';
+import { redirectTo, revalidateThenRedirect } from '../server';
 
 export default function RedirectPage() {
   return (
@@ -11,6 +11,10 @@ export default function RedirectPage() {
       <form action={redirectTo} id="redirect-dynamic-form">
         <input type="hidden" name="to" value="/books/7" />
         <button type="submit" id="redirect-dynamic-submit">Go dynamic</button>
+      </form>
+      <form action={revalidateThenRedirect} id="revalidate-redirect-form">
+        <input type="hidden" name="to" value="/actions/static-time" />
+        <button type="submit" id="revalidate-redirect-submit">Revalidate and go</button>
       </form>
     </main>
   );

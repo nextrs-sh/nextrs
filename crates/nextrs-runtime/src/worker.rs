@@ -14,8 +14,6 @@ use tokio::sync::mpsc;
 use crate::pool::{Job, ReclaimLevel, ReclaimRequest, Reclaimed, WorkerExit, WorkerShared};
 use crate::{ExecutorConfig, Limits, REPORTED_NODE_VERSION, ops};
 
-/// How often the isolate's event loop proves it is not stuck in JavaScript.
-const HEARTBEAT: Duration = Duration::from_millis(25);
 /// How often the event loop records V8 heap statistics.
 const HEAP_SAMPLE: Duration = Duration::from_secs(1);
 
@@ -87,8 +85,22 @@ fn run(
     jobs: mpsc::UnboundedReceiver<Box<Job>>,
     ready: Sender<Result<(), String>>,
 ) -> WorkerExit {
+    // The isolate thread proves it is not stuck in JavaScript by its own
+    // events (RE-5F), instead of a 25 ms heartbeat timer that woke an idle
+    // isolate 40 times a second: a beat when it parks (nothing to run; the
+    // supervisor then counts it as not busy at all), when it unparks, and
+    // at the start of each event-loop turn. A turn that never ends gets no
+    // further beat, exactly as before.
     let tokio = tokio::runtime::Builder::new_current_thread()
         .enable_all()
+        .on_thread_park({
+            let worker = worker.clone();
+            move || worker.on_park()
+        })
+        .on_thread_unpark({
+            let worker = worker.clone();
+            move || worker.on_unpark()
+        })
         .build()
         .map_err(|e| e.to_string())?;
     tokio.block_on(async move {
@@ -202,19 +214,7 @@ fn run(
         );
         worker.register_cpu_clock();
         worker.beat();
-        let heartbeat = {
-            let worker = worker.clone();
-            tokio::spawn(async move {
-                let mut tick = tokio::time::interval(HEARTBEAT);
-                tick.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
-                loop {
-                    tick.tick().await;
-                    worker.beat();
-                }
-            })
-        };
         let result = drive(&mut runtime, &worker).await;
-        heartbeat.abort();
         runtime
             .v8_isolate()
             .remove_gc_epilogue_callback(after_full_gc, gc_data);
@@ -378,6 +378,7 @@ async fn event_loop(
 ) -> Result<(), deno_core::error::CoreError> {
     let mut sampled: Option<Instant> = None;
     std::future::poll_fn(|cx| {
+        worker.beat_turn();
         if sampled.is_none_or(|at| at.elapsed() >= HEAP_SAMPLE) {
             worker.record_heap(&runtime.v8_isolate().get_heap_statistics());
             sampled = Some(Instant::now());
