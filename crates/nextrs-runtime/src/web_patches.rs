@@ -1,7 +1,8 @@
 //! Exact-text edits of deno_web's JavaScript, applied to its sources
-//! before the runtime loads them. They remove per-call work that Phase 3A
-//! profiles of server rendering found hot and that `next start` does not
-//! do. deno_web is pinned (`=0.291.0`); if an edit no longer matches its
+//! before the runtime loads them. The streams edit removes per-call work
+//! that Phase 3A profiles of server rendering found hot and that `next
+//! start` does not do; the performance edit fixes the time origin.
+//! deno_web is pinned (`=0.291.0`); if an edit no longer matches its
 //! source (an upgrade), that file is loaded unchanged and a warning is
 //! logged. The unit tests below fail first.
 //!
@@ -22,6 +23,20 @@
 //! same. Messages stay deno_web's; only the identity of the error objects
 //! changes, which then matches Node. `tests/streams_release.rs` checks the
 //! observable behavior against Node's output.
+//!
+//! ## Performance: the time origin (`15_performance.js`)
+//!
+//! A correctness edit, not a speed one. deno_web's `op_time_origin`
+//! estimates `performance.timeOrigin` from a wall-clock read followed by a
+//! monotonic read; a delay between the two (the isolate's thread preempted
+//! while it boots under CPU contention) makes the origin early by that
+//! delay, so `performance.timeOrigin + performance.now()` lags the wall
+//! clock for the isolate's whole life. Next's `areTagsExpired` compares
+//! tag expiry times, which the shared cache stamps with the wall clock,
+//! against exactly that sum: on such an isolate a `revalidateTag` was not
+//! visible until the lag had passed (RE-4.1). The edit points the module's
+//! import of `op_time_origin` at `op_nextrs_time_origin` (ops.rs), which
+//! brackets the wall-clock read between two monotonic reads.
 //!
 //! ## Not patched: `TextEncoder.encode`
 //!
@@ -89,7 +104,19 @@ function nextrsWriterReleased() {
     ],
 };
 
-const PATCHES: [&FilePatch; 1] = [&STREAMS];
+const TIME_ORIGIN_IMPORT: &str = "const { op_now, op_time_origin } = core.ops;";
+
+const PERFORMANCE: FilePatch = FilePatch {
+    specifier: "ext:deno_web/15_performance.js",
+    anchor: TIME_ORIGIN_IMPORT,
+    prelude: "// NextRS: performance.timeOrigin from op_nextrs_time_origin (see web_patches.rs).\n",
+    edits: &[(
+        TIME_ORIGIN_IMPORT,
+        "const { op_now, op_nextrs_time_origin: op_time_origin } = core.ops;",
+    )],
+};
+
+const PATCHES: [&FilePatch; 2] = [&STREAMS, &PERFORMANCE];
 
 /// The patched source, or `None` if the pinned text was not found.
 fn patch(file: &FilePatch, source: &str) -> Option<String> {
@@ -195,6 +222,22 @@ mod tests {
                 .count(),
             1
         );
+        assert!(patched.is_ascii(), "extension sources must be ASCII");
+    }
+
+    #[test]
+    fn the_pinned_performance_source_takes_the_nextrs_time_origin() {
+        let patched =
+            patch(&PERFORMANCE, &original(PERFORMANCE.specifier)).expect("the import matches");
+        assert_eq!(patched.matches(TIME_ORIGIN_IMPORT).count(), 0);
+        assert_eq!(
+            patched
+                .matches("const { op_now, op_nextrs_time_origin: op_time_origin } = core.ops;")
+                .count(),
+            1
+        );
+        // setTimeOrigin still calls the (now NextRS) op under its old name.
+        assert_eq!(patched.matches("op_time_origin(hrU8);").count(), 1);
         assert!(patched.is_ascii(), "extension sources must be ASCII");
     }
 

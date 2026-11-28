@@ -1,0 +1,4 @@
+[
+  {"label": "re41-sampled", "runtime": "re4", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 85 --memory-admission --js-external-memory-limit 32 --native-buffer-budget 32"},
+  {"label": "re41-committed", "runtime": "re4", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 85 --memory-admission --memory-admission-accounting committed --memory-admission-commitment-ttl 2 --js-external-memory-limit 32 --native-buffer-budget 32"}
+]

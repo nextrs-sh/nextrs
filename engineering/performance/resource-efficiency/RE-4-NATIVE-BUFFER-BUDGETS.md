@@ -59,7 +59,10 @@ keeps its whole response buffer alive for up to `--write-timeout` (30 s).
 - **No reservation** for HEAD, 304, 412 or 416 (nothing is read).
 - **A file larger than the whole budget takes all of it** and is served
   alone. The aggregate bound is therefore `max(budget, largest file)`,
-  and no file becomes unservable.
+  and no file becomes unservable. *Superseded in RE-4.1: larger files
+  are streamed in budgeted chunks, proxy bodies that cannot fit get 413,
+  and the bound is the budget
+  ([RE-4.1-NATIVE-BUFFER-HARDENING](RE-4.1-NATIVE-BUFFER-HARDENING.md)).*
 - Metrics: `nextrs_native_buffer_{budget,reserved,peak}_bytes`, and per
   kind `_reserved_bytes_total`, `_waits_total`, `_refused_total`.
 

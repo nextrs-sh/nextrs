@@ -123,10 +123,26 @@ function summarizeRun(run, samples) {
   out.reclaim = m?.reclaim ?? null;
   out.restarts = m?.executors ? m.executors.reduce((a, e) => a + (e.restarts ?? 0), 0) : null;
   out.failedRequests = Object.values(out.phases).reduce((a, p) => a + (p.failed || 0), 0);
+  // RE-4 counters (NextRS /metrics.json): the last reading the run has.
+  const lastM = recEnd?.metrics ?? [...(run.phases ?? [])].reverse().find((p) => p.metricsAfter)?.metricsAfter ?? null;
+  const ex = lastM?.executors ?? [];
+  out.re4 = lastM ? {
+    deferred: lastM.admission?.deferred ?? null,
+    rejected: lastM.admission ? (lastM.admission.rejected ?? []).reduce((a, r) => a + r[1], 0) : null,
+    transitions: lastM.admission?.state_transitions ?? null,
+    externalRefused: lastM.external_memory?.refused ?? null,
+    nativeRefused: lastM.native_buffers?.refused_total ?? null,
+    memoryPressure503: lastM.rejected_memory_pressure ?? null,
+    heapLimitEpisodes: ex.filter((e) => e.last_heap_limit).length,
+    lastHeapLimit: ex.map((e) => e.last_heap_limit).find(Boolean) ?? null,
+  } : null;
   return out;
 }
 
 const files = readdirSync(dir).filter((f) => f.endsWith(".json") && !f.startsWith("meta") && !f.startsWith("summary"));
+// Configurations a variant never ran in (excludeConfigs), from the meta files.
+const excluded = readdirSync(dir).filter((f) => f.startsWith("meta") && f.endsWith(".json"))
+  .flatMap((f) => JSON.parse(readFileSync(join(dir, f), "utf8")).excluded ?? []);
 const runs = files.map((f) => {
   const run = JSON.parse(readFileSync(join(dir, f), "utf8"));
   return summarizeRun(run, loadSamples(join(dir, f.replace(/\.json$/, ".samples.jsonl"))));
@@ -152,7 +168,7 @@ for (const config of configs) {
   lines.push("");
   lines.push("| Variant | Phase | Offered/s | Achieved/s | Failed | p50 ms | p99 ms | p99.9 ms | CPU ms/ok | CPU cores | Throttled ms | Steal % | Peak MiB |");
   lines.push("|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|");
-  for (const phase of phaseNames.filter((p) => /^(steady|burst|cycle\d-(mixed|burst)|rate-)/.test(p))) {
+  for (const phase of phaseNames.filter((p) => /^(steady|burst|cycle\d-(mixed|burst)|cont\d+-(mixed|burst)|rate-)/.test(p))) {
     for (const label of labels) {
       const rs = runs.filter((r) => r.label === label && `${r.memory}:${r.cpus}` === config && r.phases[phase]);
       if (!rs.length) continue;
@@ -160,6 +176,23 @@ for (const config of configs) {
       lines.push(`| ${label} | ${phase} | ${ps[0].offered || "closed"} | ${fmt(ps.map((p) => p.rps))} | ${ps.map((p) => p.failed).join(", ")} | ${fmt(ps.map((p) => p.p50))} | ${fmt(ps.map((p) => p.p99))} | ${fmt(ps.map((p) => p.p999))} | ${fmt(ps.map((p) => p.cpuMsPerOk), 2)} | ${fmt(ps.map((p) => p.cpuCores), 2)} | ${fmt(ps.map((p) => p.throttledMs), 0)} | ${fmt(ps.map((p) => p.stealPct))} | ${fmt(ps.map((p) => p.peakMiB))} |`);
     }
   }
+  lines.push("");
+}
+for (const config of configs) {
+  const rows = labels.map((label) => runs.filter((r) => r.label === label && `${r.memory}:${r.cpus}` === config && r.re4)).filter((rs) => rs.length);
+  if (!rows.length) continue;
+  const col = (rs, k) => rs.map((r) => r.re4[k] ?? "–").join(", ");
+  lines.push(`### RE-4 counters, ${config} (per round, last reading)`, "");
+  lines.push("| Variant | Admission deferred | Admission rejected | State transitions | External memory refused | Native buffer refused | Memory-pressure 503 | Isolate restarts | Heap-limit episodes |");
+  lines.push("|---|---:|---:|---:|---:|---:|---:|---:|---:|");
+  for (const rs of rows) {
+    lines.push(`| ${rs[0].label} | ${col(rs, "deferred")} | ${col(rs, "rejected")} | ${col(rs, "transitions")} | ${col(rs, "externalRefused")} | ${col(rs, "nativeRefused")} | ${col(rs, "memoryPressure503")} | ${rs.map((r) => r.restarts ?? "–").join(", ")} | ${col(rs, "heapLimitEpisodes")} |`);
+  }
+  lines.push("");
+}
+if (excluded.length) {
+  lines.push("### Not run (excluded by the variants file)", "");
+  for (const e of new Map(excluded.map((e) => [`${e.label} ${e.config}`, e])).values()) lines.push(`- ${e.label} at ${e.config}: ${e.reason}`);
   lines.push("");
 }
 console.log(lines.join("\n"));

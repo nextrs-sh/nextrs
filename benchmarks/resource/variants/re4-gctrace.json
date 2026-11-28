@@ -1,0 +1,6 @@
+[
+  {"label": "rc3-gc", "runtime": "rc3", "args": "--v8-flags --trace-gc", "gateAs": "rc3"},
+  {"label": "re23-gc", "runtime": "re23", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 85 --v8-flags --trace-gc", "gateAs": "re23"},
+  {"label": "re4-admission-gc", "runtime": "re4", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 85 --memory-admission --js-external-memory-limit 32 --native-buffer-budget 32 --v8-flags --trace-gc", "gateAs": "re4-admission"},
+  {"label": "re4-admission-young8-gc", "runtime": "re4", "args": "--js-heap-limit auto --memory-reclaim-idle 10 --memory-pressure-reclaim 85 --memory-admission --js-external-memory-limit 32 --native-buffer-budget 32 --js-young-semi-space 8 --v8-flags --trace-gc", "gateAs": "re4-admission-young8", "excludeConfigs": ["256m"], "excludeReason": "RE-4-YOUNG-GENERATION-EXPERIMENT: no larger young generation at 256 MiB without evidence (an 8 MiB floor leaves 88 MiB of old generation over a 50-66 MiB live set); lift only with --allow-config re4-admission-young8=256m and --allow-reason citing the 512 MiB results"}
+]

@@ -2237,15 +2237,10 @@ async fn file_response(
         // No room in the native buffer budget: wait for it (bounded), then
         // read again with the bytes reserved.
         match (loaded.need_budget, &budget) {
-            (Some(bytes), Some(budget)) => {
-                match budget
-                    .reserve(native_budget::BufferKind::StaticFile, bytes)
-                    .await
-                {
-                    Some(reserved) => permit = Some(reserved),
-                    None => return native_budget_exhausted(),
-                }
-            }
+            (Some((kind, bytes)), Some(budget)) => match budget.reserve(kind, bytes).await {
+                Some(reserved) => permit = Some(reserved),
+                None => return native_budget_exhausted(),
+            },
             _ => break loaded,
         }
     };
@@ -2304,21 +2299,22 @@ async fn file_response(
     }
     let headers = response.headers_mut();
     headers.insert(header::CONTENT_TYPE, HeaderValue::from_static(content_type));
-    let length = match (&loaded.body, loaded.selection) {
-        (Some(body), _) => body.len() as u64,
-        (None, range::Selection::Partial { start, end }) => end - start + 1,
-        (None, _) => loaded.len,
+    let length = match (&loaded.body, &loaded.stream, loaded.selection) {
+        (Some(body), _, _) => body.len() as u64,
+        (None, Some((_, length)), _) => *length,
+        (None, None, range::Selection::Partial { start, end }) => end - start + 1,
+        (None, None, _) => loaded.len,
     };
     headers.insert(header::CONTENT_LENGTH, HeaderValue::from(length));
-    if let Some(body) = loaded.body {
-        let body = Bytes::from(body);
-        *response.body_mut() = match loaded.permit {
-            // Held until hyper has written (or dropped) the body.
-            Some(permit) => {
-                native_budget::PermitBody::wrap(Body::from(body.clone()), Arc::new(permit))
-            }
-            None => Body::from(body.clone()),
-        };
+    if let (Some((file, length)), Some(budget)) = (loaded.stream, budget) {
+        // Above the whole-read limit: streamed in budgeted chunks (no
+        // compression cache entry; gzip, if negotiated, streams too).
+        *response.body_mut() = native_budget::FileStream::body(budget, file, length, loaded.permit);
+    } else if let Some(body) = loaded.body {
+        // With a budget, the bytes own their reservation: it is held until
+        // hyper has written (or dropped) them and any compression cache
+        // fill has finished with them.
+        *response.body_mut() = Body::from(body.clone());
         if let Some(key) = loaded.key {
             response.extensions_mut().insert(compress_cache::Cacheable {
                 key: compress_cache::Key::File(key),
@@ -2352,16 +2348,21 @@ struct LoadedFile {
     fresh: bool,
     len: u64,
     selection: range::Selection,
-    /// The selected bytes: the whole file, or the range.
-    body: Option<Vec<u8>>,
+    /// The selected bytes read whole: the whole file, or the range. With a
+    /// native buffer budget they own their reservation.
+    body: Option<Bytes>,
+    /// With a native buffer budget, a selection above its whole-read limit
+    /// is not read here: the open handle, positioned at the first selected
+    /// byte, and the number of bytes to stream.
+    stream: Option<(std::fs::File, u64)>,
     /// The compression cache key for a whole-file `body` (asked for, and
     /// the file did not change while it was read).
     key: Option<compress_cache::FileKey>,
-    /// The native buffer budget's reservation for `body`.
+    /// The native buffer budget's reservation for a `stream`'s first chunk.
     permit: Option<native_budget::BufferPermit>,
     /// The budget had no room for this many bytes: nothing was read; wait
     /// for room and load again.
-    need_budget: Option<u64>,
+    need_budget: Option<(native_budget::BufferKind, u64)>,
 }
 
 /// Blocking: open, stat the handle, check the conditional headers, select
@@ -2404,6 +2405,7 @@ fn load_file(
             len,
             selection: range::Selection::Full,
             body: None,
+            stream: None,
             key: None,
             permit: None,
             need_budget: None,
@@ -2438,17 +2440,28 @@ fn load_file(
         range::Selection::Full
     };
     // With a native buffer budget, the bytes about to be read are reserved
-    // first (a permit from an earlier attempt may already cover them).
+    // first (a permit from an earlier attempt may already cover them). A
+    // selection above the whole-read limit is streamed: only its first
+    // chunk is reserved here.
     let wanted = match selection {
         _ if fresh || !read.body => None,
         range::Selection::Unsatisfiable => None,
         range::Selection::Partial { start, end } => Some(end - start + 1),
         range::Selection::Full => Some(len),
     };
-    if let (Some(budget), Some(wanted)) = (budget, wanted)
-        && !permit.as_ref().is_some_and(|p| p.covers(wanted))
-    {
-        permit = budget.try_reserve(native_budget::BufferKind::StaticFile, wanted);
+    let streamed = matches!((budget, wanted), (Some(b), Some(w)) if w > b.whole_read_limit());
+    if let (Some(budget), Some(wanted)) = (budget, wanted) {
+        let (kind, reserve) = if streamed {
+            (
+                native_budget::BufferKind::StaticStream,
+                wanted.min(budget.stream_chunk()),
+            )
+        } else {
+            (native_budget::BufferKind::StaticFile, wanted)
+        };
+        if !permit.as_ref().is_some_and(|p| p.covers(reserve)) {
+            permit = budget.try_reserve(kind, reserve);
+        }
         if permit.is_none() {
             return Some(LoadedFile {
                 etag,
@@ -2458,12 +2471,36 @@ fn load_file(
                 len,
                 selection,
                 body: None,
+                stream: None,
                 key: None,
                 permit: None,
-                need_budget: Some(wanted),
+                need_budget: Some((kind, reserve)),
             });
         }
     }
+    if let (true, Some(wanted)) = (streamed, wanted) {
+        if let range::Selection::Partial { start, .. } = selection {
+            handle.seek(SeekFrom::Start(start)).ok()?;
+        }
+        return Some(LoadedFile {
+            etag,
+            last_modified,
+            precondition_failed: false,
+            fresh,
+            len,
+            selection,
+            body: None,
+            stream: Some((handle, wanted)),
+            key: None,
+            permit,
+            need_budget: None,
+        });
+    }
+    // Owns the reservation, if any.
+    let budgeted = |bytes: Vec<u8>, permit: Option<native_budget::BufferPermit>| match permit {
+        Some(permit) => permit.own(bytes),
+        None => Bytes::from(bytes),
+    };
     let body = match selection {
         _ if fresh || !read.body => None,
         range::Selection::Unsatisfiable => None,
@@ -2477,12 +2514,17 @@ fn load_file(
             if bytes.len() as u64 != wanted {
                 return None;
             }
-            Some(bytes)
+            Some(budgeted(bytes, permit.take()))
         }
         range::Selection::Full => {
             let mut bytes = Vec::with_capacity(len as usize);
-            handle.read_to_end(&mut bytes).ok()?;
-            Some(bytes)
+            if budget.is_some() {
+                // No more than was reserved, if the file grew since the stat.
+                (&mut handle).take(len).read_to_end(&mut bytes).ok()?;
+            } else {
+                handle.read_to_end(&mut bytes).ok()?;
+            }
+            Some(budgeted(bytes, permit.take()))
         }
     };
     // The key describes the bytes read only if the file is the same after
@@ -2510,8 +2552,9 @@ fn load_file(
         len,
         selection,
         body,
+        stream: None,
         key,
-        permit: budget.and(permit),
+        permit: None,
         need_budget: None,
     })
 }

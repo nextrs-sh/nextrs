@@ -852,13 +852,25 @@ impl MetricsSnapshot {
 /// Memory-aware admission ([`crate::MemoryAdmission`]).
 #[derive(Debug, Clone, Serialize)]
 pub struct AdmissionSnapshot {
-    /// `normal`, `elevated`, `critical` or `degraded`.
+    /// `normal`, `elevated`, `critical`, `degraded` or `emergency`.
     pub state: &'static str,
+    /// `sampled` or `committed` (RE-4.1B).
+    pub accounting: &'static str,
     pub budget_bytes: u64,
     /// The latest measured total (usage minus inactive page cache).
     pub working_set_bytes: u64,
-    /// Estimated cost of requests admitted since that reading.
+    /// Estimated cost of requests admitted since that reading (what
+    /// `sampled` accounting adds).
     pub reserved_bytes: u64,
+    /// Requests holding a commitment (admitted and not yet released).
+    pub commitments: u64,
+    /// Their estimates.
+    pub committed_bytes: u64,
+    /// The part of them not yet matched by measured growth and not
+    /// expired (what `committed` accounting adds).
+    pub unrealized_bytes: u64,
+    /// Times admission asked the reclaimer to reclaim now.
+    pub reclaim_requests: u64,
     pub reading_age_seconds: f64,
     pub queued_bytes: u64,
     pub state_transitions: u64,
@@ -877,11 +889,17 @@ impl AdmissionSnapshot {
         queued_bytes: usize,
         now: std::time::Instant,
     ) -> Self {
+        let (commitments, committed, unrealized) = gate.commitments();
         Self {
             state: gate.state().as_str(),
+            accounting: gate.config().accounting.as_str(),
             budget_bytes: gate.budget().unwrap_or(0),
             working_set_bytes: gate.working_set(),
             reserved_bytes: gate.reserved(),
+            commitments: commitments as u64,
+            committed_bytes: committed,
+            unrealized_bytes: unrealized,
+            reclaim_requests: gate.reclaim_requests,
             reading_age_seconds: gate.reading_age(now).map_or(-1.0, |a| a.as_secs_f64()),
             queued_bytes: u64::try_from(queued_bytes).unwrap_or(u64::MAX),
             state_transitions: gate.transitions,
@@ -907,7 +925,7 @@ impl AdmissionSnapshot {
             "# HELP nextrs_admission_state Memory admission state (1 for the current one).
 # TYPE nextrs_admission_state gauge"
         );
-        for state in ["normal", "elevated", "critical", "degraded"] {
+        for state in crate::admission::MemoryState::ALL.map(|s| s.as_str()) {
             let _ = writeln!(
                 out,
                 "nextrs_admission_state{{state=\"{state}\"}} {}",
@@ -932,6 +950,30 @@ impl AdmissionSnapshot {
                 "gauge",
                 "Estimated memory of requests admitted since the latest reading.",
                 self.reserved_bytes.to_string(),
+            ),
+            (
+                "nextrs_admission_commitments",
+                "gauge",
+                "Admitted requests whose estimate is held until they end.",
+                self.commitments.to_string(),
+            ),
+            (
+                "nextrs_admission_committed_bytes",
+                "gauge",
+                "Estimated memory of the admitted requests still running.",
+                self.committed_bytes.to_string(),
+            ),
+            (
+                "nextrs_admission_unrealized_bytes",
+                "gauge",
+                "Part of those estimates not yet seen as working-set growth (committed accounting).",
+                self.unrealized_bytes.to_string(),
+            ),
+            (
+                "nextrs_admission_reclaim_requests_total",
+                "counter",
+                "Times admission asked the reclaimer to reclaim at once.",
+                self.reclaim_requests.to_string(),
             ),
             (
                 "nextrs_admission_reading_age_seconds",

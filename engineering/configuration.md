@@ -331,7 +331,21 @@ None of them is a memory guarantee.
 
   Each request is assumed to need `--memory-admission-reserve` (2 MiB,
   plus an upload's declared length). That is an estimate: an admitted
-  request can use far more. The budget is the container's limit or
+  request can use far more. How long the estimate counts is
+  `--memory-admission-accounting` (RE-4.1):
+  - `sampled` (default): until the next reading. A request that
+    allocates after it (waiting on a backend, a body) is not counted.
+  - `committed`: until the request ends, less the working-set growth
+    measured since, at most `--memory-admission-commitment-ttl` (2 s).
+    It counts late allocations and holds more requests back meanwhile.
+  - `--memory-admission-emergency PERCENT` (off; at least the critical
+    threshold): from there, new JavaScript requests are refused even with
+    none running, except one per `--memory-admission-emergency-interval`
+    (5 s; 0: none until memory falls). Without it, critical admits one
+    whenever none runs.
+  - With the emergency state set, moving up into critical or emergency
+    asks `--memory-pressure-reclaim` (if on) to reclaim at its next tick,
+    not after its backoff. The budget is the container's limit or
   `--memory-admission-budget`. Set the budget lower when other processes
   share the container's cgroup: their usage counts, and NextRS cannot see
   it. Static files, prerendered pages and health checks are never gated.
@@ -342,17 +356,26 @@ None of them is a memory guarantee.
   arrays, `Buffer`). An allocation of 64 KiB or more that would cross it
   throws `RangeError: Array buffer allocation failed` in the request,
   after V8 has collected garbage; the isolate keeps serving. Smaller
-  allocations are counted but always granted. Buffers created by NextRS
-  itself (request bodies, fetch responses, `fs.readFileSync`,
-  `TextEncoder`, `Response.arrayBuffer()`) are not counted. Metrics:
+  allocations are counted but always granted. Results that NextRS's Node
+  polyfills copy into a Buffer (`fs.readFileSync`, one-shot `zlib`) and
+  `Response`/`Blob` `.arrayBuffer()` are covered; `TextEncoder.encode`,
+  `Buffer.from(string)`, resizable ArrayBuffers and the transient
+  Rust-made buffers behind those copies are not (RE-4.1E). Metrics:
   `nextrs_external_memory_*`.
 - `--native-buffer-budget MIB`: one byte budget for static and `public/`
-  files read into memory for a response, and for request bodies buffered
-  for the proxy. A request without room waits up to
-  `--native-buffer-wait` (2 s), then gets 503 `native-buffer-budget`.
-  The bytes are reserved before the read and released when the response
-  or request body is dropped. A file larger than the budget is served
-  alone. Metrics: `nextrs_native_buffer_*`.
+  file bytes read for a response, and for request bodies buffered for
+  the proxy. A request without room waits up to `--native-buffer-wait`
+  (2 s), then gets 503 `native-buffer-budget`. The bytes are reserved
+  before the read and released when the last reference to them is
+  dropped (hyper's write queue, gzip, a compression cache fill). Files
+  up to a quarter of the budget (at most 4 MiB) are read whole; larger
+  files and ranges are streamed in chunks of a quarter of the budget (at
+  most 64 KiB), each reserved before it is read (RE-4.1). A proxy request
+  body that cannot fit in the budget gets 413
+  `native-buffer-budget-exceeded`. With a budget under 16 MiB, files
+  between a quarter of it and 4 MiB are streamed and lose their cached
+  gzip copy. Metrics: `nextrs_native_buffer_*` (kinds `static_file`,
+  `static_stream`, `proxy_body`).
 - `--js-young-semi-space MIB`: raises each isolate's young generation to
   3 × this (two semi-spaces and the large-object space). The room comes
   from the old generation, so `--js-heap-limit` is unchanged. Needs

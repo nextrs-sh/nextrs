@@ -69,13 +69,30 @@ exports.handler = async (req, res) => {
           json_large: () => JSON.stringify({ a: "x".repeat(100000) }).length,
           data_view_large: () => new DataView(new ArrayBuffer(MIB)).byteLength,
           resizable_large: () => new ArrayBuffer(10, { maxByteLength: 4 * MIB }).byteLength,
+          // RE-4.1E: buffers that come from Rust ops, then are copied (or
+          // not) into allocator-made ones by the Node polyfills.
+          resizable_grown: () => {
+            const buffer = new ArrayBuffer(10, { maxByteLength: 4 * MIB });
+            buffer.resize(2 * MIB);
+            return buffer.byteLength;
+          },
+          fs_read_file_sync_large: () =>
+            require("node:fs").readFileSync(require("node:path").join(__dirname, "large-text.txt")).length,
+          fs_read_file_sync_large_string: () =>
+            require("node:fs").readFileSync(require("node:path").join(__dirname, "large-text.txt"), "utf8").length,
+          zlib_gunzip_large: () => {
+            const zlib = require("node:zlib");
+            return zlib.gunzipSync(zlib.gzipSync("x".repeat(2 * MIB))).length;
+          },
+          text_encoder_encode_into_large: () => new TextEncoder().encodeInto("x".repeat(200000), new Uint8Array(1000)).written,
+          buffer_from_large_string: () => Buffer.from("x".repeat(2 * MIB)).length,
         };
         const out = {};
         for (const [name, run] of Object.entries(tries)) {
           try {
             out[name] = { ok: true, value: run() };
           } catch (error) {
-            out[name] = { ok: false, error: error.name };
+            out[name] = { ok: false, error: error.name, message: String(error.message).slice(0, 120) };
           }
         }
         for (const [name, run] of Object.entries({

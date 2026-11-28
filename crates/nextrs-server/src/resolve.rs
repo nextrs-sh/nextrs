@@ -1068,6 +1068,77 @@ async fn buffer_body(body: Body, limit: u64) -> Result<Bytes, Box<Response>> {
         .map_err(|_| Box::new(dynamic::too_large(limit as u64)))
 }
 
+/// [`buffer_body`] with a native buffer budget: each frame's bytes are
+/// reserved as it arrives (a client trickling its body holds only what it
+/// has sent, and no reservation waits for room it does not need yet,
+/// RE-4.1 review F1). A body that cannot fit in the whole budget gets 413
+/// (declared: before anything is read); no room in time, a 503.
+async fn buffer_budgeted(
+    mut body: Body,
+    limit: u64,
+    budget: &crate::native_budget::NativeBufferBudget,
+) -> Result<Bytes, Box<Response>> {
+    use crate::native_budget::{BufferKind, body_exceeds_budget};
+    use http_body::Body as _;
+    let total = budget.total_bytes();
+    let declared = body.size_hint().upper();
+    if declared.is_some_and(|d| d <= limit && d > total) {
+        return Err(Box::new(body_exceeds_budget(total)));
+    }
+    if body.is_end_stream() {
+        return Ok(Bytes::new());
+    }
+    let mut permit = None;
+    let mut frames: Vec<Bytes> = Vec::new();
+    let mut received: u64 = 0;
+    while let Some(frame) =
+        std::future::poll_fn(|cx| std::pin::Pin::new(&mut body).poll_frame(cx)).await
+    {
+        let Ok(frame) = frame else {
+            // The client went away or the body was malformed: as `to_bytes`.
+            return Err(Box::new(dynamic::too_large(limit)));
+        };
+        let Ok(data) = frame.into_data() else {
+            continue;
+        };
+        received = received.saturating_add(data.len() as u64);
+        if received > limit {
+            return Err(Box::new(dynamic::too_large(limit)));
+        }
+        if received > total {
+            return Err(Box::new(body_exceeds_budget(total)));
+        }
+        if !budget
+            .grow(&mut permit, BufferKind::ProxyBody, received)
+            .await
+        {
+            let mut response = crate::native_budget_exhausted();
+            // The rest of the body is not read.
+            response.headers_mut().insert(
+                axum::http::header::CONNECTION,
+                axum::http::HeaderValue::from_static("close"),
+            );
+            return Err(Box::new(response));
+        }
+        frames.push(data);
+    }
+    let joined = match frames.len() {
+        0 => return Ok(Bytes::new()),
+        1 => frames.pop().expect("one frame"),
+        _ => {
+            let mut joined = Vec::with_capacity(received as usize);
+            for frame in frames.drain(..) {
+                joined.extend_from_slice(&frame);
+            }
+            Bytes::from(joined)
+        }
+    };
+    Ok(match permit {
+        Some(permit) => permit.own(joined),
+        None => joined,
+    })
+}
+
 #[allow(clippy::too_many_arguments)]
 async fn run_proxy(
     state: &AppState,
@@ -1094,50 +1165,27 @@ async fn run_proxy(
     // The body is buffered whole for the proxy and kept for the route.
     let has_body = *method != Method::GET && *method != Method::HEAD;
     let limit = proxy.body_limit.min(state.max_request_body);
-    // With a native buffer budget, the most the body can hold (its
-    // declared length, else the limit) is reserved before buffering, and
-    // stays reserved until both copies (the proxy's and the route's) are
-    // dropped.
-    let permit = match &state.native_buffer_budget {
-        Some(budget) if has_body => {
-            use http_body::Body as _;
-            let bound = body
-                .size_hint()
-                .upper()
-                .map_or(limit, |upper| upper.min(limit));
-            match budget
-                .reserve(crate::native_budget::BufferKind::ProxyBody, bound.max(1))
-                .await
-            {
-                Some(permit) => Some(std::sync::Arc::new(permit)),
-                None => {
-                    return ProxyStep::Finish(
-                        Outcome::Respond(crate::native_budget_exhausted()),
-                        Body::empty(),
-                    );
-                }
-            }
-        }
-        _ => None,
-    };
-    let bytes = if has_body {
-        match buffer_body(body, limit).await {
+    let bytes = match (&state.native_buffer_budget, has_body) {
+        // With a native buffer budget the body is reserved as it arrives,
+        // and the buffered bytes own the reservation (RE-4.1A).
+        (Some(budget), true) => match buffer_budgeted(body, limit, budget).await {
             Ok(bytes) => bytes,
             Err(response) => return ProxyStep::Finish(Outcome::Respond(*response), Body::empty()),
+        },
+        (None, true) => match buffer_body(body, limit).await {
+            Ok(bytes) => bytes,
+            Err(response) => return ProxyStep::Finish(Outcome::Respond(*response), Body::empty()),
+        },
+        (_, false) => {
+            drop(body);
+            Bytes::new()
         }
-    } else {
-        drop(body);
-        Bytes::new()
     };
     let rest = || {
-        let body = if bytes.is_empty() {
+        if bytes.is_empty() {
             Body::empty()
         } else {
             Body::from(bytes.clone())
-        };
-        match &permit {
-            Some(permit) => crate::native_budget::PermitBody::wrap(body, permit.clone()),
-            None => body,
         }
     };
 

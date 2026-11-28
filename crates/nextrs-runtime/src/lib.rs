@@ -44,8 +44,8 @@ use std::time::Duration;
 use bytes::Bytes;
 
 pub use crate::admission::{
-    CgroupProbe, MemoryAdmission, MemoryProbe, MemoryReading, MemoryState, ProcessProbe,
-    RequestClass,
+    Accounting as AdmissionAccounting, CgroupProbe, MemoryAdmission, MemoryProbe, MemoryReading,
+    MemoryState, ProcessProbe, RequestClass,
 };
 pub use crate::cache::CacheConfig;
 pub use crate::external::{ExternalSnapshot, REFUSABLE_MIN as EXTERNAL_REFUSABLE_MIN};

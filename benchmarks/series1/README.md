@@ -36,7 +36,13 @@ docker build -f docker/Dockerfile.api -t velasia-api:s1 .
 
 The two storefront Dockerfiles have identical `build` stages, so the
 second build reuses the first one's `next build` from the layer cache.
-Check that both images carry the same `apps/web/.next/BUILD_ID`.
+Check that both images carry the same `apps/web/.next/BUILD_ID`. The
+cache is not a guarantee (a pruned cache, another builder or `--no-cache`
+gives each image its own build): the resource harness builds the
+application once and copies it into both images instead, and checks every
+file
+([`../resource/docker/build-images.sh`](../resource/README.md#images-one-build-per-application),
+`run.mjs verify-build`).
 
 Other NextRS builds are `velasia-nextrs:s1` with only
 `/usr/local/bin/nextrs` replaced (`run.mjs setup --bin LABEL=PATH`), so
@@ -105,6 +111,7 @@ Per measured window (`summarize.mjs` explains each column):
 - **NextRS's own metrics** (`/metrics.json` on its operations listener):
   what answered each request (`via`), executor time, cache bytes copied
   to JavaScript, reused cache entries, streamed-gzip work, heap and malloc.
-- **contention**: the macOS host's load average and the Docker VM's load
+- **contention**: the macOS host's load average (on Linux, the host's
+  `/proc/loadavg`) and the Docker VM's load
   and CPU use around every window. Results from windows where the VM was
   busy with other work must not be compared.
