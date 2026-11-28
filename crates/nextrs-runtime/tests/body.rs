@@ -70,9 +70,24 @@ async fn small_buffered_body() {
     assert_eq!(result["complete"], true);
 }
 
+/// The CPU stall watchdog is not under test in the two tests that move
+/// megabytes of body through one isolate turn (issue #52). Every chunk is
+/// already available, so `for await` resolves through microtasks without
+/// returning to the event loop, and hashing the whole body counts as one
+/// turn: 300–350 ms of thread CPU time in a debug build, close enough to
+/// `small_limits()`'s 500 ms that a slower host trips it. Stall detection
+/// keeps its own tests in `supervision.rs` (CPU loop, microtask chain,
+/// off-CPU turn, wall backstop). Body integrity is still checked here.
+fn body_limits() -> nextrs_runtime::Limits {
+    nextrs_runtime::Limits {
+        stall_timeout: None,
+        ..small_limits()
+    }
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn large_streamed_body_arrives_intact_in_many_reads() {
-    let executor = executor(small_limits());
+    let executor = executor(body_limits());
     let data = payload(6 * 1024 * 1024, 7);
     let digest = sha256(&data);
     let (status, result) = echo(&executor, post(chunked(data, 64 * 1024, None), &[])).await;
@@ -150,7 +165,7 @@ async fn a_body_over_the_limit_fails_with_413_semantics() {
 async fn simultaneous_uploads_stay_separate() {
     let executor = executor(nextrs_runtime::Limits {
         isolates: 2,
-        ..small_limits()
+        ..body_limits()
     });
     let tasks: Vec<_> = (0..32u8)
         .map(|i| {
