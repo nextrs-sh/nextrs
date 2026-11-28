@@ -31,6 +31,22 @@ minutes: preliminary, not a published performance claim. The soak tests
 | [RE-23-INDEPENDENT-REVIEW](RE-23-INDEPENDENT-REVIEW.md) | Code review findings and their fixes |
 | [RE-23-MILESTONE-GATE](RE-23-MILESTONE-GATE.md) | The ten gate questions, the targets, the verdict and its conditions |
 
+### RE-23B: dedicated Linux validation
+
+**RE-23B gate: BLOCKED** ([RE-23B-FINAL-MILESTONE-GATE](RE-23B-FINAL-MILESTONE-GATE.md)).
+No container benchmark or soak has run: the Fedora host's Docker is
+Docker Desktop (containers in a VM), the tools' sandbox could not reach
+the host, and the images were not on it. CI and compatibility are
+closed. Process-level fault tests ran.
+
+| Report | Contents |
+|---|---|
+| [RE-23B-LINUX-ENVIRONMENT](RE-23B-LINUX-ENVIRONMENT.md) | The Fedora host, why it does not yet qualify, what unblocks it |
+| [RE-23B-COMPATIBILITY-AND-CI](RE-23B-COMPATIBILITY-AND-CI.md) | CI on PR #51 and `main`; local gate; the streaming-test failure explained ([#52](https://github.com/nextrs-sh/nextrs/issues/52)) |
+| [RE-23B-CONSTRAINED-RUNTIME-SAFETY](RE-23B-CONSTRAINED-RUNTIME-SAFETY.md) | Heap-limit faults: which allocations are recoverable and which abort the process; native memory beyond the heap budget |
+| [RE-23B-FINAL-MILESTONE-GATE](RE-23B-FINAL-MILESTONE-GATE.md) | Status by section, the nine questions, owner decisions |
+| `RE-23B-CONTROLLED-BENCHMARKS`, `-YOUNG-GENERATION-TUNING`, `-CONTINUOUS-TRAFFIC`, `-POST-TRIM-REGROWTH` | not written: blocked, nothing measured |
+
 ## Data and reproduction
 
 [`results/`](results/) has one directory per stage, holding:
@@ -58,3 +74,5 @@ in [`benchmarks/resource/`](../../../benchmarks/resource/README.md).
 | `re23-confirm` | `full` | final binary, 256 MiB and 512 MiB / 1 vCPU, 2 rounds |
 | `re23-confirm-young` | `full` | young generation 8 and 16 MiB, 512 MiB / 1 vCPU and 1 GiB / 2 vCPU |
 | `re23-idle-threads` | none (health checks only) | 512 MiB / 1 vCPU, 300 s |
+| `re23b-ci` | local gate, streaming-test reproduction and sweeps | Fedora host, no container, `79e4fe5` and `c65731b` |
+| `re23b-safety` | heap-limit and external-memory fault cases, one process each | Fedora host, no container, 64 and 128 MiB heap limits |

@@ -1,0 +1,85 @@
+== HEAD c65731be6d62498272f71ea3684a5aef0d5cd16b
+Sat Nov 28 03:13:43 AM UTC 2026
+FMT OK
+    |
+
+error: could not compile `nextrs-runtime` (lib) due to 1 previous error
+CLIPPY EXIT 101
+     Running unittests src/lib.rs (target/debug/build/nextrs-adapter/a9cda70a305aabb0/out/nextrs_adapter-a9cda70a305aabb0)
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.16s
+     Running tests/inspect.rs (target/debug/build/nextrs-adapter/cda775a71b324c8e/out/inspect-cda775a71b324c8e)
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+     Running unittests src/main.rs (target/debug/build/nextrs-cli/15aa54df56e9018c/out/nextrs-15aa54df56e9018c)
+test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.09s
+     Running tests/doctor.rs (target/debug/build/nextrs-cli/1f2bd49c8a1c3980/out/doctor-1f2bd49c8a1c3980)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.00s
+     Running unittests src/lib.rs (target/debug/build/nextrs-image/a42ccba914099c38/out/nextrs_image-a42ccba914099c38)
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 15.29s
+     Running tests/estimate.rs (target/debug/build/nextrs-image/47ff021196e9db92/out/estimate-47ff021196e9db92)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 30.47s
+     Running unittests src/lib.rs (target/debug/build/nextrs-runtime/0dc5d28031620c62/out/nextrs_runtime-0dc5d28031620c62)
+test result: ok. 74 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.93s
+     Running tests/backpressure.rs (target/debug/build/nextrs-runtime/a5507601b449f64e/out/backpressure-a5507601b449f64e)
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.16s
+     Running tests/body.rs (target/debug/build/nextrs-runtime/58cf19f62ceb021b/out/body-58cf19f62ceb021b)
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.14s
+     Running tests/buffer_base64.rs (target/debug/build/nextrs-runtime/960fbb2fb49a89e0/out/buffer_base64-960fbb2fb49a89e0)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.03s
+     Running tests/buffer_utf8.rs (target/debug/build/nextrs-runtime/24e285313c738cbb/out/buffer_utf8-24e285313c738cbb)
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.60s
+     Running tests/cache.rs (target/debug/build/nextrs-runtime/a71d6d298c20df03/out/cache-a71d6d298c20df03)
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.85s
+     Running tests/deadlines.rs (target/debug/build/nextrs-runtime/2e4670fe0f10ff97/out/deadlines-2e4670fe0f10ff97)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.86s
+     Running tests/executor.rs (target/debug/build/nextrs-runtime/7c1dab4cedf0d65e/out/executor-7c1dab4cedf0d65e)
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+     Running tests/fetch.rs (target/debug/build/nextrs-runtime/cea10f1c3c094688/out/fetch-cea10f1c3c094688)
+test result: ok. 23 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 4.34s
+     Running tests/memory.rs (target/debug/build/nextrs-runtime/bfecbf707eac21f5/out/memory-bfecbf707eac21f5)
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.54s
+     Running tests/pool.rs (target/debug/build/nextrs-runtime/f5ef0452e4c5f4d4/out/pool-f5ef0452e4c5f4d4)
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.35s
+     Running tests/streams_release.rs (target/debug/build/nextrs-runtime/db4b9ab2f5790660/out/streams_release-db4b9ab2f5790660)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+     Running tests/supervision.rs (target/debug/build/nextrs-runtime/f52a37ab88a8a3af/out/supervision-f52a37ab88a8a3af)
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.17s
+     Running tests/text_encoder.rs (target/debug/build/nextrs-runtime/26ec2a523bd4294a/out/text_encoder-26ec2a523bd4294a)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+     Running tests/timers.rs (target/debug/build/nextrs-runtime/356ebeb3c1f6cf36/out/timers-356ebeb3c1f6cf36)
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 1.20s
+     Running tests/webapis.rs (target/debug/build/nextrs-runtime/9a8d10c5c2f5fdee/out/webapis-9a8d10c5c2f5fdee)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s
+     Running unittests src/lib.rs (target/debug/build/nextrs-server/e60f354122413b7d/out/nextrs_server-e60f354122413b7d)
+test result: ok. 94 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.09s
+     Running tests/compression.rs (target/debug/build/nextrs-server/4abb90ed5a5ff699/out/compression-4abb90ed5a5ff699)
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.92s
+     Running tests/deployment_id.rs (target/debug/build/nextrs-server/9ab095eab22152f3/out/deployment_id-9ab095eab22152f3)
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+     Running tests/dynamic.rs (target/debug/build/nextrs-server/eb29df4a567805aa/out/dynamic-eb29df4a567805aa)
+test result: ok. 0 passed; 0 failed; 7 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/http.rs (target/debug/build/nextrs-server/ad520d274ffb5596/out/http-ad520d274ffb5596)
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.48s
+     Running tests/image.rs (target/debug/build/nextrs-server/147ad8852fd30539/out/image-147ad8852fd30539)
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.09s
+     Running tests/memory.rs (target/debug/build/nextrs-server/687fa7fe1c2d7882/out/memory-687fa7fe1c2d7882)
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/preconditions.rs (target/debug/build/nextrs-server/c18a0b323be5d0b8/out/preconditions-c18a0b323be5d0b8)
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+     Running tests/proxy.rs (target/debug/build/nextrs-server/efd9410823d83e5f/out/proxy-efd9410823d83e5f)
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/range.rs (target/debug/build/nextrs-server/080f0e2e379a1be7/out/range-080f0e2e379a1be7)
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.03s
+     Running tests/reliability.rs (target/debug/build/nextrs-server/de792ffedb9f7802/out/reliability-de792ffedb9f7802)
+test result: ok. 0 passed; 0 failed; 13 ignored; 0 measured; 0 filtered out; finished in 0.00s
+     Running tests/routing_vectors.rs (target/debug/build/nextrs-server/dc30be18b126978c/out/routing_vectors-dc30be18b126978c)
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+     Running tests/rsc_validation.rs (target/debug/build/nextrs-server/9618fbc70f5ec758/out/rsc_validation-9618fbc70f5ec758)
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+     Running tests/serve_metrics.rs (target/debug/build/nextrs-server/5079d22a14846c82/out/serve_metrics-5079d22a14846c82)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+TEST EXIT 0
+Sat Nov 28 03:27:51 AM UTC 2026

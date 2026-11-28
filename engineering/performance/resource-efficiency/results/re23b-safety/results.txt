@@ -1,0 +1,27 @@
+mode=heap-single mib=8 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-single","mib":8,"heap_mib":64,"status":200,"ended":true,"body":"{\"ok\":true,\"held\":1,\"ms\":8}","ms":8,"restarts":0,"failures":[],"ready_after":true,"after_status":200,"vmhwm_kib":69240}
+mode=heap-single mib=24 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-single","mib":24,"heap_mib":64,"status":200,"ended":true,"body":"{\"ok\":true,\"held\":1,\"ms\":24}","ms":24,"restarts":0,"failures":[],"ready_after":true,"after_status":200,"vmhwm_kib":101320}
+mode=heap-single mib=48 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-single","mib":48,"heap_mib":64,"status":200,"ended":true,"body":"{\"ok\":true,\"held\":1,\"ms\":73}","ms":77,"restarts":0,"failures":[],"ready_after":true,"after_status":200,"vmhwm_kib":150532}
+mode=heap-single mib=60 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-single","mib":60,"heap_mib":64,"status":0,"ended":false,"body":"","ms":182,"restarts":1,"failures":[("heap_limit", 1)],"ready_after":true,"after_status":200,"vmhwm_kib":172628}
+mode=heap-single mib=72 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-single","mib":72,"heap_mib":64,"status":0,"ended":false,"body":"","ms":220,"restarts":1,"failures":[("heap_limit", 1)],"ready_after":true,"after_status":200,"vmhwm_kib":196912}
+mode=heap-single mib=96 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-single","mib":96,"heap_mib":64,"status":0,"ended":false,"body":"","ms":239,"restarts":1,"failures":[("heap_limit", 1)],"ready_after":true,"after_status":200,"vmhwm_kib":245752}
+mode=heap-single mib=128 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-single","mib":128,"heap_mib":64,"status":0,"ended":false,"body":"","ms":547,"restarts":1,"failures":[("heap_limit", 1)],"ready_after":true,"after_status":200,"vmhwm_kib":311388}
+mode=heap-string mib=24 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-string","mib":24,"heap_mib":64,"status":200,"ended":true,"body":"{\"ok\":true,\"held\":1,\"ms\":20}","ms":20,"restarts":0,"failures":[],"ready_after":true,"after_status":200,"vmhwm_kib":101252}
+mode=heap-string mib=48 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-string","mib":48,"heap_mib":64,"status":200,"ended":true,"body":"{\"ok\":true,\"held\":1,\"ms\":38}","ms":42,"restarts":0,"failures":[],"ready_after":true,"after_status":200,"vmhwm_kib":151128}
+mode=heap-string mib=72 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-string","mib":72,"heap_mib":64,"status":0,"ended":false,"body":"","ms":64,"restarts":1,"failures":[("heap_limit", 1)],"ready_after":true,"after_status":200,"vmhwm_kib":197040}
+mode=heap-string mib=96 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-string","mib":96,"heap_mib":64,"status":0,"ended":false,"body":"","ms":81,"restarts":1,"failures":[("heap_limit", 1)],"ready_after":true,"after_status":200,"vmhwm_kib":245864}
+mode=heap-string mib=128 heap=64 rc=0 fatal=[] RE23B {"mode":"heap-string","mib":128,"heap_mib":64,"status":0,"ended":false,"body":"","ms":123,"restarts":1,"failures":[("heap_limit", 1)],"ready_after":true,"after_status":200,"vmhwm_kib":311056}
+mode=heap-string mib=256 heap=64 rc=133 fatal=[Fatal JavaScript out of memory: Reached heap limit] 
+mode=external mib=256 heap=64 rc=0 fatal=[] RE23B {"mode":"external","mib":256,"heap_mib":64,"status":200,"ended":true,"body":"{\"ok\":true,\"held\":8,\"ms\":95}","ms":95,"restarts":0,"failures":[],"ready_after":true,"after_status":200,"vmhwm_kib":314796}
+mode=external mib=512 heap=64 rc=0 fatal=[] RE23B {"mode":"external","mib":512,"heap_mib":64,"status":200,"ended":true,"body":"{\"ok\":true,\"held\":16,\"ms\":192}","ms":192,"restarts":0,"failures":[],"ready_after":true,"after_status":200,"vmhwm_kib":576720}
+mode=heap-string mib=144 heap=64 rc=0 fatal=[] "status":0 "failures":[("heap_limit", 1)] "vmhwm_kib":343604 
+mode=heap-string mib=160 heap=64 rc=0 fatal=[] "status":0 "failures":[("heap_limit", 1)] "vmhwm_kib":377556 
+mode=heap-string mib=176 heap=64 rc=0 fatal=[] "status":0 "failures":[("heap_limit", 1)] "vmhwm_kib":409520 
+mode=heap-string mib=192 heap=64 rc=133 fatal=[Fatal JavaScript out of memory: Reached heap limit] 
+mode=heap-string mib=224 heap=64 rc=133 fatal=[Fatal JavaScript out of memory: Reached heap limit] 
+mode=heap-single mib=160 heap=64 rc=0 fatal=[] "status":0 "failures":[("heap_limit", 1)] "vmhwm_kib":376840 
+mode=heap-single mib=192 heap=64 rc=133 fatal=[Fatal JavaScript out of memory: Reached heap limit] 
+mode=heap-single mib=256 heap=64 rc=133 fatal=[Fatal JavaScript out of memory: Reached heap limit] 
+mode=heap-string mib=96 heap=128 rc=0 fatal=[] "status":200 "failures":[] "vmhwm_kib":248704 
+mode=heap-string mib=128 heap=128 rc=0 fatal=[] "status":0 "failures":[("heap_limit", 1)] "vmhwm_kib":311660 
+mode=heap-string mib=192 heap=128 rc=0 fatal=[] "status":0 "failures":[("heap_limit", 1)] "vmhwm_kib":442396 
+mode=heap-string mib=256 heap=128 rc=133 fatal=[Fatal JavaScript out of memory: Reached heap limit] 
