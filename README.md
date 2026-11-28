@@ -1,18 +1,21 @@
 <p align="center">
-  <img src=".github/assets/nextrs-banner.svg" width="100%" alt="NextRS: Build with Next.js. Run with Rust.">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/nextrs-banner-dark.svg">
+    <img src=".github/assets/nextrs-banner.svg" width="100%" alt="NextRS: Build with Next.js. Run with Rust.">
+  </picture>
 </p>
 
 <p align="center">
-  <b>An experimental production runtime for Next.js.</b><br>
+  <b>An experimental Rust-powered production runtime for Next.js.</b><br>
   It serves the output of an official <code>next build</code> from a Rust
   HTTP server, and runs the compiled server code in embedded V8.
 </p>
 
 <p align="center">
-  <a href="#project-status"><img src="https://img.shields.io/badge/status-experimental-CE422B?style=flat-square" alt="Status: experimental"></a>
-  <a href="https://www.npmjs.com/package/@nextrs/cli"><img src="https://img.shields.io/npm/v/%40nextrs%2Fcli/next?style=flat-square&label=npm%20%40next&color=E8762D" alt="npm: @nextrs/cli, dist-tag next"></a>
+  <a href="#project-status"><img src="https://img.shields.io/badge/status-experimental-92400E?style=flat-square" alt="Status: experimental"></a>
+  <a href="https://www.npmjs.com/package/@nextrs/cli"><img src="https://img.shields.io/npm/v/%40nextrs%2Fcli/next?style=flat-square&label=npm%20%40next&color=2563EB" alt="npm: @nextrs/cli, dist-tag next"></a>
   <a href="engineering/compatibility.md"><img src="https://img.shields.io/badge/tested%20with-Next.js%2016.4.6-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Tested with Next.js 16.4.6"></a>
-  <a href="#license"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-30363D?style=flat-square" alt="License: MIT or Apache-2.0"></a>
+  <a href="#license"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-475569?style=flat-square" alt="License: MIT or Apache-2.0"></a>
 </p>
 
 <p align="center">
@@ -63,51 +66,6 @@ to run the parts of Next.js that must execute JavaScript. It reads the same
 reference: a response counts as compatible only when it matches what the
 official server returns for the same build.
 
-## How it works
-
-<p align="center">
-  <picture>
-    <source media="(max-width: 600px)" srcset=".github/assets/nextrs-architecture-mobile.svg">
-    <img src=".github/assets/nextrs-architecture.svg" width="100%" alt="Architecture: a Next.js app (App Router, Pages Router) is compiled by next build into the .next output. The NextRS runtime, one Rust process, reads it. Its HTTP server applies routing and next.config rules. Static files, prerendered HTML and RSC, and image optimization are served from Rust. Dynamic SSR, Route Handlers, Server Actions and proxy.ts run Next.js's compiled handlers in embedded V8, which use a shared cache held in Rust. Your backends (APIs, databases, auth) stay separate processes, reached with fetch only where --net-allow permits.">
-  </picture>
-</p>
-
-1. **Build with Next.js.** `next build` produces `.next` as usual. Node.js is
-   needed here, and only here.
-2. **Rust answers what needs no JavaScript.** Static assets, `public/`
-   files, prerendered HTML and RSC payloads, `next.config` routing rules and
-   `/_next/image` are served directly from Rust.
-3. **V8 runs what does.** Dynamic rendering, Route Handlers, Server Actions,
-   ISR regeneration and `proxy.ts` run Next.js's compiled handlers in a pool
-   of V8 isolates (`--js-runtime embedded-v8`). Their cache entries live in
-   one Rust store shared by every isolate.
-4. **Your backends stay where they are.** Server code reaches them with
-   `fetch`, which is denied unless `--net-allow` names the destination.
-
-A V8 isolate is a memory boundary, not a security sandbox, and CPU limits
-apply per isolate, not per request. The
-[architecture reference](engineering/architecture.md) covers the request
-lifecycle in depth.
-
-## Why NextRS?
-
-- **The same Next.js workflow.** No new framework, no rewrite and no
-  adapter code in your application. You build with Next.js and keep
-  `next dev`.
-- **A Rust serving layer.** HTTP, routing, static and prerendered responses,
-  compression and image optimization run in a Rust server, without
-  JavaScript on those paths.
-- **Supervised JavaScript execution.** Next.js's handlers run in a pool of
-  embedded V8 isolates with bounded admission, deadlines, a CPU stall
-  watchdog and automatic restart.
-- **Explicit resource controls.** Concurrency, queues, timeouts, request
-  bodies, heap size, caches and outbound network access are each bounded
-  and set from the command line. Outbound network access is off by default.
-- **Measured, not assumed.** CI compares NextRS with `next start` response
-  by response on every pull request, and performance is measured against
-  it on published workloads, including the ones where NextRS is slower
-  ([Performance](#performance)).
-
 ## Quick start
 
 **Requirements:** Linux x86_64 with glibc 2.35 or later (Ubuntu 22.04+,
@@ -147,6 +105,53 @@ NextRS listens on <http://127.0.0.1:3000> by default (`--port`, `--host`).
   `nextrs start --help` and the
   [configuration reference](engineering/configuration.md).
 
+## Why NextRS?
+
+- **The same Next.js workflow.** No new framework, no rewrite and no
+  adapter code in your application. You build with Next.js and keep
+  `next dev`.
+- **A Rust serving layer.** HTTP, routing, static and prerendered responses,
+  compression and image optimization run in a Rust server, without
+  JavaScript on those paths.
+- **Supervised JavaScript execution.** Next.js's handlers run in a pool of
+  embedded V8 isolates with bounded admission, deadlines, a CPU stall
+  watchdog and automatic restart.
+- **Explicit resource controls.** Concurrency, queues, timeouts, request
+  bodies, heap size, caches and outbound network access are each bounded
+  and set from the command line. Outbound network access is off by default.
+- **Measured, not assumed.** CI compares NextRS with `next start` response
+  by response on every pull request, and performance is measured against
+  it on published workloads, including the ones where NextRS is slower
+  ([Performance](#performance)).
+
+## How it works
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset=".github/assets/nextrs-architecture-mobile-dark.svg">
+    <source media="(max-width: 600px)" srcset=".github/assets/nextrs-architecture-mobile.svg">
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/nextrs-architecture-dark.svg">
+    <img src=".github/assets/nextrs-architecture.svg" width="100%" alt="Architecture: a Next.js app (App Router, Pages Router) is compiled by next build into the .next output. The NextRS runtime, one Rust process, reads it. Its HTTP server applies routing and next.config rules. Static files, prerendered HTML and RSC, and image optimization are served from Rust. Dynamic SSR, Route Handlers, Server Actions and proxy.ts run Next.js's compiled handlers in embedded V8, which use a shared cache held in Rust. Your backends (APIs, databases, auth) stay separate processes, reached with fetch only where --net-allow permits.">
+  </picture>
+</p>
+
+1. **Build with Next.js.** `next build` produces `.next` as usual. Node.js is
+   needed here, and only here.
+2. **Rust answers what needs no JavaScript.** Static assets, `public/`
+   files, prerendered HTML and RSC payloads, `next.config` routing rules and
+   `/_next/image` are served directly from Rust.
+3. **V8 runs what does.** Dynamic rendering, Route Handlers, Server Actions,
+   ISR regeneration and `proxy.ts` run Next.js's compiled handlers in a pool
+   of V8 isolates (`--js-runtime embedded-v8`). Their cache entries live in
+   one Rust store shared by every isolate.
+4. **Your backends stay where they are.** Server code reaches them with
+   `fetch`, which is denied unless `--net-allow` names the destination.
+
+A V8 isolate is a memory boundary, not a security sandbox, and CPU limits
+apply per isolate, not per request. The
+[architecture reference](engineering/architecture.md) covers the request
+lifecycle in depth.
+
 ## Features
 
 Statuses follow the [compatibility matrix](engineering/compatibility.md#capability-matrix).
@@ -184,7 +189,9 @@ on November 18, 2026.
 
 <p align="center">
   <picture>
+    <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset=".github/assets/nextrs-benchmarks-mobile-dark.svg">
     <source media="(max-width: 600px)" srcset=".github/assets/nextrs-benchmarks-mobile.svg">
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/nextrs-benchmarks-dark.svg">
     <img src=".github/assets/nextrs-benchmarks.svg" width="100%" alt="NextRS vs next start, Dynamic App Router SSR (/books/[id]), measured November 18, 2026 on NextRS f5c480d, Next.js 16.4.6 and Node.js 24.18.0, same Next.js build, median of 3 interleaved rounds. NextRS with one isolate against next start: throughput 20% higher (736 against 611 req/s); p95 latency 47% lower (3.30 against 6.26 ms); anonymous memory 63% less (141 against 376 MiB); CPU time per request 9% less (1.75 against 1.92 ms). Scale across V8 isolates: NextRS with 4 isolates reached 1,898 req/s, 3.11 times next start, sharing the same four-CPU server allocation; the Node baseline is one server process.">
   </picture>
 </p>
