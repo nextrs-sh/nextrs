@@ -142,7 +142,7 @@ impl InternalRoute {
         let dispatch = installed.dispatch.clone();
         let task = installed.runtime.spawn(async move {
             let _permit = permit;
-            let response = dispatch.dispatch(request).await;
+            let response = crate::admission::nested(dispatch.dispatch(request)).await;
             let head = FetchHead {
                 status: response.status,
                 status_text: String::new(),
@@ -205,7 +205,7 @@ impl InternalRoute {
             .runtime
             .spawn(async move {
                 let _permit = permit;
-                let response = dispatch.dispatch(request).await;
+                let response = crate::admission::nested(dispatch.dispatch(request)).await;
                 let cache = response
                     .headers
                     .iter()

@@ -565,8 +565,9 @@ struct ResourceArgs {
     /// its memory budget, JavaScript requests wait (elevated) or get a 503
     /// with Retry-After (critical); one request is always admitted when
     /// none runs. Static files, prerendered pages and health checks are
-    /// not affected. Best effort, on measured memory and per-request
-    /// estimates: not a memory limit.
+    /// not affected (unless the build's proxy/middleware runs for them).
+    /// Best effort, on measured memory and per-request estimates: not a
+    /// memory limit.
     #[arg(long)]
     memory_admission: bool,
     /// Budget admission compares against [default: the container's memory
@@ -636,8 +637,23 @@ struct ResourceArgs {
 }
 
 impl ResourceArgs {
+    /// Checks the server-side settings (also without an executor).
+    fn validate(&self) -> Result<(), String> {
+        if self.native_buffer_budget == Some(0) {
+            return Err(
+                "--native-buffer-budget: at least 1 MiB (omit the flag to turn it off)".into(),
+            );
+        }
+        if !self.native_buffer_wait.is_finite() || !(0.0..=60.0).contains(&self.native_buffer_wait)
+        {
+            return Err("--native-buffer-wait: seconds, 0 to 60".into());
+        }
+        Ok(())
+    }
+
     fn native_buffer_budget(&self) -> Option<Arc<nextrs_server::NativeBufferBudget>> {
         let mib = self.native_buffer_budget.filter(|m| *m > 0)?;
+        // Checked in `apply`: finite, 0 to 60.
         let wait = Duration::from_secs_f64(self.native_buffer_wait.clamp(0.0, 60.0));
         tracing::info!(
             budget_mib = mib,
@@ -653,6 +669,9 @@ impl ResourceArgs {
     fn apply(&self, limits: &mut Limits) -> Result<(), String> {
         const MIB: u64 = 1024 * 1024;
         if self.memory_admission {
+            if self.memory_admission_budget == Some(0) {
+                return Err("--memory-admission-budget: at least 1 MiB".into());
+            }
             let admission = nextrs_runtime::MemoryAdmission {
                 budget_bytes: self.memory_admission_budget.map(|m| m.saturating_mul(MIB)),
                 pressure_percent: self.memory_admission_pressure,
@@ -672,6 +691,7 @@ impl ResourceArgs {
             }
             limits.external_memory_limit_bytes = Some(mib.saturating_mul(1024 * 1024));
         }
+        self.validate()?;
         if let Some(mib) = self.js_young_semi_space {
             if !(1..=64).contains(&mib) {
                 return Err("--js-young-semi-space: 1 to 64 MiB".into());
@@ -1008,6 +1028,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             images,
         } => {
             let memory = limits.memory()?;
+            resources.validate()?;
             // Before any thread allocates (glibc's arenas are per thread).
             if memory.malloc_arena_max > 0 {
                 let applied = nextrs_runtime::set_malloc_arena_max(memory.malloc_arena_max);
@@ -1538,6 +1559,11 @@ mod tests {
                 Some(32 * 1024 * 1024)
             );
             assert!(parse(&["--native-buffer-wait", "1"]).is_err());
+            assert!(limits(&["--native-buffer-budget", "0"]).is_err());
+            assert!(
+                limits(&["--native-buffer-budget", "8", "--native-buffer-wait", "NaN"]).is_err()
+            );
+            assert!(limits(&["--memory-admission", "--memory-admission-budget", "0"]).is_err());
         }
 
         #[test]

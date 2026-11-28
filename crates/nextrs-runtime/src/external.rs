@@ -51,13 +51,14 @@ thread_local! {
 const REFUSAL_WINDOW: Duration = Duration::from_secs(1);
 
 /// Whether this thread's allocator refused an allocation within the last
-/// second. V8 answers a refused allocation with a last-resort collection
-/// that also calls the near-heap-limit callback
+/// second with no refusable allocation granted since; consumes it. V8
+/// answers a refused allocation with a last-resort collection that also
+/// calls the near-heap-limit callback
 /// (`Heap::CollectAllAvailableGarbage(kLastResort)`), whatever the heap's
-/// size; the callback uses this, together with the heap's size, to tell
-/// that call from a heap that has really reached its limit.
-pub(crate) fn refused_recently() -> bool {
-    LAST_REFUSAL.with(|at| at.get().is_some_and(|t| t.elapsed() < REFUSAL_WINDOW))
+/// size; the callback uses this, together with the heap's committed size,
+/// to tell that call from a heap that has really reached its limit.
+pub(crate) fn take_refusal() -> bool {
+    LAST_REFUSAL.with(|at| at.take().is_some_and(|t| t.elapsed() < REFUSAL_WINDOW))
 }
 
 /// The budget shared by an executor's isolates.
@@ -100,6 +101,11 @@ impl ExternalBudget {
             {
                 Ok(_) => {
                     self.peak.fetch_max(next, Ordering::Relaxed);
+                    if refusable {
+                        // A later refusal sets it again; a granted one
+                        // means no refusal is pending on this thread.
+                        LAST_REFUSAL.with(|at| at.set(None));
+                    }
                     return true;
                 }
                 Err(current) => used = current,

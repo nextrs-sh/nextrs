@@ -4,6 +4,8 @@
 //   external          32 MiB ArrayBuffers up to x-mib MiB (outside the heap)
 //   refuse-then-grow  one ArrayBuffer the external budget refuses (caught),
 //                     then the heap grown by small objects until its limit
+//   retain-then-refuse  keep x-retain-mib MiB of small objects, then one
+//                     x-mib ArrayBuffer (the external budget refuses it)
 //   whoami            "ok"
 const hold = [];
 
@@ -26,6 +28,11 @@ exports.handler = async (req, res) => {
         new Uint8Array(buffer).fill(1);
         hold.push(buffer);
       }
+    } else if (mode === "retain-then-refuse") {
+      const retain = Number(req.headers["x-retain-mib"] ?? "0");
+      // About 1 MiB per 128 arrays of 1024 doubles.
+      for (let i = 0; i < retain * 128; i++) hold.push(new Array(1024).fill(i + 0.5));
+      hold.push(new ArrayBuffer(mib * 1024 * 1024));
     } else if (mode === "refuse-then-grow") {
       try {
         hold.push(new ArrayBuffer(mib * 1024 * 1024));

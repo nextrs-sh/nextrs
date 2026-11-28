@@ -41,6 +41,26 @@ use std::time::{Duration, Instant};
 use crate::memory::Cgroup;
 use crate::{Invocation, RenderRequest, RequestBody};
 
+tokio::task_local! {
+    /// Set while Next.js's own requests to its server (`InternalRoute`)
+    /// are handled: they belong to a request that was already admitted.
+    static NESTED: ();
+}
+
+/// Runs `request` as part of an already-admitted request: its own
+/// executor requests bypass the memory gate. Deferring or refusing them
+/// would leave the parent waiting on a child queued behind it (or fail a
+/// Server Action half way); the concurrency limits and
+/// `MAX_INTERNAL_REQUESTS` still bound them.
+pub(crate) async fn nested<F: std::future::Future>(request: F) -> F::Output {
+    NESTED.scope((), request).await
+}
+
+/// Whether the current task handles a nested request (see [`nested`]).
+pub(crate) fn is_nested() -> bool {
+    NESTED.try_with(|_| ()).is_ok()
+}
+
 /// One memory reading from a [`MemoryProbe`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct MemoryReading {
@@ -54,7 +74,9 @@ pub struct MemoryReading {
 }
 
 /// Where admission reads memory from. Implemented for the cgroup and the
-/// process; tests supply their own.
+/// process; tests supply their own. `read` is called with the executor's
+/// pool lock held: it must be quick and must not call back into the
+/// executor (`Executor::metrics` would deadlock).
 pub trait MemoryProbe: Send + Sync {
     /// Reads memory in use. With `full`, also the slower figures (the
     /// limit and the inactive page cache); otherwise they may be `None`.
@@ -269,6 +291,8 @@ pub(crate) struct Ticket {
     pub class: RequestClass,
     pub reserve: u64,
     pub queued_bytes: usize,
+    /// Part of an admitted request ([`nested`]): never gated.
+    pub nested: bool,
 }
 
 impl Ticket {
@@ -319,6 +343,7 @@ impl Ticket {
             class,
             reserve: base.saturating_add(body_reserve),
             queued_bytes,
+            nested: is_nested(),
         }
     }
 }
@@ -384,6 +409,10 @@ pub(crate) struct Gate {
     inactive_file: u64,
     read_at: Option<Instant>,
     stat_at: Option<Instant>,
+    /// The latest read attempt, successful or not: a failing probe is not
+    /// retried more often than `sample_interval` (it runs under the pool
+    /// lock).
+    attempt_at: Option<Instant>,
     /// Estimated cost of requests admitted since `read_at`.
     reserved: u64,
     state: MemoryState,
@@ -421,6 +450,7 @@ impl Gate {
             inactive_file: 0,
             read_at: None,
             stat_at: None,
+            attempt_at: None,
             reserved: 0,
             state: MemoryState::Degraded,
             since: now,
@@ -449,11 +479,12 @@ impl Gate {
 
     fn refresh(&mut self, now: Instant) {
         if self
-            .read_at
+            .attempt_at
             .is_some_and(|at| now.duration_since(at) < self.config.sample_interval)
         {
             return;
         }
+        self.attempt_at = Some(now);
         let full = self
             .stat_at
             .is_none_or(|at| now.duration_since(at) >= self.config.stat_interval);
@@ -842,15 +873,17 @@ mod tests {
     fn usage_is_re_read_on_demand_and_stats_less_often() {
         let probe = Fake::new(100 * MIB, 10 * MIB);
         let mut cfg = config(probe.clone());
-        cfg.sample_interval = Duration::from_millis(50);
-        cfg.stat_interval = Duration::from_millis(500);
+        // Wide intervals: construction may lag `start` by a scheduling delay.
+        cfg.sample_interval = Duration::from_secs(5);
+        cfg.stat_interval = Duration::from_secs(50);
+        cfg.stale_after = Duration::from_secs(500);
         let mut gate = Gate::new(cfg, 1).unwrap();
         let start = Instant::now();
-        for ms in [10, 20, 60, 70, 120, 600] {
-            gate.decide(start + Duration::from_millis(ms), 0, 1);
+        for s in [1, 2, 6, 7, 12, 60] {
+            gate.decide(start + Duration::from_secs(s), 0, 1);
         }
         let (fast, full) = *probe.reads.lock().unwrap();
-        // Construction (full), 60 and 120 (fast), 600 (full).
+        // Construction (full), 6 and 12 (fast), 60 (full).
         assert_eq!((fast, full), (2, 2));
     }
 
@@ -917,6 +950,34 @@ mod tests {
         };
         let proxy = Ticket::for_request(&proxy, r);
         assert_eq!((proxy.class, proxy.reserve), (RequestClass::Proxy, r / 2));
+    }
+
+    #[tokio::test]
+    async fn requests_inside_a_nested_scope_are_marked_and_only_there() {
+        let request = || RenderRequest {
+            method: "GET".into(),
+            url: "/x".into(),
+            headers: Vec::new(),
+            body: RequestBody::Empty,
+            entry: "/e.js".into(),
+            remote_address: None,
+            initial_headers: Vec::new(),
+            initial_status: None,
+            invocation: Invocation::Handler,
+            init_url: None,
+        };
+        assert!(!Ticket::for_request(&request(), MIB).nested);
+        let inside = nested(async { Ticket::for_request(&request(), MIB).nested }).await;
+        assert!(inside);
+        // A task spawned from inside does not inherit it.
+        let spawned = nested(async {
+            tokio::spawn(async move { Ticket::for_request(&request(), MIB).nested })
+                .await
+                .unwrap()
+        })
+        .await;
+        assert!(!spawned);
+        assert!(!Ticket::for_request(&request(), MIB).nested);
     }
 
     #[test]

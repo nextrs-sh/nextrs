@@ -316,14 +316,23 @@ impl WorkerShared {
     /// (RE-4-V8-HEAP-OVERSHOOT).
     ///
     /// Declined (limit unchanged, isolate kept) only when this thread's
-    /// ArrayBuffer budget refused an allocation within the last second
-    /// *and* the heap live after the full collection V8 has just run is
-    /// below half the limit: V8's last-resort collection for that refusal
+    /// ArrayBuffer budget refused an allocation (and none succeeded since,
+    /// within a second) *and* the heap is clearly not at its limit: the
+    /// committed old generation below 90 % of `current` and all committed
+    /// heap below `current`. V8's last-resort collection for that refusal
     /// calls this whatever the heap's size, and the refusal must reach
-    /// JavaScript as a RangeError, not replace the isolate. A heap that has
-    /// really reached its limit holds at least `current` live, so it is
-    /// never declined (declining it would abort the process).
-    pub fn on_near_heap_limit(&self, current: usize, initial: usize, headroom: usize) -> usize {
+    /// JavaScript as a RangeError, not replace the isolate. V8's other two
+    /// calls (a heap that reached its limit, ineffective mark-compacts)
+    /// happen only when the old generation's capacity is at the limit,
+    /// which committed memory bounds from above: they are never declined
+    /// (declining them would abort the process).
+    pub fn on_near_heap_limit(
+        &self,
+        current: usize,
+        initial: usize,
+        headroom: usize,
+        heap: CommittedHeap,
+    ) -> usize {
         let call = self.near_limit_calls.fetch_add(1, Ordering::Relaxed) + 1;
         self.near_limit_last_bytes.store(current, Ordering::Relaxed);
         let _ = self.near_limit_first_bytes.compare_exchange(
@@ -333,13 +342,15 @@ impl WorkerShared {
             Ordering::Relaxed,
         );
         let live = self.heap_after_gc.load(Ordering::Relaxed);
-        if crate::external::refused_recently() && live < current / 2 {
+        let clearly_below = heap.old < current / 10 * 9 && heap.total < current;
+        if clearly_below && crate::external::take_refusal() {
             self.near_limit_declined.fetch_add(1, Ordering::Relaxed);
             tracing::debug!(
                 target: "nextrs::executor",
                 slot = self.slot,
                 call,
                 limit_mib = current / (1024 * 1024),
+                committed_old_mib = heap.old / (1024 * 1024),
                 live_mib = live / (1024 * 1024),
                 "near-heap-limit call after a refused ArrayBuffer allocation; heap not full, \
                  limit kept"
@@ -354,17 +365,29 @@ impl WorkerShared {
             Ordering::Relaxed,
             Ordering::Relaxed,
         );
-        tracing::warn!(
-            target: "nextrs::executor",
-            slot = self.slot,
-            call,
-            limit_mib = current / (1024 * 1024),
-            initial_mib = initial / (1024 * 1024),
-            granted_mib = granted / (1024 * 1024),
-            live_after_gc_mib = live / (1024 * 1024),
-            external_mib = self.heap_external.load(Ordering::Relaxed) / (1024 * 1024),
-            "V8 heap near its limit: terminating the isolate"
-        );
+        // Once at warn per isolate; V8's further calls in the episode at
+        // debug (the episode summary follows when the isolate exits).
+        macro_rules! near_limit_event {
+            ($level:ident) => {
+                tracing::$level!(
+                    target: "nextrs::executor",
+                    slot = self.slot,
+                    call,
+                    limit_mib = current / (1024 * 1024),
+                    initial_mib = initial / (1024 * 1024),
+                    granted_mib = granted / (1024 * 1024),
+                    committed_old_mib = heap.old / (1024 * 1024),
+                    live_after_gc_mib = live / (1024 * 1024),
+                    external_mib = self.heap_external.load(Ordering::Relaxed) / (1024 * 1024),
+                    "V8 heap near its limit: terminating the isolate"
+                )
+            };
+        }
+        if call == 1 + self.near_limit_declined.load(Ordering::Relaxed) {
+            near_limit_event!(warn);
+        } else {
+            near_limit_event!(debug);
+        }
         self.terminate(Termination::Failed(FailureReason::HeapLimit));
         granted
     }
@@ -492,6 +515,15 @@ impl WorkerShared {
     }
 }
 
+/// Committed heap memory at a near-heap-limit call (`worker::committed_heap`).
+#[derive(Debug, Clone, Copy, Default)]
+pub(crate) struct CommittedHeap {
+    /// Every space except the young generation's.
+    pub old: usize,
+    /// All spaces.
+    pub total: usize,
+}
+
 /// A request on its way to (or inside) an isolate.
 pub(crate) struct Job {
     pub request: RenderRequest,
@@ -599,11 +631,12 @@ impl PoolInner {
     /// spreading sequential requests round-robin left every isolate's JIT
     /// and caches lukewarm (4 isolates at concurrency 1: 313 against 441
     /// req/s on /books/42). Claims the slot. Requires the pool lock.
-    fn claim(&self, state: &mut PoolState) -> Option<Arc<WorkerShared>> {
+    fn claim(&self, state: &mut PoolState, gated: bool) -> Option<Arc<WorkerShared>> {
         let limit = self.config.limits.max_active_per_isolate;
         let heap_percent = state
             .gate
             .as_ref()
+            .filter(|_| gated)
             .and_then(|gate| gate.config().heap_percent);
         let mut best: Option<((bool, usize), &Arc<WorkerShared>)> = None;
         for worker in state.workers.iter().flatten() {
@@ -649,10 +682,14 @@ impl PoolInner {
         while let Some(front) = state.waiters.front() {
             let ticket = front.ticket;
             let active = Self::total_active(state);
-            let decision = state
-                .gate
-                .as_mut()
-                .map(|gate| gate.decide(Instant::now(), ticket.reserve, active));
+            let decision = if ticket.nested {
+                None
+            } else {
+                state
+                    .gate
+                    .as_mut()
+                    .map(|gate| gate.decide(Instant::now(), ticket.reserve, active))
+            };
             let progress = decision == Some(Decision::Progress);
             match decision {
                 None | Some(Decision::Admit | Decision::Progress) => {}
@@ -668,14 +705,14 @@ impl PoolInner {
                     continue;
                 }
             }
-            let Some(worker) = self.claim(state) else {
+            let Some(worker) = self.claim(state, !ticket.nested) else {
                 return;
             };
             let waiter = state.waiters.pop_front().expect("not empty");
             state.queued_bytes = state.queued_bytes.saturating_sub(ticket.queued_bytes);
             match waiter.slot.send(Ok(self.slot(&worker))) {
                 Ok(()) => {
-                    if let Some(gate) = state.gate.as_mut() {
+                    if let Some(gate) = state.gate.as_mut().filter(|_| !ticket.nested) {
                         gate.admitted(ticket.reserve);
                         if progress {
                             metrics::add(&self.counters.admission_progress, 1);
@@ -706,14 +743,20 @@ impl PoolInner {
             }
             let active = Self::total_active(&state);
             let queued = !state.waiters.is_empty();
-            let decision = state
-                .gate
-                .as_mut()
-                .map(|gate| gate.decide(Instant::now(), ticket.reserve, active));
+            // Next.js's requests to its own server belong to an admitted
+            // request: not gated (see `admission::nested`).
+            let decision = if ticket.nested {
+                None
+            } else {
+                state
+                    .gate
+                    .as_mut()
+                    .map(|gate| gate.decide(Instant::now(), ticket.reserve, active))
+            };
             let mut deferred = false;
             match decision {
                 None => {
-                    if let Some(worker) = self.claim(&mut state) {
+                    if let Some(worker) = self.claim(&mut state, false) {
                         return Ok(self.slot(&worker));
                     }
                 }
@@ -727,7 +770,7 @@ impl PoolInner {
                 // Behind earlier waiters, a newcomer queues (FIFO).
                 Some(Decision::Admit | Decision::Progress) if queued => deferred = true,
                 Some(decision @ (Decision::Admit | Decision::Progress)) => {
-                    if let Some(worker) = self.claim(&mut state) {
+                    if let Some(worker) = self.claim(&mut state, true) {
                         if let Some(gate) = state.gate.as_mut() {
                             gate.admitted(ticket.reserve);
                         }

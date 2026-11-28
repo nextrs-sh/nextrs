@@ -51,6 +51,7 @@ async fn child_heap_fault() {
     let mib = env_number("FAULT_MIB", 0).to_string();
     let heap = env_number("FAULT_HEAP_MIB", 64);
     let external = env_number("FAULT_EXTERNAL_MIB", 0);
+    let retain = env_number("FAULT_RETAIN_MIB", 0).to_string();
     let executor = executor(Limits {
         heap_limit_bytes: Some(heap * MIB),
         external_memory_limit_bytes: (external > 0).then_some(external * MIB),
@@ -67,7 +68,14 @@ async fn child_heap_fault() {
     let started = Instant::now();
     let response = collect(
         &executor,
-        request(entry, &[("x-mode", mode.as_str()), ("x-mib", mib.as_str())]),
+        request(
+            entry,
+            &[
+                ("x-mode", mode.as_str()),
+                ("x-mib", mib.as_str()),
+                ("x-retain-mib", retain.as_str()),
+            ],
+        ),
     )
     .await;
     let elapsed_ms = started.elapsed().as_millis() as u64;
@@ -110,10 +118,21 @@ struct Outcome {
 }
 
 fn run(mode: &str, mib: usize, heap_mib: usize, external_mib: usize) -> Outcome {
-    let (mib, heap, external) = (
+    run_retaining(mode, mib, heap_mib, external_mib, 0)
+}
+
+fn run_retaining(
+    mode: &str,
+    mib: usize,
+    heap_mib: usize,
+    external_mib: usize,
+    retain_mib: usize,
+) -> Outcome {
+    let (mib, heap, external, retain) = (
         mib.to_string(),
         heap_mib.to_string(),
         external_mib.to_string(),
+        retain_mib.to_string(),
     );
     let output = run_in_child(
         "child_heap_fault",
@@ -123,6 +142,7 @@ fn run(mode: &str, mib: usize, heap_mib: usize, external_mib: usize) -> Outcome 
             ("FAULT_MIB", &mib),
             ("FAULT_HEAP_MIB", &heap),
             ("FAULT_EXTERNAL_MIB", &external),
+            ("FAULT_RETAIN_MIB", &retain),
         ],
     );
     let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
@@ -197,4 +217,23 @@ fn an_external_refusal_alone_declines_the_callback_and_keeps_the_isolate() {
     assert_eq!(case["restarts"], 0, "{case}");
     assert!(case["near_limit_declined"].as_u64().unwrap() >= 1, "{case}");
     println!("{case}");
+}
+
+/// Independent review, finding 1: a refusal with the heap more than half
+/// full (35 MiB of small objects at a 64 MiB limit) replaced the isolate.
+/// It must be a RangeError.
+#[test]
+fn a_refusal_with_a_half_full_heap_is_a_range_error_not_a_restart() {
+    for retain in [10, 25, 35] {
+        let outcome = run_retaining("retain-then-refuse", 64, 64, 16, retain);
+        assert!(outcome.success, "{}", outcome.stderr);
+        let case = outcome.case.expect("case report");
+        assert_eq!(case["status"], 200, "{retain} MiB: {case}");
+        assert!(
+            case["body"].as_str().unwrap().contains("RangeError"),
+            "{retain} MiB: {case}"
+        );
+        assert_eq!(case["restarts"], 0, "{retain} MiB: {case}");
+        println!("{case}");
+    }
 }

@@ -174,19 +174,22 @@ async fn elevated_caps_concurrency_and_the_rest_run_in_arrival_order() {
         limits.max_active_per_isolate = 8;
     });
     let a = executor.render(job("a", 200)).await.unwrap();
-    let pending: Vec<_> = ["b", "c", "d"]
-        .into_iter()
-        .map(|id| {
+    // Enqueued one after another (spawned tasks may start in any order),
+    // so arrival order is b, c, d.
+    let mut pending = Vec::new();
+    for (n, id) in ["b", "c", "d"].into_iter().enumerate() {
+        let task = {
             let executor = executor.clone();
             tokio::spawn(async move { collect(&executor, job(id, 0)).await.text() })
-        })
-        .collect();
-    assert!(
-        eventually(Duration::from_secs(2), async || executor.metrics().queued
-            == 3)
-        .await,
-        "b, c and d wait behind the cap"
-    );
+        };
+        assert!(
+            eventually(Duration::from_secs(2), async || executor.metrics().queued
+                == n + 1)
+            .await,
+            "{id} waits behind the cap"
+        );
+        pending.push(task);
+    }
     assert_eq!(drain(a).await.text(), "ok");
     for task in pending {
         assert_eq!(task.await.unwrap(), "ok");
@@ -210,8 +213,8 @@ async fn queued_requests_behind_a_running_one_are_refused_at_critical() {
         gate.pressure_max_active = Some(2);
         limits.max_active_per_isolate = 8;
     });
-    let long = executor.render(job("long", 600)).await.unwrap();
-    let short = executor.render(job("short", 100)).await.unwrap();
+    let long = executor.render(job("long", 2000)).await.unwrap();
+    let short = executor.render(job("short", 500)).await.unwrap();
     let queued = {
         let executor = executor.clone();
         tokio::spawn(async move { executor.render(job("waiting", 0)).await.err() })

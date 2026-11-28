@@ -168,8 +168,16 @@ fn run(
         worker.interrupt();
         {
             let worker = worker.clone();
+            // SAFETY: a non-owning handle to this thread's isolate, used only
+            // inside V8's near-heap-limit callback, which V8 calls on this
+            // thread while the isolate exists.
+            let isolate = unsafe { runtime.v8_isolate().as_raw_isolate_ptr() };
             runtime.add_near_heap_limit_callback(move |current, initial| {
-                worker.on_near_heap_limit(current, initial, HEAP_HEADROOM)
+                // SAFETY: see above. Reading heap statistics from this
+                // callback is permitted (Node.js's does the same).
+                let mut isolate = unsafe { v8::Isolate::from_raw_isolate_ptr(isolate) };
+                let heap = committed_heap(&mut isolate);
+                worker.on_near_heap_limit(current, initial, HEAP_HEADROOM, heap)
             });
         }
         if config.limits.heap_limit_bytes.is_some() || config.limits.heap_memory_bytes.is_some() {
@@ -278,6 +286,28 @@ fn configured_heap(limits: &Limits) -> Option<v8::CreateParams> {
         }
         (None, None) => None,
     }
+}
+
+/// Committed heap memory, for the near-heap-limit callback: the old
+/// generation (every space but the young generation's) and all spaces.
+/// V8 reports a heap as having reached its limit when the old generation's
+/// capacity exceeds the limit, or the memory it has reserved exceeds
+/// `MaxReserved` (heap.cc `CanExpandOldGeneration`); committed sizes are at
+/// least those, so they bound V8's test from above.
+fn committed_heap(isolate: &mut v8::Isolate) -> crate::pool::CommittedHeap {
+    let mut heap = crate::pool::CommittedHeap::default();
+    for index in 0..isolate.number_of_heap_spaces() {
+        let Some(space) = isolate.get_heap_space_statistics(index) else {
+            continue;
+        };
+        let size = space.space_size();
+        heap.total = heap.total.saturating_add(size);
+        let name = space.space_name().to_bytes();
+        if name != b"new_space" && name != b"new_large_object_space" {
+            heap.old = heap.old.saturating_add(size);
+        }
+    }
+    heap
 }
 
 /// Performs a memory reclamation on the isolate's own thread, between
