@@ -35,7 +35,7 @@ refused again on retry, so a 503 would invite a retry loop. The 413
 carries its own error code, so operators can tell it from
 `request-body-too-large`.
 
-**Incremental proxy reservations** (independent review F1, §4.1 of
+**Incremental proxy reservations** (independent review F1,
 [RE-4.1-INDEPENDENT-REVIEW](RE-4.1-INDEPENDENT-REVIEW.md)). Reserving a
 body's maximum before reading it let one client trickling a chunked
 body hold the whole budget. tokio's semaphore is FIFO, so that large

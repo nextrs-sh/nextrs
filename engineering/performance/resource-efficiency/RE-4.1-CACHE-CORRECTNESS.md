@@ -179,3 +179,13 @@ For the "before" column, remove `&PERFORMANCE` from `PATCHES`
   Worth a tracking issue.
 - The `a_write_is_visible_…` flake above (wait for both isolates to be
   ready before the writer starts).
+
+## Addendum: the second flaky test, fixed
+
+`a_write_is_visible_to_every_isolate_before_it_is_persisted` failed 6/150
+whole-binary runs during this investigation, at "another isolate": the
+read ran in the writer's isolate because the pool's second isolate was
+not ready yet (requests only go to ready isolates). The test now waits
+until both isolates report `ready` before the writer starts: a test
+synchronization fix, no runtime change. After it: 100/100 whole-binary
+runs of `tests/cache.rs`, 0 failures.
