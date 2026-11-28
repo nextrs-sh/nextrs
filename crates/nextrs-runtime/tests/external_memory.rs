@@ -170,6 +170,11 @@ async fn child_apis_with_the_budget_exhausted() {
     }
     let executor = limited(16, 1);
     call(&executor, &[("x-mode", "fill"), ("x-mib", "1")]).await;
+    // Then 64 KiB at a time (RE-4.1E): less than the refusable size is
+    // left, so every allocator-made buffer of 64 KiB or more below is
+    // refused, and one that is not did not come from the allocator.
+    let fine = call(&executor, &[("x-mode", "fill"), ("x-mib", "0.0625")]).await;
+    println!("FINE {fine}");
     let out = call(&executor, &[("x-mode", "apis")]).await;
     println!("APIS {out}");
     let after = call(&executor, &[("x-mode", "alloc"), ("x-mib", "1")]).await;
@@ -191,8 +196,46 @@ fn no_buffer_api_aborts_the_process_when_the_budget_is_exhausted() {
         .find_map(|l| l.split_once("APIS ").map(|(_, report)| report))
         .unwrap_or_else(|| panic!("no report:\n{stdout}"));
     let out: Value = serde_json::from_str(line).unwrap();
-    // Recorded for RE-4-EXTERNAL-MEMORY-ANALYSIS.
+    // Recorded for RE-4-EXTERNAL-MEMORY-ANALYSIS and RE-4.1E.
     println!("{}", serde_json::to_string_pretty(&out).unwrap());
+    // With less than 64 KiB of the budget left (RE-4.1E): these allocate
+    // 64 KiB or more through the budgeted allocator (directly, or by the
+    // polyfill's copy of a Rust-made buffer), so they are refused ...
+    for enforced in [
+        "typed_array_large",
+        "buffer_alloc_large",
+        "buffer_alloc_unsafe_large",
+        "buffer_concat_large",
+        "structured_clone_large",
+        "data_view_large",
+        "random_values",
+        "fs_read_file_sync_large",
+        "fs_read_file_sync_large_string",
+        "zlib_gunzip_large",
+        "response_array_buffer",
+        "blob_array_buffer",
+    ] {
+        assert_eq!(
+            out[enforced]["error"], "RangeError",
+            "{enforced}: {}",
+            out[enforced]
+        );
+    }
+    // ... and these do not: their bytes come from Rust (TextEncoder,
+    // Buffer.from(string)) or V8's page allocator (resizable buffers), or
+    // live on the JS heap.
+    for bypassing in [
+        "text_encoder_large",
+        "buffer_from_large_string",
+        "resizable_grown",
+        "json_large",
+    ] {
+        assert_eq!(
+            out[bypassing]["ok"], true,
+            "{bypassing}: {}",
+            out[bypassing]
+        );
+    }
     for (name, result) in out.as_object().unwrap() {
         let thrown = result["error"].as_str();
         assert!(
