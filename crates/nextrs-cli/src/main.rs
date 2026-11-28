@@ -611,9 +611,38 @@ struct ResourceArgs {
     /// Rust (request bodies, fetch chunks, file reads) are not counted.
     #[arg(long, value_name = "MIB")]
     js_external_memory_limit: Option<usize>,
+    /// Byte budget for native buffers held whole, over all requests:
+    /// static and public/ files read for a response, and request bodies
+    /// buffered for the proxy (middleware). Requests wait for room up to
+    /// --native-buffer-wait, then get a 503 with Retry-After. A file larger
+    /// than the budget is served alone, taking all of it.
+    #[arg(long, value_name = "MIB")]
+    native_buffer_budget: Option<u64>,
+    /// Longest wait for room in --native-buffer-budget.
+    #[arg(
+        long,
+        value_name = "SECONDS",
+        default_value_t = 2.0,
+        requires = "native_buffer_budget"
+    )]
+    native_buffer_wait: f64,
 }
 
 impl ResourceArgs {
+    fn native_buffer_budget(&self) -> Option<Arc<nextrs_server::NativeBufferBudget>> {
+        let mib = self.native_buffer_budget.filter(|m| *m > 0)?;
+        let wait = Duration::from_secs_f64(self.native_buffer_wait.clamp(0.0, 60.0));
+        tracing::info!(
+            budget_mib = mib,
+            wait_ms = wait.as_millis() as u64,
+            "native buffer budget enabled (static files, proxy request bodies)"
+        );
+        Some(nextrs_server::NativeBufferBudget::new(
+            mib.saturating_mul(1024 * 1024),
+            wait,
+        ))
+    }
+
     fn apply(&self, limits: &mut Limits) -> Result<(), String> {
         const MIB: u64 = 1024 * 1024;
         if self.memory_admission {
@@ -1228,6 +1257,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     executor.clone(),
                     reclaim_stats.clone(),
                 );
+                let native_buffers = resources.native_buffer_budget();
                 let options = ServerOptions {
                     allow_unsupported,
                     executor: executor.clone(),
@@ -1237,6 +1267,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                     images: image_options,
                     compression_cache: compression_cache.clone(),
                     metrics: http_metrics.clone(),
+                    native_buffer_budget: native_buffers.clone(),
                 };
                 let (app, image_stats) = nextrs_server::app_with_stats(&info, &options).await?;
                 if let Some(metrics_addr) = limits.metrics_addr {
@@ -1247,6 +1278,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                         http: http_metrics.clone(),
                         ready_min_isolates: limits.ready_min_isolates,
                         reclaim: reclaim_policy.is_enabled().then(|| reclaim_stats.clone()),
+                        native_buffers: native_buffers.clone(),
                     };
                     if !metrics_addr.ip().is_loopback() {
                         tracing::warn!(%metrics_addr, "serving metrics on a non-loopback address");
@@ -1465,6 +1497,27 @@ mod tests {
             let l = limits(&[]).unwrap();
             assert!(l.memory_admission.is_none());
             assert!(l.external_memory_limit_bytes.is_none());
+        }
+
+        #[test]
+        fn the_native_buffer_budget_is_off_unless_given() {
+            let parse = |args: &[&str]| {
+                let mut argv = vec!["nextrs", "start", "."];
+                argv.extend_from_slice(args);
+                match Cli::try_parse_from(argv).map(|c| c.command) {
+                    Ok(Command::Start { resources, .. }) => {
+                        Ok(resources.native_buffer_budget().map(|b| b.total_bytes()))
+                    }
+                    Ok(_) => unreachable!(),
+                    Err(e) => Err(e.to_string()),
+                }
+            };
+            assert_eq!(parse(&[]).unwrap(), None);
+            assert_eq!(
+                parse(&["--native-buffer-budget", "32"]).unwrap(),
+                Some(32 * 1024 * 1024)
+            );
+            assert!(parse(&["--native-buffer-wait", "1"]).is_err());
         }
 
         #[test]

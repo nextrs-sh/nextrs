@@ -13,6 +13,7 @@ mod external;
 pub mod http_metrics;
 mod i18n;
 mod image;
+mod native_budget;
 mod pages;
 #[cfg(feature = "negative-controls")]
 mod pages_controls;
@@ -29,6 +30,7 @@ pub use crate::compress_cache::CompressionCache;
 pub use crate::dynamic::DEFAULT_MAX_REQUEST_BODY;
 pub use crate::http_metrics::HttpMetrics;
 pub use crate::image::{ImageCacheOptions, ImageFault, ImageFaults, ImageOptions};
+pub use crate::native_budget::NativeBufferBudget;
 pub use crate::reclaim::{ReclaimPolicy, ReclaimStats};
 pub use crate::serve::{ClientAddr, ServeOptions, serve};
 
@@ -143,6 +145,10 @@ pub struct ServerOptions {
     /// Request counters and serving-stage timings, shared with the
     /// listener (`ServeOptions::metrics`) and the metrics endpoint.
     pub metrics: Arc<HttpMetrics>,
+    /// Byte budget for native buffers held whole: static and `public/`
+    /// files read for a response, and request bodies buffered for the
+    /// proxy. `None` (the default): no aggregate bound.
+    pub native_buffer_budget: Option<Arc<NativeBufferBudget>>,
 }
 
 impl Default for ServerOptions {
@@ -156,6 +162,7 @@ impl Default for ServerOptions {
             images: ImageOptions::default(),
             compression_cache: Arc::new(CompressionCache::default()),
             metrics: HttpMetrics::new(),
+            native_buffer_budget: None,
         }
     }
 }
@@ -264,6 +271,7 @@ pub async fn app_with_stats(
         images,
         compression_cache: options.compression_cache.clone(),
         metrics: options.metrics.clone(),
+        native_buffer_budget: options.native_buffer_budget.clone(),
         ..state
     });
     if let Some(images) = &state.images {
@@ -458,6 +466,7 @@ struct AppState {
     /// unless it is `false`).
     compress: bool,
     compression_cache: Arc<CompressionCache>,
+    native_buffer_budget: Option<Arc<NativeBufferBudget>>,
     /// Serving-stage timings (`HttpMetrics::stages`).
     metrics: Arc<HttpMetrics>,
     /// Files in `public/` (relative, decoded), listed at startup as next
@@ -740,6 +749,7 @@ impl AppState {
         Ok(Self {
             compress: info.config.compress,
             compression_cache: Arc::new(CompressionCache::disabled()),
+            native_buffer_budget: None,
             metrics: HttpMetrics::new(),
             needs_node_headers: proxy.is_some()
                 || [
@@ -1787,6 +1797,8 @@ pub struct MetricsSources {
     pub ready_min_isolates: usize,
     /// The memory reclaimer, when enabled.
     pub reclaim: Option<Arc<ReclaimStats>>,
+    /// The native buffer budget, when enabled.
+    pub native_buffers: Option<Arc<NativeBufferBudget>>,
 }
 
 impl MetricsSources {
@@ -1852,6 +1864,9 @@ pub fn metrics_app(sources: MetricsSources) -> Router {
                 out.push_str(&text.http.to_prometheus());
                 if let Some(reclaim) = &text.reclaim {
                     out.push_str(&reclaim.to_prometheus());
+                }
+                if let Some(budget) = &text.native_buffers {
+                    out.push_str(&budget.to_prometheus());
                 }
                 let malloc = text
                     .executor
@@ -2206,10 +2221,33 @@ async fn file_response(
         gzip,
         cache_key: immutable && gzip && state.compression_cache.enabled(),
     };
-    let path = file.to_path_buf();
-    let loaded = tokio::task::spawn_blocking(move || load_file(&path, &conditional, options)).await;
-    let Ok(Some(loaded)) = loaded else {
-        return not_found_plain();
+    let budget = state.native_buffer_budget.clone();
+    let mut permit = None;
+    let loaded = loop {
+        let path = file.to_path_buf();
+        let conditional = conditional.clone();
+        let task_budget = budget.clone();
+        let loaded = tokio::task::spawn_blocking(move || {
+            load_file(&path, &conditional, options, task_budget.as_deref(), permit)
+        })
+        .await;
+        let Ok(Some(loaded)) = loaded else {
+            return not_found_plain();
+        };
+        // No room in the native buffer budget: wait for it (bounded), then
+        // read again with the bytes reserved.
+        match (loaded.need_budget, &budget) {
+            (Some(bytes), Some(budget)) => {
+                match budget
+                    .reserve(native_budget::BufferKind::StaticFile, bytes)
+                    .await
+                {
+                    Some(reserved) => permit = Some(reserved),
+                    None => return native_budget_exhausted(),
+                }
+            }
+            _ => break loaded,
+        }
     };
 
     let mut response = Response::new(Body::empty());
@@ -2274,7 +2312,13 @@ async fn file_response(
     headers.insert(header::CONTENT_LENGTH, HeaderValue::from(length));
     if let Some(body) = loaded.body {
         let body = Bytes::from(body);
-        *response.body_mut() = Body::from(body.clone());
+        *response.body_mut() = match loaded.permit {
+            // Held until hyper has written (or dropped) the body.
+            Some(permit) => {
+                native_budget::PermitBody::wrap(Body::from(body.clone()), Arc::new(permit))
+            }
+            None => Body::from(body.clone()),
+        };
         if let Some(key) = loaded.key {
             response.extensions_mut().insert(compress_cache::Cacheable {
                 key: compress_cache::Key::File(key),
@@ -2313,12 +2357,23 @@ struct LoadedFile {
     /// The compression cache key for a whole-file `body` (asked for, and
     /// the file did not change while it was read).
     key: Option<compress_cache::FileKey>,
+    /// The native buffer budget's reservation for `body`.
+    permit: Option<native_budget::BufferPermit>,
+    /// The budget had no room for this many bytes: nothing was read; wait
+    /// for room and load again.
+    need_budget: Option<u64>,
 }
 
 /// Blocking: open, stat the handle, check the conditional headers, select
 /// the range, read. `None` when the file cannot be opened, stat'ed or read
 /// (a 404, as before).
-fn load_file(path: &Path, conditional: &HeaderMap, read: FileRead) -> Option<LoadedFile> {
+fn load_file(
+    path: &Path,
+    conditional: &HeaderMap,
+    read: FileRead,
+    budget: Option<&native_budget::NativeBufferBudget>,
+    mut permit: Option<native_budget::BufferPermit>,
+) -> Option<LoadedFile> {
     use std::io::{Read, Seek, SeekFrom};
     let mut handle = std::fs::File::open(path).ok()?;
     let metadata = handle.metadata().ok()?;
@@ -2350,6 +2405,8 @@ fn load_file(path: &Path, conditional: &HeaderMap, read: FileRead) -> Option<Loa
             selection: range::Selection::Full,
             body: None,
             key: None,
+            permit: None,
+            need_budget: None,
         });
     }
     let fresh = etag::fresh(
@@ -2380,6 +2437,33 @@ fn load_file(path: &Path, conditional: &HeaderMap, read: FileRead) -> Option<Loa
     } else {
         range::Selection::Full
     };
+    // With a native buffer budget, the bytes about to be read are reserved
+    // first (a permit from an earlier attempt may already cover them).
+    let wanted = match selection {
+        _ if fresh || !read.body => None,
+        range::Selection::Unsatisfiable => None,
+        range::Selection::Partial { start, end } => Some(end - start + 1),
+        range::Selection::Full => Some(len),
+    };
+    if let (Some(budget), Some(wanted)) = (budget, wanted)
+        && !permit.as_ref().is_some_and(|p| p.covers(wanted))
+    {
+        permit = budget.try_reserve(native_budget::BufferKind::StaticFile, wanted);
+        if permit.is_none() {
+            return Some(LoadedFile {
+                etag,
+                last_modified,
+                precondition_failed: false,
+                fresh,
+                len,
+                selection,
+                body: None,
+                key: None,
+                permit: None,
+                need_budget: Some(wanted),
+            });
+        }
+    }
     let body = match selection {
         _ if fresh || !read.body => None,
         range::Selection::Unsatisfiable => None,
@@ -2427,6 +2511,8 @@ fn load_file(path: &Path, conditional: &HeaderMap, read: FileRead) -> Option<Loa
         selection,
         body,
         key,
+        permit: budget.and(permit),
+        need_budget: None,
     })
 }
 
@@ -2462,6 +2548,19 @@ fn method_not_allowed(state: &AppState) -> Response {
     if let Ok(vary) = HeaderValue::from_str(&state.rsc.vary_header) {
         headers.insert(header::VARY, vary);
     }
+    response
+}
+
+/// The native buffer budget stayed full for its whole wait.
+fn native_budget_exhausted() -> Response {
+    let mut response = dynamic::error_response(
+        StatusCode::SERVICE_UNAVAILABLE,
+        "native-buffer-budget",
+        "the server's buffer memory is in use; retry shortly",
+    );
+    response
+        .headers_mut()
+        .insert(header::RETRY_AFTER, HeaderValue::from_static("1"));
     response
 }
 
