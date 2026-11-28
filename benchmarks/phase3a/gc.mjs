@@ -4,6 +4,8 @@
 //
 //   node benchmarks/phase3a/gc.mjs [--nextrs target/release/nextrs]
 //     [--isolates 1,4] [--semi default,16,32] [--only ssr,rsc,...]
+//     [--heap-limit MIB] [--young-api]   # RE-5G: --js-heap-limit, and the
+//                                        # semi-space via --js-young-semi-space
 //     [--rounds 2] [--duration 10] [--warmup 5] [--connections 32]
 //     [--out benchmarks/results/phase3a/gc-<name>]
 //
@@ -68,11 +70,18 @@ for (let round = 1; round <= rounds; round++) {
       const ctx = { group, config: { id: config.id, kind: "nextrs", isolates: config.isolates }, port: port++, root: ROOT, node: process.execPath, scratch: join(out, "specs"), round };
       const metricsPort = port++;
       ctx.services = group.services ? await group.services(ctx) : null;
-      const flags = ["--trace-gc-nvp", ...(config.semi === "default" ? [] : [`--max-semi-space-size=${config.semi}`, `--min-semi-space-size=${config.semi}`])];
+      // --young-api (RE-5G): the semi-space through NextRS's cap-preserving
+      // --js-young-semi-space (needs --heap-limit), not raw V8 flags.
+      const youngApi = Boolean(args["young-api"]);
+      const flags = ["--trace-gc-nvp", ...(config.semi === "default" || youngApi ? [] : [`--max-semi-space-size=${config.semi}`, `--min-semi-space-size=${config.semi}`])];
+      const heapArgs = [
+        ...(args["heap-limit"] ? ["--js-heap-limit", String(args["heap-limit"])] : []),
+        ...(youngApi && config.semi !== "default" ? ["--js-young-semi-space", String(config.semi)] : []),
+      ];
       log(`round ${round}/${rounds}`, group.id, config.id);
       const s = await L.startServer({
         kind: "nextrs", nextrs: bin, project: join(ROOT, group.fixture), dist: group.dist ?? ".next", port: ctx.port, metricsPort, isolates: config.isolates, cpus: "0-3",
-        env: group.env?.(ctx) ?? {}, extraArgs: [...(group.nextrsArgs?.(ctx) ?? []), "--v8-flags", flags.join(" ")], readyPath: group.readyPath ?? "/", stdout: "pipe",
+        env: group.env?.(ctx) ?? {}, extraArgs: [...(group.nextrsArgs?.(ctx) ?? []), ...heapArgs, "--v8-flags", flags.join(" ")], readyPath: group.readyPath ?? "/", stdout: "pipe",
       });
       ctx.server = s;
       // Always drain stdout (a full pipe would block the server).

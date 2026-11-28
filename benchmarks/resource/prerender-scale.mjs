@@ -12,13 +12,13 @@
 //   sha            one body digest per sampled route, compared across modes
 //
 //   node benchmarks/resource/prerender-scale.mjs --bin target/re5-cand-rel/release/nextrs
-//     [--sizes 100,1000,10000,50000] [--modes eager,cache0,cache32] [--rounds 1]
+//     [--sizes 100,1000,10000,50000] [--modes eager,cache0,cache32,cache0r] [--rounds 1]
 //     [--out engineering/performance/resource-efficiency/results/re5/prerender]
 //
 // The page cache (file pages read from the build) is charged to a
 // container's cgroup but is reclaimable; RssFile shows only what the
 // process has mapped. Run it on an otherwise idle host.
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, appendFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -37,7 +37,14 @@ mkdirSync(out, { recursive: true });
 const fixture = join(ROOT, "fixtures/next-prerender-scale");
 let port = 7300 + Math.floor(Math.random() * 500);
 
-const modeArgs = (mode) => (mode === "eager" ? [] : ["--prerender-cache", mode.replace("cache", "")]);
+// eager | cacheN | cacheNr (N MiB, plus --memory-reclaim-idle 3: glibc's
+// retained free memory returned after 3 s without requests).
+const modeArgs = (mode) => {
+  if (mode === "eager") return [];
+  const m = /^cache(\d+)(r?)$/.exec(mode);
+  if (!m) throw new Error(`unknown mode ${mode}`);
+  return ["--prerender-cache", m[1], ...(m[2] ? ["--memory-reclaim-idle", "3"] : [])];
+};
 
 function status(pid) {
   const st = readFileSync(`/proc/${pid}/status`, "utf8");
@@ -48,7 +55,9 @@ function status(pid) {
 
 async function get(p, path) {
   const t0 = performance.now();
-  const res = await fetch(`http://127.0.0.1:${p}${path}`);
+  // Identity: Node's fetch would negotiate gzip and fill the compression
+  // cache, which is not what is measured here (RE-5 review F12).
+  const res = await fetch(`http://127.0.0.1:${p}${path}`, { headers: { "accept-encoding": "identity" } });
   const body = Buffer.from(await res.arrayBuffer());
   return { ms: performance.now() - t0, status: res.status, body };
 }
@@ -62,6 +71,9 @@ async function run(size, mode, round) {
   const dist = join(fixture, `.next-${size}`);
   if (!existsSync(dist)) throw new Error(`missing build ${dist}`);
   const p = port++;
+  // Cold page cache for the build's files (posix_fadvise DONTNEED), so
+  // "first" latencies are cold whatever ran before (review F12).
+  execFileSync("python3", ["-I", "-c", "import os,sys\nfor r,_,fs in os.walk(sys.argv[1]):\n for f in fs:\n  try:\n   fd=os.open(os.path.join(r,f),os.O_RDONLY); os.posix_fadvise(fd,0,0,os.POSIX_FADV_DONTNEED); os.close(fd)\n  except OSError: pass", dist]);
   const t0 = performance.now();
   const child = spawn(bin, ["start", dist, "--port", String(p), "--js-runtime", "embedded-v8", "--isolates", "1", ...modeArgs(mode)], {
     cwd: fixture,
@@ -71,9 +83,10 @@ async function run(size, mode, round) {
   let stderr = "";
   child.stderr.on("data", (c) => (stderr = (stderr + c).slice(-4000)));
   let startup_ms = null;
-  for (let i = 0; i < 6000; i++) {
+  for (let i = 0; i < 24000; i++) {
     try {
-      const r = await fetch(`http://127.0.0.1:${p}/p/0`);
+      // The readiness probe uses the home page, not a sampled route.
+      const r = await fetch(`http://127.0.0.1:${p}/`, { headers: { "accept-encoding": "identity" } });
       await r.arrayBuffer();
       if (r.status === 200) { startup_ms = Math.round(performance.now() - t0); break; }
     } catch {}
